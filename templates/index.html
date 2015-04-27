@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <div id="amenu" class="menu"> {{user.email|escape}} | <a href="{% url 'logout' %}">Выйти</a> </div>
+
+    <table class="apptable">
+      <tbody>
+
+        {% for a in apps %}
+        <tr>
+          <td class="common_l">
+            <form action="{{ a.page }}" method="get">
+              <input type="submit" value={{ a.name }} id="common" class="LiteButton"/>
+            </form> 
+          </td>
+          <td class="common_r"> <div> {{ a.summary|safe }} </div> 
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+{% endblock %}

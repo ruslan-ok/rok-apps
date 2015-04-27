@@ -1,0 +1,32 @@
+{% load staticfiles %}
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="MobileOptimized" content="320"></meta>
+    {% block title %}
+    <title>{{page_title}}</title>
+    {% endblock %}
+    {% block css %}
+    <link type="text/css" rel="stylesheet" href="{% static "main.css" %}" />
+    <link rel="shortcut icon" href="{% static "favicon.ico" %}" type="image/x-icon">
+    {% endblock %}
+  </head>
+  <body>
+
+    {% block script %}
+    {% endblock %}
+
+    {% block header %}
+    {% endblock %}
+
+    {% block logo %}
+    {% endblock %}
+
+    {% block content %}
+    {% endblock %}
+
+    {% block footer %}
+    {% endblock %}
+  </body>
+</html>

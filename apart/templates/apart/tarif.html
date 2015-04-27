@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block content %}
+
+  <script language="javascript" type="text/javascript">
+
+    /*               1          2        3        4        5      6       7        8          9 */
+    var months = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
+
+    function getPer(_y, _m)
+    {
+      var html = _y + ' ' + months[_m-1]
+      document.write(html);
+      return true;
+    }
+
+    function addCommas(input) 
+    {
+      output = input.toString();
+      var sRegExp = new RegExp('(-?[0-9]+)([0-9]{3})');
+      while(sRegExp.test(output)) 
+      {
+        output = output.replace(sRegExp, '$1 $2');
+      }
+      document.write(output);
+    }
+
+  </script>
+
+
+  <div id="gmenu" class="menu"> <a href="/">{{ app_text }}</a> | <a href="/apart/">{{ apart_text }}</a> </div> <br/>
+
+  <div class="PageTitle">   {{ page_title }}     </div>
+
+  {{ form.non_field_errors }}
+  {% for field in form %}
+    <div class="fieldWrapper">
+        {{ field.errors }}
+    </div>
+  {% endfor %}
+
+  <form id="fld_form" action="{% url 'apart:tarif_edit' pid %}" method="post">
+  {% csrf_token %}
+    {% if pid > 0 %} 
+       ID: {{ pid }}<br>
+    {% endif %}
+    <table class="fl1">
+      <tr><td class="fl1"> Ресурс:   </td> <td class="fl2"> {{ form.resource }} </td> </tr>
+      <tr><td class="fl1"> Месяц:    </td> <td class="fl2"> {{ form.month }}    </td> </tr>
+      <tr><td class="fl1"> Год:      </td> <td class="fl2"> {{ form.year }}     </td> </tr>
+      <tr><td class="fl1"> Тариф 1:  </td> <td class="fl2"> {{ form.tarif }}    </td> </tr>
+      <tr><td class="fl1"> Граница 1:</td> <td class="fl2"> {{ form.border }}   </td> </tr>
+      <tr><td class="fl1"> Тариф 2:  </td> <td class="fl2"> {{ form.tarif2 }}   </td> </tr>
+      <tr><td class="fl1"> Граница 2:</td> <td class="fl2"> {{ form.border2 }}  </td> </tr>
+      <tr><td class="fl1"> Тариф 3:  </td> <td class="fl2"> {{ form.tarif3 }}   </td> </tr>
+      <tr><td class="fl1"> Описание: </td> <td class="fl2">
+         <textarea id="txt" name="text" rows="3" cols="30"> {{ form.text.value }} </textarea> </td> </tr>
+    </table>
+    {% if pid > 0 %} 
+      <input type="submit" class="LiteButton" name="action" id="update" value="Сохранить">
+      <input type="submit" class="LiteButton" name="action" id="delete" value="Удалить">
+      <input type="submit" class="LiteButton" name="action" id="common" value="Отменить">
+    {% else %}
+      <input type="submit" class="LiteButton" name="action" id="update" value="Добавить">
+    {% endif %}
+  </form>
+
+
+  <table class="work">
+    <tbody><tr>
+      <th class="work"> ID          </td>
+      <th class="work"> Период      </td>
+      <th class="work"> Ресурс      </td>
+      <th class="work"> Тариф       </td>
+      <th class="work"> Коммент     </td>
+    </tr>
+    {% for t in tarifs %}
+    <tr>
+      <td class="work"> <a href="/apart/tarif/{{ t.id }}/">{{ t.id }}</a> </td>
+      <td class="work"> <script language="javascript" type="text/javascript">getPer({{ t.year }}, {{ t.month }})</script> </td>
+      <td class="work"> {{ t.s_res   }} </td>
+      <td class="numb"> {{ t.s_tarif }} </td>
+      <td class="work"> {{ t.text    }} </td>
+    </tr>
+    {% endfor %}
+  </tbody></table>
+
+  <br/>Всего тарифов: {{ tarifs.count }}<br/>
+
+
+{% endblock %}
+

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block content %}
+
+  <script language="javascript" type="text/javascript">
+
+    /*               1          2        3        4        5      6       7        8          9 */
+    var months = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
+
+    function getLink(_y, _m)
+    {
+      var html = '<a href="/apart/' + (_y * 100 + _m) + '">' + _y + ' ' + months[_m-1] + '</a>';
+      document.write(html);
+      return true;
+    }
+
+    function addCommas(input) 
+    {
+      output = input.toString();
+      var sRegExp = new RegExp('(-?[0-9]+)([0-9]{3})');
+      while(sRegExp.test(output)) 
+      {
+        output = output.replace(sRegExp, '$1 $2');
+      }
+      document.write(output);
+    }
+
+  </script>
+
+  <div id="gmenu" class="menu"> <a href="/">{{ app_text }}</a> | <a href="/apart/tarif/">{{ tarif_text }}</a> </div>
+  <div class="PageTitle">   {{ page_title }}     </div>
+
+  <div>                     {{ communal_summary }} </div>
+  <div class="PageStatus">  {{ communal_status }}  </div>
+
+  <form id="fld_form" action="{% url 'apart:apart_edit' 0 %}" method="post">
+  {% csrf_token %}
+    <input name="action" type="hidden" value="insert">
+    <input type="submit" class="LiteButton" id="update" value="Следующий" >
+  </form>
+
+  <table class="work">
+    <tbody><tr>
+      <th class="work"> Период      </td>
+      <th class="work"> USD         </td>
+      <th class="work"> К оплате    </td>
+      <th class="work"> Оплачено    </td>
+      <th class="work"> Долг        </td>
+      <th class="work"> Коммент     </td>
+    </tr>
+    {% for b in aparts %}
+    <tr>
+      <td class="work"> <script language="javascript" type="text/javascript">getLink({{ b.year }}, {{ b.month }})</script> </td>
+      <td class="numb"> {{ b.total_usd }}  </td>
+      <td class="numb"> <script language="javascript" type="text/javascript">addCommas({{ b.total_bill }})</script> </td>
+      <td class="numb"> <script language="javascript" type="text/javascript">addCommas({{ b.total_pay }})</script> </td>
+      <td class="numb"> <script language="javascript" type="text/javascript">addCommas({{ b.debt }})</script> </td>
+      <td class="work"> {{ b.text }}       </td>
+    </tr>
+    {% endfor %}
+  </tbody></table>
+
+  <br/>Всего периодов: {{ aparts_count }}<br/>
+
+{% endblock %}
+
