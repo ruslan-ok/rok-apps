@@ -11,6 +11,14 @@
       return true;
     }
 
+    function myClick()
+    {
+      var frm = document.getElementById("fld_form");
+      frm.elements["active"].value = 1;
+      frm.Submit();
+      return true;
+    }
+
   </script>
   
   <div id="gmenu" class="menu"> <a href="/"> Приложения    </a> | 
@@ -31,12 +39,13 @@
 
   <form id="fld_form" action="{% url 'task:task_edit' pid %}" method="post">
     {% csrf_token %}
+    <input name="active" type="hidden" value="{{ form.active.value }}" />
     <table class="fl1">
       <tbody>
         <tr>
           <td class="fl1"> Новая: </td>
           <td class="fl2"> <input name="name" type="text" value="{{ form.name.value }}" /> </td> 
-          <td class="fl1"> <input type="submit" class="AddButton" name="action" value="+" /> </td>
+          <td class="fl1"> <input type="submit" class="AddButton" name="action" value="+" onClick="myClick()" /> </td>
         </tr>
       </tbody>
     </table>

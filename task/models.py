@@ -12,7 +12,7 @@ class TGroup(models.Model):
   active   = models.IntegerField(u'Активна', default = 0)
   sort     = models.IntegerField(u'Сортировка', default = 0)
   def __str__(self):
-    return '[' + str(self.user) + '] ' + self.name + ' / ' + str(self.active) + ' / ' + self.comment
+    return self.name.encode('utf-8')
 
 
 class Task(models.Model):
@@ -24,9 +24,11 @@ class Task(models.Model):
   due_date = models.DateTimeField(u'Время исполнения', blank = True, null = True, default = date.today())
   active   = models.IntegerField(u'Активна', default = 1)
   attrib   = models.IntegerField(u'Атрибуты задачи', default = 0, blank = True)
+  """
   def __str__(self):
-    return '[' + str(self.user) + '] ' + self.name + ' / ' + str(self.pub_date) + ' / ' + str(self.due_date) + ' / ' + \
-            str(self.active) + ' / ' + str(self.attrib) + ' / ' + self.comment
+    return self.name
+    #return '[' + str(self.user) + '] ' + self.name + ' / ' + str(self.pub_date) + ' / ' + str(self.due_date) + ' / ' + \
+    #        str(self.active) + ' / ' + str(self.attrib) + ' / ' + self.comment
   def s_due(self):
     if (self.due_date == None):
       return '---'
@@ -38,10 +40,11 @@ class Task(models.Model):
     if (len(m) < 2):
       m = '0' + m
     return d + '.' + m + '.' + y
-
+  """
 
 
 def task_summary(_user):
   tasks = Task.objects.filter(user = _user)
-  return u'Всего задач: <span style="color:yellow">' + str(len(tasks)) + u'</span>'
+  #return u'Всего задач: <span style="color:yellow">' + str(len(tasks)) + u'</span>'
+  return u'Всего задач: <span style="color:yellow">' + unicode(len(tasks), 'ascii') + u'</span>'
 

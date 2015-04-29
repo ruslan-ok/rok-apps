@@ -58,7 +58,7 @@ def do_grps(request, pk):
 
       if not form.is_valid():
         # Ошибки в форме, отобразить её снова
-        context = edit_context(request, form, pk, 'post-error' + str(form.non_field_errors))
+        context = edit_context(request, form, pk, 'post-error')# + str(form.non_field_errors))
         return render(request, 'task/grps.html', context)
       else:
         t = form.save(commit = False)

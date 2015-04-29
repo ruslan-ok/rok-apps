@@ -77,6 +77,7 @@
 
   <form id="fld_form" action="{% url 'task:task_edit' pid %}" method="post">
     {% csrf_token %}
+    <input name="active" type="hidden" value="{{ form.active.value }}" />
     <table class="fl1">
       <!--{{ form }}-->
       <tbody>
@@ -89,7 +90,7 @@
         <tr><td class="fl1"> Дата:         </td><td class="fl2"> <input name="date" type="date" onChange="check()" value="{{ form.due_d.value }}" /> </td> </tr>
         <tr><td class="fl1"> Время:        </td><td class="fl2"> <input name="time" type="time" onChange="check()" value="{{ form.due_t.value }}" /> </td> </tr>
         <tr><td class="fl1"> Наименование: </td><td class="fl2"> <input name="name" type="text" onChange="check()" value="{{ form.name.value }}" /> </td> </tr>
-        <!--<tr><td class="fl1"> Группа:       </td><td class="fl2"> {{ form.grp.value }}" </td> </tr>-->
+        <tr><td class="fl1"> Группа:       </td><td class="fl2"> {{ form.grp }} </td> </tr>
         <tr><td class="fl1"> Активна:      </td><td class="fl2"> <input name="active_cbx" type="checkbox" {% if form.active.value > 0 %} checked {% endif %} onChange="check()" /> </td> </tr>
         <tr><td class="fl1"> Описание:     </td><td class="fl2"> <textarea id="txt" name="comment" rows="3" cols="30" onChange="check()"> {{ form.text.value }} </textarea> </td> </tr>
       </tbody>
