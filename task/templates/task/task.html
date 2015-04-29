@@ -14,13 +14,13 @@
   </script>
   
   <div id="gmenu" class="menu"> <a href="/"> Приложения    </a> | 
-                       <a href="/task/grps"> Группы        </a> | 
-                       <a href="/task/view"> Представления </a> </div> <br/>
+                      <a href="/task/grps/"> Группы        </a> | 
+                      <a href="/task/view/"> Представления </a> </div> <br/>
 
   <div class="PageTitle"> Задачи </div>
   <div class="PageSummary"> {{ task_summary|safe }} </div>
 
-  <!--DEBUG: {{ debug_text }}<br>-->
+  DEBUG: {{ debg }}<br>
   
   {{ form.non_field_errors }}
   {% for field in form %}
