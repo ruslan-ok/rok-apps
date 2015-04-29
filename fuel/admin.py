@@ -1,5 +1,5 @@
 from django.contrib import admin
-from fuel.models import Car, Fuel
+from fuel.models import Car, Fuel, Part, Repl
 
 class FuelAdmin(admin.ModelAdmin):
     fieldsets = [
@@ -14,3 +14,5 @@ class FuelAdmin(admin.ModelAdmin):
 
 admin.site.register(Car)
 admin.site.register(Fuel, FuelAdmin)
+admin.site.register(Part)
+admin.site.register(Repl)

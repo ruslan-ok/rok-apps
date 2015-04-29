@@ -306,7 +306,6 @@ def v_apart_edit(request, per):
         form = ApartForm(request.POST)
         if not form.is_valid():
           # Ошибки в форме, отобразить её снова
-          #debug_text = unicode(form.errors.as_data())
           return apart_get_one(request, int(per), unicode(form.errors.as_data()))
         else:
           a = form.save(commit = False)

@@ -10,5 +10,5 @@ class Apps(models.Model):
   title   = models.CharField(max_length=200, blank=True)
   summary = models.CharField(max_length=200, blank=True)
   def __str__(self):
-    return self.name
+    return self.name.encode('utf-8')
 

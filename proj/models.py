@@ -7,7 +7,7 @@ class Direct(models.Model):
   name   = models.CharField(u'Направление', max_length=200, blank=False)
   active = models.IntegerField(u'Активное', default=0)
   def __str__(self):
-    return unicode(self.name)
+    return self.name.encode('utf-8')
 
 
 class Proj(models.Model):

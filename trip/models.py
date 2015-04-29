@@ -9,7 +9,7 @@ class Person(models.Model):
   dative = models.CharField(max_length=500, blank=False)
   me     = models.IntegerField()
   def __str__(self):
-    return '[' + str(self.user) + '] ' + self.name
+    return '[' + self.user.encode('utf-8') + '] ' + self.name.encode('utf-8')
 
 class Saldo(models.Model):
   user   = models.ForeignKey(User)

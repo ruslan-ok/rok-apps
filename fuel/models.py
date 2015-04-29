@@ -12,7 +12,7 @@ class Car(models.Model):
   active = models.IntegerField(u'Активная', default = 0)
   direct = models.ForeignKey(Direct, null = True)
   def __str__(self):
-    return unicode(self.name) + u' [' + unicode(self.plate) + u']'
+    return self.name.encode('utf-8') + u' [' + self.plate.encode('utf-8') + u']'
 
 
 class Fuel(models.Model):
@@ -106,7 +106,7 @@ class Repl(models.Model): # Замена расходников
   oper     = models.ForeignKey(Proj, null = True)
   comment  = models.TextField(u'Комментарий', blank = True, default = None)
   def __str__(self):
-    return unicode(self.dt_chg) + u' / ' + unicode(self.odometr) + u' км. / ' + unicode(self.name)
+    return unicode(self.dt_chg) + u' / ' + unicode(self.odometr) + u' км. / ' + self.name.encode('utf-8')
   def s_dt_chg(self):
     d = str(self.dt_chg.day)
     m = str(self.dt_chg.month)

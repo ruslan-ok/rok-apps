@@ -118,7 +118,6 @@ def do_trip(request, pk):
         if (act == 2):
           t.user = request.user
           t.days = days
-          #t.text = 'act = 2, driver = ' + str(t.driver) + ', passenger = ' + str(t.passenger) + ', summa = ' + str(t.summa())
           t.save()
           saldo_update(request.user, t.driver, t.passenger, t.oper, t.summa())
 
@@ -128,7 +127,6 @@ def do_trip(request, pk):
           t.id = pk
           t.user = request.user
           t.days = days
-          #t.text = 'act = 3, driver = ' + str(t.driver) + ', passenger = ' + str(t.passenger) + ', summa = ' + str(t.summa())
           t.save()
           saldo_update(request.user, t.driver, t.passenger, t.oper, t.summa())
 
