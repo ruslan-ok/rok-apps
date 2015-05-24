@@ -22,7 +22,6 @@
   </script>
   
   <div id="gmenu" class="menu"> <a href="/"> Приложения    </a> | 
-                      <a href="/task/grps/"> Группы        </a> | 
                       <a href="/task/view/"> Представления </a> </div> <br/>
 
   <div class="PageTitle"> Задачи </div>
@@ -37,7 +36,7 @@
     {% endif %}
   {% endfor %}
 
-  <form id="fld_form" action="{% url 'task:task_edit' pid %}" method="post">
+  <form id="fld_form" action="{% url 'task:task_edit' '0' %}" method="post">
     {% csrf_token %}
     <input name="active" type="hidden" value="{{ form.active.value }}" />
     <table class="fl1">

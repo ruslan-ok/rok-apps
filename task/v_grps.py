@@ -12,12 +12,12 @@ from task.models import TGroup
 class GroupForm(forms.ModelForm):
     class Meta:
         model = TGroup
-        exclude = ['id', 'user']
+        exclude = ['id', 'user', 'sort', 'active']
 
 
 #============================================================================
 def edit_context(request, form, pk, debg):
-    groups = TGroup.objects.filter(user = request.user.id).order_by('sort')
+    groups = TGroup.objects.filter(user = request.user.id).order_by('name')
     context = {'groups': groups, 
                'form':   form, 
                'pid':    pk,
@@ -42,7 +42,7 @@ def do_grps(request, pk):
     if (action == u'Отменить'):
       act = 1
     else:
-      if (action == u'Добавить'):
+      if (action == u'Добавить') or (action == u'+'):
         act = 2
       else:
         if (action == u'Сохранить'):

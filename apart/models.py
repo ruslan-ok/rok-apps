@@ -199,18 +199,18 @@ class Communal(models.Model):
 
     tar = self.get_tarifs(_res)
 
-    if (tar['b1'] == 0) or (tar['b1'] > vol):
+    if (tar['b1'] == 0) or (vol <= tar['b1']):
       return vol * tar['t1']
     else:
-      if (tar['b2'] == 0) or (tar['b2'] > vol):
-        return (tar['b1'] * tar['t1']) + ((vol - tar['b2']) * tar['t2'])
+      i_sum = tar['b1'] * tar['t1'];
+      if (tar['b2'] == 0) or (vol <= tar['b2']):
+        return i_sum + (vol - tar['b1']) * tar['t2']
       else:
-        return (tar['b1'] * tar['t1']) + ((tar['b2'] - tar['b1']) * tar['t2']) + ((vol - tar['b2']) * tar['t3'])
+        return i_sum + (tar['b2'] - tar['b1']) * tar['t2'] + (vol - tar['b2']) * tar['t3']
 
 
   def total_bill(self):
-    bill = self.tv_tar + self.phone_tar + self.zhirovka + \
-           self.count_by_tarif(1) + self.count_by_tarif(2) + self.count_by_tarif(3)
+    bill = self.count_by_tarif(1) + self.count_by_tarif(2) + self.count_by_tarif(3) + self.tv_tar + self.phone_tar + self.zhirovka
     return int(round(bill, 0))
 
   def debt(self):

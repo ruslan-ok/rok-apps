@@ -16,12 +16,12 @@
     function myClick(_num)
     {
       var frm = document.getElementById("fld_form");
-      var grp_active = '0';
+      /*var grp_active = '0';
 
       if (frm.elements['active_cbx'].checked)
         grp_active = '1';
 
-      frm.elements["active"].value = grp_active;
+      frm.elements["active"].value = grp_active;*/
       frm.Submit();
       return true;
     }
@@ -34,7 +34,8 @@
       if (name == '')
         status = 'Не задано наименование';
       
-      document.getElementById('status').innerHTML = status;
+      if (bEdit)
+        document.getElementById('status').innerHTML = status;
       
       var x = document.getElementById('buttons');
       
@@ -49,7 +50,7 @@
       else
       {
         if (!bEdit)
-          x.innerHTML = '<input type="submit" class="LiteButton" id="update" name="action" value="Добавить" />';
+          x.innerHTML = '';
         else
           x.innerHTML = '<input type="submit" class="LiteButton" id="update" name="action" value="Сохранить" />' +
                         '<input type="submit" class="LiteButton" id="delete" name="action" value="Удалить" />' +
@@ -84,10 +85,18 @@
         {% else %}
         <script language="javascript" type="text/javascript"> bEdit = false; </script>
         {% endif %} 
-        <tr><td class="fl1"> Наименование: </td><td class="fl2"> <input name="name" type="text" onChange="check()" value="{{ form.name.value }}" /> </td> </tr>
-        <tr><td class="fl1"> Сортировка:   </td><td class="fl2"> <input name="sort" type="number" onChange="check()" value="{{ form.sort.value }}" /> </td> </tr>
-        <tr><td class="fl1"> Активная:     </td><td class="fl2"> <input name="active_cbx" type="checkbox" {% if form.active.value > 0 %} checked {% endif %} onChange="check()" /> </td> </tr>
-        <tr><td class="fl1"> Описание:     </td><td class="fl2"> <textarea id="txt" name="comment" rows="3" cols="30" onChange="check()"> {{ form.text.value }} </textarea> </td> </tr>
+        <tr>
+          <td class="fl1"> Наименование: </td>
+          <td class="fl2"> <input name="name" type="text" size="30" onChange="check()" value="{{ form.name.value }}" /> </td> 
+          {% if pid == 0 %} 
+          <td class="fl1"> <input type="submit" class="AddButton" name="action" value="+" /> </td>
+          {% endif %} 
+        </tr>
+        <!--<tr><td class="fl1"> Сортировка:   </td><td class="fl2"> <input name="sort" type="number" onChange="check()" value="{{ form.sort.value }}" /> </td> </tr>-->
+        <!--<tr><td class="fl1"> Активная:     </td><td class="fl2"> <input name="active_cbx" type="checkbox" {% if form.active.value > 0 %} checked {% endif %} onChange="check()" /> </td> </tr>-->
+        {% if pid > 0 %} 
+        <tr><td class="fl1"> Описание:     </td><td class="fl2"> <textarea id="txt" name="comment" rows="3" cols="31" onChange="check()"> {{ form.text.value }} </textarea> </td> </tr>
+        {% endif %} 
       </tbody>
     </table>
     <span id="buttons"> </span> 

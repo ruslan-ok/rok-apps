@@ -61,6 +61,10 @@ input.LiteButton {
   width: 6em;
 }
 
+#cancel {
+  background-image: -webkit-gradient(linear, 0% 0,0% 100%, from(#9E9E9E), to(#363636));
+}
+
 #update {
   background-image: -webkit-gradient(linear, 0% 0,0% 100%, from(#005900 ), to(#003500));
 }
@@ -176,3 +180,6 @@ td.common_r {
 #id_text      { width: 6em; }
 
 
+input[name="dyn_step"] {
+   width:30px;
+}
