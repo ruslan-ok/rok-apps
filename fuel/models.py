@@ -37,7 +37,7 @@ class Fuel(models.Model):
     return d + '.' + m + '.' + y
 
 
-def fuel_summary(_user):
+def consumption(_user):
   try:
     car = Car.objects.get(user = _user, active = 1)
     car_name = car.name + u': '
@@ -57,11 +57,21 @@ def fuel_summary(_user):
     km = counter_max - counter_min
     
     if (total_volume == 0) or (km == 0):
-      return car_name + u'Не удалось вычислить средний расход'
+      return 0
     
-    return car_name + u'<span style="color:yellow">' + str(round((total_volume / km) * 100, 2)) + u'</span> л на 100 км'
+    return round((total_volume / km) * 100, 2)
   except Car.DoesNotExist:
-    return ''
+    return 0
+    
+
+def fuel_summary(_user):
+  car = Car.objects.get(user = _user, active = 1)
+  car_name = car.name + u': '
+  cons = consumption(_user)
+  if (cons == 0):
+    return car_name + u'Не удалось вычислить средний расход'
+  else:
+    return car_name + u'<span style="color:yellow">' + str(cons) + u'</span> л на 100 км'
     
 
 class Part(models.Model): # Список расходников

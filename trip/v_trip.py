@@ -68,7 +68,7 @@ def get_trip_new(request):
           pass_new = s.p2.id
 
     form = TripForm(initial = {'year':      datetime.now().year,
-                               'week':      int(datetime.now().strftime("%j")) / 7 + 1,
+                               'week':      int(datetime.now().strftime("%W")) + 1,
                                'days':      0,
                                'oper':      0,
                                'price':     price_new,

@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from datetime import date, datetime, timedelta
-from fuel.models import Fuel, Car, fuel_summary
+from fuel.models import Fuel, Car, consumption, fuel_summary
 
 
 debug_text = ''
@@ -61,31 +61,28 @@ def do_fuel(request, pk):
                         initial={'pub_date': ttt.isoformat()})
       else:
         # Пустая форма для новой записи
-        last = Fuel.objects.filter(car = car.id).order_by('-pub_date')[:20]
-        qnt = 0
-        vol = 0
-        prc = 0
-        min_odo = 0
-        max_odo = 0
-        for f in last:
-          qnt += 1
-          vol += f.volume
-          if (prc == 0):
-            prc = f.price
-          if (f.odometr > max_odo):
-            max_odo = f.odometr
-          if (f.odometr < min_odo) or (min_odo == 0):
-            min_odo = f.odometr
-        if (qnt > 1):
-          max_odo += (max_odo - min_odo) / (qnt - 1)
-          vol = int(round(vol / qnt, -5))
-        if (vol == 0):
-          vol = 25
+        last = Fuel.objects.filter(car = car.id).order_by('-pub_date')[:3]
+        new_odo = 0
+        new_prc = 0
+        if (len(last) == 0):
+          new_vol = 25
+        else:
+          new_vol = last[0].volume
+          new_prc = last[0].price
+          if (len(last) > 2):
+            if (last[0].volume != last[1].volume) and (last[1].volume == last[2].volume):
+              new_vol = last[1].volume
+              new_prc = last[1].price
+
+          cons = consumption(request.user.id)
+          if (cons != 0):
+            new_odo = last[0].odometr + int(float(last[0].volume) / cons * 100)
+
         form = FuelForm(initial={'car': car, 
                                  'pub_date': date.today().isoformat(), 
-                                 'odometr': max_odo, 
-                                 'volume': vol, 'price': prc })
-      context = edit_context(request, form, car, pk, ttt.isoformat())
+                                 'odometr': new_odo, 
+                                 'volume': new_vol, 'price': new_prc })
+      context = edit_context(request, form, car, pk, '')
       return render(request, 'fuel/fuel.html', context)
     else:
       action = request.POST.get('action', False)

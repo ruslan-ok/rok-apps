@@ -119,7 +119,7 @@
     function getWeekPeriod()
     {
       var year = parseInt(document.getElementById('year').value);
-      var week = parseInt(document.getElementById('week').value);
+      var week = parseInt(document.getElementById('week').value) - 1;
       
       if (isNaN(year) || (year < 2011) || (year > 3000))
         return '';
