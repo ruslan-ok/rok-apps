@@ -7,7 +7,7 @@ from ruslan.const import a_months, a_unit
 
 class Tarif(models.Model):
   user       = models.ForeignKey(User) # Пользователь
-  res = ((1, u'электро'), (2, u'газ'), (3, u'вода'),)
+  res = ((1, u'электро'), (2, u'газ'), (3, u'вода'), (4, u'водоснабжение'), (5, u'водоотведение'),)
   resource   = models.IntegerField(u'Тип ресурса', choices = res)
   attrib     = models.IntegerField(u'Атрибуты', blank = True) # 0 - нет градации, 1 - есть градация
   month      = models.IntegerField(u'Месяц') # 1 - январь
@@ -30,7 +30,13 @@ class Tarif(models.Model):
         if (self.resource == 3):
           return 'вода'
         else:
-          return '???'
+          if (self.resource == 4):
+            return 'водоснабжение'
+          else:
+            if (self.resource == 5):
+              return 'водоотведение'
+            else:
+              return '???'
 
   def unit(self):
     return a_unit[self.resource]

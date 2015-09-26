@@ -50,6 +50,15 @@
           t3 = document.getElementById('fld_form').elements['wt_t3'].value;
           break;
 
+    
+        case 4:
+          t1 = document.getElementById('fld_form').elements['wk_t1'].value;
+          b1 = document.getElementById('fld_form').elements['wk_b1'].value;
+          t2 = document.getElementById('fld_form').elements['wk_t2'].value;
+          b2 = document.getElementById('fld_form').elements['wk_b2'].value;
+          t3 = document.getElementById('fld_form').elements['wk_t3'].value;
+          break;
+
         default:
           t1 = b1 = t2 = b2 = t3 = 0;
       }
@@ -81,6 +90,42 @@
 
       return Math.round(i_sum);
     }
+
+    function get_period_num()
+    {
+      return get_el('year')*100+get_el('month');
+    }
+    
+    function count_water(_vol, _month, _year)
+    {
+      var i_sum = 0;
+
+      if (!isNaN(_vol))
+      {
+        if (get_period_num() < 201508)
+          init_tarif(3);
+        else
+          init_tarif(4);
+
+        var days_in_month = new Date(_year, _month, 0).getDate();
+        var bb1 = b1 * days_in_month * 4 / 1000;
+        var bb2 = b2 * days_in_month * 4 / 1000;
+      
+        if ((bb1 == 0) || (_vol <= bb1))
+          i_sum = _vol * t1;
+        else
+        {
+          i_sum = bb1 * t1;
+    
+          if ((bb2 == 0) || (_vol <= bb2))
+            i_sum += (_vol-bb1) * t2;
+          else
+            i_sum += (bb2-bb1) * t2 + (_vol-bb2) * t3;
+        }
+      }
+
+      return Math.round(i_sum);
+    }
     
     function get_el(_name)
     {
@@ -104,6 +149,7 @@
 
     function check()
     {
+      //alert('check');
       var ele_vol = count_vol('el_new',   'el_old');
       var gas_vol = count_vol('gas_new',  'gas_old');
       var wat_vol = count_vol('cold_new', 'cold_old') + count_vol('hot_new', 'hot_old');
@@ -114,14 +160,22 @@
 
       ele_sum = count_sum(ele_vol, 1);
       gas_sum = count_sum(gas_vol, 2);
-      wat_sum = count_sum(wat_vol, 3);
+      wat_sum = count_water(wat_vol, get_el('month'), get_el('year'));
 
       document.getElementById('ele_sum').innerHTML = addCommas(ele_sum);
       document.getElementById('gas_sum').innerHTML = addCommas(gas_sum);
       document.getElementById('wat_sum').innerHTML = addCommas(wat_sum);
 
-      var zhir_pay = get_el('hot_pay') + get_el('repair_pay') + get_el('ZKX_pay');
-      document.getElementById('zhir_pay').innerHTML = addCommas(zhir_pay);
+      var zhir_pay = get_el('ZKX_pay');
+      var total_pay = get_el('tv_pay') + get_el('phone_pay') + get_el('ZKX_pay') + get_el('el_pay') + get_el('gas_pay') + get_el('water_pay');
+      var total_bill = ele_sum + gas_sum + wat_sum + get_el('tv_tar') + get_el('phone_tar') + get_el('zhirovka');
+
+      if (get_period_num() < 201508)
+      {
+        zhir_pay = zhir_pay + get_el('hot_pay') + get_el('repair_pay');
+        total_pay = total_pay + get_el('hot_pay') + get_el('repair_pay')
+        document.getElementById('zhir_pay').innerHTML = addCommas(zhir_pay);
+      }
 
       document.getElementById('tv_debt').innerHTML    = addCommas(get_el('tv_tar')    - get_el('tv_pay'));
       document.getElementById('phone_debt').innerHTML = addCommas(get_el('phone_tar') - get_el('phone_pay'));
@@ -129,13 +183,8 @@
       document.getElementById('ele_debt').innerHTML   = addCommas(ele_sum             - get_el('el_pay'));
       document.getElementById('gas_debt').innerHTML   = addCommas(gas_sum             - get_el('gas_pay'));
       document.getElementById('wat_debt').innerHTML   = addCommas(wat_sum             - get_el('water_pay'));
-      
-      var total_bill = ele_sum + gas_sum + wat_sum + get_el('tv_tar') + get_el('phone_tar') + get_el('zhirovka');
       document.getElementById('total_bill').innerHTML = addCommas(total_bill);
-      var total_pay = get_el('tv_pay') + get_el('phone_pay') + get_el('hot_pay') + get_el('repair_pay') + 
-                      get_el('ZKX_pay') + get_el('el_pay') + get_el('gas_pay') + get_el('water_pay');
       document.getElementById('total_pay').innerHTML = addCommas(total_pay);
-      
       document.getElementById('debt').innerHTML = addCommas(total_bill - total_pay);
 
       var course = get_el('course');
@@ -160,6 +209,9 @@
     function FieldTar(_name, _res)
     {
       init_tarif(_res);
+
+      if ((_res == 3) && ((get_el('year')*100+get_el('month')) >= 201508))
+        init_tarif(4);
 
       var tar = '';
       if (b1 == 0)
@@ -224,8 +276,9 @@
       Период {{ form.month }} {{ form.year }} г.
     {% else %}
       Период {{ s_period }} г.
-      <input name="month" type="hidden" value="{{ form.month.value }}" />
-      <input name="year"  type="hidden" value="{{ form.year.value }}" />
+      <input name="month"      type="hidden" value="{{ form.month.value }}" />
+      <input name="year"       type="hidden" value="{{ form.year.value }}" />
+      <input name="period_num" type="hidden" value="{{ form.period_num }}" />
     {% endif %}
 
     <input name="el_t1" type="hidden" value="{{ el_t1 }}" />
@@ -245,6 +298,12 @@
     <input name="wt_t2" type="hidden" value="{{ wt_t2 }}" />
     <input name="wt_b2" type="hidden" value="{{ wt_b2 }}" />
     <input name="wt_t3" type="hidden" value="{{ wt_t3 }}" />
+
+    <input name="wk_t1" type="hidden" value="{{ wk_t1 }}" />
+    <input name="wk_b1" type="hidden" value="{{ wk_b1 }}" />
+    <input name="wk_t2" type="hidden" value="{{ wk_t2 }}" />
+    <input name="wk_b2" type="hidden" value="{{ wk_b2 }}" />
+    <input name="wk_t3" type="hidden" value="{{ wk_t3 }}" />
 
     <table class="fl1"><tbody>
       <tr> <td></td> <td></td> <td></td> <td></td> <td></td> </tr>
@@ -292,6 +351,14 @@
           <td class="fl3" id="phone_debt"> </td>
           <td></td>
       </tr>
+    {% if period_num >= 201508 %}
+      <tr><td class="fl1"> Коммунальные </td>
+          <script language="javascript" type="text/javascript">FieldNum('zhirovka', {{ form.zhirovka.value }});</script>
+          <script language="javascript" type="text/javascript">FieldNum('ZKX_pay',  {{ form.ZKX_pay.value }});</script>
+          <td class="fl3" id="zhir_debt"> </td>
+          <td></td>
+      </tr>
+    {% else %}
       <tr><td class="fl1"> Жировка </td>
           <script language="javascript" type="text/javascript">FieldNum('zhirovka', {{ form.zhirovka.value }});</script>
           <td class="fl3" id="zhir_pay"> </td>
@@ -316,6 +383,7 @@
           <td></td>  
           <td></td>
       </tr>
+    {% endif %}
       <tr><td class="fl1"> Электро </td>
           <td class="fl3" id="ele_sum"> </td>
           <script language="javascript" type="text/javascript">FieldNum('el_pay', {{ form.el_pay.value }});</script>

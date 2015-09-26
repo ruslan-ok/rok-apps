@@ -119,6 +119,8 @@ def edit_context(_request, _form, _debug_text, _year, _month, _new):
     el_tar = get_per_tarif(_request.user.id, 1, _year, _month)
     gs_tar = get_per_tarif(_request.user.id, 2, _year, _month)
     wt_tar = get_per_tarif(_request.user.id, 3, _year, _month)
+    ws_tar = get_per_tarif(_request.user.id, 4, _year, _month)
+    wo_tar = get_per_tarif(_request.user.id, 5, _year, _month)
     if (_new == 1):
       zf = isNoAny(_request.user.id)
       zl = 1
@@ -134,6 +136,7 @@ def edit_context(_request, _form, _debug_text, _year, _month, _new):
              'is_last':    zl,
              'is_new':     _new, 
              's_period':   a_months[_month-1] + ' ' + str(_year),
+             'period_num':   _year*100+_month, 
              'el_t1':  el_tar['t1'],
              'el_b1':  el_tar['b1'],
              'el_t2':  el_tar['t2'],
@@ -151,6 +154,12 @@ def edit_context(_request, _form, _debug_text, _year, _month, _new):
              'wt_t2':  wt_tar['t2'],
              'wt_b2':  wt_tar['b2'],
              'wt_t3':  wt_tar['t3'],
+             
+             'wk_t1':  ws_tar['t1'] + wo_tar['t1'],
+             'wk_b1':  ws_tar['b1'],
+             'wk_t2':  ws_tar['t2'] + wo_tar['t2'],
+             'wk_b2':  ws_tar['b2'],
+             'wk_t3':  ws_tar['t3'] + wo_tar['t3'],
            }
 
 #============================================================================
