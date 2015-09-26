@@ -1,185 +1,31 @@
-html {
-  color: #D7D7D7;
-  background: black;
-}
-
 body {
-  font-size: 15px;
   font-family: arial, sans-serif;
 }
 
-:link {
-  color: #3366FF;
+header {
+  display: block;
+  background: #aaffff
 }
 
-:visited {
-  color: #6600CC;
+aside {
+  display: block;
+  width: 200px;
+  float: right;
+  background: #ffaaff
 }
 
-.PageTitle {
-  font-size: 20px;
+article {
+  display: block;
+  margin-right: 240px;
+  background: #ffffaa
 }
 
-.PageStatus {
-  color: red;
-}
-
-.marked {
-  color: #B5B500;
-}
-
-.apptable {
-  width: 100%;
-  border-style: none;
-  text-align: center;
-}
-
-#amenu {
-  text-align: right;
-}
-
-#gmenu {
-  text-align: center;
-}
-
-input.LiteButton {
-  font-size: 25px;
-  color: #D7D7D7;
-  padding-top:    10px;
-  padding-bottom: 10px;
-  padding-left:   20px;
-  padding-right:  20px;
-  margin-top:    2px;
-  margin-bottom: 1px;
-  margin-right:  1px;
-  border: 1px solid #000;
-  -webkit-border-radius: 10px 10px;
-}
-
-#common {
-  background-image: -webkit-gradient(linear, 0% 0,0% 100%, from(#9E9E9E), to(#363636));
-  width: 6em;
-}
-
-#cancel {
-  background-image: -webkit-gradient(linear, 0% 0,0% 100%, from(#9E9E9E), to(#363636));
-}
-
-#update {
-  background-image: -webkit-gradient(linear, 0% 0,0% 100%, from(#005900 ), to(#003500));
-}
-
-#delete {
-  background-image: -webkit-gradient(linear, 0% 0,0% 100%, from(#BD0000), to(#4F0000));
-}
-
-table.work {
-  cellspacing: 0;
-  cellpadding: 0;
-  border-spacing: 0px 0px;
-  border-color: initial;
-  //border: 1px solid #BBB;
-  border-collapse: collapse;
-  clear: right;
-  margin: 1em 0px 0px 1px;
-  font-family: Helvetica, Arial, sans-serif;
-  font-size: small;
-}
-
-th.work {
-  background-color: #45474B;
-  border: 1px solid #BBB;
-  font-weight: bold;
-  padding: 6px 12px;
-  text-align: left;
-}
-
-td.work {
-  border: 1px solid #BBB;
-  padding: 0px 6px;
-  text-align: left;
-  vertical-align: center;
-}
-
-td.numb {
-  border: 1px solid #BBB;
-  padding: 0px 6px;
-  text-align: right;
-  vertical-align: center;
-}
-
-td.pid {
-  border: 1px solid #BBB;
-  padding: 0px 6px;
-  text-align: center;
-  vertical-align: center;
-}
-
-td.fl1 {
-  border: 0px;
-  padding: 0px 0px;
-  text-align: right;
-}
-
-td.fl2 {
-  border: 0px;
-  padding: 0px 0px;
-  text-align: left;
-}
-
-td.fl3 {
-  border: 0px;
-  padding: 0px 0px;
-  text-align: center;
-}
-
-td.fl4 {
-  border: 0px;
-  padding: 0px 0px;
-  text-align: left;
-}
-
-td.common_l {
-  text-align: right;
-  width: 50%;
-}
-
-td.common_r {
-  text-align: left;
-  width: 50%;
+footer {
+  display: block;
+  background: #aaffff
 }
 
 .currentDayOfWeek {
   color: magenta;
 }
 
-.oper_trip {
-}
-
-.oper_pay {
-  color: #FFFF99;
-}
-
-#ifl2         { width: 10em; }
-#ifl4         { width: 40em; size: 50 }
-#id_water_pay { width: 6em; }
-#id_sCounter  { width: 6em; }
-#id_sPay      { width: 6em; }
-#id_tv_tar    { width: 6em; }
-#id_tv_pay    { width: 6em; }
-#id_phone_tar { width: 6em; }
-#id_phone_pay { width: 6em; }
-#id_zhirovka  { width: 6em; }
-#id_hot_pay   { width: 6em; }
-#id_repair_pay{ width: 6em; }
-#id_ZKX_pay   { width: 6em; }
-#id_el_pay    { width: 6em; }
-#id_gas_pay   { width: 6em; }
-#id_water_pay { width: 6em; }
-#id_course    { width: 6em; }
-#id_text      { width: 6em; }
-
-
-input[name="dyn_step"] {
-   width:30px;
-}

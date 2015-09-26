@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block content %}
+
+  <script language="javascript" type="text/javascript">
+
+    function getLink(_pk)
+    {
+      var html = '<a href="/task/view/' + _pk + '/">' + _pk + '</a>';
+      document.write(html);
+      return true;
+    }
+
+    bEdit = false;
+
+    function check()
+    {
+      var name  = document.getElementById('fld_form').elements['name'].value;
+
+      var status = '';
+      if (name == '')
+        status = 'Не задано наименование';
+      
+      if (bEdit)
+        document.getElementById('status').innerHTML = status;
+      
+      var x = document.getElementById('buttons');
+      
+      if (status != '')
+      {
+        if (!bEdit)
+          x.innerHTML = '';
+        else
+          x.innerHTML = '<input type="submit" class="LiteButton" id="delete" name="action" value="Удалить" />' +
+                        '<input type="submit" class="LiteButton" id="common" name="action" value="Отменить" />';
+      }
+      else
+      {
+        if (!bEdit)
+          x.innerHTML = '';
+        else
+          x.innerHTML = '<input type="submit" class="LiteButton" id="update" name="action" value="Сохранить" />' +
+                        '<input type="submit" class="LiteButton" id="delete" name="action" value="Удалить" />' +
+                        '<input type="submit" class="LiteButton" id="common" name="action" value="Отменить" />';
+      }
+    }
+
+    var fltr = [];
+
+    function initFilters()
+    {
+      fltr.push([]);
+      fltr.push([]);
+      fltr.push([]);
+      fltr.push([]);
+      fltr.push([]);
+    }
+
+    function addFilterValue(_entity, _value)
+    {
+      fltr[_entity].push(_value);
+    }
+
+    function getSelected(_entity, _num, _value)
+    {
+      var ret = '';
+      
+      if (_value == -1)
+      {
+        if (fltr[_entity].length == 0)
+          ret = 'selected="selected" ';
+      }
+      else
+      {
+        var i = 0;
+        while(i < fltr[_entity].length)
+        {
+          if (fltr[_entity][i] == _value)
+            ret = 'selected="selected" ';
+          i++;
+        }
+      }
+
+      return ret;
+    }
+
+    function addOptions(_num, _value)
+    {
+      var ret;
+
+      var fltr_values = [];
+      fltr_values.push(['Просроченные', 'Сегодня', 'Завтра', 'Эта неделя', 'Следующая неделя', 'Позже', 'Срок не задан']);
+      fltr_values.push(['Песочница', 'Работа', 'Авто', 'Вело', 'Шейпичи']);
+      fltr_values.push(['не важно', 'обычно', 'важно', 'очень важно', 'критично']);
+      fltr_values.push(['цвет1', 'цвет2', 'цвет3', 'цвет4', 'цвет5']);
+      fltr_values.push(['не выполнены', 'выполнены', 'все']);
+      
+      if (_value == -1)
+        ret = '<option value="" selected="selected">--- не установлен ---</option>';
+      else
+        ret = '<option value=""                    >--- не установлен ---</option>';
+
+      var i = 0;
+      for (i < fltr_values[_num].length)
+      {
+        ret += '<option value="' + i + '" ';
+        if (i == _value)
+          ret += 'selected="selected" ';
+        ret += '>' + fltr_values[_num][i] + '</option>';
+        i++;
+      }
+      return ret;
+    }
+
+    function addFltr(_num)
+    {
+      //var labels = ['Срок', 'Группы', 'Важность', 'Цвет', 'Исполнение'];
+      
+      var ret;
+      ret = 'zzz';
+      /*ret  = '<tr>';
+      ret += '  <td class="fl1"> <label for="is' + _num + '">' + labels[_num] + '</label> </td>';
+      ret += '  <td class="fl2" id="fltr_' + _num + '">';
+      ret += '    <select name="ns' + _num + '" class="cs' + _num + '" id="is' + _num + '">';
+      
+      if (fltr[_num].length == 0)
+      {
+        addOptions(f, -1);
+      }
+      else
+      {
+        var i = 1;
+        for (i < fltr[_num].length)
+        {
+          ret += addOptions(f, fltr[_num][i]);
+          ret += '<br>';
+          i++;
+        }
+      }
+
+      ret += '    </select>';
+      ret += '  </td>';
+      ret += '</tr>';*/
+      return ret;
+    }
+
+    function doFirstDraw()//_pk, _fltr, _sort, _flds)
+    {
+      alert('1');
+      //var x = document.getElementById('filters');
+      //var html = 'zzz';
+      /*html += '<tr>';
+      html += '  <td class="fl1"> Фильтры</td>';
+      html += '  <td></td>';
+      html += '</tr>';
+
+      if (_pk > 0)
+      {
+        var f = 0;
+        while (f < 5)
+        {
+          html += addFltr(f);
+          f++;
+        }
+      }*/
+      //x.innerHTML = html;
+    }
+
+  </script>
+  
+  <div id="gmenu" class="menu"> <a href="/"> Приложения </a> | 
+                           <a href="/task/"> Задачи </a> </div> <br/>
+  <div class="PageTitle"> Настройка представлений </div>
+  <div class="PageSummary"> </div>
+
+  <!--DEBUG: {{ debug_text }}<br>-->
+  
+  {{ form.non_field_errors }}
+  {% for field in form %}
+    {% if field.errors %}
+      <div class="fieldWrapper"> {{ field.label }} {{ field.errors }} </div>
+    {% endif %}
+  {% endfor %}
+
+  <form id="fld_form" action="{% url 'task:view_edit' pid %}" method="post">
+    {% csrf_token %}
+    <input name="active" type="hidden" value="0">
+    <table class="fl1">
+      <tbody>
+        {% if pid > 0 %} 
+        <script language="javascript" type="text/javascript"> bEdit = true; </script>
+        <tr><td class="fl1"> ID: </td><td class="fl2"> {{ pid }} </td> </tr>
+        {% else %}
+        <script language="javascript" type="text/javascript"> bEdit = false; </script>
+        {% endif %} 
+        <tr>
+          <td class="fl1"> Наименование: </td>
+          <td class="fl2"> <input name="name" type="text" size="30" onChange="check()" value="{{ form.name.value }}" /> </td> 
+          {% if pid == 0 %} 
+          <td class="fl1"> <input type="submit" class="AddButton" name="action" value="+" /> </td>
+          {% endif %} 
+        </tr>
+        {% if pid > 0 %} 
+        <span id="filters"> </span> 
+        {% endif %} 
+      </tbody>
+    </table>
+
+
+    <!--
+    <script language="javascript" type="text/javascript">
+      initFilters()
+    </script>
+
+    {% for f in fltr_t %}
+    <script language="javascript" type="text/javascript">
+      addFilterValue(0, {{f.value}})
+    </script>
+    {% endfor %}
+
+    {% for f in fltr_g %}
+    <script language="javascript" type="text/javascript">
+      addFilterValue(1, {{f.value}})
+    </script>
+    {% endfor %}
+
+    {% for f in fltr_i %}
+    <script language="javascript" type="text/javascript">
+      addFilterValue(2, {{f.value}})
+    </script>
+    {% endfor %}
+
+    {% for f in fltr_r %}
+    <script language="javascript" type="text/javascript">
+      addFilterValue(3, {{f.value}})
+    </script>
+    {% endfor %}
+
+    {% for f in fltr_c %}
+    <script language="javascript" type="text/javascript">
+      addFilterValue(4, {{f.value}})
+    </script>
+    {% endfor %}
+  -->
+
+    <script language="javascript" type="text/javascript">
+      doFirstDraw()//{{pid}},{{fltr}},{{sort}},{{flds}})
+    </script>
+    
+    <span id="buttons"> </span> 
+    <span id="status" class="PageStatus"> </span> 
+    
+    <script language="javascript" type="text/javascript"> 
+      check() 
+    </script>
+  </form>
+
+  <table class="work">
+    <tbody>
+      <tr>
+        <th class="work"> ID           </th>
+        <th class="work"> Наименование </th>
+        <th class="work"> Фильтр       </th>
+        <th class="work"> Сортировка   </th>
+        <th class="work"> Группировка  </th>
+        <th class="work"> Поля         </th>
+      </tr>
+      {% for v in views %}
+      <tr>
+        <td class="pid">  <script language="javascript" type="text/javascript">getLink({{ v.id }})</script> </td>
+        <td class="work"> {{ v.name  }} </td>
+        <td class="work"> {{ v.fltr  }} </td>
+        <td class="work"> {{ v.sort  }} </td>
+        <td class="work"> {{ v.group }} </td>
+        <td class="work"> {{ v.flds  }} </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <br>views  = {{ views.values }}
+  <br>fltr_t = {{ fltr_t.values }}
+  <br>fltr_g = {{ fltr_g.values }}
+  <br>fltr_i = {{ fltr_i.values }}
+  <br>fltr_r = {{ fltr_r.values }}
+  <br>fltr_c = {{ fltr_c.values }}
+{% endblock %}
+

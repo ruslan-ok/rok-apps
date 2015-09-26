@@ -65,13 +65,16 @@ def consumption(_user):
     
 
 def fuel_summary(_user):
-  car = Car.objects.get(user = _user, active = 1)
-  car_name = car.name + u': '
-  cons = consumption(_user)
-  if (cons == 0):
-    return car_name + u'Не удалось вычислить средний расход'
-  else:
-    return car_name + u'<span style="color:yellow">' + str(cons) + u'</span> л на 100 км'
+  try:
+    car = Car.objects.get(user = _user, active = 1)
+    car_name = car.name + u': '
+    cons = consumption(_user)
+    if (cons == 0):
+      return car_name + u'Не удалось вычислить средний расход'
+    else:
+      return car_name + u'<span style="color:yellow">' + str(cons) + u'</span> л на 100 км'
+  except Car.DoesNotExist:
+    return u'Нет активного автомобиля'
     
 
 class Part(models.Model): # Список расходников

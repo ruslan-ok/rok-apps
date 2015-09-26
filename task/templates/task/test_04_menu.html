@@ -1,0 +1,79 @@
+{% block header %}
+<style type="text/css">
+  .header {
+    background: #f0ffff;
+    padding: 10px
+  }
+  .content {
+    background: #800000
+  }
+  .footer {
+    background: #000080
+  }
+  .menu {
+   width: 150px; /* Ширина меню */
+   padding: 5px; /* Отступы от рамки до пунктов меню */
+   border: 1px solid #000; /* Рамка вокруг меню */
+  } 
+  .menu P { margin: 0 0 2px; }
+  .menu A {
+   padding: 2px; /* Отступ от рамки вокруг ссылки до текста */
+   display: block; /* Ссылка как блочный элемент */
+   border: 1px solid #fff; /* Маскируем рамку вокруг ссылки */
+   text-decoration: none; /* Убираем подчеркивание у ссылок */
+  }
+  .menu A:hover {
+   background: #faf3d2; /* Цвет фона под ссылкой */
+   color: #800000; /* Новый цвет ссылки */
+   border: 1px dashed #634f36 /* Рамка вокруг ссылки */
+  }
+  .content {
+   border: 1px dashed #634f36 /* Рамка вокруг ссылки */
+  }
+  .curView {
+   float: left
+  }
+  .inputBlock {
+  }
+</style>
+
+<script language="javascript" type="text/javascript">
+  
+  function navigate()
+  {
+    alert('nav');
+  }
+
+</script>
+
+{% endblock %}
+{% block content %}
+
+<div class="header">
+
+  <div class="curView">{{cur_view}}<div>
+
+  <div class="inputBlock">
+    <form action="/test" method="POST">
+      <label for="task">Задача</label>
+      <input type="text" class="task" id="task" size="50" title="Задача" placeholder="Название новой задачи или текст для поиска" />
+      <input type="submit" class="add" value="+" title="Добавить" />
+      <input type="submit" class="search" value="s" title="Найти" />
+    </form>
+  <div>
+
+</div>
+
+<div class="menu">
+  {% for v in views %}
+    <p><a href="/task/test/{{v.id}}">{{v.name}}</a></p>
+  {% endfor %}
+</div> 
+  
+<div class="content">
+</div>
+
+<div class="footer">
+</div>
+
+{% endblock %}

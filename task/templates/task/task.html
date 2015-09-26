@@ -22,9 +22,10 @@
   </script>
   
   <div id="gmenu" class="menu"> <a href="/"> Приложения    </a> | 
-                      <a href="/task/view/"> Представления </a> </div> <br/>
+                      <a href="/task/view/"> Представления </a> | 
+                      <a href="/task/test/"> Test </a> </div> <br/>
 
-  <div class="PageTitle"> Задачи </div>
+  <div class="PageTitle"> Задачи </div> {{ form.views }}
   <div class="PageSummary"> {{ task_summary|safe }} </div>
 
   <!--DEBUG: {{ debg }}<br>-->
@@ -39,6 +40,7 @@
   <form id="fld_form" action="{% url 'task:task_edit' '0' %}" method="post">
     {% csrf_token %}
     <input name="active" type="hidden" value="{{ form.active.value }}" />
+    {{ form.selview }}
     <table class="fl1">
       <tbody>
         <tr>

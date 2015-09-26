@@ -6,7 +6,7 @@ from django.forms import ModelForm
 from django import forms
 from datetime import date, datetime, timedelta
 
-from task.models import Task, TGroup
+from task.models import Task, TGroup, TaskView
 
 CHOICES = ( ('0', 'один раз'),
             ('1', 'ежедневно'),
@@ -16,23 +16,26 @@ CHOICES = ( ('0', 'один раз'),
 )
 
 class TaskForm(forms.ModelForm):
-    name   = forms.CharField(help_text = 'Наименование', required = True)
-    code   = forms.CharField(help_text = 'Код', required = False)
-    grp    = forms.ModelChoiceField(queryset = TGroup.objects.all(), required = False, empty_label = '------ без группы ------')
-    d_exec = forms.DateField(required = False)
-    t_exec = forms.TimeField(required = False)
-    repeat = forms.ChoiceField(required = False, choices = CHOICES)
-    cycle  = forms.IntegerField(required = False)
-    step   = forms.IntegerField(required = False)
-    action = forms.CharField(widget = forms.HiddenInput, required = False)
+    selview = forms.ModelChoiceField(queryset = TaskView.objects.all(), required = False, empty_label = '------ все ------')
+    name    = forms.CharField(help_text = 'Наименование', required = True)
+    code    = forms.CharField(help_text = 'Код', required = False)
+    grp     = forms.ModelChoiceField(queryset = TGroup.objects.all(), required = False, empty_label = '------ без группы ------')
+    d_exec  = forms.DateField(required = False)
+    t_exec  = forms.TimeField(required = False)
+    repeat  = forms.ChoiceField(required = False, choices = CHOICES)
+    cycle   = forms.IntegerField(required = False)
+    step    = forms.IntegerField(required = False)
+    action  = forms.CharField(widget = forms.HiddenInput, required = False)
     id = forms.IntegerField(widget = forms.HiddenInput, required = False)
     class Meta:
         model = Task
         exclude = ['user', 'pub_date', 'value1', 'value2', 
-                   'done', 'start', 'stop_mode', 'count', 'stop', 'active', 'attrib']
+                   'done', 'start', 'stop_mode', 'count', 'stop', 'active', 'attrib', 'color']
 
 #============================================================================
 def edit_context_view(request, form, debg):
+    form.fields['selview'].queryset = TaskView.objects.filter(user = request.user.id)
+    form['selview'].value = 1
     form.fields['grp'].queryset = TGroup.objects.filter(user = request.user.id)
     tasks = Task.objects.filter(user = request.user.id).order_by('-d_exec', '-t_exec')[:20]
     context = {'tasks': tasks, 
@@ -43,6 +46,8 @@ def edit_context_view(request, form, debg):
 
 #============================================================================
 def edit_context_edit(request, form, pk, debg):
+    form.fields['selview'].queryset = TaskView.objects.filter(user = request.user.id)
+    form['selview'].value = 2
     form.fields['grp'].queryset = TGroup.objects.filter(user = request.user.id)
     context = {'form':  form, 
                'pid':   pk,
@@ -113,6 +118,9 @@ def do_task(request, task_id):
           t.pub_date = date.today()
           t.active = 1
           t.attrib = 0
+          t.repeat = 0
+          t.cycle  = 0
+          t.step   = 0
           t.save()
 
         if (act == 3):

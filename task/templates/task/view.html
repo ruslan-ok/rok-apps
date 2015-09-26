@@ -1,0 +1,410 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block content %}
+
+  <script language="javascript" type="text/javascript">
+
+    function getLink(_pk)
+    {
+      var html = '<a href="/task/view/' + _pk + '/">' + _pk + '</a>';
+      document.write(html);
+      return true;
+    }
+
+    var fltr = [];
+
+    function initFilters()
+    {
+      fltr.push([]);
+      fltr.push([]);
+      fltr.push([]);
+      fltr.push([]);
+      fltr.push([]);
+      fltr.push([]);
+    }
+
+    function addFilter(_f, _v)
+    {
+      fltr[_f].push(_v);
+    }
+
+    var pid = 0;
+
+    function debug(_mess)
+    {
+      var x = document.getElementById('status');
+      x.innerHTML = x.innerHTML + '<br>' + _mess;
+    }
+
+    function SaveFltr()
+    {
+      var frm = document.getElementById('fld_form');
+      var i = 0;
+      while (i < 6)
+      {
+        var ret = '[';
+        var j = 0;
+        while (j < fltr[i].length)
+        {
+          if (j > 0)
+            ret += ',';
+          ret += fltr[i][j];
+          j++;
+        }
+        ret += ']';
+        frm.elements['ret_fltr_'+i].value = ret;
+        i++;
+      }
+    }
+
+    function SaveForm()
+    {
+      SaveFltr();
+      var frm = document.getElementById('fld_form');
+      frm.Submit();
+      return true;
+    }
+
+    function del_fltr(_id)
+    {
+      var z = parseInt(_id.substring(9));
+      var f = Math.round(z / 100);
+      var s = z % 100;
+      fltr[f].splice(s, 1);
+      if (f == 5)
+        drawSort();
+      else
+        drawFilters();
+    }
+
+    function add_fltr(_id)
+    {
+      var z = parseInt(_id.substring(9));
+      var f = Math.round(z / 100);
+      var s = z % 100;
+      fltr[f].push(-1);
+
+      if (f == 5)
+        drawSort();
+      else
+        drawFilters();
+    }
+
+    function select_changed(_id, _value)
+    {
+      //debug('select_changed: _id = ' + _id + ', _value = "' + _value + '"');
+      var z = parseInt(_id.substring(2));
+      var f = Math.round(z / 100);
+      var s = z % 100;
+
+      if (fltr[f].length == 0)
+      {
+        if (_value != '')
+          fltr[f].push(_value);
+      }
+      else
+      {
+        if ((_value == '') && (fltr[f].length == 1))
+          fltr[f].splice(0, 1);
+        else
+          fltr[f][s] = parseInt(_value);
+      }
+
+      if (f == 5)
+        drawSort();
+      else
+        drawFilters();
+      //SaveFltr();
+      //var sss = document.getElementById('fld_form').elements['ret_fltr_0'].value;
+      //debug('***: "' + sss + '"');
+    }
+
+    function addSelect(_num_f, _num_s, _value, _del, _add)
+    {
+      var _num = _num_f*100 + _num_s;
+
+      var fltr_values = [];
+      fltr_values.push(['Просроченные', 'Сегодня', 'Завтра', 'Эта неделя', 'Следующая неделя', 'Позже', 'Срок не задан']);
+      fltr_values.push(['Песочница', 'Работа', 'Авто', 'Вело', 'Шейпичи']);
+      fltr_values.push(['не важно', 'обычно', 'важно', 'очень важно', 'критично']);
+      fltr_values.push(['цвет1', 'цвет2', 'цвет3', 'цвет4', 'цвет5']);
+      fltr_values.push(['не выполнены', 'выполнены', 'все']);
+      fltr_values.push(['Срок', 'Наименование', 'Код', 'Важность', 'Код группы', 'Цвет']);
+      
+      var ret;
+      ret = '<select name="ns' + _num + '" class="cs' + _num + '" id="is' + _num + '" onchange="select_changed(this.id, this.value)">';
+
+      var not_set = '--- не установлен ---';
+      if (_num_f == 5)
+        not_set = '--- не задана ---';
+
+      if (_value == -1)
+        ret += '<option value="" selected="selected">' + not_set + '</option>';
+      else
+        ret += '<option value=""                    >' + not_set + '</option>';
+
+      var i = 0;
+      while (i < fltr_values[_num_f].length)
+      {
+        ret += '<option value="' + i + '" ';
+        if (i == _value)
+          ret += 'selected="selected" ';
+        ret += '>' + fltr_values[_num_f][i] + '</option>';
+        i++;
+      }
+      ret += '    </select>';
+      if (_del)
+        ret += ' <a id="fltr_del_' + _num + '" title="Удалить этот фильтр" href="#" onclick="del_fltr(this.id);return false;">Удалить</a>';
+      if (_add)
+        ret += ' <a id="fltr_add_' + _num + '" title="Добавить ещё один" href="#" onclick="add_fltr(this.id);return false;">Добавить</a>';
+      return ret;
+    }
+
+    function addFltr(_num)
+    {
+      var labels = ['Срок', 'Группы', 'Важность', 'Цвет', 'Исполнение'];
+      
+      var ret;
+      ret  = '<tr>';
+      ret += '  <td class="fl1"> <label for="is' + _num + '">' + labels[_num] + '</label> </td>';
+      ret += '  <td class="fl2" id="fltr_' + _num + '">';
+      
+      if (fltr[_num].length == 0)
+      {
+        ret += addSelect(_num, 0, -1, false, true);
+      }
+      else
+      {
+        var i = 0;
+        while (i < fltr[_num].length)
+        {
+          ret += addSelect(_num, i, fltr[_num][i], (i > 0), (i == fltr[_num].length-1));
+          ret += '<br>';
+          i++;
+        }
+      }
+
+      ret += '  </td>';
+      ret += '</tr>';
+      return ret;
+    }
+
+    function drawFilters()
+    {
+      //debug('drawFilters: fltr[1].length = ' + fltr[1].length);
+      var x = document.getElementById('filters');
+      
+      var html = '';
+      
+      if (pid > 0)
+      {
+        html += '<table><tr>';
+        html += '  <td class="fl1">Фильтры</td>';
+        html += '  <td></td>';
+        html += '</tr>';
+
+        var f = 0;
+        while (f < 5)
+        {
+          html += addFltr(f);
+          f++;
+        }
+        html += '</table>';
+      }
+      x.innerHTML = html;
+    }
+
+    function drawSort()
+    {
+      var x = document.getElementById('sorts');
+      
+      var html = '';
+      
+      if (pid > 0)
+      {
+        html += '<table><tr>';
+        html += '  <td class="fl1">Сортировка</td>';
+        html += '  <td></td>';
+        html += '</tr>';
+
+        html += '<tr>';
+        html += '  <td class="fl1"></td>';
+        html += '  <td class="fl2" id="sorts_id">';
+        
+        if (fltr[5].length == 0)
+        {
+          html += addSelect(5, 0, -1, false, true);
+        }
+        else
+        {
+          var i = 0;
+          while (i < fltr[5].length)
+          {
+            html += addSelect(5, i, fltr[5][i], (i > 0), (i == fltr[5].length-1));
+            html += '<br>';
+            i++;
+          }
+        }
+      
+        html += '  </td>';
+        html += '</tr>';
+        html += '</table>';
+      }
+      x.innerHTML = html;
+    }
+
+    function drawFieldVis()
+    {
+    }
+
+    function check()
+    {
+      var name  = document.getElementById('fld_form').elements['name'].value;
+
+      var status = '';
+      if (name == '')
+        status = 'Не задано наименование';
+      
+      if (pid != 0)
+        document.getElementById('status').innerHTML = status;
+      
+      var x = document.getElementById('buttons');
+      
+      if (status != '')
+      {
+        if (pid == 0)
+          x.innerHTML = '';
+        else
+          x.innerHTML = '<input type="submit" class="LiteButton" id="delete" name="action" value="Удалить" />' +
+                        '<input type="submit" class="LiteButton" id="common" name="action" value="Отменить" />';
+      }
+      else
+      {
+        if (pid == 0)
+          x.innerHTML = '';
+        else
+          x.innerHTML = '<input type="submit" class="LiteButton" id="update" name="action" value="Сохранить" onClick="SaveForm()"/>' +
+                        '<input type="submit" class="LiteButton" id="delete" name="action" value="Удалить" />' +
+                        '<input type="submit" class="LiteButton" id="common" name="action" value="Отменить" />';
+      }
+
+      drawFilters();
+      drawSort();
+      drawFieldVis();
+    }
+
+  </script>
+  
+  <div id="gmenu" class="menu"> <a href="/"> Приложения </a> | 
+                           <a href="/task/"> Задачи </a> </div> <br/>
+  <div class="PageTitle"> Настройка представлений </div>
+  <div class="PageSummary"> </div>
+
+  <!--DEBUG: {{ debug_text }}<br>-->
+  
+  {{ form.non_field_errors }}
+  {% for field in form %}
+    {% if field.errors %}
+      <div class="fieldWrapper"> {{ field.label }} {{ field.errors }} </div>
+    {% endif %}
+  {% endfor %}
+
+  <form id="fld_form" action="{% url 'task:view_edit' pid %}" method="post">
+    {% csrf_token %}
+    <input name="active" type="hidden" value="0">
+    <input name="ret_fltr_0" type="hidden" value="[]">
+    <input name="ret_fltr_1" type="hidden" value="[]">
+    <input name="ret_fltr_2" type="hidden" value="[]">
+    <input name="ret_fltr_3" type="hidden" value="[]">
+    <input name="ret_fltr_4" type="hidden" value="[]">
+    <input name="ret_fltr_5" type="hidden" value="[]">
+
+    <table class="fl1">
+      <tbody>
+        {% if pid > 0 %} 
+        <tr><td class="fl1"> ID: </td><td class="fl2"> {{ pid }} </td> </tr>
+        {% endif %} 
+        <tr>
+          <td class="fl1"> Наименование: </td>
+          <td class="fl2"> <input name="name" type="text" size="30" onChange="check()" value="{{ form.name.value }}" /> </td> 
+          {% if pid == 0 %} 
+          <td class="fl1"> <input type="submit" class="AddButton" name="action" value="+" /> </td>
+          {% endif %} 
+        </tr>
+      </tbody>
+    </table>
+
+    <span id="filters"></span>
+    <span id="sorts"></span>
+    <span id="fieldvis"></span>
+    <span id="buttons"> </span> 
+    <span id="status" class="PageStatus"> </span> 
+  </form>
+
+  <script language="javascript" type="text/javascript"> 
+    pid = {{pid}};
+    initFilters();
+  </script>
+
+  {% for f in fltr_t %}
+    <script language="javascript" type="text/javascript"> addFilter(0, {{f.value}}); </script>
+  {% endfor %}
+
+  {% for f in fltr_g %}
+    <script language="javascript" type="text/javascript"> addFilter(1, {{f.value}}); </script>
+  {% endfor %}
+
+  {% for f in fltr_i %}
+    <script language="javascript" type="text/javascript"> addFilter(2, {{f.value}}); </script>
+  {% endfor %}
+
+  {% for f in fltr_r %}
+    <script language="javascript" type="text/javascript"> addFilter(3, {{f.value}}); </script>
+  {% endfor %}
+
+  {% for f in fltr_c %}
+    <script language="javascript" type="text/javascript"> addFilter(4, {{f.value}}); </script>
+  {% endfor %}
+
+  {% for f in sorts %}
+    <script language="javascript" type="text/javascript"> addFilter(5, {{f.value}}); </script>
+  {% endfor %}
+
+  <script language="javascript" type="text/javascript"> 
+    check(); 
+  </script>
+
+  <table class="work">
+    <tbody>
+      <tr>
+        <th class="work"> ID           </th>
+        <th class="work"> Наименование </th>
+        <th class="work"> Фильтр       </th>
+        <th class="work"> Сортировка   </th>
+        <th class="work"> Группировка  </th>
+        <th class="work"> Поля         </th>
+      </tr>
+      {% for v in views %}
+      <tr>
+        <td class="pid">  <script language="javascript" type="text/javascript">getLink({{ v.id }})</script> </td>
+        <td class="work"> {{ v.name  }} </td>
+        <td class="work"> {{ v.fltr  }} </td>
+        <td class="work"> {{ v.sort  }} </td>
+        <td class="work"> {{ v.group }} </td>
+        <td class="work"> {{ v.flds  }} </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <br> *** {{ form.grp }} ***
+  <!-- 
+  <br>frp  = {{ form.grp }}
+  <br>views  = {{ views.values }}
+  <br>fltr_t = {{ fltr_t.values }}
+  <br>fltr_g = {{ fltr_g.values }}
+  <br>fltr_i = {{ fltr_i.values }}
+  <br>fltr_r = {{ fltr_r.values }}
+  <br>fltr_c = {{ fltr_c.values }}
+  -->
+{% endblock %}
+
