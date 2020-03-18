@@ -16,7 +16,7 @@ class Saldo(models.Model):
   p1   = models.ForeignKey(Person, related_name="p1")
   p2   = models.ForeignKey(Person, related_name="p2")
   me   = models.IntegerField(blank=False)
-  summ = models.IntegerField(blank=False)
+  summ = models.DecimalField(blank=False, max_digits=15, decimal_places=2)
 
 class Trip(models.Model):
   user      = models.ForeignKey(User)
@@ -24,7 +24,7 @@ class Trip(models.Model):
   week      = models.IntegerField(blank=False)
   days      = models.IntegerField(blank=False)
   oper      = models.IntegerField(blank=False)
-  price     = models.IntegerField(blank=False)
+  price     = models.DecimalField(blank=False, max_digits=15, decimal_places=2)
   driver    = models.ForeignKey(Person, related_name="driver")
   passenger = models.ForeignKey(Person, related_name="passenger")
   text      = models.CharField(max_length=1000, blank=True)
@@ -120,4 +120,4 @@ def trip_summary(_user):
       else:
         ret += NameI(s.p2) + ' ' + NameD(s.p1) + ' ' + str(s.summ)
   
-  return u'<span style="color:yellow">' + ret + u'</span>'
+  return u'<span id="warning">' + ret + u'</span>'

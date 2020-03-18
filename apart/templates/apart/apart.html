@@ -42,6 +42,7 @@
   <table class="work">
     <tbody><tr>
       <th class="work"> Период   </td>
+      <th class="work"> Статус   </td>
       <th class="work"> USD      </td>
       <th class="work"> К оплате </td>
       <th class="work"> Оплачено </td>
@@ -51,6 +52,7 @@
     {% for b in aparts %}
     <tr>
       <td class="work"> <script language="javascript" type="text/javascript">getLink({{ b.year }}, {{ b.month }})</script> </td>
+      <td class="numb"> {{ b.state_str }}  </td>
       <td class="numb"> {{ b.total_usd }}  </td>
       <td class="numb"> <script language="javascript" type="text/javascript">addCommas({{ b.total_bill }})</script> </td>
       <td class="numb"> <script language="javascript" type="text/javascript">addCommas({{ b.total_pay }})</script> </td>

@@ -23,6 +23,7 @@ class ApartForm(ModelForm):
     period   = forms.IntegerField(required = False)
     month    = forms.IntegerField(required = True, widget = forms.Select(choices = t_months))
     year     = forms.IntegerField(required = True, widget = forms.NumberInput(attrs = {'size': 10}))
+    #state    = forms.ChoiceField(required = False)
 
 
 
@@ -137,6 +138,7 @@ def edit_context(_request, _form, _debug_text, _year, _month, _new):
              'is_new':     _new, 
              's_period':   a_months[_month-1] + ' ' + str(_year),
              'period_num':   _year*100+_month, 
+             'state_str': _form.instance.state_str(),
              'el_t1':  el_tar['t1'],
              'el_b1':  el_tar['b1'],
              'el_t2':  el_tar['t2'],
@@ -221,9 +223,9 @@ def apart_get_new(request):
                  month = m1, 
                  year = y1, 
                  period = (y1 * 100 + m1), 
-                 dCounter = date(y2, m2, 1), 
-                 dPay = date(y2, m2, 25),
-                 state      = 0,
+                 #dCounter = date(y2, m2, 1), 
+                 #dPay = date(y2, m2, 25),
+                 state      = 3,
                  # Электроэнергия
                  el_old     = _el_old,
                  el_new     = _el_new,
@@ -254,9 +256,10 @@ def apart_get_new(request):
                  prev_per   = 0,
                  course     = _course,
                  text       = '')
-    form = ApartForm(instance = a, 
-                     initial = {'dCounter': a.dCounter.isoformat(), 
-                                'dPay':     a.dPay.isoformat()})
+    form = ApartForm(instance = a#, 
+                     #initial = {'dCounter': a.dCounter.isoformat(), 
+                     #           'dPay':     a.dPay.isoformat()}
+                     )
     context = edit_context(request, form, debug_text, y1, m1, 1) 
     return render(request, 'apart/apart_edit.html', context)
 
@@ -318,7 +321,7 @@ def v_apart_edit(request, per):
           return apart_get_one(request, int(per), unicode(form.errors.as_data()))
         else:
           a = form.save(commit = False)
-      
+
           if (action == u'Добавить'):
             debug_text = my_save(True, request.user, 0, a, request.POST['dCounter'], request.POST['dPay'])
 

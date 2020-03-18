@@ -14,9 +14,9 @@ class Proj(models.Model):
   direct = models.ForeignKey(Direct)
   date   = models.DateTimeField(u'Дата операции')
   kol    = models.DecimalField(blank=False, max_digits=15, decimal_places=3)
-  price  = models.IntegerField()
-  course = models.IntegerField()
-  usd    = models.IntegerField()
+  price  = models.DecimalField(blank=False, max_digits=15, decimal_places=2)
+  course = models.DecimalField(blank=False, max_digits=15, decimal_places=4)
+  usd    = models.DecimalField(blank=False, max_digits=15, decimal_places=2)
   kontr  = models.CharField(max_length=1000, blank=True)
   text   = models.TextField(blank=True)
 
@@ -55,7 +55,7 @@ def proj_summary(_user):
     for o in opers:
       tot += o.summa()
     #return cur_dir.name + u': <span style="color:yellow">' + str(len(opers)) + u'</span>'
-    return cur_dir.name + u': <span style="color:yellow">' + str(int(tot)) + u'</span>$'
+    return cur_dir.name + u': <span id="warning">' + str(int(tot)) + u'</span>$'
   except Direct.DoesNotExist:
     return ''
   

@@ -115,14 +115,14 @@
         if (trip_km > chg_km)
         {
           if (trip_km > 1000)
-            p1 = 'просрочено на <span style="color:red">' + Math.round(((trip_km - chg_km) / 1000)) + ' тыс.</span> км';
+            p1 = 'просрочено на <span id="error">' + Math.round(((trip_km - chg_km) / 1000)) + ' тыс.</span> км';
           else
-            p1 = 'просрочено на <span style="color:red">' + (trip_km - chg_km) + '</span> км';
+            p1 = 'просрочено на <span id="error">' + (trip_km - chg_km) + '</span> км';
           m1 = true;
         }
         else
           if ((chg_km - trip_km) < 1000)
-            p1 = '<span style="color:yellow">' + (chg_km - trip_km) + '</span> км';
+            p1 = '<span id="warning">' + (chg_km - trip_km) + '</span> км';
           else
             p1 = Math.round(((chg_km - trip_km) / 1000)) + ' тыс. км';
       }
@@ -158,12 +158,12 @@
         
         if (trip_days > 0)
         {
-          p2 = 'просрочено на <span style="color:red">' + per + '</span>';
+          p2 = 'просрочено на <span id="error">' + per + '</span>';
           m2 = true;
         }
         else
           if (days < 32)
-            p2 = '<span style="color:yellow">' + per + '</span>';
+            p2 = '<span id="warning">' + per + '</span>';
           else
             p2 = per;
       }
@@ -201,9 +201,14 @@
     {% csrf_token %}
     <table class="fl1">
       <tbody>
-        <tr><td class="fl3" colspan="2"> Последняя заправка</td> </tr>
-        <tr><td class="fl1"> Дата:    </td><td class="fl2"> {{ fuel_date }} </td> </tr>
-        <tr><td class="fl1"> Одометр: </td><td class="fl2"> {{ fuel_odo  }} </td> </tr>
+        <tr><td class="fl3"> Последняя заправка</td> <td class="fl2"></td> <td class="fl2"></td> </tr>
+        <tr><td class="fl2"></td> <td class="fl1"> Дата:    </td><td class="fl2"> {{ fuel_date }} </td> </tr>
+        <tr><td class="fl2"></td> <td class="fl1"> Одометр: </td><td class="fl2"> {{ fuel_odo  }} </td> </tr>
+{% if last_date != "" and last_odo != 0 %}
+        <tr><td class="fl3"> Последняя замена</td> <td class="fl2"></td> <td class="fl2"></td> </tr>
+        <tr><td class="fl2"></td> <td class="fl1"> Дата: </td><td class="fl2"> {{ last_date }} </td> </tr>
+        <tr><td class="fl2"></td> <td class="fl1"> Одометр: </td><td class="fl2"> {{ last_odo }} </td> </tr>
+{% endif %}
       </tbody>
     </table>
     <table class="fl1">
@@ -219,12 +224,6 @@
         <tr><td class="fl1"> Интервал замены, мес: </td><td class="fl2"> <input name="chg_mo" type="number" value="{{ form.chg_mo.value }}" onChange="check()" /> </td> </tr>
         <tr><td class="fl1"> Описание: </td> <td class="fl2">
            <textarea id="txt" name="comment" rows="3" cols="22"> {{ form.comment.value }} </textarea> </td> </tr>
-        {% if last_date != "" %}
-        <tr><td class="fl1"> Дата последней замены: </td><td class="fl2"> {{ last_date }} </td> </tr>
-        {% endif %}
-        {% if last_odo != 0 %}
-        <tr><td class="fl1"> Показания одометра, км: </td><td class="fl2"> {{ last_odo }} </td> </tr>
-        {% endif %}
       </tbody>
     </table>
     <span id="buttons"> </span> 

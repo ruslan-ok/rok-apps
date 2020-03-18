@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block content %}
+
+  <script language="javascript" type="text/javascript">
+
+    function getLink(_pk)
+    {
+      var html = '<a href="/task/' + _pk + '/">' + _pk + '</a>';
+      document.write(html);
+      return true;
+    }
+
+    function myClick()
+    {
+      var frm = document.getElementById("fld_form");
+      frm.elements["active"].value = 1;
+      frm.Submit();
+      return true;
+    }
+
+    function selView()
+    {
+      alert('ok');
+    }
+
+  </script>
+  
+  <div id="gmenu" class="menu"> <a href="/"> Приложения    </a> | 
+                      <a href="/task/view/"> Представления </a> | 
+                      <a href="/task/test/"> Test </a> </div> <br/>
+
+  <div class="PageTitle"> Задачи </div> {{ form.views }}
+  <div class="PageSummary"> {{ task_summary|safe }} </div>
+
+  <!--DEBUG: {{ debg }}<br>-->
+  
+  {{ form.non_field_errors }}
+  {% for field in form %}
+    {% if field.errors %}
+      <div class="fieldWrapper"> {{ field.label }} {{ field.errors }} </div>
+    {% endif %}
+  {% endfor %}
+
+  <form id="fld_form" action="{% url 'task:task_edit' '0' %}" method="post">
+         <br>
+         <br>
+         <br>
+    Вид: <!--<select name="selView" onchange="selView()">-->
+           <!--{% for o in form.selview %}-->
+           <!--<option value="{{o}}"> {{o}} </option>-->
+           <!--{{o.name}}-->
+           <!--{% endfor %}-->
+         <!--</select>-->
+         <br>
+         <br>
+         <br>
+    {% csrf_token %}
+    <input name="active" type="hidden" value="{{ form.active.value }}" />
+    <table class="fl1">
+      <tbody>
+        <tr>
+          <td class="fl1"> Новая: </td>
+          <td class="fl2"> <input name="name" type="text" value="{{ form.name.value }}" /> </td> 
+          <td class="fl1"> <input type="submit" class="AddButton" name="action" value="+" onClick="myClick()" /> </td>
+        </tr>
+      </tbody>
+    </table>
+  </form>
+
+
+  <table class="work">
+    <tbody>
+      <tr>
+        <th class="work"> ID           </th>
+        <th class="work"> Срок         </th>
+        <th class="work"> Наименование </th>
+      </tr>
+      {% for t in tasks %}
+      <tr>
+        <td class="pid">  <script language="javascript" type="text/javascript">getLink({{ t.id }})</script> </td>
+        <td class="work"> {{ t.s_due }} </td>
+        <td class="work"> {{ t.name }} </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
+

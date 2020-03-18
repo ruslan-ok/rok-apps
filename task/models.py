@@ -4,6 +4,60 @@ from django.utils import timezone
 from django.db import models
 from datetime import date
 
+term_names = {0: 'Просроченные',
+              1: 'Сегодня',
+              2: 'Завтра',
+              3: 'Эта неделя',
+              4: 'Следующая неделя',
+              5: 'Позже',
+              6: 'Срок не задан'}
+
+group_names = {0: 'Песочница',
+               1: 'Работа',
+               2: 'Авто',
+               3: 'Вело',
+               4: 'Шейпичи'}
+
+imptnc_names = {0: 'не важно',
+                1: 'обычно',
+                2: 'важно',
+                3: 'очень важно',
+                4: 'критично'}
+
+color_names = {0: 'цвет1', 
+               1: 'цвет2',
+               2: 'цвет3',
+               3: 'цвет4',
+               4: 'цвет5'}
+
+compl_names = {0: 'не выполнены',
+               1: 'выполнены',
+               2: 'все'}
+
+sort_names = {0: 'Срок',
+              1: 'Наименование',
+              2: 'Код',
+              3: 'Важность',
+              4: 'Код группы',
+              5: 'Цвет'}
+
+FLTR_TERM       = 0 #Срок
+FLTR_GROUP      = 1 #Группа
+FLTR_IMPORTANCE = 2 #Важность
+FLTR_COLOR      = 3 #Цвет
+FLTR_COMPLETE   = 4 #Исполнение
+SORTS           = 5 #Сортировки
+
+
+fltr_names = {
+    FLTR_GROUP: group_names,
+    FLTR_TERM: term_names,
+    FLTR_IMPORTANCE: imptnc_names,
+    FLTR_COLOR: color_names,
+    FLTR_COMPLETE: compl_names,
+    SORTS: sort_names}
+
+filters = {FLTR_GROUP, FLTR_TERM, FLTR_IMPORTANCE, FLTR_COLOR, FLTR_COMPLETE}
 
 
 class TGroup(models.Model):
@@ -76,12 +130,13 @@ class Task(models.Model):
 
 def task_summary(_user):
   tasks = Task.objects.filter(user = _user)
-  return u'Всего задач: <span style="color:yellow">' + str(len(tasks)) + u'</span>'
+  return u'Всего задач: <span id="warning">' + str(len(tasks)) + u'</span>'
 
 
 class TaskView(models.Model):
   user     = models.ForeignKey(User)
   name     = models.CharField(u'Наименование', max_length = 200, blank = False)
+  code     = models.CharField(u'Код для сортировки', max_length = 200, blank = True, default = '')
   active   = models.IntegerField(u'Активна', default = 0)
   fltr     = models.IntegerField(u'Фильтр', default = 0) # Битовая маска для "Группа", "Срок", "Важность", "Цвет"
   sort     = models.IntegerField(u'Сортировка', default = 0)
@@ -89,11 +144,36 @@ class TaskView(models.Model):
   flds     = models.IntegerField(u'Поля', default = 0)
   def __str__(self):
     return self.name.encode('utf-8')
+  def s_fltr(self):
+    ret = ''
+
+    for f in filters:
+      fe = TaskFilter.objects.filter(view = self.id, entity = f).order_by('npp')
+      for fv in fe:
+        if (ret != ''):
+          ret += ', '
+        ret += fv.f_name()
+      if (ret != ''):
+        ret += '. '
+
+    return ret
+
+  def s_sort(self):
+    ret = ''
+    sorts = TaskFilter.objects.filter(view = self.id, entity = SORTS).order_by('npp')           #Сортировки
+    for ss in sorts:
+      if (ret != ''):
+        ret += ', '
+      ret += ss.f_name()
+    return ret
+  def s_flds(self):
+    return '?'
 
 class TaskFilter(models.Model):
   view     = models.ForeignKey(TaskView)
   entity   = models.IntegerField(u'Сущность', default = 0)
   npp      = models.IntegerField(u'Номер по порядку', default = 0)
   value    = models.IntegerField(u'Значение', default = 0)
-
-
+  direct   = models.IntegerField(u'Направление сортировки', default = 0)
+  def f_name(self):
+    return (fltr_names[self.entity])[self.value]

@@ -13,12 +13,12 @@ class Tarif(models.Model):
   month      = models.IntegerField(u'Месяц') # 1 - январь
   year       = models.IntegerField(u'Год') # 2015
   period     = models.IntegerField(u'Отчетный период') # 201504 - апрель 2015 г
-  tarif      = models.DecimalField(u'Тариф 1', blank = False, max_digits = 15, decimal_places = 3)
-  border     = models.DecimalField(u'Граница 1', null = True,  blank = True, max_digits = 15, decimal_places = 3)
-  tarif2     = models.DecimalField(u'Тариф 2', null = True,  blank = True, max_digits = 15, decimal_places = 3, default = 0)
-  border2    = models.DecimalField(u'Граница 2', null = True,  blank = True, max_digits = 15, decimal_places = 3, default = 0)
-  tarif3     = models.DecimalField(u'Тариф 3', null = True,  blank = True, max_digits = 15, decimal_places = 3, default = 0)
-  text       = models.TextField(u'Комментарий', blank=True)
+  tarif      = models.DecimalField(u'Тариф 1', blank = False, max_digits = 15, decimal_places = 5)
+  border     = models.DecimalField(u'Граница 1', null = True,  blank = True, max_digits = 15, decimal_places = 4)
+  tarif2     = models.DecimalField(u'Тариф 2', null = True,  blank = True, max_digits = 15, decimal_places = 5, default = 0)
+  border2    = models.DecimalField(u'Граница 2', null = True,  blank = True, max_digits = 15, decimal_places = 4, default = 0)
+  tarif3     = models.DecimalField(u'Тариф 3', null = True,  blank = True, max_digits = 15, decimal_places = 5, default = 0)
+  text       = models.TextField(u'Комментарий', blank=True, default = "")
 
   def s_res(self):
     if (self.resource == 1):
@@ -118,38 +118,42 @@ class Communal(models.Model):
   month      = models.IntegerField(u'Месяц') # 1 - январь
   year       = models.IntegerField(u'Год') # 2015
   period     = models.IntegerField(u'Отчетный период') # 201504 - апрель 2015 г
-  state      = models.IntegerField(u'Состояние', blank = True) # 0 - новая запись, 1 - сняты показания счетчиков, 2 - оплачено
+  state      = models.IntegerField(u'Состояние', blank = True)
+                                     # 3 - нет показаний счетчиков и оплаты
+                                     # 1 - сняты показания счетчиков, нет оплаты
+                                     # 2 - оплачено частично
+                                     # 0 - оплачено полностью
   dCounter   = models.DateTimeField(u'Дата снятия показаний счетчика', blank = True)
   dPay       = models.DateTimeField(u'Дата оплаты', blank = True)
   # Электроэнергия
   el_old     = models.IntegerField(u'Электроэнергия - показания счетчика старые', blank = True)
   el_new     = models.IntegerField(u'Электроэнергия - показания счетчика новые', blank = True)
-  el_pay     = models.IntegerField(u'Электроэнергия - оплачено', blank = True)
+  el_pay     = models.DecimalField(u'Электроэнергия - оплачено', null = True, blank = True, max_digits = 15, decimal_places = 2)
   # Антенна
-  tv_tar     = models.IntegerField(u'Гораторг - начислено', blank = True)
-  tv_pay     = models.IntegerField(u'Гораторг - оплачено', blank = True)
+  tv_tar     = models.DecimalField(u'Гораторг - начислено', null = True, blank = True, max_digits = 15, decimal_places = 2)
+  tv_pay     = models.DecimalField(u'Гораторг - оплачено', null = True, blank = True, max_digits = 15, decimal_places = 2)
   # Телефон
-  phone_tar  = models.IntegerField(u'Телефон - начислено', blank = True)
-  phone_pay  = models.IntegerField(u'Телефон - оплачено', blank = True)
+  phone_tar  = models.DecimalField(u'Телефон - начислено', null = True, blank = True, max_digits = 15, decimal_places = 2)
+  phone_pay  = models.DecimalField(u'Телефон - оплачено', null = True, blank = True, max_digits = 15, decimal_places = 2)
   # Жировка
-  zhirovka   = models.IntegerField(u'Сумма из жировки', blank = True)
-  hot_pay    = models.IntegerField(u'Теплоэнергия - оплата', blank = True)
-  repair_pay = models.IntegerField(u'Капремонт - оплата', blank = True)
-  ZKX_pay    = models.IntegerField(u'ЖКХ - оплата', blank = True)
+  zhirovka   = models.DecimalField(u'Сумма из жировки', null = True, blank = True, max_digits = 15, decimal_places = 2)
+  hot_pay    = models.DecimalField(u'Теплоэнергия - оплата', null = True, blank = True, max_digits = 15, decimal_places = 2)
+  repair_pay = models.DecimalField(u'Капремонт - оплата', null = True, blank = True, max_digits = 15, decimal_places = 2)
+  ZKX_pay    = models.DecimalField(u'ЖКХ - оплата', null = True, blank = True, max_digits = 15, decimal_places = 2)
   # Вода
   cold_old   = models.IntegerField(u'Холодная вода - показания счетчика старые', blank = True)
   cold_new   = models.IntegerField(u'Холодная вода - показания счетчика новые', blank = True)
   hot_old    = models.IntegerField(u'Горячая вода - показания счетчика старые', blank = True)
   hot_new    = models.IntegerField(u'Горячая вода - показания счетчика новые ', blank = True)
-  water_pay  = models.IntegerField(u'Вода - оплачено', blank = True)
+  water_pay  = models.DecimalField(u'Вода - оплачено', null = True, blank = True, max_digits = 15, decimal_places = 2)
   # Газ
   gas_old    = models.IntegerField(u'Газ - показания счетчика старые', blank = True)
   gas_new    = models.IntegerField(u'Газ - показания счетчика новые ', blank = True)
-  gas_pay    = models.IntegerField(u'Газ - оплачено', blank = True)
+  gas_pay    = models.DecimalField(u'Газ - оплачено', null = True, blank = True, max_digits = 15, decimal_places = 2)
 
-  penalty    = models.IntegerField(u'Пеня', blank = True)
-  prev_per   = models.IntegerField(u'Предыдущий период', blank = True)
-  course     = models.IntegerField(u'Курс доллара на дату оплаты', blank = True)
+  penalty    = models.DecimalField(u'Пеня', null = True, blank = True, max_digits = 15, decimal_places = 2)
+  prev_per   = models.DecimalField(u'Предыдущий период', null = True, blank = True, max_digits = 15, decimal_places = 2)
+  course     = models.DecimalField(u'Курс доллара на дату оплаты', null = True, blank = True, max_digits = 15, decimal_places = 4)
   text       = models.CharField(u'Комментарий', max_length = 1000, blank = True)
 
   def __str__(self):
@@ -162,14 +166,13 @@ class Communal(models.Model):
     if (self.course == 0):
       return 0
     else:
-      bill = self.total_bill()
-      return int(round(bill / self.course, 0))
+      return int(self.total_bill() / round(self.course, 0))
 
   def total_pay(self):
     pay = self.tv_pay + self.phone_pay + \
           self.hot_pay + self.repair_pay + self.ZKX_pay + \
           self.el_pay + self.water_pay + self.gas_pay
-    return pay
+    return round(pay, 2)
 
   def el_vol(self):
     if (self.el_new == None) or (self.el_old == None):
@@ -198,7 +201,7 @@ class Communal(models.Model):
       vol = self.el_vol();
     elif (_res == 2):
       vol = self.gs_vol();
-    elif (_res == 3):
+    elif (_res == 3) or (_res == 4) or (_res == 5):
       vol = self.wt_vol();
     else:
       vol = 0;
@@ -216,11 +219,24 @@ class Communal(models.Model):
 
 
   def total_bill(self):
-    bill = self.count_by_tarif(1) + self.count_by_tarif(2) + self.count_by_tarif(3) + self.tv_tar + self.phone_tar + self.zhirovka
-    return int(round(bill, 0))
+    bill = self.count_by_tarif(1) + self.count_by_tarif(2) + self.count_by_tarif(3) + self.count_by_tarif(4) + self.count_by_tarif(5) + self.tv_tar + self.phone_tar + self.zhirovka
+    return round(bill, 2)
 
   def debt(self):
-    return int(round(self.total_bill(), 0)) - self.total_pay()
+    return round(self.total_bill() - self.total_pay(), 2)
+
+  def state_str(self):
+    if (self.state == 0):
+      return u'Ок'
+    elif (self.state == 1):
+      return u'Сняты показания счетчиков, но нет оплаты'
+    elif (self.state == 2):
+      return u'Оплачено частично'
+    elif (self.state == 3):
+      return u'Не зафиксированы показания счетчиков'
+    else:
+      return u'Неизвестный код состояния: ' + str(self.state)
+
 
 
 def days(_kol):

@@ -20,12 +20,12 @@ class Fuel(models.Model):
   pub_date = models.DateTimeField(u'Дата заправки')
   odometr  = models.IntegerField(u'Показания одометра', blank=False)
   volume   = models.DecimalField(u'Объём', blank=False, max_digits=5, decimal_places=3)
-  price    = models.DecimalField(u'Цена', blank=False, max_digits=15, decimal_places=0)
+  price    = models.DecimalField(u'Цена', blank=False, max_digits=15, decimal_places=2)
   comment  = models.CharField(u'Комментарий', max_length=1000, blank=True)
   def __str__(self):
     return unicode(self.pub_date) + u' / ' + unicode(self.odometr) + u' км. / ' + unicode(self.volume) + u' л.'
   def summ(self):
-    return int(self.volume * self.price)
+    return float(self.price * self.volume)
   def s_pub_date(self):
     d = str(self.pub_date.day)
     m = str(self.pub_date.month)
@@ -72,7 +72,7 @@ def fuel_summary(_user):
     if (cons == 0):
       return car_name + u'Не удалось вычислить средний расход'
     else:
-      return car_name + u'<span style="color:yellow">' + str(cons) + u'</span> л на 100 км'
+      return car_name + u'<span id="warning">' + str(cons) + u'</span> л на 100 км'
   except Car.DoesNotExist:
     return u'Нет активного автомобиля'
     

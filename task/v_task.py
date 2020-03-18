@@ -37,7 +37,7 @@ def edit_context_view(request, form, debg):
     form.fields['selview'].queryset = TaskView.objects.filter(user = request.user.id)
     form['selview'].value = 1
     form.fields['grp'].queryset = TGroup.objects.filter(user = request.user.id)
-    tasks = Task.objects.filter(user = request.user.id).order_by('-d_exec', '-t_exec')[:20]
+    tasks = Task.objects.filter(user = request.user.id).order_by('-d_exec', '-t_exec')
     context = {'tasks': tasks, 
                'form':  form, 
                'debg':  debg,

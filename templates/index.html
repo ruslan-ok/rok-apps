@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-    <div id="amenu" class="menu"> {{user.email|escape}} | <a href="{% url 'logout' %}">Выйти</a> </div>
+    <div id="amenu" class="menu"> {{user}} | {{user.email|escape}}  | <a href="{% url 'logout' %}">Выйти</a>  </div>
 
     <table class="apptable">
       <tbody>

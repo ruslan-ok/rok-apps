@@ -18,7 +18,7 @@ class TripForm(ModelForm):
 #============================================================================
 def edit_context(_request, _form, _pid, _debug_text, _debt_sum, _last_prc):
     persons = Person.objects.filter(user = _request.user.id)
-    trips = Trip.objects.filter(user = _request.user.id).order_by('-year', '-week', '-oper')[:20]
+    trips = Trip.objects.filter(user = _request.user.id).order_by('-year', '-week', '-oper')[:40]
     return {
       'app_text':       u'Приложения',
       'count_text':     u'Пересчитать',
@@ -47,11 +47,13 @@ def get_trip_new(request):
     drvr_new = 2
     pass_new = 1
     debt_sum = 0
+    week_new = 1
 
     if (len(last_trip) > 0): # последняя поездка
-      price_new  = last_trip[0].price
-      drvr_new   = last_trip[0].driver.id
-      pass_new   = last_trip[0].passenger.id
+      price_new = last_trip[0].price
+      drvr_new  = last_trip[0].driver.id
+      pass_new  = last_trip[0].passenger.id
+      week_new  = last_trip[0].week
 
     saldos = Saldo.objects.filter(user = request.user.id)
     for s in saldos:
@@ -68,7 +70,7 @@ def get_trip_new(request):
           pass_new = s.p2.id
 
     form = TripForm(initial = {'year':      datetime.now().year,
-                               'week':      int(datetime.now().strftime("%W")) + 1,
+                               'week':      week_new, #int(datetime.now().strftime("%W")) + 1,
                                'days':      0,
                                'oper':      0,
                                'price':     price_new,

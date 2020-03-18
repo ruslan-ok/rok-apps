@@ -10,9 +10,9 @@
 
     function count_vol(_new, _old)
     {
-      var i_vol = 0;
-      i_new = parseInt(document.getElementById('fld_form').elements[_new].value);
-      i_old = parseInt(document.getElementById('fld_form').elements[_old].value);
+      var i_vol = 0.0;
+      i_new = parseFloat(document.getElementById('fld_form').elements[_new].value);
+      i_old = parseFloat(document.getElementById('fld_form').elements[_old].value);
 
       if (!isNaN(i_new) && !isNaN(i_old))
         i_vol = (i_new - i_old);
@@ -50,7 +50,6 @@
           t3 = document.getElementById('fld_form').elements['wt_t3'].value;
           break;
 
-    
         case 4:
           t1 = document.getElementById('fld_form').elements['wk_t1'].value;
           b1 = document.getElementById('fld_form').elements['wk_b1'].value;
@@ -71,7 +70,7 @@
     {
       init_tarif(_res);
 
-      var i_sum = 0;
+      var i_sum = 0.0;
       
       if (!isNaN(_vol))
       {
@@ -88,7 +87,7 @@
         }
       }
 
-      return Math.round(i_sum);
+      return i_sum; //Math.round(i_sum,2);
     }
 
     function get_period_num()
@@ -96,9 +95,9 @@
       return get_el('year')*100+get_el('month');
     }
     
-    function count_water(_vol, _month, _year)
+    function count_water(_vol)
     {
-      var i_sum = 0;
+      var i_sum = 0.0;
 
       if (!isNaN(_vol))
       {
@@ -107,7 +106,7 @@
         else
           init_tarif(4);
 
-        var days_in_month = new Date(_year, _month, 0).getDate();
+        var days_in_month = new Date(get_el('year'), get_el('month'), 0).getDate();
         var bb1 = b1 * days_in_month * 4 / 1000;
         var bb2 = b2 * days_in_month * 4 / 1000;
       
@@ -124,32 +123,32 @@
         }
       }
 
-      return Math.round(i_sum);
+      return i_sum; //Math.round(i_sum);
     }
     
     function get_el(_name)
     {
-      var ret = parseInt(document.getElementById('fld_form').elements[_name].value);
+      var ret = parseFloat(document.getElementById('fld_form').elements[_name].value);
       if (isNaN(ret))
-        return 0;
+        return 0.0;
 
       return ret;
     }
 
     function addCommas(input) 
     {
-      output = input.toString();
+      output = parseFloat(input).toFixed(2);
       var sRegExp = new RegExp('(-?[0-9]+)([0-9]{3})');
       while(sRegExp.test(output)) 
       {
         output = output.replace(sRegExp, '$1 $2');
       }
       return output;
+      //return Math.round(output, 2);
     }
 
     function check()
     {
-      //alert('check');
       var ele_vol = count_vol('el_new',   'el_old');
       var gas_vol = count_vol('gas_new',  'gas_old');
       var wat_vol = count_vol('cold_new', 'cold_old') + count_vol('hot_new', 'hot_old');
@@ -160,7 +159,7 @@
 
       ele_sum = count_sum(ele_vol, 1);
       gas_sum = count_sum(gas_vol, 2);
-      wat_sum = count_water(wat_vol, get_el('month'), get_el('year'));
+      wat_sum = count_water(wat_vol);
 
       document.getElementById('ele_sum').innerHTML = addCommas(ele_sum);
       document.getElementById('gas_sum').innerHTML = addCommas(gas_sum);
@@ -190,8 +189,8 @@
       var course = get_el('course');
       var total_usd = 0;
       if (course != 0)
-        total_usd = total_bill / course;
-      document.getElementById('total_usd').innerHTML = addCommas(Math.round(total_usd, 2));
+        total_usd = total_pay / course;
+      document.getElementById('total_usd').innerHTML = addCommas(total_usd);
     }
 
     function FieldNum(_name, _value)
@@ -205,12 +204,34 @@
       document.write(html);
     }
 
+    function FieldMoney(_name, _value)
+    {
+      var html = '';
+
+      if (bLast && ((_name.indexOf('_old') < 0) || bFirst))
+        html += '<td class="fl2"> <input id="ifl2" name="' + _name + '" type="number" step="0.01" value="' + _value + '" onChange="check()" /> </td>';
+      else
+        html += '<td class="fl3"> <input name="' + _name + '" type="hidden" value="' + _value + '" />' + _value + '</td>';
+      document.write(html);
+    }
+
+    function FieldCourse(_name, _value)
+    {
+      var html = '';
+
+      if (bLast && ((_name.indexOf('_old') < 0) || bFirst))
+        html += '<td class="fl2"> <input id="ifl2" name="' + _name + '" type="number" step="0.0001" value="' + _value + '" onChange="check()" /> </td>';
+      else
+        html += '<td class="fl3"> <input name="' + _name + '" type="hidden" value="' + _value + '" />' + _value + '</td>';
+      document.write(html);
+    }
+
     // расчет должен быть реализован в браузере, чтобы считать сумму при изменении объема ресурса
     function FieldTar(_name, _res)
     {
       init_tarif(_res);
 
-      if ((_res == 3) && ((get_el('year')*100+get_el('month')) >= 201508))
+      if ((_res == 3) && (get_period_num() >= 201508))
         init_tarif(4);
 
       var tar = '';
@@ -281,6 +302,21 @@
       <input name="period_num" type="hidden" value="{{ form.period_num }}" />
     {% endif %}
 
+    <!--</br>
+    {% if form.state.value = 0 %}
+    Статус: оплачено полностью
+    {% endif %}
+    {% if form.state.value = 1 %}
+    Статус: сняты показания счетчиков, нет оплаты
+    {% endif %}
+    {% if form.state.value = 2 %}
+    Статус: оплачено частично
+    {% endif %}
+    {% if form.state.value = 3 %}
+    Статус: нет показаний счетчиков и оплаты
+    {% endif %}
+    </br>-->
+
     <input name="el_t1" type="hidden" value="{{ el_t1 }}" />
     <input name="el_b1" type="hidden" value="{{ el_b1 }}" />
     <input name="el_t2" type="hidden" value="{{ el_t2 }}" />
@@ -331,74 +367,83 @@
           <script language="javascript" type="text/javascript">FieldNum('hot_old', {{ form.hot_old.value }});</script>
           <td></td>  <td></td>
       </tr>
-      <tr> <td></td> <td></td> <td></td> <td></td> <td></td> </tr>
+      <!--<tr> <td></td> 
+           <td colspan="4">
+             {% if form.state.value = 3 or form.state.value = 1 %}
+             <input type="checkbox" name="zzz"  {% if form.state.value = 1 %} checked {% endif %} onChange="check()">Показания счетчиков зафиксированы</input>
+             {% endif %}
+           </td> 
+      </tr>-->
+      <tr> <td class="fl1">Счетчики</td>
+           <script language="javascript" type="text/javascript">FieldDat('dCounter', '{{ form.dCounter.value }}');</script>
+           <td></td> <td></td> <td></td> </tr>
       <tr> <td></td> <td class="fl3"> Начислено </td> <td class="fl3"> Оплата </td> <td class="fl3"> Долг </td> <td></td> </tr>
-      <tr><td class="fl1"> Пок.,Опл. </td>
+      <!--<tr><td class="fl1"> Пок.,Опл. </td>
           <script language="javascript" type="text/javascript">FieldDat('dCounter', '{{ form.dCounter.value }}');</script>
           <script language="javascript" type="text/javascript">FieldDat('dPay',     '{{ form.dPay.value }}');    </script>
           <td></td>  
           <td></td>
-      </tr>
+      </tr>-->
       <tr><td class="fl1"> Антена </td>
-          <script language="javascript" type="text/javascript">FieldNum('tv_tar', {{ form.tv_tar.value }});</script>
-          <script language="javascript" type="text/javascript">FieldNum('tv_pay', {{ form.tv_pay.value }});</script>
+          <script language="javascript" type="text/javascript">FieldMoney('tv_tar', {{ form.tv_tar.value }});</script>
+          <script language="javascript" type="text/javascript">FieldMoney('tv_pay', {{ form.tv_pay.value }});</script>
           <td class="fl3" id="tv_debt"> </td>
           <td></td>
       </tr>
       <tr><td class="fl1"> Телефон </td>
-          <script language="javascript" type="text/javascript">FieldNum('phone_tar', {{ form.phone_tar.value }});</script>
-          <script language="javascript" type="text/javascript">FieldNum('phone_pay', {{ form.phone_pay.value }});</script>
+          <script language="javascript" type="text/javascript">FieldMoney('phone_tar', {{ form.phone_tar.value }});</script>
+          <script language="javascript" type="text/javascript">FieldMoney('phone_pay', {{ form.phone_pay.value }});</script>
           <td class="fl3" id="phone_debt"> </td>
           <td></td>
       </tr>
     {% if period_num >= 201508 %}
       <tr><td class="fl1"> Коммунальные </td>
-          <script language="javascript" type="text/javascript">FieldNum('zhirovka', {{ form.zhirovka.value }});</script>
-          <script language="javascript" type="text/javascript">FieldNum('ZKX_pay',  {{ form.ZKX_pay.value }});</script>
+          <script language="javascript" type="text/javascript">FieldMoney('zhirovka', {{ form.zhirovka.value }});</script>
+          <script language="javascript" type="text/javascript">FieldMoney('ZKX_pay',  {{ form.ZKX_pay.value }});</script>
           <td class="fl3" id="zhir_debt"> </td>
           <td></td>
       </tr>
     {% else %}
       <tr><td class="fl1"> Жировка </td>
-          <script language="javascript" type="text/javascript">FieldNum('zhirovka', {{ form.zhirovka.value }});</script>
+          <script language="javascript" type="text/javascript">FieldMoney('zhirovka', {{ form.zhirovka.value }});</script>
           <td class="fl3" id="zhir_pay"> </td>
           <td class="fl3" id="zhir_debt"> </td>
           <td></td>
       </tr>
       <tr><td class="fl1"> Тепло </td>
           <td></td>
-          <script language="javascript" type="text/javascript">FieldNum('hot_pay', {{ form.hot_pay.value }});</script>
+          <script language="javascript" type="text/javascript">FieldMoney('hot_pay', {{ form.hot_pay.value }});</script>
           <td></td>  
           <td></td>
       </tr>
       <tr><td class="fl1"> Капремонт </td>
           <td></td>
-          <script language="javascript" type="text/javascript">FieldNum('repair_pay', {{ form.repair_pay.value }});</script>
+          <script language="javascript" type="text/javascript">FieldMoney('repair_pay', {{ form.repair_pay.value }});</script>
           <td></td>  
           <td></td>
       </tr>
       <tr><td class="fl1"> ЖКХ </td>
           <td></td>
-          <script language="javascript" type="text/javascript">FieldNum('ZKX_pay', {{ form.ZKX_pay.value }});</script>
+          <script language="javascript" type="text/javascript">FieldMoney('ZKX_pay', {{ form.ZKX_pay.value }});</script>
           <td></td>  
           <td></td>
       </tr>
     {% endif %}
       <tr><td class="fl1"> Электро </td>
           <td class="fl3" id="ele_sum"> </td>
-          <script language="javascript" type="text/javascript">FieldNum('el_pay', {{ form.el_pay.value }});</script>
+          <script language="javascript" type="text/javascript">FieldMoney('el_pay', {{ form.el_pay.value }});</script>
           <td class="fl3" id="ele_debt"> </td>
           <td></td>
       </tr>
       <tr><td class="fl1"> Газ </td>
           <td class="fl3" id="gas_sum"> </td>
-          <script language="javascript" type="text/javascript">FieldNum('gas_pay', {{ form.gas_pay.value }});</script>
+          <script language="javascript" type="text/javascript">FieldMoney('gas_pay', {{ form.gas_pay.value }});</script>
           <td class="fl3" id="gas_debt"> </td>
           <td></td>
       </tr>
       <tr><td class="fl1"> Вода </td>
           <td class="fl3" id="wat_sum"> </td>
-          <script language="javascript" type="text/javascript">FieldNum('water_pay', {{ form.water_pay.value }});</script>
+          <script language="javascript" type="text/javascript">FieldMoney('water_pay', {{ form.water_pay.value }});</script>
           <td class="fl3" id="wat_debt"> </td>
           <td></td>
       </tr>
@@ -408,8 +453,18 @@
           <td class="fl3" id="debt"> </td>
           <td></td>
       </tr>
+      <tr> <td class="fl1">Оплата</td>
+           <script language="javascript" type="text/javascript">FieldDat('dPay', '{{ form.dPay.value }}'); </script>
+           <td></td> <td></td> <td></td> </tr>
+      <!--<tr> <td></td> 
+           <td colspan="4">
+             {% if form.state.value = 2 or form.state.value = 0 or form.state.value = 1 %}
+             <input type="checkbox" name="yyy"  {% if form.state.value = 0 or form.state.value = 1 %} checked {% endif %} onChange="check()">Оплачено</input>
+             {% endif %}
+           </td> 
+      </tr>-->
       <tr><td class="fl1"> Курс </td>
-          <script language="javascript" type="text/javascript">FieldNum('course', {{ form.course.value }});</script>
+          <script language="javascript" type="text/javascript">FieldCourse('course', {{ form.course.value }});</script>
           <td class="fl3" id="total_usd"> </td>
           <td></td>
           <td></td>
@@ -417,7 +472,7 @@
       <tr><td class="fl3"> Коммент </td>
           <td class="fl4" colspan="4">
             {% if is_last == 1 %} 
-              <input name="text" type="text" size="60" value="{{ form.text.value }}" />
+              <input name="text" type="text" size="60" value="{{form.text.value}}" />
             {% else %}
               {{ form.text.value }}
             {% endif %}

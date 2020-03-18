@@ -7,17 +7,10 @@ from django import forms
 from datetime import date, datetime
 import datetime
 
-from task.models import TGroup, TaskView, TaskFilter
-
-FLTR_TERM       = 0 #Срок
-FLTR_GROUP      = 1 #Группа
-FLTR_IMPORTANCE = 2 #Важность
-FLTR_COLOR      = 3 #Цвет
-FLTR_COMPLETE   = 4 #Исполнение
-SORTS           = 5 #Сортировки
-
+from task.models import TGroup, TaskView, TaskFilter, FLTR_TERM, FLTR_GROUP, FLTR_IMPORTANCE, FLTR_COLOR, FLTR_COMPLETE, SORTS
 
 class TaskViewForm(forms.ModelForm):
+    code = forms.CharField(required = False)
     grp = forms.ModelChoiceField(queryset = TGroup.objects.all(), required = False, empty_label = '------ без группы ------')
     class Meta:
         model = TaskView
@@ -26,7 +19,7 @@ class TaskViewForm(forms.ModelForm):
 #============================================================================
 def edit_context(request, form, pk, vw, fltr, debg):
     form.fields['grp'].queryset = TGroup.objects.filter(user = request.user.id)
-    views = TaskView.objects.filter(user = request.user.id).order_by('name')
+    views = TaskView.objects.filter(user = request.user.id).order_by('code', 'name')
     fltr_t = TaskFilter.objects.filter(view = vw, entity = FLTR_TERM).order_by('npp')       #Срок
     fltr_g = TaskFilter.objects.filter(view = vw, entity = FLTR_GROUP).order_by('npp')      #Группа
     fltr_i = TaskFilter.objects.filter(view = vw, entity = FLTR_IMPORTANCE).order_by('npp') #Важность
@@ -50,7 +43,7 @@ def edit_context(request, form, pk, vw, fltr, debg):
               }
     return context
 
-def SaveFilters(fltrs, ent, vw, values):
+def SaveFilters(fltrs, ent, vw, values, directs):
   n = 1
   i = 1
   while (i < len(values)) and (values[i] != ']'):
@@ -63,6 +56,8 @@ def SaveFilters(fltrs, ent, vw, values):
     f.entity = ent
     f.npp    = n
     f.value  = int(s)
+    if (len(directs) > 0):
+      f.direct = int(directs[1+(n-1)*2])
     f.save()
     n += 1
     if (values[i] == ','):
@@ -120,12 +115,12 @@ def do_view(request, pk):
           fltrs = TaskFilter.objects.filter(view = vw)
           fltrs.delete();
           
-          SaveFilters(fltrs, FLTR_TERM,       vw, request.POST.get('ret_fltr_0', False))
-          SaveFilters(fltrs, FLTR_GROUP,      vw, request.POST.get('ret_fltr_1', False))
-          SaveFilters(fltrs, FLTR_IMPORTANCE, vw, request.POST.get('ret_fltr_2', False))
-          SaveFilters(fltrs, FLTR_COLOR,      vw, request.POST.get('ret_fltr_3', False))
-          SaveFilters(fltrs, FLTR_COMPLETE,   vw, request.POST.get('ret_fltr_4', False))
-          SaveFilters(fltrs, SORTS,           vw, request.POST.get('ret_fltr_5', False))
+          SaveFilters(fltrs, FLTR_TERM,       vw, request.POST.get('ret_fltr_0', False), '')
+          SaveFilters(fltrs, FLTR_GROUP,      vw, request.POST.get('ret_fltr_1', False), '')
+          SaveFilters(fltrs, FLTR_IMPORTANCE, vw, request.POST.get('ret_fltr_2', False), '')
+          SaveFilters(fltrs, FLTR_COLOR,      vw, request.POST.get('ret_fltr_3', False), '')
+          SaveFilters(fltrs, FLTR_COMPLETE,   vw, request.POST.get('ret_fltr_4', False), '')
+          SaveFilters(fltrs, SORTS,           vw, request.POST.get('ret_fltr_5', False), request.POST.get('ret_dirs', False))
 
         if (act == 4):
           t = get_object_or_404(TaskView, id = pk)

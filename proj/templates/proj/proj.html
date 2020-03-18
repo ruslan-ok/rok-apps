@@ -12,11 +12,11 @@
       var frm = document.getElementById("fld_form");
       var pd = new Date(frm.elements['date'].value);
       var kol = parseFloat(frm.elements['kol'].value);
-      var prc = parseInt(frm.elements['price'].value);
-      var crs = parseInt(frm.elements['course'].value);
-      var usd = parseInt(frm.elements['usd'].value);
+      var prc = parseFloat(frm.elements['price'].value);
+      var crs = parseFloat(frm.elements['course'].value);
+      var usd = parseFloat(frm.elements['usd'].value);
       
-      var totalSum = 0;
+      var totalSum = 0.0;
       if (!isNaN(crs) && !isNaN(kol) && !isNaN(prc) && (crs != 0) && (kol != 0) && (prc != 0))
         totalSum = (kol * prc) / crs;
       if (!isNaN(usd))
@@ -93,13 +93,13 @@
       <script language="javascript" type="text/javascript"> bEdit = false; </script>
       {% endif %} 
       <tr><td class="fl1"> Дата:          </td><td class="fl2"> <input id="dat" name="date"   type="date"   onChange="check()" value="{{ form.date.value }}"   /> </td> </tr>
-      <tr><td class="fl1"> Количество:    </td><td class="fl2"> <input id="kol" name="kol"    type="numbe"  onChange="check()" value="{{ form.kol.value }}"    /> </td> </tr>
-      <tr><td class="fl1"> Цена в рублях: </td><td class="fl2"> <input id="prc" name="price"  type="number" onChange="check()" value="{{ form.price.value }}"  /> </td> </tr>
-      <tr><td class="fl1"> Курс доллара:  </td><td class="fl2"> <input id="crs" name="course" type="number" onChange="check()" value="{{ form.course.value }}" /> </td> </tr>
-      <tr><td class="fl1"> Сумма в USD:   </td><td class="fl2"> <input id="usd" name="usd"    type="number" onChange="check()" value="{{ form.usd.value }}"    /> </td> </tr>
+      <tr><td class="fl1"> Количество:    </td><td class="fl2"> <input id="kol" name="kol"    type="number" step="0.001"  onChange="check()" value="{{ form.kol.value }}"    /> </td> </tr>
+      <tr><td class="fl1"> Цена в рублях: </td><td class="fl2"> <input id="prc" name="price"  type="number" step="0.01"   onChange="check()" value="{{ form.price.value }}"  /> </td> </tr>
+      <tr><td class="fl1"> Курс доллара:  </td><td class="fl2"> <input id="crs" name="course" type="number" step="0.0001" onChange="check()" value="{{ form.course.value }}" /> </td> </tr>
+      <tr><td class="fl1"> Сумма в USD:   </td><td class="fl2"> <input id="usd" name="usd"    type="number" step="0.01"   onChange="check()" value="{{ form.usd.value }}"    /> </td> </tr>
       <tr><td class="fl1"> Итого в USD:   </td><td class="fl2"> <div id="total"> </div> </td> </tr>
       <tr><td class="fl1"> Контрагент:    </td><td class="fl2"> <input id="knt" name="kontr"  size="30" type="text"     onChange="check()" value="{{ form.kontr.value }}"  /> </td> </tr>
-      <tr><td class="fl1"> Описание:      </td><td class="fl2"> <textarea id="txt" name="text" rows="3" cols="30" onChange="check()"> {{ form.text.value }} </textarea> </td> </tr>
+      <tr><td class="fl1"> Описание:      </td><td class="fl2"> <textarea id="txt" name="text" rows="3" cols="30" onChange="check()">{{form.text.value}}</textarea> </td> </tr>
     </tbody></table>
 
     <p id="status" class="PageStatus"> </p> 

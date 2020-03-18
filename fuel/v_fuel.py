@@ -64,11 +64,14 @@ def do_fuel(request, pk):
         last = Fuel.objects.filter(car = car.id).order_by('-pub_date')[:3]
         new_odo = 0
         new_prc = 0
+        new_dat = date.today()
+
         if (len(last) == 0):
           new_vol = 25
         else:
           new_vol = last[0].volume
           new_prc = last[0].price
+          new_dat = last[0].pub_date.date()
           if (len(last) > 2):
             if (last[0].volume != last[1].volume) and (last[1].volume == last[2].volume):
               new_vol = last[1].volume
@@ -79,7 +82,7 @@ def do_fuel(request, pk):
             new_odo = last[0].odometr + int(float(last[0].volume) / cons * 100)
 
         form = FuelForm(initial={'car': car, 
-                                 'pub_date': date.today().isoformat(), 
+                                 'pub_date': new_dat.isoformat(),#date.today().isoformat(), 
                                  'odometr': new_odo, 
                                  'volume': new_vol, 'price': new_prc })
       context = edit_context(request, form, car, pk, '')

@@ -54,7 +54,7 @@
       <tr><td class="fl1"> Граница 2:</td> <td class="fl2"> {{ form.border2 }}  </td> </tr>
       <tr><td class="fl1"> Тариф 3:  </td> <td class="fl2"> {{ form.tarif3 }}   </td> </tr>
       <tr><td class="fl1"> Описание: </td> <td class="fl2">
-         <textarea id="txt" name="text" rows="3" cols="30"> {{ form.text.value }} </textarea> </td> </tr>
+         <textarea id="txt" name="text" rows="3" cols="30">{{form.text.value}}</textarea> </td> </tr>
     </table>
     {% if pid > 0 %} 
       <input type="submit" class="LiteButton" name="action" id="update" value="Сохранить">

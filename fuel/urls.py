@@ -1,8 +1,8 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from fuel import views
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^$',                     views.fuel_view,  name='fuel_view'),
     url(r'^(?P<pk>\d+)/$',         views.fuel_edit,  name='fuel_edit'),
     url(r'^part/$',                views.part_view,  name='part_view'),
@@ -12,4 +12,4 @@ urlpatterns = patterns('',
     url(r'^cars/$',                views.cars_view,  name='cars_view'),
     url(r'^cars/(?P<pk>\d+)/$',    views.cars_edit,  name='cars_edit'),
     url(r'^chg_car/(?P<pk>\d+)/$', views.change_car, name='change_car'),
-)
+]

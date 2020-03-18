@@ -309,7 +309,7 @@
           </td></tr>
       <tr id="days_row"> </tr>
       <script language="javascript" type="text/javascript">doFirstDraw({{form.oper.value}},{{form.days.value}})</script>
-      <tr><td class="fl1"><span id="price_label"></span></td><td class="fl2"> <input id="price" name="price" size="15" type="number" value="{{ form.price.value }}" onChange="check()" /> </td> </tr>
+      <tr><td class="fl1"><span id="price_label"></span></td><td class="fl2"> <input id="price" name="price" size="15" type="number" step="0.01" value="{{ form.price.value }}" onChange="check()" /> </td> </tr>
       <tr><td class="fl1"> Описание </td><td class="fl2"> <input name="text"  size="15" type="text"   value="{{ form.text.value }}" /> </td> </tr>
     </tbody></table>
 

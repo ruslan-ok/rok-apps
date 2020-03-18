@@ -12,9 +12,17 @@ from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
 
+#from django.contrib.auth import authenticate, login
+
 # Avoid shadowing the login() and logout() views below.
 from django.contrib.auth import (REDIRECT_FIELD_NAME, login as auth_login,
     logout as auth_logout, get_user_model, update_session_auth_hash)
+
+# Avoid shadowing the login() and logout() views below.
+#from django.contrib.auth import (
+#    REDIRECT_FIELD_NAME, get_user_model, login as auth_login,
+#    logout as auth_logout, update_session_auth_hash,
+#)
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm, SetPasswordForm, PasswordChangeForm
 from django.contrib.auth.tokens import default_token_generator
@@ -41,7 +49,7 @@ def index(request):
     Apps(user = request.user, name = 'Проекты',  page='/proj',   title = '', summary = proj_summary(request.user.id)).save()
     Apps(user = request.user, name = 'Задачи',   page='/task',   title = '', summary = task_summary(request.user.id)).save()
     apps = Apps.objects.all().filter(user = request.user.id)
-    return render_to_response('index.html', {'page_title':'Приложения', 'apps':apps}, RequestContext(request))
+    return render_to_response('index.html', {'page_title':'Приложения', 'apps':apps, 'user':request.user}, RequestContext(request))
 
 
 @sensitive_post_parameters()
@@ -92,8 +100,3 @@ def login(request, template_name='registration/login.html',
 def logout_vew(request):
     logout(request)
     return redirect('/login/')
-
-
-
-def gate(request):
-    return render(request, 'gate.html')

@@ -14,12 +14,12 @@ debug_text = ''
 class ReplForm(forms.ModelForm):
     class Meta:
         model = Repl
-        exclude = ('part',)
+        exclude = ('part', 'oper',)
 
 #============================================================================
 def edit_context(request, form, _part, _repl):
     part = Part.objects.get(id = _part)
-    replaces = Repl.objects.filter(part = _part)
+    replaces = Repl.objects.filter(part = _part).order_by('-dt_chg')[:20]
     return { 'form':       form, 
              'replaces':   replaces, 
              'part':       _part, 
@@ -85,7 +85,7 @@ def do_repl(request, pt, pk):
         if not form.is_valid():
           # Ошибки в форме, отобразить её снова
           context = edit_context(request, form, pt, pk)
-          return render(request, 'repl/' + str(pt) + '/' + str(pk) + '/repl.html', context)
+          return render(request, 'fuel/repl.html', context)
         else:
           t = form.save(commit = False)
     

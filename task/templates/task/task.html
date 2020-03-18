@@ -19,6 +19,11 @@
       return true;
     }
 
+    function selView()
+    {
+      alert('ok');
+    }
+
   </script>
   
   <div id="gmenu" class="menu"> <a href="/"> Приложения    </a> | 
@@ -38,9 +43,15 @@
   {% endfor %}
 
   <form id="fld_form" action="{% url 'task:task_edit' '0' %}" method="post">
+         <br>
+         <br>
+         <br>
+    Вид: 
+         <br>
+         <br>
+         <br>
     {% csrf_token %}
     <input name="active" type="hidden" value="{{ form.active.value }}" />
-    {{ form.selview }}
     <table class="fl1">
       <tbody>
         <tr>

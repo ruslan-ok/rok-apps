@@ -1,7 +1,7 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from pir import views
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^(?P<tbl>\w+)/$', views.pir_edit,  name='pir_edit'),
-)
+]

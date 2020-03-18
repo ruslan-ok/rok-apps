@@ -12,6 +12,7 @@
     }
 
     var fltr = [];
+    var dirs = '';
 
     function initFilters()
     {
@@ -21,11 +22,14 @@
       fltr.push([]);
       fltr.push([]);
       fltr.push([]);
+      dirs = '';
     }
 
-    function addFilter(_f, _v)
+    function addFilter(_f, _v, _dir)
     {
       fltr[_f].push(_v);
+      if (_f == 5)
+        dirs += _dir;
     }
 
     var pid = 0;
@@ -53,6 +57,10 @@
         }
         ret += ']';
         frm.elements['ret_fltr_'+i].value = ret;
+
+        if (i == 5)
+          frm.elements['ret_dirs'].value = dirs;
+
         i++;
       }
     }
@@ -119,7 +127,19 @@
       //debug('***: "' + sss + '"');
     }
 
-    function addSelect(_num_f, _num_s, _value, _del, _add)
+    function direct_changed(_id, _value)
+    {
+      //debug('select_changed: _id = ' + _id + ', _value = "' + _value + '"');
+      var z = parseInt(_id.substring(2));
+      var f = Math.round(z / 100);
+      var s = z % 100;
+      while (dirs.length < (s+1))
+        dirs += ' ';
+      dirs += _value.toString();
+      alert('_id = ' + _id + ', _value = ' + _value + ', dirs = "' + dirs + '"');
+    }
+
+    function addSelect(_num_f, _num_s, _value, _direct, _del, _add)
     {
       var _num = _num_f*100 + _num_s;
 
@@ -153,6 +173,24 @@
         i++;
       }
       ret += '    </select>';
+
+      if ((_num_f == 5) && (_value != -1))
+      {
+        ret += '<select name="nd' + _num + '" class="cd' + _num + '" id="id' + _num + '" onchange="direct_changed(this.id, this.value)">';
+    
+        if (_value == 0)
+          ret += '<option value="0" selected="selected">по возрастанию</option>';
+        else
+          ret += '<option value="0"                    >по возрастанию</option>';
+    
+        if (_value == 1)
+          ret += '<option value="1" selected="selected">по убыванию</option>';
+        else
+          ret += '<option value="1"                    >по убыванию</option>';
+    
+        ret += '    </select>';
+      }
+
       if (_del)
         ret += ' <a id="fltr_del_' + _num + '" title="Удалить этот фильтр" href="#" onclick="del_fltr(this.id);return false;">Удалить</a>';
       if (_add)
@@ -171,21 +209,23 @@
       
       if (fltr[_num].length == 0)
       {
-        ret += addSelect(_num, 0, -1, false, true);
+        ret += addSelect(_num, 0, -1, -1, false, true);
       }
       else
       {
         var i = 0;
         while (i < fltr[_num].length)
         {
-          ret += addSelect(_num, i, fltr[_num][i], (i > 0), (i == fltr[_num].length-1));
+          ret += addSelect(_num, i, fltr[_num][i], -1, (fltr[_num].length > 1) || (i > 0), (i == fltr[_num].length-1));
           ret += '<br>';
           i++;
         }
       }
 
+      //ret += '<br>';
       ret += '  </td>';
       ret += '</tr>';
+      ret += '<tr><td>|</td><td></td></tr>';
       return ret;
     }
 
@@ -199,7 +239,7 @@
       if (pid > 0)
       {
         html += '<table><tr>';
-        html += '  <td class="fl1">Фильтры</td>';
+        html += '  <td class="fl1"><strong>Фильтры</strong</td>';
         html += '  <td></td>';
         html += '</tr>';
 
@@ -223,7 +263,7 @@
       if (pid > 0)
       {
         html += '<table><tr>';
-        html += '  <td class="fl1">Сортировка</td>';
+        html += '  <td class="fl1"><strong>Сортировка</strong></td>';
         html += '  <td></td>';
         html += '</tr>';
 
@@ -233,19 +273,20 @@
         
         if (fltr[5].length == 0)
         {
-          html += addSelect(5, 0, -1, false, true);
+          html += addSelect(5, 0, -1, -1, false, true);
         }
         else
         {
           var i = 0;
           while (i < fltr[5].length)
           {
-            html += addSelect(5, i, fltr[5][i], (i > 0), (i == fltr[5].length-1));
+            html += addSelect(5, i, fltr[5][i], dirs[i], (fltr[5].length > 1) || (i > 0), (i == fltr[5].length-1));
             html += '<br>';
             i++;
           }
         }
       
+        html += '<br>';
         html += '  </td>';
         html += '</tr>';
         html += '</table>';
@@ -255,6 +296,26 @@
 
     function drawFieldVis()
     {
+      var x = document.getElementById('fieldvis');
+      
+      var html = '';
+      
+      if (pid > 0)
+      {
+        html += '<table><tr>';
+        html += '  <td class="fl1"><strong>Отображаемые поля</strong></td>';
+        html += '  <td></td>';
+        html += '</tr>';
+
+        html += '<tr>';
+        html += '  <td class="fl1"></td>';
+        html += '  <td class="fl2" id="fieldvis_id">|';
+        html += '  </td>';
+        html += '</tr>';
+        html += '</table>';
+      }
+
+      x.innerHTML = html;
     }
 
     function check()
@@ -318,6 +379,7 @@
     <input name="ret_fltr_3" type="hidden" value="[]">
     <input name="ret_fltr_4" type="hidden" value="[]">
     <input name="ret_fltr_5" type="hidden" value="[]">
+    <input name="ret_dirs"   type="hidden" value="[]">
 
     <table class="fl1">
       <tbody>
@@ -329,6 +391,11 @@
           <td class="fl2"> <input name="name" type="text" size="30" onChange="check()" value="{{ form.name.value }}" /> </td> 
           {% if pid == 0 %} 
           <td class="fl1"> <input type="submit" class="AddButton" name="action" value="+" /> </td>
+          {% else %} 
+        </tr>
+        <tr>
+          <td class="fl1"> Код для сортировки: </td>
+          <td class="fl2"> <input name="code" type="text" size="30" onChange="check()" value="{{ form.code.value }}" /> </td> 
           {% endif %} 
         </tr>
       </tbody>
@@ -347,27 +414,27 @@
   </script>
 
   {% for f in fltr_t %}
-    <script language="javascript" type="text/javascript"> addFilter(0, {{f.value}}); </script>
+    <script language="javascript" type="text/javascript"> addFilter(0, {{f.value}}, 0); </script>
   {% endfor %}
 
   {% for f in fltr_g %}
-    <script language="javascript" type="text/javascript"> addFilter(1, {{f.value}}); </script>
+    <script language="javascript" type="text/javascript"> addFilter(1, {{f.value}}, 0); </script>
   {% endfor %}
 
   {% for f in fltr_i %}
-    <script language="javascript" type="text/javascript"> addFilter(2, {{f.value}}); </script>
+    <script language="javascript" type="text/javascript"> addFilter(2, {{f.value}}, 0); </script>
   {% endfor %}
 
   {% for f in fltr_r %}
-    <script language="javascript" type="text/javascript"> addFilter(3, {{f.value}}); </script>
+    <script language="javascript" type="text/javascript"> addFilter(3, {{f.value}}, 0); </script>
   {% endfor %}
 
   {% for f in fltr_c %}
-    <script language="javascript" type="text/javascript"> addFilter(4, {{f.value}}); </script>
+    <script language="javascript" type="text/javascript"> addFilter(4, {{f.value}}, 0); </script>
   {% endfor %}
 
   {% for f in sorts %}
-    <script language="javascript" type="text/javascript"> addFilter(5, {{f.value}}); </script>
+    <script language="javascript" type="text/javascript"> addFilter(5, {{f.value}}, {{f.direct}}); </script>
   {% endfor %}
 
   <script language="javascript" type="text/javascript"> 
@@ -378,33 +445,23 @@
     <tbody>
       <tr>
         <th class="work"> ID           </th>
+        <th class="work"> Код          </th>
         <th class="work"> Наименование </th>
         <th class="work"> Фильтр       </th>
         <th class="work"> Сортировка   </th>
-        <th class="work"> Группировка  </th>
         <th class="work"> Поля         </th>
       </tr>
       {% for v in views %}
       <tr>
         <td class="pid">  <script language="javascript" type="text/javascript">getLink({{ v.id }})</script> </td>
-        <td class="work"> {{ v.name  }} </td>
-        <td class="work"> {{ v.fltr  }} </td>
-        <td class="work"> {{ v.sort  }} </td>
-        <td class="work"> {{ v.group }} </td>
-        <td class="work"> {{ v.flds  }} </td>
+        <td class="work"> {{ v.code   }} </td>
+        <td class="work"> {{ v.name   }} </td>
+        <td class="work"> {{ v.s_fltr }} </td>
+        <td class="work"> {{ v.s_sort }} </td>
+        <td class="work"> {{ v.s_flds }} </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
-  <br> *** {{ form.grp }} ***
-  <!-- 
-  <br>frp  = {{ form.grp }}
-  <br>views  = {{ views.values }}
-  <br>fltr_t = {{ fltr_t.values }}
-  <br>fltr_g = {{ fltr_g.values }}
-  <br>fltr_i = {{ fltr_i.values }}
-  <br>fltr_r = {{ fltr_r.values }}
-  <br>fltr_c = {{ fltr_c.values }}
-  -->
 {% endblock %}
 
