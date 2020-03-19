@@ -1,8 +1,7 @@
-# coding=UTF-8
 from django import forms
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from datetime import date, datetime, timedelta
 from fuel.models import Fuel, Car, Part
 
@@ -55,7 +54,7 @@ def do_part(request, pk):
         car.save()
     
     if (car == None):
-      return HttpResponseRedirect(reverse('fuel:part_view', args=()))
+      return HttpResponseRedirect(reverse('part.html', args=()))
 
     if (request.method == 'GET'):
       if (pk > 0):
@@ -116,4 +115,4 @@ def do_part(request, pk):
             t = get_object_or_404(Part, id=pk)
             t.delete()
     
-      return HttpResponseRedirect(reverse('fuel:part_view'))
+      return HttpResponseRedirect(reverse('part.html'))

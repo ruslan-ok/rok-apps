@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block title %}{% if user_info.is_authenticated %} {{ user_info }} | {% endif %}{{ site_title|default:'rusel.by' }}{% endblock %}
+
+{% block extrastyle %}
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-black.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+{% endblock %}
+
+{% block branding %}
+  <h1 id="site-name"><a href="{% url 'index' %}">{{ site_header|default:'rusel.by' }}</a></h1>
+{% endblock %}
+
+{% block userlinks %}
+  {% if user_info.is_authenticated %}
+    <a href="{% url 'account:profile' %}">{% firstof user.get_short_name user.get_username %}</a>
+  {% else %}
+    <a href="{% url 'account:login' %}">{% trans 'Log in' %}</a>
+  {% endif %}
+{% endblock %}
+
+{% block breadcrumbs %}
+  {% if user_info.is_authenticated %}
+    <div class="breadcrumbs">
+        <a href="{% url 'news' %}">{% trans 'news' %}</a>
+      : <a href="{% url 'todo' %}">{% trans 'tasks' %}</a>
+      : <a href="{% url 'feedback' %}">{% trans 'feedback' %}</a>
+      : <a href="{% url 'sample' %}">{% trans 'sample' %}</a>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block content_title %}
+  {% if title %}<h1>{{ title }}</h1>{% endif %}
+{% endblock %}
+

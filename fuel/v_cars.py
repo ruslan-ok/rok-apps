@@ -1,7 +1,6 @@
-# coding=UTF-8
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django import forms
 from django.forms import ModelForm
 from fuel.models import Car
@@ -9,7 +8,8 @@ from fuel.models import Car
 
 class CarsForm(ModelForm):
     action = forms.CharField(widget = forms.HiddenInput, required = False)
-    active = forms.IntegerField(u'Активная', required = False)
+    active = forms.IntegerField(label = 'Активная', required = False)
+
     class Meta:
         model = Car
         fields = ('name', 'plate', 'active', 'action')
@@ -34,7 +34,7 @@ def do_cars(request, pk):
     else:
       form = CarsForm(initial = {'name': '', 'plate': '', 'active': 0})
     context = edit_context(request, form, pk, 'get-1')
-    return render(request, 'fuel/cars.html', context)
+    return render(request, 'cars.html', context)
   else:
     action = request.POST.get('action', False)
     active = request.POST.get('active', False)
@@ -59,7 +59,7 @@ def do_cars(request, pk):
       if not form.is_valid():
         # Ошибки в форме, отобразить её снова
         context = edit_context(request, form, pk, 'post-error' + str(form.non_field_errors))
-        return render(request, 'fuel/cars.html', context)
+        return render(request, 'cars.html', context)
       else:
         t = form.save(commit=False)
 
@@ -85,5 +85,5 @@ def do_cars(request, pk):
           t = get_object_or_404(Car, id=pk)
           t.delete()
 
-    return HttpResponseRedirect(reverse('fuel:cars_view'))
+    return HttpResponseRedirect(reverse('cars.html'))
 

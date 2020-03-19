@@ -1,11 +1,10 @@
-# coding=UTF-8
 from django.shortcuts import get_object_or_404, render
 from django import forms
 from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from datetime import date
 from django.forms import ModelForm
-from ruslan.const import t_months
+from rusel.const import t_months
 from apart.models import Tarif
 
 

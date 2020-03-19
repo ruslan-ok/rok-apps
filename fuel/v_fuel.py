@@ -1,8 +1,7 @@
-# coding=UTF-8
 from django import forms
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from datetime import date, datetime, timedelta
 from fuel.models import Fuel, Car, consumption, fuel_summary
 
@@ -49,8 +48,11 @@ def do_fuel(request, pk):
         car.save()
     
     if (car == None):
-      return HttpResponseRedirect(reverse('fuel:cars_edit', args=(0,)))
+        #return HttpResponseRedirect(reverse('fuel:cars', args=(0,)))
+        #return reverse('fuel:hello')
+        return render(request, 'hello.html')
 
+    return render(request, 'hello.html')
     if (request.method == 'GET'):
       ttt = date.today()
       if (pk > 0):
@@ -129,7 +131,7 @@ def do_fuel(request, pk):
             t = get_object_or_404(Fuel, id=pk)
             t.delete()
     
-      return HttpResponseRedirect(reverse('fuel:fuel_view'))
+      return HttpResponseRedirect(reverse('fuel'))
 
 def do_change_car(request, pk):
     active_cars = Car.objects.filter(user = request.user.id, active = 1)

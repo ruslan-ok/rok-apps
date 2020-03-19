@@ -1,8 +1,7 @@
-# coding=UTF-8
 from datetime import datetime, date
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django import forms
 from django.forms import ModelForm
 from trip.models import Person, Saldo, Trip, trip_summary
@@ -10,7 +9,7 @@ from trip.models import Person, Saldo, Trip, trip_summary
 
 #============================================================================
 class TripForm(ModelForm):
-    days = forms.IntegerField(u'Дни', required = False)
+    days = forms.IntegerField(label = 'Дни', required = False)
     class Meta:
         model = Trip
         exclude = ('user',)

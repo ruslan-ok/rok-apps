@@ -1,7 +1,6 @@
-# coding=UTF-8
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.forms import ModelForm
 from django import forms
 from datetime import date, datetime, timedelta

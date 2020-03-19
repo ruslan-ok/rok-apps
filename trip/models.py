@@ -1,10 +1,9 @@
-# coding=UTF-8
 from django.contrib.auth.models import User
 from django.db import models
 
 
 class Person(models.Model):
-  user   = models.ForeignKey(User)
+  user   = models.ForeignKey(User, on_delete=models.CASCADE)
   name   = models.CharField(max_length=500, blank=False)
   dative = models.CharField(max_length=500, blank=False)
   me     = models.IntegerField()
@@ -12,21 +11,21 @@ class Person(models.Model):
     return '[' + self.user.encode('utf-8') + '] ' + self.name.encode('utf-8')
 
 class Saldo(models.Model):
-  user   = models.ForeignKey(User)
-  p1   = models.ForeignKey(Person, related_name="p1")
-  p2   = models.ForeignKey(Person, related_name="p2")
+  user   = models.ForeignKey(User, on_delete=models.CASCADE)
+  p1   = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="p1")
+  p2   = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="p2")
   me   = models.IntegerField(blank=False)
   summ = models.DecimalField(blank=False, max_digits=15, decimal_places=2)
 
 class Trip(models.Model):
-  user      = models.ForeignKey(User)
+  user      = models.ForeignKey(User, on_delete=models.CASCADE)
   year      = models.IntegerField(blank=False)
   week      = models.IntegerField(blank=False)
   days      = models.IntegerField(blank=False)
   oper      = models.IntegerField(blank=False)
   price     = models.DecimalField(blank=False, max_digits=15, decimal_places=2)
-  driver    = models.ForeignKey(Person, related_name="driver")
-  passenger = models.ForeignKey(Person, related_name="passenger")
+  driver    = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="driver")
+  passenger = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="passenger")
   text      = models.CharField(max_length=1000, blank=True)
 
   def s_days(self):

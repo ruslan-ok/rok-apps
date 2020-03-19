@@ -1,0 +1,220 @@
+{% extends "base_site.html" %}
+{% load i18n static %}
+{% block content %}
+      <h3 class="w3-text-teal">23.02.2020 - Изучение <code>virtualenv</code>.</h3>
+
+      <p>Пробую разобраться с <code>virtualenv</code>. В среде разработки пытаюсь настроить сервер на использование указанного виртуального окружения.</p>
+      <p>Следуя <a href="https://editrocket.com/articles/php_apache_windows.html">инструкциям</a> установил и проверил работоспособность <code>PHP</code> в среде разработки.
+         Для проверки использовал простой тест <a href="news/test.php">test.php</a>:<p>
+      <p>Выяснил, что для запуска скрипта на Python можно в его начале указать путь на конкретный исользуемый python.exe</p>
+      <p>А при запуске Django-проекта можно вктивизировать нужное виртуальное окружение и из него запустить сервер разработки с помощью <code>py manage.py runserver</code></p>
+      <p>Планирую выяснить как настроить на нужную версию Python сервер в продуктивной среде и как организовать деплой проекта из среды разработки в продуктивную среду.</p>
+
+      <h3 class="w3-text-teal">18.02.2020 - Установка mod_wsgi.</h3>
+
+      <p>Помню, что и 5 лет назад, когда впервые настраивал <code>Apache</code> и <code>Django</code> установка <code>mod_wsgi</code> оказалась сложной задачей. И сейчас мало что изменилось.
+         Подходящий бинарник найти не удалось, а сборка, инициируемая <code>pip install mod_wsgi</code> отработала с *дцатой попытки.
+         Пришлось многократно устанавливать всякие <code>Visual Studio</code> и <code>Microsoft SDK</code>.
+         Для безошибочной компиляции потребовался также каталог <code>Include</code> из какой-то посторонней сборки <code>Apache</code>.
+         Ну и в результате я получил не <code>mod_wsgi.so</code>, а python-пакет <code>mod_wsgi.cp37-win_amd64.pyd</code>, который в <code>httpd.conf</code> подключается следующим образом:</p>
+      <p><code>
+LoadModule php7_module "C:/Web/Php/php7apache2_4.dll"<br>
+LoadFile "C:\Web\Python\python37.dll"<br>
+LoadModule wsgi_module "C:\Web\Python\Lib\site-packages\mod_wsgi\server\mod_wsgi.cp37-win_amd64.pyd"<br>
+WSGIPythonHome "C:\Web\Python"<br>
+PHPIniDir "C:/Web/Php"<br>
+      </code></p>
+
+      <h3 class="w3-text-teal">16.02.2020 - Текущие успехи.</h3>
+
+      <p>Поставил MySQL и MySQL Workbench</p>
+      <p>Перевести hMailServer на MySQL не удалось, так как оказалось, что hMailServer существует только в 32-разрядной версии, а БД я ставил 64-разрядную.</p>
+
+      <h3 class="w3-text-teal">15.02.2020 - Почтовый сервер hMailServer.</h3>
+
+      <p>Радость в предыдущем сообщении была преждевременной. На следующее утро почта перестала уходить на внешние адреса.
+         
+         После трех недель тщетных попыток запустить <code>Apach James</code> мой энтузиазм заметно поугас. 
+         Решил попробовать другой софт и, вуаля, за несколько часов сервер <code>hMailServer</code> настроен и работает, в том числе с внешними адресами.
+         С сегодняшнего дня основным моим почтовым адресом становится <b><code>ok@rusel.by</code></b><p>
+
+      <h3 class="w3-text-teal">05.02.2020 - Ура! Заработала отправка почты.</h3>
+
+      <p>Последний баг с которым бился - <a href="https://issues.apache.org/jira/browse/JAMES-2911">JAMES-2911</a>.<p>
+
+      <h3 class="w3-text-teal">03.02.2020 - Компиляция и отладка.</h3>
+
+      <p>За воскресенье научился компилировать исходники проекта, причем как в командной строке, так и в Eclipse и IntelliJ IDEA.
+      Но позже выяснил, что поставляемые бинарники собраны с отладочной информацией и в принципе их уже можно отлаживать без перекомпиляции.
+      Ещё научился отлаживать почтовый сервер в Eclipse. Это помогло локализовать и исправить ошибку "org.xbill.dns Lookup of localhost A isn't done" -
+      в domainlist.xml заменил JPADomainList на XMLDomainList.</p>
+
+      <p>Однако по-прежнему отправка писем на внешние адреса не работает, но теперь уже из-за другой ошибки: 
+      "java.lang.ClassCastException: org.apache.geronimo.javamail.transport.smtp.SMTPTransport cannot be cast to com.sun.mail.smtp.SMTPTransport".
+      Гугление традиционно не помогло, поэтому продолжу локализацию с помощью отладчика.</p>
+
+
+      <h3 class="w3-text-teal">30.01.2020 - Корректировка PTR-записи.</h3>
+
+      <p>Проверяем тут: <a href="https://ivit.pro/services/ptr-check-proverka-ptr-zapisi/">ivit.pro</a>:
+      <div class="w3-panel w3-black">
+        <p class="w3-whitefont">PTR запись для IP - 178.172.132.29 :<br>
+        ---------------------------</p>
+        <p class="w3-limefont">29.132.172.178.in-addr.arpa name = mail.rusel.by.</p>
+      </div>
+
+      <div class="w3-panel w3-black">
+        <p class="w3-whitefont">MX-запись: mail.rusel.by<br>
+        PTR-запись: 29.132.172.178.in-addr.arpa name = mail.rusel.by</p>
+        <p class="w3-limefont">OK - PTR запись совпадает с именем домена!</p>
+      </div>
+      
+      <h3 class="w3-text-teal">30.01.2020 - Субдомены для почты.</h3>
+      Ладно, рискнем. Внес изменения в настройки DNS-зоны 
+      (руководствовался рекомендациями <a href="https://interface31.ru/tech_it/2010/10/pochtovyj-server-dlya-nachinayushhix-nastraivaem-dns-zonu.html">interface31.ru</a>):
+      <table class="w3-table w3-light-gray">
+      <tr>
+        <th>ДОМЕННОЕ ИМЯ</th>
+        <th>ТИП</th>
+        <th>ПРИОРИТЕТ</th>
+        <th>ЗНАЧЕНИЕ</th>
+      </tr>
+      <tr>
+        <td>rusel.by.</td>
+        <td>A</td>
+        <td></td>
+        <td>178.172.132.29</td>
+      </tr>
+      <tr>
+        <td>rusel.by.</td>
+        <td>MX</td>
+        <td>10</td>
+        <td>mail.rusel.by.</td>
+      </tr>
+      <tr>
+        <td>rusel.by.</td>
+        <td>TXT</td>
+        <td></td>
+        <td>v=spf1 +mx +a -all</td>
+      </tr>
+      <tr>
+        <td>mail.rusel.by.</td>
+        <td>A</td>
+        <td></td>
+        <td>178.172.132.29</td>
+      </tr>
+      <tr>
+        <td>pop3.rusel.by.</td>
+        <td>CNAME</td>
+        <td></td>
+        <td>mail.rusel.by.</td>
+      </tr>
+      <tr>
+        <td>imap.rusel.by.</td>
+        <td>CNAME</td>
+        <td></td>
+        <td>mail.rusel.by.</td>
+      </tr>
+      <tr>
+        <td>smtp.rusel.by.</td>
+        <td>CNAME</td>
+        <td></td>
+        <td>mail.rusel.by.</td>
+      </tr>
+      </table>
+
+      <!--div class="w3-panel w3-black"-->
+      <div class="w3-code w3-black notranslate">
+        <p class="w3-whitefont">
+          C:\WINDOWS\system32>nslookup -type=mx rusel.by<br>
+          ╤хЁтхЁ:  XiaoQiang<br>
+          Address:  192.168.31.1<br>
+          <br>
+          Не заслуживающий доверия ответ:<br>
+          rusel.by        MX preference = 10, mail exchanger = mail.rusel.by<br>
+          <br>
+          rusel.by        nameserver = a2.domain.by<br>
+          rusel.by        nameserver = a1.domain.by<br>
+          mail.rusel.by   internet address = 178.172.132.29<br>
+          a1.domain.by    internet address = 193.232.92.25<br>
+          a2.domain.by    internet address = 93.84.119.236</p>
+      </div>
+      
+      <div class="w3-code w3-black notranslate">
+        <p class="w3-whitefont">
+          C:\WINDOWS\system32>nslookup -type=ptr rusel.by<br>
+          ╤хЁтхЁ:  XiaoQiang<br>
+          Address:  192.168.31.1<br>
+          <br>
+          rusel.by<br>
+                  primary name server = a1.domain.by<br>
+                  responsible mail addr = info@domain.by<br>
+                  serial  = 1580331904<br>
+                  refresh = 10800 (3 hours)<br>
+                  retry   = 3600 (1 hour)<br>
+                  expire  = 604800 (7 days)<br>
+                  default TTL = 300 (5 mins)</p>
+      </div>
+
+      <p>Конфигурирование сервера: <a href="https://medium.com/linagora-engineering/installing-james-3-0-with-spf-verification-421b26b92f11">medium.com</a></p>
+      
+      <h3 class="w3-text-teal">29.01.2020 - Компиляция и отладка.</h3>
+      <p>Настроил сборку исходников сервера с помощью Maven, но в результате получаю набор скомпилированных классов, 
+      а как упаковать их в jar и запустить на них сервер пока не разобрался.</p>
+      <p>Установил Eclipse, пробовал запустить отладку и компиляцию на нем, но пока тоже не осилил.</p>
+      <p>Руки всё время чешутся авести в DNS-редакторе запись mail.rusel.by, но очкую, что этим всё сломаю.
+      На всякий случай прихраню тут инфу о текущих настройках.</p>
+      <table class="w3-table w3-light-gray">
+      <tr>
+        <th>ДОМЕННОЕ ИМЯ</th>
+        <th>ТИП</th>
+        <th>ПРИОРИТЕТ</th>
+        <th>ЗНАЧЕНИЕ</th>
+      </tr>
+      <tr>
+        <td>rusel.by.</td>
+        <td>A</td>
+        <td></td>
+        <td>178.172.132.29</td>
+      </tr>
+      <tr>
+        <td>rusel.by.</td>
+        <td>MX</td>
+        <td>10</td>
+        <td>rusel.by.</td>
+      </tr>
+      <tr>
+        <td>rusel.by.</td>
+        <td>TXT</td>
+        <td></td>
+        <td>v=spf1 +mx +a -all</td>
+      </tr>
+      </table>
+
+      <p>И значение обратного DNS (PTR-запись), полученное на <a href="https://ivit.pro/services/ptr-check-proverka-ptr-zapisi/">ivit.pro</a>:
+      <div class="w3-panel w3-black">
+        <p class="w3-whitefont">MX-запись: rusel.by<br>
+        PTR-запись: 29.132.172.178.in-addr.arpa name = rusel.by</p>
+        <p class="w3-limefont">OK - PTR запись совпадает с именем домена!</p>
+      </div>
+
+      <h3 class="w3-text-teal">26.01.2020 - Сложности с полноценным запуском почтового сервера.</h3>
+      <p>Очень много усилий потрачено на перевод почтового сервера на протоколы безопасного соединения SSL\TLS, но на данный момент получилось перевести на StartTLS только SMTP-сервер,
+      а IMAP не поддаётся. К тому же по-прежнему не работает отправка почты с внутренних адресов на внешние.
+      Основное подозрение в том, что для почтового сервера используется домен второго уровня, а не третьего, но проверить это пока не представляется возможным.
+      Склоняюсь к тому, что надо попробовать скомпилировать исходники сервера и проверить под отладчиком что там происходит.</p>
+      <h3 class="w3-text-teal">25.01.2020 - Сайт переведен на протокол HTTPS.</h3>
+      <p>SSL-сертификат бесплатный на 3 месяца получен на domain.by. Содержимое сервера пока отсутствует.</p>
+      <h3 class="w3-text-teal">20.01.2020 - Обратный DNS.</h3>
+      <p>После обращения в техподдержку провайдера "Сети Плюс" обратный DNS (PTR-запись) прописан ими довольно оперативно.</p>
+      <h3 class="w3-text-teal">21.01.2020 - Новое железо.</h3>
+      <p>Под сервер приобрел неттоп Intel NUC NUC8i3BEK2. Пытался установить на него Ubuntu - бесполезно. А вот Win10 взлетела на ура.</p>
+      <h3 class="w3-text-teal">19.01.2020 - Запуск почтового сервера</h3>
+      <p>Запустил сервак Apache James 3.4.0, но полноценно он не заработает, пока не будет сделана запись обратного DNS. Завтра буду решать вопрос с её созданием с админами нашего провайдера.</p>
+      <p>Для работы почтового сервера, а впоследствии и для доработок сервисов сайта, установил также MySQL Community Edition 8.0.19.</p>
+      <h3 class="w3-text-teal">15.01.2020 - Запуск сервера разработки</h3>
+      <p>На компе RUSLAN-ZENBOOK установил http-сервер Apache 2.4.41. Буду использовать его для разработки и тестирования новой версии сайта.</p>
+      <h3 class="w3-text-teal">14.01.2020 - Проброс порта</h3>
+      <p>Решена давняя проблема с невозможностью достучаться до домашнего web-сервера из внешней сети по стандартному протоколу http, использующему 80-й порт, 
+      потому что не получалось пробросить его на роутере. Сегодня удалось это сделать но не с помощью проброса портов, а включив на роутере загадочную опцию DMZ.</p>
+{% endblock %}
