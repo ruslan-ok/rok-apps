@@ -3,23 +3,27 @@ from fuel.v_cars import do_cars
 from fuel.v_fuel import do_fuel, do_change_car
 from fuel.v_part import do_part
 from fuel.v_repl import do_repl
-from django.shortcuts import render
-
-
-def hello(request):
-    return render(request, 'hello.html')
-
 
 
 #============================================================================
-# Представление для отображения списка автомобилей/редактирования автомобиля
 @login_required(login_url='account:login')
-def cars(request, pk=0):
-    return do_cars(request, pk)
+#============================================================================
+# Представление для отображения списка автомобилей
+def cars_view(request):
+    return do_cars(request, 0)
 
 #============================================================================
 @login_required(login_url='account:login')
-def index(request):
+#============================================================================
+# Представление для редактирования автомобиля
+def cars_edit(request, pk):
+    return do_cars(request, int(pk))
+
+#============================================================================
+@login_required(login_url='account:login')
+#============================================================================
+# Представление для отображения списка заправок
+def fuel_view(request):
     return do_fuel(request, 0)
 
 #============================================================================

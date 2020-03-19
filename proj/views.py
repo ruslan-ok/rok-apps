@@ -3,7 +3,6 @@ from proj.v_dirs import do_dirs
 from proj.v_proj import do_proj, do_change_dir
 
 
-
 #============================================================================
 @login_required(login_url='account:login')
 #============================================================================

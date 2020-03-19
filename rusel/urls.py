@@ -30,6 +30,7 @@ urlpatterns = i18n_patterns(
     path('proj/',     include('proj.urls')),
     path('task/',     include('task.urls')),
     path('pir/',      include('pir.urls')),
+    path('wage/',     include('wage.urls')),
     path('account/',  include('account.urls')),
     path('admin/',    admin.site.urls, name='admin'),
 )

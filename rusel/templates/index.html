@@ -8,12 +8,12 @@
         <a href="javascript:void(0)" onclick="w3_close()" class="w3-right w3-xlarge w3-padding-large w3-hover-black w3-hide-large" title="Close Menu">
           <i class="fa fa-remove"></i>
         </a>
-        <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'fuel' %}">Заправка</a>
-        <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'trip' %}">Проезд</a>
-        <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'apart' %}">Квартира</a>
-        <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'proj' %}">Проекты</a>
-        <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'task' %}">Задачи</a>
-        <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'wage' %}">Работа</a>
+        <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'fuel:fuel_view' %}">Заправка</a>
+        <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'trip:trip_view' %}">Проезд</a>
+        <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'apart:apart_view' %}">Квартира</a>
+        <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'proj:proj_view' %}">Проекты</a>
+        <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'task:task_view' %}">Задачи</a>
+        <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'wage:index' %}">Работа</a>
       </nav>
     </div>
   {% else %}

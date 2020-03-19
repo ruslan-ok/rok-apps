@@ -6,12 +6,12 @@
 
     function getCarLink(_p)
     {
-      var html = '<a href="/fuel/cars/' + _p +'/">' + _p + '</a>';
+      var html = '<a href="/proj/dirs/' + _p +'/">' + _p + '</a>';
       document.write(html);
       return true;
     }
 
-    function getCarMark(_active, _t)
+    function getDirMark(_active, _t)
     {
       var html = '';
       if (_active)
@@ -26,12 +26,12 @@
     function myClick(_num)
     {
       var frm = document.getElementById("fld_form");
-      var car_active = '0';
+      var dir_active = '0';
 
       if (frm.elements['active_cbx'].checked)
-        car_active = '1';
+        dir_active = '1';
 
-      frm.elements["active"].value = car_active;
+      frm.elements["active"].value = dir_active;
       frm.Submit();
       return true;
     }
@@ -41,14 +41,10 @@
     function check()
     {
       var name  = document.getElementById('fld_form').elements['name'].value;
-      var plate = document.getElementById('fld_form').elements['plate'].value;
 
       var status = '';
       if (name == '' || name == '?')
-        status = 'Не задано название автомобиля';
-      else
-        if (plate == '')
-          status = 'Не задан гос. номер автомобиля';
+        status = 'Не задано название проектного направления';
       
       document.getElementById('status').innerHTML = status;
       
@@ -75,17 +71,19 @@
 
   </script>
   
-  <div id="gmenu" class="menu"> <a href="/">{{ app_text }}</a> | <a href="/fuel/">{{ fuel_text }}</a> </div> <br/>
+  <div id="gmenu" class="menu"> <a href="/">{{ app_text }}</a> | <a href="/proj/">{{ proj_text }}</a> </div> <br/>
 
   <div class="PageTitle">  {{ page_title  }} </div>
   <div class="PageStatus"> {{ page_status }} </div>
 
   {{ form.non_field_errors }}
   {% for field in form %}
-    <div class="fieldWrapper"> {{ field.errors }} </div>
+    {% if field.errors %}
+      <div class="fieldWrapper"> {{ field.label }} {{ field.errors }} </div>
+    {% endif %}
   {% endfor %}
 
-  <form id="fld_form" action="{% url 'fuel:cars' pid %}" method="post">
+  <form id="fld_form" action="{% url 'proj:dirs_edit' pid %}" method="post">
     {% csrf_token %}
     <input name="active" type="hidden" value="0">
     <table class="fl1">
@@ -96,9 +94,8 @@
         {% else %}
         <script language="javascript" type="text/javascript"> bEdit = false; </script>
         {% endif %}
-        <tr><td class="fl1"> Название:  </td><td class="fl2"> <input name="name"  size="15" type="text" value="{{ form.name.value }}" onChange="check()" /> </td> </tr>
-        <tr><td class="fl1"> Гос.номер: </td><td class="fl2"> <input name="plate" size="15" type="text" value="{{ form.plate.value }}" onChange="check()" /> </td> </tr>
-        <tr><td class="fl1"> Активный:  </td><td class="fl2"> <input name="active_cbx" type="checkbox" {% if form.active.value > 0 %} checked {% endif %} onChange="check()" /> </td> </tr>
+        <tr><td class="fl1"> Наименование: </td><td class="fl2"> <input name="name"  size="15" type="text" value="{{ form.name.value }}" onChange="check()" /> </td> </tr>
+        <tr><td class="fl1"> Активное:     </td><td class="fl2"> <input name="active_cbx" type="checkbox" {% if form.active.value > 0 %} checked {% endif %} onChange="check()" /> </td> </tr>
       </tbody>
     </table>
     <span id="buttons"> </span> 
@@ -106,28 +103,24 @@
     <script language="javascript" type="text/javascript"> check() </script>
   </form>
 
-  {% if cars.count %}
+  {% if dirs.count %}
   <table class="work">
     <tbody><tr>
-      <th class="work"> ID         </th>
-      <th class="work"> Модель     </th>
-      <th class="work"> Гос. номер </th>
+      <th class="work"> ID          </th>
+      <th class="work"> Направление </th>
     </tr>
-    {% for p in cars %}
+    {% for d in dirs %}
     <tr>
-      <td class="pid">  <script language="javascript" type="text/javascript">getCarLink({{ p.id }})</script> </td>
-      <td class="work"> <script language="javascript" type="text/javascript">getCarMark({{ p.active }}, 1)</script>
-                        {{ p.name }}
-                        <script language="javascript" type="text/javascript">getCarMark({{ p.active }}, 2)</script></td>
-      <td class="work"> <script language="javascript" type="text/javascript">getCarMark({{ p.active }}, 1)</script>
-                        {{ p.plate }}
-                        <script language="javascript" type="text/javascript">getCarMark({{ p.active }}, 2)</script></td>
+      <td class="pid">  <script language="javascript" type="text/javascript">getCarLink({{ d.id }})</script> </td>
+      <td class="work"> <script language="javascript" type="text/javascript">getDirMark({{ d.active }}, 1)</script>
+                        {{ d.name }}
+                        <script language="javascript" type="text/javascript">getDirMark({{ d.active }}, 2)</script></td>
     </tr>
     {% endfor %}
   </tbody></table>
   {% endif %}
 
-  <br/>Всего автомобилей: {{ cars.count }}<br/>
+  <br/>Всего направлений: {{ dirs_count }}<br/>
 
 
 {% endblock %}

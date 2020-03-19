@@ -54,7 +54,7 @@ def do_part(request, pk):
         car.save()
     
     if (car == None):
-      return HttpResponseRedirect(reverse('part.html', args=()))
+      return HttpResponseRedirect(reverse('fuel:part_view', args=()))
 
     if (request.method == 'GET'):
       if (pk > 0):
@@ -115,4 +115,4 @@ def do_part(request, pk):
             t = get_object_or_404(Part, id=pk)
             t.delete()
     
-      return HttpResponseRedirect(reverse('part.html'))
+      return HttpResponseRedirect(reverse('fuel:part_view'))

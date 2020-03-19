@@ -8,6 +8,6 @@ def index(request):
 
 def periods(request):
     per_list = Period.objects.order_by('dBeg')[:25]
-    template = loader.get_template('periods.html')
+    template = loader.get_template('wage/periods.html')
     context = {'per_list': per_list,}
     return HttpResponse(template.render(context, request))

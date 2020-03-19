@@ -48,11 +48,8 @@ def do_fuel(request, pk):
         car.save()
     
     if (car == None):
-        #return HttpResponseRedirect(reverse('fuel:cars', args=(0,)))
-        #return reverse('fuel:hello')
-        return render(request, 'hello.html')
+      return HttpResponseRedirect(reverse('fuel:cars_edit', args=(0,)))
 
-    return render(request, 'hello.html')
     if (request.method == 'GET'):
       ttt = date.today()
       if (pk > 0):
@@ -84,7 +81,7 @@ def do_fuel(request, pk):
             new_odo = last[0].odometr + int(float(last[0].volume) / cons * 100)
 
         form = FuelForm(initial={'car': car, 
-                                 'pub_date': new_dat.isoformat(),#date.today().isoformat(), 
+                                 'pub_date': new_dat.isoformat(),
                                  'odometr': new_odo, 
                                  'volume': new_vol, 'price': new_prc })
       context = edit_context(request, form, car, pk, '')
@@ -131,7 +128,7 @@ def do_fuel(request, pk):
             t = get_object_or_404(Fuel, id=pk)
             t.delete()
     
-      return HttpResponseRedirect(reverse('fuel'))
+      return HttpResponseRedirect(reverse('fuel:fuel_view'))
 
 def do_change_car(request, pk):
     active_cars = Car.objects.filter(user = request.user.id, active = 1)

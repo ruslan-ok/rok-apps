@@ -36,6 +36,7 @@ from account.models import UserExt
 
 UserModel = get_user_model()
 
+
 class SuccessURLAllowedHostsMixin:
     success_url_allowed_hosts = set()
 
@@ -50,7 +51,7 @@ class LoginView(SuccessURLAllowedHostsMixin, FormView):
     form_class = AuthenticationForm
     authentication_form = None
     redirect_field_name = REDIRECT_FIELD_NAME
-    template_name = 'login.html'
+    template_name = 'account/login.html'
     redirect_authenticated_user = False
     extra_context = None
 
@@ -117,7 +118,7 @@ class LogoutView(SuccessURLAllowedHostsMixin, TemplateView):
     """
     next_page = None
     redirect_field_name = REDIRECT_FIELD_NAME
-    template_name = 'index.html'
+    template_name = 'account/index.html'
     extra_context = None
 
     @method_decorator(never_cache)
@@ -223,7 +224,7 @@ Please visit the following link to verify your account \n\n{0}://{1}/account/act
                     'site_header': current_site.name,
                     'title': gettext('Register'),
                     }
-            return render(request, 'register.html', context)
+            return render(request, 'account/register.html', context)
  
     else:
         f = RegisterForm()
@@ -236,7 +237,7 @@ Please visit the following link to verify your account \n\n{0}://{1}/account/act
             'title': gettext('Register'),
             'form': f,
             }
-    return render(request, 'register.html', context)
+    return render(request, 'account/register.html', context)
 
 
  
@@ -251,7 +252,7 @@ def activate_account(request):
     r.email_validated = True
     r.save()
  
-    return render(request, 'activated.html')
+    return render(request, 'account/activated.html')
 
 class PasswordContextMixin:
     extra_context = None
@@ -266,14 +267,14 @@ class PasswordContextMixin:
 
 
 class PasswordResetView(PasswordContextMixin, FormView):
-    email_template_name = 'password_reset_email.html'
+    email_template_name = 'account/password_reset_email.html'
     extra_email_context = None
     form_class = PasswordResetForm
     from_email = None
     html_email_template_name = None
-    subject_template_name = 'password_reset_subject.txt'
+    subject_template_name = 'account/password_reset_subject.txt'
     success_url = reverse_lazy('account:password_reset_done')
-    template_name = 'password_reset_form.html'
+    template_name = 'account/password_reset_form.html'
     title = _('Password reset')
     token_generator = default_token_generator
 
@@ -300,7 +301,7 @@ INTERNAL_RESET_SESSION_TOKEN = '_password_reset_token'
 
 
 class PasswordResetDoneView(PasswordContextMixin, TemplateView):
-    template_name = 'password_reset_done.html'
+    template_name = 'account/password_reset_done.html'
     title = _('Password reset sent')
 
 
@@ -310,7 +311,7 @@ class PasswordResetConfirmView(PasswordContextMixin, FormView):
     post_reset_login_backend = None
     reset_url_token = 'set-password'
     success_url = reverse_lazy('account:password_reset_complete')
-    template_name = 'password_reset_confirm.html'
+    template_name = 'account/password_reset_confirm.html'
     title = _('Enter new password')
     token_generator = default_token_generator
 
@@ -378,7 +379,7 @@ class PasswordResetConfirmView(PasswordContextMixin, FormView):
 
 
 class PasswordResetCompleteView(PasswordContextMixin, TemplateView):
-    template_name = 'password_reset_complete.html'
+    template_name = 'account/password_reset_complete.html'
     title = _('Password reset complete')
 
     def get_context_data(self, **kwargs):
@@ -390,7 +391,7 @@ class PasswordResetCompleteView(PasswordContextMixin, TemplateView):
 class PasswordChangeView(PasswordContextMixin, FormView):
     form_class = PasswordChangeForm
     success_url = reverse_lazy('password_change_done')
-    template_name = 'password_change_form.html'
+    template_name = 'account/password_change_form.html'
     title = _('Password change')
 
     @method_decorator(sensitive_post_parameters())
@@ -413,7 +414,7 @@ class PasswordChangeView(PasswordContextMixin, FormView):
 
 
 class PasswordChangeDoneView(PasswordContextMixin, TemplateView):
-    template_name = 'password_change_done.html'
+    template_name = 'account/password_change_done.html'
     title = _('Password change successful')
 
     @method_decorator(login_required)
@@ -452,6 +453,6 @@ def profile(request):
             'fieldset1_name': _('Personal info'),
             'fieldset2_name': _('Important dates'),
             }
-    return render(request, 'profile.html', context)
+    return render(request, 'account/profile.html', context)
 
 

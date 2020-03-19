@@ -30,12 +30,12 @@ def edit_context(request, form, _part, _repl):
 #============================================================================
 def do_repl(request, pt, pk):
     if (pt == 0):
-      return HttpResponseRedirect(reverse('part.html', args=()))
+      return HttpResponseRedirect(reverse('fuel:part_view', args=()))
 
     part = Part.objects.get(id = pt)
 
     if (part == None):
-      return HttpResponseRedirect(reverse('part.html', args=()))
+      return HttpResponseRedirect(reverse('fuel:part_view', args=()))
 
     if (request.method == 'GET'):
       if (pk > 0):
@@ -103,4 +103,4 @@ def do_repl(request, pt, pk):
             t = get_object_or_404(Repl, id=pk)
             t.delete()
     
-      return HttpResponseRedirect(reverse('repl.html', args=(pt,)))
+      return HttpResponseRedirect(reverse('fuel:repl_view', args=(pt,)))

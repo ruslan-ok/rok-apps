@@ -34,7 +34,7 @@ def do_cars(request, pk):
     else:
       form = CarsForm(initial = {'name': '', 'plate': '', 'active': 0})
     context = edit_context(request, form, pk, 'get-1')
-    return render(request, 'cars.html', context)
+    return render(request, 'fuel/cars.html', context)
   else:
     action = request.POST.get('action', False)
     active = request.POST.get('active', False)
@@ -59,7 +59,7 @@ def do_cars(request, pk):
       if not form.is_valid():
         # Ошибки в форме, отобразить её снова
         context = edit_context(request, form, pk, 'post-error' + str(form.non_field_errors))
-        return render(request, 'cars.html', context)
+        return render(request, 'fuel/cars.html', context)
       else:
         t = form.save(commit=False)
 
@@ -85,5 +85,5 @@ def do_cars(request, pk):
           t = get_object_or_404(Car, id=pk)
           t.delete()
 
-    return HttpResponseRedirect(reverse('cars.html'))
+    return HttpResponseRedirect(reverse('fuel:cars_view'))
 
