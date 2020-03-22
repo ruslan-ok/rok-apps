@@ -78,7 +78,8 @@ def do_fuel(request, pk):
 
           cons = consumption(request.user.id)
           if (cons != 0):
-            new_odo = last[0].odometr + int(float(last[0].volume) / cons * 100)
+            #new_odo = last[0].odometr + int(float(last[0].volume) / cons * 100)
+            new_odo = last[0].odometr + int(last[0].volume / cons * 100)
 
         form = FuelForm(initial={'car': car, 
                                  'pub_date': new_dat.isoformat(),

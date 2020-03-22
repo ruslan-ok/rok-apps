@@ -102,7 +102,7 @@ class Task(models.Model):
   comment  = models.CharField(u'Описание', max_length = 2000, blank = True)
   active   = models.IntegerField(u'Активна', default = 1)
   attrib   = models.IntegerField(u'Атрибуты задачи', default = 0, blank = True)
-  color    = models.IntegerField(u'Атрибуты задачи', default = 0, blank = True)
+  color    = models.IntegerField(u'Атрибуты задачи', default = 0, blank = True, null = True)
   # Пока не используется
   def __str__(self):
     return self.name.encode('utf-8')

@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '$sk_5_6ij+m@na)z0))9pbe4673n&sl%1=9ce1nbed2^x3fkno'
+SECRET_KEY = ''
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -86,11 +86,6 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        #'ENGINE': 'django.db.backends.mysql',
-        #'NAME': 'rusel',
-        #'USER': 'tester',
-        #'PASSWORD': 'Test5%Wbrk',
-        #'HOST': 'rusel.by',
     }
 }
 
@@ -136,7 +131,7 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 EMAIL_HOST = 'rusel.by'
-EMAIL_HOST_PASSWORD = 'admiwbrk'
+EMAIL_HOST_PASSWORD = ''
 EMAIL_HOST_USER = 'admin@rusel.by'
 EMAIL_PORT      = 25
 EMAIL_USE_TLS   = True

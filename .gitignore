@@ -1,3 +1,11 @@
+db.sqlite3
+settings.py
+sqlite3.exe
+*.pyc
+migrations
+migrations_zen
+
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
