@@ -19,7 +19,7 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '(9(2za$f_bf&n3o4gp8*ridifuksno2g1twh95z-%_j(void@7'
+SECRET_KEY = '**************************************************'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -68,8 +68,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'ruslan-ok',
-        'USER': 'root',
-        'PASSWORD': 'mysqwbrk',
+        'USER': '********',
+        'PASSWORD': '********',
         'HOST': 'localhost',
     }
 }
