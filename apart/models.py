@@ -1,12 +1,11 @@
-# coding=UTF-8
 from django.contrib.auth.models import User
 from django.db import models
 from datetime import datetime
-from ruslan.const import a_months, a_unit
+from rusel.const import a_months, a_unit
 
 
 class Tarif(models.Model):
-  user       = models.ForeignKey(User) # Пользователь
+  user       = models.ForeignKey(User, on_delete=models.CASCADE) # Пользователь
   res = ((1, u'электро'), (2, u'газ'), (3, u'вода'), (4, u'водоснабжение'), (5, u'водоотведение'),)
   resource   = models.IntegerField(u'Тип ресурса', choices = res)
   attrib     = models.IntegerField(u'Атрибуты', blank = True) # 0 - нет градации, 1 - есть градация
@@ -114,7 +113,7 @@ def get_per_tarif(_user_id, _res, _year, _month):
 
 
 class Communal(models.Model):
-  user       = models.ForeignKey(User)
+  user       = models.ForeignKey(User, on_delete=models.CASCADE)
   month      = models.IntegerField(u'Месяц') # 1 - январь
   year       = models.IntegerField(u'Год') # 2015
   period     = models.IntegerField(u'Отчетный период') # 201504 - апрель 2015 г

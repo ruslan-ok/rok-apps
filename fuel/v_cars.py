@@ -1,7 +1,6 @@
-# coding=UTF-8
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django import forms
 from django.forms import ModelForm
 from fuel.models import Car
@@ -9,7 +8,8 @@ from fuel.models import Car
 
 class CarsForm(ModelForm):
     action = forms.CharField(widget = forms.HiddenInput, required = False)
-    active = forms.IntegerField(u'Активная', required = False)
+    active = forms.IntegerField(label = 'Активная', required = False)
+
     class Meta:
         model = Car
         fields = ('name', 'plate', 'active', 'action')

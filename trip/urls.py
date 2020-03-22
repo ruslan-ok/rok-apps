@@ -1,11 +1,11 @@
-from django.conf.urls import url
+from django.urls import path
+from . import views
 
-from trip import views
-
+app_name = 'trip'
 urlpatterns = [
-    url(r'^$',                  views.trip_view,  name='trip_view'),
-    url(r'^(?P<pk>\d+)/$',      views.trip_edit,  name='trip_edit'),
-    url(r'^count/$',            views.trip_count, name='trip_count'),
-    url(r'^pers/$',             views.pers_view,  name='pers_view'),
-    url(r'^pers/(?P<pk>\d+)/$', views.pers_edit,  name='pers_edit'),
+    path('',               views.trip_view,  name='trip_view'),
+    path('<int:pk>/',      views.trip_edit,  name='trip_edit'),
+    path('count/',         views.trip_count, name='trip_count'),
+    path('pers/',          views.pers_view,  name='pers_view'),
+    path('pers/<int:pk>/', views.pers_edit,  name='pers_edit'),
 ]

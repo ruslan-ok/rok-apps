@@ -1,0 +1,45 @@
+{% extends "base_site.html" %}
+{% load i18n static %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "account/css/forms.css" %}">{% endblock %}
+{% block content %}
+  <form action="{{ app_path }}" method="post" id="register-form">{% csrf_token %}
+
+    <fieldset class="module aligned">
+
+      <div class="form-row">
+        {{ form.username.errors }}
+        {{ form.username.label_tag }} {{ form.username }}
+        {% if form.username.help_text %}
+        <div class="help">{{ form.username.help_text|safe }}</div>
+        {% endif %}
+      </div>
+    
+      <div class="form-row">
+        {{ form.password1.errors }}
+        {{ form.password1.label_tag }} {{ form.password1 }}
+        {% if form.password1.help_text %}
+        <div class="help">{{ form.password1.help_text|safe }}</div>
+        {% endif %}
+      </div>
+    
+      <div class="form-row">
+        {{ form.password2.errors }}
+        {{ form.password2.label_tag }} {{ form.password2 }}
+        {% if form.password2.help_text %}
+        <div class="help">{{ form.password2.help_text|safe }}</div>
+        {% endif %}
+      </div>
+    
+      <div class="form-row">
+        {{ form.email.errors }}
+        {{ form.email.label_tag }} {{ form.email }}
+      </div>
+  
+    </fieldset>
+
+    <div class="submit-row">
+      <label>&nbsp;</label><input type="submit" value="{% trans 'Register' %}">
+    </div>
+
+  </form>
+{% endblock %}

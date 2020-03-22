@@ -1,13 +1,12 @@
-# coding=UTF-8
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django import forms
 from django.forms import ModelForm
 from trip.models import Person
 
 class PersForm(ModelForm):
-    me = forms.IntegerField(u'Я', required = False)
+    me = forms.IntegerField(label = 'Я', required = False)
     class Meta:
         model = Person
         fields = ('name', 'dative', 'me')

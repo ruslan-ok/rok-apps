@@ -1,7 +1,7 @@
-from django.conf.urls import url
+from django.urls import path
+from . import views
 
-from pir import views
-
+app_name = 'pir'
 urlpatterns = [
-    url(r'^(?P<tbl>\w+)/$', views.pir_edit,  name='pir_edit'),
+    path('<int:tbl>/', views.pir_edit,  name='pir_edit'),
 ]

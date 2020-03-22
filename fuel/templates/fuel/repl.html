@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load staticfiles %}
+{% load static %}
 {% block content %}
 
   <script language="javascript" type="text/javascript">
@@ -100,7 +100,7 @@
         <tr><td class="fl1"> Номер по каталогу: </td><td class="fl2"> <input name="part_num" type="text"   value="{{ form.part_num.value }}" onChange="check()" /> </td> </tr>
         <tr><td class="fl1"> Наименование:      </td><td class="fl2"> <input name="name"     type="text"   value="{{ form.name.value }}"     onChange="check()" /> </td> </tr>
         <tr><td class="fl1"> Описание:          </td><td class="fl2">
-           <textarea id="txt" name="comment" rows="3" cols="22">{{form.comment.value}}</textarea> </td> </tr>
+           <textarea id="txt" name="comment" rows="3" cols="22"> {{ form.comment.value }} </textarea> </td> </tr>
       </tbody>
     </table>
     <span id="buttons"> </span> 

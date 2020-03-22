@@ -1,8 +1,7 @@
-# coding=UTF-8
 from django import forms
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from datetime import date, datetime, timedelta
 from fuel.models import Fuel, Car, Part, Repl
 

@@ -1,10 +1,10 @@
-from django.conf.urls import url
+from django.urls import path
+from . import views
 
-from apart import views
-
+app_name = 'apart'
 urlpatterns = [
-    url(r'^$',                   views.apart_view, name='apart_view'),
-    url(r'^(?P<per>\d+)/$',      views.apart_edit, name='apart_edit'),
-    url(r'^tarif/$',             views.tarif_view, name='tarif_view'),
-    url(r'^tarif/(?P<pk>\d+)/$', views.tarif_edit, name='tarif_edit'),
+    path('',                views.apart_view, name='apart_view'),
+    path('<int:per>/',      views.apart_edit, name='apart_edit'),
+    path('tarif/',          views.tarif_view, name='tarif_view'),
+    path('tarif/<int:pk>/', views.tarif_edit, name='tarif_edit'),
 ]

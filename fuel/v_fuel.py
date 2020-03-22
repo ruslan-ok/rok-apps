@@ -1,8 +1,7 @@
-# coding=UTF-8
 from django import forms
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from datetime import date, datetime, timedelta
 from fuel.models import Fuel, Car, consumption, fuel_summary
 
@@ -79,10 +78,11 @@ def do_fuel(request, pk):
 
           cons = consumption(request.user.id)
           if (cons != 0):
-            new_odo = last[0].odometr + int(float(last[0].volume) / cons * 100)
+            #new_odo = last[0].odometr + int(float(last[0].volume) / cons * 100)
+            new_odo = last[0].odometr + int(last[0].volume / cons * 100)
 
         form = FuelForm(initial={'car': car, 
-                                 'pub_date': new_dat.isoformat(),#date.today().isoformat(), 
+                                 'pub_date': new_dat.isoformat(),
                                  'odometr': new_odo, 
                                  'volume': new_vol, 'price': new_prc })
       context = edit_context(request, form, car, pk, '')

@@ -1,9 +1,8 @@
-# coding=UTF-8
 from django.contrib.auth.models import User
 from django.db import models
 
 class Direct(models.Model):
-  user   = models.ForeignKey(User)
+  user   = models.ForeignKey(User, on_delete=models.CASCADE)
   name   = models.CharField(u'Направление', max_length=200, blank=False)
   active = models.IntegerField(u'Активное', default=0)
   def __str__(self):
@@ -11,7 +10,7 @@ class Direct(models.Model):
 
 
 class Proj(models.Model):
-  direct = models.ForeignKey(Direct)
+  direct = models.ForeignKey(Direct, on_delete=models.CASCADE)
   date   = models.DateTimeField(u'Дата операции')
   kol    = models.DecimalField(blank=False, max_digits=15, decimal_places=3)
   price  = models.DecimalField(blank=False, max_digits=15, decimal_places=2)

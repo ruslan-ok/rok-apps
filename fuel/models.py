@@ -1,4 +1,3 @@
-# coding=UTF-8
 from django.contrib.auth.models import User
 from django.db import models
 from datetime import date
@@ -6,17 +5,17 @@ from proj.models import Direct, Proj
 
 
 class Car(models.Model):
-  user   = models.ForeignKey(User)
+  user   = models.ForeignKey(User, on_delete=models.CASCADE)
   name   = models.CharField(u'Модель', max_length = 200, blank = False)
   plate  = models.CharField(u'Гос. номер', max_length = 100)
   active = models.IntegerField(u'Активная', default = 0)
-  direct = models.ForeignKey(Direct, null = True)
+  direct = models.ForeignKey(Direct, on_delete=models.CASCADE, null = True)
   def __str__(self):
     return self.name.encode('utf-8') + u' [' + self.plate.encode('utf-8') + u']'
 
 
 class Fuel(models.Model):
-  car      = models.ForeignKey(Car)
+  car      = models.ForeignKey(Car, on_delete=models.CASCADE)
   pub_date = models.DateTimeField(u'Дата заправки')
   odometr  = models.IntegerField(u'Показания одометра', blank=False)
   volume   = models.DecimalField(u'Объём', blank=False, max_digits=5, decimal_places=3)
@@ -78,7 +77,7 @@ def fuel_summary(_user):
     
 
 class Part(models.Model): # Список расходников
-  car      = models.ForeignKey(Car)
+  car      = models.ForeignKey(Car, on_delete=models.CASCADE)
   name     = models.CharField(u'Наименование', max_length = 1000, blank = False)
   chg_km   = models.IntegerField(u'Интервал замены, км', blank = True)
   chg_mo   = models.IntegerField(u'Интервал замены, месяцев', blank = True)
@@ -110,13 +109,13 @@ class Part(models.Model): # Список расходников
 
 
 class Repl(models.Model): # Замена расходников
-  part     = models.ForeignKey(Part)
+  part     = models.ForeignKey(Part, on_delete=models.CASCADE)
   dt_chg   = models.DateTimeField(u'Дата замены', blank = False)
   odometr  = models.IntegerField(u'Показания одометра, км', blank = False)
   manuf    = models.CharField(u'Производитель', max_length = 1000, blank = True)
   part_num = models.CharField(u'Номер по каталогу', max_length = 100, blank = True)
   name     = models.CharField(u'Наименование', max_length = 1000, blank = True)
-  oper     = models.ForeignKey(Proj, null = True)
+  oper     = models.ForeignKey(Proj, on_delete=models.CASCADE, null = True)
   comment  = models.TextField(u'Комментарий', blank = True, default = None)
   def __str__(self):
     return unicode(self.dt_chg) + u' / ' + unicode(self.odometr) + u' км. / ' + self.name.encode('utf-8')

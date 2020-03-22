@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load staticfiles %}
+{% load static %}
 {% block content %}
 
   <script language="javascript" type="text/javascript">
@@ -27,8 +27,7 @@
   </script>
   
   <div id="gmenu" class="menu"> <a href="/"> Приложения    </a> | 
-                      <a href="/task/view/"> Представления </a> | 
-                      <a href="/task/test/"> Test </a> </div> <br/>
+                      <a href="/task/view/"> Представления </a> </div> <br/>
 
   <div class="PageTitle"> Задачи </div> {{ form.views }}
   <div class="PageSummary"> {{ task_summary|safe }} </div>

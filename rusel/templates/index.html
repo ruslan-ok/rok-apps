@@ -1,0 +1,24 @@
+{% extends "base_site.html" %}
+{% load i18n static %}
+{% block content %}
+  {% if user_info.is_authenticated %}
+    <div id="intro-menu">
+      <!-- nav class="w3-sidebar w3-bar-block w3-collapse w3-large w3-theme-l5 w3-animate-left" id="mySidebar" -->
+      <nav class="w3-sidebar w3-bar-block w3-large w3-theme-l5 w3-animate-left" id="mySidebar">
+        <a href="javascript:void(0)" onclick="w3_close()" class="w3-right w3-xlarge w3-padding-large w3-hover-black w3-hide-large" title="Close Menu">
+          <i class="fa fa-remove"></i>
+        </a>
+        <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'fuel:fuel_view' %}">Заправка</a>
+        <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'trip:trip_view' %}">Проезд</a>
+        <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'apart:apart_view' %}">Квартира</a>
+        <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'proj:proj_view' %}">Проекты</a>
+        <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'task:task_view' %}">Задачи</a>
+        <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'wage:index' %}">Работа</a>
+      </nav>
+    </div>
+  {% else %}
+    <p>{% trans 'It looks like you got here by accident, because it is a personal, not a public site.' %}</p>
+    <p>{% trans 'This site does not provide any useful services, so you have a small choice - either close the page or' %}</p>
+    <p><a href="https://www.google.com/">{% trans 'find something more interesting' %}</a></p>
+  {% endif %}
+{% endblock %}

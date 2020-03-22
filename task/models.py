@@ -1,4 +1,3 @@
-# coding=UTF-8
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.db import models
@@ -61,7 +60,7 @@ filters = {FLTR_GROUP, FLTR_TERM, FLTR_IMPORTANCE, FLTR_COLOR, FLTR_COMPLETE}
 
 
 class TGroup(models.Model):
-  user     = models.ForeignKey(User)
+  user     = models.ForeignKey(User, on_delete=models.CASCADE)
   name     = models.CharField(u'Наименование', max_length = 200, blank = False)
   comment  = models.CharField(u'Описание', max_length = 2000, blank = True)
   active   = models.IntegerField(u'Активна', default = 0)
@@ -71,11 +70,11 @@ class TGroup(models.Model):
 
 
 class Task(models.Model):
-  user     = models.ForeignKey(User)
+  user     = models.ForeignKey(User, on_delete=models.CASCADE)
   pub_date = models.DateTimeField(u'Дата создания', default = timezone.now)
   name     = models.CharField(u'Наименование', max_length = 200, blank = False)
   code     = models.CharField(u'Код', max_length = 200, blank = True)
-  grp      = models.ForeignKey(TGroup, blank = True, null = True)
+  grp      = models.ForeignKey(TGroup, on_delete=models.CASCADE, blank = True, null = True)
   d_exec   = models.DateField(u'Срок исполнения (дата)', blank = True, null = True)
   t_exec   = models.TimeField(u'Срок исполнения (время)', blank = True, null = True)
   repeat   = models.IntegerField(u'Повторение', default = 0) 
@@ -103,7 +102,7 @@ class Task(models.Model):
   comment  = models.CharField(u'Описание', max_length = 2000, blank = True)
   active   = models.IntegerField(u'Активна', default = 1)
   attrib   = models.IntegerField(u'Атрибуты задачи', default = 0, blank = True)
-  color    = models.IntegerField(u'Атрибуты задачи', default = 0, blank = True)
+  color    = models.IntegerField(u'Атрибуты задачи', default = 0, blank = True, null = True)
   # Пока не используется
   def __str__(self):
     return self.name.encode('utf-8')
@@ -134,7 +133,7 @@ def task_summary(_user):
 
 
 class TaskView(models.Model):
-  user     = models.ForeignKey(User)
+  user     = models.ForeignKey(User, on_delete=models.CASCADE)
   name     = models.CharField(u'Наименование', max_length = 200, blank = False)
   code     = models.CharField(u'Код для сортировки', max_length = 200, blank = True, default = '')
   active   = models.IntegerField(u'Активна', default = 0)
@@ -170,7 +169,7 @@ class TaskView(models.Model):
     return '?'
 
 class TaskFilter(models.Model):
-  view     = models.ForeignKey(TaskView)
+  view     = models.ForeignKey(TaskView, on_delete=models.CASCADE)
   entity   = models.IntegerField(u'Сущность', default = 0)
   npp      = models.IntegerField(u'Номер по порядку', default = 0)
   value    = models.IntegerField(u'Значение', default = 0)
