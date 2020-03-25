@@ -8,7 +8,7 @@ class Person(models.Model):
   dative = models.CharField(max_length=500, blank=False)
   me     = models.IntegerField()
   def __str__(self):
-    return '[' + self.user.encode('utf-8') + '] ' + self.name.encode('utf-8')
+    return '[' + self.user.username + '] ' + self.name
 
 class Saldo(models.Model):
   user   = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -107,16 +107,16 @@ def NameD(p):
 
 
 def trip_summary(_user):
-  ret = u''
+  ret = ''
   saldos = Saldo.objects.filter(user = _user)
   
   for s in saldos:
     if (s.summ != 0):
-      if (ret != u''):
-        ret += u', '
+      if (ret != ''):
+        ret += ', '
       if (s.summ < 0):
         ret += NameI(s.p1) + ' ' + NameD(s.p2) + ' ' + str(-1*s.summ)
       else:
         ret += NameI(s.p2) + ' ' + NameD(s.p1) + ' ' + str(s.summ)
   
-  return u'<span id="warning">' + ret + u'</span>'
+  return '<span id="warning">' + ret + '</span>'

@@ -25,10 +25,10 @@ def edit_context(request, form, car, pid, debug_text):
              'fuels':      fuels, 
              'cars':       cars, 
              'pid':        pid, 
-             'app_text':   u'Приложения', 
-             'part_text':  u'ТО',
-             'car_text':   u'Авто', 
-             'page_title': u'Заправка ' + curcar.name, 
+             'app_text':   'Приложения', 
+             'part_text':  'ТО',
+             'car_text':   'Авто', 
+             'page_title': 'Заправка ' + curcar.name, 
              'fuels_count':   Fuel.objects.filter(car = car).count,
              'fuel_summary': summary,
              'fuel_status': '',
@@ -94,13 +94,13 @@ def do_fuel(request, pk):
       if (action == u'Отменить'):
         act = 1
       else:
-        if (action == u'Добавить'):
+        if (action == 'Добавить'):
           act = 2
         else:
-          if (action == u'Сохранить'):
+          if (action == 'Сохранить'):
             act = 3
           else:
-            if (action == u'Удалить'):
+            if (action == 'Удалить'):
               act = 4
             else:
               act = 5

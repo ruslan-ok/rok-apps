@@ -20,9 +20,9 @@ def edit_context(_request, _form, _pid, _debug_text):
     return { 'cars': cars, 
              'form': _form, 
              'pid': _pid,
-             'app_text': u'Приложения', 
-             'fuel_text': u'Заправка', 
-             'page_title': u'Автомобили', 
+             'app_text': 'Приложения', 
+             'fuel_text': 'Заправка', 
+             'page_title': 'Автомобили', 
              'debug_text': _debug_text,
            }
 #============================================================================
@@ -40,16 +40,16 @@ def do_cars(request, pk):
     active = request.POST.get('active', False)
     
     act = 0
-    if (action == u'Отменить'):
+    if (action == 'Отменить'):
       act = 1
     else:
-      if (action == u'Добавить'):
+      if (action == 'Добавить'):
         act = 2
       else:
-        if (action == u'Сохранить'):
+        if (action == 'Сохранить'):
           act = 3
         else:
-          if (action == u'Удалить'):
+          if (action == 'Удалить'):
             act = 4
           else:
             act = 5

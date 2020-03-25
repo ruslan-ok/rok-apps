@@ -33,7 +33,7 @@ def _unicode_ci_compare(s1, s2):
 
 
 class RegisterForm(forms.Form):
-    username = forms.CharField(label=_('Enter Username'), min_length=4, max_length=150)
+    username = forms.CharField(label=_('Enter Username'), min_length=2, max_length=150)
     email = forms.EmailField(label=_('Enter email'))
     password1 = forms.CharField(label=_('Enter password'), widget=forms.PasswordInput)
     password2 = forms.CharField(label=_('Confirm password'), widget=forms.PasswordInput)

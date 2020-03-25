@@ -2,6 +2,7 @@
 {% load i18n static %}
 {% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "account/css/forms.css" %}">{% endblock %}
 {% block content %}
+{% if show_form %}
   <form action="{{ app_path }}" method="post" id="register-form">{% csrf_token %}
 
     <fieldset class="module aligned">
@@ -42,4 +43,5 @@
     </div>
 
   </form>
+{% endif %}
 {% endblock %}

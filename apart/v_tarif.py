@@ -21,16 +21,16 @@ def do_tarif(request, pk):
     if (request.method == 'POST'):
         action = request.POST['action']
         act = 0
-        if (action == u'Отменить'):
+        if (action == 'Отменить'):
           act = 1
         else:
-          if (action == u'Добавить'):
+          if (action == 'Добавить'):
             act = 2
           else:
-            if (action == u'Сохранить'):
+            if (action == 'Сохранить'):
               act = 3
             else:
-              if (action == u'Удалить'):
+              if (action == 'Удалить'):
                 act = 4
               else:
                 act = 5
@@ -66,6 +66,6 @@ def do_tarif(request, pk):
           form = TarifForm()
         tarifs = Tarif.objects.filter(user = request.user.id).order_by('-period', 'resource')
         form.fields['resource'].label = 'Ресурс'
-        context = {'tarifs': tarifs, 'form': form, 'app_text': u'Приложения', 'apart_text': u'Коммуналка', 'page_title': u'Тарифы', 'pid': pk}
+        context = {'tarifs': tarifs, 'form': form, 'app_text': 'Приложения', 'apart_text': 'Коммуналка', 'page_title': 'Тарифы', 'pid': pk}
         return render(request, 'apart/tarif.html', context)
 

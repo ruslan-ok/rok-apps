@@ -3,15 +3,15 @@ from django.db import models
 
 class Direct(models.Model):
   user   = models.ForeignKey(User, on_delete=models.CASCADE)
-  name   = models.CharField(u'Направление', max_length=200, blank=False)
-  active = models.IntegerField(u'Активное', default=0)
+  name   = models.CharField('Направление', max_length=200, blank=False)
+  active = models.IntegerField('Активное', default=0)
   def __str__(self):
-    return self.name.encode('utf-8')
+    return self.name
 
 
 class Proj(models.Model):
   direct = models.ForeignKey(Direct, on_delete=models.CASCADE)
-  date   = models.DateTimeField(u'Дата операции')
+  date   = models.DateTimeField('Дата операции')
   kol    = models.DecimalField(blank=False, max_digits=15, decimal_places=3)
   price  = models.DecimalField(blank=False, max_digits=15, decimal_places=2)
   course = models.DecimalField(blank=False, max_digits=15, decimal_places=4)
@@ -53,8 +53,8 @@ def proj_summary(_user):
     tot = 0
     for o in opers:
       tot += o.summa()
-    #return cur_dir.name + u': <span style="color:yellow">' + str(len(opers)) + u'</span>'
-    return cur_dir.name + u': <span id="warning">' + str(int(tot)) + u'</span>$'
+    #return cur_dir.name + ': <span style="color:yellow">' + str(len(opers)) + '</span>'
+    return cur_dir.name + ': <span id="warning">' + str(int(tot)) + '</span>$'
   except Direct.DoesNotExist:
     return ''
   

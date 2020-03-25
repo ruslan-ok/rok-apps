@@ -25,9 +25,9 @@ def edit_context(request, form, adir, pid, debug_text):
              'opers':         opers, 
              'dirs':          dirs, 
              'pid':           pid, 
-             'app_text':    u'Приложения', 
-             'direct_text': u'Проектные направления', 
-             'page_title':  u'Операции проекта ' + curdir.name, 
+             'app_text':    'Приложения', 
+             'direct_text': 'Проектные направления', 
+             'page_title':  'Операции проекта ' + curdir.name, 
              'proj_summary':  proj_summary(request.user),
              'total_count':   Proj.objects.filter(direct = adir).count,
              'debug_text':    debug_text, 
@@ -74,16 +74,16 @@ def do_proj(request, pk):
       action = request.POST.get('action', False)
       
       act = 0
-      if (action == u'Отменить'):
+      if (action == 'Отменить'):
         act = 1
       else:
-        if (action == u'Добавить'):
+        if (action == 'Добавить'):
           act = 2
         else:
-          if (action == u'Сохранить'):
+          if (action == 'Сохранить'):
             act = 3
           else:
-            if (action == u'Удалить'):
+            if (action == 'Удалить'):
               act = 4
             else:
               act = 5

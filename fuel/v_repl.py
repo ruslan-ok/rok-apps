@@ -23,9 +23,9 @@ def edit_context(request, form, _part, _repl):
              'replaces':   replaces, 
              'part':       _part, 
              'pid':        _repl, 
-             'app_text':   u'Приложения', 
-             'page_title': u'Замены расходника ' + part.name, 
-             'part_text':  u'Список расходников', 
+             'app_text':   'Приложения', 
+             'page_title': 'Замены расходника ' + part.name, 
+             'part_text':  'Список расходников', 
            }
 #============================================================================
 def do_repl(request, pt, pk):
@@ -65,16 +65,16 @@ def do_repl(request, pt, pk):
       action = request.POST.get('action', False)
       
       act = 0
-      if (action == u'Отменить'):
+      if (action == 'Отменить'):
         act = 1
       else:
-        if (action == u'Добавить'):
+        if (action == 'Добавить'):
           act = 2
         else:
-          if (action == u'Сохранить'):
+          if (action == 'Сохранить'):
             act = 3
           else:
-            if (action == u'Удалить'):
+            if (action == 'Удалить'):
               act = 4
             else:
               act = 5

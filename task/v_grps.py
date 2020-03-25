@@ -38,16 +38,16 @@ def do_grps(request, pk):
     action = request.POST.get('action', False)
     
     act = 0
-    if (action == u'Отменить'):
+    if (action == 'Отменить'):
       act = 1
     else:
-      if (action == u'Добавить') or (action == u'+'):
+      if (action == 'Добавить') or (action == '+'):
         act = 2
       else:
-        if (action == u'Сохранить'):
+        if (action == 'Сохранить'):
           act = 3
         else:
-          if (action == u'Удалить'):
+          if (action == 'Удалить'):
             act = 4
           else:
             act = 5

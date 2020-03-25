@@ -1,13 +1,9 @@
-{% extends "base.html" %}
- 
-{% block title %}
-    Create Account - {{ block.super }}
-{% endblock %}
- 
+{% extends "base_site.html" %}
+{% load i18n %}
 {% block content %}
  
-    <div class="logout">
-        <p>Account activated! Please <a href="{% url 'account:login' %}">login</a></p>
-</div>
+  <div class="logout">
+    <p>{% trans 'Account activated! Please ' %}<a href="{% url 'account:login' %}">{% trans 'login' %}</a>.</p>
+  </div>
  
 {% endblock %}

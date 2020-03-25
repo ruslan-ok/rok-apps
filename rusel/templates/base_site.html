@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load i18n static %}
 
-{% block title %}{% if user_info.is_authenticated %} {{ user_info }} | {% endif %}{{ site_title|default:'rusel.by' }}{% endblock %}
+{% block title %}{% if user_info.is_authenticated %} {% endif %}{{ title|default:'*****  title  *****' }}{% endblock %}
 
 {% block extrastyle %}
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block branding %}
-  <h1 id="site-name"><a href="{% url 'index' %}">{{ site_header|default:'rusel.by' }}</a></h1>
+  <h1 id="site-name"><a href="{% url 'index' %}">{{ site_header|default:'*****  site_header  *****' }}</a></h1>
 {% endblock %}
 
 {% block userlinks %}

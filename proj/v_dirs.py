@@ -19,9 +19,9 @@ def edit_context(_request, _form, _pid, _debug_text):
     return { 'dirs': dirs, 
              'form': _form, 
              'pid': _pid,
-             'app_text':  u'Приложения', 
-             'proj_text': u'Операции', 
-             'page_title': u'Направления проектов', 
+             'app_text':  'Приложения', 
+             'proj_text': 'Операции', 
+             'page_title': 'Направления проектов', 
              'dirs_count': dirs.count,
              'debug_text': _debug_text,
            }
@@ -40,16 +40,16 @@ def do_dirs(request, pk):
     active = request.POST.get('active', False)
     
     act = 0
-    if (action == u'Отменить'):
+    if (action == 'Отменить'):
       act = 1
     else:
-      if (action == u'Добавить'):
+      if (action == 'Добавить'):
         act = 2
       else:
-        if (action == u'Сохранить'):
+        if (action == 'Сохранить'):
           act = 3
         else:
-          if (action == u'Удалить'):
+          if (action == 'Удалить'):
             act = 4
           else:
             act = 5

@@ -1,3 +1,4 @@
+import sys
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.shortcuts import resolve_url
@@ -100,6 +101,7 @@ class LoginView(SuccessURLAllowedHostsMixin, FormView):
         return HttpResponseRedirect(self.get_success_url())
 
     def get_context_data(self, **kwargs):
+        page_title = gettext('Log in')
         context = super().get_context_data(**kwargs)
         current_site = get_current_site(self.request)
         context.update({
@@ -107,7 +109,7 @@ class LoginView(SuccessURLAllowedHostsMixin, FormView):
             'site': current_site,
             'site_name': current_site.name,
             'site_header': current_site.name,
-            'title': gettext('Log in'),
+            'title': page_title,
             **(self.extra_context or {})
         })
         return context
@@ -179,29 +181,32 @@ def generate_activation_key(username):
 
 
 def register(request):
+    show_form = True
+    title = _('Register')
     if request.method == 'POST':
         f = RegisterForm(request.POST)
         if f.is_valid():
             # send email verification now
-            #activation_key = randomString()
             activation_key = generate_activation_key(username=request.POST['username'])
  
  
-            subject = _("Account Verification")
+            title = subject = _('Account Verification')
  
-            message = '''\n
-Please visit the following link to verify your account \n\n{0}://{1}/account/activate/?key={2}
-                        '''.format(request.scheme, request.get_host(), activation_key)            
+            message = '\n' + gettext('Please visit the following link to verify your account') + ' \n\n' + \
+                      '{0}://{1}/account/activate/?key={2}'.format(request.scheme, request.get_host(), activation_key)            
  
             error = False
  
             try:
                 send_mail(subject, message, settings.SERVER_EMAIL, [request.POST['email']])
+                send_mail('Регистрация нового пользователя', 'Зарегистрировался новый пользователь "' + request.POST['username'] + '" ' + \
+                          'с электронной почтой ' + str(request.POST['email']) + '.', 'admin@rusel.by', ['ok@rusel.by'])
                 messages.add_message(request, messages.INFO, _('Account created. Click on the link sent to your email to activate the account.'))
  
             except:
                 error = True
-                messages.add_message(request, messages.WARNING, _('Unable to send email verification. Please try again.'))
+                messages.add_message(request, messages.WARNING, _('Unable to send email verification. Please try again.') + ' ' + str(sys.exc_info()[0]))
+                title = _('Register')
  
             if not error:
                 u = User.objects.create_user(
@@ -215,17 +220,7 @@ Please visit the following link to verify your account \n\n{0}://{1}/account/act
                 newUser.activation_key = activation_key
                 newUser.user = u
                 newUser.save()
- 
-            #return redirect('account:register')
-            current_site = get_current_site(request)
-            context = {
-                    'site': current_site,
-                    'site_name': current_site.name,
-                    'site_header': current_site.name,
-                    'title': gettext('Register'),
-                    }
-            return render(request, 'account/register.html', context)
- 
+                show_form = False
     else:
         f = RegisterForm()
  
@@ -234,15 +229,16 @@ Please visit the following link to verify your account \n\n{0}://{1}/account/act
             'site': current_site,
             'site_name': current_site.name,
             'site_header': current_site.name,
-            'title': gettext('Register'),
+            'title': title,
             'form': f,
+            'show_form': show_form,
             }
     return render(request, 'account/register.html', context)
 
 
  
 def activate_account(request):
-    key = request.GET['key']
+    key = request.GET.get('key')
     if not key:
         raise Http404()
  
@@ -252,14 +248,23 @@ def activate_account(request):
     r.email_validated = True
     r.save()
  
-    return render(request, 'account/activated.html')
+    current_site = get_current_site(request)
+    context = {
+            'site': current_site,
+            'site_name': current_site.name,
+            'site_header': current_site.name,
+            'title': gettext('Account activated'),
+            }
+    return render(request, 'account/activated.html', context)
 
 class PasswordContextMixin:
     extra_context = None
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        current_site = get_current_site(self.request)
         context.update({
+            'site_header': current_site.name,
             'title': self.title,
             **(self.extra_context or {})
         })

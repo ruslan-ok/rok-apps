@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-15 23:32+0300\n"
+"POT-Creation-Date: 2020-03-23 13:31+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -94,19 +94,31 @@ msgstr ""
 "этого пользователя, но вы можете изменить пароль, воспользовавшись<a href="
 "\"{}\">этой формой</a>."
 
-#: .\account\templates\login.html:21
-#: .\account\templates\password_change_form.html:11
-#: .\account\templates\profile.html:21
+#: .\account\templates\account\activated.html:5 .\account\views.py:251
+msgid "Account activated"
+msgstr "Учетная запись активирована"
+
+#: .\account\templates\account\activated.html:11
+msgid "Account activated! Please "
+msgstr "Учетная запись активирована! Пожалуйста, выполните "
+
+#: .\account\templates\account\activated.html:11
+msgid "login"
+msgstr "вход"
+
+#: .\account\templates\account\login.html:21
+#: .\account\templates\account\password_change_form.html:11
+#: .\account\templates\account\profile.html:21
 msgid "Please correct the error below."
 msgstr "Пожалуйста, исправьте ошибку ниже."
 
-#: .\account\templates\login.html:21
-#: .\account\templates\password_change_form.html:11
-#: .\account\templates\profile.html:21
+#: .\account\templates\account\login.html:21
+#: .\account\templates\account\password_change_form.html:11
+#: .\account\templates\account\profile.html:21
 msgid "Please correct the errors below."
 msgstr "Пожалуйста, исправьте ошибки ниже."
 
-#: .\account\templates\login.html:37
+#: .\account\templates\account\login.html:37
 #, python-format
 msgid ""
 "You are authenticated as %(username)s, but are not authorized to access this "
@@ -116,34 +128,34 @@ msgstr ""
 "просмотра данной страницы. Возможно, вы хотели бы войти в систему, используя "
 "другую учётную запись?"
 
-#: .\account\templates\login.html:60
+#: .\account\templates\account\login.html:60
 msgid "Forgotten your password or username?"
 msgstr "Забыли свой пароль или имя пользователя?"
 
-#: .\account\templates\login.html:67 .\account\templates\register.html:41
-#: .\account\views.py:224 .\account\views.py:236
+#: .\account\templates\account\login.html:67
+#: .\account\templates\account\register.html:42 .\account\views.py:227
 msgid "Register"
 msgstr "Регистрация"
 
-#: .\account\templates\login.html:72
+#: .\account\templates\account\login.html:72
 msgid "Login"
 msgstr "Войти"
 
-#: .\account\templates\password_change_done.html:3
-#: .\account\templates\profile.html:8
+#: .\account\templates\account\password_change_done.html:3
+#: .\account\templates\account\profile.html:8
 msgid "Change password"
 msgstr "Изменить пароль"
 
-#: .\account\templates\password_change_done.html:3
-#: .\account\templates\profile.html:11
+#: .\account\templates\account\password_change_done.html:3
+#: .\account\templates\account\profile.html:11
 msgid "Log out"
 msgstr "Выйти"
 
-#: .\account\templates\password_change_done.html:5
+#: .\account\templates\account\password_change_done.html:5
 msgid "Your password was changed."
 msgstr "Ваш пароль был изменен."
 
-#: .\account\templates\password_change_form.html:15
+#: .\account\templates\account\password_change_form.html:15
 msgid ""
 "Please enter your old password, for security’s sake, and then enter your new "
 "password twice so we can verify you typed it in correctly."
@@ -151,16 +163,22 @@ msgstr ""
 "Пожалуйста, для безопасности введите свой старый пароль, а затем дважды "
 "введите новый пароль, чтобы мы могли проверить, правильно ли вы его ввели."
 
-#: .\account\templates\password_change_form.html:43
-#: .\account\templates\password_reset_confirm.html:21
+#: .\account\templates\account\password_change_form.html:43
+#: .\account\templates\account\password_reset_confirm.html:21
 msgid "Change my password"
 msgstr "Изменить мой пароль"
 
-#: .\account\templates\password_reset_complete.html:4
-msgid "Your password has been set. You may go ahead and log in now."
-msgstr "Ваш пароль был сохранен. Теперь вы можете войти."
+#: .\account\templates\account\password_reset_complete.html:4
+msgid "Your password has been set. You may go ahead and log in now:"
+msgstr "Ваш пароль сохранен. Теперь вы можете войти:"
 
-#: .\account\templates\password_reset_confirm.html:7
+# ------------------------
+#: .\account\templates\account\password_reset_complete.html:5
+#: .\account\views.py:110
+msgid "Log in"
+msgstr "Вход"
+
+#: .\account\templates\account\password_reset_confirm.html:7
 msgid ""
 "Please enter your new password twice so we can verify you typed it in "
 "correctly."
@@ -168,15 +186,15 @@ msgstr ""
 "Пожалуйста, введите новый пароль дважды, чтобы мы могли убедиться в "
 "правильности написания."
 
-#: .\account\templates\password_reset_confirm.html:13
+#: .\account\templates\account\password_reset_confirm.html:13
 msgid "New password:"
 msgstr "Новый пароль:"
 
-#: .\account\templates\password_reset_confirm.html:18
+#: .\account\templates\account\password_reset_confirm.html:18
 msgid "Confirm password:"
 msgstr "Подтверждение пароля:"
 
-#: .\account\templates\password_reset_confirm.html:27
+#: .\account\templates\account\password_reset_confirm.html:27
 msgid ""
 "The password reset link was invalid, possibly because it has already been "
 "used. Please request a new password reset."
@@ -184,24 +202,24 @@ msgstr ""
 "Неверная ссылка для восстановления пароля. Возможно, ей уже воспользовались. "
 "Пожалуйста, попробуйте восстановить пароль еще раз."
 
-#: .\account\templates\password_reset_done.html:4
+#: .\account\templates\account\password_reset_done.html:4
 msgid ""
 "We’ve emailed you instructions for setting your password, if an account "
 "exists with the email you entered. You should receive them shortly."
 msgstr ""
-"Мы отправили вам инструкцию по установке нового пароля на указанный адрес "
+"Инструкции по восстановлению пароля отправлены на указанный вами адрес "
 "электронной почты (если в нашей базе данных есть такой адрес). Вы должны "
-"получить ее в ближайшее время."
+"получить их в ближайшее время."
 
-#: .\account\templates\password_reset_done.html:5
+#: .\account\templates\account\password_reset_done.html:5
 msgid ""
 "If you don’t receive an email, please make sure you’ve entered the address "
 "you registered with, and check your spam folder."
 msgstr ""
 "Если вы не получили письмо, пожалуйста, убедитесь, что вы ввели адрес с "
-"которым Вы зарегистрировались, и проверьте папку со спамом."
+"которым зарегистрировались, и проверьте папку со спамом."
 
-#: .\account\templates\password_reset_email.html:2
+#: .\account\templates\account\password_reset_email.html:2
 #, python-format
 msgid ""
 "You're receiving this email because you requested a password reset for your "
@@ -211,57 +229,61 @@ msgstr ""
 "восстановление пароля от учётной записи на сайте %(site_name)s, которая "
 "связана с этим адресом электронной почты."
 
-#: .\account\templates\password_reset_email.html:4
+#: .\account\templates\account\password_reset_email.html:4
 msgid "Please go to the following page and choose a new password:"
 msgstr "Пожалуйста, перейдите на эту страницу и введите новый пароль:"
 
-#: .\account\templates\password_reset_email.html:8
+#: .\account\templates\account\password_reset_email.html:8
 msgid "Your username, in case you’ve forgotten:"
 msgstr "Ваше имя пользователя, на случай, если забыли:"
 
-#: .\account\templates\password_reset_email.html:10
+#: .\account\templates\account\password_reset_email.html:10
 msgid "Thanks for using our site!"
 msgstr "Спасибо, что используете наш сайт!"
 
-#: .\account\templates\password_reset_email.html:12
+#: .\account\templates\account\password_reset_email.html:12
 #, python-format
 msgid "The %(site_name)s team"
 msgstr "Команда сайта %(site_name)s"
 
-#: .\account\templates\password_reset_form.html:6
+#: .\account\templates\account\password_reset_form.html:6
 msgid ""
 "Forgotten your password? Enter your email address below, and we’ll email "
 "instructions for setting a new one."
 msgstr ""
-"Забыл пароль? Введи адрес электронной почты ниже и на него будет выслано "
+"Забыли пароль? Введите адрес электронной почты ниже и на него будет выслано "
 "письмо с инструкциями по восстановлению пароля."
 
-#: .\account\templates\password_reset_form.html:12
+#: .\account\templates\account\password_reset_form.html:12
 msgid "Email address:"
 msgstr "Адрес электронной почты:"
 
-#: .\account\templates\password_reset_form.html:15
+#: .\account\templates\account\password_reset_form.html:15
 msgid "Reset my password"
 msgstr "Сбросить мой пароль"
 
-#: .\account\templates\password_reset_subject.txt:2
+#: .\account\templates\account\password_reset_subject.txt:2
 #, python-format
 msgid "Password reset on %(site_name)s"
 msgstr "Сброс пароля на %(site_name)s"
 
-#: .\account\templates\profile.html:106
+#: .\account\templates\account\profile.html:106
 msgid "Save"
 msgstr "Сохранить"
 
-#: .\account\views.py:168
+#: .\account\views.py:169
 msgid "Logged out"
 msgstr "Выход выполнен"
 
-#: .\account\views.py:189
+#: .\account\views.py:191
 msgid "Account Verification"
 msgstr "Проверка учетной записи"
 
-#: .\account\views.py:199
+#: .\account\views.py:193
+msgid "Please visit the following link to verify your account"
+msgstr "Перейдите по следующей ссылке для активации учетной записи"
+
+#: .\account\views.py:200
 msgid ""
 "Account created. Click on the link sent to your email to activate the "
 "account."
@@ -269,141 +291,114 @@ msgstr ""
 "Учетная запись создана. Перейди по ссылке в отправленном письме для её "
 "активации."
 
-#: .\account\views.py:203
+#: .\account\views.py:204
 msgid "Unable to send email verification. Please try again."
 msgstr "Не удалось отправить письмо. Попробуйте ещё раз."
 
-#: .\account\views.py:277
+#: .\account\views.py:278
 msgid "Password reset"
 msgstr "Восстановление пароля"
 
-#: .\account\views.py:304
+#: .\account\views.py:305
 msgid "Password reset sent"
 msgstr "Письмо отправлено"
 
-#: .\account\views.py:314
+#: .\account\views.py:315
 msgid "Enter new password"
 msgstr "Новый пароль"
 
-#: .\account\views.py:374
+#: .\account\views.py:375
 msgid "Password reset unsuccessful"
 msgstr "Сброс пароля неуспешен"
 
-#: .\account\views.py:382
+#: .\account\views.py:383
 msgid "Password reset complete"
-msgstr "Сброс пароля завершен"
+msgstr "Установка пароля завершена"
 
-#: .\account\views.py:394
+#: .\account\views.py:395
 msgid "Password change"
 msgstr "Изменение пароля"
 
-#: .\account\views.py:417
+#: .\account\views.py:418
 msgid "Password change successful"
 msgstr "Пароль успешно изменен"
 
-#: .\account\views.py:450
+#: .\account\views.py:451
 msgid "Profile"
 msgstr "Профиль"
 
-#: .\account\views.py:452
+#: .\account\views.py:453
 msgid "Personal info"
 msgstr "Персональная информация"
 
-#: .\account\views.py:453
+#: .\account\views.py:454
 msgid "Important dates"
 msgstr "Важные даты"
 
+#~ msgid "news"
+#~ msgstr "новости"
 
-#------------------------
+#~ msgid "tasks"
+#~ msgstr "задачи"
 
-#: .\rusel\templates\base_site.html:22 .\rusel\templates\index.html:21
-msgid "Log in"
-msgstr "Вход"
+#~ msgid "feedback"
+#~ msgstr "обратная связь"
 
-#: .\rusel\templates\base_site.html:29
-msgid "news"
-msgstr "новости"
+#~ msgid "sample"
+#~ msgstr "пример"
 
-#: .\rusel\templates\base_site.html:30
-msgid "tasks"
-msgstr "задачи"
+#~ msgid "It looks"
+#~ msgstr "Выглядит"
 
-#: .\rusel\templates\base_site.html:31
-msgid "feedback"
-msgstr "обратная связь"
+#~ msgid "like"
+#~ msgstr "похоже"
 
-#: .\rusel\templates\base_site.html:32
-msgid "sample"
-msgstr "пример"
+#~ msgid ""
+#~ "It looks like you got here by accident, because it is a personal, not a "
+#~ "public site."
+#~ msgstr ""
+#~ "Похоже ты попал сюда случайно, потому что это персональный, а не "
+#~ "публичный сайт."
 
-#: .\rusel\templates\index.html:22
-msgid "It looks"
-msgstr "Выглядит"
+#~ msgid ""
+#~ "This site does not provide any useful services, so you have a small "
+#~ "choice - either close the page or"
+#~ msgstr ""
+#~ "На этом сайте нет никаких полезных сервисов, поэтому у тебя небольшой "
+#~ "выбор - закрыть эту страницу или"
 
-#: .\rusel\templates\index.html:23
-msgid "like"
-msgstr "похоже"
+#~ msgid "find something more interesting"
+#~ msgstr "найти что-нибудь более интересное"
 
-#: .\rusel\templates\index.html:24
-msgid ""
-"It looks like you got here by accident, because it is a personal, not a "
-"public site."
-msgstr ""
-"Похоже ты попал сюда случайно, потому что это персональный, а не публичный "
-"сайт."
+#~ msgid "Applications"
+#~ msgstr "Приложения"
 
-#: .\rusel\templates\index.html:25
-msgid ""
-"This site does not provide any useful services, so you have a small choice - "
-"either close the page or"
-msgstr ""
-"На этом сайте нет никаких полезных сервисов, поэтому у тебя небольшой выбор "
-"- закрыть эту страницу или"
+#~ msgid "News"
+#~ msgstr "Новости"
 
-#: .\rusel\templates\index.html:26
-msgid "find something more interesting"
-msgstr "найти что-нибудь более интересное"
+#~ msgid "Tasks"
+#~ msgstr "Задачи"
 
-#: .\rusel\views.py:18
-msgid "Applications"
-msgstr "Приложения"
+#~ msgid "Feedback"
+#~ msgstr "Обратная связь"
 
-#: .\rusel\views.py:25
-msgid "News"
-msgstr "Новости"
+#~ msgid "Sample"
+#~ msgstr "Пример"
 
-#: .\rusel\views.py:29
-msgid "Tasks"
-msgstr "Задачи"
+#~ msgid "Fuel"
+#~ msgstr "Заправка"
 
-#: .\rusel\views.py:33
-msgid "Feedback"
-msgstr "Обратная связь"
+#~ msgid "Trip"
+#~ msgstr "Поездки"
 
-#: .\rusel\views.py:37
-msgid "Sample"
-msgstr "Пример"
+#~ msgid "Apartment"
+#~ msgstr "Квартира"
 
-#: .\rusel\views.py:41
-msgid "Fuel"
-msgstr "Заправка"
+#~ msgid "Projects"
+#~ msgstr "Проекты"
 
-#: .\rusel\views.py:45
-msgid "Trip"
-msgstr "Поездки"
+#~ msgid "Task"
+#~ msgstr "Задачи"
 
-#: .\rusel\views.py:50
-msgid "Apartment"
-msgstr "Квартира"
-
-#: .\rusel\views.py:54
-msgid "Projects"
-msgstr "Проекты"
-
-#: .\rusel\views.py:58
-msgid "Task"
-msgstr "Задачи"
-
-#: .\rusel\views.py:62
-msgid "Wage"
-msgstr "Работа"
+#~ msgid "Wage"
+#~ msgstr "Работа"

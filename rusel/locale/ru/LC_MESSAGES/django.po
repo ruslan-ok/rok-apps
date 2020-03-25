@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-15 23:32+0300\n"
+"POT-Creation-Date: 2020-03-23 13:31+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,3 +19,94 @@ msgstr ""
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 
+#: .\rusel\templates\base.html:63
+msgid "Please correct the error below."
+msgstr "Пожалуйста, исправьте ошибку ниже."
+
+#: .\rusel\templates\base.html:63
+msgid "Please correct the errors below."
+msgstr "Пожалуйста, исправьте ошибки ниже."
+
+#: .\rusel\templates\base_site.html:22
+msgid "Log in"
+msgstr "Вход"
+
+#: .\rusel\templates\base_site.html:29
+msgid "news"
+msgstr "новости"
+
+#: .\rusel\templates\base_site.html:30
+msgid "tasks"
+msgstr "задачи"
+
+#: .\rusel\templates\base_site.html:31
+msgid "feedback"
+msgstr "обратная связь"
+
+#: .\rusel\templates\base_site.html:32
+msgid "sample"
+msgstr "пример"
+
+#: .\rusel\templates\index.html:20
+msgid ""
+"It looks like you got here by accident, because it is a personal, not a "
+"public site."
+msgstr ""
+"Похоже вы попали сюда случайно, потому что это персональный, а не "
+"публичный сайт."
+
+#: .\rusel\templates\index.html:21
+msgid ""
+"This site does not provide any useful services, so you have a small choice - "
+"either close the page or"
+msgstr ""
+"На этом сайте нет никаких полезных сервисов, поэтому у вас небольшой "
+"выбор - закрыть эту страницу или"
+
+#: .\rusel\templates\index.html:22
+msgid "find something more interesting"
+msgstr "найти что-нибудь более интересное"
+
+#: .\rusel\views.py:18
+msgid "Applications"
+msgstr "Приложения"
+
+#: .\rusel\views.py:25
+msgid "News"
+msgstr "Новости"
+
+#: .\rusel\views.py:29
+msgid "Tasks"
+msgstr "Задачи"
+
+#: .\rusel\views.py:33
+msgid "Feedback"
+msgstr "Обратная связь"
+
+#: .\rusel\views.py:37
+msgid "Sample"
+msgstr "Пример"
+
+#: .\rusel\views.py:41
+msgid "Fuel"
+msgstr "Заправка"
+
+#: .\rusel\views.py:45
+msgid "Trip"
+msgstr "Поездки"
+
+#: .\rusel\views.py:50
+msgid "Apartment"
+msgstr "Квартира"
+
+#: .\rusel\views.py:54
+msgid "Projects"
+msgstr "Проекты"
+
+#: .\rusel\views.py:58
+msgid "Task"
+msgstr "Задачи"
+
+#: .\rusel\views.py:62
+msgid "Wage"
+msgstr "Работа"

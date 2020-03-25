@@ -19,17 +19,17 @@ def edit_context(_request, _form, _pid, _debug_text, _debt_sum, _last_prc):
     persons = Person.objects.filter(user = _request.user.id)
     trips = Trip.objects.filter(user = _request.user.id).order_by('-year', '-week', '-oper')[:40]
     return {
-      'app_text':       u'Приложения',
-      'count_text':     u'Пересчитать',
-      'pers_text':      u'Люди',
-      'week_text':      u'Выходные',
-      'page_title':     u'Проезд',
+      'app_text':       'Приложения',
+      'count_text':     'Пересчитать',
+      'pers_text':      'Люди',
+      'week_text':      'Выходные',
+      'page_title':     'Проезд',
       'trip_summary':   trip_summary(_request.user.id),
       'trip_status':    '',
       'form':           _form,
       'pid':            _pid,
-      'oper_trip':      u'проезд',
-      'oper_pay':       u'оплата',
+      'oper_trip':      'проезд',
+      'oper_pay':       'оплата',
       'trips':          trips,
       'trips_count':    Trip.objects.filter(user = _request.user.id).count,
       'persons':        persons,
@@ -93,16 +93,16 @@ def do_trip(request, pk):
     days   = request.POST.get('ret_days', False)
     
     act = 0
-    if (action == u'Отменить'):
+    if (action == 'Отменить'):
       act = 1
     else:
-      if (action == u'Добавить'):
+      if (action == 'Добавить'):
         act = 2
       else:
-        if (action == u'Сохранить'):
+        if (action == 'Сохранить'):
           act = 3
         else:
-          if (action == u'Удалить'):
+          if (action == 'Удалить'):
             act = 4
           else:
             act = 5

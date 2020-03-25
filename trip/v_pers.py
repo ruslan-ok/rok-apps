@@ -20,9 +20,9 @@ def edit_context(_request, _form, _pid, _debug_text):
     return { 'persons': persons, 
              'form': _form, 
              'pid': _pid,
-             'app_text':   u'Приложения', 
-             'trip_text':  u'Проезд',
-             'page_title': u'Водители и пассажиры', 
+             'app_text':   'Приложения', 
+             'trip_text':  'Проезд',
+             'page_title': 'Водители и пассажиры', 
              'pers_count': persons.count,
              'debug_text': _debug_text,
              'cur':        pers,
@@ -43,16 +43,16 @@ def do_pers(request, pk):
     me = request.POST.get('me', False)
    
     act = 0
-    if (action == u'Отменить'):
+    if (action == 'Отменить'):
       act = 1
     else:
-      if (action == u'Добавить'):
+      if (action == 'Добавить'):
         act = 2
       else:
-        if (action == u'Сохранить'):
+        if (action == 'Сохранить'):
           act = 3
         else:
-          if (action == u'Удалить'):
+          if (action == 'Удалить'):
             act = 4
           else:
             act = 5

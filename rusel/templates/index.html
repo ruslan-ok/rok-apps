@@ -1,5 +1,12 @@
 {% extends "base_site.html" %}
 {% load i18n static %}
+
+{% block content_title %}
+  {% if user_info.is_authenticated %}
+    {% if title %}<h1>{{ title }}</h1>{% endif %}
+  {% endif %}
+{% endblock %}
+
 {% block content %}
   {% if user_info.is_authenticated %}
     <div id="intro-menu">

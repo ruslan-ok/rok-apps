@@ -66,14 +66,14 @@ def my_save(_ins, _user, _per, a, _sCounter, _sPay):
     if (_ins):
       try:
         b = Communal.objects.get(user = _user.id, period = a.year * 100 + a.month)
-        return u'Такой период уже есть'
+        return 'Такой период уже есть'
       except Communal.DoesNotExist:
         b = Communal(user = _user)
     else:
       b = Communal.objects.get(user = _user.id, period = _per)
 
     if (b == None):
-      return u'Не удалось создать запись'
+      return 'Не удалось создать запись'
     else:
       b.month      = a.month
       b.year       = a.year
@@ -106,7 +106,7 @@ def my_save(_ins, _user, _per, a, _sCounter, _sPay):
       b.course     = correct_int(a.course)
       b.text       = a.text
       b.save()
-      return u''
+      return ''
 
 def get_element(_arr, _ndx):
     if (len(_arr) >= (_ndx+1)):
@@ -128,9 +128,9 @@ def edit_context(_request, _form, _debug_text, _year, _month, _new):
       zf = isFirst(_request.user.id, (_year * 100 + _month))
       zl =  isLast(_request.user.id, (_year * 100 + _month))
     return { 'form':       _form, 
-             'app_text':   u'Приложения', 
-             'tarif_text': u'Тарифы', 
-             'page_title': u'Коммунальные платежи', 
+             'app_text':   'Приложения', 
+             'tarif_text': 'Тарифы', 
+             'page_title': 'Коммунальные платежи', 
              'debug_text': 'first = ' + str(zf) + ', last = ' + str(zl), 
              'is_first':   zf, 
              'is_last':    zl,
@@ -291,9 +291,9 @@ def v_apart_view(request):
     aparts = Communal.objects.filter(user = request.user.id).order_by('-period')[:20]
     context = { 'aparts':       aparts, 
                 'aparts_count': Communal.objects.filter(user = request.user.id).count,
-                'app_text':   u'Приложения', 
-                'tarif_text': u'Тарифы', 
-                'page_title': u'Коммунальные платежи', 
+                'app_text':   'Приложения', 
+                'tarif_text': 'Тарифы', 
+                'page_title': 'Коммунальные платежи', 
                 'debug_text': ''
               }
     return render(request, 'apart/apart.html', context)
@@ -310,29 +310,29 @@ def v_apart_edit(request, per):
         return apart_get_one(request, int(per), 'ok-1')
     else:
       action = request.POST['action']
-      if (action == u'Отменить'):
+      if (action == 'Отменить'):
         # Отмена, возвратиться к списку
         return HttpResponseRedirect(reverse('apart:apart_view', args=()))
       else:
         form = ApartForm(request.POST)
         if not form.is_valid():
           # Ошибки в форме, отобразить её снова
-          return apart_get_one(request, int(per), unicode(form.errors.as_data()))
+          return apart_get_one(request, int(per), str(form.errors.as_data()))
         else:
           a = form.save(commit = False)
 
-          if (action == u'Добавить'):
+          if (action == 'Добавить'):
             debug_text = my_save(True, request.user, 0, a, request.POST['dCounter'], request.POST['dPay'])
 
-          if (action == u'Сохранить'):
+          if (action == 'Сохранить'):
             debug_text = my_save(False, request.user, per, a, request.POST['dCounter'], request.POST['dPay'])
 
-          if (action == u'Удалить'):
-            debug_text = u''
+          if (action == 'Удалить'):
+            debug_text = ''
             a = Communal.objects.get(user = request.user.id, period = per)
             a.delete()
 
-          if (debug_text == u''):
+          if (debug_text == ''):
             # Успешно сохранено/удалено
             return HttpResponseRedirect(reverse('apart:apart_view', args=()))
           else:

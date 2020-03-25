@@ -78,16 +78,16 @@ def do_task(request, task_id):
     action = request.POST.get('action', False)
     
     act = 0
-    if (action == u'C'):
+    if (action == 'C'):
       act = 1
     else:
-      if (action == u'A') or (action == '+'):
+      if (action == 'A') or (action == '+'):
         act = 2
       else:
-        if (action == u'S'):
+        if (action == 'S'):
           act = 3
         else:
-          if (action == u'D'):
+          if (action == 'D'):
             act = 4
           else:
             act = 5

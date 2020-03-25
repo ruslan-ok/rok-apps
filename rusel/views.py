@@ -9,7 +9,7 @@ def rok_render(request, template, title):
     context = {
        'user_info': request.user,
        'title': title,
-       'site_title': current_site.name,
+       'site_header': current_site.name,
         }
     return render(request, template, context)
 
@@ -17,7 +17,7 @@ def index(request):
     if request.user.is_authenticated:
         title = _('Applications')
     else:
-        title = ''
+        title = get_current_site(request)
     return rok_render(request, 'index.html', title)
 
 @login_required(login_url='account:login')

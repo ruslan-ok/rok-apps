@@ -61,51 +61,51 @@ filters = {FLTR_GROUP, FLTR_TERM, FLTR_IMPORTANCE, FLTR_COLOR, FLTR_COMPLETE}
 
 class TGroup(models.Model):
   user     = models.ForeignKey(User, on_delete=models.CASCADE)
-  name     = models.CharField(u'Наименование', max_length = 200, blank = False)
-  comment  = models.CharField(u'Описание', max_length = 2000, blank = True)
-  active   = models.IntegerField(u'Активна', default = 0)
-  sort     = models.IntegerField(u'Сортировка', default = 0)
+  name     = models.CharField('Наименование', max_length = 200, blank = False)
+  comment  = models.CharField('Описание', max_length = 2000, blank = True)
+  active   = models.IntegerField('Активна', default = 0)
+  sort     = models.IntegerField('Сортировка', default = 0)
   def __str__(self):
-    return self.name.encode('utf-8')
+    return self.name
 
 
 class Task(models.Model):
   user     = models.ForeignKey(User, on_delete=models.CASCADE)
-  pub_date = models.DateTimeField(u'Дата создания', default = timezone.now)
-  name     = models.CharField(u'Наименование', max_length = 200, blank = False)
-  code     = models.CharField(u'Код', max_length = 200, blank = True)
+  pub_date = models.DateTimeField('Дата создания', default = timezone.now)
+  name     = models.CharField('Наименование', max_length = 200, blank = False)
+  code     = models.CharField('Код', max_length = 200, blank = True)
   grp      = models.ForeignKey(TGroup, on_delete=models.CASCADE, blank = True, null = True)
-  d_exec   = models.DateField(u'Срок исполнения (дата)', blank = True, null = True)
-  t_exec   = models.TimeField(u'Срок исполнения (время)', blank = True, null = True)
-  repeat   = models.IntegerField(u'Повторение', default = 0) 
+  d_exec   = models.DateField('Срок исполнения (дата)', blank = True, null = True)
+  t_exec   = models.TimeField('Срок исполнения (время)', blank = True, null = True)
+  repeat   = models.IntegerField('Повторение', default = 0) 
   # 0 - нет, 1 - ежедневно, 2 - еженедельно, 3 - ежемесячно, 4 - ежегодно
-  cycle    = models.IntegerField(u'Способ повторения', default = 0) 
+  cycle    = models.IntegerField('Способ повторения', default = 0) 
   # ежедневно:   0 - каждый указанный день, 1 - каждый рабочий день, 2 - через заданное количество дней после завершения
   # еженедельно: 0 - каждую неделю в указанные дни, 1 - через заданное количество недель после завершения
   # ежемесячно:  0 - каждый указанный месяц указанного числа, 1 - в указанный день недели, 2- через заданное количество месяцев после завершения
   # ежегодно:    0 - каждый указанный год, 1 - в указанныйдень недели указанного месяца, 2 - через заданное количество лет после завершения
-  step     = models.IntegerField(u'Шаг', default = 1)
+  step     = models.IntegerField('Шаг', default = 1)
   # через сколько циклов повторять или номер недели (1, 2, 3, 4, последняя)
-  value1   = models.IntegerField(u'Элемент календаря 1', default = 0)
+  value1   = models.IntegerField('Элемент календаря 1', default = 0)
   # еженедельно: выбранные дни недели
   # ежемесячно:  число или номер недели
   # ежегодно:    выбранный месяц
-  value2   = models.IntegerField(u'Элемент календаря 2', default = 0)
+  value2   = models.IntegerField('Элемент календаря 2', default = 0)
   # ежемесячно:  день недели
   # ежегодно:    выбранный день недели
-  done     = models.IntegerField(u'Выполнено раз', default = 0)
-  start    = models.DateTimeField(u'Дата начала', blank = True, null = True)
-  stop_mode= models.IntegerField(u'Способ завершения', default = 0)
+  done     = models.IntegerField('Выполнено раз', default = 0)
+  start    = models.DateTimeField('Дата начала', blank = True, null = True)
+  stop_mode= models.IntegerField('Способ завершения', default = 0)
   # 0 - нет конечной даты, 1 - завершить после указанного количества повторений, 2 - дата окончания
-  count    = models.IntegerField(u'Количество повторений', default = 10)
-  stop     = models.DateTimeField(u'Дата окончания', blank = True, null = True)
-  comment  = models.CharField(u'Описание', max_length = 2000, blank = True)
-  active   = models.IntegerField(u'Активна', default = 1)
-  attrib   = models.IntegerField(u'Атрибуты задачи', default = 0, blank = True)
-  color    = models.IntegerField(u'Атрибуты задачи', default = 0, blank = True, null = True)
+  count    = models.IntegerField('Количество повторений', default = 10)
+  stop     = models.DateTimeField('Дата окончания', blank = True, null = True)
+  comment  = models.CharField('Описание', max_length = 2000, blank = True)
+  active   = models.IntegerField('Активна', default = 1)
+  attrib   = models.IntegerField('Атрибуты задачи', default = 0, blank = True)
+  color    = models.IntegerField('Атрибуты задачи', default = 0, blank = True, null = True)
   # Пока не используется
   def __str__(self):
-    return self.name.encode('utf-8')
+    return self.name
   def s_due(self):
     if (self.d_exec == None):
       return '---'
@@ -129,20 +129,20 @@ class Task(models.Model):
 
 def task_summary(_user):
   tasks = Task.objects.filter(user = _user)
-  return u'Всего задач: <span id="warning">' + str(len(tasks)) + u'</span>'
+  return 'Всего задач: <span id="warning">' + str(len(tasks)) + '</span>'
 
 
 class TaskView(models.Model):
   user     = models.ForeignKey(User, on_delete=models.CASCADE)
-  name     = models.CharField(u'Наименование', max_length = 200, blank = False)
-  code     = models.CharField(u'Код для сортировки', max_length = 200, blank = True, default = '')
-  active   = models.IntegerField(u'Активна', default = 0)
-  fltr     = models.IntegerField(u'Фильтр', default = 0) # Битовая маска для "Группа", "Срок", "Важность", "Цвет"
-  sort     = models.IntegerField(u'Сортировка', default = 0)
-  grp      = models.IntegerField(u'Группировка', default = 0)
-  flds     = models.IntegerField(u'Поля', default = 0)
+  name     = models.CharField('Наименование', max_length = 200, blank = False)
+  code     = models.CharField('Код для сортировки', max_length = 200, blank = True, default = '')
+  active   = models.IntegerField('Активна', default = 0)
+  fltr     = models.IntegerField('Фильтр', default = 0) # Битовая маска для "Группа", "Срок", "Важность", "Цвет"
+  sort     = models.IntegerField('Сортировка', default = 0)
+  grp      = models.IntegerField('Группировка', default = 0)
+  flds     = models.IntegerField('Поля', default = 0)
   def __str__(self):
-    return self.name.encode('utf-8')
+    return self.name
   def s_fltr(self):
     ret = ''
 
@@ -170,9 +170,9 @@ class TaskView(models.Model):
 
 class TaskFilter(models.Model):
   view     = models.ForeignKey(TaskView, on_delete=models.CASCADE)
-  entity   = models.IntegerField(u'Сущность', default = 0)
-  npp      = models.IntegerField(u'Номер по порядку', default = 0)
-  value    = models.IntegerField(u'Значение', default = 0)
-  direct   = models.IntegerField(u'Направление сортировки', default = 0)
+  entity   = models.IntegerField('Сущность', default = 0)
+  npp      = models.IntegerField('Номер по порядку', default = 0)
+  value    = models.IntegerField('Значение', default = 0)
+  direct   = models.IntegerField('Направление сортировки', default = 0)
   def f_name(self):
     return (fltr_names[self.entity])[self.value]
