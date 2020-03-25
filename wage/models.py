@@ -5,7 +5,6 @@ from datetime import date
 
 class Period(models.Model):
     dBeg = models.DateField('Дата начала', default=timezone.now)
-    #dEnd = models.DateField('Дата окончания', blank=True, null=True)
     planDays  = models.IntegerField('План, дней', blank=True)
     AvansDate = models.DateField('Дата аванса', blank=True, null=True)
     PaymentDate = models.DateField('Дата выплаты ЗП', blank=True, null=True)
@@ -127,6 +126,7 @@ class PayTitle(models.Model):
 class Payment(models.Model):
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     period = models.ForeignKey(Period, on_delete=models.CASCADE)
+    direct = models.IntegerField('0 - Начисление, 1 - Выплата')
     payed = models.DateField('Дата начисления или выплаты', blank=True, null=True)
     sort = models.CharField('Номер п/п', max_length=100, blank=True)
     title = models.ForeignKey(PayTitle, on_delete=models.CASCADE)
