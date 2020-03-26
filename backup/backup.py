@@ -4,20 +4,9 @@ from datetime import datetime
 from email.message import EmailMessage
 from secret import device, mail_login, mail_pass, mail_from, mail_to, mail_wait, short_dirs, full_dirs, sql_dump, sql_user, sql_pass
 
-class Mode(Enum):
-    Today = 0
-    NewDay = 1
-    NewWeek = 2
-    NewMonth = 3
-    NewYear = 4
-
-mode_descr = {
-    Mode.Today: 'новый архив дня',
-    Mode.NewDay: 'архив нового дня',
-    Mode.NewWeek: 'архив новой недели',
-    Mode.NewMonth: 'архив нового месяца',
-    Mode.NewYear: 'архив нового года'
-    }
+YEAR_DURATION = 365
+MONTH_DURATION = 30
+WEEK_DURATION = 7
 
 class BackupError(Exception):
     def __init__(self, stage, info):
@@ -36,35 +25,32 @@ def sizeof_fmt(num, suffix = 'B'):
 
 class Backup:
 
-    mode = Mode.Today
+    full_mode = False
     content = []
     case = 0
 
-    def read_last(self):
+    def read_last(self, name):
         try:
-            with open('last.txt', 'r') as f:
-                self.last_backup_stamp = f.read()
+            with open('last_' + name + '.txt', 'r') as f:
+                return f.read()
         except FileNotFoundError:
-            pass # Допустимая ситуация - считаем, что архивирование ещё ни разу не выполнялось
+            return '' # Допустимая ситуация - считаем, что архивирование ещё ни разу не выполнялось
+        return ''
 
+    # Выбор режима архивирования
     def count_mode(self):
-        self.last_backup_stamp = ''
-        self.mode = Mode.Today
-        self.read_last()
-        if (self.last_backup_stamp == ''):
-            return
-
-        l = datetime.strptime(self.last_backup_stamp, '%Y-%m-%d %H:%M:%S.%f')
-        n = datetime.now()
-        if (n > l):
-            if (n.year > l.year):
-                self.mode = Mode.NewYear
-            elif (n.month > l.month):
-                self.mode = Mode.NewMonth
-            elif (n.isocalendar()[1] > l.isocalendar()[1]):
-                self.mode = Mode.NewWeek
-            elif (n.day > l.day):
-                self.mode = Mode.NewDay
+        self.full_mode = False
+        last = self.read_last('full')
+        if (last == ''):
+            self.full_mode = True
+        else:
+            l = datetime.strptime(last, '%Y-%m-%d %H:%M:%S.%f')
+            n = datetime.now()
+            self.full_mode = ((n - l).days > MONTH_DURATION)
+        if self.full_mode:
+            print('Полный архив')
+        else:
+            print('Краткий архив')
     
     def backup_db(self, zf):
         file = 'mysql_backup.sql'
@@ -92,11 +78,9 @@ class Backup:
         if (total == 0):
             raise BackupError('backup_mail', 'За назначенный таймаут файл архива не был получен.')
 
-    def full_arch(self):
-        return (self.mode == Mode.NewMonth) or (self.mode == Mode.NewYear)
-
+    # Архивирование
     def archivate(self):
-        if self.full_arch():
+        if self.full_mode:
             dirs = full_dirs
         else:
             dirs = short_dirs
@@ -128,24 +112,43 @@ class Backup:
         else:
             raise BackupError('archivate', 'Пустой архив ' + 'temp/' + fn + '.zip')
 
-    def rotate_dir(self, dir):
-        if os.path.exists(dir):
-            shutil.move(dir, dir+'_old')
-        shutil.move('temp', dir)
-        shutil.rmtree(dir+'_old', ignore_errors = True)
-        self.content.append('Архив помещен в папку "{0}".'.format(dir))
+    # Определение возраста архива в указанной папке
+    def arch_age(self, dir):
+        n = datetime.now()
+        for file in fnmatch.filter(os.listdir(dir), device + '-????.??.??-??.??.??.zip'): # в указанной папке ищем любой подходящий под наш шаблон архив
+            ss = file[len(device)+1:-4]
+            mt = datetime.strptime(ss, '%Y.%m.%d-%H.%M.%S')
+            return (n - mt).days # вернем количество дней от даты его модификации
+        print('arch_age = 0')
+        return 0
     
+    # Ротация
     def rotate(self):
-        if (self.mode == Mode.NewYear):
-            self.rotate_dir('year')
-        elif (self.mode == Mode.NewMonth):
-            self.rotate_dir('month')
-        elif (self.mode == Mode.NewWeek):
-            self.rotate_dir('week')
-        elif (self.mode == Mode.NewDay):
-            self.rotate_dir('ystrd')
+        if self.full_mode:
+            max_duration = YEAR_DURATION
+            max_dir = 'year2'
+            med_dir = 'year1'
+            min_dir = 'month'
         else:
-            self.rotate_dir('day')
+            max_duration = WEEK_DURATION
+            max_dir = 'week2'
+            med_dir = 'week1'
+            min_dir = 'day'
+
+        if not os.path.exists(max_dir):
+            shutil.copytree('temp', max_dir, dirs_exist_ok=True)
+
+        if not os.path.exists(med_dir):
+            shutil.copytree('temp', med_dir, dirs_exist_ok=True)
+        else:
+            if (self.arch_age(med_dir) > max_duration):
+                print('Выполняется ротация')
+                shutil.rmtree(max_dir, ignore_errors = True)
+                os.rename(med_dir, max_dir)
+                os.rename(min_dir, med_dir)
+
+        shutil.rmtree(min_dir, ignore_errors = True)
+        os.rename('temp', min_dir)
 
     def add_info(self, src, dst):
         if (self.case == 0):
@@ -154,7 +157,6 @@ class Backup:
         self.content.append('    ' + dst)
     
     def synch_dir(self, _src, _dst, _folder):
-        #self.content.append('Синхронизация ' + _src + '\\' + _folder + ' -> ' + _dst + '\\' + _folder + ':')
         if (_src == 'nuc'):
             src = 'x:\\' + _folder
             dst = 'c:\\backup\\' + _folder
@@ -185,8 +187,6 @@ class Backup:
                 else:
                     st = int(os.path.getmtime(fsrc))
                     dt = int(os.path.getmtime(fdst))
-                    #print(st)
-                    #print(dt)
                     if ((st - dt) > 5):
                         print('st:', st, 'dt:', dt)
                         shutil.copyfile(fsrc, fdst)
@@ -195,6 +195,7 @@ class Backup:
         if (self.case == 0):
             self.content.append('   ' + _src + '\\' + _folder + ' -> ' + _dst + '\\' + _folder + ' - без изменений.')
 
+    # Синхронизация
     def synch(self):
         if (device != 'Zen'):
             return
@@ -207,6 +208,7 @@ class Backup:
         self.synch_dir('zen', 'nuc', 'pipo')
         self.synch_dir('nuc', 'zen', 'pipo')
 
+    # Отправка информационного письма
     def send_mail(self, status, info):
         s = smtplib.SMTP(host='rusel.by', port=25)
         s.starttls()
@@ -225,15 +227,19 @@ class Backup:
         del msg
         s.quit()
 
+    # Фиксация времени архивирования
     def fix_time(self):
-        with open('last.txt', 'w') as f:
+        if self.full_mode:
+            tail = 'full'
+        else:
+            tail = 'short'
+        with open('last_' + tail + '.txt', 'w') as f:
             f.write(datetime.now().__str__())
 
     def save_log(self, input_wait, status, info):
         with open('backup.log', 'a') as f:
             f.write(str(datetime.now()) + '   ')
             f.write(status + ' ' + info + '\n')
-        print(self.mode, mode_descr[self.mode])
         for ct in self.content:
             print(ct)
         self.send_mail(status, info)
@@ -245,11 +251,11 @@ class Backup:
     def run(self, input_wait):
         try:
             self.content.clear()
-            self.count_mode()
-            self.archivate()
-            self.rotate()
-            self.synch()
-            self.fix_time()
+            self.count_mode()     # Выбор режима архивирования
+            self.archivate()      # Архивирование
+            self.rotate()         # Ротация
+            self.synch()          # Синхронизация
+            self.fix_time()       # Фиксация времени архивирования
             self.save_log(input_wait, 'ok', '')
         except BackupError as be:
             self.save_log(input_wait, '[x]', str(be))
