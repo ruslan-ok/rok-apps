@@ -53,7 +53,6 @@ def proj_summary(_user):
     tot = 0
     for o in opers:
       tot += o.summa()
-    #return cur_dir.name + ': <span style="color:yellow">' + str(len(opers)) + '</span>'
     return cur_dir.name + ': <span id="warning">' + str(int(tot)) + '</span>$'
   except Direct.DoesNotExist:
     return ''

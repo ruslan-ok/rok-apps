@@ -91,7 +91,7 @@ def do_fuel(request, pk):
       action = request.POST.get('action', False)
       
       act = 0
-      if (action == u'Отменить'):
+      if (action == 'Отменить'):
         act = 1
       else:
         if (action == 'Добавить'):

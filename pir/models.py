@@ -20,4 +20,4 @@ class PirData(models.Model):
   part = models.ForeignKey(PirPart, on_delete=models.CASCADE, default = 1)
   rec  = models.CharField('Запись таблицы', max_length = 1000, blank = False)
   def __str__(self):
-    return self.part.table.name + ' / ' + self.part.name + ' / ' + str(self.rec)
+    return self.part.table.name + ' / ' + self.part.name + ' / ' + self.rec
