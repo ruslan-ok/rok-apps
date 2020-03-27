@@ -188,7 +188,6 @@ class Backup:
                     st = int(os.path.getmtime(fsrc))
                     dt = int(os.path.getmtime(fdst))
                     if ((st - dt) > 5):
-                        print('st:', st, 'dt:', dt)
                         shutil.copyfile(fsrc, fdst)
                         self.add_info(_src + '\\' + _folder + ' -> ' + _dst + '\\' + _folder, 'Файл обновлен в ' + _dst + '\\' + _folder + part + '\\' + f)
     
