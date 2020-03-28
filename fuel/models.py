@@ -2,38 +2,49 @@ from django.contrib.auth.models import User
 from django.db import models
 from datetime import date
 from proj.models import Direct, Proj
+from django.utils.translation import gettext, gettext_lazy as _
 
 
 class Car(models.Model):
-  user   = models.ForeignKey(User, on_delete=models.CASCADE)
-  name   = models.CharField('Модель', max_length = 200, blank = False)
-  plate  = models.CharField('Гос. номер', max_length = 100)
-  active = models.IntegerField('Активная', default = 0)
-  direct = models.ForeignKey(Direct, on_delete=models.CASCADE, null = True)
-  def __str__(self):
-    return self.name + ' [' + self.plate + ']'
+    user   = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
+    name   = models.CharField(_('model'), max_length = 200, blank = False)
+    plate  = models.CharField(_('car number'), max_length = 100)
+    active = models.IntegerField(_('active'), default = 0)
+    direct = models.ForeignKey(Direct, on_delete=models.CASCADE, null = True, verbose_name=_('direct'))
+
+    class Meta:
+        verbose_name = _('car')
+        verbose_name_plural = _('cars')
+
+    def __str__(self):
+        return self.name + ' [' + self.plate + ']'
 
 
 class Fuel(models.Model):
-  car      = models.ForeignKey(Car, on_delete=models.CASCADE)
-  pub_date = models.DateTimeField('Дата заправки')
-  odometr  = models.IntegerField('Показания одометра', blank=False)
-  volume   = models.DecimalField('Объём', blank=False, max_digits=5, decimal_places=3)
-  price    = models.DecimalField('Цена', blank=False, max_digits=15, decimal_places=2)
-  comment  = models.CharField('Комментарий', max_length=1000, blank=True)
-  def __str__(self):
-    return str(self.pub_date) + ' / ' + str(self.odometr) + ' км. / ' + str(self.volume) + ' л.'
-  def summ(self):
-    return float(self.price * self.volume)
-  def s_pub_date(self):
-    d = str(self.pub_date.day)
-    m = str(self.pub_date.month)
-    y = str(self.pub_date.year)
-    if (len(d) < 2):
-      d = '0' + d
-    if (len(m) < 2):
-      m = '0' + m
-    return d + '.' + m + '.' + y
+    car      = models.ForeignKey(Car, on_delete=models.CASCADE, verbose_name=_('car'))
+    pub_date = models.DateTimeField(_('date'))
+    odometr  = models.IntegerField(_('odometer'), blank=False)
+    volume   = models.DecimalField(_('volume'), blank=False, max_digits=5, decimal_places=3)
+    price    = models.DecimalField(_('price'), blank=False, max_digits=15, decimal_places=2)
+    comment  = models.CharField(_('information'), max_length=1000, blank=True)
+
+    class Meta:
+        verbose_name = _('fueling')
+        verbose_name_plural = _('fuelings')
+
+    def __str__(self):
+        return str(self.pub_date) + ' / ' + str(self.odometr) + ' ' + gettext('km.') +' / ' + str(self.volume) + ' ' + gettext('l.')
+    def summ(self):
+        return float(self.price * self.volume)
+    def s_pub_date(self):
+        d = str(self.pub_date.day)
+        m = str(self.pub_date.month)
+        y = str(self.pub_date.year)
+        if (len(d) < 2):
+            d = '0' + d
+        if (len(m) < 2):
+            m = '0' + m
+        return d + '.' + m + '.' + y
 
 
 def consumption(_user):
@@ -69,63 +80,73 @@ def fuel_summary(_user):
     car_name = car.name + ': '
     cons = consumption(_user)
     if (cons == 0):
-      return car_name + 'Не удалось вычислить средний расход'
+      return car_name + _('failed to calculate average consumption')
     else:
-      return car_name + '<span id="warning">' + str(cons) + '</span> л на 100 км'
+      return car_name + '<span id="warning">' + str(cons) + '</span> ' + gettext(' l. per 100 km')
   except Car.DoesNotExist:
-    return 'Нет активного автомобиля'
+    return _('no active car')
     
 
 class Part(models.Model): # Список расходников
-  car      = models.ForeignKey(Car, on_delete=models.CASCADE)
-  name     = models.CharField('Наименование', max_length = 1000, blank = False)
-  chg_km   = models.IntegerField('Интервал замены, км', blank = True)
-  chg_mo   = models.IntegerField('Интервал замены, месяцев', blank = True)
-  comment  = models.TextField('Комментарий', blank = True)
-  
-  def __str__(self):
-    return self.name
-  
-  def last_date(self):
-    last = Repl.objects.filter(part = self.id).order_by('-dt_chg')[:1]
-    if (len(last) == 0):
-      return date.min
-    else:
-      return last[0].dt_chg.date()
+    car      = models.ForeignKey(Car, on_delete=models.CASCADE, verbose_name=_('car'))
+    name     = models.CharField(_('name'), max_length = 1000, blank = False)
+    chg_km   = models.IntegerField(_('replacement interval, km'), blank = True)
+    chg_mo   = models.IntegerField(_('replacement interval, months'), blank = True)
+    comment  = models.TextField(_('information'), blank = True)
 
-  def s_last_date(self):
-    return self.last_date().isoformat()
-
-  def last_odo(self):
-    last = Repl.objects.filter(part = self.id).order_by('-dt_chg')[:1]
-    if (len(last) == 0):
-      return 0
-    else:
-      return last[0].odometr
+    class Meta:
+        verbose_name = _('part')
+        verbose_name_plural = _('parts')
   
-  def repls(self):
-    r = Repl.objects.filter(part = self.id)
-    return len(r);
+    def __str__(self):
+        return self.name
+  
+    def last_date(self):
+        last = Repl.objects.filter(part = self.id).order_by('-dt_chg')[:1]
+        if (len(last) == 0):
+            return date.min
+        else:
+            return last[0].dt_chg.date()
+
+    def s_last_date(self):
+        return self.last_date().isoformat()
+
+    def last_odo(self):
+        last = Repl.objects.filter(part = self.id).order_by('-dt_chg')[:1]
+        if (len(last) == 0):
+            return 0
+        else:
+            return last[0].odometr
+  
+    def repls(self):
+        r = Repl.objects.filter(part = self.id)
+        return len(r);
 
 
 class Repl(models.Model): # Замена расходников
-  part     = models.ForeignKey(Part, on_delete=models.CASCADE)
-  dt_chg   = models.DateTimeField('Дата замены', blank = False)
-  odometr  = models.IntegerField('Показания одометра, км', blank = False)
-  manuf    = models.CharField('Производитель', max_length = 1000, blank = True)
-  part_num = models.CharField('Номер по каталогу', max_length = 100, blank = True)
-  name     = models.CharField('Наименование', max_length = 1000, blank = True)
-  oper     = models.ForeignKey(Proj, on_delete=models.CASCADE, null = True)
-  comment  = models.TextField('Комментарий', blank = True, default = None)
-  def __str__(self):
-    return str(self.dt_chg) + ' / ' + str(self.odometr) + ' км. / ' + self.name
-  def s_dt_chg(self):
-    d = str(self.dt_chg.day)
-    m = str(self.dt_chg.month)
-    y = str(self.dt_chg.year)
-    if (len(d) < 2):
-      d = '0' + d
-    if (len(m) < 2):
-      m = '0' + m
-    return d + '.' + m + '.' + y
+    part     = models.ForeignKey(Part, on_delete=models.CASCADE, verbose_name=_('part'))
+    dt_chg   = models.DateTimeField(_('date'), blank = False)
+    odometr  = models.IntegerField(_('odometer, km'), blank = False)
+    manuf    = models.CharField(_('manufacturer'), max_length = 1000, blank = True)
+    part_num = models.CharField(_('catalog number'), max_length = 100, blank = True)
+    name     = models.CharField(_('name'), max_length = 1000, blank = True)
+    oper     = models.ForeignKey(Proj, on_delete=models.CASCADE, null = True, verbose_name=_('project'))
+    comment  = models.TextField(_('information'), blank = True, default = None)
+
+    class Meta:
+        verbose_name = _('replacement')
+        verbose_name_plural = _('replacements')
+
+    def __str__(self):
+        return str(self.dt_chg) + ' / ' + str(self.odometr) + ' ' + gettext('km.') + ' / ' + self.name
+
+    def s_dt_chg(self):
+        d = str(self.dt_chg.day)
+        m = str(self.dt_chg.month)
+        y = str(self.dt_chg.year)
+        if (len(d) < 2):
+            d = '0' + d
+        if (len(m) < 2):
+            m = '0' + m
+        return d + '.' + m + '.' + y
 

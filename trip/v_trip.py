@@ -4,7 +4,9 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django import forms
 from django.forms import ModelForm
+from django.contrib.sites.shortcuts import get_current_site
 from trip.models import Person, Saldo, Trip, trip_summary
+from django.utils.translation import gettext_lazy as _
 
 
 #============================================================================
@@ -18,6 +20,7 @@ class TripForm(ModelForm):
 def edit_context(_request, _form, _pid, _debug_text, _debt_sum, _last_prc):
     persons = Person.objects.filter(user = _request.user.id)
     trips = Trip.objects.filter(user = _request.user.id).order_by('-year', '-week', '-oper')[:40]
+    current_site = get_current_site(_request)
     return {
       'app_text':       'Приложения',
       'count_text':     'Пересчитать',
@@ -35,7 +38,9 @@ def edit_context(_request, _form, _pid, _debug_text, _debt_sum, _last_prc):
       'persons':        persons,
       'debt':           _debt_sum,
       'last_prc':       _last_prc,
-      'debug_text':     _debug_text
+      'debug_text':     _debug_text,
+      'site_header':    current_site.name,
+      'title':          _('trips')
       }
 
 

@@ -2,6 +2,7 @@ db.sqlite3
 settings.py
 sqlite3.exe
 *.pyc
+*.mo
 migrations
 migrations_zen
 

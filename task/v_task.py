@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.forms import ModelForm
 from django import forms
 from datetime import date, datetime, timedelta
+from django.utils.translation import gettext_lazy as _
 
 from task.models import Task, TGroup, TaskView
 
@@ -16,8 +17,8 @@ CHOICES = ( ('0', 'один раз'),
 
 class TaskForm(forms.ModelForm):
     selview = forms.ModelChoiceField(queryset = TaskView.objects.all(), required = False, empty_label = '------ все ------')
-    name    = forms.CharField(help_text = 'Наименование', required = True)
-    code    = forms.CharField(help_text = 'Код', required = False)
+    name    = forms.CharField(help_text = _('Name'), required = True)
+    code    = forms.CharField(help_text = _('Code'), required = False)
     grp     = forms.ModelChoiceField(queryset = TGroup.objects.all(), required = False, empty_label = '------ без группы ------')
     d_exec  = forms.DateField(required = False)
     t_exec  = forms.TimeField(required = False)

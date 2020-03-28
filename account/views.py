@@ -177,7 +177,7 @@ class LogoutView(SuccessURLAllowedHostsMixin, TemplateView):
 def generate_activation_key(username):
     chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
     secret_key = get_random_string(20, chars)
-    return hashlib.sha256(secret_key + username).hexdigest()
+    return hashlib.sha256((secret_key + username).encode('utf-8')).hexdigest()
 
 
 def register(request):
@@ -431,6 +431,17 @@ def user_data_changed(user, data, request):
         messages.add_message(request, messages.INFO, 'User information is not changed.')
         return False
     return True
+
+
+def service(request):
+    current_site = get_current_site(request)
+    context = {
+            'site': current_site,
+            'site_name': current_site.name,
+            'site_header': current_site.name,
+            'title': gettext('Profile service'),
+            }
+    return render(request, 'account/service.html', context)
 
 
 def profile(request):

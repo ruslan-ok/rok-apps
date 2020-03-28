@@ -2,12 +2,12 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-23 13:31+0300\n"
+"POT-Creation-Date: 2020-03-28 12:28+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,6 +18,10 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
+
+#: .\account\apps.py:7
+msgid "account"
+msgstr "учетные записи"
 
 #: .\account\forms.py:36
 msgid "Enter Username"
@@ -33,19 +37,19 @@ msgstr "Пароль"
 
 #: .\account\forms.py:39
 msgid "Confirm password"
-msgstr "Подтвержление пароля"
+msgstr "Подтверждение пароля"
 
 #: .\account\forms.py:45
 msgid "Username already exists"
-msgstr "Пользователь с таким именем уже есть"
+msgstr "Пользователь с таким именем уже зарегистрирован"
 
 #: .\account\forms.py:52
 msgid "Email already exists"
-msgstr "Пользователь с таким адресом электронной почты уже есть"
+msgstr "Пользователь с таким адресом электронной почты уже зарегистрирован"
 
 #: .\account\forms.py:60
 msgid "Password don't match"
-msgstr "Пароль неверный"
+msgstr "Пароли не совпадают"
 
 #: .\account\forms.py:75
 msgid "Email"
@@ -61,7 +65,7 @@ msgstr "Новый пароль"
 
 #: .\account\forms.py:166
 msgid "New password confirmation"
-msgstr "Подтверждение нового пароля"
+msgstr "Подтвержление нового пароля"
 
 #: .\account\forms.py:202
 msgid "Your old password was entered incorrectly. Please enter it again."
@@ -94,27 +98,47 @@ msgstr ""
 "этого пользователя, но вы можете изменить пароль, воспользовавшись<a href="
 "\"{}\">этой формой</a>."
 
-#: .\account\templates\account\activated.html:5 .\account\views.py:251
-msgid "Account activated"
-msgstr "Учетная запись активирована"
+#: .\account\models.py:8
+msgid "user"
+msgstr "пользователь"
 
-#: .\account\templates\account\activated.html:11
+#: .\account\models.py:11
+msgid "phone"
+msgstr "телефон"
+
+#: .\account\models.py:12
+msgid "activation key"
+msgstr "ключ активации"
+
+#: .\account\models.py:13
+msgid "email validated"
+msgstr "адрес электронной почты проверен"
+
+#: .\account\models.py:16
+msgid "user extension"
+msgstr "дополнительная информация пользователя"
+
+#: .\account\models.py:17
+msgid "users extensions"
+msgstr "дополнительная информация пользователей"
+
+#: .\account\templates\account\activated.html:6
 msgid "Account activated! Please "
 msgstr "Учетная запись активирована! Пожалуйста, выполните "
 
-#: .\account\templates\account\activated.html:11
+#: .\account\templates\account\activated.html:6
 msgid "login"
 msgstr "вход"
 
 #: .\account\templates\account\login.html:21
 #: .\account\templates\account\password_change_form.html:11
-#: .\account\templates\account\profile.html:21
+#: .\account\templates\account\profile.html:10
 msgid "Please correct the error below."
 msgstr "Пожалуйста, исправьте ошибку ниже."
 
 #: .\account\templates\account\login.html:21
 #: .\account\templates\account\password_change_form.html:11
-#: .\account\templates\account\profile.html:21
+#: .\account\templates\account\profile.html:10
 msgid "Please correct the errors below."
 msgstr "Пожалуйста, исправьте ошибки ниже."
 
@@ -133,7 +157,8 @@ msgid "Forgotten your password or username?"
 msgstr "Забыли свой пароль или имя пользователя?"
 
 #: .\account\templates\account\login.html:67
-#: .\account\templates\account\register.html:42 .\account\views.py:227
+#: .\account\templates\account\register.html:42 .\account\views.py:185
+#: .\account\views.py:209
 msgid "Register"
 msgstr "Регистрация"
 
@@ -142,12 +167,12 @@ msgid "Login"
 msgstr "Войти"
 
 #: .\account\templates\account\password_change_done.html:3
-#: .\account\templates\account\profile.html:8
+#: .\account\templates\account\service.html:7
 msgid "Change password"
 msgstr "Изменить пароль"
 
 #: .\account\templates\account\password_change_done.html:3
-#: .\account\templates\account\profile.html:11
+#: .\account\templates\account\service.html:5
 msgid "Log out"
 msgstr "Выйти"
 
@@ -172,9 +197,8 @@ msgstr "Изменить мой пароль"
 msgid "Your password has been set. You may go ahead and log in now:"
 msgstr "Ваш пароль сохранен. Теперь вы можете войти:"
 
-# ------------------------
-#: .\account\templates\account\password_reset_complete.html:5
-#: .\account\views.py:110
+#: .\account\templates\account\password_reset_complete.html:4
+#: .\account\views.py:104
 msgid "Log in"
 msgstr "Вход"
 
@@ -267,23 +291,27 @@ msgstr "Сбросить мой пароль"
 msgid "Password reset on %(site_name)s"
 msgstr "Сброс пароля на %(site_name)s"
 
-#: .\account\templates\account\profile.html:106
+#: .\account\templates\account\profile.html:95
 msgid "Save"
 msgstr "Сохранить"
 
-#: .\account\views.py:169
+#: .\account\templates\account\service.html:9
+msgid "Edit profile"
+msgstr "Редактирование профиля"
+
+#: .\account\views.py:171
 msgid "Logged out"
 msgstr "Выход выполнен"
 
-#: .\account\views.py:191
+#: .\account\views.py:193
 msgid "Account Verification"
 msgstr "Проверка учетной записи"
 
-#: .\account\views.py:193
+#: .\account\views.py:195
 msgid "Please visit the following link to verify your account"
 msgstr "Перейдите по следующей ссылке для активации учетной записи"
 
-#: .\account\views.py:200
+#: .\account\views.py:204
 msgid ""
 "Account created. Click on the link sent to your email to activate the "
 "account."
@@ -291,114 +319,54 @@ msgstr ""
 "Учетная запись создана. Перейди по ссылке в отправленном письме для её "
 "активации."
 
-#: .\account\views.py:204
+#: .\account\views.py:208
 msgid "Unable to send email verification. Please try again."
 msgstr "Не удалось отправить письмо. Попробуйте ещё раз."
 
-#: .\account\views.py:278
+#: .\account\views.py:256
+msgid "Account activated"
+msgstr "Учетная запись активирована"
+
+#: .\account\views.py:283
 msgid "Password reset"
 msgstr "Восстановление пароля"
 
-#: .\account\views.py:305
+#: .\account\views.py:310
 msgid "Password reset sent"
 msgstr "Письмо отправлено"
 
-#: .\account\views.py:315
+#: .\account\views.py:320
 msgid "Enter new password"
 msgstr "Новый пароль"
 
-#: .\account\views.py:375
+#: .\account\views.py:380
 msgid "Password reset unsuccessful"
 msgstr "Сброс пароля неуспешен"
 
-#: .\account\views.py:383
+#: .\account\views.py:388
 msgid "Password reset complete"
 msgstr "Установка пароля завершена"
 
-#: .\account\views.py:395
+#: .\account\views.py:400
 msgid "Password change"
 msgstr "Изменение пароля"
 
-#: .\account\views.py:418
+#: .\account\views.py:423
 msgid "Password change successful"
 msgstr "Пароль успешно изменен"
 
-#: .\account\views.py:451
+#: .\account\views.py:442
+msgid "Profile service"
+msgstr "Действия с профилем"
+
+#: .\account\views.py:467
 msgid "Profile"
 msgstr "Профиль"
 
-#: .\account\views.py:453
+#: .\account\views.py:469
 msgid "Personal info"
 msgstr "Персональная информация"
 
-#: .\account\views.py:454
+#: .\account\views.py:470
 msgid "Important dates"
 msgstr "Важные даты"
-
-#~ msgid "news"
-#~ msgstr "новости"
-
-#~ msgid "tasks"
-#~ msgstr "задачи"
-
-#~ msgid "feedback"
-#~ msgstr "обратная связь"
-
-#~ msgid "sample"
-#~ msgstr "пример"
-
-#~ msgid "It looks"
-#~ msgstr "Выглядит"
-
-#~ msgid "like"
-#~ msgstr "похоже"
-
-#~ msgid ""
-#~ "It looks like you got here by accident, because it is a personal, not a "
-#~ "public site."
-#~ msgstr ""
-#~ "Похоже ты попал сюда случайно, потому что это персональный, а не "
-#~ "публичный сайт."
-
-#~ msgid ""
-#~ "This site does not provide any useful services, so you have a small "
-#~ "choice - either close the page or"
-#~ msgstr ""
-#~ "На этом сайте нет никаких полезных сервисов, поэтому у тебя небольшой "
-#~ "выбор - закрыть эту страницу или"
-
-#~ msgid "find something more interesting"
-#~ msgstr "найти что-нибудь более интересное"
-
-#~ msgid "Applications"
-#~ msgstr "Приложения"
-
-#~ msgid "News"
-#~ msgstr "Новости"
-
-#~ msgid "Tasks"
-#~ msgstr "Задачи"
-
-#~ msgid "Feedback"
-#~ msgstr "Обратная связь"
-
-#~ msgid "Sample"
-#~ msgstr "Пример"
-
-#~ msgid "Fuel"
-#~ msgstr "Заправка"
-
-#~ msgid "Trip"
-#~ msgstr "Поездки"
-
-#~ msgid "Apartment"
-#~ msgstr "Квартира"
-
-#~ msgid "Projects"
-#~ msgstr "Проекты"
-
-#~ msgid "Task"
-#~ msgstr "Задачи"
-
-#~ msgid "Wage"
-#~ msgstr "Работа"

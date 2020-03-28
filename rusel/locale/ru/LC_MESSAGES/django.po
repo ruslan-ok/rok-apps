@@ -2,12 +2,12 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-23 13:31+0300\n"
+"POT-Creation-Date: 2020-03-28 12:28+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,39 +31,63 @@ msgstr "Пожалуйста, исправьте ошибки ниже."
 msgid "Log in"
 msgstr "Вход"
 
-#: .\rusel\templates\base_site.html:29
+#: .\rusel\templates\base_site.html:30
 msgid "news"
 msgstr "новости"
 
-#: .\rusel\templates\base_site.html:30
+#: .\rusel\templates\base_site.html:31 .\rusel\templates\index.html:24
 msgid "tasks"
 msgstr "задачи"
-
-#: .\rusel\templates\base_site.html:31
-msgid "feedback"
-msgstr "обратная связь"
 
 #: .\rusel\templates\base_site.html:32
 msgid "sample"
 msgstr "пример"
 
+#: .\rusel\templates\base_site.html:34
+msgid "feedback"
+msgstr "обратная связь"
+
 #: .\rusel\templates\index.html:20
+msgid "fueling"
+msgstr "заправка"
+
+#: .\rusel\templates\index.html:21
+msgid "trips"
+msgstr "поездки"
+
+#: .\rusel\templates\index.html:22
+msgid "apartment"
+msgstr "квартира"
+
+#: .\rusel\templates\index.html:23
+msgid "projects"
+msgstr "проекты"
+
+#: .\rusel\templates\index.html:25
+msgid "work"
+msgstr "работа"
+
+#: .\rusel\templates\index.html:26
+msgid "administration"
+msgstr "администрирование"
+
+#: .\rusel\templates\index.html:31
 msgid ""
 "It looks like you got here by accident, because it is a personal, not a "
 "public site."
 msgstr ""
-"Похоже вы попали сюда случайно, потому что это персональный, а не "
-"публичный сайт."
+"Похоже вы попали сюда случайно, потому что это персональный, а не публичный "
+"сайт."
 
-#: .\rusel\templates\index.html:21
+#: .\rusel\templates\index.html:32
 msgid ""
 "This site does not provide any useful services, so you have a small choice - "
 "either close the page or"
 msgstr ""
-"На этом сайте нет никаких полезных сервисов, поэтому у вас небольшой "
-"выбор - закрыть эту страницу или"
+"На этом сайте нет никаких полезных сервисов, поэтому у вас небольшой выбор - "
+"закрыть эту страницу или"
 
-#: .\rusel\templates\index.html:22
+#: .\rusel\templates\index.html:33
 msgid "find something more interesting"
 msgstr "найти что-нибудь более интересное"
 

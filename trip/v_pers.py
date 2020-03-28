@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django import forms
 from django.forms import ModelForm
+from django.contrib.sites.shortcuts import get_current_site
 from trip.models import Person
 
 class PersForm(ModelForm):
@@ -17,16 +18,18 @@ def edit_context(_request, _form, _pid, _debug_text):
     if (_pid > 0):
       pers = Person.objects.get(id = _pid)
     persons = Person.objects.filter(user = _request.user.id)
-    return { 'persons': persons, 
-             'form': _form, 
-             'pid': _pid,
-             'app_text':   'Приложения', 
-             'trip_text':  'Проезд',
-             'page_title': 'Водители и пассажиры', 
-             'pers_count': persons.count,
-             'debug_text': _debug_text,
-             'cur':        pers,
-             'pers':       persons
+    current_site = get_current_site(_request)
+    return { 'persons':     persons, 
+             'form':        _form, 
+             'pid':         _pid,
+             'app_text':    'Приложения', 
+             'trip_text':   'Проезд',
+             'page_title':  'Водители и пассажиры', 
+             'pers_count':   persons.count,
+             'debug_text':   _debug_text,
+             'cur':          pers,
+             'pers':         persons,
+             'site_header':  current_site.name,
            }
 #============================================================================
 def do_pers(request, pk):

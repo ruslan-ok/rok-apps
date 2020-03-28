@@ -1,0 +1,307 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-03-28 12:28+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
+"%100>=11 && n%100<=14)? 2 : 3);\n"
+
+#: .\wage\apps.py:7
+msgid "wage"
+msgstr "зарплата"
+
+#: .\wage\models.py:8 .\wage\models.py:39 .\wage\models.py:114
+#: .\wage\models.py:133 .\wage\models.py:161
+msgid "begin"
+msgstr "начало"
+
+#: .\wage\models.py:9
+msgid "plan days"
+msgstr "план, дней"
+
+#: .\wage\models.py:10
+msgid "prepaid date"
+msgstr "дата аванса"
+
+#: .\wage\models.py:11
+msgid "pay date"
+msgstr "дата выплаты зарплаты"
+
+#: .\wage\models.py:12
+msgid "prepaid rate"
+msgstr "курс аванса"
+
+#: .\wage\models.py:13 .\wage\models.py:158
+msgid "pay rate"
+msgstr "курс выплаты зарплаты"
+
+#: .\wage\models.py:14
+msgid "credit rate"
+msgstr "курс входящего остатка"
+
+#: .\wage\models.py:15
+msgid "second pay date"
+msgstr "дата выплаты второй части"
+
+#: .\wage\models.py:16
+msgid "second pay rate"
+msgstr "курс выплаты второй части"
+
+#: .\wage\models.py:19
+msgid "billing period"
+msgstr "расчетный период"
+
+#: .\wage\models.py:20
+msgid "billing periods"
+msgstr "расчетные периоды"
+
+#: .\wage\models.py:27 .\wage\models.py:54 .\wage\models.py:171
+#: .\wage\models.py:186
+msgid "name"
+msgstr "наименование"
+
+#: .\wage\models.py:28 .\wage\models.py:43 .\wage\models.py:67
+#: .\wage\models.py:99 .\wage\models.py:185
+msgid "sort number"
+msgstr "номер п/п"
+
+#: .\wage\models.py:31 .\wage\models.py:118
+msgid "department"
+msgstr "отдел"
+
+#: .\wage\models.py:32
+msgid "departments"
+msgstr "отделы"
+
+#: .\wage\models.py:40 .\wage\models.py:85 .\wage\models.py:115
+#: .\wage\models.py:134
+msgid "end"
+msgstr "окончание"
+
+#: .\wage\models.py:41
+msgid "depart"
+msgstr "отдел"
+
+#: .\wage\models.py:42
+msgid "node"
+msgstr "вышестоящий"
+
+#: .\wage\models.py:46
+msgid "department changes"
+msgstr "изменение отдела"
+
+#: .\wage\models.py:47
+msgid "department changes "
+msgstr "изменения отделов"
+
+#: .\wage\models.py:57 .\wage\models.py:119
+msgid "post"
+msgstr "должность"
+
+#: .\wage\models.py:58
+msgid "posts"
+msgstr "должности"
+
+#: .\wage\models.py:65
+msgid "surname n.p."
+msgstr "фамилия и.о."
+
+#: .\wage\models.py:66
+msgid "login"
+msgstr "логин"
+
+#: .\wage\models.py:68
+msgid "email"
+msgstr "адрес электронной почты"
+
+#: .\wage\models.py:69
+msgid "password"
+msgstr "пароль"
+
+#: .\wage\models.py:70 .\wage\models.py:98
+msgid "birthday"
+msgstr "день рождения"
+
+#: .\wage\models.py:71
+msgid "phone"
+msgstr "телефон"
+
+#: .\wage\models.py:72
+msgid "address"
+msgstr "адрес"
+
+#: .\wage\models.py:73 .\wage\models.py:87 .\wage\models.py:101
+#: .\wage\models.py:121 .\wage\models.py:143 .\wage\models.py:190
+msgid "information"
+msgstr "дополнительная информация"
+
+#: .\wage\models.py:76 .\wage\models.py:84 .\wage\models.py:97
+#: .\wage\models.py:112 .\wage\models.py:132 .\wage\models.py:153
+#: .\wage\models.py:181
+msgid "person"
+msgstr "сотрудник"
+
+#: .\wage\models.py:77
+msgid "persons"
+msgstr "сотрудники"
+
+#: .\wage\models.py:86
+msgid "surname"
+msgstr "фамилия"
+
+#: .\wage\models.py:90
+msgid "surname changes"
+msgstr "факт изменения фамилии"
+
+#: .\wage\models.py:91
+msgid "surname changes "
+msgstr "факты изменения фамилии"
+
+#: .\wage\models.py:100
+msgid "child's name"
+msgstr "имя ребёнка"
+
+#: .\wage\models.py:104
+msgid "child"
+msgstr "ребёнок"
+
+#: .\wage\models.py:105
+msgid "children"
+msgstr "дети"
+
+#: .\wage\models.py:113
+msgid "personnel number"
+msgstr "табельный номер"
+
+#: .\wage\models.py:116
+msgid "salary"
+msgstr "оклад"
+
+#: .\wage\models.py:117 .\wage\models.py:188
+msgid "currency"
+msgstr "валюта"
+
+#: .\wage\models.py:120 .\wage\models.py:159
+msgid "exemption"
+msgstr "льгота по ПН"
+
+#: .\wage\models.py:124
+msgid "appointment"
+msgstr "назначение"
+
+#: .\wage\models.py:125
+msgid "appointments"
+msgstr "назначения"
+
+#: .\wage\models.py:135
+msgid "university"
+msgstr "ВУЗ"
+
+#: .\wage\models.py:136
+msgid "training course"
+msgstr "учебный курс"
+
+#: .\wage\models.py:137
+msgid "specialty"
+msgstr "специальность"
+
+#: .\wage\models.py:138
+msgid "qualification"
+msgstr "образование"
+
+#: .\wage\models.py:139
+msgid "document"
+msgstr "документ"
+
+#: .\wage\models.py:140
+msgid "number"
+msgstr "номер"
+
+#: .\wage\models.py:141
+msgid "city"
+msgstr "город"
+
+#: .\wage\models.py:142 .\wage\models.py:184
+msgid "date"
+msgstr "дата"
+
+#: .\wage\models.py:146
+msgid "education"
+msgstr "образование"
+
+#: .\wage\models.py:147
+msgid "educations"
+msgstr "образования"
+
+#: .\wage\models.py:154 .\wage\models.py:182
+msgid "period"
+msgstr "период"
+
+#: .\wage\models.py:155
+msgid "fact days"
+msgstr "факт, дней"
+
+#: .\wage\models.py:156
+msgid "incoming balance"
+msgstr "входящий остаток"
+
+#: .\wage\models.py:157
+msgid "outgoing balance"
+msgstr "исходящий остаток"
+
+#: .\wage\models.py:160
+msgid "incoming balance for check"
+msgstr "входящий остаток - контроль с распечаткой"
+
+#: .\wage\models.py:164
+msgid "person period"
+msgstr "период сотрудника"
+
+#: .\wage\models.py:165
+msgid "person periods"
+msgstr "периоды сотрудников"
+
+#: .\wage\models.py:174
+msgid "payment title"
+msgstr "наименование начисления или выплаты"
+
+#: .\wage\models.py:175
+msgid "payment titles"
+msgstr "наименования начислений или выплат"
+
+#: .\wage\models.py:183
+msgid "direct"
+msgstr "направление"
+
+#: .\wage\models.py:183
+msgid "0 - accrual, 1 - payment"
+msgstr "0 - начисление, 1 - выплата"
+
+#: .\wage\models.py:187
+msgid "summa"
+msgstr "сумма"
+
+#: .\wage\models.py:189
+msgid "rate"
+msgstr "курс"
+
+#: .\wage\models.py:193
+msgid "payment"
+msgstr "начисление или выплата"
+
+#: .\wage\models.py:194
+msgid "payments"
+msgstr "начисления и выплаты"

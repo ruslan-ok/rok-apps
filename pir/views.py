@@ -2,6 +2,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
 from django.http import HttpResponse
 from pir.models import PirTable, PirPart, PirData
+from django.contrib.auth.decorators import login_required, permission_required
 
 
 def restore_DateList(request):
@@ -14,6 +15,8 @@ def restore_DateList(request):
     d.save()
   
 @csrf_exempt
+@login_required(login_url='account:login')
+@permission_required('pir.view_pirdata')
 def pir_edit(request, tbl):
   table = tbl
   part = ''

@@ -1,17 +1,6 @@
 {% extends "base_site.html" %}
 {% load i18n static %}
-{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "account/css/forms.css" %}">{% endblock %}
-
-{% block usertools %}
-  <div id="user-tools">
-    {% if user.has_usable_password %}
-      <a href="{% url 'account:password_change' %}">{% trans 'Change password' %}</a> /
-    {% endif %}
-    {% block userlinks %}
-        <a href="{% url 'account:logout' %}">{% trans 'Log out' %}</a>
-    {% endblock %}
-  </div>
-{% endblock %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "rusel/css/forms.css" %}">{% endblock %}
 
 {% block content %}
   <form method="post">{% csrf_token %}
