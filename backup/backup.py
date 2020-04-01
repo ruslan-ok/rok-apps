@@ -41,16 +41,21 @@ class Backup:
     def count_mode(self):
         self.full_mode = False
         last = self.read_last('full')
+        d = 0
         if (last == ''):
             self.full_mode = True
+            mode = 'Полный архив (ранее не формировался)'
         else:
             l = datetime.strptime(last, '%Y-%m-%d %H:%M:%S.%f')
             n = datetime.now()
-            self.full_mode = ((n - l).days > MONTH_DURATION)
+            d = (n - l).days
+            self.full_mode = (d >= MONTH_DURATION)
         if self.full_mode:
-            print('Полный архив')
+            mode = 'Полный архив'
         else:
-            print('Краткий архив')
+            mode = 'Краткий архив. Дней до полной архивации: ' + str(MONTH_DURATION - d) + '.'
+        print(mode)
+        self.content.append(mode)
     
     def backup_db(self, zf):
         file = 'mysql_backup.sql'
@@ -137,15 +142,21 @@ class Backup:
 
         if not os.path.exists(max_dir):
             shutil.copytree('temp', max_dir, dirs_exist_ok=True)
+            self.content.append('   Копия сохранена в ' + max_dir)
 
         if not os.path.exists(med_dir):
             shutil.copytree('temp', med_dir, dirs_exist_ok=True)
+            self.content.append('   Архив сохранен в ' + med_dir)
         else:
-            if (self.arch_age(med_dir) > max_duration):
+            age = self.arch_age(med_dir)
+            if (age >= max_duration):
                 print('Выполняется ротация')
                 shutil.rmtree(max_dir, ignore_errors = True)
                 os.rename(med_dir, max_dir)
                 os.rename(min_dir, med_dir)
+                self.content.append('   Ротация: temp -> ' + min_dir + ' -> ' + med_dir + ' -> ' + max_dir)
+            else:
+                self.content.append('   Архив сохранен в ' + min_dir + '. Дней до ротации: ' + str(max_duration - age))
 
         shutil.rmtree(min_dir, ignore_errors = True)
         os.rename('temp', min_dir)
