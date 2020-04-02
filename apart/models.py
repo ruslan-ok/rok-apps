@@ -65,12 +65,12 @@ class Tarif(models.Model):
         if (b1 == 0):
             tar = str(t1)
         else:
-            tar = str(t1) + ' ' + _('until') + ' ' + str(b1) + ' / '
+            tar = str(t1) + ' ' + gettext('until') + ' ' + str(b1) + ' / '
       
         if (b2 == 0):
             tar += str(t2)
         else:
-            tar += str(t2) + ' ' + _('until') + ' ' + str(b2) + ' / ' + str(t3)
+            tar += str(t2) + ' ' + gettext('until') + ' ' + str(b2) + ' / ' + str(t3)
         return tar
           
     def __str__(self):

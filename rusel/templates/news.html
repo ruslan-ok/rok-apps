@@ -1,8 +1,13 @@
-{% extends "base_site.html" %}
+{% extends "base_window.html" %}
 {% load i18n static %}
 {% block content %}
-      <h3 class="w3-text-teal">23.02.2020 - Изучение <code>virtualenv</code>.</h3>
 
+<div class="w3-card-4 w3-margin">
+  <header class="w3-container w3-theme-l1">
+    <h3>23.02.2020 - Изучение <code>virtualenv</code>.</h3>
+  </header>
+
+  <div class="w3-container">
       <p>Пробую разобраться с <code>virtualenv</code>. В среде разработки пытаюсь настроить сервер на использование указанного виртуального окружения.</p>
       <p>Следуя <a href="https://editrocket.com/articles/php_apache_windows.html">инструкциям</a> установил и проверил работоспособность <code>PHP</code> в среде разработки.
          Для проверки использовал простой тест <a href="news/test.php">test.php</a>:<p>
@@ -10,8 +15,15 @@
       <p>А при запуске Django-проекта можно вктивизировать нужное виртуальное окружение и из него запустить сервер разработки с помощью <code>py manage.py runserver</code></p>
       <p>Планирую выяснить как настроить на нужную версию Python сервер в продуктивной среде и как организовать деплой проекта из среды разработки в продуктивную среду.</p>
 
-      <h3 class="w3-text-teal">18.02.2020 - Установка mod_wsgi.</h3>
+  </div>      
+</div>      
 
+<div class="w3-card-4 w3-margin">
+  <header class="w3-container w3-theme-l1">
+    <h3>18.02.2020 - Установка mod_wsgi.</h3>
+  </header>
+
+  <div class="w3-container">
       <p>Помню, что и 5 лет назад, когда впервые настраивал <code>Apache</code> и <code>Django</code> установка <code>mod_wsgi</code> оказалась сложной задачей. И сейчас мало что изменилось.
          Подходящий бинарник найти не удалось, а сборка, инициируемая <code>pip install mod_wsgi</code> отработала с *дцатой попытки.
          Пришлось многократно устанавливать всякие <code>Visual Studio</code> и <code>Microsoft SDK</code>.
@@ -24,7 +36,9 @@ LoadModule wsgi_module "C:\Web\Python\Lib\site-packages\mod_wsgi\server\mod_wsgi
 WSGIPythonHome "C:\Web\Python"<br>
 PHPIniDir "C:/Web/Php"<br>
       </code></p>
-
+  </div>      
+</div>      
+      
       <h3 class="w3-text-teal">16.02.2020 - Текущие успехи.</h3>
 
       <p>Поставил MySQL и MySQL Workbench</p>
@@ -217,4 +231,5 @@ PHPIniDir "C:/Web/Php"<br>
       <h3 class="w3-text-teal">14.01.2020 - Проброс порта</h3>
       <p>Решена давняя проблема с невозможностью достучаться до домашнего web-сервера из внешней сети по стандартному протоколу http, использующему 80-й порт, 
       потому что не получалось пробросить его на роутере. Сегодня удалось это сделать но не с помощью проброса портов, а включив на роутере загадочную опцию DMZ.</p>
+
 {% endblock %}

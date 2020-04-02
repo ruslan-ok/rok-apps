@@ -1,16 +1,19 @@
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
+from django.template import loader
+#from django.urls import reverse
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.sites.shortcuts import get_current_site
 from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
 
+def get_base_context(request):
+    return { 'site_header': get_current_site(request).name, }
+
 def rok_render(request, template, title): 
-    current_site = get_current_site(request)
-    context = {
-       'title': title,
-       'site_header': current_site.name,
-        }
-    return render(request, template, context)
+    context = get_base_context(request)
+    context['title'] = title
+    template = loader.get_template(template)
+    return HttpResponse(template.render(context, request))
 
 def index(request):
     if request.user.is_authenticated:

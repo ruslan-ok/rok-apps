@@ -24,6 +24,7 @@ def edit_context(_request, _form, _pid, _debug_text):
              'pid':         _pid,
              'app_text':    'Приложения', 
              'trip_text':   'Проезд',
+             'title':  'Водители и пассажиры', 
              'page_title':  'Водители и пассажиры', 
              'pers_count':   persons.count,
              'debug_text':   _debug_text,

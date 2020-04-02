@@ -1,4 +1,4 @@
-{% extends "base_site.html" %}
+{% extends "base_window.html" %}
 {% load static %}
 {% block content %}
 
@@ -302,20 +302,20 @@
       <input name="period_num" type="hidden" value="{{ form.period_num }}" />
     {% endif %}
 
-    <!--</br>
-    {% if form.state.value = 0 %}
+    <!--/br>
+    {# {% if form.state.value == 0 %}
     Статус: оплачено полностью
     {% endif %}
-    {% if form.state.value = 1 %}
+    {% if form.state.value == 1 %}
     Статус: сняты показания счетчиков, нет оплаты
     {% endif %}
-    {% if form.state.value = 2 %}
+    {% if form.state.value == 2 %}
     Статус: оплачено частично
     {% endif %}
-    {% if form.state.value = 3 %}
+    {% if form.state.value == 3 %}
     Статус: нет показаний счетчиков и оплаты
-    {% endif %}
-    </br>-->
+    {% endif %} #}
+    <!--/br-->
 
     <input name="el_t1" type="hidden" value="{{ el_t1 }}" />
     <input name="el_b1" type="hidden" value="{{ el_b1 }}" />
@@ -369,8 +369,8 @@
       </tr>
       <!--<tr> <td></td> 
            <td colspan="4">
-             {% if form.state.value = 3 or form.state.value = 1 %}
-             <input type="checkbox" name="zzz"  {% if form.state.value = 1 %} checked {% endif %} onChange="check()">Показания счетчиков зафиксированы</input>
+             {% if form.state.value == 3 or form.state.value == 1 %}
+             <input type="checkbox" name="zzz"  {% if form.state.value == 1 %} checked {% endif %} onChange="check()">Показания счетчиков зафиксированы</input>
              {% endif %}
            </td> 
       </tr>-->
@@ -458,8 +458,8 @@
            <td></td> <td></td> <td></td> </tr>
       <!--<tr> <td></td> 
            <td colspan="4">
-             {% if form.state.value = 2 or form.state.value = 0 or form.state.value = 1 %}
-             <input type="checkbox" name="yyy"  {% if form.state.value = 0 or form.state.value = 1 %} checked {% endif %} onChange="check()">Оплачено</input>
+             {% if form.state.value == 2 or form.state.value == 0 or form.state.value == 1 %}
+             <input type="checkbox" name="yyy"  {% if form.state.value == 0 or form.state.value == 1 %} checked {% endif %} onChange="check()">Оплачено</input>
              {% endif %}
            </td> 
       </tr>-->

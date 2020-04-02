@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django import forms
 from django.forms import ModelForm
+from django.contrib.sites.shortcuts import get_current_site
 from proj.models import Direct
 
 
@@ -21,6 +22,8 @@ def edit_context(_request, _form, _pid, _debug_text):
              'pid': _pid,
              'app_text':  'Приложения', 
              'proj_text': 'Операции', 
+             'title': 'Направления проектов', 
+             'site_header': get_current_site(_request).name,
              'page_title': 'Направления проектов', 
              'dirs_count': dirs.count,
              'debug_text': _debug_text,

@@ -5,6 +5,7 @@ from django.forms import ModelForm
 from django import forms
 from datetime import date, datetime, timedelta
 from django.utils.translation import gettext_lazy as _
+from django.contrib.sites.shortcuts import get_current_site
 
 from task.models import Task, TGroup, TaskView
 
@@ -41,6 +42,8 @@ def edit_context_view(request, form, debg):
     context = {'tasks': tasks, 
                'form':  form, 
                'debg':  debg,
+               'title':   'Задачи',
+               'site_header': get_current_site(request).name,
               }
     return context
 
@@ -52,6 +55,8 @@ def edit_context_edit(request, form, pk, debg):
     context = {'form':  form, 
                'pid':   pk,
                'debg':  debg,
+               'title':   'Задачи',
+               'site_header': get_current_site(request).name,
               }
     return context
 

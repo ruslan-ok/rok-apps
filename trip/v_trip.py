@@ -40,7 +40,8 @@ def edit_context(_request, _form, _pid, _debug_text, _debt_sum, _last_prc):
       'last_prc':       _last_prc,
       'debug_text':     _debug_text,
       'site_header':    current_site.name,
-      'title':          _('trips')
+      #'title':          _('trips')
+      'title':          'Проезд',
       }
 
 

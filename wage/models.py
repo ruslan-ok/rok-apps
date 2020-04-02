@@ -1,10 +1,13 @@
+from datetime import datetime, date
 from django.db import models
 from django.utils import timezone
-from datetime import date
-from django.utils.translation import gettext_lazy as _
+from django.urls import reverse
+from django.utils.translation import gettext, gettext_lazy as _
+from django.contrib.auth.models import User
 
 
 class Period(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
     dBeg = models.DateField(_('begin'), default=timezone.now)
     planDays  = models.IntegerField(_('plan days'), blank=True)
     AvansDate = models.DateField(_('prepaid date'), blank=True, null=True)
@@ -20,22 +23,28 @@ class Period(models.Model):
         verbose_name_plural = _('billing periods')
 
     def __str__(self):
-        return self.dBeg.month.__str__() + '.' + self.dBeg.year.__str__()
+        return self.dBeg.strftime('%Y %b')
 
 
 class Depart(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
     name = models.CharField(_('name'), max_length=1000)
     sort = models.CharField(_('sort number'), max_length=100, blank=True)
+    is_open = models.BooleanField(_('tree node is open'), default = False)
 
     class Meta:
         verbose_name = _('department')
         verbose_name_plural = _('departments')
 
     def __str__(self):
-        return self.name
+        return '[' + self.user.username + '] ' + self.name
 
+    def get_absolute_url(self):
+        return reverse('wage:index')
+        #return reverse('wage:depart', kwargs={'pk': self.pk})
 
 class DepHist(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
     dBeg = models.DateField(_('begin'), default=timezone.now)
     dEnd = models.DateField(_('end'), blank=True, null=True)
     depart = models.ForeignKey(Depart, on_delete=models.CASCADE, null=True, related_name='D', verbose_name=_('depart'))
@@ -47,10 +56,11 @@ class DepHist(models.Model):
         verbose_name_plural = _('department changes ')
 
     def __str__(self):
-        return self.dBeg.__str__() + ' - ' + self.depart.__str__()
+        return '[' + self.user.username + '] ' + self.dBeg.strftime('%d.%m.%Y') + ' - ' + self.depart.name
 
 
 class Post(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
     name = models.CharField(_('name'), max_length=1000, blank=False)
 
     class Meta:
@@ -58,10 +68,11 @@ class Post(models.Model):
         verbose_name_plural = _('posts')
 
     def __str__(self):
-        return self.name
+        return '[' + self.user.username + '] ' + self.name
 
 
-class Person(models.Model):
+class Employee(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
     fio = models.CharField(_('surname n.p.'), max_length=100, blank=False)
     login = models.CharField(_('login'), max_length=50, blank=True)
     sort = models.CharField(_('sort number'), max_length=100, blank=True)
@@ -73,15 +84,18 @@ class Person(models.Model):
     info = models.CharField(_('information'), max_length=1000, blank=True)
 
     class Meta:
-        verbose_name = _('person')
-        verbose_name_plural = _('persons')
+        verbose_name = _('employee')
+        verbose_name_plural = _('employees')
 
     def __str__(self):
-        return self.fio
+        return '[' + self.user.username + '] ' + self.fio
+
+    def get_absolute_url(self):
+        return reverse('wage:index')
 
 
 class FioHist(models.Model):
-    person = models.ForeignKey(Person, on_delete=models.CASCADE, verbose_name=_('person'))
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, verbose_name=_('employee'))
     dEnd = models.DateField(_('end'), default=timezone.now)
     fio = models.CharField(_('surname'), max_length=100, blank=False)
     info = models.CharField(_('information'), max_length=1000, blank=True)
@@ -91,10 +105,10 @@ class FioHist(models.Model):
         verbose_name_plural = _('surname changes ')
 
     def __str__(self):
-        return self.dEnd.__str__() + ' - ' + self.fio
+        return self.employee.fio + ': ' + self.fio + ' ' + gettext('before') + ' ' + self.dEnd.strftime('%d.%m.%Y')
 
 class Child(models.Model):
-    person = models.ForeignKey(Person, on_delete=models.CASCADE, verbose_name=_('person'))
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, verbose_name=_('employee'))
     born = models.DateField(_('birthday'), blank=True, null=True)
     sort = models.CharField(_('sort number'), max_length=100, blank=True)
     name = models.CharField(_("child's name"), max_length=100, blank=False)
@@ -105,11 +119,11 @@ class Child(models.Model):
         verbose_name_plural = _('children')
 
     def __str__(self):
-        return self.name + ' ' + self.person.__str__()
+        return self.employee.fio + ': ' + self.name + ' ' + gettext('was born on') + ' ' + self.born.strftime('%d.%m.%Y')
 
 
 class Appoint(models.Model):
-    person = models.ForeignKey(Person, on_delete=models.CASCADE, verbose_name=_('person'))
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, verbose_name=_('employee'))
     tabnum = models.CharField(_('personnel number'), max_length=50, blank=True)
     dBeg = models.DateField(_('begin'), blank=True, null=True)
     dEnd = models.DateField(_('end'), blank=True, null=True)
@@ -125,11 +139,15 @@ class Appoint(models.Model):
         verbose_name_plural = _('appointments')
 
     def __str__(self):
-        return self.person.__str__() + ' ' + self.dBeg.__str__() + ' ' + self.depart.__str__() + ' ' + self.post.__str__()
+        if (self.post == None):
+            s_post = ''
+        else:
+            s_post = ' - ' + self.post.name
+        return self.employee.fio + ': ' + self.dBeg.strftime('%d.%m.%Y') + ' ' + self.depart.name + s_post
 
 
 class Education(models.Model):
-    person = models.ForeignKey(Person, on_delete=models.CASCADE, verbose_name=_('person'))
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, verbose_name=_('employee'))
     dBeg = models.DateField(_('begin'), blank=True, null=True)
     dEnd = models.DateField(_('end'), blank=True, null=True)
     institution = models.CharField(_('university'), max_length=1000, blank=True)
@@ -146,11 +164,23 @@ class Education(models.Model):
         verbose_name = _('education')
         verbose_name_plural = _('educations')
 
-    def __str__(self):
-        return self.person.__str__() + ' - ' + self.dBeg.__str__() + ' - ' + self.dEnd.__str__() + ' - ' + self.institution
+    def s_beg(self):
+        if (self.dBeg == None):
+            return '__.__.____'
+        else:
+            return self.dBeg.strftime('%d.%m.%Y')
 
-class PersPer(models.Model):
-    person = models.ForeignKey(Person, on_delete=models.CASCADE, verbose_name=_('person'))
+    def s_end(self):
+        if (self.dEnd == None):
+            return '__.__.____'
+        else:
+            return self.dEnd.strftime('%d.%m.%Y')
+
+    def __str__(self):
+        return self.employee.fio + ': ' + self.s_beg() + ' - ' + self.s_end() + ' ' + self.institution + ' - ' + self.specialty
+
+class EmplPer(models.Model):
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, verbose_name=_('employee'))
     period = models.ForeignKey(Period, on_delete=models.CASCADE, verbose_name=_('period'))
     factDays = models.DecimalField(_('fact days'), blank=True, null=True, max_digits=2, decimal_places=0)
     debtIn = models.DecimalField(_('incoming balance'), blank=True, null=True, max_digits=15, decimal_places=2)
@@ -161,13 +191,14 @@ class PersPer(models.Model):
     dBeg = models.DateField(_('begin'), blank=True, null=True)
 
     class Meta:
-        verbose_name = _('person period')
-        verbose_name_plural = _('person periods')
+        verbose_name = _('employee period')
+        verbose_name_plural = _('employee periods')
 
     def __str__(self):
-        return self.person.__str__() + ' - ' + self.period.__str__()
+        return self.employee.fio + ': ' + str(self.period)
   
 class PayTitle(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
     name = models.CharField(_('name'), max_length=100, blank=False)
 
     class Meta:
@@ -175,10 +206,10 @@ class PayTitle(models.Model):
         verbose_name_plural = _('payment titles')
 
     def __str__(self):
-        return self.name
+        return '[' + self.user.username + '] ' + self.name
 
 class Payment(models.Model):
-    person = models.ForeignKey(Person, on_delete=models.CASCADE, verbose_name=_('person'))
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, verbose_name=_('employee'))
     period = models.ForeignKey(Period, on_delete=models.CASCADE, verbose_name=_('period'))
     direct = models.IntegerField(_('direct'), help_text = _('0 - accrual, 1 - payment'))
     payed = models.DateField(_('date'), blank=True, null=True)
@@ -194,5 +225,27 @@ class Payment(models.Model):
         verbose_name_plural = _('payments')
 
     def __str__(self):
-        return self.person.__str__() + ' - ' + self.period.__str__() + ' - ' + self.title.__str__() + ' - ' + self.value.__str__() + ' ' + self.currency.__str__()
+        return self.employee.fio + ' ' + str(self.period) + ': ' + self.title.name + ' - ' + str(self.value) + ' ' + self.currency
+
+
+class Params(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
+    period = models.ForeignKey(Period, on_delete=models.CASCADE, verbose_name=_('period'), blank=True, null=True)
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, verbose_name=_('employee'), blank=True, null=True)
+
+    class Meta:
+        verbose_name = _('user parameters')
+        verbose_name_plural = _('users parameters')
+
+    def __str__(self):
+        return '[' + self.user.username + '] ' + str(self.period) + ' - ' + self.employee.fio
+
+    def d_scan(self):
+        return datetime.now().date()
+        """
+        if (self.period == None):
+            return datetime.now().date()
+        else:
+            return self.period.dBeg
+        """
 

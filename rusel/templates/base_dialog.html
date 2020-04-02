@@ -1,0 +1,16 @@
+{% extends "base_rok.html" %}
+{% load i18n static %}
+
+{% block window %}
+  <div class="w3-card-4" style="width: 28em; min-width: 300px; margin: 100px auto;">
+    {% block navbar %}{{ block.super }}{% endblock %}
+    {% block contenttitle %}{{ block.super }}{% endblock %}
+    <div class="w3-container">
+      {% block content %}{% endblock %}
+    </div>
+    {% block footer %}
+      <div id="footer"></div>
+    {% endblock %}
+  </div>
+{% endblock %}
+

@@ -1,0 +1,127 @@
+.w3-theme-l5 {color:#000 !important; background-color:#f3f6f9 !important}
+.w3-theme-l4 {color:#000 !important; background-color:#d7e3eb !important}
+.w3-theme-l3 {color:#000 !important; background-color:#afc6d7 !important}
+.w3-theme-l2 {color:#fff !important; background-color:#87aac3 !important}
+.w3-theme-l1 {color:#fff !important; background-color:#5f8dae !important}
+.w3-theme-d1 {color:#fff !important; background-color:#417690 !important}
+.w3-theme-d2 {color:#fff !important; background-color:#38586f !important}
+.w3-theme-d3 {color:#fff !important; background-color:#314d61 !important}
+.w3-theme-d4 {color:#fff !important; background-color:#2a4253 !important}
+.w3-theme-d5 {color:#fff !important; background-color:#233746 !important}
+
+.w3-theme-light {color:#000 !important; background-color:#f3f6f9 !important}
+.w3-theme-dark {color:#fff !important; background-color:#233746 !important}
+.w3-theme-action {color:#fff !important; background-color:#233746 !important}
+
+.w3-theme {color:#fff !important; background-color:#466e8b !important}
+.w3-text-theme {color:#466e8b !important}
+.w3-border-theme {border-color:#466e8b !important}
+
+.w3-hover-dark:hover {color:#fff !important; background-color:#466e8b !important}
+.w3-hover-light:hover {color:#fff !important; background-color:#87aac3 !important}
+.w3-hover-text-theme:hover {color:#466e8b !important}
+.w3-hover-border-theme:hover {border-color:#466e8b !important}
+
+.brand {
+  text-decoration: none;
+}
+
+.form-row {
+  padding: 4px 0;
+  float: left;
+  width: 100%;
+  border-bottom: none;
+  border-bottom-width: initial;
+  border-bottom-style: none;
+  border-bottom-color: initial;
+}
+
+.form-row label {
+  padding-right: 0.5em;
+  line-height: 2em;
+  font-size: 1em;
+  clear: both;
+  color: #333;
+}
+
+.form-row #id_username, .form-row #id_password, .form-row #id_password1, .form-row #id_password2, .form-row #id_email {
+  clear: both;
+  padding: 8px;
+  width: 100%;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  font-size: 1em;
+}
+
+input[type=text], input[type=password], input[type=email], input[type=url], input[type=number], input[type=tel], textarea, select, .vTextField {
+    border: 1px solid #ccc;
+    border-top-color: rgb(204, 204, 204);
+    border-top-style: solid;
+    border-top-width: 1px;
+    border-right-color: rgb(204, 204, 204);
+    border-right-style: solid;
+    border-right-width: 1px;
+    border-bottom-color: rgb(204, 204, 204);
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-left-color: rgb(204, 204, 204);
+    border-left-style: solid;
+    border-left-width: 1px;
+    border-image-source: initial;
+    border-image-slice: initial;
+    border-image-width: initial;
+    border-image-outset: initial;
+    border-image-repeat: initial;
+    border-radius: 4px;
+    padding: 5px 6px;
+    margin-top: 0;
+}
+
+.password-reset-link {
+  text-align: center;
+}
+
+.button, input[type=submit], input[type=button], .submit-row input, a.button {
+  background: #79aec8;
+  background-image: initial;
+  background-position-x: initial;
+  background-position-y: initial;
+  background-size: initial;
+  background-repeat-x: initial;
+  background-repeat-y: initial;
+  background-attachment: initial;
+  background-origin: initial;
+  background-clip: initial;
+  background-color: rgb(121, 174, 200);
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.submit-row {
+  clear: both;
+  padding: 1em 0 0 9.4em;
+  padding-top: 1em;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 9.4em;
+  margin: 0;
+  border: none;
+  background: none;
+  text-align: left;
+}
+
+#footer {
+  clear: both;
+  padding: 10px;
+  padding-top: 10px;
+  padding-right: 10px;
+  padding-bottom: 10px;
+  padding-left: 10px;
+}
+
+
+

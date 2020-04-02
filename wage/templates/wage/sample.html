@@ -1,0 +1,33 @@
+{% extends "base_window.html" %}
+{% load i18n static %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "wage/css/forms.css" %}">{% endblock %}
+{% block content %}
+<div class="w3-row">
+  <div class="w3-col w3-container m4 l2">
+  <table id="result_list">
+    <thead><tr><th>Department or Surname</th></tr></thead>
+    <tbody>
+      <tr><td>string number one</td></tr>
+      <tr><td>string number two</td></tr>
+      <tr><td>string number three</td></tr>
+      <tr><td>string number four</td></tr>
+      <tr><td>string number five</td></tr>
+      <tr><td>string number six</td></tr>
+      <tr><td>string number seven</td></tr>
+    </tbody>
+  </table>
+  
+  </div>
+  <div class="w3-col w3-container m8 l10">
+  
+  <form method="post">{% csrf_token %}
+    <input type="text" value="hello, world">
+    <input type="submit" value="Test">
+  </form>
+  
+  </div>
+</div>
+  
+{% endblock %}
+
+

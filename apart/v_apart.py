@@ -4,6 +4,7 @@ from django.urls import reverse
 from django import forms
 from datetime import date, datetime, timedelta
 from django.forms import ModelForm
+from django.contrib.sites.shortcuts import get_current_site
 from rusel.const import a_months, t_months
 from apart.models import Communal, get_per_tarif
 
@@ -128,8 +129,10 @@ def edit_context(_request, _form, _debug_text, _year, _month, _new):
       zf = isFirst(_request.user.id, (_year * 100 + _month))
       zl =  isLast(_request.user.id, (_year * 100 + _month))
     return { 'form':       _form, 
+             'site_header': get_current_site(_request).name,
              'app_text':   'Приложения', 
              'tarif_text': 'Тарифы', 
+             'title':      'Коммунальные платежи', 
              'page_title': 'Коммунальные платежи', 
              'debug_text': 'first = ' + str(zf) + ', last = ' + str(zl), 
              'is_first':   zf, 
@@ -290,9 +293,11 @@ def apart_get_one(request, per, _debug_text):
 def v_apart_view(request):
     aparts = Communal.objects.filter(user = request.user.id).order_by('-period')[:20]
     context = { 'aparts':       aparts, 
+                'site_header': get_current_site(request).name,
                 'aparts_count': Communal.objects.filter(user = request.user.id).count,
                 'app_text':   'Приложения', 
                 'tarif_text': 'Тарифы', 
+                'title':      'Коммунальные платежи', 
                 'page_title': 'Коммунальные платежи', 
                 'debug_text': ''
               }

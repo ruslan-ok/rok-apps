@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from datetime import date, datetime, timedelta
+from django.contrib.sites.shortcuts import get_current_site
 from fuel.models import Fuel, Car, consumption, fuel_summary
 
 
@@ -28,11 +29,13 @@ def edit_context(request, form, car, pid, debug_text):
              'app_text':   'Приложения', 
              'part_text':  'ТО',
              'car_text':   'Авто', 
+             'title': 'Заправка ' + curcar.name, 
              'page_title': 'Заправка ' + curcar.name, 
              'fuels_count':   Fuel.objects.filter(car = car).count,
              'fuel_summary': summary,
              'fuel_status': '',
              'debug_text': debug_text, 
+             'site_header': get_current_site(request).name,
            }
 #============================================================================
 def do_fuel(request, pk):

@@ -4,6 +4,7 @@ from django.urls import reverse
 from django import forms
 from datetime import date, datetime, timedelta
 from django.forms import ModelForm
+from django.contrib.sites.shortcuts import get_current_site
 from proj.models import Direct, Proj, proj_summary
 
 
@@ -27,6 +28,8 @@ def edit_context(request, form, adir, pid, debug_text):
              'pid':           pid, 
              'app_text':    'Приложения', 
              'direct_text': 'Проектные направления', 
+             'title':  'Операции проекта ' + curdir.name, 
+             'site_header': get_current_site(request).name,
              'page_title':  'Операции проекта ' + curdir.name, 
              'proj_summary':  proj_summary(request.user),
              'total_count':   Proj.objects.filter(direct = adir).count,

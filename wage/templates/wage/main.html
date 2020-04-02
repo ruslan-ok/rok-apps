@@ -1,0 +1,61 @@
+{% extends "base_window.html" %}
+{% load i18n static %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "wage/css/forms.css" %}">{% endblock %}
+
+{% block content %}
+
+<div class="w3-row">
+
+  {% block top_block %}
+  {{ top_block }}
+  {% endblock %}
+
+
+</div>
+
+<div class="w3-row">
+  <div class="w3-col w3-container m4 l2">
+    <table id="result_list">
+      <thead>
+        <tr>
+          <th scope="col">
+            <div class="text"><span>{% trans 'Department or Surname' %}</span></div>
+            <div class="clear"></div>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for node in tree %}
+          <tr class="{% cycle 'row1' 'row2' %}">
+            <td>
+              {{ node.indent }}
+              {% if node.is_depart %}
+                <a href="{% url 'wage:tree' node.id %}">[{% if node.is_open %}-{% else %}+{% endif %}]</a>
+                <a href="{% url 'wage:depart' node.id %}">{{ node.name }}</a>
+              {% else %}
+                <a href="{% url 'wage:employee' node.id %}">{{ node.name }}</a>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  
+  </div>
+  <div class="w3-col w3-container m8 l10">
+
+  {% block main_block %}
+  {{ main_block }}
+  {% endblock %}
+
+  </div>
+</div>
+
+<div class="w3-row">
+
+  {% block bottom_block %}
+  {{ bottom_block }}
+  {% endblock %}
+
+</div>
+{% endblock %}

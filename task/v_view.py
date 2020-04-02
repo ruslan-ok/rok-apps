@@ -5,6 +5,7 @@ from django.forms import ModelForm
 from django import forms
 from datetime import date, datetime
 import datetime
+from django.contrib.sites.shortcuts import get_current_site
 
 from task.models import TGroup, TaskView, TaskFilter, FLTR_TERM, FLTR_GROUP, FLTR_IMPORTANCE, FLTR_COLOR, FLTR_COMPLETE, SORTS
 
@@ -39,6 +40,8 @@ def edit_context(request, form, pk, vw, fltr, debg):
                'sort':   88,
                'flds':   99,
                'debg':   debg,
+               'title':   'Представления',
+               'site_header': get_current_site(request).name,
               }
     return context
 

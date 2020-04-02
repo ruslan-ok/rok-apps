@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django import forms
 from django.forms import ModelForm
+from django.contrib.sites.shortcuts import get_current_site
 from fuel.models import Car
 
 
@@ -22,8 +23,10 @@ def edit_context(_request, _form, _pid, _debug_text):
              'pid': _pid,
              'app_text': 'Приложения', 
              'fuel_text': 'Заправка', 
+             'title': 'Автомобили', 
              'page_title': 'Автомобили', 
              'debug_text': _debug_text,
+             'site_header': get_current_site(_request).name,
            }
 #============================================================================
 def do_cars(request, pk):

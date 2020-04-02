@@ -1,33 +1,8 @@
-{% extends "base_site.html" %}
-{% load i18n static %}
-
-{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "rusel/css/rusel.css" %}">{% endblock %}
-
-{% block content_title %}
-  {% if user.is_authenticated %}
-    {% if title %}<h1>{{ title }}</h1>{% endif %}
-  {% endif %}
-{% endblock %}
+{% extends "base_window.html" %}
+{% load i18n %}
 
 {% block content %}
-  {% if user.is_authenticated %}
-    <div id="intro-menu">
-      <!-- nav class="w3-sidebar w3-bar-block w3-collapse w3-large w3-theme-l5 w3-animate-left" id="mySidebar" -->
-      <nav class="rusel-sidebar w3-bar-block w3-large w3-theme-l5 w3-animate-left" id="mySidebar">
-        <a href="javascript:void(0)" onclick="w3_close()" class="w3-right w3-xlarge w3-padding-large w3-hover-black w3-hide-large" title="Close Menu">
-          <i class="fa fa-remove"></i>
-        </a>
-        {% if perms.fuel.view_car %}        <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'fuel:fuel_view' %}">{% trans 'fueling' %}</a>     {% endif %}
-        {% if perms.trip.view_person %}     <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'trip:trip_view' %}">{% trans 'trips' %}</a>       {% endif %}
-        {% if perms.apart.view_communal %}  <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'apart:apart_view' %}">{% trans 'apartment' %}</a> {% endif %}
-        {% if perms.proj.view_proj %}       <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'proj:proj_view' %}">{% trans 'projects' %}</a>    {% endif %}
-        {% if perms.task.view_task %}       <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'task:task_view' %}">{% trans 'tasks' %}</a>       {% endif %}
-        {% if perms.wage.view_person %}     <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'wage:index' %}">{% trans 'work' %}</a>            {% endif %}
-        {% if perms.account.view_userext %} <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'admin:index' %}">{% trans 'administration' %}</a> {% endif %}
-        
-      </nav>
-    </div>
-  {% else %}
+  {% if not user.is_authenticated %}
     <p>{% trans 'It looks like you got here by accident, because it is a personal, not a public site.' %}</p>
     <p>{% trans 'This site does not provide any useful services, so you have a small choice - either close the page or' %}</p>
     <p><a href="https://www.google.com/">{% trans 'find something more interesting' %}</a></p>

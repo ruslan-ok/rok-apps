@@ -1,0 +1,103 @@
+{% extends "base_window.html" %}
+{% load i18n static %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "wage/css/forms.css" %}">{% endblock %}
+
+{% block content %}
+  <form method="post">{% csrf_token %}
+    {% if form.errors %}
+      <p class="errornote">
+        {% if form.errors.items|length == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %}
+      </p>
+    {% endif %}
+
+    <div class="form-row">
+
+      <fieldset class="aligned wide">
+
+        <div class="form-row hiden">
+          {{ form.user.errors }}
+          {{ form.user.label_tag }} {{ form.user.username }}
+          {% if form.user.help_text %}
+          <div class="help">{{ form.user.help_text|safe }}</div>
+          {% endif %}
+        </div>
+      
+        <div class="form-row">
+          {{ form.login.errors }}
+          {{ form.login.label_tag }} {{ form.login }}
+          {% if form.login.help_text %}
+          <div class="help">{{ form.login.help_text|safe }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-row">
+          {{ form.fio.errors }}
+          {{ form.fio.label_tag }} {{ form.fio }}
+          {% if form.fio.help_text %}
+          <div class="help">{{ form.fio.help_text|safe }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-row">
+          {{ form.sort.errors }}
+          {{ form.sort.label_tag }} {{ form.sort }}
+          {% if form.sort.help_text %}
+          <div class="help">{{ form.sort.help_text|safe }}</div>
+          {% endif %}
+        </div>
+      
+        <div class="form-row">
+          {{ form.email.errors }}
+          {{ form.email.label_tag }} {{ form.email }}
+          {% if form.email.help_text %}
+          <div class="help">{{ form.email.help_text|safe }}</div>
+          {% endif %}
+        </div>
+      
+        <div class="form-row">
+          {{ form.passw.errors }}
+          {{ form.passw.label_tag }} {{ form.passw }}
+          {% if form.passw.help_text %}
+          <div class="help">{{ form.passw.help_text|safe }}</div>
+          {% endif %}
+        </div>
+      
+        <div class="form-row">
+          {{ form.born.errors }}
+          {{ form.born.label_tag }} {{ form.born }}
+          {% if form.born.help_text %}
+          <div class="help">{{ form.born.help_text|safe }}</div>
+          {% endif %}
+        </div>
+      
+        <div class="form-row">
+          {{ form.phone.errors }}
+          {{ form.phone.label_tag }} {{ form.phone }}
+          {% if form.phone.help_text %}
+          <div class="help">{{ form.phone.help_text|safe }}</div>
+          {% endif %}
+        </div>
+      
+        <div class="form-row">
+          {{ form.addr.errors }}
+          {{ form.addr.label_tag }} {{ form.addr }}
+          {% if form.addr.help_text %}
+          <div class="help">{{ form.addr.help_text|safe }}</div>
+          {% endif %}
+        </div>
+      
+        <div class="form-row">
+          {{ form.info.errors }}
+          {{ form.info.label_tag }} {{ form.info }}
+          {% if form.info.help_text %}
+          <div class="help">{{ form.info.help_text|safe }}</div>
+          {% endif %}
+        </div>
+      
+      </fieldset>
+      
+      
+      <input type="submit" value="Update">
+    </div>
+  </form>
+{% endblock %}

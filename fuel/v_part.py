@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from datetime import date, datetime, timedelta
+from django.contrib.sites.shortcuts import get_current_site
 from fuel.models import Fuel, Car, Part
 
 
@@ -36,9 +37,11 @@ def edit_context(request, form, car, pid, _last_date, _last_odo, debug_text):
              'fuel_date':  fuel_date,
              'fuel_odo':   fuel_odo,
              'app_text':   'Приложения', 
+             'title': 'Список расходников ' + car.name, 
              'page_title': 'Список расходников ' + car.name, 
              'fuel_text':  'Заправки', 
              'debug_text': debug_text, 
+             'site_header': get_current_site(request).name,
            }
 #============================================================================
 def do_part(request, pk):

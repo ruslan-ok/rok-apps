@@ -1,9 +1,11 @@
 from django.shortcuts import get_object_or_404, render
 from django import forms
-from django.http import HttpResponseRedirect
+from django.template import loader
+from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 from datetime import date
 from django.forms import ModelForm
+from django.contrib.sites.shortcuts import get_current_site
 from rusel.const import t_months
 from apart.models import Tarif
 
@@ -66,6 +68,17 @@ def do_tarif(request, pk):
           form = TarifForm()
         tarifs = Tarif.objects.filter(user = request.user.id).order_by('-period', 'resource')
         form.fields['resource'].label = 'Ресурс'
-        context = {'tarifs': tarifs, 'form': form, 'app_text': 'Приложения', 'apart_text': 'Коммуналка', 'page_title': 'Тарифы', 'pid': pk}
-        return render(request, 'apart/tarif.html', context)
+        context = {
+            'tarifs': tarifs, 
+            'form': form, 
+            'app_text': 'Приложения', 
+            'apart_text': 'Коммуналка', 
+            'title': 'Тарифы', 
+            'page_title': 'Тарифы', 
+            'pid': str(pk),
+            'site_header': get_current_site(request).name,
+            }
+        template = loader.get_template('apart/tarif.html')
+        return HttpResponse(template.render(context, request))
+
 

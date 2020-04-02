@@ -5,6 +5,7 @@ from django.forms import ModelForm
 from django import forms
 from datetime import date, datetime
 import datetime
+from django.contrib.sites.shortcuts import get_current_site
 
 from task.models import TGroup
 
@@ -21,6 +22,8 @@ def edit_context(request, form, pk, debg):
                'form':   form, 
                'pid':    pk,
                'debg':   debg,
+               'title':   'Группы',
+               'site_header': get_current_site(request).name,
               }
     return context
 

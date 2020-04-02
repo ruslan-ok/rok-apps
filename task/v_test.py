@@ -5,6 +5,7 @@ from django.forms import ModelForm
 from django import forms
 from datetime import date, datetime
 import datetime
+from django.contrib.sites.shortcuts import get_current_site
 
 from task.models import TaskView
 
