@@ -2,7 +2,11 @@
 {% load i18n %}
 
 {% block content %}
-  {% if not user.is_authenticated %}
+  {% if user.is_authenticated %}
+    <div class="w3-row w3-padding">
+      <a href="{% url 'trip:trip_list' %}">{{ trip_summary|safe }}</a>
+    </div>
+  {% else %}
     <p>{% trans 'It looks like you got here by accident, because it is a personal, not a public site.' %}</p>
     <p>{% trans 'This site does not provide any useful services, so you have a small choice - either close the page or' %}</p>
     <p><a href="https://www.google.com/">{% trans 'find something more interesting' %}</a></p>

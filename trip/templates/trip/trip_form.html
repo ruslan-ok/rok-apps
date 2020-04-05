@@ -1,0 +1,174 @@
+{% extends "base_window.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+  <a class="w3-bar-item w3-button" href="{% url 'trip:trip_list' %}">{% trans 'trips'|capfirst %}</a>
+  {% if trip_id != 0 %}
+    <a class="w3-bar-item w3-button w3-red w3-right" href="{% url 'trip:trip_del' trip_id %}">{% trans 'delete'|capfirst %}</a>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+
+  <form method="post" class="rok">{% csrf_token %}
+
+    {% if form.errors %}
+      <p class="errornote">
+        {% if form.errors.items|length == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %}
+      </p>
+    {% endif %}
+
+    {% if form.non_field_errors %}
+      {% for error in form.non_field_errors %}
+        <p class="errornote">
+          {{ error }}
+        </p>
+      {% endfor %}
+    {% endif %}
+
+    <div class="w3-row">
+      <div class="w3-quarter">
+        {{ form.year.errors }}
+        {{ form.year.label_tag }} <div>{{ form.year }}</div>
+        {% if form.year.help_text %}
+        <div class="help">{{ form.year.help_text|safe }}</div>
+        {% endif %}
+      </div>
+
+      <div class="w3-quarter">
+        {{ form.week.errors }}
+        {{ form.week.label_tag }} <div>{{ form.week }}</div>
+        {% if form.week.help_text %}
+        <div class="help">{{ form.week.help_text|safe }}</div>
+        {% endif %}
+      </div>
+
+      <div class="w3-quarter">
+        {{ form.oper.errors }}
+        {{ form.oper.label_tag }}
+      
+        <div>
+          <select name="oper" id="id_oper" onChange="OperTest()">
+            <option value="0"{% if form.oper.value == 0 %} selected{% endif %}>проезд</option>
+            <option value="1"{% if form.oper.value == 1 %} selected{% endif %}>оплата</option>
+          </select>
+        </div>
+        {% if form.oper.help_text %}
+          <div class="help">{{ form.oper.help_text|safe }}</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="w3-row">
+      <div class="w3-quarter">
+        {{ form.driver.errors }}
+        {{ form.driver.label_tag }} <div>{{ form.driver }}</div>
+        {% if form.driver.help_text %}
+        <div class="help">{{ form.driver.help_text|safe }}</div>
+        {% endif %}
+      </div>
+
+      <div class="w3-quarter">
+        {{ form.passenger.errors }}
+        {{ form.passenger.label_tag }} <div>{{ form.passenger }}</div>
+        {% if form.passenger.help_text %}
+        <div class="help">{{ form.passenger.help_text|safe }}</div>
+        {% endif %}
+      </div>
+
+      <div class="w3-quarter" id="price_field">
+        {{ form.price.errors }}
+        {{ form.price.label_tag }} <div>{{ form.price }}</div>
+        {% if form.price.help_text %}
+        <div class="help">{{ form.price.help_text|safe }}</div>
+        {% endif %}
+      </div>
+
+      <div class="w3-quarter" id="summa_field">
+        {{ form.summa.errors }}
+        {{ form.summa.label_tag }} <div>{{ form.summa }}</div>
+        {% if form.summa.help_text %}
+        <div class="help">{{ form.summa.help_text|safe }}</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="w3-row">
+    </div>
+
+    <input type="hidden" name="days" value="{{form.days.value}}">
+
+    <div class="form-row" id="days_row">
+      Дни:
+      <table>
+        <tbody>
+          <tr>
+            <th class="day-th{% if today == 0 %} today{% endif %}">пн</th>
+            <th class="day-th{% if today == 1 %} today{% endif %}">вт</th>
+            <th class="day-th{% if today == 2 %} today{% endif %}">ср</th>
+            <th class="day-th{% if today == 3 %} today{% endif %}">чт</th>
+            <th class="day-th{% if today == 4 %} today{% endif %}">пт</th>
+            <th class="day-th{% if today == 5 %} today{% endif %}">сб</th>
+            <th class="day-th{% if today == 6 %} today{% endif %}">вс</th>
+          </tr>
+          <tr>
+            <td>{{ form.day_11 }}</td>
+            <td>{{ form.day_12 }}</td>
+            <td>{{ form.day_13 }}</td>
+            <td>{{ form.day_14 }}</td>
+            <td>{{ form.day_15 }}</td>
+            <td>{{ form.day_16 }}</td>
+            <td>{{ form.day_17 }}</td>
+          </tr>                                                              
+          <tr>
+            <td>{{ form.day_21 }}</td>
+            <td>{{ form.day_22 }}</td>
+            <td>{{ form.day_23 }}</td>
+            <td>{{ form.day_24 }}</td>
+            <td>{{ form.day_25 }}</td>
+            <td>{{ form.day_26 }}</td>
+            <td>{{ form.day_27 }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="form-row">
+        {{ form.text.errors }}
+        {{ form.text.label_tag }} {{ form.text }}
+        {% if form.text.help_text %}
+        <div class="help">{{ form.text.help_text|safe }}</div>
+        {% endif %}
+    </div>
+
+    <div class="submit-row">
+      {% if trip_id == 0 %}
+        <input type="submit" value="{% trans 'add'|capfirst %}" class="default">
+      {% else %}
+        <input type="submit" value="{% trans 'save'|capfirst %}" class="default">
+      {% endif %}
+    </div>
+
+</form>
+
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+    <script>
+      OperTest();
+
+      function OperTest() {
+        var sel = document.getElementById('id_oper');
+        if (sel.value == 0) {
+          document.getElementById("days_row").style.display = "block";
+          document.getElementById("summa_field").style.display = "block";
+        }
+        else {
+          document.getElementById("days_row").style.display = "none";
+          document.getElementById("summa_field").style.display = "none";
+        }
+      }
+    </script>  
+{% endblock %}
+

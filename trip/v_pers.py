@@ -1,96 +1,42 @@
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django import forms
-from django.forms import ModelForm
 from django.contrib.sites.shortcuts import get_current_site
-from trip.models import Person
+from django.utils.translation import gettext_lazy as _
 
-class PersForm(ModelForm):
-    me = forms.IntegerField(label = 'Я', required = False)
-    class Meta:
-        model = Person
-        fields = ('name', 'dative', 'me')
+from .models import Person
+from .forms import PersonForm
 
-#============================================================================
-def edit_context(_request, _form, _pid, _debug_text):
-    pers = None
-    if (_pid > 0):
-      pers = Person.objects.get(id = _pid)
-    persons = Person.objects.filter(user = _request.user.id)
-    current_site = get_current_site(_request)
-    return { 'persons':     persons, 
-             'form':        _form, 
-             'pid':         _pid,
-             'app_text':    'Приложения', 
-             'trip_text':   'Проезд',
-             'title':  'Водители и пассажиры', 
-             'page_title':  'Водители и пассажиры', 
-             'pers_count':   persons.count,
-             'debug_text':   _debug_text,
-             'cur':          pers,
-             'pers':         persons,
-             'site_header':  current_site.name,
-           }
-#============================================================================
 def do_pers(request, pk):
-  if (request.method == 'GET'):
-    if (pk > 0):
-      t = get_object_or_404(Person, pk=pk)
-      form = PersForm(instance = t)
-    else:
-      form = PersForm(initial = {'name': '', 'dative': '', 'me': 0})
-    context = edit_context(request, form, pk, 'get-1')
-    return render(request, 'trip/pers.html', context)
-  else:
-    action = request.POST.get('action', False)
-    me = request.POST.get('me', False)
-   
-    act = 0
-    if (action == 'Отменить'):
-      act = 1
-    else:
-      if (action == 'Добавить'):
-        act = 2
-      else:
-        if (action == 'Сохранить'):
-          act = 3
+    p = None
+    if (request.method == 'GET'):
+        if (pk != 0):
+            p = get_object_or_404(Person, pk = pk)
+            form = PersonForm(instance = p)
         else:
-          if (action == 'Удалить'):
-            act = 4
-          else:
-            act = 5
+            form = PersonForm()
+    else:
+        if (pk != 0):
+            p = get_object_or_404(Person, pk = pk)
+        form = PersonForm(request.POST, instance = p)
+        if form.is_valid():
+            pers = form.save(commit = False)
+            pers.user = request.user
+            pers.save()
+            return HttpResponseRedirect(reverse('trip:pers_list'))
 
-    if (act > 1):
-      form = PersForm(request.POST)
-      if not form.is_valid():
-        # Ошибки в форме, отобразить её снова
-        context = edit_context(request, form, pk, 'post-error: ' + str(form.non_field_errors))
-        return render(request, 'trip/pers.html', context)
-      else:
-        t = form.save(commit=False)
+    context = {
+        'title': _('person').capitalize(),
+        'site_header': get_current_site(request).name,
+        'form': form,
+        'pers_id': pk,
+        'me': get_me_code(request.user),
+        }
+    return render(request, 'trip/person_form.html', context)
 
-        if (act < 4):
-          if (int(me) > 0):
-            active_pers = Person.objects.filter(user = request.user.id, me = 1)
-            for p in active_pers:
-              p.me = 0
-              p.save()
-
-        if (act == 2):
-          t.user = request.user
-          t.me = int(me)
-          t.save()
-
-        if (act == 3):
-          t.id = pk
-          t.user = request.user
-          t.me = int(me)
-          t.save()
-
-        if (act == 4):
-          t = get_object_or_404(Person, id=pk)
-          t.delete()
-
-    return HttpResponseRedirect(reverse('trip:pers_view'))
-
+def get_me_code(_user):
+    try:
+        me = Person.objects.get(user = _user, me = 1)
+        return me.id
+    except Person.DoesNotExist:
+        return 0

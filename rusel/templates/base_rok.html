@@ -29,7 +29,11 @@
       
 <!-- ContentTitle -->
 {% block contenttitle %}
-  {% if title %}<div class="w3-container"><h1>{{ title }}</h1></div>{% endif %}
+  {% if not hide_title %}
+    {% if title %}<div class="w3-container"><h1>{{ title }}</h1></div>{% endif %}
+  {% else %}
+    <div class="w3-container"><h1> </h1></div>
+  {% endif %}
 {% endblock %}
 
       {% block content %}{% endblock %}

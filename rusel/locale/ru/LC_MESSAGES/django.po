@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-28 12:28+0300\n"
+"POT-Creation-Date: 2020-04-05 17:18+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,59 +19,61 @@ msgstr ""
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: .\rusel\templates\base.html:63
-msgid "Please correct the error below."
-msgstr "Пожалуйста, исправьте ошибку ниже."
-
-#: .\rusel\templates\base.html:63
-msgid "Please correct the errors below."
-msgstr "Пожалуйста, исправьте ошибки ниже."
-
-#: .\rusel\templates\base_site.html:22
-msgid "Log in"
-msgstr "Вход"
-
-#: .\rusel\templates\base_site.html:30
+#: .\rusel\templates\base_window.html:7
 msgid "news"
 msgstr "новости"
 
-#: .\rusel\templates\base_site.html:31 .\rusel\templates\index.html:24
+#: .\rusel\templates\base_window.html:8 .\rusel\templates\base_window.html:28
 msgid "tasks"
 msgstr "задачи"
 
-#: .\rusel\templates\base_site.html:32
+#: .\rusel\templates\base_window.html:9
 msgid "sample"
 msgstr "пример"
 
-#: .\rusel\templates\base_site.html:34
-msgid "feedback"
-msgstr "обратная связь"
+#: .\rusel\templates\base_window.html:13
+msgid "Log in"
+msgstr "Вход"
 
-#: .\rusel\templates\index.html:20
+#: .\rusel\templates\base_window.html:23
+#, fuzzy
+#| msgid "Applications"
+msgid "applications"
+msgstr "Приложения"
+
+#: .\rusel\templates\base_window.html:24
 msgid "fueling"
 msgstr "заправка"
 
-#: .\rusel\templates\index.html:21
+#: .\rusel\templates\base_window.html:25
 msgid "trips"
 msgstr "поездки"
 
-#: .\rusel\templates\index.html:22
+#: .\rusel\templates\base_window.html:26
 msgid "apartment"
 msgstr "квартира"
 
-#: .\rusel\templates\index.html:23
+#: .\rusel\templates\base_window.html:27
 msgid "projects"
 msgstr "проекты"
 
-#: .\rusel\templates\index.html:25
+#: .\rusel\templates\base_window.html:29
+msgid "store"
+msgstr ""
+
+#: .\rusel\templates\base_window.html:30
 msgid "work"
 msgstr "работа"
 
-#: .\rusel\templates\index.html:26
+#: .\rusel\templates\base_window.html:31
 msgid "administration"
 msgstr "администрирование"
 
-#: .\rusel\templates\index.html:31
+#: .\rusel\templates\base_window.html:32
+msgid "logout"
+msgstr ""
+
+#: .\rusel\templates\index.html:10
 msgid ""
 "It looks like you got here by accident, because it is a personal, not a "
 "public site."
@@ -79,7 +81,7 @@ msgstr ""
 "Похоже вы попали сюда случайно, потому что это персональный, а не публичный "
 "сайт."
 
-#: .\rusel\templates\index.html:32
+#: .\rusel\templates\index.html:11
 msgid ""
 "This site does not provide any useful services, so you have a small choice - "
 "either close the page or"
@@ -87,50 +89,59 @@ msgstr ""
 "На этом сайте нет никаких полезных сервисов, поэтому у вас небольшой выбор - "
 "закрыть эту страницу или"
 
-#: .\rusel\templates\index.html:33
+#: .\rusel\templates\index.html:12
 msgid "find something more interesting"
 msgstr "найти что-нибудь более интересное"
 
-#: .\rusel\views.py:18
+#: .\rusel\views.py:22
 msgid "Applications"
 msgstr "Приложения"
 
-#: .\rusel\views.py:25
+#: .\rusel\views.py:32
 msgid "News"
 msgstr "Новости"
 
-#: .\rusel\views.py:29
+#: .\rusel\views.py:37
 msgid "Tasks"
 msgstr "Задачи"
 
-#: .\rusel\views.py:33
+#: .\rusel\views.py:40
 msgid "Feedback"
 msgstr "Обратная связь"
 
-#: .\rusel\views.py:37
+#: .\rusel\views.py:45
 msgid "Sample"
 msgstr "Пример"
 
-#: .\rusel\views.py:41
+#: .\rusel\views.py:50
 msgid "Fuel"
 msgstr "Заправка"
 
-#: .\rusel\views.py:45
+#: .\rusel\views.py:55
 msgid "Trip"
 msgstr "Поездки"
 
-#: .\rusel\views.py:50
+#: .\rusel\views.py:61
 msgid "Apartment"
 msgstr "Квартира"
 
-#: .\rusel\views.py:54
+#: .\rusel\views.py:66
 msgid "Projects"
 msgstr "Проекты"
 
-#: .\rusel\views.py:58
+#: .\rusel\views.py:71
 msgid "Task"
 msgstr "Задачи"
 
-#: .\rusel\views.py:62
+#: .\rusel\views.py:76
 msgid "Wage"
 msgstr "Работа"
+
+#~ msgid "Please correct the error below."
+#~ msgstr "Пожалуйста, исправьте ошибку ниже."
+
+#~ msgid "Please correct the errors below."
+#~ msgstr "Пожалуйста, исправьте ошибки ниже."
+
+#~ msgid "feedback"
+#~ msgstr "обратная связь"

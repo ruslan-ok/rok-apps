@@ -80,11 +80,11 @@ def fuel_summary(_user):
     car_name = car.name + ': '
     cons = consumption(_user)
     if (cons == 0):
-      return car_name + _('failed to calculate average consumption')
+      return car_name + gettext('failed to calculate average consumption')
     else:
       return car_name + '<span id="warning">' + str(cons) + '</span> ' + gettext(' l. per 100 km')
   except Car.DoesNotExist:
-    return _('no active car')
+    return gettext('no active car')
     
 
 class Part(models.Model): # Список расходников
