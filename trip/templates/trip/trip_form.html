@@ -8,7 +8,7 @@
   {% endif %}
 {% endblock %}
 
-{% block content %}
+{% block win_content %}
 
   <form method="post" class="rok">{% csrf_token %}
 
@@ -101,7 +101,7 @@
     <div class="form-row" id="days_row">
       Дни:
       <table>
-        <tbody>
+        <thead>
           <tr>
             <th class="day-th{% if today == 0 %} today{% endif %}">пн</th>
             <th class="day-th{% if today == 1 %} today{% endif %}">вт</th>
@@ -111,6 +111,8 @@
             <th class="day-th{% if today == 5 %} today{% endif %}">сб</th>
             <th class="day-th{% if today == 6 %} today{% endif %}">вс</th>
           </tr>
+        </thead>
+        <tbody>
           <tr>
             <td>{{ form.day_11 }}</td>
             <td>{{ form.day_12 }}</td>

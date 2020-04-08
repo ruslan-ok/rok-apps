@@ -1,0 +1,27 @@
+{% extends "wage/main.html" %}
+
+{% block breadcrumbs %}
+  <a class="w3-bar-item w3-button" href="{% url 'wage:index' %}">Начало</a>
+  <a class="w3-bar-item w3-button" href="{% url 'wage:empl_list' %}">Сотрудники</a>
+  <a class="w3-bar-item w3-button" href="{% url 'wage:empl_form' employee.id %}">{{ employee.fio }}</a>
+  <a class="w3-bar-item w3-button" href="{% url 'wage:fio_hist_add' employee.id  %}">Добавить</a>
+{% endblock %}
+
+{% block wage_content %}
+<div class="w3-container w3-padding">
+  <table class="w3-table-all w3-hoverable w3-card-4">
+    <thead>
+      <tr class="w3-theme-l3"><th>Использовалась до</th> <th>Фамилия</th> <th>Дополнительная информация</th> </tr>
+    </thead>
+    <tbody>
+      {% for fio_hist in fio_hists %}
+      <tr>
+        <td><a href="{% url 'wage:fio_hist_form' employee.id fio_hist.id %}">{{ fio_hist.dEnd|date:'d.m.Y' }}</a></td>
+        <td><a href="{% url 'wage:fio_hist_form' employee.id fio_hist.id %}">{{ fio_hist.fio }}</a></td>
+        <td><a href="{% url 'wage:fio_hist_form' employee.id fio_hist.id %}">{{ fio_hist.info }}</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

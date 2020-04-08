@@ -1,6 +1,6 @@
 {% extends "base_window.html" %}
 {% load static %}
-{% block content %}
+{% block win_content %}
 
   <script language="javascript" type="text/javascript">
 
@@ -67,13 +67,14 @@
 
 
   <table class="work">
-    <tbody><tr>
+    <thead><tr>
       <th class="work"> ID          </td>
       <th class="work"> Период      </td>
       <th class="work"> Ресурс      </td>
       <th class="work"> Тариф       </td>
       <th class="work"> Коммент     </td>
-    </tr>
+    </tr></thead>
+    <tbody>
     {% for t in tarifs %}
     <tr>
       <td class="work"> <a href="/apart/tarif/{{ t.id }}/">{{ t.id }}</a> </td>

@@ -1,0 +1,70 @@
+{% extends "wage/main.html" %}
+
+{% block breadcrumbs %}
+  <a class="w3-bar-item w3-button" href="{% url 'wage:index' %}">Начало</a>
+  <a class="w3-bar-item w3-button" href="{% url 'wage:empl_list' %}">Сотрудники</a>
+  <a class="w3-bar-item w3-button" href="{% url 'wage:empl_form' employee.id %}">{{ employee.fio }}</a>
+  <a class="w3-bar-item w3-button" href="{% url 'wage:appoint_list' employee.id %}">Назначения</a>
+  {% if pk != 0 %}
+    <a class="w3-bar-item w3-button w3-red w3-right" href="{% url 'wage:appoint_del' employee.id pk %}">Удалить</a>
+  {% endif %}
+{% endblock %}
+
+{% block wage_content %}
+<div class="w3-container w3-padding">
+
+  <form method="post" class="w3-container w3-card-4 w3-light-grey">{% csrf_token %}
+
+    {% if form.errors %} <p class="errornote"> {% if form.errors.items|length == 1 %}Нужно исправить ошибку.{% else %}Нужно исправить ошибки{% endif %} </p> {% endif %}
+    {% if form.non_field_errors %} {% for error in form.non_field_errors %} <p class="errornote"> {{ error }} </p> {% endfor %} {% endif %}
+
+    <div class="w3-row">
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+          {{ form.dBeg.errors }} {{ form.dBeg.label_tag }} {{ form.dBeg }} {% if form.dBeg.help_text %}<div class="help">{{ form.dBeg.help_text|safe }}</div>{% endif %}
+      </div></div>
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+          {{ form.dEnd.errors }} {{ form.dEnd.label_tag }} {{ form.dEnd }} {% if form.dEnd.help_text %}<div class="help">{{ form.dEnd.help_text|safe }}</div>{% endif %}
+      </div></div>
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+          {{ form.depart.errors }} {{ form.depart.label_tag }} {{ form.depart }} {% if form.depart.help_text %}<div class="help">{{ form.depart.help_text|safe }}</div>{% endif %}
+      </div></div>
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+          {{ form.post.errors }} {{ form.post.label_tag }} {{ form.post }} {% if form.post.help_text %}<div class="help">{{ form.post.help_text|safe }}</div>{% endif %}
+      </div></div>
+    </div>
+
+    <div class="w3-row">
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+          {{ form.tabnum.errors }} {{ form.tabnum.label_tag }} {{ form.tabnum }} {% if form.tabnum.help_text %}<div class="help">{{ form.tabnum.help_text|safe }}</div>{% endif %}
+      </div></div>
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+          {{ form.salary.errors }} {{ form.salary.label_tag }} {{ form.salary }} {% if form.salary.help_text %}<div class="help">{{ form.salary.help_text|safe }}</div>{% endif %}
+      </div></div>
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+          {{ form.currency.errors }} {{ form.currency.label_tag }} {{ form.currency }} {% if form.currency.help_text %}<div class="help">{{ form.currency.help_text|safe }}</div>{% endif %}
+      </div></div>
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+          {{ form.taxded.errors }} {{ form.taxded.label_tag }} {{ form.taxded }} {% if form.taxded.help_text %}<div class="help">{{ form.taxded.help_text|safe }}</div>{% endif %}
+      </div></div>
+    </div>
+
+    <div class="w3-row">
+      <div class="w3-rest"><div class="w3-margin rok-field">
+          {{ form.info.errors }} {{ form.info.label_tag }} {{ form.info }} {% if form.info.help_text %}<div class="help">{{ form.info.help_text|safe }}</div>{% endif %}
+      </div></div>
+    </div>
+
+    <div class="w3-row w3-padding">
+      {% if pk == 0 %}
+        <input type="submit" value="Добавить" class="default">
+      {% else %}
+        <input type="submit" value="Сохранить" class="default">
+      {% endif %}
+      <p>
+    </div>
+
+  </form>
+
+</div>
+{% endblock %}
+

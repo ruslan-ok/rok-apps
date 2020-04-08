@@ -1,0 +1,29 @@
+{% extends "wage/main.html" %}
+
+{% block breadcrumbs %}
+  <a class="w3-bar-item w3-button" href="{% url 'wage:index'      %}">Начало</a>
+  <a class="w3-bar-item w3-button" href="{% url 'wage:period_add' %}">Добавить</a>
+{% endblock %}
+
+{% block wage_content %}
+  <table class="w3-table-all w3-hoverable w3-card-4">
+    <thead>
+      <tr class="w3-theme-l3"><th>Месяц/год</th> <th>План, дней</th> <th>Дата аванса</th> <th>Дата выплаты</th> <th>Курс аванса</th> <th>Курс выплаты</th> <th>Курс вх. остатка</th> <th>Дата выплаты 2 части</th> <th>Курс выплаты 2 части</th> </tr>
+    </thead>
+    <tbody>
+      {% for period in periods %}
+      <tr>
+        <td><a href="{% url 'wage:period_form' period.id %}">{{ period.dBeg|date:'m.Y' }}</a></td>
+        <td><a href="{% url 'wage:period_form' period.id %}">{{ period.planDays }}</a></td>
+        <td><a href="{% url 'wage:period_form' period.id %}">{{ period.AvansDate|date:'d.m.Y' }}</a></td>
+        <td><a href="{% url 'wage:period_form' period.id %}">{{ period.PaymentDate|date:'d.m.Y' }}</a></td>
+        <td><a href="{% url 'wage:period_form' period.id %}">{{ period.AvansRate }}</a></td>
+        <td><a href="{% url 'wage:period_form' period.id %}">{{ period.PaymentRate }}</a></td>
+        <td><a href="{% url 'wage:period_form' period.id %}">{{ period.DebtInRate }}</a></td>
+        <td><a href="{% url 'wage:period_form' period.id %}">{{ period.Part2Date|date:'d.m.Y' }}</a></td>
+        <td><a href="{% url 'wage:period_form' period.id %}">{{ period.Part2Rate }}</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends "wage/main.html" %}
+
+{% block breadcrumbs %}
+  <a class="w3-bar-item w3-button" href="{% url 'wage:index'       %}">Начало</a>
+  <a class="w3-bar-item w3-button" href="{% url 'wage:period_list' %}">Периоды</a>
+  {% if pk != 0 %}
+    <a class="w3-bar-item w3-button w3-red w3-right" href="{% url 'wage:period_del' pk %}">Удалить</a>
+  {% endif %}
+{% endblock %}
+
+{% block wage_content %}
+<div class="w3-container w3-padding">
+
+  <form method="post" class="w3-container w3-card-4 w3-light-grey">{% csrf_token %}
+
+    {% if form.errors %} <p class="errornote"> {% if form.errors.items|length == 1 %}Нужно исправить ошибку.{% else %}Нужно исправить ошибки{% endif %} </p> {% endif %}
+    {% if form.non_field_errors %} {% for error in form.non_field_errors %} <p class="errornote"> {{ error }} </p> {% endfor %} {% endif %}
+
+    <div class="w3-row">
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+          {{ form.dBeg.errors }} {{ form.dBeg.label_tag }} {{ form.dBeg }} {% if form.dBeg.help_text %}<div class="help">{{ form.dBeg.help_text|safe }}</div>{% endif %}
+      </div></div>
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+          {{ form.planDays.errors }} {{ form.planDays.label_tag }} {{ form.planDays }} {% if form.planDays.help_text %}<div class="help">{{ form.planDays.help_text|safe }}</div>{% endif %}
+      </div></div>
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+          {{ form.DebtInRate.errors }} {{ form.DebtInRate.label_tag }} {{ form.DebtInRate }} {% if form.DebtInRate.help_text %}<div class="help">{{ form.DebtInRate.help_text|safe }}</div>{% endif %}
+      </div></div>
+    </div>
+
+    <div class="w3-row">
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+          {{ form.AvansDate.errors }} {{ form.AvansDate.label_tag }} {{ form.AvansDate }} {% if form.AvansDate.help_text %}<div class="help">{{ form.AvansDate.help_text|safe }}</div>{% endif %}
+      </div></div>
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+          {{ form.AvansRate.errors }} {{ form.AvansRate.label_tag }} {{ form.AvansRate }} {% if form.AvansRate.help_text %}<div class="help">{{ form.AvansRate.help_text|safe }}</div>{% endif %}
+      </div></div>
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+          {{ form.PaymentDate.errors }} {{ form.PaymentDate.label_tag }} {{ form.PaymentDate }} {% if form.PaymentDate.help_text %}<div class="help">{{ form.PaymentDate.help_text|safe }}</div>{% endif %}
+      </div></div>
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+          {{ form.PaymentRate.errors }} {{ form.PaymentRate.label_tag }} {{ form.PaymentRate }} {% if form.PaymentRate.help_text %}<div class="help">{{ form.PaymentRate.help_text|safe }}</div>{% endif %}
+      </div></div>
+    </div>
+
+    <div class="w3-row">
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+          {{ form.Part2Date.errors }} {{ form.Part2Date.label_tag }} {{ form.Part2Date }} {% if form.Part2Date.help_text %}<div class="help">{{ form.Part2Date.help_text|safe }}</div>{% endif %}
+      </div></div>
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+          {{ form.Part2Rate.errors }} {{ form.Part2Rate.label_tag }} {{ form.Part2Rate }} {% if form.Part2Rate.help_text %}<div class="help">{{ form.Part2Rate.help_text|safe }}</div>{% endif %}
+      </div></div>
+    </div>
+
+    <div class="w3-row w3-padding">
+      {% if pk == 0 %}
+        <input type="submit" value="Добавить" class="default">
+      {% else %}
+        <input type="submit" value="Сохранить" class="default">
+      {% endif %}
+      <p>
+    </div>
+
+  </form>
+
+</div>
+{% endblock %}

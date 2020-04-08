@@ -1,0 +1,59 @@
+{% extends "wage/main.html" %}
+
+{% block breadcrumbs %}
+  <a class="w3-bar-item w3-button" href="{% url 'wage:index'        %}">Начало</a>
+  <a class="w3-bar-item w3-button" href="{% url 'wage:depart_list'  %}">Отделы</a>
+  {% if pk != 0 %}
+    <a class="w3-bar-item w3-button" href="{% url 'wage:dep_hist_add' pk %}">Изменить подчиненность</a>
+    <a class="w3-bar-item w3-button w3-red w3-right" href="{% url 'wage:depart_del' pk %}">Удалить</a>
+  {% endif %}
+{% endblock %}
+
+{% block wage_content %}
+<div class="w3-container w3-padding">
+
+  <form method="post" class="w3-container w3-card-4 w3-light-grey">{% csrf_token %}
+
+    {% if form.errors %} <p class="errornote"> {% if form.errors.items|length == 1 %}Нужно исправить ошибку.{% else %}Нужно исправить ошибки{% endif %} </p> {% endif %}
+    {% if form.non_field_errors %} {% for error in form.non_field_errors %} <p class="errornote"> {{ error }} </p> {% endfor %} {% endif %}
+
+    <div class="w3-row">
+      <div class="w3-threequarter"><div class="w3-margin rok-field">
+          {{ form.name.errors }} {{ form.name.label_tag }} {{ form.name }} {% if form.name.help_text %}<div class="help">{{ form.name.help_text|safe }}</div>{% endif %}
+      </div></div>
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+          {{ form.sort.errors }} {{ form.sort.label_tag }} {{ form.sort }} {% if form.sort.help_text %}<div class="help">{{ form.sort.help_text|safe }}</div>{% endif %}
+      </div></div>
+    </div>
+
+    <div class="w3-row w3-padding">
+      {% if pk == 0 %}
+        <input type="submit" value="Добавить" class="default">
+      {% else %}
+        <input type="submit" value="Сохранить" class="default">
+      {% endif %}
+      <p>
+    </div>
+
+  </form>
+
+  <div class="w3-container w3-card-4 w3-light-grey">
+    <h4>История изменений подчиненности отдела</h4>
+    <table class="w3-table-all w3-hoverable w3-card-4">
+      <thead>
+        <tr class="w3-theme-l3"> <th>Дата изменения</th> <th>Вышестоящий отдел</th> </tr>
+      </thead>
+      <tbody>
+        {% for dep_hist in dep_hists %}
+        <tr>
+          <td><a href="{% url 'wage:dep_hist_form' pk dep_hist.id %}">{{ dep_hist.dBeg|date:'d.m.Y' }}</a></td>
+          <td><a href="{% url 'wage:dep_hist_form' pk dep_hist.id %}">{{ dep_hist.node|default_if_none:'' }}</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p>
+  </div>
+
+</div>
+{% endblock %}

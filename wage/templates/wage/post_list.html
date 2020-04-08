@@ -1,0 +1,21 @@
+{% extends "wage/main.html" %}
+
+{% block breadcrumbs %}
+  <a class="w3-bar-item w3-button" href="{% url 'wage:index'    %}">Начало</a>
+  <a class="w3-bar-item w3-button" href="{% url 'wage:post_add' %}">Добавить</a>
+{% endblock %}
+
+{% block wage_content %}
+  <table class="w3-table-all w3-hoverable w3-card-4">
+    <thead>
+      <tr class="w3-theme-l3"><th>Наименование</th> </tr>
+    </thead>
+    <tbody>
+      {% for post in posts %}
+      <tr>
+        <td><a href="{% url 'wage:post_form' post.id %}">{{ post.name }}</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

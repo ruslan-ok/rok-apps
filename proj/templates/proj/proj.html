@@ -1,6 +1,6 @@
 {% extends "base_window.html" %}
 {% load static %}
-{% block content %}
+{% block win_content %}
 
   <script language="javascript" type="text/javascript">
 
@@ -109,13 +109,14 @@
 
   {% if opers.count %}
   <table class="work">
-    <tbody><tr>
+    <thead><tr>
       <th class="work"> ID    </th>
       <th class="work"> Дата  </td>
       <th class="work"> USD   </td>
       <th class="work"> Контрагент </td>
       <th class="work"> Описание   </td>
-    </tr>
+    </tr></thead>
+    <tbody>
     {% for g in opers %}
     <tr>
       <td class="pid">  <script language="javascript" type="text/javascript">getLink({{ g.id }})</script> </td>

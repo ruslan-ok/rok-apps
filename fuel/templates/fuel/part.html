@@ -1,6 +1,6 @@
 {% extends "base_window.html" %}
 {% load static %}
-{% block content %}
+{% block win_content %}
 
   <script language="javascript" type="text/javascript">
 
@@ -233,14 +233,15 @@
 
   {% if parts.count %}
   <table class="work">
-    <tbody><tr>
+    <thead><tr>
       <th class="work"> ID           </th>
       <th class="work"> Наименование </th>
       <th class="work"> км           </th>
       <th class="work"> мес          </th>
       <th class="work"> Замены       </th>
       <th class="work"> Осталось     </th>
-    </tr>
+    </tr></thead>
+    <tbody>
     {% for p in parts %}
     <tr>
       <td class="pid">  <script language="javascript" type="text/javascript">getPartLink({{ p.id }})</script> </td>

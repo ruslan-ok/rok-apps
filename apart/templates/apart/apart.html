@@ -1,6 +1,6 @@
 {% extends "base_window.html" %}
 {% load static %}
-{% block content %}
+{% block win_content %}
 
   <script language="javascript" type="text/javascript">
 
@@ -40,7 +40,7 @@
   </form>
 
   <table class="work">
-    <tbody><tr>
+    <thead><tr>
       <th class="work"> Период   </td>
       <th class="work"> Статус   </td>
       <th class="work"> USD      </td>
@@ -48,7 +48,8 @@
       <th class="work"> Оплачено </td>
       <th class="work"> Долг     </td>
       <th class="work"> Коммент  </td>
-    </tr>
+    </tr></thead>
+    <tbody>
     {% for b in aparts %}
     <tr>
       <td class="work"> <script language="javascript" type="text/javascript">getLink({{ b.year }}, {{ b.month }})</script> </td>

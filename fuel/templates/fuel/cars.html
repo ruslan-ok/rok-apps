@@ -1,6 +1,6 @@
 {% extends "base_window.html" %}
 {% load static %}
-{% block content %}
+{% block win_content %}
 
   <script language="javascript" type="text/javascript">
 
@@ -108,11 +108,12 @@
 
   {% if cars.count %}
   <table class="work">
-    <tbody><tr>
+    <thead><tr>
       <th class="work"> ID         </th>
       <th class="work"> Модель     </th>
       <th class="work"> Гос. номер </th>
-    </tr>
+    </tr></thead>
+    <tbody>
     {% for p in cars %}
     <tr>
       <td class="pid">  <script language="javascript" type="text/javascript">getCarLink({{ p.id }})</script> </td>

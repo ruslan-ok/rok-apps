@@ -1,6 +1,6 @@
 {% extends "base_window.html" %}
 {% load static %}
-{% block content %}
+{% block win_content %}
 
   <script language="javascript" type="text/javascript">
 
@@ -109,12 +109,13 @@
   </form>
 
   <table class="work">
-    <tbody><tr>
+    <thead><tr>
       <th class="work"> ID           </th>
       <th class="work"> Дата         </th>
       <th class="work"> Одометр      </th>
       <th class="work"> Наименование </th>
-    </tr>
+    </tr></thead>
+    <tbody>
     {% for r in replaces %}
     <tr>
       <td class="pid">  <script language="javascript" type="text/javascript">getLink({{ part }}, {{ r.id }})</script> </td>

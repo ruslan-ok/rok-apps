@@ -26,55 +26,30 @@
   text-decoration: none;
 }
 
-.form-row {
-  padding: 4px 0;
-  float: left;
+.rok-field input[type=text], .rok-field input[type=password], .rok-field input[type=email], .rok-field input[type=url], .rok-field input[type=number], .rok-field input[type=tel], textarea, select, .vTextField {
+  border: 1px solid #ccc;
+  border-top-color: rgb(204, 204, 204);
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-right-color: rgb(204, 204, 204);
+  border-right-style: solid;
+  border-right-width: 1px;
+  border-bottom-color: rgb(204, 204, 204);
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-left-color: rgb(204, 204, 204);
+  border-left-style: solid;
+  border-left-width: 1px;
+  border-image-source: initial;
+  border-image-slice: initial;
+  border-image-width: initial;
+  border-image-outset: initial;
+  border-image-repeat: initial;
+  border-radius: 4px;
+  padding: 5px 6px;
+  margin-right: 10px;
+  display: inline;
   width: 100%;
-  border-bottom: none;
-  border-bottom-width: initial;
-  border-bottom-style: none;
-  border-bottom-color: initial;
-}
-
-.form-row label {
-  padding-right: 0.5em;
-  line-height: 2em;
-  font-size: 1em;
-  clear: both;
-  color: #333;
-}
-
-.form-row input[type=text], .form-row input[type=password], .form-row input[type=email], .form-row input[type=url], .form-row input[type=number], .form-row input[type=tel], .form-row textarea, .form-row select, .vTextField {
-  clear: both;
-  padding: 8px;
-  width: 100%;
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-  font-size: 1em;
-}
-
-input[type=text], input[type=password], input[type=email], input[type=url], input[type=number], input[type=tel], textarea, select, .vTextField {
-    border: 1px solid #ccc;
-    border-top-color: rgb(204, 204, 204);
-    border-top-style: solid;
-    border-top-width: 1px;
-    border-right-color: rgb(204, 204, 204);
-    border-right-style: solid;
-    border-right-width: 1px;
-    border-bottom-color: rgb(204, 204, 204);
-    border-bottom-style: solid;
-    border-bottom-width: 1px;
-    border-left-color: rgb(204, 204, 204);
-    border-left-style: solid;
-    border-left-width: 1px;
-    border-image-source: initial;
-    border-image-slice: initial;
-    border-image-width: initial;
-    border-image-outset: initial;
-    border-image-repeat: initial;
-    border-radius: 4px;
-    padding: 5px 6px;
 }
 
 .password-reset-link {
@@ -100,19 +75,6 @@ input[type=text], input[type=password], input[type=email], input[type=url], inpu
   cursor: pointer;
 }
 
-.submit-row {
-  clear: both;
-  padding: 1em 0 0 9.4em;
-  padding-top: 1em;
-  padding-right: 0px;
-  padding-bottom: 0px;
-  padding-left: 9.4em;
-  margin: 0;
-  border: none;
-  background: none;
-  text-align: left;
-}
-
 #footer {
   clear: both;
   padding: 10px;
@@ -122,31 +84,12 @@ input[type=text], input[type=password], input[type=email], input[type=url], inpu
   padding-left: 10px;
 }
 
-.rok-hidden {
-  display: none;
-}
-
-.rok-cb2 {
-  margin-top: 5px;
-  margin-left: 15px;
-  margin-right: 1px;
-  margin-bottom: 5px;
-}
-
 .day-th {
   padding-right: 30px;
 }
 
-.day-td {
-  padding-top: 20px;
-}
-
 .today {
   color: red;
-}
-
-.rok-field-1 {
-  width: 20em;
 }
 
 .errornote {
@@ -207,5 +150,3 @@ td ul.errorlist li {
 .errors input, .errors select, .errors textarea {
     border: 1px solid #ba2121;
 }
-
-

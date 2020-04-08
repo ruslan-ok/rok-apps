@@ -1,61 +1,77 @@
-{% extends "base_window.html" %}
-{% load i18n static %}
-{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "wage/css/forms.css" %}">{% endblock %}
+{% extends "base_sidebar.html" %}
 
 {% block content %}
 
 <div class="w3-row">
-
-  {% block top_block %}
-  {{ top_block }}
-  {% endblock %}
-
-
-</div>
-
-<div class="w3-row">
-  <div class="w3-col w3-container m4 l2">
-    <table id="result_list">
-      <thead>
-        <tr>
-          <th scope="col">
-            <div class="text"><span>{% trans 'Department or Surname' %}</span></div>
-            <div class="clear"></div>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for node in tree %}
-          <tr class="{% cycle 'row1' 'row2' %}">
-            <td>
-              {{ node.indent }}
-              {% if node.is_depart %}
-                <a href="{% url 'wage:tree' node.id %}">[{% if node.is_open %}-{% else %}+{% endif %}]</a>
-                <a href="{% url 'wage:depart' node.id %}">{{ node.name }}</a>
-              {% else %}
-                <a href="{% url 'wage:employee' node.id %}">{{ node.name }}</a>
-              {% endif %}
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <div class="w3-col m4 l2">
+   <div class="w3-container w3-padding">
+    {% if period_form %}
+    <form method="post">{% csrf_token %}
   
+      {% if period_form.errors %}
+        <p class="errornote">
+          {% if period_form.errors.items|length == 1 %}Нужно исправить ошибку.{% else %}Нужно исправить ошибки{% endif %}
+        </p>
+      {% endif %}
+    
+      {% if period_form.non_field_errors %}
+        {% for error in period_form.non_field_errors %}
+          <p class="errornote">
+            {{ error }}
+          </p>
+        {% endfor %}
+      {% endif %}
+
+      {{ period_form.period.errors }}
+      {{ period_form.period.label_tag }} {{ period_form.period }}
+      {% if period_form.period.help_text %}
+      <div class="help">{{ period_form.period.help_text|safe }}</div>
+      {% endif %}
+      
+      <input type="submit" name="period_submit" value="Показать">
+  
+    </form>
+    
+    {% else %}
+      {{ current_period }}
+    {% endif %}
+
+    <div style="height: 2em;"></div>
+    
+    <table class="w3-table-all w3-hoverable w3-card-4">
+      <tr class="w3-theme-l3">
+        <th>Структура</th>
+      </tr>
+      {% for node in tree %}
+        <tr>
+          <td>
+            {{ node.indent }}
+            {% if node.is_depart %}
+              <a href="{% url 'wage:tree' node.id %}">[{% if node.is_open %}-{% else %}+{% endif %}]</a>
+              <a href="{% url 'wage:depart_form' node.id %}">{{ node.name }}</a>
+            {% else %}
+              <a href="{% url 'wage:empl_form' node.id %}">{{ node.name }}</a>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+   </div>
   </div>
-  <div class="w3-col w3-container m8 l10">
 
-  {% block main_block %}
-  {{ main_block }}
-  {% endblock %}
-
+  <div class="w3-col m8 l10">
+    {% if user.is_authenticated %}
+      <div class="w3-bar w3-border w3-theme-l1">
+        {% block breadcrumbs %}{% endblock %}
+      </div>
+    {% endif %}
+    {% block contenttitle %}{{ block.super }}{% endblock %}
+    <div class="w3-container">
+      {% block wage_content %}{% endblock %}
+    </div>
+    {% block footer %}{% endblock %}
   </div>
 </div>
-
-<div class="w3-row">
-
-  {% block bottom_block %}
-  {{ bottom_block }}
-  {% endblock %}
-
-</div>
+    
 {% endblock %}
+

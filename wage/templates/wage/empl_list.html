@@ -1,0 +1,25 @@
+{% extends "wage/main.html" %}
+
+{% block breadcrumbs %}
+  <a class="w3-bar-item w3-button" href="{% url 'wage:index'    %}">Начало</a>
+  <a class="w3-bar-item w3-button" href="{% url 'wage:empl_add' %}">Добавить</a>
+{% endblock %}
+
+{% block wage_content %}
+  <table class="w3-table-all w3-hoverable w3-card-4">
+    <thead>
+      <tr class="w3-theme-l3"><th>ФИО</th> <th>Логин</th> <th>День рождения</th> <th>Телефон</th> <th>Сортировка</th> </tr>
+    </thead>
+    <tbody>
+      {% for empl in empls %}
+      <tr>
+        <td><a href="{% url 'wage:empl_form' empl.id %}">{{ empl.fio }}</a></td>
+        <td><a href="{% url 'wage:empl_form' empl.id %}">{{ empl.login }}</a></td>
+        <td><a href="{% url 'wage:empl_form' empl.id %}">{{ empl.born|date:'d.m.Y' }}</a></td>
+        <td><a href="{% url 'wage:empl_form' empl.id %}">{{ empl.phone }}</a></td>
+        <td><a href="{% url 'wage:empl_form' empl.id %}">{{ empl.sort }}</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

@@ -1,6 +1,6 @@
 {% extends "base_window.html" %}
 {% load static %}
-{% block content %}
+{% block win_content %}
 
   <script language="javascript" type="text/javascript">
 
@@ -87,14 +87,15 @@
 
   {% if fuels.count %}
   <table class="work">
-    <tbody><tr>
+    <thead><tr>
       <th class="work"> ID      </th>
       <th class="work"> Дата    </th>
       <th class="work"> Одометр </th>
       <th class="work"> Объём   </th>
       <th class="work"> Цена    </th>
       <th class="work"> Сумма   </th>
-    </tr>
+    </tr></thead>
+    <tbody>
     {% for f in fuels %}
     <tr>
       <td class="pid">  <a href="/fuel/{{ f.id }}/"> {{ f.id }} </a> </td>

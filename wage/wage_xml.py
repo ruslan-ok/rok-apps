@@ -203,7 +203,6 @@ def import_persper(u, empl, n, cnt, err):
     r.privilege = GetFloat(n.attrib, 'Privilege')
     r.save()
     cnt.append('EmplPer:' + r.__str__())
-    """
     for p in n:
         if (p.tag == '{rok}Nachisl'):
             import_payment(u, empl, r.period, 0, p, cnt, err)
@@ -211,7 +210,6 @@ def import_persper(u, empl, n, cnt, err):
             import_payment(u, empl, r.period, 1, p, cnt, err)
         else:
             err.append('[x] unexpected tag [import_persper]:' + p.tag.__str__())
-    """
 
 def import_employee(u, n, cnt, err):
     r = Employee.objects.create(user = u)

@@ -1,7 +1,7 @@
 {% extends "base_window.html" %}
 {% load i18n %}
 
-{% block content %}
+{% block win_content %}
   {% if user.is_authenticated %}
     <div class="w3-row w3-padding">
       <a href="{% url 'trip:trip_list' %}">{{ trip_summary|safe }}</a>

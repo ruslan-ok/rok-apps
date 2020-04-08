@@ -1,6 +1,6 @@
 {% extends "base_window.html" %}
 {% load static %}
-{% block content %}
+{% block win_content %}
 
   <script language="javascript" type="text/javascript">
 
@@ -64,12 +64,14 @@
 
 
   <table class="work">
-    <tbody>
+    <thead>
       <tr>
         <th class="work"> ID           </th>
         <th class="work"> Срок         </th>
         <th class="work"> Наименование </th>
       </tr>
+    </thead>
+    <tbody>
       {% for t in tasks %}
       <tr>
         <td class="pid">  <script language="javascript" type="text/javascript">getLink({{ t.id }})</script> </td>

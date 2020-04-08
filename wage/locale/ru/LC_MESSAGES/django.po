@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-28 12:28+0300\n"
+"POT-Creation-Date: 2020-04-05 17:18+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,285 +23,351 @@ msgstr ""
 msgid "wage"
 msgstr "зарплата"
 
-#: .\wage\models.py:8 .\wage\models.py:39 .\wage\models.py:114
-#: .\wage\models.py:133 .\wage\models.py:161
+#: .\wage\models.py:10 .\wage\models.py:30 .\wage\models.py:47
+#: .\wage\models.py:63 .\wage\models.py:75 .\wage\models.py:201
+#: .\wage\models.py:232
+msgid "user"
+msgstr ""
+
+#: .\wage\models.py:11 .\wage\models.py:48 .\wage\models.py:128
+#: .\wage\models.py:151 .\wage\models.py:191
 msgid "begin"
 msgstr "начало"
 
-#: .\wage\models.py:9
+#: .\wage\models.py:12
 msgid "plan days"
 msgstr "план, дней"
 
-#: .\wage\models.py:10
+#: .\wage\models.py:13
 msgid "prepaid date"
 msgstr "дата аванса"
 
-#: .\wage\models.py:11
+#: .\wage\models.py:14
 msgid "pay date"
 msgstr "дата выплаты зарплаты"
 
-#: .\wage\models.py:12
+#: .\wage\models.py:15
 msgid "prepaid rate"
 msgstr "курс аванса"
 
-#: .\wage\models.py:13 .\wage\models.py:158
+#: .\wage\models.py:16 .\wage\models.py:188
 msgid "pay rate"
 msgstr "курс выплаты зарплаты"
 
-#: .\wage\models.py:14
+#: .\wage\models.py:17
 msgid "credit rate"
 msgstr "курс входящего остатка"
 
-#: .\wage\models.py:15
+#: .\wage\models.py:18
 msgid "second pay date"
 msgstr "дата выплаты второй части"
 
-#: .\wage\models.py:16
+#: .\wage\models.py:19
 msgid "second pay rate"
 msgstr "курс выплаты второй части"
 
-#: .\wage\models.py:19
+#: .\wage\models.py:22
 msgid "billing period"
 msgstr "расчетный период"
 
-#: .\wage\models.py:20
+#: .\wage\models.py:23
 msgid "billing periods"
 msgstr "расчетные периоды"
 
-#: .\wage\models.py:27 .\wage\models.py:54 .\wage\models.py:171
-#: .\wage\models.py:186
+#: .\wage\models.py:31 .\wage\models.py:64 .\wage\models.py:202
+#: .\wage\models.py:217
 msgid "name"
 msgstr "наименование"
 
-#: .\wage\models.py:28 .\wage\models.py:43 .\wage\models.py:67
-#: .\wage\models.py:99 .\wage\models.py:185
+#: .\wage\models.py:32 .\wage\models.py:52 .\wage\models.py:78
+#: .\wage\models.py:113 .\wage\models.py:216
 msgid "sort number"
 msgstr "номер п/п"
 
-#: .\wage\models.py:31 .\wage\models.py:118
+#: .\wage\models.py:33
+msgid "tree node is open"
+msgstr ""
+
+#: .\wage\models.py:36 .\wage\models.py:132
 msgid "department"
 msgstr "отдел"
 
-#: .\wage\models.py:32
+#: .\wage\models.py:37
 msgid "departments"
 msgstr "отделы"
 
-#: .\wage\models.py:40 .\wage\models.py:85 .\wage\models.py:115
-#: .\wage\models.py:134
+#: .\wage\models.py:49 .\wage\models.py:99 .\wage\models.py:129
+#: .\wage\models.py:152
 msgid "end"
 msgstr "окончание"
 
-#: .\wage\models.py:41
+#: .\wage\models.py:50
 msgid "depart"
 msgstr "отдел"
 
-#: .\wage\models.py:42
+#: .\wage\models.py:51
 msgid "node"
 msgstr "вышестоящий"
 
-#: .\wage\models.py:46
+#: .\wage\models.py:55
 msgid "department changes"
 msgstr "изменение отдела"
 
-#: .\wage\models.py:47
+#: .\wage\models.py:56
 msgid "department changes "
 msgstr "изменения отделов"
 
-#: .\wage\models.py:57 .\wage\models.py:119
+#: .\wage\models.py:67 .\wage\models.py:133
 msgid "post"
 msgstr "должность"
 
-#: .\wage\models.py:58
+#: .\wage\models.py:68
 msgid "posts"
 msgstr "должности"
 
-#: .\wage\models.py:65
+#: .\wage\models.py:76
 msgid "surname n.p."
 msgstr "фамилия и.о."
 
-#: .\wage\models.py:66
+#: .\wage\models.py:77
 msgid "login"
 msgstr "логин"
 
-#: .\wage\models.py:68
+#: .\wage\models.py:79
 msgid "email"
 msgstr "адрес электронной почты"
 
-#: .\wage\models.py:69
+#: .\wage\models.py:80
 msgid "password"
 msgstr "пароль"
 
-#: .\wage\models.py:70 .\wage\models.py:98
+#: .\wage\models.py:81 .\wage\models.py:112
 msgid "birthday"
 msgstr "день рождения"
 
-#: .\wage\models.py:71
+#: .\wage\models.py:82
 msgid "phone"
 msgstr "телефон"
 
-#: .\wage\models.py:72
+#: .\wage\models.py:83
 msgid "address"
 msgstr "адрес"
 
-#: .\wage\models.py:73 .\wage\models.py:87 .\wage\models.py:101
-#: .\wage\models.py:121 .\wage\models.py:143 .\wage\models.py:190
+#: .\wage\models.py:84 .\wage\models.py:101 .\wage\models.py:115
+#: .\wage\models.py:135 .\wage\models.py:161 .\wage\models.py:221
 msgid "information"
 msgstr "дополнительная информация"
 
-#: .\wage\models.py:76 .\wage\models.py:84 .\wage\models.py:97
-#: .\wage\models.py:112 .\wage\models.py:132 .\wage\models.py:153
-#: .\wage\models.py:181
-msgid "person"
-msgstr "сотрудник"
+#: .\wage\models.py:87 .\wage\models.py:98 .\wage\models.py:111
+#: .\wage\models.py:126 .\wage\models.py:150 .\wage\models.py:183
+#: .\wage\models.py:212 .\wage\models.py:234
+msgid "employee"
+msgstr ""
 
-#: .\wage\models.py:77
-msgid "persons"
-msgstr "сотрудники"
+#: .\wage\models.py:88
+msgid "employees"
+msgstr ""
 
-#: .\wage\models.py:86
+#: .\wage\models.py:100
 msgid "surname"
 msgstr "фамилия"
 
-#: .\wage\models.py:90
+#: .\wage\models.py:104
 msgid "surname changes"
 msgstr "факт изменения фамилии"
 
-#: .\wage\models.py:91
+#: .\wage\models.py:105
 msgid "surname changes "
 msgstr "факты изменения фамилии"
 
-#: .\wage\models.py:100
+#: .\wage\models.py:108
+msgid "before"
+msgstr ""
+
+#: .\wage\models.py:114
 msgid "child's name"
 msgstr "имя ребёнка"
 
-#: .\wage\models.py:104
+#: .\wage\models.py:118
 msgid "child"
 msgstr "ребёнок"
 
-#: .\wage\models.py:105
+#: .\wage\models.py:119
 msgid "children"
 msgstr "дети"
 
-#: .\wage\models.py:113
+#: .\wage\models.py:122
+msgid "was born on"
+msgstr ""
+
+#: .\wage\models.py:127
 msgid "personnel number"
 msgstr "табельный номер"
 
-#: .\wage\models.py:116
+#: .\wage\models.py:130
 msgid "salary"
 msgstr "оклад"
 
-#: .\wage\models.py:117 .\wage\models.py:188
+#: .\wage\models.py:131 .\wage\models.py:219
 msgid "currency"
 msgstr "валюта"
 
-#: .\wage\models.py:120 .\wage\models.py:159
+#: .\wage\models.py:134 .\wage\models.py:189
 msgid "exemption"
 msgstr "льгота по ПН"
 
-#: .\wage\models.py:124
+#: .\wage\models.py:138
 msgid "appointment"
 msgstr "назначение"
 
-#: .\wage\models.py:125
+#: .\wage\models.py:139
 msgid "appointments"
 msgstr "назначения"
 
-#: .\wage\models.py:135
+#: .\wage\models.py:153
 msgid "university"
 msgstr "ВУЗ"
 
-#: .\wage\models.py:136
+#: .\wage\models.py:154
 msgid "training course"
 msgstr "учебный курс"
 
-#: .\wage\models.py:137
+#: .\wage\models.py:155
 msgid "specialty"
 msgstr "специальность"
 
-#: .\wage\models.py:138
+#: .\wage\models.py:156
 msgid "qualification"
 msgstr "образование"
 
-#: .\wage\models.py:139
+#: .\wage\models.py:157
 msgid "document"
 msgstr "документ"
 
-#: .\wage\models.py:140
+#: .\wage\models.py:158
 msgid "number"
 msgstr "номер"
 
-#: .\wage\models.py:141
+#: .\wage\models.py:159
 msgid "city"
 msgstr "город"
 
-#: .\wage\models.py:142 .\wage\models.py:184
+#: .\wage\models.py:160 .\wage\models.py:215
 msgid "date"
 msgstr "дата"
 
-#: .\wage\models.py:146
+#: .\wage\models.py:164
 msgid "education"
 msgstr "образование"
 
-#: .\wage\models.py:147
+#: .\wage\models.py:165
 msgid "educations"
 msgstr "образования"
 
-#: .\wage\models.py:154 .\wage\models.py:182
+#: .\wage\models.py:184 .\wage\models.py:213 .\wage\models.py:233
 msgid "period"
 msgstr "период"
 
-#: .\wage\models.py:155
+#: .\wage\models.py:185
 msgid "fact days"
 msgstr "факт, дней"
 
-#: .\wage\models.py:156
+#: .\wage\models.py:186
 msgid "incoming balance"
 msgstr "входящий остаток"
 
-#: .\wage\models.py:157
+#: .\wage\models.py:187
 msgid "outgoing balance"
 msgstr "исходящий остаток"
 
-#: .\wage\models.py:160
+#: .\wage\models.py:190
 msgid "incoming balance for check"
 msgstr "входящий остаток - контроль с распечаткой"
 
-#: .\wage\models.py:164
-msgid "person period"
+#: .\wage\models.py:194
+#, fuzzy
+#| msgid "person period"
+msgid "employee period"
 msgstr "период сотрудника"
 
-#: .\wage\models.py:165
-msgid "person periods"
+#: .\wage\models.py:195
+#, fuzzy
+#| msgid "person periods"
+msgid "employee periods"
 msgstr "периоды сотрудников"
 
-#: .\wage\models.py:174
+#: .\wage\models.py:205
 msgid "payment title"
 msgstr "наименование начисления или выплаты"
 
-#: .\wage\models.py:175
+#: .\wage\models.py:206
 msgid "payment titles"
 msgstr "наименования начислений или выплат"
 
-#: .\wage\models.py:183
+#: .\wage\models.py:214
 msgid "direct"
 msgstr "направление"
 
-#: .\wage\models.py:183
+#: .\wage\models.py:214
 msgid "0 - accrual, 1 - payment"
 msgstr "0 - начисление, 1 - выплата"
 
-#: .\wage\models.py:187
+#: .\wage\models.py:218
 msgid "summa"
 msgstr "сумма"
 
-#: .\wage\models.py:189
+#: .\wage\models.py:220
 msgid "rate"
 msgstr "курс"
 
-#: .\wage\models.py:193
+#: .\wage\models.py:224
 msgid "payment"
 msgstr "начисление или выплата"
 
-#: .\wage\models.py:194
+#: .\wage\models.py:225
 msgid "payments"
 msgstr "начисления и выплаты"
+
+#: .\wage\models.py:237
+msgid "user parameters"
+msgstr ""
+
+#: .\wage\models.py:238
+msgid "users parameters"
+msgstr ""
+
+#: .\wage\templates\wage\employee.html:9 .\wage\templates\wage\index.html:13
+msgid "Please correct the error below."
+msgstr ""
+
+#: .\wage\templates\wage\employee.html:9 .\wage\templates\wage\index.html:13
+msgid "Please correct the errors below."
+msgstr ""
+
+#: .\wage\templates\wage\index.html:42
+msgid "Show"
+msgstr ""
+
+#: .\wage\templates\wage\index.html:82
+msgid "delete all wage data"
+msgstr ""
+
+#: .\wage\templates\wage\index.html:83
+msgid "import from xml"
+msgstr ""
+
+#: .\wage\templates\wage\main.html:22
+#, fuzzy
+#| msgid "department changes"
+msgid "Department or Surname"
+msgstr "изменение отдела"
+
+#: .\wage\views.py:63
+msgid "Wage"
+msgstr ""
+
+#~ msgid "person"
+#~ msgstr "сотрудник"
+
+#~ msgid "persons"
+#~ msgstr "сотрудники"
