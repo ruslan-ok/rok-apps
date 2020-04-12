@@ -1,0 +1,15 @@
+{% extends "base_window.html" %}
+
+{% block breadcrumbs %}
+  <a class="w3-bar-item w3-button" href="{% url 'note:index' %}">Доска</a>
+  <a class="w3-bar-item w3-button" href="{% url 'note:list_add' %}">Добавить</a>
+{% endblock %}
+
+{% block win_content %}
+<div class="w3-bar-block">
+  {% for list in lists %}
+    <a href="{% url 'note:list_form' list.id %}" class="w3-bar-item w3-button" style="background: {{ list.color }};">{{ list.full_name }}</a>
+  {% endfor %}
+</div>
+{% endblock %}
+

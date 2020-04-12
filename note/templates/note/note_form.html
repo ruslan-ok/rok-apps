@@ -1,0 +1,64 @@
+{% extends "base_window.html" %}
+
+{% block extrastyle %}
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+{% endblock %}
+
+{% block breadcrumbs %}
+  <a class="w3-bar-item w3-button" href="{% url 'note:index' %}">Доска</a>
+  <a class="w3-bar-item w3-button w3-right {{ del_color }}" href="{% url 'note:note_del' pk %}">{{ del_or_ready }}</a>
+{% endblock %}
+
+{% block win_content %}
+<div class="w3-container w3-padding">
+
+  <form method="post" class="w3-container w3-card-4 w3-light-grey">{% csrf_token %}
+
+    {% if form.errors %} <p class="errornote"> {% if form.errors.items|length == 1 %}Нужно исправить ошибку.{% else %}Нужно исправить ошибки{% endif %} </p> {% endif %}
+    {% if form.non_field_errors %} {% for error in form.non_field_errors %} <p class="errornote"> {{ error }} </p> {% endfor %} {% endif %}
+
+    <div class="w3-row">
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+          {{ form.name.errors }} {{ form.name.label_tag }} {{ form.name }} {% if form.name.help_text %}<div class="help">{{ form.name.help_text|safe }}</div>{% endif %}
+      </div></div>
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+          {{ form.list.errors }} {{ form.list.label_tag }} {{ form.list }} {% if form.list.help_text %}<div class="help">{{ form.list.help_text|safe }}</div>{% endif %}
+      </div></div>
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+          {{ form.code.errors }} {{ form.code.label_tag }} {{ form.code }} {% if form.code.help_text %}<div class="help">{{ form.code.help_text|safe }}</div>{% endif %}
+      </div></div>
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+        <a href="#descr" data-toggle="collapse">Описание</a>
+      </div></div>
+    </div>
+
+    <div class="collapse {% if form.descr.value %}show{% endif %}" id="descr">
+      <div class="w3-rest"><div class="w3-margin rok-field">
+          {{ form.descr.errors }} {{ form.descr }} 
+      </div></div>
+    </div>
+
+    <div class="w3-row w3-padding">
+      {% if pk == 0 %}
+        <input type="submit" value="Добавить" class="default">
+      {% else %}
+        <input type="submit" value="Сохранить" class="default">
+      {% endif %}
+      <p>
+    </div>
+
+  </form>
+
+  <a href="#demo" data-toggle="collapse">Collapsible</a>
+
+<div id="demo" class="collapse">
+Lorem ipsum dolor text....
+</div>
+
+
+</div>
+{% endblock %}
+

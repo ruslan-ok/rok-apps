@@ -25,7 +25,8 @@
         {% if perms.trip.view_person %}     <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'trip:trip_list' %}">{% trans 'trips'|capfirst %}</a>       {% endif %}
         {% if perms.apart.view_communal %}  <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'apart:apart_view' %}">{% trans 'apartment'|capfirst %}</a> {% endif %}
         {% if perms.proj.view_proj %}       <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'proj:proj_view' %}">{% trans 'projects'|capfirst %}</a>    {% endif %}
-        {% if perms.task.view_task %}       <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'task:task_view' %}">{% trans 'tasks'|capfirst %}</a>       {% endif %}
+        {% if perms.task.view_task %}       <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'task:index' %}">{% trans 'tasks'|capfirst %}</a>           {% endif %}
+        {% if perms.note.view_note %}       <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'note:index' %}">{% trans 'notes'|capfirst %}</a>           {% endif %}
         {% if True %}                       <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'index' %}">{% trans 'store'|capfirst %}</a>                {% endif %}
         {% if perms.wage.view_person %}     <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'wage:index' %}">{% trans 'work'|capfirst %}</a>            {% endif %}
         {% if perms.account.view_userext %} <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'admin:index' %}">{% trans 'administration'|capfirst %}</a> {% endif %}

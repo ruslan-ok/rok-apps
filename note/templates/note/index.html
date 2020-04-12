@@ -1,0 +1,53 @@
+{% extends "base_window.html" %}
+
+{% block breadcrumbs %}
+  {% if views.0 %}
+    <div class="w3-dropdown-click">
+      <button onclick="ShowMenu('get_view')" class="w3-button">Выбор</button>
+      <div id="get_view" class="w3-dropdown-content w3-bar-block w3-card-4">
+        {% for view in views %}
+          <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'note:view_set' view.id %}">{{ view.name }}</a>
+        {% endfor %}
+      </div>
+    </div>    
+  {% endif %}
+  <div class="w3-dropdown-click">
+    <button onclick="ShowMenu('settings')" class="w3-button">Настройка</button>
+    <div id="settings" class="w3-dropdown-content w3-bar-block w3-card-4">
+      <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'note:list_list' %}">Списки</a>
+      <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'note:view_list' %}">Представления</a>
+    </div>
+  </div>    
+{% endblock %}
+
+{% block win_content %}
+
+<div class="w3-row">
+
+  {% for set in sets %}
+    <div class="w3-quarter">
+      <div class="w3-card-4 w3-bar-block w3-padding w3-margin">
+        <a class="w3-bar-item w3-button w3-padding" style="background: {{ set.0.color }};" href="{% url 'note:note_add' %}?list={{set.0.id}}"><h5>{{ set.0.name }}</h5></a>
+        {% for note in set.1 %}
+          <a class="w3-bar-item w3-button" href="{% url 'note:note_form' note.id %}">{{ note.name }}</a>
+        {% endfor %}
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  <script>
+    function ShowMenu(menu_id) {
+      var x = document.getElementById(menu_id);
+      if (x.className.indexOf("w3-show") == -1) { 
+        x.className += " w3-show";
+      } else {
+        x.className = x.className.replace(" w3-show", "");
+      }
+    }
+  </script>
+{% endblock %}

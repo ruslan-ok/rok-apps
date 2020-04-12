@@ -52,6 +52,12 @@
   width: 100%;
 }
 
+input[type=color] {
+  height: 2.5em;
+  width: 8em;
+  margin-top: 2.5em;
+}
+
 .password-reset-link {
   text-align: center;
 }
