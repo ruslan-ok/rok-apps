@@ -117,6 +117,11 @@ class Backup:
         else:
             raise BackupError('archivate', 'Пустой архив ' + 'temp/' + fn + '.zip')
 
+    # Если содержимое какого-то каталога удалялось, то его можно пометить и очистить его заркало в процессе синхронизации
+    def mark_for_clear(self, dir):
+        with open(dir + '/__clear__.txt', 'a') as f:
+            f.write('clear me')
+
     # Определение возраста архива в указанной папке
     def arch_age(self, dir):
         n = datetime.now()
@@ -142,10 +147,12 @@ class Backup:
 
         if not os.path.exists(max_dir):
             shutil.copytree('temp', max_dir, dirs_exist_ok=True)
+            self.mark_for_clear(max_dir)
             self.content.append('   Копия сохранена в ' + max_dir)
 
         if not os.path.exists(med_dir):
             shutil.copytree('temp', med_dir, dirs_exist_ok=True)
+            self.mark_for_clear(med_dir)
             self.content.append('   Архив сохранен в ' + med_dir)
         else:
             age = self.arch_age(med_dir)
@@ -154,12 +161,15 @@ class Backup:
                 shutil.rmtree(max_dir, ignore_errors = True)
                 os.rename(med_dir, max_dir)
                 os.rename(min_dir, med_dir)
+                self.mark_for_clear(max_dir)
+                self.mark_for_clear(med_dir)
                 self.content.append('   Ротация: temp -> ' + min_dir + ' -> ' + med_dir + ' -> ' + max_dir)
             else:
                 self.content.append('   Архив сохранен в ' + min_dir + '. Дней до ротации: ' + str(max_duration - age))
 
         shutil.rmtree(min_dir, ignore_errors = True)
         os.rename('temp', min_dir)
+        self.mark_for_clear(min_dir)
 
     def add_info(self, src, dst):
         if (self.case == 0):
@@ -167,6 +177,14 @@ class Backup:
             self.content.append('  ' + src + ':')
         self.content.append('    ' + dst)
     
+    def clear_dir(self, dir):
+        for filename in os.listdir(dir):
+            file_path = os.path.join(dir, filename)
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        
     def synch_dir(self, _src, _dst, _folder):
         if (_src == 'nuc'):
             src = 'x:\\' + _folder
@@ -187,8 +205,15 @@ class Backup:
             if not os.path.exists(test):
                 os.mkdir(test)
                 zzz = True
+            else:
+                if os.path.isfile(src + part + '/__clear__.txt'):
+                    self.clear_dir(test)
+                    zzz = True
     
             for f in files:
+                if (f == '__clear__.txt'):
+                    os.remove(src + part + '\\' + f)
+                    continue
                 fsrc = src + part + '\\' + f
                 fdst = test + '\\' + f
                 print(_dst + '\\' + _folder + part + '\\' + f, '...')
