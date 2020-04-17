@@ -1,0 +1,53 @@
+{% extends "base_window.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+  <a class="w3-bar-item w3-button" href="{% url 'store:index' %}">{% trans 'entries'|capfirst %}</a>
+  {% if pk != 0 %}
+    <a class="w3-bar-item w3-button w3-red w3-right" href="{% url 'store:entry_del' pk %}"><i class="fas fa-trash-alt fa-lg"></i></a>
+  {% endif %}
+{% endblock %}
+
+{% block win_content %}
+<div class="w3-container w3-padding">
+
+  <form method="post" class="w3-container w3-card-4 w3-light-grey" style="width:30em">{% csrf_token %}
+
+    {% if form.errors %} <p class="errornote"> {% if form.errors.items|length == 1 %}Нужно исправить ошибку.{% else %}Нужно исправить ошибки{% endif %} </p> {% endif %}
+    {% if form.non_field_errors %} {% for error in form.non_field_errors %} <p class="errornote"> {{ error }} </p> {% endfor %} {% endif %}
+
+    <div class="w3-row w3-margin rok-field">
+      {{ form.title.errors }} {{ form.title.label_tag }} {{ form.title }} {% if form.title.help_text %}<div class="help">{{ form.title.help_text|safe }}</div>{% endif %}
+    </div>
+    <div class="w3-row w3-margin rok-field">
+      {{ form.username.errors }} {{ form.username.label_tag }} {{ form.username }} {% if form.username.help_text %}<div class="help">{{ form.username.help_text|safe }}</div>{% endif %}
+    </div>
+    <div class="w3-row w3-margin rok-field">
+      {{ form.value.errors }} {{ form.value.label_tag }} {{ form.value }} {% if form.value.help_text %}<div class="help">{{ form.value.help_text|safe }}</div>{% endif %}
+    </div>
+    <div class="w3-row w3-margin rok-field">
+      {{ form.url.errors }} {{ form.url.label_tag }} {{ form.url }} {% if form.url.help_text %}<div class="help">{{ form.url.help_text|safe }}</div>{% endif %}
+    </div>
+    <div class="w3-row w3-margin rok-field">
+      {{ form.group.errors }} {{ form.group.label_tag }} {{ form.group }} {% if form.group.help_text %}<div class="help">{{ form.group.help_text|safe }}</div>{% endif %}
+    </div>
+    <div class="w3-row w3-margin rok-field">
+      {{ form.notes.errors }} {{ form.notes.label_tag }} {{ form.notes }} {% if form.notes.help_text %}<div class="help">{{ form.notes.help_text|safe }}</div>{% endif %}
+    </div>
+    <div class="w3-row w3-margin rok-field">
+      {{ form.uuid.errors }} {{ form.uuid.label_tag }} {{ form.uuid }} {% if form.uuid.help_text %}<div class="help">{{ form.uuid.help_text|safe }}</div>{% endif %}
+    </div>
+
+    <div class="w3-row w3-padding">
+      {% if pk == 0 %}
+        <input type="submit" value="{% trans 'add'|capfirst %}" class="default">
+      {% else %}
+        <input type="submit" value="{% trans 'save'|capfirst %}" class="default">
+      {% endif %}
+      <p>
+    </div>
+
+  </form>
+
+</div>
+{% endblock %}

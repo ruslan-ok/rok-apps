@@ -1,4 +1,5 @@
 {% extends "base_sidebar.html" %}
+{% load i18n %}
 
 {% block content %}
     {% if user.is_authenticated %}
@@ -7,9 +8,12 @@
       </div>
     {% endif %}
     {% block contenttitle %}{{ block.super }}{% endblock %}
-    <div class="w3-container">
+    <div class="w3-container" style="min-height:450px">
       {% block win_content %}{% endblock %}
+      <p>
     </div>
-    {% block footer %}{% endblock %}
 {% endblock %}
 
+{% block footer %}
+  <a href="{% url 'feedback' %}">{% trans 'feedback' %}</a>
+{% endblock %}

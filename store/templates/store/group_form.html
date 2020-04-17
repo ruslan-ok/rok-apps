@@ -1,0 +1,42 @@
+{% extends "base_window.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+  <a class="w3-bar-item w3-button" href="{% url 'store:index'      %}">{% trans 'entries'|capfirst %}</a>
+  <a class="w3-bar-item w3-button" href="{% url 'store:group_list' %}">{% trans 'groups'|capfirst %}</a>
+  {% if pk != 0 %}
+    <a class="w3-bar-item w3-button w3-red w3-right" href="{% url 'store:group_del' pk %}"><i class="fa fa-trash fa-lg"></i></a>
+  {% endif %}
+{% endblock %}
+
+{% block win_content %}
+<div class="w3-container w3-padding">
+
+  <form method="post" class="w3-container w3-card-4 w3-light-grey" style="width:500px">{% csrf_token %}
+
+    {% if form.errors %} <p class="errornote"> {% if form.errors.items|length == 1 %}Нужно исправить ошибку.{% else %}Нужно исправить ошибки{% endif %} </p> {% endif %}
+    {% if form.non_field_errors %} {% for error in form.non_field_errors %} <p class="errornote"> {{ error }} </p> {% endfor %} {% endif %}
+
+    <div class="w3-row w3-margin rok-field">
+      {{ form.name.errors }} {{ form.name.label_tag }} {{ form.name }} {% if form.name.help_text %}<div class="help">{{ form.name.help_text|safe }}</div>{% endif %}
+    </div>
+    <div class="w3-row w3-margin rok-field">
+      {{ form.code.errors }} {{ form.code.label_tag }} {{ form.code }} {% if form.code.help_text %}<div class="help">{{ form.code.help_text|safe }}</div>{% endif %}
+    </div>
+    <div class="w3-row w3-margin rok-field">
+      {{ form.uuid.errors }} {{ form.uuid.label_tag }} {{ form.uuid }} {% if form.uuid.help_text %}<div class="help">{{ form.uuid.help_text|safe }}</div>{% endif %}
+    </div>
+
+    <div class="w3-row w3-padding">
+      {% if pk == 0 %}
+        <input type="submit" value="{% trans 'add'|capfirst %}" class="default">
+      {% else %}
+        <input type="submit" value="{% trans 'save'|capfirst %}" class="default">
+      {% endif %}
+      <p>
+    </div>
+
+  </form>
+
+</div>
+{% endblock %}

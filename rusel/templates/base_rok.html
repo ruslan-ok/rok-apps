@@ -5,11 +5,11 @@
   <head>
     <title>{% block title %}{% if user.is_authenticated %} {% endif %}{{ title|default:'*****  title  *****' }}{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="https://www.w3schools.com/w3css/4/w3.css">
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" type="text/css" href="{% static 'rok/css/rok.css' %}">
     {% block extrastyle %}{% endblock %}
+    <link rel="stylesheet" type="text/css" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'rok/css/rok.css' %}">
     <meta name="robots" content="NONE,NOARCHIVE">
+    <script src="https://kit.fontawesome.com/43050fb1f9.js" crossorigin="anonymous"></script>
   </head>
 
   <body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}" data-admin-utc-offset="{% now "Z" %}">
@@ -30,14 +30,14 @@
 <!-- ContentTitle -->
 {% block contenttitle %}
   {% if not hide_title %}
-    {% if title %}<div class="w3-container"><h1>{{ title }}</h1></div>{% endif %}
+          {% if title %}<div class="w3-container"><h3>{{ title }}</h3></div>{% endif %}
   {% else %}
     <div class="w3-container"><h1> </h1></div>
   {% endif %}
 {% endblock %}
 
       {% block content %}{% endblock %}
-      {% block footer %}{% endblock %}
+
     {% endblock %}
 
   </body>

@@ -53,9 +53,8 @@
 }
 
 input[type=color] {
-  height: 2.5em;
+    height: 34px;
   width: 8em;
-  margin-top: 2.5em;
 }
 
 .password-reset-link {
@@ -156,3 +155,36 @@ td ul.errorlist li {
 .errors input, .errors select, .errors textarea {
     border: 1px solid #ba2121;
 }
+
+.help, p.help, form p.help, div.help, form div.help, div.help li {
+    font-size: 11px;
+    color: #999;
+}
+
+div.help ul {
+    margin-bottom: 0;
+}
+
+.help-tooltip {
+    cursor: help;
+}
+
+.pagination {
+    display: inline-block;
+}
+
+.pagination a {
+    color: black;
+    padding: 8px 16px;
+    text-decoration: none;
+}
+
+.pagination a.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.pagination a:hover:not(.active) {
+    background-color: #ddd;
+}
+

@@ -20,10 +20,7 @@ from . import views
 
 urlpatterns = i18n_patterns(
     path('',          views.index,    name='index'),
-    path('news/',     views.news,     name='news'),
-    path('todo/',     views.todo,     name='todo'),
     path('feedback/', views.feedback, name='feedback'),
-    path('sample/',   views.sample,   name='sample'),
     path('trip/',     include('trip.urls')),
     path('fuel/',     include('fuel.urls')),
     path('apart/',    include('apart.urls')),
@@ -31,6 +28,7 @@ urlpatterns = i18n_patterns(
     path('task/',     include('task.urls')),
     path('note/',     include('note.urls')),
     path('pir/',      include('pir.urls')),
+    path('store/',    include('store.urls')),
     path('wage/',     include('wage.urls')),
     path('account/',  include('account.urls')),
     path('admin/',    admin.site.urls, name='admin'),
