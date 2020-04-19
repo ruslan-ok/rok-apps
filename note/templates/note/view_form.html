@@ -20,12 +20,20 @@
       <div class="w3-quarter"><div class="w3-margin rok-field">
           {{ form.code.errors }} {{ form.code.label_tag }} {{ form.code }} {% if form.code.help_text %}<div class="help">{{ form.code.help_text|safe }}</div>{% endif %}
       </div></div>
-      <div class="w3-quarter"><div class="w3-margin rok-field">
+      <div class="w3-half"><div class="w3-margin rok-field">
           {{ form.name.errors }} {{ form.name.label_tag }} {{ form.name }} {% if form.name.help_text %}<div class="help">{{ form.name.help_text|safe }}</div>{% endif %}
+      </div></div>
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+        {% if pk %}
+          {% if form.chrono.value %} {{ form.chrono.label_tag }} {% endif %}
+          <input type="hidden" name="chrono_id" id="chrono_id" value="{{ form.chrono.value }}">
+        {% else %}
+          {{ form.chrono.errors }} {{ form.chrono.label_tag }} {{ form.chrono }} {% if form.chrono.help_text %}<div class="help">{{ form.chrono.help_text|safe }}</div>{% endif %}
+        {% endif %}
       </div></div>
     </div>
 
-    <div class="w3-row w3-padding">
+    <div class="w3-row w3-padding w3-center">
       {% if pk == 0 %}
         <input type="submit" value="Добавить" class="default">
       {% else %}
@@ -36,7 +44,7 @@
 
   </form>
 
-  {% if pk %}
+  {% if pk and not form.chrono.value %}
   <div class="w3-row">
     <div class="w3-half">
       <h4>Выбрано</h4>

@@ -3,8 +3,8 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django import forms
 from django.forms import ModelForm
-from django.contrib.sites.shortcuts import get_current_site
-from fuel.models import Car
+from hier.utils import get_base_context
+from .models import Car
 
 
 class CarsForm(ModelForm):
@@ -18,16 +18,16 @@ class CarsForm(ModelForm):
 #============================================================================
 def edit_context(_request, _form, _pid, _debug_text):
     cars = Car.objects.filter(user = _request.user.id)
-    return { 'cars': cars, 
-             'form': _form, 
-             'pid': _pid,
-             'app_text': 'Приложения', 
-             'fuel_text': 'Заправка', 
-             'title': 'Автомобили', 
-             'page_title': 'Автомобили', 
-             'debug_text': _debug_text,
-             'site_header': get_current_site(_request).name,
-           }
+    context = get_base_context(_request, 0, 0, 'Автомобили', 'fuel')
+    context['cars'] =  cars 
+    context['form'] =  _form 
+    context['pid']  =  _pid
+    context['app_text'] =  'Приложения' 
+    context['fuel_text'] =  'Заправка' 
+    context['page_title'] =  'Автомобили' 
+    context['debug_text'] =  _debug_text
+    return context
+
 #============================================================================
 def do_cars(request, pk):
   if (request.method == 'GET'):

@@ -3,8 +3,8 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from datetime import date, datetime, timedelta
-from django.contrib.sites.shortcuts import get_current_site
-from fuel.models import Fuel, Car, Part, Repl
+from hier.utils import get_base_context
+from .models import Fuel, Car, Part, Repl
 
 
 debug_text = ''
@@ -20,16 +20,16 @@ class ReplForm(forms.ModelForm):
 def edit_context(request, form, _part, _repl):
     part = Part.objects.get(id = _part)
     replaces = Repl.objects.filter(part = _part).order_by('-dt_chg')[:20]
-    return { 'form':       form, 
-             'replaces':   replaces, 
-             'part':       _part, 
-             'pid':        _repl, 
-             'app_text':   'Приложения', 
-             'title': 'Замены расходника ' + part.name, 
-             'page_title': 'Замены расходника ' + part.name, 
-             'part_text':  'Список расходников', 
-             'site_header': get_current_site(request).name,
-           }
+    context = get_base_context(request, 0, 0, 'Замены расходника ' + part.name, 'fuel')
+    context['form'] =       form 
+    context['replaces'] =   replaces 
+    context['part'] =       _part 
+    context['pid'] =        _repl 
+    context['app_text'] =   'Приложения' 
+    context['page_title'] = 'Замены расходника ' + part.name 
+    context['part_text'] =  'Список расходников' 
+    return context
+
 #============================================================================
 def do_repl(request, pt, pk):
     if (pt == 0):

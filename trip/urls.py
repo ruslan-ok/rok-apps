@@ -3,7 +3,7 @@ from . import views
 
 app_name = 'trip'
 urlpatterns = [
-    path('',                   views.TripsListView.as_view(),  name='trip_list'),
+    path('',                   views.TripsListView.as_view(), name='index'),
     path('<int:pk>/',          views.trip_edit,  name='trip_edit'),
     path('del/<int:pk>/',      views.trip_del,   name='trip_del'),
     path('add/',               views.trip_add,   name='trip_add'),

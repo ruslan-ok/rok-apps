@@ -4,7 +4,8 @@ from django.urls import reverse
 from django import forms
 from datetime import date, datetime, timedelta
 from django.forms import ModelForm
-from django.contrib.sites.shortcuts import get_current_site
+
+from hier.utils import get_base_context
 from rusel.const import a_months, t_months
 from apart.models import Communal, get_per_tarif
 
@@ -128,43 +129,42 @@ def edit_context(_request, _form, _debug_text, _year, _month, _new):
     else:
       zf = isFirst(_request.user.id, (_year * 100 + _month))
       zl =  isLast(_request.user.id, (_year * 100 + _month))
-    return { 'form':       _form, 
-             'site_header': get_current_site(_request).name,
-             'app_text':   'Приложения', 
-             'tarif_text': 'Тарифы', 
-             'title':      'Коммунальные платежи', 
-             'page_title': 'Коммунальные платежи', 
-             'debug_text': 'first = ' + str(zf) + ', last = ' + str(zl), 
-             'is_first':   zf, 
-             'is_last':    zl,
-             'is_new':     _new, 
-             's_period':   a_months[_month-1] + ' ' + str(_year),
-             'period_num':   _year*100+_month, 
-             'state_str': _form.instance.state_str(),
-             'el_t1':  el_tar['t1'],
-             'el_b1':  el_tar['b1'],
-             'el_t2':  el_tar['t2'],
-             'el_b2':  el_tar['b2'],
-             'el_t3':  el_tar['t3'],
-             
-             'gs_t1':  gs_tar['t1'],
-             'gs_b1':  gs_tar['b1'],
-             'gs_t2':  gs_tar['t2'],
-             'gs_b2':  gs_tar['b2'],
-             'gs_t3':  gs_tar['t3'],
-             
-             'wt_t1':  wt_tar['t1'],
-             'wt_b1':  wt_tar['b1'],
-             'wt_t2':  wt_tar['t2'],
-             'wt_b2':  wt_tar['b2'],
-             'wt_t3':  wt_tar['t3'],
-             
-             'wk_t1':  ws_tar['t1'] + wo_tar['t1'],
-             'wk_b1':  ws_tar['b1'],
-             'wk_t2':  ws_tar['t2'] + wo_tar['t2'],
-             'wk_b2':  ws_tar['b2'],
-             'wk_t3':  ws_tar['t3'] + wo_tar['t3'],
-           }
+    context = get_base_context(_request, 0, 0, 'Коммунальные платежи', 'apart')
+    context['form'] =        _form 
+    context['app_text'] =    'Приложения' 
+    context['tarif_text'] =  'Тарифы' 
+    context['page_title'] =  'Коммунальные платежи' 
+    context['debug_text'] =  'first = ' + str(zf) + ', last = ' + str(zl) 
+    context['is_first'] =    zf 
+    context['is_last'] =     zl
+    context['is_new'] =      _new 
+    context['s_period'] =    a_months[_month-1] + ' ' + str(_year)
+    context['period_num'] =    _year*100+_month 
+    context['state_str'] =  _form.instance.state_str()
+    context['el_t1'] =   el_tar['t1']
+    context['el_b1'] =   el_tar['b1']
+    context['el_t2'] =   el_tar['t2']
+    context['el_b2'] =   el_tar['b2']
+    context['el_t3'] =   el_tar['t3']
+
+    context['gs_t1'] =   gs_tar['t1']
+    context['gs_b1'] =   gs_tar['b1']
+    context['gs_t2'] =   gs_tar['t2']
+    context['gs_b2'] =   gs_tar['b2']
+    context['gs_t3'] =   gs_tar['t3']
+    
+    context['wt_t1'] =   wt_tar['t1']
+    context['wt_b1'] =   wt_tar['b1']
+    context['wt_t2'] =   wt_tar['t2']
+    context['wt_b2'] =   wt_tar['b2']
+    context['wt_t3'] =   wt_tar['t3']
+    
+    context['wk_t1'] =   ws_tar['t1'] + wo_tar['t1']
+    context['wk_b1'] =   ws_tar['b1']
+    context['wk_t2'] =   ws_tar['t2'] + wo_tar['t2']
+    context['wk_b2'] =   ws_tar['b2']
+    context['wk_t3'] =   ws_tar['t3'] + wo_tar['t3']
+    return context
 
 #============================================================================
 # Пустая форма для новой записи
@@ -292,15 +292,13 @@ def apart_get_one(request, per, _debug_text):
 # Представление для отображения списка оплат коммунальных
 def v_apart_view(request):
     aparts = Communal.objects.filter(user = request.user.id).order_by('-period')[:20]
-    context = { 'aparts':       aparts, 
-                'site_header': get_current_site(request).name,
-                'aparts_count': Communal.objects.filter(user = request.user.id).count,
-                'app_text':   'Приложения', 
-                'tarif_text': 'Тарифы', 
-                'title':      'Коммунальные платежи', 
-                'page_title': 'Коммунальные платежи', 
-                'debug_text': ''
-              }
+    context = get_base_context(request, 0, 0, 'Коммунальные платежи', 'apart')
+    context['aparts'] =        aparts 
+    context['aparts_count'] =  Communal.objects.filter(user = request.user.id).count
+    context['app_text'] =    'Приложения' 
+    context['tarif_text'] =  'Тарифы' 
+    context['page_title'] =  'Коммунальные платежи' 
+    context['debug_text'] =  ''
     return render(request, 'apart/apart.html', context)
 
 #============================================================================
@@ -317,7 +315,7 @@ def v_apart_edit(request, per):
       action = request.POST['action']
       if (action == 'Отменить'):
         # Отмена, возвратиться к списку
-        return HttpResponseRedirect(reverse('apart:apart_view', args=()))
+        return HttpResponseRedirect(reverse('apart:index', args=()))
       else:
         form = ApartForm(request.POST)
         if not form.is_valid():
@@ -339,7 +337,7 @@ def v_apart_edit(request, per):
 
           if (debug_text == ''):
             # Успешно сохранено/удалено
-            return HttpResponseRedirect(reverse('apart:apart_view', args=()))
+            return HttpResponseRedirect(reverse('apart:index', args=()))
           else:
             # Отобразить ошибку
             debug_text = '2'

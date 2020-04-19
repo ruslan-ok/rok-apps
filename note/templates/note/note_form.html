@@ -5,11 +5,14 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+  {{ block.super }}
 {% endblock %}
 
 {% block breadcrumbs %}
   <a class="w3-bar-item w3-button" href="{% url 'note:index' %}">Доска</a>
+  {% if pk %}
   <a class="w3-bar-item w3-button w3-right {{ del_color }}" href="{% url 'note:note_del' pk %}">{{ del_or_ready }}</a>
+  {% endif %}
 {% endblock %}
 
 {% block win_content %}
@@ -21,7 +24,7 @@
     {% if form.non_field_errors %} {% for error in form.non_field_errors %} <p class="errornote"> {{ error }} </p> {% endfor %} {% endif %}
 
     <div class="w3-row">
-      <div class="w3-quarter"><div class="w3-margin rok-field">
+      <div class="w3-half"><div class="w3-margin rok-field">
           {{ form.name.errors }} {{ form.name.label_tag }} {{ form.name }} {% if form.name.help_text %}<div class="help">{{ form.name.help_text|safe }}</div>{% endif %}
       </div></div>
       <div class="w3-quarter"><div class="w3-margin rok-field">
@@ -30,9 +33,10 @@
       <div class="w3-quarter"><div class="w3-margin rok-field">
           {{ form.code.errors }} {{ form.code.label_tag }} {{ form.code }} {% if form.code.help_text %}<div class="help">{{ form.code.help_text|safe }}</div>{% endif %}
       </div></div>
-      <div class="w3-quarter"><div class="w3-margin rok-field">
-        <a href="#descr" data-toggle="collapse">Описание</a>
-      </div></div>
+    </div>
+
+    <div class="w3-row">
+      <a href="#descr" data-toggle="collapse">Описание</a>
     </div>
 
     <div class="collapse {% if form.descr.value %}show{% endif %}" id="descr">
@@ -41,7 +45,7 @@
       </div></div>
     </div>
 
-    <div class="w3-row w3-padding">
+    <div class="w3-row w3-padding w3-center">
       {% if pk == 0 %}
         <input type="submit" value="Добавить" class="default">
       {% else %}
@@ -51,13 +55,6 @@
     </div>
 
   </form>
-
-  <a href="#demo" data-toggle="collapse">Collapsible</a>
-
-<div id="demo" class="collapse">
-Lorem ipsum dolor text....
-</div>
-
 
 </div>
 {% endblock %}

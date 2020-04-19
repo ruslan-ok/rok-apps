@@ -18,23 +18,30 @@
 
       {% block sidebar %}{% endblock %}
 
-<!-- Navbar -->
-{% block navbar %}
-  <div class="w3-bar w3-theme-d1 w3-left-align rok-header-a">
-    {% block hamb %}{% endblock %}
-    <a href="{% url 'index' %}" class="w3-bar-item brand"><i class="fa fa-home"></i> {{ site_header|default:'*****  site_header  *****' }}</a>
-    {% block navadd %}{% endblock %}
-  </div>
-{% endblock %}
+      <!-- Navbar -->
+      {% block navbar %}
+        <div class="w3-bar w3-theme-d1 w3-left-align rok-header-a">
+          {% block hamb %}{% endblock %}
+          <a href="{% url 'index' %}" class="w3-bar-item brand"><i class="fa fa-home"></i></a>
+          <a class="w3-bar-item w3-button" href="{% url 'file_list' 0 %}"><i class="fa fa-folder-open"></i></a>
+          {% for node in chain reversed %}
+            <a class="w3-bar-item w3-button" href="{% url 'file_list' node.id %}">{{ node.name }}</a>
+          {% endfor %}
+          {% if node_id %}
+            <a class="w3-bar-item w3-button" href="{% url 'file_form' node_id %}"><i class="fa fa-edit fa-lg"></i></a>
+          {% endif %}
+          {% block navadd %}{% endblock %}
+        </div>
+      {% endblock %}
       
-<!-- ContentTitle -->
-{% block contenttitle %}
-  {% if not hide_title %}
-          {% if title %}<div class="w3-container"><h3>{{ title }}</h3></div>{% endif %}
-  {% else %}
-    <div class="w3-container"><h1> </h1></div>
-  {% endif %}
-{% endblock %}
+      <!-- ContentTitle -->
+      {% block contenttitle %}
+        {% if not hide_title %}
+          {% if title %}<div class="w3-container"><h3>{% if title_icon != "" %} <i class="fa fa-{{ title_icon }}"></i> {% endif %} {{ title }}</h3></div>{% endif %}
+        {% else %}
+          <div class="w3-container"><h1> </h1></div>
+        {% endif %}
+      {% endblock %}
 
       {% block content %}{% endblock %}
 

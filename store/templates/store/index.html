@@ -35,12 +35,16 @@
     <tbody>
       {% for entry in page_obj %}
       <tr>
-        <td><a href="{% url 'store:entry_form' entry.id %}">{{ entry.title }}</a></td>
-        <td>                                                {{ entry.username }}</td>
-        <td>                                                {{ entry.value }}</td>
-        <td><a href="{% url 'store:entry_form' entry.id %}">{{ entry.url }}</a></td>
-        <td><a href="{% url 'store:entry_form' entry.id %}">{{ entry.group.name }}</a></td>
-        <td class="w3-center"><a href="{% url 'store:entry_form' entry.id %}">{{ entry.have_notes }}</a></td>
+        <td><a href="{% url 'store:entry_form' entry.id %}?group={% if filter.group.value %}{{ filter.group.value }}{% endif %}&q={{ request.GET.q }}&page={{ page_obj.number }}">
+            {{ entry.title }}</a></td>
+        <td>{{ entry.username }}</td>
+        <td>{{ entry.value }}</td>
+        <td><a href="{% url 'store:entry_form' entry.id %}?group={% if filter.group.value %}{{ filter.group.value }}{% endif %}&q={{ request.GET.q }}&page={{ page_obj.number }}">
+            {{ entry.url }}</a></td>
+        <td><a href="{% url 'store:entry_form' entry.id %}?group={% if filter.group.value %}{{ filter.group.value }}{% endif %}&q={{ request.GET.q }}&page={{ page_obj.number }}">
+            {{ entry.group.name }}</a></td>
+        <td class="w3-center"><a href="{% url 'store:entry_form' entry.id %}?group={% if filter.group.value %}{{ filter.group.value }}{% endif %}&q={{ request.GET.q }}&page={{ page_obj.number }}">
+            {{ entry.have_notes }}</a></td>
       </tr>
       {% endfor %}
     </tbody>

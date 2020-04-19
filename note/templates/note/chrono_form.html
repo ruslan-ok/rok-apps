@@ -2,9 +2,8 @@
 
 {% block breadcrumbs %}
   <a class="w3-bar-item w3-button" href="{% url 'note:index' %}">Доска</a>
-  <a class="w3-bar-item w3-button" href="{% url 'note:list_list' %}">Списки</a>
-  {% if pk != 0 %}
-    <a class="w3-bar-item w3-button w3-red w3-right" href="{% url 'note:list_del' pk %}">Удалить</a>
+  {% if pk %}
+  <a class="w3-bar-item w3-button w3-right w3-red" href="{% url 'note:chrono_del' pk %}">Удалить</a>
   {% endif %}
 {% endblock %}
 
@@ -17,18 +16,19 @@
     {% if form.non_field_errors %} {% for error in form.non_field_errors %} <p class="errornote"> {{ error }} </p> {% endfor %} {% endif %}
 
     <div class="w3-row">
-      <div class="w3-quarter"><div class="w3-margin rok-field">
-          {{ form.code.errors }} {{ form.code.label_tag }} {{ form.code }} {% if form.code.help_text %}<div class="help">{{ form.code.help_text|safe }}</div>{% endif %}
-      </div></div>
-      <div class="w3-half"><div class="w3-margin rok-field">
+      <div class="w3-threequarter"><div class="w3-margin rok-field">
           {{ form.name.errors }} {{ form.name.label_tag }} {{ form.name }} {% if form.name.help_text %}<div class="help">{{ form.name.help_text|safe }}</div>{% endif %}
       </div></div>
-
       <div class="w3-quarter"><div class="w3-margin rok-field">
-        <label for="favcolor">Цвет:</label>
-        <div class="w3-rest">
-          <input type="color" id="list_color" name="color" value="{{ form.color.value }}">
-        </div>
+          {{ form.publ.errors }} {{ form.publ.label_tag }} {{ form.publ }} {% if form.publ.help_text %}<div class="help">{{ form.publ.help_text|safe }}</div>{% endif %}
+      </div></div>
+    </div>
+
+    <input type="hidden" name="list" id="id_list" value="{{ form.list.value }}">
+
+    <div class="collapse {% if form.descr.value %}show{% endif %}" id="descr">
+      <div class="w3-rest"><div class="w3-margin rok-field">
+          {{ form.descr.errors }} {{ form.descr.label_tag }} {{ form.descr }} {% if form.descr.help_text %}<div class="help">{{ form.descr.help_text|safe }}</div>{% endif %}
       </div></div>
     </div>
 

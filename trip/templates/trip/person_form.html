@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block breadcrumbs %}
-  <a class="w3-bar-item w3-button" href="{% url 'trip:trip_list' %}">{% trans 'trips'|capfirst %}</a>
+  <a class="w3-bar-item w3-button" href="{% url 'trip:index' %}">{% trans 'trips'|capfirst %}</a>
   <a class="w3-bar-item w3-button" href="{% url 'trip:pers_list' %}">{% trans 'persons'|capfirst %}</a>
   {% if pers_id != 0 %}
     <a class="w3-bar-item w3-button w3-red w3-right" href="{% url 'trip:pers_del' pers_id %}">{% trans 'delete'|capfirst %}</a>
@@ -28,7 +28,7 @@
       {% endfor %}
     {% endif %}
 
-    <div class="form-row">
+    <div class="w3-row">
       <div class="w3-quarter">
         {{ form.name.errors }}
         {{ form.name.label_tag }} {{ form.name }}
@@ -36,9 +36,7 @@
         <div class="help">{{ form.name.help_text|safe }}</div>
         {% endif %}
       </div>
-    </div>
 
-    <div class="form-row">
       <div class="w3-quarter">
         {{ form.dative.errors }}
         {{ form.dative.label_tag }} {{ form.dative }}
@@ -46,9 +44,7 @@
         <div class="help">{{ form.dative.help_text|safe }}</div>
         {% endif %}
       </div>
-    </div>
 
-    <div class="form-row">
       <div class="w3-quarter">
         {{ form.me.errors }}
         {{ form.me.label_tag }} {{ form.me }}
@@ -56,9 +52,7 @@
         <div class="help">{{ form.me.help_text|safe }}</div>
         {% endif %}
       </div>
-    </div>
 
-    <div class="submit-row">
       {% if pers_id == 0 %}
         <input type="submit" value="{% trans 'add'|capfirst %}" class="default">
       {% else %}
@@ -66,7 +60,7 @@
       {% endif %}
     </div>
 
-</form>
+  </form>
 
 {% endblock %}
 

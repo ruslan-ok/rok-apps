@@ -1,6 +1,18 @@
 {% extends "base_rok.html" %}
 {% load i18n static %}
 
+{% block extrastyle %}
+<style>
+.level-0 { margin-left: 0px; }
+.level-1 { margin-left: 10px; }
+.level-2 { margin-left: 20px; }
+.level-3 { margin-left: 30px; }
+.level-4 { margin-left: 40px; }
+.level-5 { margin-left: 50px; }
+.level-6 { margin-left: 60px; }
+</style>
+{% endblock %}
+
 {% block navadd %}
   {% if user.is_authenticated %}
     <a href="{% url 'account:service' %}" class="w3-bar-item w3-button w3-hide-small w3-hide-medium w3-right">{% firstof user.get_short_name user.get_username %}</a>
@@ -14,24 +26,31 @@
   <!-- Sidebar -->
   {% block sidebar %}
     {% if user.is_authenticated %}
-      <div class="w3-sidebar w3-bar-block w3-card w3-animate-left w3-theme-l4" style="display:none" id="mySidebar">
-        <h4 class="w3-bar-item" onclick="w3_close()"><b>{% trans 'applications'|capfirst %}</b></h4>
-        {% if perms.fuel.view_car %}        <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'fuel:fuel_view' %}">{% trans 'fueling'|capfirst %}</a>     {% endif %}
-        {% if perms.trip.view_person %}     <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'trip:trip_list' %}">{% trans 'trips'|capfirst %}</a>       {% endif %}
-        {% if perms.apart.view_communal %}  <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'apart:apart_view' %}">{% trans 'apartment'|capfirst %}</a> {% endif %}
-        {% if perms.proj.view_proj %}       <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'proj:proj_view' %}">{% trans 'projects'|capfirst %}</a>    {% endif %}
-        {% if perms.task.view_task %}       <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'task:index' %}">{% trans 'tasks'|capfirst %}</a>           {% endif %}
-        {% if perms.note.view_note %}       <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'note:index' %}">{% trans 'notes'|capfirst %}</a>           {% endif %}
-        {% if perms.store.view_entry %}     <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'store:index' %}">{% trans 'entries'|capfirst %}</a>        {% endif %}
-        {% if perms.wage.view_person %}     <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'wage:index' %}">{% trans 'work'|capfirst %}</a>            {% endif %}
-        {% if perms.account.view_userext %} <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'admin:index' %}">{% trans 'administration'|capfirst %}</a> {% endif %}
-        {% if user.is_authenticated %}      <a href="{% url 'account:profile' %}" class="w3-bar-item w3-button w3-hide-large">{% trans 'profile'|capfirst %}</a>    {% endif %}
-        {% if user.is_authenticated %}      <a href="{% url 'account:logout' %}" class="w3-bar-item w3-button w3-hide-large">{% trans 'logout'|capfirst %}</a>      {% endif %}
+      <div class="w3-sidebar w3-bar-block w3-card w3-collapse w3-theme-l4" style="width: 250px; height: auto; min-height: 590px;" id="mySidebar">
+            <div class="w3-bar-item w3-button w3-hover-dark"> <a href="{% url 'index' %}"><i class="fa fa-home"></i> {% trans 'main'|capfirst %}</a> </div>
+            {% for file in tree %}
+              <div class="w3-bar-item w3-button w3-hover-dark level-{{ file.level }}" style="display: flex; flex-direction: row;">
+                  {% if file.is_node %}
+                    <a href="{% url 'toggle' file.id %}">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" {% if file.is_open %} style="transform: rotate(90deg);" {% endif %}>
+                        <path fill-rule="evenodd" d="M9 8l4 4-4 4z"></path> 
+                      </svg>
+                    </a>
+                  {% else %}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" ></svg>
+                  {% endif %}
+                  <div>
+                    <a href="{% url 'file_list' file.id %}">{% if file.icon != "" %} <i class="fa fa-{{ file.icon }}"></i> {% endif %} {{ file.name }}</a>
+                  </div>
+              </div>
+            {% endfor %}
+            <div class="w3-bar-item w3-button w3-hover-dark"> <a href="{% url 'account:profile' %}"><i class="fa fa-user"></i> {% trans 'profile'|capfirst %}</a> </div>
+            <div class="w3-bar-item w3-button w3-hover-dark"> <a href="{% url 'account:logout'  %}"><i class="fa fa-sign-out-alt"></i> {% trans 'logout'|capfirst  %}</a> </div>
       </div>
     {% endif %}
   {% endblock %}
 
-  <div id="main">
+  <div id="main" class="w3-main" {% if user.is_authenticated %} style="margin-left:250px" {% endif %}>
     {% block navbar %}{{ block.super }}{% endblock %}
     {% block content %}{% endblock %}
     <div class="w3-bar w3-theme-l2 w3-center" id="footer">
@@ -42,20 +61,17 @@
 
 {% block hamb %}
   {% if user.is_authenticated %}
-    <button id="hamburger" class="w3-bar-item w3-button" onclick="w3_open()">&#9776;</button>
+    <button id="hamburger" class="w3-bar-item w3-button w3-hide-large" onclick="w3_open()">&#9776;</button>
   {% endif %}
 {% endblock %}
 
 {% block scripts %}
     <script>
       function w3_open() {
-        document.getElementById("main").style.marginLeft = "250px";
-        document.getElementById("mySidebar").style.width = "250px";
         document.getElementById("mySidebar").style.display = "block";
         document.getElementById("hamburger").style.display = 'none';
       }
       function w3_close() {
-        document.getElementById("main").style.marginLeft = "0%";
         document.getElementById("mySidebar").style.display = "none";
         document.getElementById("hamburger").style.display = "inline-block";
       }

@@ -13,7 +13,7 @@ class ListForm(forms.ModelForm):
 class NoteForm(forms.ModelForm):
     class Meta:
         model = Note
-        fields = ['name', 'code', 'list', 'descr']
+        fields = ['name', 'code', 'list', 'descr', 'publ']
         widgets = {
             'descr': forms.Textarea(attrs={'rows': 20}),
         }
@@ -27,6 +27,6 @@ class NoteForm(forms.ModelForm):
 class ViewForm(forms.ModelForm):
     class Meta:
         model = View
-        fields = ['name', 'code']
+        fields = ['name', 'code', 'chrono']
 
 

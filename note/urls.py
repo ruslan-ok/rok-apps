@@ -22,4 +22,8 @@ urlpatterns = [
 
     path('view/<int:vw>/list/<int:lst>/add/', views.view_list_add, name='view_list_add'),
     path('view/<int:vw>/list/<int:lst>/del/', views.view_list_del, name='view_list_del'),
+
+    path('chrono/create/',          views.chrono_add,  name='chrono_add'),
+    path('chrono/<int:pk>/',        views.chrono_form, name='chrono_form'),
+    path('chrono/<int:pk>/delete/', views.chrono_del,  name='chrono_del'),
 ]

@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 #----------------------------------
@@ -27,6 +28,7 @@ class Note(models.Model):
     code  = models.CharField(_('code'), max_length = 200, blank = True)
     descr = models.TextField(_('description'), blank = True)
     list  = models.ForeignKey(List, on_delete=models.CASCADE, blank = True, null = True, verbose_name=_('list'))
+    publ  = models.DateTimeField(_('publication date'), blank=True, default = timezone.now)
 
     class Meta:
         verbose_name = _('note')
@@ -41,6 +43,7 @@ class View(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
     name = models.CharField(_('name'), max_length = 200, blank = False)
     code = models.CharField(_('code'), max_length = 200, blank = True, default = '')
+    chrono = models.BooleanField(_('chronological list of entries'), default = False)
 
     class Meta:
         verbose_name = _('notes view')
@@ -66,7 +69,7 @@ class Filter(models.Model):
 
 #----------------------------------
 class Param(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'), related_name=_('notes_user'))
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'), related_name='notes_user')
     view = models.ForeignKey(View, on_delete=models.CASCADE, null = True, verbose_name=_('view'))
 
     class Meta:

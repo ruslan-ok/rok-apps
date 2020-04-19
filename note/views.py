@@ -1,11 +1,12 @@
+from datetime import datetime
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.sites.shortcuts import get_current_site
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.shortcuts import get_object_or_404
 
+from hier.utils import get_base_context
 from .forms import ListForm, NoteForm, ViewForm
 from .models import List, Note, View, Filter, Param
 
@@ -26,24 +27,32 @@ def index(request):
     sets = []
     title = 'Доска'
     pk = 0
+    is_chrono = False
     if param.view:
+        is_chrono = param.view.chrono
         title = param.view.name
         pk = param.view.id
+        check_chrono(param.view)
         for filter in Filter.objects.filter(view = param.view, entity = 1).order_by('npp'):
             if List.objects.filter(user = request.user.id, id = filter.value).exists():
                 list = List.objects.filter(user = request.user.id, id = filter.value).get()
-                sets.append([list, Note.objects.filter(user = request.user.id, list = list.id).order_by('code', 'name'),])
+                if is_chrono:
+                    sets.append([list, Note.objects.filter(user = request.user.id, list = list.id).order_by('-publ'),])
+                else:
+                    sets.append([list, Note.objects.filter(user = request.user.id, list = list.id).order_by('code', 'name'),])
     else:
         lists = List.objects.filter(user = request.user.id).order_by('code', 'name')
         for list in lists:
             sets.append([list, Note.objects.filter(user = request.user.id, list = list.id).order_by('code', 'name'),])
     
-    context = get_base_context(request)
-    context['title'] = title
-    context['pk'] = pk
+    context = get_base_context(request, 0, pk, title, 'note')
     context['views'] = View.objects.filter(user = request.user.id).order_by('code', 'name')
     context['sets'] = sets
-    template = loader.get_template('note/index.html')
+    if is_chrono:
+        template_file = 'note/news.html'
+    else:
+        template_file = 'note/index.html'
+    template = loader.get_template(template_file)
     return HttpResponse(template.render(context, request))
 
 
@@ -183,6 +192,49 @@ def view_del(request, vw):
     return HttpResponseRedirect(reverse('note:view_list'))
 
 
+
+#----------------------------------
+# Chrono
+#----------------------------------
+def chrono_add(request):
+    lst = int(request.GET.get('list'))
+    list = get_object_or_404(List.objects.filter(id = lst, user = request.user.id))
+    if (request.method == 'POST'):
+        form = NoteForm(request.user, request.POST)
+    else:
+        new_code = get_next_code(request.user.id, list)
+        form = NoteForm(request.user, initial = {'name': '', 'code': new_code, 'list': list, 'chrono': datetime.now()})
+    return show_page_form(request, 0, 'Новость', 'chrono', form)
+
+#----------------------------------
+def chrono_form(request, pk):
+    data = get_object_or_404(Note.objects.filter(id = pk, user = request.user.id))
+    if (request.method == 'POST'):
+        form = NoteForm(request.user, request.POST, instance = data)
+    else:
+        form = NoteForm(request.user, instance = data)
+
+    return show_page_form(request, pk, 'Новость', 'chrono', form)
+
+#----------------------------------
+@login_required(login_url='account:login')
+@permission_required('note.view_note')
+#----------------------------------
+def chrono_del(request, pk):
+    data = get_object_or_404(Note.objects.filter(id = pk, user = request.user.id))
+    ready = List.objects.filter(user = request.user.id, code = 'Общий', name = 'Готово')
+    if ready.exists():
+        data.list = ready[0]
+        data.save()
+    else:
+        Note.objects.get(id = pk).delete()
+    
+    return HttpResponseRedirect(reverse('note:index'))
+
+
+
+
+
 #----------------------------------
 @login_required(login_url='account:login')
 @permission_required('note.view_note')
@@ -214,10 +266,8 @@ def view_list_del(request, vw, lst):
 @permission_required('note.view_note')
 #----------------------------------
 def show_page_list(request, title, name, data):
-    context = get_base_context(request)
-    context['title'] = title
+    context = get_base_context(request, 0, 0, title, 'note')
     context[name + 's'] = data
-    context['pk'] = 0
     template = loader.get_template('note/' + name + '_list.html')
     return HttpResponse(template.render(context, request))
 
@@ -231,10 +281,11 @@ def show_page_form(request, pk, title, name, form, extra_context = {}):
             data = form.save(commit = False)
             data.user = request.user
             form.save()
-            return HttpResponseRedirect(reverse('note:index'))
-    context = get_base_context(request)
-    context['title'] = title
-    context['pk'] = pk
+            if (name == 'note') or (name == 'chrono'):
+                return HttpResponseRedirect(reverse('note:index'))
+            else:
+                return HttpResponseRedirect(reverse('note:' + name + '_list'))
+    context = get_base_context(request, 0, pk, title, 'note')
     context['form'] = form
     context.update(extra_context)
     template = loader.get_template('note/' + name + '_form.html')
@@ -251,9 +302,7 @@ def show_page_view(request, pk, title, name, form):
             data.user = request.user
             form.save()
             return HttpResponseRedirect(reverse('note:' + name + '_list'))
-    context = get_base_context(request)
-    context['title'] = title
-    context['pk'] = pk
+    context = get_base_context(request, 0, pk, title, 'note')
     context['form'] = form
     sel = []
     avl = []
@@ -268,12 +317,6 @@ def show_page_view(request, pk, title, name, form):
     return HttpResponse(template.render(context, request))
 
 
-
-#----------------------------------
-# Контекст для любой страницы
-#----------------------------------
-def get_base_context(request):
-    return { 'site_header': get_current_site(request).name, }
 
 #----------------------------------
 # Инкрементация кода для новой заметки
@@ -314,5 +357,19 @@ def get_ready_list(user):
             if (list_in_view.name == 'Готово'):
                 return list_in_view
     return None
+
+
+#----------------------------------
+# У представления с атрибутом chrono должен быть один специальный список
+#----------------------------------
+def check_chrono(view):
+    if view.chrono:
+        if not Filter.objects.filter(view = view, entity = 1).exists():
+            list = List.objects.create(user = view.user, code = view.name, name = 'Add item')
+            Filter.objects.create(view = view, entity = 1, value = list.id)
+
+
+
+
 
 

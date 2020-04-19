@@ -19,8 +19,8 @@ class Person(models.Model):
 
 class Saldo(models.Model):
     user   = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
-    p1   = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="p1", verbose_name=_('person 1'))
-    p2   = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="p2", verbose_name=_('person 2'))
+    p1   = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='p1', verbose_name=_('person 1'))
+    p2   = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='p2', verbose_name=_('person 2'))
     me   = models.BooleanField(_('me'), blank=False, default=False)
     summ = models.DecimalField(_('summa'), blank=False, max_digits=15, decimal_places=2)
 
@@ -38,8 +38,8 @@ class Trip(models.Model):
     days      = models.IntegerField(_('days'), blank=False)
     oper      = models.IntegerField(_('operation'), blank=False)
     price     = models.DecimalField(_('price'), blank=False, max_digits=15, decimal_places=2)
-    driver    = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="driver", verbose_name=_('driver'))
-    passenger = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="passenger", verbose_name=_('passenger'))
+    driver    = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='driver', verbose_name=_('driver'))
+    passenger = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='passenger', verbose_name=_('passenger'))
     text      = models.CharField(_('information'), max_length=1000, blank=True)
     modif     = models.DateTimeField(_('last modification'), blank=True, default = timezone.now)
 

@@ -1,6 +1,5 @@
 import xml.etree.ElementTree as ET
 from datetime import datetime
-#from django.db import models
 from .models import Period, Depart, DepHist, Post, Employee, FioHist, Child, Appoint, Education, EmplPer, PayTitle, Payment
 
 id_depart = {}
@@ -301,5 +300,3 @@ def import_all(u, cnt, err):
     root = ET.parse('C:\\Backup\\work\\Wage.xml').getroot()
     for n in root:
         import_top(u, n, cnt, err)
-    #for t in PayTitle.objects.all():
-    #    err.append('id: ' + str(t.id) + ', name: ' + t.name)

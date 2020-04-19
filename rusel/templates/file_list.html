@@ -1,0 +1,38 @@
+{% extends "base_window.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+  <a class="w3-bar-item w3-button" href="{% url 'file_list' 0 %}"><i class="fa fa-folder-open"></i></a>
+  {% for node in chain reversed %}
+    <a class="w3-bar-item w3-button" href="{% url 'file_list' node.id %}">{{ node.name }}</a>
+  {% endfor %}
+  <a class="w3-bar-item w3-button" href="{% url 'file_form' node_id %}"><i class="fa fa-edit fa-lg"></i></a>
+  <a class="w3-bar-item w3-button" href="{% url 'file_add'  node_id %}"><i class="fa fa-plus fa-lg"></i></a>
+  <a class="w3-bar-item w3-button" href="{% url 'file_imp'  node_id %}"><i class="fa fa-file-import fa-lg"></i></a>
+{% endblock %}
+
+{% block win_content %}
+  <div class="w3-row">
+    <div class="w3-rest">
+      <table class="w3-table-all w3-hoverable w3-card-4" style="width:1200px">
+        <thead>
+          <tr class="w3-theme-l3">
+            <th>{% trans 'name'|capfirst %}</th>
+            <th>{% trans 'code'|capfirst %}</th>
+            <th>{% trans 'items'|capfirst %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for file in files %}
+          <tr>
+            <td><a href="{% url 'file_list' file.id %}">{{ file.name }}</a></td>
+            <td><a href="{% url 'file_list' file.id %}">{{ file.code }}</a></td>
+            <td><a href="{% url 'file_list' file.id %}">{{ file.qty }}</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <p>
+{% endblock %}

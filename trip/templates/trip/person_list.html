@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block breadcrumbs %}
-  <a class="w3-bar-item w3-button" href="{% url 'trip:trip_list' %}">{% trans 'trips'|capfirst %}</a>
+  <a class="w3-bar-item w3-button" href="{% url 'trip:index' %}">{% trans 'trips'|capfirst %}</a>
   <a class="w3-bar-item w3-button" href="{% url 'trip:pers_add' %}">{% trans 'add'|capfirst %}</a>
 {% endblock %}
 

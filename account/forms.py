@@ -244,9 +244,9 @@ class ProfileForm(forms.ModelForm):
         ),
     )
 
-    email_validated = forms.BooleanField(required=False)
+    email_validated = forms.BooleanField(label=_('email validated').capitalize(), required=False)
 
-    phone = forms.CharField(required=False)
+    phone = forms.CharField(label=_('phone').capitalize(), required=False)
     class Meta:
         model = User
         fields = '__all__'

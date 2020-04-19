@@ -1,7 +1,6 @@
 from django.shortcuts import render
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.sites.shortcuts import get_current_site
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.utils.translation import gettext_lazy as _
@@ -9,6 +8,8 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils.crypto import get_random_string
 from django.core.paginator import Paginator
+
+from hier.utils import get_base_context
 from .models import Group, Entry, History, Params
 from .forms import GroupForm, EntryForm, FilterForm, ParamsForm
 from .imp_xml import delete_all, import_all
@@ -54,8 +55,7 @@ def index(request):
     stat.append(['Entry', len(Entry.objects.all())])
     stat.append(['History', len(History.objects.all())])
 
-    context = get_base_context(request)
-    context['title'] = _('entries').capitalize()
+    context = get_base_context(request, 0, 0, _('entries').capitalize(), 'store')
     context['total'] = len(data)
     context['page_obj'] = page_obj
     context['stat'] = stat
@@ -103,8 +103,7 @@ def xml_import(request):
     stat.append(['Entry', len(Entry.objects.all())])
     stat.append(['History', len(History.objects.all())])
 
-    context = get_base_context(request)
-    context['title'] = _('entries').capitalize()
+    context = get_base_context(request, 0, 0, _('entries').capitalize(), 'store')
     context['stat'] = stat
     context['imp_data'] = imp_data
     context['imp_errors'] = imp_errors
@@ -163,11 +162,17 @@ def entry_add(request):
 #----------------------------------
 def entry_form(request, pk):
     data = get_object_or_404(Entry.objects.filter(id = pk, user = request.user.id))
+    query = request.GET.get('q')
+    group_id = request.GET.get('group')
+    page = request.GET.get('page')
     if (request.method == 'POST'):
         form = EntryForm(request.POST, instance = data)
     else:
         form = EntryForm(instance = data)
-    return show_page_form(request, pk, _('entry').capitalize(), 'entry', form)
+    list_filter = ''
+    if group_id and query and page:
+        list_filter = '?group=' + group_id + '&q=' + query + '&page=' + page
+    return show_page_form(request, pk, _('entry').capitalize(), 'entry', form, list_filter = list_filter)
 
 #----------------------------------
 @login_required(login_url='account:login')
@@ -179,18 +184,11 @@ def entry_del(request, pk):
 
               
 #----------------------------------
-# Контекст для любой страницы
-#----------------------------------
-def get_base_context(request):
-    return { 'site_header': get_current_site(request).name, }
-
-#----------------------------------
 @login_required(login_url='account:login')
 @permission_required('store.view_entry')
 #----------------------------------
 def show_page_list(request, title, name, data, total = 0):
-    context = get_base_context(request)
-    context['title'] = title
+    context = get_base_context(request, 0, 0, title, 'store')
     context['total'] = total
     context[name + 's'] = data
     template = loader.get_template('store/' + name + '_list.html')
@@ -200,19 +198,17 @@ def show_page_list(request, title, name, data, total = 0):
 @login_required(login_url='account:login')
 @permission_required('store.view_entry')
 #----------------------------------
-def show_page_form(request, pk, title, name, form, extra_context = {}):
+def show_page_form(request, pk, title, name, form, extra_context = {}, list_filter = ''):
     if (request.method == 'POST'):
         if form.is_valid():
             data = form.save(commit = False)
             data.user = request.user
             form.save()
             if (name == 'entry') or (name == 'param'):
-                return HttpResponseRedirect(reverse('store:index'))
+                return HttpResponseRedirect(reverse('store:index') + list_filter)
             else:
                 return HttpResponseRedirect(reverse('store:' + name + '_list'))
-    context = get_base_context(request)
-    context['title'] = title
-    context['pk'] = pk
+    context = get_base_context(request, 0, pk, title, 'store')
     context['form'] = form
     context.update(extra_context)
     template = loader.get_template('store/' + name + '_form.html')

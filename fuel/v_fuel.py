@@ -3,8 +3,8 @@ from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from datetime import date, datetime, timedelta
-from django.contrib.sites.shortcuts import get_current_site
-from fuel.models import Fuel, Car, consumption, fuel_summary
+from hier.utils import get_base_context
+from .models import Fuel, Car, consumption, fuel_summary
 
 
 debug_text = ''
@@ -22,21 +22,21 @@ def edit_context(request, form, car, pid, debug_text):
     curcar = Car.objects.get(user = request.user.id, active = 1)
     cars = Car.objects.filter(user = request.user.id, active = 0)
     summary = fuel_summary(request.user.id)
-    return { 'form':       form, 
-             'fuels':      fuels, 
-             'cars':       cars, 
-             'pid':        pid, 
-             'app_text':   'Приложения', 
-             'part_text':  'ТО',
-             'car_text':   'Авто', 
-             'title': 'Заправка ' + curcar.name, 
-             'page_title': 'Заправка ' + curcar.name, 
-             'fuels_count':   Fuel.objects.filter(car = car).count,
-             'fuel_summary': summary,
-             'fuel_status': '',
-             'debug_text': debug_text, 
-             'site_header': get_current_site(request).name,
-           }
+    context = get_base_context(request, 0, 0, 'Заправка ' + curcar.name, 'fuel')
+    context['form'] =         form 
+    context['fuels'] =        fuels
+    context['cars'] =         cars 
+    context['pid'] =          pid 
+    context['app_text'] =     'Приложения'
+    context['part_text'] =    'ТО'
+    context['car_text'] =     'Авто'
+    context['page_title'] =   'Заправка ' + curcar.name
+    context['fuels_count'] =  Fuel.objects.filter(car = car).count
+    context['fuel_summary'] = summary
+    context['fuel_status'] =  ''
+    context['debug_text'] =   debug_text
+    return context
+
 #============================================================================
 def do_fuel(request, pk):
     try:
@@ -132,7 +132,7 @@ def do_fuel(request, pk):
             t = get_object_or_404(Fuel, id=pk)
             t.delete()
     
-      return HttpResponseRedirect(reverse('fuel:fuel_view'))
+      return HttpResponseRedirect(reverse('fuel:index'))
 
 def do_change_car(request, pk):
     active_cars = Car.objects.filter(user = request.user.id, active = 1)
@@ -142,4 +142,4 @@ def do_change_car(request, pk):
     car = Car.objects.get(id = pk)
     car.active = 1
     car.save()
-    return HttpResponseRedirect(reverse('fuel:fuel_view'))
+    return HttpResponseRedirect(reverse('fuel:index'))

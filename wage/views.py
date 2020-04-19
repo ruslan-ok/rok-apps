@@ -2,10 +2,10 @@ from datetime import datetime
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.template import loader
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 from django.shortcuts import get_object_or_404
 
+from hier.utils import get_base_context
 from .forms import WageForm,  PeriodForm,  DepartForm,  DepHistForm,  PostForm,  EmployeeForm,  FioHistForm,  ChildForm,  AppointForm,  EducationForm,  EmplInfoForm, PayTitleForm,  AccrualForm, PayoutForm
 from .models import Period, Depart, DepHist, Post, Employee, FioHist, Child, Appoint, Education, EmplPer, PayTitle, Payment, Params
 from .wage_xml import delete_all, import_all
@@ -36,8 +36,7 @@ def index(request):
     stat.append(['Payment',   len(Payment.objects.all())])
 
     param = get_param(request.user)
-    context = get_base_context(request)
-    context['title'] = 'Работа'
+    context = get_base_context(request, 0, 0, 'Работа', 'wage')
     context['period_form'] = get_period_form(request, param)
     context['tree'] = build_tree(request.user, 0, param.d_scan())
     context['stat'] = stat
@@ -536,10 +535,6 @@ def payout_del(request, empl, y, m, pk):
 
 
 
-def get_base_context(request):
-    return { 'site_header': get_current_site(request).name, }
-
-
 def get_param(user):
     if (len(Params.objects.filter(user = user.id)) > 0):
         par = Params.objects.filter(user = user.id)[0]
@@ -576,12 +571,10 @@ def list_view(request, employee, title, name, data):
     if employee:
         empl = employee.id
     param = get_param(request.user)
-    context = get_base_context(request)
-    context['title'] = title
+    context = get_base_context(request, 0, 0, title, 'wage')
     context['period_form'] = get_period_form(request, param)
     context['tree'] = build_tree(request.user, 0, param.d_scan())
     context[name + 's'] = data
-    context['pk'] = 0
     context['employee'] = employee
     context['y'] = param.period.dBeg.year
     context['m'] = param.period.dBeg.month
@@ -626,12 +619,10 @@ def form_view(request, employee, pk, title, name, form):
     if (name == 'accrual') or (name == 'payout'):
         form.fields['title'].queryset = PayTitle.objects.filter(user = request.user.id).order_by('name')
     
-    context = get_base_context(request)
-    context['title'] = title
+    context = get_base_context(request, 0, pk, title, 'wage')
     context['period_form'] = None
     context['current_period'] = param.period
     context['tree'] = build_tree(request.user, 0, param.d_scan())
-    context['pk'] = pk
     context['form'] = form
     context['employee'] = employee
     context['y'] = param.period.dBeg.year
@@ -645,12 +636,10 @@ def form_view(request, employee, pk, title, name, form):
 #----------------------------------
 def depart_list_view(request, dep, pk, title, name, data):
     param = get_param(request.user)
-    context = get_base_context(request)
-    context['title'] = title
+    context = get_base_context(request, 0, pk, title, 'wage')
     context['period_form'] = get_period_form(request, param)
     context['tree'] = build_tree(request.user, 0, param.d_scan())
     context[name + 's'] = data
-    context['pk'] = pk
     context['dep'] = dep
     template = loader.get_template('wage/' + name + '_list.html')
     return HttpResponse(template.render(context, request))
@@ -669,12 +658,10 @@ def depart_form_view(request, pk, title, name, form):
             form.save()
             return HttpResponseRedirect(reverse('wage:depart_list'))
     param = get_param(request.user)
-    context = get_base_context(request)
-    context['title'] = 'Отдел'
+    context = get_base_context(request, 0, pk, 'Отдел', 'wage')
     context['period_form'] = None
     context['current_period'] = param.period
     context['tree'] = build_tree(request.user, 0, param.d_scan())
-    context['pk'] = pk
     context['form'] = form
     context['empl_id'] = 0
     context['dep_hists'] = DepHist.objects.filter(user = request.user.id, depart = pk).order_by('-dBeg')
@@ -697,12 +684,10 @@ def dep_info_form_view(request, depart, pk, title, name, form):
             return HttpResponseRedirect(reverse('wage:depart_form', args=(depart.id,)))
     
     param = get_param(request.user)
-    context = get_base_context(request)
-    context['title'] = title
+    context = get_base_context(request, 0, pk, title, 'wage')
     context['period_form'] = None
     context['current_period'] = param.period
     context['tree'] = build_tree(request.user, 0, param.d_scan())
-    context['pk'] = pk
     context['form'] = form
     context['depart'] = depart
     template = loader.get_template('wage/' + name + '_form.html')

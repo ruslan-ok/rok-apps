@@ -5,7 +5,8 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 from datetime import date
 from django.forms import ModelForm
-from django.contrib.sites.shortcuts import get_current_site
+
+from hier.utils import get_base_context
 from rusel.const import t_months
 from apart.models import Tarif
 
@@ -68,16 +69,13 @@ def do_tarif(request, pk):
           form = TarifForm()
         tarifs = Tarif.objects.filter(user = request.user.id).order_by('-period', 'resource')
         form.fields['resource'].label = 'Ресурс'
-        context = {
-            'tarifs': tarifs, 
-            'form': form, 
-            'app_text': 'Приложения', 
-            'apart_text': 'Коммуналка', 
-            'title': 'Тарифы', 
-            'page_title': 'Тарифы', 
-            'pid': str(pk),
-            'site_header': get_current_site(request).name,
-            }
+        context = get_base_context(request, 0, 0, 'Тарифы', 'apart')
+        context['tarifs'] =  tarifs 
+        context['form'] =  form 
+        context['app_text'] =  'Приложения' 
+        context['apart_text'] =  'Коммуналка' 
+        context['page_title'] =  'Тарифы' 
+        context['pid'] =  str(pk)
         template = loader.get_template('apart/tarif.html')
         return HttpResponse(template.render(context, request))
 

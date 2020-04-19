@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block breadcrumbs %}
-  <a class="w3-bar-item w3-button" href="{% url 'trip:trip_list' %}">{% trans 'trips'|capfirst %}</a>
+  <a class="w3-bar-item w3-button" href="{% url 'trip:index' %}">{% trans 'trips'|capfirst %}</a>
   {% if trip_id != 0 %}
     <a class="w3-bar-item w3-button w3-red w3-right" href="{% url 'trip:trip_del' trip_id %}">{% trans 'delete'|capfirst %}</a>
   {% endif %}
@@ -27,23 +27,23 @@
     {% endif %}
 
     <div class="w3-row">
-      <div class="w3-quarter">
+      <div class="w3-quarter"><div class="w3-margin rok-field">
         {{ form.year.errors }}
         {{ form.year.label_tag }} <div>{{ form.year }}</div>
         {% if form.year.help_text %}
         <div class="help">{{ form.year.help_text|safe }}</div>
         {% endif %}
-      </div>
+      </div></div>
 
-      <div class="w3-quarter">
+      <div class="w3-quarter"><div class="w3-margin rok-field">
         {{ form.week.errors }}
         {{ form.week.label_tag }} <div>{{ form.week }}</div>
         {% if form.week.help_text %}
         <div class="help">{{ form.week.help_text|safe }}</div>
         {% endif %}
-      </div>
+      </div></div>
 
-      <div class="w3-quarter">
+      <div class="w3-quarter"><div class="w3-margin rok-field">
         {{ form.oper.errors }}
         {{ form.oper.label_tag }}
       
@@ -56,41 +56,41 @@
         {% if form.oper.help_text %}
           <div class="help">{{ form.oper.help_text|safe }}</div>
         {% endif %}
-      </div>
+      </div></div>
     </div>
 
     <div class="w3-row">
-      <div class="w3-quarter">
+      <div class="w3-quarter"><div class="w3-margin rok-field">
         {{ form.driver.errors }}
         {{ form.driver.label_tag }} <div>{{ form.driver }}</div>
         {% if form.driver.help_text %}
         <div class="help">{{ form.driver.help_text|safe }}</div>
         {% endif %}
-      </div>
+      </div></div>
 
-      <div class="w3-quarter">
+      <div class="w3-quarter"><div class="w3-margin rok-field">
         {{ form.passenger.errors }}
         {{ form.passenger.label_tag }} <div>{{ form.passenger }}</div>
         {% if form.passenger.help_text %}
         <div class="help">{{ form.passenger.help_text|safe }}</div>
         {% endif %}
-      </div>
+      </div></div>
 
-      <div class="w3-quarter" id="price_field">
+      <div class="w3-quarter" id="price_field"><div class="w3-margin rok-field">
         {{ form.price.errors }}
         {{ form.price.label_tag }} <div>{{ form.price }}</div>
         {% if form.price.help_text %}
         <div class="help">{{ form.price.help_text|safe }}</div>
         {% endif %}
-      </div>
+      </div></div>
 
-      <div class="w3-quarter" id="summa_field">
+      <div class="w3-quarter" id="summa_field"><div class="w3-margin rok-field">
         {{ form.summa.errors }}
         {{ form.summa.label_tag }} <div>{{ form.summa }}</div>
         {% if form.summa.help_text %}
         <div class="help">{{ form.summa.help_text|safe }}</div>
         {% endif %}
-      </div>
+      </div></div>
     </div>
 
     <div class="w3-row">
@@ -98,7 +98,7 @@
 
     <input type="hidden" name="days" value="{{form.days.value}}">
 
-    <div class="form-row" id="days_row">
+    <div class="w3-row w3-padding" id="days_row">
       Дни:
       <table>
         <thead>
@@ -135,15 +135,17 @@
       </table>
     </div>
 
-    <div class="form-row">
+    <div class="w3-row">
+      <div class="w3-rest"><div class="w3-margin rok-field">
         {{ form.text.errors }}
         {{ form.text.label_tag }} {{ form.text }}
         {% if form.text.help_text %}
         <div class="help">{{ form.text.help_text|safe }}</div>
         {% endif %}
+      </div></div>
     </div>
 
-    <div class="submit-row">
+    <div class="w3-row w3-pqdding w3-center">
       {% if trip_id == 0 %}
         <input type="submit" value="{% trans 'add'|capfirst %}" class="default">
       {% else %}

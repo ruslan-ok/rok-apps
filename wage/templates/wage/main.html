@@ -1,4 +1,5 @@
 {% extends "base_sidebar.html" %}
+{% load i18n %}
 
 {% block content %}
 
@@ -69,9 +70,11 @@
     <div class="w3-container">
       {% block wage_content %}{% endblock %}
     </div>
-    {% block footer %}{% endblock %}
   </div>
 </div>
     
 {% endblock %}
 
+{% block footer %}
+  <a href="{% url 'feedback' %}">{% trans 'feedback' %}</a>
+{% endblock %}

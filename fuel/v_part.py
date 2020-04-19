@@ -3,8 +3,8 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from datetime import date, datetime, timedelta
-from django.contrib.sites.shortcuts import get_current_site
-from fuel.models import Fuel, Car, Part
+from hier.utils import get_base_context
+from .models import Fuel, Car, Part
 
 
 debug_text = ''
@@ -29,20 +29,20 @@ def edit_context(request, form, car, pid, _last_date, _last_odo, debug_text):
     s_last_date = ''
     if (_last_date != date.min):
       s_last_date = _last_date.strftime('%d.%m.%Y')
-    return { 'form':       form, 
-             'parts':      parts, 
-             'pid':        pid, 
-             'last_date':  s_last_date,
-             'last_odo':   _last_odo,
-             'fuel_date':  fuel_date,
-             'fuel_odo':   fuel_odo,
-             'app_text':   'Приложения', 
-             'title': 'Список расходников ' + car.name, 
-             'page_title': 'Список расходников ' + car.name, 
-             'fuel_text':  'Заправки', 
-             'debug_text': debug_text, 
-             'site_header': get_current_site(request).name,
-           }
+    context = get_base_context(request, 0, 0, 'Список расходников ' + car.name, 'fuel')
+    context['form'] =        form 
+    context['parts'] =       parts 
+    context['pid'] =         pid 
+    context['last_date'] =   s_last_date
+    context['last_odo'] =    _last_odo
+    context['fuel_date'] =   fuel_date
+    context['fuel_odo'] =    fuel_odo
+    context['app_text'] =    'Приложения' 
+    context['page_title'] =  'Список расходников ' + car.name 
+    context['fuel_text'] =   'Заправки' 
+    context['debug_text'] =  debug_text 
+    return context
+
 #============================================================================
 def do_part(request, pk):
     try:

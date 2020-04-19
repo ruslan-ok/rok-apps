@@ -4,7 +4,7 @@
 {% block win_content %}
   {% if user.is_authenticated %}
     <div class="w3-row w3-padding">
-      <a href="{% url 'trip:trip_list' %}">{{ trip_summary|safe }}</a>
+      <a href="{% url 'trip:index' %}">{{ trip_summary|safe }}</a>
     </div>
   {% else %}
     <p>{% trans 'It looks like you got here by accident, because it is a personal, not a public site.' %}</p>
