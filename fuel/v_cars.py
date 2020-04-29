@@ -16,12 +16,11 @@ class CarsForm(ModelForm):
         fields = ('name', 'plate', 'active', 'action')
 
 #============================================================================
-def edit_context(_request, _form, _pid, _debug_text):
+def edit_context(_request, _form, fl, _pid, _debug_text):
     cars = Car.objects.filter(user = _request.user.id)
-    context = get_base_context(_request, 0, 0, 'Автомобили', 'fuel')
+    context = get_base_context(_request, fl, _pid, 'Автомобили', 'fuel')
     context['cars'] =  cars 
     context['form'] =  _form 
-    context['pid']  =  _pid
     context['app_text'] =  'Приложения' 
     context['fuel_text'] =  'Заправка' 
     context['page_title'] =  'Автомобили' 
@@ -29,14 +28,14 @@ def edit_context(_request, _form, _pid, _debug_text):
     return context
 
 #============================================================================
-def do_cars(request, pk):
+def do_cars(request, fl, pk):
   if (request.method == 'GET'):
     if (pk > 0):
       t = get_object_or_404(Car, pk=pk)
       form = CarsForm(instance = t)
     else:
       form = CarsForm(initial = {'name': '', 'plate': '', 'active': 0})
-    context = edit_context(request, form, pk, 'get-1')
+    context = edit_context(request, form, fl, pk, 'get-1')
     return render(request, 'fuel/cars.html', context)
   else:
     action = request.POST.get('action', False)
@@ -61,7 +60,7 @@ def do_cars(request, pk):
       form = CarsForm(request.POST)
       if not form.is_valid():
         # Ошибки в форме, отобразить её снова
-        context = edit_context(request, form, pk, 'post-error' + str(form.non_field_errors))
+        context = edit_context(request, form, fl, pk, 'post-error' + str(form.non_field_errors))
         return render(request, 'fuel/cars.html', context)
       else:
         t = form.save(commit=False)
@@ -88,5 +87,5 @@ def do_cars(request, pk):
           t = get_object_or_404(Car, id=pk)
           t.delete()
 
-    return HttpResponseRedirect(reverse('fuel:cars_view'))
+    return HttpResponseRedirect(reverse('fuel:cars_view', args = [fl]))
 

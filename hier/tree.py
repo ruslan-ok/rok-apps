@@ -1,6 +1,6 @@
 import calendar
 from datetime import datetime, date
-from hier.models import File
+from hier.models import Folder
 
 class TreeNode():
     id = 0
@@ -10,8 +10,10 @@ class TreeNode():
     is_node = False
     is_open = False
     icon = ''
+    color = ''
+    model_name = ''
 
-    def __init__(self, id, parent, name, level, is_node = False, is_open = False, icon = ''):
+    def __init__(self, id, parent, name, level, is_node = False, is_open = False, icon = '', color = '', model_name = ''):
         self.id = id
         self.parent = parent
         self.name = name
@@ -19,6 +21,8 @@ class TreeNode():
         self.is_node = is_node
         self.is_open = is_open
         self.icon = icon
+        self.color = color
+        model_name = model_name
 
     def __str__(self):
         ret = str(self.level) + ' - ' + str(self.parent) + '/' + str(self.id) + ' "' + self.name + '" '
@@ -30,15 +34,16 @@ class TreeNode():
         return ret
 
 
-def get_is_node(file_id):
-    return File.objects.filter(node = file_id).exists()
+def get_is_node(folder_id):
+    return Folder.objects.filter(node = folder_id, content_id = 0).exists()
 
 def scan_level(tree, user_id, node_id, level):
-    for file in File.objects.filter(user = user_id, node = node_id).order_by('code', 'name'):
-        tree.append(TreeNode(file.id, node_id, file.name, level, get_is_node(file.id), file.is_open, file.icon))
+    for folder in Folder.objects.filter(user = user_id, node = node_id).order_by('code', 'name'):
+        if not folder.content_id:
+            tree.append(TreeNode(folder.id, node_id, folder.name, level, get_is_node(folder.id), folder.is_open, folder.icon, folder.color, folder.model_name))
 
-        if file.is_open:
-            scan_level(tree, user_id, file.id, level + 1)
+            if folder.is_open:
+                scan_level(tree, user_id, folder.id, level + 1)
 
 
 def build_tree(user_id, node_id):

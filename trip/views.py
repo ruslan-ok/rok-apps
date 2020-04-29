@@ -27,7 +27,7 @@ class TripsListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context_add = get_base_context(self.request, 0, 0, _('trips').capitalize(), 'trip')
+        context_add = get_base_context(self.request, self.kwargs['folder_id'], 0, _('trips').capitalize(), 'content_list')
         context.update(context_add)
         context['trip_summary'] = trip_summary(self.request.user.id)
         return context
@@ -37,25 +37,25 @@ class TripsListView(ListView):
 #----------------------------------
 @login_required
 @permission_required('trip.view_person')
-def trip_edit(request, pk):
-    return do_trip(request, pk)
+def trip_edit(request, folder_id, content_id):
+    return do_trip(request, folder_id, content_id)
 
 #----------------------------------
 #              Trip Create
 #----------------------------------
 @login_required(login_url='account:login')
 @permission_required('trip.view_person')
-def trip_add(request):
-    return do_trip(request, 0)
+def trip_add(request, folder_id):
+    return do_trip(request, folder_id, 0)
 
 #----------------------------------
 #              Trip Delete
 #----------------------------------
 @login_required(login_url='account:login')
 @permission_required('trip.view_person')
-def trip_del(request, pk):
-    Trip.objects.get(id = pk).delete()
-    return HttpResponseRedirect(reverse('trip:index'))
+def trip_del(request, folder_id, content_id):
+    Trip.objects.get(id = content_id).delete()
+    return HttpResponseRedirect(reverse('trip:trip_list', args = [folder_id]))
 
 
 #----------------------------------
@@ -63,9 +63,9 @@ def trip_del(request, pk):
 #----------------------------------
 @login_required(login_url='account:login')
 @permission_required('trip.view_person')
-def trip_count(request):
+def trip_count(request, folder_id):
     do_count(request)
-    return HttpResponseRedirect(reverse('trip:index'))
+    return HttpResponseRedirect(reverse('trip:trip_list', args = [folder_id]))
 
 
 #----------------------------------
@@ -82,7 +82,7 @@ class PersonsListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context_add = get_base_context(request, 0, 0, _('persons').capitalize(), 'trip')
+        context_add = get_base_context(request, self.kwargs['folder_id'], 0, _('persons').capitalize(), 'content_list')
         context.update(context_add)
         return context
 
@@ -91,23 +91,23 @@ class PersonsListView(ListView):
 #----------------------------------
 @login_required(login_url='account:login')
 @permission_required('trip.view_person')
-def pers_edit(request, pk):
-    return do_pers(request, pk)
+def pers_edit(request, folder_id, content_id):
+    return do_pers(request, folder_id, content_id)
 
 #----------------------------------
 #              Person Create
 #----------------------------------
 @login_required(login_url='account:login')
 @permission_required('trip.view_person')
-def pers_add(request):
-    return do_pers(request, 0)
+def pers_add(request, folder_id):
+    return do_pers(request, folder_id, 0)
 
 #----------------------------------
 #              Person Delete
 #----------------------------------
 @login_required(login_url='account:login')
 @permission_required('trip.view_person')
-def pers_del(request, pk):
-    Person.objects.get(id = pk).delete()
-    return HttpResponseRedirect(reverse('trip:pers_list'))
+def pers_del(request, folder_id, content_id):
+    Person.objects.get(id = content_id).delete()
+    return HttpResponseRedirect(reverse('trip:pers_list', args = [folder_id]))
 

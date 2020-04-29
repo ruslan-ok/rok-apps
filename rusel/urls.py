@@ -17,29 +17,25 @@ from django.contrib import admin
 from django.conf.urls.i18n import i18n_patterns
 from django.urls import include, path
 from . import views
+from . import utils
 
 urlpatterns = i18n_patterns(
-    path('',                      views.index,     name='index'),
-    path('toggle/<int:pk>/',      views.toggle,    name='toggle'),
+    path('',                 views.index,      name='index'),
+    path('feedback/',        views.feedback,   name='feedback'),
+    path('convert/',         utils.convert,    name='convert'),
+    path('statistics/',      utils.statistics, name='statistics'),
 
-    path('<int:up>/',             views.file_list, name='file_list'),
-    path('file/<int:pk>/',        views.file_form, name='file_form'),
-    path('<int:up>/file/create/', views.file_add,  name='file_add'),
-    path('file/<int:pk>/delete/', views.file_del,  name='file_del'),
-    path('<int:up>/import/',      views.file_imp,  name='file_imp'),
-    
-    path('feedback/',             views.feedback,  name='feedback'),
+    path('<int:folder_id>/trip/',   include('trip.urls')),
+    path('<int:fl>/fuel/',   include('fuel.urls')),
+    path('<int:fl>/apart/',  include('apart.urls')),
+    path('<int:fl>/proj/',   include('proj.urls')),
+    path('<int:fl>/task/',   include('task.urls')),
+    path('<int:folder_id>/note/',   include('note.urls')),
+    path('<int:fl>/pir/',    include('pir.urls')),
+    path('<int:folder_id>/store/',  include('store.urls')),
+    path('<int:fl>/wage/',   include('wage.urls')),
+    path('<int:folder_id>/', include('hier.urls')),
 
-    path('trip/',     include('trip.urls')),
-    path('fuel/',     include('fuel.urls')),
-    path('apart/',    include('apart.urls')),
-    path('proj/',     include('proj.urls')),
-    path('task/',     include('task.urls')),
-    path('note/',     include('note.urls')),
-    path('pir/',      include('pir.urls')),
-    path('store/',    include('store.urls')),
-    path('wage/',     include('wage.urls')),
-    path('hier/',     include('hier.urls')),
     path('account/',  include('account.urls')),
     path('admin/',    admin.site.urls, name='admin'),
 )

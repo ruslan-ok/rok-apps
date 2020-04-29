@@ -2,15 +2,30 @@
 {% load i18n %}
 
 {% block content %}
-    {% if user.is_authenticated %}
-      <div class="w3-bar w3-border w3-theme-l1">
-        {% block breadcrumbs %}{% endblock %}
-      </div>
-    {% endif %}
     {% block contenttitle %}{{ block.super }}{% endblock %}
     <div class="w3-container" style="min-height:450px">
       {% block win_content %}{% endblock %}
       <p>
+      {% if site_header == 'localhost:8000' %}
+        <div class="w3-card-4 w3-border" style="width:200px">
+          <table class="w3-table-all">
+            <thead>
+              <tr class="w3-theme-l3"> <th>Поле</th> <th>Значение</th> </tr>
+            </thead>
+            <tbody>
+              <tr> <td>debug</td> <td>{{ debug }}</td> </tr>
+              <tr> <td>mode</td> <td>{{ mode }}</td> </tr>
+              <tr> <td>folder.id</td> <td>{{ folder.id }}</td> </tr>
+              <tr> <td>folder.node</td> <td>{{ folder.node }}</td> </tr>
+              <tr> <td>folder.model_name</td> <td>{{ folder.model_name }}</td> </tr>
+              <tr> <td>folder.content_id</td> <td>{{ folder.content_id }}</td> </tr>
+              <tr> <td>content_id</td> <td>{{ content_id }}</td> </tr>
+            </tbody>
+          </table>
+        </div>
+      {% endif %}
+      <p>
+    
     </div>
 {% endblock %}
 

@@ -9,27 +9,41 @@ from django.shortcuts import get_object_or_404
 from django.utils.crypto import get_random_string
 from django.core.paginator import Paginator
 
-from hier.utils import get_base_context
-from .models import Group, Entry, History, Params
-from .forms import GroupForm, EntryForm, FilterForm, ParamsForm
+from hier.models import Folder
+from hier.utils import get_base_context, check_file_for_content
+from .models import Entry, Params
+from .forms import EntryForm, ParamsForm
 from .imp_xml import delete_all, import_all
 
 #----------------------------------
-# Index
+# Entry
 #----------------------------------
 @login_required(login_url='account:login')
 @permission_required('store.view_entry')
 #----------------------------------
-def index(request):
+def entry_list(request, folder_id):
+    if Folder.objects.filter(user = request.user.id, node = folder_id, content_id = 0).exists():
+        return HttpResponseRedirect(reverse('hier:folder_dir', args = [folder_id]))
+
+    if Folder.objects.filter(user = request.user.id, node = folder_id).exclude(content_id = 0).exclude(model_name = 'store:entry').exists():
+        return HttpResponseRedirect(reverse('hier:folder_dir', args = [folder_id]))
+
     params = get_params(request.user)
     if request.method != 'GET':
-        data = Entry.objects.filter(user = request.user.id, actual = 1).order_by('title')
+        files = Folder.objects.filter(user = request.user.id, node = folder_id).order_by('code', 'name')
+        data = []
+        for file in files:
+            data.append(Entry.objects.filter(user = request.user.id, id = file.content_id).get())
         page_number = 1
     else:
         page_number = request.GET.get('page')
         query = request.GET.get('q')
         if (not query):
-            data = Entry.objects.filter(user = request.user.id, actual = 1).order_by('title')
+            files = Folder.objects.filter(user = request.user.id, node = folder_id).order_by('code', 'name')
+            data = []
+            for file in files:
+                data.append(Entry.objects.filter(user = request.user.id, id = file.content_id).get())
+            #data = Entry.objects.filter(user = request.user.id, actual = 1).order_by('title')
         else:
             """
             _mutable = request.GET._mutable
@@ -39,117 +53,24 @@ def index(request):
             """
             lookups = Q(title__icontains=query) | Q(username__icontains=query) | Q(url__icontains=query) | Q(notes__icontains=query)
             data = Entry.objects.filter(user = request.user.id, actual = 1).filter(lookups).distinct()
-        group_id = request.GET.get('group')
-        if not group_id:
-            params.group = None
-        else:
-            params.group = get_object_or_404(Group.objects.filter(id = group_id, user = request.user.id))
-            data = data.filter(group = group_id)
         params.save()
     
     paginator = Paginator(data, 10)
     page_obj = paginator.get_page(page_number)
     
     stat = []
-    stat.append(['Group', len(Group.objects.all())])
     stat.append(['Entry', len(Entry.objects.all())])
-    stat.append(['History', len(History.objects.all())])
 
-    context = get_base_context(request, 0, 0, _('entries').capitalize(), 'store')
+    context = get_base_context(request, folder_id, 0)
     context['total'] = len(data)
     context['page_obj'] = page_obj
     context['stat'] = stat
-    context['filter'] = FilterForm(instance = params)
-    template = loader.get_template('store/index.html')
+    context['debug'] = 'Entry_Qty = ' + str(len(Entry.objects.all()))
+    template = loader.get_template('store/entry_list.html')
     return HttpResponse(template.render(context, request))
 
 #----------------------------------
-# Parameters
-#----------------------------------
-@login_required(login_url='account:login')
-@permission_required('store.view_entry')
-#----------------------------------
-def param_form(request):
-    data = get_params(request.user)
-    if (request.method == 'POST'):
-        form = ParamsForm(request.POST, instance = data)
-    else:
-        form = ParamsForm(instance = data)
-    return show_page_form(request, 0, _('parameters').capitalize(), 'param', form)
-
-#----------------------------------
-# Delete all data!
-#----------------------------------
-@login_required(login_url='account:login')
-@permission_required('store.view_entry')
-#----------------------------------
-def clear(request):
-    delete_all()
-    return HttpResponseRedirect(reverse('store:index'))
-
-#----------------------------------
-# Import from XML
-#----------------------------------
-@login_required(login_url='account:login')
-@permission_required('store.view_entry')
-#----------------------------------
-def xml_import(request):
-    imp_data  = []
-    imp_errors = []
-    import_all(request.user, imp_data, imp_errors)
-
-    stat = []
-    stat.append(['Group', len(Group.objects.all())])
-    stat.append(['Entry', len(Entry.objects.all())])
-    stat.append(['History', len(History.objects.all())])
-
-    context = get_base_context(request, 0, 0, _('entries').capitalize(), 'store')
-    context['stat'] = stat
-    context['imp_data'] = imp_data
-    context['imp_errors'] = imp_errors
-    template_file = 'store/index.html'
-    template = loader.get_template(template_file)
-    return HttpResponse(template.render(context, request))
-
-              
-#----------------------------------
-# Group
-#----------------------------------
-def group_list(request):
-    data = Group.objects.filter(user = request.user.id).order_by('code', 'name')
-    total = len(Group.objects.filter(user = request.user.id))
-    return show_page_list(request, _('groups').capitalize(), 'group', data, total)
-
-#----------------------------------
-def group_add(request):
-    if (request.method == 'POST'):
-        form = GroupForm(request.POST)
-    else:
-        form = GroupForm(initial = {'name': '',})
-    return show_page_form(request, 0, _('group').capitalize(), 'group', form)
-
-#----------------------------------
-def group_form(request, pk):
-    data = get_object_or_404(Group.objects.filter(id = pk, user = request.user.id))
-    if (request.method == 'POST'):
-        form = GroupForm(request.POST, instance = data)
-    else:
-        form = GroupForm(instance = data)
-    return show_page_form(request, pk, _('group').capitalize(), 'group', form)
-
-#----------------------------------
-@login_required(login_url='account:login')
-@permission_required('store.view_entry')
-#----------------------------------
-def group_del(request, pk):
-    Group.objects.get(id = pk).delete()
-    return HttpResponseRedirect(reverse('store:group_list'))
-
-              
-#----------------------------------
-# Entry
-#----------------------------------
-def entry_add(request):
+def entry_add(request, folder_id):
     if (request.method == 'POST'):
         form = EntryForm(request.POST)
     else:
@@ -157,38 +78,48 @@ def entry_add(request):
                                     'value': make_random_string(request.user),
                                     'uuid': '',
                                     })
-    return show_page_form(request, 0, _('entry').capitalize(), 'entry', form)
+    return show_page_form(request, folder_id, 0, _('entry').capitalize(), 'entry', form)
 
 #----------------------------------
-def entry_form(request, pk):
-    data = get_object_or_404(Entry.objects.filter(id = pk, user = request.user.id))
+def entry_form(request, folder_id, content_id):
+    data = get_object_or_404(Entry.objects.filter(id = content_id, user = request.user.id))
     query = request.GET.get('q')
-    group_id = request.GET.get('group')
     page = request.GET.get('page')
     if (request.method == 'POST'):
         form = EntryForm(request.POST, instance = data)
     else:
         form = EntryForm(instance = data)
     list_filter = ''
-    if group_id and query and page:
-        list_filter = '?group=' + group_id + '&q=' + query + '&page=' + page
-    return show_page_form(request, pk, _('entry').capitalize(), 'entry', form, list_filter = list_filter)
+    if query and page:
+        list_filter = '?q=' + query + '&page=' + page
+    return show_page_form(request, folder_id, content_id, _('entry').capitalize(), 'entry', form, list_filter = list_filter)
 
 #----------------------------------
 @login_required(login_url='account:login')
 @permission_required('store.view_entry')
 #----------------------------------
-def entry_del(request, pk):
-    Entry.objects.get(id = pk).delete()
-    return HttpResponseRedirect(reverse('store:index'))
+def entry_del(request, folder_id, content_id):
+    Entry.objects.get(id = content_id).delete()
+    return HttpResponseRedirect(reverse('store:entry_list', args = [folder_id]))
+
+#----------------------------------
+@login_required(login_url='account:login')
+@permission_required('store.view_entry')
+#----------------------------------
+def entry_move(request, folder_id, content_id, to_folder):
+    data_file = get_object_or_404(Folder.objects.filter(id = folder_id, user = request.user.id))
+    dst_folder = get_object_or_404(Folder.objects.filter(id = to_folder, user = request.user.id))
+    data_file.node = to_folder
+    data_file.save()
+    return HttpResponseRedirect(reverse('hier:folder_list', args = [to_folder]))
 
               
 #----------------------------------
 @login_required(login_url='account:login')
 @permission_required('store.view_entry')
 #----------------------------------
-def show_page_list(request, title, name, data, total = 0):
-    context = get_base_context(request, 0, 0, title, 'store')
+def show_page_list(request, folder_id, title, name, data, total = 0):
+    context = get_base_context(request, folder_id, 0, title)
     context['total'] = total
     context[name + 's'] = data
     template = loader.get_template('store/' + name + '_list.html')
@@ -198,17 +129,23 @@ def show_page_list(request, title, name, data, total = 0):
 @login_required(login_url='account:login')
 @permission_required('store.view_entry')
 #----------------------------------
-def show_page_form(request, pk, title, name, form, extra_context = {}, list_filter = ''):
+def show_page_form(request, folder_id, content_id, title, name, form, extra_context = {}, list_filter = ''):
     if (request.method == 'POST'):
         if form.is_valid():
             data = form.save(commit = False)
             data.user = request.user
             form.save()
+            if (name == 'entry'):
+                check_file_for_content(request.user, folder_id, data.id, data.title, data.username)
             if (name == 'entry') or (name == 'param'):
-                return HttpResponseRedirect(reverse('store:index') + list_filter)
+                return HttpResponseRedirect(reverse('store:entry_list', args = [folder_id]) + list_filter)
             else:
-                return HttpResponseRedirect(reverse('store:' + name + '_list'))
-    context = get_base_context(request, 0, pk, title, 'store')
+                return HttpResponseRedirect(reverse('store:' + name + '_list', args = [folder_id]))
+    if content_id:
+        mode = 'content_form'
+    else:
+        mode = 'content_add'
+    context = get_base_context(request, folder_id, content_id, title, mode)
     context['form'] = form
     context.update(extra_context)
     template = loader.get_template('store/' + name + '_form.html')
@@ -254,8 +191,56 @@ def make_random_string(user):
 
 
 #----------------------------------
+# Parameters
+#----------------------------------
 def get_params(user):
     if (len(Params.objects.filter(user = user.id)) > 0):
         return Params.objects.filter(user = user.id)[0]
     else:
         return Params.objects.create(user = user)
+
+#----------------------------------
+@login_required(login_url='account:login')
+@permission_required('store.view_entry')
+#----------------------------------
+def entry_param(request, folder_id):
+    data = get_params(request.user)
+    if (request.method == 'POST'):
+        form = ParamsForm(request.POST, instance = data)
+    else:
+        form = ParamsForm(instance = data)
+    return show_page_form(request, folder_id, 0, _('parameters').capitalize(), 'param', form)
+
+#----------------------------------
+# Delete all data!
+#----------------------------------
+@login_required(login_url='account:login')
+@permission_required('store.view_entry')
+#----------------------------------
+def clear(request, folder_id):
+    delete_all()
+    return HttpResponseRedirect(reverse('store:entry_list', args = [folder_id]))
+
+#----------------------------------
+# Import from XML
+#----------------------------------
+@login_required(login_url='account:login')
+@permission_required('store.view_entry')
+#----------------------------------
+def xml_import(request, folder_id):
+    imp_data  = []
+    imp_errors = []
+    import_all(request.user, imp_data, imp_errors)
+
+    stat = []
+    stat.append(['Entry', len(Entry.objects.all())])
+
+    context = get_base_context(request, folder_id, 0, _('entries').capitalize())
+    context['stat'] = stat
+    context['imp_data'] = imp_data
+    context['imp_errors'] = imp_errors
+    template_file = 'store/entry_list.html'
+    template = loader.get_template(template_file)
+    return HttpResponse(template.render(context, request))
+
+              

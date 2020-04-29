@@ -27,15 +27,15 @@
     </tr>
     {% for trip in object_list %}
       <tr>
-        <td><a href="{% url 'trip:trip_edit' trip.id %}">{{ trip.year }}</a></td>
-        <td><a href="{% url 'trip:trip_edit' trip.id %}">{{ trip.week }}</a></td>
-        <td><a href="{% url 'trip:trip_edit' trip.id %}">{{ trip.s_oper }}</a></td>
+        <td><a href="{% url 'trip:trip_edit' folder.id trip.id %}">{{ trip.year }}</a></td>
+        <td><a href="{% url 'trip:trip_edit' folder.id trip.id %}">{{ trip.week }}</a></td>
+        <td><a href="{% url 'trip:trip_edit' folder.id trip.id %}">{{ trip.s_oper }}</a></td>
         <td>{{ trip.s_days }}</td>
-        <td><a href="{% url 'trip:trip_edit' trip.id %}">{{ trip.driver.name }}</a></td>
-        <td><a href="{% url 'trip:trip_edit' trip.id %}">{{ trip.passenger.name }}</a></td>
-        <td><a href="{% url 'trip:trip_edit' trip.id %}">{{ trip.price }}</a></td>
-        <td><a href="{% url 'trip:trip_edit' trip.id %}">{{ trip.summa }}</a></td>
-        <td><a href="{% url 'trip:trip_edit' trip.id %}">{{ trip.text }}</a></td>
+        <td><a href="{% url 'trip:trip_edit' folder.id trip.id %}">{{ trip.driver.name }}</a></td>
+        <td><a href="{% url 'trip:trip_edit' folder.id trip.id %}">{{ trip.passenger.name }}</a></td>
+        <td><a href="{% url 'trip:trip_edit' folder.id trip.id %}">{{ trip.price }}</a></td>
+        <td><a href="{% url 'trip:trip_edit' folder.id trip.id %}">{{ trip.summa }}</a></td>
+        <td><a href="{% url 'trip:trip_edit' folder.id trip.id %}">{{ trip.text }}</a></td>
       </tr>
     {% endfor %}
   </table>

@@ -268,10 +268,6 @@
 
 
 
-  <div id="gmenu" class="menu"> <a href="/"> {{ app_text }} </a> | <a href="/apart/tarif/"> {{ tarif_text }} </a> </div>
-  <div class="PageTitle"> {{ page_title }} </div>
-  <!-- <div class="PageDebug"> DEBUG: {{ debug_text }} </div> -->
-
   {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
   {{ form.non_field_errors }}
   {% for field in form %}
@@ -281,7 +277,7 @@
   {% endfor %}
 
 
-  <form id="fld_form" action="{% url 'apart:apart_edit' form.period.value %}" method="post">
+  <form id="fld_form" action="{% url 'apart:bill_edit' fl form.period.value %}" method="post">
     {% csrf_token %}
   
     <script language="javascript" type="text/javascript">

@@ -1,19 +1,10 @@
 {% extends "base_window.html" %}
 {% load i18n %}
 
-{% block breadcrumbs %}
-  <a class="w3-bar-item w3-button" href="{% url 'file_list' 0 %}"><i class="fa fa-folder-open"></i></a>
-  {% for node in chain reversed %}
-    <a class="w3-bar-item w3-button" href="{% url 'file_list' node.id %}">{{ node.name }}</a>
-  {% endfor %}
-  {% if pk != 0 and qty == 0 %}
-    <a class="w3-bar-item w3-button w3-red w3-right" href="{% url 'file_del' pk %}"><i class="fas fa-trash-alt fa-lg"></i></a>
-  {% endif %}
-{% endblock %}
-
 {% block win_content %}
 <div class="w3-container w3-padding">
-
+<div class="w3-row">
+<div class="w3-half">
   <form method="post" class="w3-container w3-card-4 w3-light-grey" style="width:30em">{% csrf_token %}
 
     {% if form.errors %} <p class="errornote"> {% if form.errors.items|length == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %} </p> {% endif %}
@@ -26,13 +17,18 @@
       {{ form.code.errors }} {{ form.code.label_tag }} {{ form.code }} {% if form.code.help_text %}<div class="help">{{ form.code.help_text|safe }}</div>{% endif %}
     </div>
     <div class="w3-row w3-margin rok-field">
-      {{ form.storage.errors }} {{ form.storage.label_tag }} {{ form.storage }} {% if form.storage.help_text %}<div class="help">{{ form.storage.help_text|safe }}</div>{% endif %}
-    </div>
-    <div class="w3-row w3-margin rok-field">
       {{ form.icon.errors }} {{ form.icon.label_tag }} {{ form.icon }} {% if form.icon.help_text %}<div class="help">{{ form.icon.help_text|safe }}</div>{% endif %}
     </div>
+
+    <div class="w3-half"> <div class="w3-margin rok-field">
+      <label for="favcolor">{{ form.color.label_tag }}</label>
+      <div class="w3-rest">
+        <input type="color" id="list_color" name="color" value="{{ form.color.value }}">
+      </div></div>
+    </div>
+
     <div class="w3-row w3-margin rok-field">
-      {{ form.app.errors }} {{ form.app.label_tag }} {{ form.app }} {% if form.app.help_text %}<div class="help">{{ form.app.help_text|safe }}</div>{% endif %}
+      {{ form.model_name.errors }} {{ form.model_name.label_tag }} {{ form.model_name }} {% if form.model_name.help_text %}<div class="help">{{ form.model_name.help_text|safe }}</div>{% endif %}
     </div>
 
     <div class="w3-row w3-padding">
@@ -45,6 +41,28 @@
     </div>
 
   </form>
+</div>
+<div class="w3-half">
+  <br>
+  <table class="w3-table-all" style="width:400px">
+    <thead>
+      <tr class="w3-theme-l3">
+          <th> Поле       </th><th> Значение               </th>
+      </tr>
+    <tbody>
+      <tr><td> id         </td><td> {{ folder.id         }}</td></tr>
+      <tr><td> node       </td><td> {{ folder.node       }}</td></tr>
+      <tr><td> user.id    </td><td> {{ folder.user.id    }}</td></tr>
+      <tr><td> content_id </td><td> {{ folder.content_id }}</td></tr>
+      <tr><td> creation   </td><td> {{ folder.creation   }}</td></tr>
+      <tr><td> last_mod   </td><td> {{ folder.last_mod   }}</td></tr>
+      <tr><td> is_open    </td><td> {{ folder.is_open    }}</td></tr>
+      <tr><td> color      </td><td> {{ folder.color      }}</td></tr>
+      <tr><td> lightness  </td><td> {{ folder.lightness  }}</td></tr>
+    </tbody>
+  </table>
 
+</div>
+</div>
 </div>
 {% endblock %}

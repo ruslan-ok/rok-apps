@@ -22,22 +22,49 @@
       {% block navbar %}
         <div class="w3-bar w3-theme-d1 w3-left-align rok-header-a">
           {% block hamb %}{% endblock %}
-          <a href="{% url 'index' %}" class="w3-bar-item brand"><i class="fa fa-home"></i></a>
-          <a class="w3-bar-item w3-button" href="{% url 'file_list' 0 %}"><i class="fa fa-folder-open"></i></a>
-          {% for node in chain reversed %}
-            <a class="w3-bar-item w3-button" href="{% url 'file_list' node.id %}">{{ node.name }}</a>
+          {% for btn in buttons %}
+            {% if btn.icon == 'search' %}  <!-- Поля формы поиска -->
+              <form action="{{ btn.href }}" method="GET">
+                <input type="text" class="w3-bar-item w3-input" placeholder="{% trans 'search'|capfirst %}..." name="q" value="{{ request.GET.q }}">
+                <button class="w3-bar-item w3-button {{ btn.class }}">{% if btn.icon %}<i class="fas fa-{{ btn.icon }} fa-lg"></i>{% endif %}{{ btn.text }}</button>
+              </form>
+            {% elif btn.icon == 'share-square' %}  <!-- Кнопка со списком для перемещения -->
+              <div class="w3-dropdown-click">
+                <button onclick="ShowMenu('move')" class="w3-button"><i class="fa fa-share-square"></i></button>
+                <div id="move" class="w3-dropdown-content w3-bar-block w3-card-4">
+                  {% for move in moves %}
+                      <a class="w3-bar-item w3-button w3-hover-dark" href="{{ move.href }}">
+                        {% if move.icon %}<i class="fas fa-{{ move.icon }}" {% if move.color %}style="color: {{ move.color }};"{% endif %}></i> {% endif %}{{ move.name }}</a>
+                  {% endfor %}
+                </div>
+              </div>    
+            {% else %}
+              {% if btn.href %}  <!-- Кнопка -->
+                <a class="w3-bar-item w3-button {{ btn.class }}" href="{{ btn.href }}" {% if btn.color %}style="color: {{ btn.color }};"{% endif %}>
+                  {% if btn.icon %}<i class="fas fa-{{ btn.icon }} fa-lg"></i>{% endif %}{{ btn.text }}
+                </a>
+              {% else %}  <!-- Текстовая метка -->
+                <span class="w3-bar-item {{ btn.class }}" {% if btn.color %}style="color: {{ btn.color }};"{% endif %}>
+                  {% if btn.icon %}<i class="fas fa-{{ btn.icon }} fa-lg"></i>{% endif %}{{ btn.text }}
+                </span>
+              {% endif %}
+            {% endif %}
           {% endfor %}
-          {% if node_id %}
-            <a class="w3-bar-item w3-button" href="{% url 'file_form' node_id %}"><i class="fa fa-edit fa-lg"></i></a>
-          {% endif %}
-          {% block navadd %}{% endblock %}
+
         </div>
       {% endblock %}
       
       <!-- ContentTitle -->
       {% block contenttitle %}
         {% if not hide_title %}
-          {% if title %}<div class="w3-container"><h3>{% if title_icon != "" %} <i class="fa fa-{{ title_icon }}"></i> {% endif %} {{ title }}</h3></div>{% endif %}
+          {% if title %}
+            <div class="w3-container">
+              <h3>
+                {% if folder.icon != "" %} <i class="fa fa-{{ folder.icon }}" style="color:{{ folder.color }}"></i> {% endif %}
+                {{ title }}
+              </h3>
+            </div>
+          {% endif %}
         {% else %}
           <div class="w3-container"><h1> </h1></div>
         {% endif %}
@@ -49,6 +76,18 @@
 
   </body>
 
-{% block scripts %}{% endblock %}
+{% block scripts %}
+  {{ block.super }}
+  <script>
+    function ShowMenu(menu_id) {
+      var x = document.getElementById(menu_id);
+      if (x.className.indexOf("w3-show") == -1) { 
+        x.className += " w3-show";
+      } else {
+        x.className = x.className.replace(" w3-show", "");
+      }
+    }
+  </script>
+{% endblock %}
 
 </html>

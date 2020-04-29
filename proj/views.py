@@ -7,7 +7,7 @@ from proj.v_proj import do_proj, do_change_dir
 @login_required(login_url='account:login')
 @permission_required('proj.view_proj')
 #============================================================================
-# �।�⠢����� ��� �⮡ࠦ���� ᯨ᪠ ���ࠢ�����
+# Представление для отображения списка направлений
 def dirs_view(request):
     return do_dirs(request, 0)
 
@@ -15,7 +15,7 @@ def dirs_view(request):
 @login_required(login_url='account:login')
 @permission_required('proj.view_proj')
 #============================================================================
-# �।�⠢����� ��� ।���஢���� ���ࠢ�����
+# Представление для редактирования направления
 def dirs_edit(request, pk):
     return do_dirs(request, int(pk))
 
@@ -23,7 +23,7 @@ def dirs_edit(request, pk):
 @login_required(login_url='account:login')
 @permission_required('proj.view_proj')
 #============================================================================
-# �।�⠢����� ��� �⮡ࠦ���� ᯨ᪠ ����権 �஥��
+# Представление для отображения списка операций проекта
 def proj_view(request):
     return do_proj(request, 0)
 
@@ -31,7 +31,7 @@ def proj_view(request):
 @login_required(login_url='account:login')
 @permission_required('proj.view_proj')
 #============================================================================
-# �।�⠢����� ��� ।���஢���� ����樨 �஥��
+# Представление для редактирования операции проекта
 def proj_edit(request, pk):
     return do_proj(request, int(pk))
 
@@ -39,6 +39,6 @@ def proj_edit(request, pk):
 @login_required(login_url='account:login')
 @permission_required('proj.view_proj')
 #============================================================================
-# ��४��祭�� �� ��㣮� ���ࠢ�����
+# Переключение на другое направление
 def change_dir(request, pk):
     return do_change_dir(request, int(pk))

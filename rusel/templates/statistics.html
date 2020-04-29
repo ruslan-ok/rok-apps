@@ -1,0 +1,11 @@
+{% extends "base_window.html" %}
+{% load i18n static %}
+{% block win_content %}
+    {% for r in result %}
+    <p>{{ r }}</p>
+    {% endfor %}
+{% endblock %}
+
+{% block footer %}
+&nbsp;
+{% endblock %}

@@ -9,11 +9,11 @@ from hier.utils import get_base_context
 from .models import Person, Saldo, Trip
 from .forms import TripForm
 
-def do_trip(request, pk):
+def do_trip(request, folder_id, content_id):
     t = None
     if (request.method == 'GET'):
-        if (pk != 0):
-            t = get_object_or_404(Trip, pk = pk)
+        if (content_id != 0):
+            t = get_object_or_404(Trip, pk = content_id)
             form = TripForm(request.user,
                             instance = t,
                             initial = { 'summa': t.summa(),
@@ -86,8 +86,8 @@ def do_trip(request, pk):
                                        'text':      '' })
     else:
         s = 0
-        if (pk != 0):
-            t = get_object_or_404(Trip, pk = pk)
+        if (content_id != 0):
+            t = get_object_or_404(Trip, pk = content_id)
             s = t.summa()
         form = TripForm(request.user,
                         request.POST,
@@ -109,8 +109,8 @@ def do_trip(request, pk):
                                     'day_27': request.POST.get('day_27') != None,
                                     })
         if form.is_valid():
-            if (pk != 0):
-                b = Trip.objects.get(id = pk)
+            if (content_id != 0):
+                b = Trip.objects.get(id = content_id)
                 saldo_update(request.user, b.driver, b.passenger, b.oper, -1*b.summa())
             trip = form.save(commit = False)
             trip.user = request.user
@@ -119,9 +119,13 @@ def do_trip(request, pk):
             saldo_update(request.user, trip.driver, trip.passenger, trip.oper, trip.summa())
             return HttpResponseRedirect(reverse('trip:index'))
 
-    context = get_base_context(request, 0, 0, _('trip').capitalize(), 'trip')
+    if content_id:
+        mode = 'content_form'
+    else:
+        mode = 'content_add'
+    context = get_base_context(request, folder_id, content_id, _('trip').capitalize(), mode)
     context['form'] = form
-    context['trip_id'] = pk
+    context['trip_id'] = content_id
     context['today'] = datetime.today().weekday()
     return render(request, 'trip/trip_form.html', context)
 

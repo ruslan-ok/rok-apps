@@ -23,78 +23,78 @@
 .w3-hover-border-theme:hover {border-color:#466e8b !important}
 
 .brand {
-  text-decoration: none;
+    text-decoration: none;
 }
 
 .rok-field input[type=text], .rok-field input[type=password], .rok-field input[type=email], .rok-field input[type=url], .rok-field input[type=number], .rok-field input[type=tel], textarea, select, .vTextField {
-  border: 1px solid #ccc;
-  border-top-color: rgb(204, 204, 204);
-  border-top-style: solid;
-  border-top-width: 1px;
-  border-right-color: rgb(204, 204, 204);
-  border-right-style: solid;
-  border-right-width: 1px;
-  border-bottom-color: rgb(204, 204, 204);
-  border-bottom-style: solid;
-  border-bottom-width: 1px;
-  border-left-color: rgb(204, 204, 204);
-  border-left-style: solid;
-  border-left-width: 1px;
-  border-image-source: initial;
-  border-image-slice: initial;
-  border-image-width: initial;
-  border-image-outset: initial;
-  border-image-repeat: initial;
-  border-radius: 4px;
-  padding: 5px 6px;
-  margin-right: 10px;
-  display: inline;
-  width: 100%;
+    border: 1px solid #ccc;
+    border-top-color: rgb(204, 204, 204);
+    border-top-style: solid;
+    border-top-width: 1px;
+    border-right-color: rgb(204, 204, 204);
+    border-right-style: solid;
+    border-right-width: 1px;
+    border-bottom-color: rgb(204, 204, 204);
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-left-color: rgb(204, 204, 204);
+    border-left-style: solid;
+    border-left-width: 1px;
+    border-image-source: initial;
+    border-image-slice: initial;
+    border-image-width: initial;
+    border-image-outset: initial;
+    border-image-repeat: initial;
+    border-radius: 4px;
+    padding: 5px 6px;
+    margin-right: 10px;
+    display: inline;
+    width: 100%;
 }
 
 input[type=color] {
     height: 34px;
-  width: 8em;
+    width: 8em;
 }
 
 .password-reset-link {
-  text-align: center;
+    text-align: center;
 }
 
 .button, input[type=submit], input[type=button], .submit-row input, a.button {
-  background: #79aec8;
-  background-image: initial;
-  background-position-x: initial;
-  background-position-y: initial;
-  background-size: initial;
-  background-repeat-x: initial;
-  background-repeat-y: initial;
-  background-attachment: initial;
-  background-origin: initial;
-  background-clip: initial;
-  background-color: rgb(121, 174, 200);
-  padding: 10px 15px;
-  border: none;
-  border-radius: 4px;
-  color: #fff;
-  cursor: pointer;
+    background: #79aec8;
+    background-image: initial;
+    background-position-x: initial;
+    background-position-y: initial;
+    background-size: initial;
+    background-repeat-x: initial;
+    background-repeat-y: initial;
+    background-attachment: initial;
+    background-origin: initial;
+    background-clip: initial;
+    background-color: rgb(121, 174, 200);
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    cursor: pointer;
 }
 
 #footer {
-  clear: both;
-  padding: 10px;
-  padding-top: 10px;
-  padding-right: 10px;
-  padding-bottom: 10px;
-  padding-left: 10px;
+    clear: both;
+    padding: 10px;
+    padding-top: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
 }
 
 .day-th {
-  padding-right: 30px;
+    padding-right: 30px;
 }
 
 .today {
-  color: red;
+    color: red;
 }
 
 .errornote {

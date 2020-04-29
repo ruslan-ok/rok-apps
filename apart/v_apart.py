@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.template import loader
+from django.http import HttpResponse
 from django import forms
 from datetime import date, datetime, timedelta
 from django.forms import ModelForm
@@ -117,7 +119,7 @@ def get_element(_arr, _ndx):
       return 0
 
 
-def edit_context(_request, _form, _debug_text, _year, _month, _new):
+def edit_context(_request, fl, _form, _debug_text, _year, _month, _new):
     el_tar = get_per_tarif(_request.user.id, 1, _year, _month)
     gs_tar = get_per_tarif(_request.user.id, 2, _year, _month)
     wt_tar = get_per_tarif(_request.user.id, 3, _year, _month)
@@ -129,7 +131,7 @@ def edit_context(_request, _form, _debug_text, _year, _month, _new):
     else:
       zf = isFirst(_request.user.id, (_year * 100 + _month))
       zl =  isLast(_request.user.id, (_year * 100 + _month))
-    context = get_base_context(_request, 0, 0, 'Коммунальные платежи', 'apart')
+    context = get_base_context(_request, fl, 0, 'Коммунальные платежи', 'apart')
     context['form'] =        _form 
     context['app_text'] =    'Приложения' 
     context['tarif_text'] =  'Тарифы' 
@@ -168,7 +170,7 @@ def edit_context(_request, _form, _debug_text, _year, _month, _new):
 
 #============================================================================
 # Пустая форма для новой записи
-def apart_get_new(request):
+def apart_get_new(request, fl):
     cur_per = date.today()
     m1 = cur_per.month
     y1 = cur_per.year
@@ -262,12 +264,13 @@ def apart_get_new(request):
                      #initial = {'dCounter': a.dCounter.isoformat(), 
                      #           'dPay':     a.dPay.isoformat()}
                      )
-    context = edit_context(request, form, debug_text, y1, m1, 1) 
-    return render(request, 'apart/apart_edit.html', context)
+    context = edit_context(request, fl, form, debug_text, y1, m1, 1) 
+    template = loader.get_template('apart/apart_edit.html')
+    return HttpResponse(template.render(context, request))
 
 #============================================================================
 # Отображение конкретной записи
-def apart_get_one(request, per, _debug_text):
+def apart_get_one(request, fl, per, _debug_text):
     try:
       a = Communal.objects.get(user = request.user.id, period = per)
     except Communal.DoesNotExist:
@@ -285,32 +288,34 @@ def apart_get_one(request, per, _debug_text):
     form = ApartForm(instance = a, 
                      initial = {'dCounter': (a.dCounter+timedelta(days=1)).date().isoformat(), 
                                 'dPay': (a.dPay+timedelta(days=1)).date().isoformat()})
-    context = edit_context(request, form, _debug_text, a.year, a.month, 0) 
-    return render(request, 'apart/apart_edit.html', context)
+    context = edit_context(request, fl, form, _debug_text, a.year, a.month, 0) 
+    template = loader.get_template('apart/apart_edit.html')
+    return HttpResponse(template.render(context, request))
 
 #============================================================================
 # Представление для отображения списка оплат коммунальных
-def v_apart_view(request):
+def v_apart_view(request, fl):
     aparts = Communal.objects.filter(user = request.user.id).order_by('-period')[:20]
-    context = get_base_context(request, 0, 0, 'Коммунальные платежи', 'apart')
+    context = get_base_context(request, fl, 0, 'Коммунальные платежи', 'apart')
     context['aparts'] =        aparts 
     context['aparts_count'] =  Communal.objects.filter(user = request.user.id).count
     context['app_text'] =    'Приложения' 
     context['tarif_text'] =  'Тарифы' 
     context['page_title'] =  'Коммунальные платежи' 
     context['debug_text'] =  ''
-    return render(request, 'apart/apart.html', context)
+    template = loader.get_template('apart/apart.html')
+    return HttpResponse(template.render(context, request))
 
 #============================================================================
 # Представление для редактирования записи оплаты коммунальных
-def v_apart_edit(request, per):
+def v_apart_edit(request, fl, per):
     if (request.method == 'GET') or (per == '0'):
       if (per == '0'):
         # Пустая форма для новой записи
-        return apart_get_new(request)
+        return apart_get_new(request, fl)
       else:
         # Отображение конкретной записи
-        return apart_get_one(request, int(per), 'ok-1')
+        return apart_get_one(request, fl, int(per), 'ok-1')
     else:
       action = request.POST['action']
       if (action == 'Отменить'):
@@ -320,7 +325,7 @@ def v_apart_edit(request, per):
         form = ApartForm(request.POST)
         if not form.is_valid():
           # Ошибки в форме, отобразить её снова
-          return apart_get_one(request, int(per), str(form.errors.as_data()))
+          return apart_get_one(request, fl, int(per), str(form.errors.as_data()))
         else:
           a = form.save(commit = False)
 
@@ -341,5 +346,6 @@ def v_apart_edit(request, per):
           else:
             # Отобразить ошибку
             debug_text = '2'
-            context = edit_context(request, form, debug_text, y1, m1, int(request.POST['is_new'])) 
-            return render(request, 'apart/apart_edit.html', context)
+            context = edit_context(request, fl, form, debug_text, y1, m1, int(request.POST['is_new'])) 
+            template = loader.get_template('apart/apart_edit.html')
+            return HttpResponse(template.render(context, request))

@@ -10,70 +10,70 @@ from fuel.v_repl import do_repl
 @permission_required('fuel.view_car')
 #============================================================================
 # Представление для отображения списка автомобилей
-def cars_view(request):
-    return do_cars(request, 0)
+def cars_view(request, fl):
+    return do_cars(request, fl, 0)
 
 #============================================================================
 @login_required(login_url='account:login')
 @permission_required('fuel.view_car')
 #============================================================================
 # Представление для редактирования автомобиля
-def cars_edit(request, pk):
-    return do_cars(request, int(pk))
+def cars_edit(request, fl, pk):
+    return do_cars(request, fl, pk)
 
 #============================================================================
 @login_required(login_url='account:login')
 @permission_required('fuel.view_car')
 #============================================================================
 # Представление для отображения списка заправок
-def index(request):
-    return do_fuel(request, 0)
+def fuel_list(request, fl):
+    return do_fuel(request, fl, 0)
 
 #============================================================================
 @login_required(login_url='account:login')
 @permission_required('fuel.view_car')
 #============================================================================
 # Представление для редактирования записи заправки
-def fuel_edit(request, pk):
-    return do_fuel(request, int(pk))
+def fuel_edit(request, fl, pk):
+    return do_fuel(request, fl, pk)
 
 #============================================================================
 @login_required(login_url='account:login')
 @permission_required('fuel.view_car')
 #============================================================================
 # Переключение на другой автомобиль в списке заправок
-def change_car(request, pk):
-    return do_change_car(request, int(pk))
+def change_car(request, fl, pk):
+    return do_change_car(request, fl, pk)
 
 #============================================================================
 @login_required(login_url='account:login')
 @permission_required('fuel.view_car')
 #============================================================================
 # Представление для отображения списка расходников
-def part_view(request):
-    return do_part(request, 0)
+def part_view(request, fl):
+    return do_part(request, fl, 0)
 
 #============================================================================
 @login_required(login_url='account:login')
 @permission_required('fuel.view_car')
 #============================================================================
 # Представление для редактирования расходника
-def part_edit(request, pk):
-    return do_part(request, int(pk))
+def part_edit(request, fl, pk):
+    return do_part(request, fl, pk)
 
 #============================================================================
 @login_required(login_url='account:login')
 @permission_required('fuel.view_car')
 #============================================================================
 # Представление для отображения списка замен заданного расходника
-def repl_view(request, pt):
-    return do_repl(request, int(pt), 0)
+def repl_view(request, fl, pt):
+    return do_repl(request, fl, pt, 0)
 
 #============================================================================
 @login_required(login_url='account:login')
 @permission_required('fuel.view_car')
 #============================================================================
 # Представление для редактирования замены расходника
-def repl_edit(request, pt, pk):
-    return do_repl(request, int(pt), int(pk))
+def repl_edit(request, fl, pt, pk):
+    return do_repl(request, fl, pt, pk)
 

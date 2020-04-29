@@ -3,8 +3,8 @@ from . import views
 
 app_name = 'apart'
 urlpatterns = [
-    path('',                views.apart_view, name='index'),
-    path('<int:per>/',      views.apart_edit, name='apart_edit'),
-    path('tarif/',          views.tarif_view, name='tarif_view'),
-    path('tarif/<int:pk>/', views.tarif_edit, name='tarif_edit'),
+    path('bills/',            views.bills_view,   name='bills_view'),
+    path('bill/<int:per>/',   views.bill_edit,    name='bill_edit'),
+    path('tariffs/',          views.tariffs_view, name='tariffs_view'),
+    path('tariff/<int:pk>/',  views.tariff_edit,  name='tariff_edit'),
 ]

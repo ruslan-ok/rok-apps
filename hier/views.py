@@ -1,6 +1,166 @@
-from django.http import HttpResponseRedirect
+import sys
+from datetime import datetime
+
+from django.contrib.auth.decorators import login_required
+from django.contrib.sites.shortcuts import get_current_site
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django.template import loader
 from django.urls import reverse
+from django.urls.exceptions import NoReverseMatch
+from django.utils.translation import gettext_lazy as _
 
-def index(request):
-    return HttpResponseRedirect(reverse('index', args=(0,)))
+from .models import Folder
+from .forms import FolderForm
+from .utils import rmtree, get_base_context
 
+#----------------------------------
+@login_required(login_url='account:login')
+#----------------------------------
+# Toggle tree node
+#----------------------------------
+def toggle(request, folder_id):
+    node = Folder.objects.filter(id = folder_id).get()
+    node.is_open = not node.is_open
+    node.save()
+    return HttpResponseRedirect(reverse('hier:folder_list', args = [folder_id]))
+
+#----------------------------------
+# Folders List
+#----------------------------------
+def _folder_list(request, folder_id, show_content, query = None):
+    data = Folder.objects.filter(user = request.user.id, node = folder_id).order_by('code', 'name')
+
+    title = _('folders').capitalize()
+    if folder_id:
+        folder = get_object_or_404(Folder.objects.filter(id = folder_id, user = request.user.id))
+        if show_content and folder.model_name:
+            try:
+                if folder.content_id:
+                    url = reverse(folder.model_name + '_form', args = [folder_id, folder.content_id])
+                else:
+                    query_tail = ''
+                    if query:
+                        query_tail = '?q=' + query
+                    url = reverse(folder.model_name + '_list', args = [folder_id]) + query_tail
+                return HttpResponseRedirect(url)
+            except NoReverseMatch:
+                pass
+            else:
+                raise Exception(sys.exc_info()[0])
+        title = folder.name
+
+    return show_page_list(request, folder_id, title, 'folder', data)
+
+#----------------------------------
+def folder_param(request, folder_id):
+    folder = get_object_or_404(Folder.objects.filter(id = folder_id, user = request.user.id))
+    if folder.model_name:
+        try:
+            url = reverse(folder.model_name + '_param', args = [folder_id])
+            return HttpResponseRedirect(url)
+        except NoReverseMatch:
+            pass
+        else:
+            raise Exception(sys.exc_info()[0])
+    return _folder_list(request, folder_id, False)
+
+#----------------------------------
+def folder_list(request, folder_id):
+    query = request.GET.get('q')
+    return _folder_list(request, folder_id, True, query)
+
+#----------------------------------
+def folder_down(request, folder_id):
+    folder = get_object_or_404(Folder.objects.filter(id = folder_id, user = request.user.id))
+    if folder.node:
+        node = get_object_or_404(Folder.objects.filter(id = folder.node, user = request.user.id))
+        if not node.is_open:
+            node.is_open = True
+            node.save()
+        if node.node:
+            node_up = get_object_or_404(Folder.objects.filter(id = node.node, user = request.user.id))
+            if not node_up.is_open:
+                node_up.is_open = True
+                node_up.save()
+    return HttpResponseRedirect(reverse('hier:folder_list', args = [folder_id]))
+
+#----------------------------------
+def folder_dir(request, folder_id):
+    return _folder_list(request, folder_id, False)
+
+#----------------------------------
+def folder_add(request, folder_id):
+    if (request.method == 'POST'):
+        form = FolderForm(request.POST)
+    else:
+        initials = {}
+        if Folder.objects.filter(user = request.user.id, id = folder_id).exists():
+            node = Folder.objects.filter(user = request.user.id, id = folder_id).get()
+            initials['icon'] = node.icon
+            initials['color'] = node.color
+            initials['model_name'] = node.model_name
+        form = FolderForm(initial = initials)
+    return show_page_form(request, folder_id, 0, _('folder').capitalize(), 'folder', form)
+
+#----------------------------------
+def folder_form(request, folder_id):
+    data = get_object_or_404(Folder.objects.filter(id = folder_id, user = request.user.id))
+    if (request.method == 'POST'):
+        form = FolderForm(request.POST, instance = data)
+    else:
+        form = FolderForm(instance = data)
+    return show_page_form(request, data.node, folder_id, _('folder').capitalize(), 'folder', form)
+
+#----------------------------------
+@login_required(login_url='account:login')
+#----------------------------------
+def folder_del(request, folder_id):
+    data = get_object_or_404(Folder.objects.filter(id = folder_id, user = request.user.id))
+    node_id = data.node
+    Folder.objects.get(id = folder_id).delete()
+    return HttpResponseRedirect(reverse('hier:folder_list', args = [node_id]))
+
+
+#----------------------------------
+@login_required(login_url='account:login')
+#----------------------------------
+def folder_move(request, folder_id, to_folder):
+    cur_folder = get_object_or_404(Folder.objects.filter(id = folder_id, user = request.user.id))
+    dst_folder = get_object_or_404(Folder.objects.filter(id = to_folder, user = request.user.id))
+    cur_folder.node = to_folder
+    cur_folder.save()
+    return HttpResponseRedirect(reverse('hier:folder_list', args = [to_folder]))
+
+
+
+#----------------------------------
+@login_required(login_url='account:login')
+#----------------------------------
+def show_page_list(request, folder_id, title, name, data, extra_context = {}):
+    context = get_base_context(request, folder_id, 0, title, 'dir')
+    context[name + 's'] = data
+    context.update(extra_context)
+    template = loader.get_template('hier/' + name + '_list.html')
+    return HttpResponse(template.render(context, request))
+
+#----------------------------------
+@login_required(login_url='account:login')
+#----------------------------------
+def show_page_form(request, node_id, folder_id, title, name, form, extra_context = {}):
+    if (request.method == 'POST'):
+        if form.is_valid():
+            data = form.save(commit = False)
+            data.user = request.user
+            data.node = node_id
+            last_mod = datetime.now()
+            if (folder_id == 0):
+                creation = datetime.now()
+            form.save()
+            folder_id = data.id
+            return HttpResponseRedirect(reverse('hier:' + name + '_list', args = [folder_id]))
+    context = get_base_context(request, folder_id, 0, title, 'folder')
+    context['form'] = form
+    context.update(extra_context)
+    template = loader.get_template('hier/' + name + '_form.html')
+    return HttpResponse(template.render(context, request))

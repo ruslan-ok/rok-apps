@@ -1,13 +1,6 @@
 {% extends "base_window.html" %}
 {% load i18n %}
 
-{% block breadcrumbs %}
-  <a class="w3-bar-item w3-button" href="{% url 'store:index' %}">{% trans 'entries'|capfirst %}</a>
-  {% if pk != 0 %}
-    <a class="w3-bar-item w3-button w3-red w3-right" href="{% url 'store:entry_del' pk %}"><i class="fas fa-trash-alt fa-lg"></i></a>
-  {% endif %}
-{% endblock %}
-
 {% block win_content %}
 <div class="w3-container w3-padding">
 
@@ -29,9 +22,6 @@
       {{ form.url.errors }} {{ form.url.label_tag }} {{ form.url }} {% if form.url.help_text %}<div class="help">{{ form.url.help_text|safe }}</div>{% endif %}
     </div>
     <div class="w3-row w3-margin rok-field">
-      {{ form.group.errors }} {{ form.group.label_tag }} {{ form.group }} {% if form.group.help_text %}<div class="help">{{ form.group.help_text|safe }}</div>{% endif %}
-    </div>
-    <div class="w3-row w3-margin rok-field">
       {{ form.notes.errors }} {{ form.notes.label_tag }} {{ form.notes }} {% if form.notes.help_text %}<div class="help">{{ form.notes.help_text|safe }}</div>{% endif %}
     </div>
     <div class="w3-row w3-margin rok-field">
@@ -39,7 +29,7 @@
     </div>
 
     <div class="w3-row w3-padding">
-      {% if pk == 0 %}
+      {% if content_id == 0 %}
         <input type="submit" value="{% trans 'add'|capfirst %}" class="default">
       {% else %}
         <input type="submit" value="{% trans 'save'|capfirst %}" class="default">

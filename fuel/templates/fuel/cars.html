@@ -4,13 +4,6 @@
 
   <script language="javascript" type="text/javascript">
 
-    function getCarLink(_p)
-    {
-      var html = '<a href="/fuel/cars/' + _p +'/">' + _p + '</a>';
-      document.write(html);
-      return true;
-    }
-
     function getCarMark(_active, _t)
     {
       var html = '';
@@ -85,14 +78,14 @@
     <div class="fieldWrapper"> {{ field.errors }} </div>
   {% endfor %}
 
-  <form id="fld_form" action="{% url 'fuel:cars_edit' pid %}" method="post">
+  <form id="fld_form" action="{% url 'fuel:cars_edit' fl pk %}" method="post">
     {% csrf_token %}
     <input name="active" type="hidden" value="0">
     <table class="fl1">
       <tbody>
-        {% if pid > 0 %} 
+        {% if pk > 0 %} 
         <script language="javascript" type="text/javascript"> bEdit = true; </script>
-        <tr><td class="fl1"> ID: </td><td class="fl2"> {{ pid }} </td> </tr>
+        <tr><td class="fl1"> ID: </td><td class="fl2"> {{ pk }} </td> </tr>
         {% else %}
         <script language="javascript" type="text/javascript"> bEdit = false; </script>
         {% endif %}
@@ -116,7 +109,7 @@
     <tbody>
     {% for p in cars %}
     <tr>
-      <td class="pid">  <script language="javascript" type="text/javascript">getCarLink({{ p.id }})</script> </td>
+      <td class="pid">  <a href="{% url 'fuel:cars_edit' fl p.id %}">{{ p.id }}</a> </td>
       <td class="work"> <script language="javascript" type="text/javascript">getCarMark({{ p.active }}, 1)</script>
                         {{ p.name }}
                         <script language="javascript" type="text/javascript">getCarMark({{ p.active }}, 2)</script></td>

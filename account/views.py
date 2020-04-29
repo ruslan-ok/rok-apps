@@ -22,7 +22,6 @@ from django.contrib.auth import (REDIRECT_FIELD_NAME, get_user_model, login as a
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.decorators import login_required
-from django.contrib.sites.shortcuts import get_current_site
 
 from account.forms import (RegisterForm, PasswordResetForm, SetPasswordForm, PasswordChangeForm, ProfileForm, )
 
@@ -33,6 +32,7 @@ from django.contrib.auth.models import User
 import hashlib
 from django.utils.crypto import get_random_string
  
+from hier.utils import get_base_context
 from account.models import UserExt
 
 UserModel = get_user_model()
@@ -60,6 +60,7 @@ class LoginView(SuccessURLAllowedHostsMixin, FormView):
     @method_decorator(csrf_protect)
     @method_decorator(never_cache)
     def dispatch(self, request, *args, **kwargs):
+        self.extra_context = get_base_context(request, 0, 0, gettext('Log in'), 'dialog')
         if self.redirect_authenticated_user and self.request.user.is_authenticated:
             redirect_to = self.get_success_url()
             if redirect_to == self.request.path:
@@ -101,15 +102,9 @@ class LoginView(SuccessURLAllowedHostsMixin, FormView):
         return HttpResponseRedirect(self.get_success_url())
 
     def get_context_data(self, **kwargs):
-        page_title = gettext('Log in')
         context = super().get_context_data(**kwargs)
-        current_site = get_current_site(self.request)
         context.update({
             self.redirect_field_name: self.get_redirect_url(),
-            'site': current_site,
-            'site_name': current_site.name,
-            'site_header': current_site.name,
-            'title': page_title,
             **(self.extra_context or {})
         })
         return context
@@ -125,6 +120,7 @@ class LogoutView(SuccessURLAllowedHostsMixin, TemplateView):
 
     @method_decorator(never_cache)
     def dispatch(self, request, *args, **kwargs):
+        self.extra_context = get_base_context(request, 0, 0, gettext('Logged out'), 'dialog')
         auth_logout(request)
         next_page = self.get_next_page()
         if next_page:
@@ -163,12 +159,7 @@ class LogoutView(SuccessURLAllowedHostsMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        current_site = get_current_site(self.request)
         context.update({
-            'site': current_site,
-            'site_name': current_site.name,
-            'site_header': current_site.name,
-            'title': gettext('Logged out'),
             **(self.extra_context or {})
         })
         return context
@@ -224,15 +215,9 @@ def register(request):
     else:
         f = RegisterForm()
  
-    current_site = get_current_site(request)
-    context = {
-            'site': current_site,
-            'site_name': current_site.name,
-            'site_header': current_site.name,
-            'title': title,
-            'form': f,
-            'show_form': show_form,
-            }
+    context = get_base_context(request, 0, 0, title, 'dialog')
+    context['form'] = f
+    context['show_form'] = show_form
     return render(request, 'account/register.html', context)
 
 
@@ -248,13 +233,7 @@ def activate_account(request):
     r.email_validated = True
     r.save()
  
-    current_site = get_current_site(request)
-    context = {
-            'site': current_site,
-            'site_name': current_site.name,
-            'site_header': current_site.name,
-            'title': gettext('Account activated'),
-            }
+    context = get_base_context(request, 0, 0, gettext('Account activated'), 'dialog')
     return render(request, 'account/activated.html', context)
 
 class PasswordContextMixin:
@@ -262,9 +241,7 @@ class PasswordContextMixin:
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        current_site = get_current_site(self.request)
         context.update({
-            'site_header': current_site.name,
             'title': self.title,
             **(self.extra_context or {})
         })
@@ -434,13 +411,7 @@ def user_data_changed(user, data, request):
 
 
 def service(request):
-    current_site = get_current_site(request)
-    context = {
-            'site': current_site,
-            'site_name': current_site.name,
-            'site_header': current_site.name,
-            'title': gettext('Profile service'),
-            }
+    context = get_base_context(request, 0, 0, gettext('Profile service'), 'dialog')
     return render(request, 'account/service.html', context)
 
 
@@ -459,16 +430,10 @@ def profile(request):
     else:
         form = ProfileForm(instance = request.user)
 
-    current_site = get_current_site(request)
-    context = {
-            'site': current_site,
-            'site_name': current_site.name,
-            'site_header': current_site.name,
-            'title': gettext('Profile'),
-            'form': form,
-            'fieldset1_name': _('Personal info'),
-            'fieldset2_name': _('Important dates'),
-            }
+    context = get_base_context(request, 0, 0, gettext('Profile'), 'dialog')
+    context['form'] = form
+    context['fieldset1_name'] = _('Personal info')
+    context['fieldset2_name'] = _('Important dates')
     return render(request, 'account/profile.html', context)
 
 

@@ -20,7 +20,7 @@ class TarifForm(ModelForm):
         model = Tarif
         fields = ('resource', 'month', 'year', 'tarif', 'border', 'tarif2', 'border2', 'tarif3', 'text')
 
-def do_tarif(request, pk):
+def do_tarif(request, fl, pk):
     if (request.method == 'POST'):
         action = request.POST['action']
         act = 0
@@ -60,7 +60,7 @@ def do_tarif(request, pk):
               t = get_object_or_404(Tarif, id=pk)
               t.delete()
 
-        return HttpResponseRedirect(reverse('apart:tarif_view', args=()))
+        return HttpResponseRedirect(reverse('apart:tarif_view', args=(fl, )))
     else:
         if (pk > 0):
           t = get_object_or_404(Tarif, pk=pk)
@@ -69,13 +69,9 @@ def do_tarif(request, pk):
           form = TarifForm()
         tarifs = Tarif.objects.filter(user = request.user.id).order_by('-period', 'resource')
         form.fields['resource'].label = 'Ресурс'
-        context = get_base_context(request, 0, 0, 'Тарифы', 'apart')
+        context = get_base_context(request, fl, pk, 'Тарифы', 'apart')
         context['tarifs'] =  tarifs 
         context['form'] =  form 
-        context['app_text'] =  'Приложения' 
-        context['apart_text'] =  'Коммуналка' 
-        context['page_title'] =  'Тарифы' 
-        context['pid'] =  str(pk)
         template = loader.get_template('apart/tarif.html')
         return HttpResponse(template.render(context, request))
 

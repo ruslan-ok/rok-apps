@@ -8,29 +8,29 @@ from apart.v_tarif import do_tarif
 @permission_required('apart.view_communal')
 #============================================================================
 # Представление для отображения списка оплат коммунальных
-def apart_view(request):
-    return v_apart_view(request)
+def bills_view(request, fl):
+    return v_apart_view(request, fl)
 
 #============================================================================
 @login_required(login_url='account:login')
 @permission_required('apart.view_communal')
 #============================================================================
 # Представление для редактирования записи оплаты коммунальных
-def apart_edit(request, per):
-    return v_apart_edit(request, per)
+def bill_edit(request, fl, per):
+    return v_apart_edit(request, fl, per)
 
 #============================================================================
 @login_required(login_url='account:login')
 @permission_required('apart.view_communal')
 #============================================================================
-def tarif_view(request):
-    return do_tarif(request, 0)
+def tariffs_view(request, fl):
+    return do_tarif(request, fl, 0)
 
 #============================================================================
 @login_required(login_url='account:login')
 @permission_required('apart.view_communal')
 #============================================================================
-def tarif_edit(request, pk):
-    return do_tarif(request, pk)
+def tariff_edit(request, fl, pk):
+    return do_tarif(request, fl, pk)
 
 

@@ -1,0 +1,52 @@
+{% extends "base_window.html" %}
+
+{% block win_content %}
+
+  <div class="w3-row">
+    {% for note in news %}
+      <a class="w3-bar-item w3-button" href="{% url 'note:news_form' note.0.id note.1.id %}">{{ note.1.publ|date:'d.m.Y' }}</a>
+      <button onclick="myFunction('Demo{{ note.1.id }}')" class="w3-bar-item w3-button w3-left-align">{{ note.1.name }}</button><br>
+      <div id="Demo{{ note.1.id }}" class="w3-border w3-padding w3-light-gray w3-hide">
+        {% autoescape off %}
+        {{ note.1.descr }}
+        {% endautoescape %}
+      </div>
+    {% endfor %}
+  </div>
+
+  <p>
+  <div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a class="w3-button" href="?q={{ request.GET.q }}&page=1">&laquo;</a>
+            <a class="w3-button" href="?q={{ request.GET.q }}&page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
+        {% endif %}
+
+        <span class="current active w3-button w3-theme-l1">
+            {{ page_obj.number }}
+        </span>
+
+        {% if page_obj.has_next %}
+            <a class="w3-button" href="?q={{ request.GET.q }}&page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>
+            <a class="w3-button" href="?q={{ request.GET.q }}&page={{ page_obj.paginator.num_pages }}">&raquo;</a>
+        {% endif %}
+    </span>
+  </div>
+  <p>
+
+{% endblock %}
+
+
+{% block scripts %}
+  {{ block.super }}
+  <script>
+    function myFunction(id) {
+      var x = document.getElementById(id);
+      if (x.className.indexOf("w3-show") == -1) {
+        x.className += " w3-show";
+      } else { 
+        x.className = x.className.replace(" w3-show", "");
+      }
+    }
+  </script>
+{% endblock %}

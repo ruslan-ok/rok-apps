@@ -1,0 +1,21 @@
+{% extends "base_window.html" %}
+
+{% block win_content %}
+
+<div class="w3-row">
+
+  {% for set in sets %}
+    <div class="w3-quarter">
+      <div class="w3-card-4 w3-bar-block w3-padding w3-margin">
+        <a class="w3-bar-item w3-button w3-padding" style="background: {{ set.0.color }}; color: {% if set.0.use_black %}Black{% else %}White{% endif %};"
+           href="{% if set.2 %}{% url 'note:note_add' set.0.id %}{% else %}{% url 'note:note_down' set.0.id %}{% endif %}">
+             <h5>{{ set.0.name }}</h5></a>
+        {% for note in set.1 %}
+          <a class="w3-bar-item w3-button" href="{% url 'hier:folder_down' note.id %}">{{ note.name }}</a>
+        {% endfor %}
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

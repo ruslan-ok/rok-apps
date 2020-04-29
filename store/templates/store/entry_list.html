@@ -1,0 +1,53 @@
+{% extends "base_window.html" %}
+{% load i18n %}
+
+{% block win_content %}
+
+  Total: {{ total }}<br>
+
+  <table class="w3-table-all w3-hoverable w3-card-4" style="width:1200px">
+    <thead>
+      <tr class="w3-theme-l3">
+        <th>{% trans 'title'|capfirst %}</th>
+        <th>{% trans 'username'|capfirst %}</th>
+        <th>{% trans 'value'|capfirst %}</th>
+        <th>{% trans 'url'|capfirst %}</th>
+        <th>{% trans 'notes'|capfirst %}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for entry in page_obj %}
+      <tr>
+        <td><a href="{% url 'store:entry_form' entry.get_folder entry.id %}?q={{ request.GET.q }}&page={{ page_obj.number }}">
+            {{ entry.title }}</a></td>
+        <td>{{ entry.username }}</td>
+        <td>{{ entry.value }}</td>
+        <td><a href="{% url 'store:entry_form' entry.get_folder entry.id %}?q={{ request.GET.q }}&page={{ page_obj.number }}">
+            {{ entry.url }}</a></td>
+        <td class="w3-center"><a href="{% url 'store:entry_form' entry.get_folder entry.id %}?q={{ request.GET.q }}&page={{ page_obj.number }}">
+            {{ entry.have_notes }}</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p>
+  <div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a class="w3-button" href="?q={{ request.GET.q }}&page=1">&laquo;</a>
+            <a class="w3-button" href="?q={{ request.GET.q }}&page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
+        {% endif %}
+
+        <span class="current active w3-button w3-theme-l1">
+            {{ page_obj.number }}
+        </span>
+
+        {% if page_obj.has_next %}
+            <a class="w3-button" href="?q={{ request.GET.q }}&page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>
+            <a class="w3-button" href="?q={{ request.GET.q }}&page={{ page_obj.paginator.num_pages }}">&raquo;</a>
+        {% endif %}
+    </span>
+  </div>
+  <p>
+
+{% endblock %}

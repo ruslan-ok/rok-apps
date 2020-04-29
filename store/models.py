@@ -3,7 +3,10 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 
+from hier.models import Folder
+
 #----------------------------------
+# deprecated
 class Group(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
     code = models.CharField(_('code').capitalize(), max_length=100, blank = True)
@@ -42,8 +45,13 @@ class Entry(models.Model):
         else:
             return '@'
 
+    def get_folder(self):
+        if Folder.objects.filter(content_id = self.id, model_name = 'store:entry').exists():
+            return Folder.objects.filter(content_id = self.id, model_name = 'store:entry')[0].id
+        return 0
 
 #----------------------------------
+# deprecated
 class History(models.Model):
     node = models.ForeignKey(Entry, verbose_name = _('node').capitalize(), on_delete = models.CASCADE, related_name='node')
     data = models.ForeignKey(Entry, verbose_name = _('entry').capitalize(), on_delete = models.CASCADE, related_name='data')
