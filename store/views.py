@@ -28,46 +28,54 @@ def entry_list(request, folder_id):
     if Folder.objects.filter(user = request.user.id, node = folder_id).exclude(content_id = 0).exclude(model_name = 'store:entry').exists():
         return HttpResponseRedirect(reverse('hier:folder_dir', args = [folder_id]))
 
-    params = get_params(request.user)
+    data = []
     if request.method != 'GET':
         files = Folder.objects.filter(user = request.user.id, node = folder_id).order_by('code', 'name')
-        data = []
         for file in files:
-            data.append(Entry.objects.filter(user = request.user.id, id = file.content_id).get())
+            add_entry(data, file.id, Entry.objects.filter(user = request.user.id, id = file.content_id).get())
         page_number = 1
     else:
         page_number = request.GET.get('page')
         query = request.GET.get('q')
-        if (not query):
-            files = Folder.objects.filter(user = request.user.id, node = folder_id).order_by('code', 'name')
-            data = []
-            for file in files:
-                data.append(Entry.objects.filter(user = request.user.id, id = file.content_id).get())
-            #data = Entry.objects.filter(user = request.user.id, actual = 1).order_by('title')
-        else:
-            """
-            _mutable = request.GET._mutable
-            request.GET._mutable = True
-            request.GET['q'] = ''
-            request.GET._mutable = _mutable
-            """
+        if query:
             lookups = Q(title__icontains=query) | Q(username__icontains=query) | Q(url__icontains=query) | Q(notes__icontains=query)
-            data = Entry.objects.filter(user = request.user.id, actual = 1).filter(lookups).distinct()
-        params.save()
-    
+            for entry in Entry.objects.filter(user = request.user.id, actual = 1).filter(lookups).distinct():
+                if Folder.objects.filter(user = request.user.id, node = folder_id, model_name = 'store:entry', content_id = entry.id).exists(): 
+                    file = Folder.objects.filter(user = request.user.id, node = folder_id, model_name = 'store:entry', content_id = entry.id).get()
+                    add_entry(data, file.id, entry)
+        else:
+            files = Folder.objects.filter(user = request.user.id, node = folder_id).order_by('code', 'name')
+            for file in files:
+                if Entry.objects.filter(user = request.user.id, id = file.content_id).exists():
+                    add_entry(data, file.id, Entry.objects.filter(user = request.user.id, id = file.content_id).get())
+                else:
+                    data.append({ 'folder_id': file.id,
+                                  'id': 0,
+                                  'title': file.name })
+
     paginator = Paginator(data, 10)
     page_obj = paginator.get_page(page_number)
     
     stat = []
     stat.append(['Entry', len(Entry.objects.all())])
 
-    context = get_base_context(request, folder_id, 0)
+    context = get_base_context(request, folder_id, 0, '', 'content_list')
     context['total'] = len(data)
     context['page_obj'] = page_obj
     context['stat'] = stat
     context['debug'] = 'Entry_Qty = ' + str(len(Entry.objects.all()))
     template = loader.get_template('store/entry_list.html')
     return HttpResponse(template.render(context, request))
+
+#----------------------------------
+def add_entry(data, file_id, entry):
+    data.append({ 'folder_id': file_id,
+                  'id': entry.id,
+                  'title': entry.title,
+                  'username': entry.username,
+                  'value': entry.value,
+                  'url': entry.url,
+                  'have_notes': entry.have_notes() })
 
 #----------------------------------
 def entry_add(request, folder_id):
@@ -119,7 +127,7 @@ def entry_move(request, folder_id, content_id, to_folder):
 @permission_required('store.view_entry')
 #----------------------------------
 def show_page_list(request, folder_id, title, name, data, total = 0):
-    context = get_base_context(request, folder_id, 0, title)
+    context = get_base_context(request, folder_id, 0, title, 'content_list')
     context['total'] = total
     context[name + 's'] = data
     template = loader.get_template('store/' + name + '_list.html')
@@ -141,11 +149,7 @@ def show_page_form(request, folder_id, content_id, title, name, form, extra_cont
                 return HttpResponseRedirect(reverse('store:entry_list', args = [folder_id]) + list_filter)
             else:
                 return HttpResponseRedirect(reverse('store:' + name + '_list', args = [folder_id]))
-    if content_id:
-        mode = 'content_form'
-    else:
-        mode = 'content_add'
-    context = get_base_context(request, folder_id, content_id, title, mode)
+    context = get_base_context(request, folder_id, content_id, title)
     context['form'] = form
     context.update(extra_context)
     template = loader.get_template('store/' + name + '_form.html')
@@ -235,7 +239,7 @@ def xml_import(request, folder_id):
     stat = []
     stat.append(['Entry', len(Entry.objects.all())])
 
-    context = get_base_context(request, folder_id, 0, _('entries').capitalize())
+    context = get_base_context(request, folder_id, 0, _('entries'))
     context['stat'] = stat
     context['imp_data'] = imp_data
     context['imp_errors'] = imp_errors

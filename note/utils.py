@@ -7,6 +7,9 @@ from hier.models import Folder
 #----------------------------------
 def get_ready_folder(user_id, note_file_id):
     note_file = get_object_or_404(Folder.objects.filter(user = user_id, id = note_file_id))
+    if not note_file.node:
+        return None
+
     list_file = get_object_or_404(Folder.objects.filter(user = user_id, id = note_file.node))
     if (list_file.name == 'Готово'):
         return list_file

@@ -3,9 +3,9 @@ from . import views
 
 app_name = 'proj'
 urlpatterns = [
-    path('',                  views.proj_view,  name='proj_view'),
-    path('<int:pk>/',         views.proj_edit,  name='proj_edit'),
-    path('dirs/',             views.dirs_view,  name='dirs_view'),
-    path('dirs/<int:pk>/',    views.dirs_edit,  name='dirs_edit'),
-    path('chg_dir/<int:pk>/', views.change_dir, name='change_dir'),
+    path('',                          views.proj_list,  name='proj_list'),
+    path('<int:content_id>/',         views.proj_form,  name='proj_form'),
+    path('dirs/',                     views.dirs_list,  name='dirs_list'),
+    path('dirs/<int:content_id>/',    views.dirs_form,  name='dirs_form'),
+    path('chg_dir/<int:content_id>/', views.change_dir, name='change_dir'),
 ]

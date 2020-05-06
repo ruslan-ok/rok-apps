@@ -3,17 +3,17 @@ from . import views
 
 app_name = 'fuel'
 urlpatterns = [
-    path('fuel/',             views.fuel_list,  name='fuel_list'),
-    path('fuel/<int:pk>/',    views.fuel_edit,  name='fuel_edit'),
+    path('fuel/',                           views.fuel_list,  name='fuel_list'),
+    path('fuel/<int:content_id>/',          views.fuel_form,  name='fuel_form'),
 
-    path('part/',             views.part_view,  name='part_view'),
-    path('part/<int:pk>/',    views.part_edit,  name='part_edit'),
+    path('part/',                           views.part_list,  name='part_list'),
+    path('part/<int:content_id>/',          views.part_form,  name='part_form'),
     
-    path('repl/<int:pt>/',    views.repl_view,  name='repl_view'),
-    path('repl/<int:pt>/<int:pk>/', views.repl_edit,  name='repl_edit'),
+    path('repl/<int:content_id>/',          views.repl_list,  name='repl_list'),
+    path('repl/<int:pt>/<int:content_id>/', views.repl_form,  name='repl_form'),
     
-    path('cars/',             views.cars_view,  name='cars_view'),
-    
-    path('car/<int:pk>/',     views.cars_edit,  name='cars_edit'),
-    path('chg_car/<int:pk>/', views.change_car, name='change_car'),
+    path('cars/',                           views.cars_list,  name='cars_list'),
+
+    path('cars/<int:content_id>/',          views.cars_form,  name='cars_form'),
+    path('chg_car/<int:content_id>/',       views.change_car, name='change_car'),
 ]

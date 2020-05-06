@@ -27,7 +27,7 @@ class TripsListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context_add = get_base_context(self.request, self.kwargs['folder_id'], 0, _('trips').capitalize(), 'content_list')
+        context_add = get_base_context(self.request, self.kwargs['folder_id'], 0, _('trips'), 'content_list')
         context.update(context_add)
         context['trip_summary'] = trip_summary(self.request.user.id)
         return context
@@ -82,7 +82,7 @@ class PersonsListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context_add = get_base_context(request, self.kwargs['folder_id'], 0, _('persons').capitalize(), 'content_list')
+        context_add = get_base_context(self.request, self.kwargs['folder_id'], 0, _('persons'), 'content_list')
         context.update(context_add)
         return context
 

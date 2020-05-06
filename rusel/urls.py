@@ -20,22 +20,22 @@ from . import views
 from . import utils
 
 urlpatterns = i18n_patterns(
-    path('',                 views.index,      name='index'),
-    path('feedback/',        views.feedback,   name='feedback'),
-    path('convert/',         utils.convert,    name='convert'),
-    path('statistics/',      utils.statistics, name='statistics'),
+    path('',            views.index,      name='index'),
+    path('feedback/',   views.feedback,   name='feedback'),
+    path('convert/',    utils.convert,    name='convert'),
+    path('statistics/', utils.statistics, name='statistics'),
 
-    path('<int:folder_id>/trip/',   include('trip.urls')),
-    path('<int:fl>/fuel/',   include('fuel.urls')),
-    path('<int:fl>/apart/',  include('apart.urls')),
-    path('<int:fl>/proj/',   include('proj.urls')),
-    path('<int:fl>/task/',   include('task.urls')),
-    path('<int:folder_id>/note/',   include('note.urls')),
-    path('<int:fl>/pir/',    include('pir.urls')),
-    path('<int:folder_id>/store/',  include('store.urls')),
-    path('<int:fl>/wage/',   include('wage.urls')),
-    path('<int:folder_id>/', include('hier.urls')),
+    path('<int:folder_id>/trip/',  include('trip.urls')),
+    path('<int:folder_id>/fuel/',  include('fuel.urls')),
+    path('<int:folder_id>/apart/', include('apart.urls')),
+    path('<int:folder_id>/proj/',  include('proj.urls')),
+    path('<int:folder_id>/task/',  include('task.urls')),
+    path('<int:folder_id>/note/',  include('note.urls')),
+    path('<int:folder_id>/pir/',   include('pir.urls')),
+    path('<int:folder_id>/store/', include('store.urls')),
+    path('<int:folder_id>/wage/',  include('wage.urls')),
+    path('<int:folder_id>/',       include('hier.urls')),
 
-    path('account/',  include('account.urls')),
-    path('admin/',    admin.site.urls, name='admin'),
+    path('account/', include('account.urls')),
+    path('admin/',   admin.site.urls, name='admin'),
 )

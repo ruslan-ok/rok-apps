@@ -12,7 +12,7 @@ from django.utils.translation import gettext_lazy as _
 
 from .models import Folder
 from .forms import FolderForm
-from .utils import rmtree, get_base_context
+from .utils import rmtree, get_base_context, save_folder_id
 
 #----------------------------------
 @login_required(login_url='account:login')
@@ -30,6 +30,7 @@ def toggle(request, folder_id):
 #----------------------------------
 def _folder_list(request, folder_id, show_content, query = None):
     data = Folder.objects.filter(user = request.user.id, node = folder_id).order_by('code', 'name')
+    save_folder_id(request.user, folder_id)
 
     title = _('folders').capitalize()
     if folder_id:
@@ -161,6 +162,7 @@ def show_page_form(request, node_id, folder_id, title, name, form, extra_context
             return HttpResponseRedirect(reverse('hier:' + name + '_list', args = [folder_id]))
     context = get_base_context(request, folder_id, 0, title, 'folder')
     context['form'] = form
+    context['pk'] = folder_id
     context.update(extra_context)
     template = loader.get_template('hier/' + name + '_form.html')
     return HttpResponse(template.render(context, request))

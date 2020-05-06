@@ -25,11 +25,7 @@ def do_pers(request, folder_id, content_id):
             pers.save()
             return HttpResponseRedirect(reverse('trip:pers_list'))
 
-    if content_id:
-        mode = 'content_form'
-    else:
-        mode = 'content_add'
-    context = get_base_context(request, folder_id, content_id, _('person').capitalize(), mode)
+    context = get_base_context(request, folder_id, content_id, _('person'))
     context['form'] = form
     context['pers_id'] = content_id
     context['me'] = get_me_code(request.user)

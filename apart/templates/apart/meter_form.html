@@ -1,0 +1,54 @@
+{% extends "base_window.html" %}
+{% load i18n %}
+
+{% block win_content %}
+<div class="w3-container w3-padding">
+<div class="w3-row">
+<div class="w3-half">
+  <form method="post" class="w3-container w3-card-4 w3-light-grey">{% csrf_token %}
+
+    {% if form.errors %} <p class="errornote"> {% if form.errors.items|length == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %} </p> {% endif %}
+    {% if form.non_field_errors %} {% for error in form.non_field_errors %} <p class="errornote"> {{ error }} </p> {% endfor %} {% endif %}
+
+    <div class="w3-row">
+      <div class="w3-half"><div class="w3-margin rok-field">
+        {{ form.period.errors }} {{ form.period.label_tag }} {{ form.period }} {% if form.period.help_text %}<div class="help">{{ form.period.help_text|safe }}</div>{% endif %}
+      </div></div>
+      <div class="w3-half"><div class="w3-margin rok-field">
+        {{ form.reading.errors }} {{ form.reading.label_tag }} {{ form.reading }} {% if form.reading.help_text %}<div class="help">{{ form.reading.help_text|safe }}</div>{% endif %}
+      </div></div>
+    </div>
+
+    <div class="w3-row">
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+        {{ form.el.errors }} {{ form.el.label_tag }} {{ form.el }} {% if form.el.help_text %}<div class="help">{{ form.el.help_text|safe }}</div>{% endif %}
+      </div></div>
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+        {{ form.hw.errors }} {{ form.hw.label_tag }} {{ form.hw }} {% if form.hw.help_text %}<div class="help">{{ form.hw.help_text|safe }}</div>{% endif %}
+      </div></div>
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+        {{ form.cw.errors }} {{ form.cw.label_tag }} {{ form.cw }} {% if form.cw.help_text %}<div class="help">{{ form.cw.help_text|safe }}</div>{% endif %}
+      </div></div>
+      {% if apart.has_gas %}
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+        {{ form.ga.errors }} {{ form.ga.label_tag }} {{ form.ga }} {% if form.ga.help_text %}<div class="help">{{ form.ga.help_text|safe }}</div>{% endif %}
+      </div></div>
+      {% else %}
+      <input type="hidden" name="ga" value="{{ form.ga.value }}">
+      {% endif %}
+    </div>
+
+    <div class="w3-row w3-padding">
+      {% if pk == 0 %}
+        <input type="submit" value="{% trans 'add'|capfirst %}" class="default">
+      {% else %}
+        <input type="submit" value="{% trans 'save'|capfirst %}" class="default">
+      {% endif %}
+      <p>
+    </div>
+
+  </form>
+</div>
+</div>
+</div>
+{% endblock %}

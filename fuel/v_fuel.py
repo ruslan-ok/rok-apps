@@ -17,12 +17,12 @@ class FuelForm(forms.ModelForm):
         exclude = ('car',)
 
 #============================================================================
-def edit_context(request, form, car, fl, pk, debug_text):
+def edit_context(request, form, car, folder_id, content_id, debug_text):
     fuels = Fuel.objects.filter(car = car).order_by('-pub_date')[:20]
     curcar = Car.objects.get(user = request.user.id, active = 1)
     cars = Car.objects.filter(user = request.user.id, active = 0)
     summary = fuel_summary(request.user.id)
-    context = get_base_context(request, fl, pk, 'Заправка ' + curcar.name, 'fuel')
+    context = get_base_context(request, folder_id, content_id, 'Заправка ' + curcar.name)
     context['form'] =         form 
     context['fuels'] =        fuels
     context['cars'] =         cars 
@@ -37,7 +37,7 @@ def edit_context(request, form, car, fl, pk, debug_text):
     return context
 
 #============================================================================
-def do_fuel(request, fl, pk):
+def do_fuel(request, folder_id, content_id):
     try:
       car = Car.objects.get(user = request.user.id, active = 1)
     except Car.DoesNotExist:
@@ -50,13 +50,13 @@ def do_fuel(request, fl, pk):
         car.save()
     
     if (car == None):
-      return HttpResponseRedirect(reverse('fuel:cars_edit', args=[fl, 0]))
+      return HttpResponseRedirect(reverse('fuel:cars_form', args=[folder_id, 0]))
 
     if (request.method == 'GET'):
       ttt = date.today()
-      if (pk > 0):
+      if (content_id > 0):
         # Отображение конкретной записи
-        t = get_object_or_404(Fuel, pk=pk)
+        t = get_object_or_404(Fuel, id = content_id)
         ttt = t.pub_date.date()
         form = FuelForm(instance = t,
                         initial={'pub_date': ttt.isoformat()})
@@ -87,7 +87,7 @@ def do_fuel(request, fl, pk):
                                  'pub_date': new_dat.isoformat(),
                                  'odometr': new_odo, 
                                  'volume': new_vol, 'price': new_prc })
-      context = edit_context(request, form, car, fl, pk, '')
+      context = edit_context(request, form, car, folder_id, content_id, '')
       return render(request, 'fuel/fuel.html', context)
     else:
       action = request.POST.get('action', False)
@@ -111,7 +111,7 @@ def do_fuel(request, fl, pk):
         form = FuelForm(request.POST)
         if not form.is_valid():
           # Ошибки в форме, отобразить её снова
-          context = edit_context(request, form, car, fl, pk, 'post-error' + str(form.non_field_errors))
+          context = edit_context(request, form, car, folder_id, content_id, 'post-error' + str(form.non_field_errors))
           return render(request, 'fuel/fuel.html', context)
         else:
           t = form.save(commit=False)
@@ -122,23 +122,23 @@ def do_fuel(request, fl, pk):
             t.save()
     
           if (act == 3):
-            t.id = pk
+            t.id = content_id
             t.car = car
             t.pub_date = t.pub_date + timedelta(days=1)
             t.save()
     
           if (act == 4):
-            t = get_object_or_404(Fuel, id=pk)
+            t = get_object_or_404(Fuel, id=content_id)
             t.delete()
     
       return HttpResponseRedirect(reverse('fuel:index'))
 
-def do_change_car(request, fl, pk):
+def do_change_car(request, folder_id, content_id):
     active_cars = Car.objects.filter(user = request.user.id, active = 1)
     for c in active_cars:
       c.active = 0
       c.save()
-    car = Car.objects.get(id = pk)
+    car = Car.objects.get(id = content_id)
     car.active = 1
     car.save()
     return HttpResponseRedirect(reverse('fuel:index'))

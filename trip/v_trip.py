@@ -119,11 +119,7 @@ def do_trip(request, folder_id, content_id):
             saldo_update(request.user, trip.driver, trip.passenger, trip.oper, trip.summa())
             return HttpResponseRedirect(reverse('trip:index'))
 
-    if content_id:
-        mode = 'content_form'
-    else:
-        mode = 'content_add'
-    context = get_base_context(request, folder_id, content_id, _('trip').capitalize(), mode)
+    context = get_base_context(request, folder_id, content_id, _('trip'))
     context['form'] = form
     context['trip_id'] = content_id
     context['today'] = datetime.today().weekday()

@@ -45,11 +45,6 @@ class Entry(models.Model):
         else:
             return '@'
 
-    def get_folder(self):
-        if Folder.objects.filter(content_id = self.id, model_name = 'store:entry').exists():
-            return Folder.objects.filter(content_id = self.id, model_name = 'store:entry')[0].id
-        return 0
-
 #----------------------------------
 # deprecated
 class History(models.Model):
@@ -63,6 +58,7 @@ class History(models.Model):
 #----------------------------------
 class Params(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'), related_name='store_user')
+    #deprecated
     group = models.ForeignKey(Group, on_delete=models.CASCADE, null = True, verbose_name=_('group filter'), blank = True)
     ln = models.IntegerField(_('length').capitalize(), default = 20)
     uc = models.BooleanField(_('upper case').capitalize(), default = True)

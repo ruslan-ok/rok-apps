@@ -1,0 +1,48 @@
+{% extends "base_window.html" %}
+{% load i18n %}
+
+{% block win_content %}
+<div class="w3-container w3-padding">
+<div class="w3-row">
+<div class="w3-half">
+  <form method="post" class="w3-container w3-card-4 w3-light-grey" style="width:20em">{% csrf_token %}
+
+    {% if form.errors %} <p class="errornote"> {% if form.errors.items|length == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %} </p> {% endif %}
+    {% if form.non_field_errors %} {% for error in form.non_field_errors %} <p class="errornote"> {{ error }} </p> {% endfor %} {% endif %}
+
+    <div class="w3-row w3-margin rok-field">
+      {{ form.service.errors }} {{ form.service.label_tag }} {{ form.service }} {% if form.service.help_text %}<div class="help">{{ form.service.help_text|safe }}</div>{% endif %}
+    </div>
+    <div class="w3-row w3-margin rok-field">
+      {{ form.period.errors }} {{ form.period.label_tag }} {{ form.period }} {% if form.period.help_text %}<div class="help">{{ form.period.help_text|safe }}</div>{% endif %}
+    </div>
+    <div class="w3-row w3-margin rok-field">
+      {{ form.tarif.errors }} {{ form.tarif.label_tag }} {{ form.tarif }} {% if form.tarif.help_text %}<div class="help">{{ form.tarif.help_text|safe }}</div>{% endif %}
+    </div>
+    <div class="w3-row w3-margin rok-field">
+      {{ form.border.errors }} {{ form.border.label_tag }} {{ form.border }} {% if form.border.help_text %}<div class="help">{{ form.border.help_text|safe }}</div>{% endif %}
+    </div>
+    <div class="w3-row w3-margin rok-field">
+      {{ form.tarif2.errors }} {{ form.tarif2.label_tag }} {{ form.tarif2 }} {% if form.tarif2.help_text %}<div class="help">{{ form.tarif2.help_text|safe }}</div>{% endif %}
+    </div>
+    <div class="w3-row w3-margin rok-field">
+      {{ form.border2.errors }} {{ form.border2.label_tag }} {{ form.border2 }} {% if form.border2.help_text %}<div class="help">{{ form.border2.help_text|safe }}</div>{% endif %}
+    </div>
+    <div class="w3-row w3-margin rok-field">
+      {{ form.tarif3.errors }} {{ form.tarif3.label_tag }} {{ form.tarif3 }} {% if form.tarif3.help_text %}<div class="help">{{ form.tarif3.help_text|safe }}</div>{% endif %}
+    </div>
+
+    <div class="w3-row w3-padding">
+      {% if pk == 0 %}
+        <input type="submit" value="{% trans 'add'|capfirst %}" class="default">
+      {% else %}
+        <input type="submit" value="{% trans 'save'|capfirst %}" class="default">
+      {% endif %}
+      <p>
+    </div>
+
+  </form>
+</div>
+</div>
+</div>
+{% endblock %}

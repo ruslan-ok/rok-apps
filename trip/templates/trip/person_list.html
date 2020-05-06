@@ -16,8 +16,8 @@
     </tr>
     {% for pers in object_list %}
       <tr>
-        <td><a href="{% url 'trip:pers_edit' pers.id %}">{{ pers.name }}</a></td>
-        <td><a href="{% url 'trip:pers_edit' pers.id %}">{{ pers.dative }}</a></td>
+        <td><a href="{% url 'trip:pers_edit' folder.id pers.id %}">{{ pers.name }}</a></td>
+        <td><a href="{% url 'trip:pers_edit' folder.id pers.id %}">{{ pers.dative }}</a></td>
         <td>{{ pers.me }}</td>
       </tr>
     {% endfor %}

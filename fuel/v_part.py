@@ -17,7 +17,7 @@ class PartForm(forms.ModelForm):
         exclude = ('car',)
 
 #============================================================================
-def edit_context(request, form, car, fl, pk, _last_date, _last_odo, debug_text):
+def edit_context(request, form, car, folder_id, content_id, _last_date, _last_odo, debug_text):
     car = Car.objects.get(id = car)
     parts = Part.objects.filter(car = car)
     fuel_odo  = 0
@@ -29,7 +29,7 @@ def edit_context(request, form, car, fl, pk, _last_date, _last_odo, debug_text):
     s_last_date = ''
     if (_last_date != date.min):
       s_last_date = _last_date.strftime('%d.%m.%Y')
-    context = get_base_context(request, fl, pk, 'Список расходников ' + car.name, 'fuel')
+    context = get_base_context(request, folder_id, content_id, 'Список расходников ' + car.name)
     context['form'] =        form 
     context['parts'] =       parts 
     context['last_date'] =   s_last_date
@@ -43,7 +43,7 @@ def edit_context(request, form, car, fl, pk, _last_date, _last_odo, debug_text):
     return context
 
 #============================================================================
-def do_part(request, fl, pk):
+def do_part(request, folder_id, content_id):
     try:
       car = Car.objects.get(user = request.user.id, active = 1)
     except Car.DoesNotExist:
@@ -56,18 +56,18 @@ def do_part(request, fl, pk):
         car.save()
     
     if (car == None):
-      return HttpResponseRedirect(reverse('fuel:part_view', args = [fl]))
+      return HttpResponseRedirect(reverse('fuel:part_list', args = [folder_id]))
 
     if (request.method == 'GET'):
-      if (pk > 0):
+      if (content_id > 0):
         # Отображение конкретной записи
-        t = get_object_or_404(Part, pk=pk)
+        t = get_object_or_404(Part, id = content_id)
         form = PartForm(instance = t)
-        context = edit_context(request, form, car.id, fl, pk, t.last_date(), t.last_odo(), '')
+        context = edit_context(request, form, car.id, folder_id, content_id, t.last_date(), t.last_odo(), '')
       else:
         # Пустая форма для новой записи
         form = PartForm(initial={'car': car, 'name': '', 'comment': ''})
-        context = edit_context(request, form, car.id, fl, pk, date.min, 0, '')
+        context = edit_context(request, form, car.id, folder_id, content_id, date.min, 0, '')
       return render(request, 'fuel/part.html', context)
     else:
       action = request.POST.get('action', False)
@@ -91,7 +91,7 @@ def do_part(request, fl, pk):
         form = PartForm(request.POST)
         if not form.is_valid():
           # Ошибки в форме, отобразить её снова
-          context = edit_context(request, form, car.id, fl, pk, date.min, 0, 'post-error' + str(form.non_field_errors))
+          context = edit_context(request, form, car.id, folder_id, content_id, date.min, 0, 'post-error' + str(form.non_field_errors))
           return render(request, 'fuel/part.html', context)
         else:
           t = form.save(commit = False)
@@ -105,7 +105,7 @@ def do_part(request, fl, pk):
             t.save()
     
           if (act == 3):
-            t.id = pk
+            t.id = content_id
             t.car = car
             if (t.chg_km == None):
               t.chg_km = 0
@@ -114,7 +114,7 @@ def do_part(request, fl, pk):
             t.save()
     
           if (act == 4):
-            t = get_object_or_404(Part, id=pk)
+            t = get_object_or_404(Part, id=content_id)
             t.delete()
     
-      return HttpResponseRedirect(reverse('fuel:part_view', args = [fl]))
+      return HttpResponseRedirect(reverse('fuel:part_list', args = [folder_id]))

@@ -6,7 +6,7 @@
     <title>{% block title %}{% if user.is_authenticated %} {% endif %}{{ title|default:'*****  title  *****' }}{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% block extrastyle %}{% endblock %}
-    <link rel="stylesheet" type="text/css" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'rok/css/w3.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'rok/css/rok.css' %}">
     <meta name="robots" content="NONE,NOARCHIVE">
     <script src="https://kit.fontawesome.com/43050fb1f9.js" crossorigin="anonymous"></script>

@@ -36,7 +36,7 @@ def index(request):
     stat.append(['Payment',   len(Payment.objects.all())])
 
     param = get_param(request.user)
-    context = get_base_context(request, 0, 0, 'Работа', 'wage')
+    context = get_base_context(request, 0, 0, 'Работа', 'content_list')
     context['period_form'] = get_period_form(request, param)
     context['tree'] = build_tree(request.user, 0, param.d_scan())
     context['stat'] = stat
@@ -571,7 +571,7 @@ def list_view(request, employee, title, name, data):
     if employee:
         empl = employee.id
     param = get_param(request.user)
-    context = get_base_context(request, 0, 0, title, 'wage')
+    context = get_base_context(request, 0, 0, title, 'content_list')
     context['period_form'] = get_period_form(request, param)
     context['tree'] = build_tree(request.user, 0, param.d_scan())
     context[name + 's'] = data
@@ -619,7 +619,7 @@ def form_view(request, employee, pk, title, name, form):
     if (name == 'accrual') or (name == 'payout'):
         form.fields['title'].queryset = PayTitle.objects.filter(user = request.user.id).order_by('name')
     
-    context = get_base_context(request, 0, pk, title, 'wage')
+    context = get_base_context(request, 0, pk, title)
     context['period_form'] = None
     context['current_period'] = param.period
     context['tree'] = build_tree(request.user, 0, param.d_scan())
@@ -636,7 +636,7 @@ def form_view(request, employee, pk, title, name, form):
 #----------------------------------
 def depart_list_view(request, dep, pk, title, name, data):
     param = get_param(request.user)
-    context = get_base_context(request, 0, pk, title, 'wage')
+    context = get_base_context(request, 0, pk, title, 'content_list')
     context['period_form'] = get_period_form(request, param)
     context['tree'] = build_tree(request.user, 0, param.d_scan())
     context[name + 's'] = data
@@ -658,7 +658,7 @@ def depart_form_view(request, pk, title, name, form):
             form.save()
             return HttpResponseRedirect(reverse('wage:depart_list'))
     param = get_param(request.user)
-    context = get_base_context(request, 0, pk, 'Отдел', 'wage')
+    context = get_base_context(request, 0, pk, 'Отдел')
     context['period_form'] = None
     context['current_period'] = param.period
     context['tree'] = build_tree(request.user, 0, param.d_scan())
@@ -684,7 +684,7 @@ def dep_info_form_view(request, depart, pk, title, name, form):
             return HttpResponseRedirect(reverse('wage:depart_form', args=(depart.id,)))
     
     param = get_param(request.user)
-    context = get_base_context(request, 0, pk, title, 'wage')
+    context = get_base_context(request, 0, pk, title)
     context['period_form'] = None
     context['current_period'] = param.period
     context['tree'] = build_tree(request.user, 0, param.d_scan())

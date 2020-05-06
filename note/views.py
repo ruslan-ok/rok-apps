@@ -9,7 +9,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 
 from hier.models import Folder
-from hier.utils import get_base_context, check_file_for_content, is_in_trash, put_in_the_trash
+from hier.utils import get_base_context, check_file_for_content, is_in_trash, put_in_the_trash, get_folder_id
 
 from .models import Note
 from .forms import NoteForm
@@ -29,7 +29,7 @@ def note_list(request, folder_id):
     for file in data:
         sets.append([file, Folder.objects.filter(user = request.user.id, node = file.id).order_by('code', 'name'), can_create_note(file.id, file.content_id),])
     
-    context = get_base_context(request, folder_id, 0, node.name)
+    context = get_base_context(request, folder_id, 0, node.name, 'content_list')
     context['sets'] = sets
     template_file = 'note/note_list.html'
     template = loader.get_template(template_file)
@@ -134,7 +134,7 @@ def news_list(request, folder_id):
         note = Note.objects.filter(user = request.user.id, id = entry.content_id).get()
         news.append([entry, note])
 
-    context = get_base_context(request, folder_id, 0, _('news').capitalize())
+    context = get_base_context(request, folder_id, 0, _('news'), 'content_list')
     context['news'] = news
     context['total'] = len(data)
     context['page_obj'] = page_obj
@@ -194,11 +194,7 @@ def show_page_form(request, folder_id, content_id, title, name, form, extra_cont
                 if folder.node:
                     redirect_id = folder.node
             return HttpResponseRedirect(reverse('hier:folder_list', args = [redirect_id]))
-    if content_id:
-        mode = 'content_form'
-    else:
-        mode = 'content_add'
-    context = get_base_context(request, folder_id, content_id, title, mode)
+    context = get_base_context(request, folder_id, content_id, title)
     context['form'] = form
     context.update(extra_context)
     template = loader.get_template('note/' + name + '_form.html')

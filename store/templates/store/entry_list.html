@@ -18,13 +18,13 @@
     <tbody>
       {% for entry in page_obj %}
       <tr>
-        <td><a href="{% url 'store:entry_form' entry.get_folder entry.id %}?q={{ request.GET.q }}&page={{ page_obj.number }}">
+        <td><a href="{% url 'store:entry_form' entry.folder_id entry.id %}?q={{ request.GET.q }}&page={{ page_obj.number }}">
             {{ entry.title }}</a></td>
         <td>{{ entry.username }}</td>
         <td>{{ entry.value }}</td>
-        <td><a href="{% url 'store:entry_form' entry.get_folder entry.id %}?q={{ request.GET.q }}&page={{ page_obj.number }}">
+        <td><a href="{% url 'store:entry_form' entry.folder_id entry.id %}?q={{ request.GET.q }}&page={{ page_obj.number }}">
             {{ entry.url }}</a></td>
-        <td class="w3-center"><a href="{% url 'store:entry_form' entry.get_folder entry.id %}?q={{ request.GET.q }}&page={{ page_obj.number }}">
+        <td class="w3-center"><a href="{% url 'store:entry_form' entry.folder_id entry.id %}?q={{ request.GET.q }}&page={{ page_obj.number }}">
             {{ entry.have_notes }}</a></td>
       </tr>
       {% endfor %}

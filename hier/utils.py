@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.sites.shortcuts import get_current_site
 
 from note.utils import get_ready_folder
-from .models import Folder
+from .models import Folder, Param
 from .tree import build_tree
 
 
@@ -99,6 +99,7 @@ def is_folder_form(mode, folder):
 
 # Надо ли показывать кнопку
 def is_button_visible(btn_name, user, mode, folder):
+
     if (btn_name == 'site'):
         return (not user.is_authenticated) or (mode == 'dialog')
     
@@ -178,7 +179,6 @@ def get_buttons(user, folder_id, mode, folder):
         if is_button_visible(btn[0], user, mode, folder):
             buttons.append(make_button(folder_id, btn))
 
-
     chain = []
     cur_id = folder_id
     first = (mode != 'content_add')
@@ -197,7 +197,6 @@ def get_buttons(user, folder_id, mode, folder):
         link['href'] = make_href('hier:folder_list', node.id)
         link['text'] = node.name
         buttons.append(link)
-
 
     for btn in NAVBAR_BUTTONS[2:]:
         if is_button_visible(btn[0], user, mode, folder):
@@ -218,8 +217,10 @@ def get_moves(user, mode, folder_id, tree, folder):
 #----------------------------------
 # Контекст для любой страницы
 #----------------------------------
-def get_base_context(request, folder_id, content_id, title = '', mode = 'content_list'):
+def get_base_context(request, folder_id, pk, title = '', mode = 'content_form'):
     context = {}
+    if (pk == 0) and (mode == 'content_form'):
+        mode = 'content_add'
     context['mode'] = mode
     folder = None
     if request:
@@ -228,9 +229,9 @@ def get_base_context(request, folder_id, content_id, title = '', mode = 'content
         if (folder_id != 0):
             folder = Folder.objects.filter(user = request.user.id, id = folder_id).get()
     
-        if (folder_id == 0) and (content_id != 0):
-            if Folder.objects.filter(user = request.user.id, content_id = content_id).exists():
-                folder = Folder.objects.filter(user = request.user.id, content_id = content_id)[0]
+        if (folder_id == 0) and (pk != 0):
+            if Folder.objects.filter(user = request.user.id, content_id = pk).exists():
+                folder = Folder.objects.filter(user = request.user.id, content_id = pk)[0]
 
         tree = build_tree(request.user.id, 0)
         context['tree'] = tree
@@ -243,31 +244,49 @@ def get_base_context(request, folder_id, content_id, title = '', mode = 'content
 
     context['title'] = title
     context['folder'] = folder
-    context['content_id'] = content_id
+    context['content_id'] = pk
+    context['pk'] = pk
     return context
 
 #----------------------------------
 # Парная запись в Folder для сущности контента
 #----------------------------------
-def check_file_for_content(user, node_id, content_id, content_name, content_code):
+def check_file_for_content(user, node_id, pk, content_name, content_code):
     node = Folder.objects.filter(user = user.id, id = node_id).get()
-    if not Folder.objects.filter(user = user.id, node = node_id, model_name = node.model_name, content_id = content_id).exists():
+    if not Folder.objects.filter(user = user.id, node = node_id, model_name = node.model_name, content_id = pk).exists():
         Folder.objects.create(user = user,
                               node = node_id,
                               name = content_name,
                               code = content_code,
-                              content_id = content_id,
+                              content_id = pk,
                               creation = datetime.now(),
                               last_mod = datetime.now(),
                               icon = node.icon,
                               color = node.color,
                               model_name = node.model_name)
     else:
-        folder = Folder.objects.filter(user = user.id, node = node_id, model_name = node.model_name, content_id = content_id).get()
+        folder = Folder.objects.filter(user = user.id, node = node_id, model_name = node.model_name, content_id = pk).get()
         folder.name = content_name
         folder.code = content_code
         folder.save()
         
+
+#----------------------------------
+def save_folder_id(user, folder_id):
+    if Param.objects.filter(user = user.id).exists():
+        param = Param.objects.filter(user = user.id).get()
+        param.folder_id = folder_id
+        param.save()
+    else:
+        Param.objects.create(user = user, folder_id = folder_id)
+        
+#----------------------------------
+def get_folder_id(user_id):
+    if Param.objects.filter(user = user_id).exists():
+        param = Param.objects.filter(user = user_id).get()
+        return param.folder_id
+    else:
+        return 0
 
 
 

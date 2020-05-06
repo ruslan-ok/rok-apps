@@ -1,0 +1,28 @@
+{% extends "base_window.html" %}
+{% load i18n %}
+
+{% block win_content %}
+  <div class="w3-row">
+    <div class="w3-rest">
+      <table class="w3-table-all w3-hoverable w3-card-4" style="width:1200px">
+        <thead>
+          <tr class="w3-theme-l3">
+            <th style="width: 10em;">{% trans 'active'|capfirst %}</th>
+            <th>{% trans 'name'|capfirst %}</th>
+            <th>{% trans 'address'|capfirst %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for apart in object_list %}
+          <tr>
+            <td><a class="w3-button w3-padding-small" href="{% url 'apart:apart_form' folder.id apart.id %}">{{ apart.s_active }}</a></td>
+            <td><a class="w3-button w3-padding-small" href="{% url 'apart:apart_form' folder.id apart.id %}">{{ apart.name }}</a></td>
+            <td><a class="w3-button w3-padding-small" href="{% url 'apart:apart_form' folder.id apart.id %}">{{ apart.addr }}</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <p>
+{% endblock %}
