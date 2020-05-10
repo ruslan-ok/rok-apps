@@ -36,7 +36,7 @@ def apart_add(request, folder_id):
         form = ApartForm(request.POST)
     else:
         form = ApartForm(initial = { 'name': '', 'addr': '', 'active': False, 'has_gas': True })
-    return show_page_form(request, folder_id, 0, _('apartment'), form)
+    return show_page_form(request, folder_id, 0, _('creating a new apartment'), form)
 
 #----------------------------------
 def apart_form(request, folder_id, pk):
@@ -45,7 +45,7 @@ def apart_form(request, folder_id, pk):
         form = ApartForm(request.POST, instance = data)
     else:
         form = ApartForm(instance = data)
-    return show_page_form(request, folder_id, pk, _('apartment'), form)
+    return show_page_form(request, folder_id, pk, _('apartment') + ' "' + data.name + '"', form)
 
 #----------------------------------
 @login_required(login_url='account:login')

@@ -1,20 +1,13 @@
-{% extends "wage/main.html" %}
+{% extends "base_list.html" %}
 
-{% block breadcrumbs %}
-  <a class="w3-bar-item w3-button" href="{% url 'wage:index' %}">Начало</a>
-  <a class="w3-bar-item w3-button" href="{% url 'wage:empl_list' %}">Сотрудники</a>
-  <a class="w3-bar-item w3-button" href="{% url 'wage:empl_form' employee.id %}">{{ employee.fio }}</a>
-  <a class="w3-bar-item w3-button" href="{% url 'wage:education_add' employee.id %}">Добавить</a>
-{% endblock %}
-
-{% block wage_content %}
+{% block win_content %}
 <div class="w3-container w3-padding">
   <table class="w3-table-all w3-hoverable w3-card-4">
     <thead>
       <tr class="w3-theme-l3"><th>Начало</th> <th>Окончание</th> <th>ВУЗ</th> <th>Учебный курс</th> <th>Специальность</th> <th>Квалификация</th> <th>Документ</th> <th>Номер</th> <th>Город</th> <th>Дата документа</th> <th>Дополнительная информация</th> </tr>
     </thead>
     <tbody>
-      {% for education in educations %}
+      {% for education in page_obj %}
       <tr>
         <td><a href="{% url 'wage:education_form' employee.id education.id %}">{{ education.dBeg|date:'d.m.Y' }}</a></td>
         <td><a href="{% url 'wage:education_form' employee.id education.id %}">{{ education.dEnd|date:'d.m.Y' }}</a></td>

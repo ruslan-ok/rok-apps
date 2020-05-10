@@ -1,14 +1,6 @@
-{% extends "wage/main.html" %}
+{% extends "base_window.html" %}
 
-{% block breadcrumbs %}
-  <a class="w3-bar-item w3-button" href="{% url 'wage:index'       %}">Начало</a>
-  <a class="w3-bar-item w3-button" href="{% url 'wage:period_list' %}">Периоды</a>
-  {% if pk != 0 %}
-    <a class="w3-bar-item w3-button w3-red w3-right" href="{% url 'wage:period_del' pk %}">Удалить</a>
-  {% endif %}
-{% endblock %}
-
-{% block wage_content %}
+{% block win_content %}
 <div class="w3-container w3-padding">
 
   <form method="post" class="w3-container w3-card-4 w3-light-grey">{% csrf_token %}
@@ -25,6 +17,9 @@
       </div></div>
       <div class="w3-quarter"><div class="w3-margin rok-field">
           {{ form.DebtInRate.errors }} {{ form.DebtInRate.label_tag }} {{ form.DebtInRate }} {% if form.DebtInRate.help_text %}<div class="help">{{ form.DebtInRate.help_text|safe }}</div>{% endif %}
+      </div></div>
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+          {{ form.active.errors }} {{ form.active.label_tag }} {{ form.active }} {% if form.active.help_text %}<div class="help">{{ form.active.help_text|safe }}</div>{% endif %}
       </div></div>
     </div>
 

@@ -148,12 +148,12 @@ PHONE = 'PH'
 
 SERVICE = [
     (ELECTRICITY, _('power supply')),
-    (GAS, _('power supply')),
+    (GAS, _('gas supply')),
     (WATER_SUPPLY, _('water supply')),
     (SEWERAGE, _('sewerage')),
     (TV, _('television')),
     (INTERNET, _('internet')),
-    (INTERNET, _('phone')),
+    (PHONE, _('phone')),
     (WATER, _('water')),
 ]    
 

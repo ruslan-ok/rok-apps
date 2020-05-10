@@ -11,7 +11,7 @@ from trip.models import trip_summary
 def index(request):
     if request.user.is_authenticated:
         save_folder_id(request.user, 0)
-        title = _('applications').capitalize()
+        title = _('applications')
         hide_title = False
     else:
         title = context['site_header']

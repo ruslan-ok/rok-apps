@@ -1,27 +1,6 @@
-{% extends "wage/main.html" %}
+{% extends "base_window.html" %}
 
-{% block breadcrumbs %}
-  {% if pk %}
-    <a class="w3-bar-item w3-button" href="{% url 'wage:index'     %}">Начало</a>
-    <a class="w3-bar-item w3-button" href="{% url 'wage:empl_list' %}">Сотрудники</a>
-
-    <div class="w3-dropdown-hover">
-      <button class="w3-button">Разделы</button>
-      <div class="w3-dropdown-content w3-bar-block w3-card-4">
-        <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'wage:appoint_list'   pk     %}">Назначения</a>
-        <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'wage:empl_per_form'  pk y m %}">Итоги месца</a>
-        <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'wage:accrual_list'   pk y m %}">Начисления</a>
-        <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'wage:payout_list'    pk y m %}">Выплаты</a>
-        <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'wage:education_list' pk     %}">Образование</a>
-        <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'wage:fio_hist_list'  pk     %}">Изменения фамилии</a>
-        <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'wage:child_list'     pk     %}">Дети</a>
-      </div>
-    </div>    
-    <a class="w3-bar-item w3-button w3-red w3-right" href="{% url 'wage:empl_del' pk %}">Удалить</a>
-  {% endif %}
-{% endblock %}
-
-{% block wage_content %}
+{% block win_content %}
 <div class="w3-container w3-padding">
 
   <form method="post" class="w3-container w3-card-4 w3-light-grey">{% csrf_token %}
@@ -75,6 +54,5 @@
     </div>
 
   </form>
-
 </div>
 {% endblock %}

@@ -12,7 +12,7 @@ class TripFormBase(ModelForm):
 
 class TripForm(TripFormBase):
 
-    summa = DecimalField(label = _('summa').capitalize())
+    summa = DecimalField(label = _('summa'))
     day_11 = BooleanField(label = 'day_11', required = False)
     day_12 = BooleanField(label = 'day_12', required = False)
     day_13 = BooleanField(label = 'day_13', required = False)

@@ -91,11 +91,11 @@ def is_content_form(mode, user_id, folder):
 
 # Удалять можно только пустую папку
 def folder_is_empty(folder_id):
-    return not Folder.objects.filter(node = folder_id).exists()
+    return True # not Folder.objects.filter(node = folder_id).exists()
 
 # Папка, которую можно удалить
 def is_folder_form(mode, folder):
-    return (mode == 'folder')  and folder and folder_is_empty(folder.id) and (folder.content_id == 0)
+    return (mode == 'folder')  and folder and folder_is_empty(folder.id) #and (folder.content_id == 0)
 
 # Надо ли показывать кнопку
 def is_button_visible(btn_name, user, mode, folder):
@@ -185,7 +185,7 @@ def get_buttons(user, folder_id, mode, folder):
     while (cur_id != 0):
         if Folder.objects.filter(user = user.id, id = cur_id).exists():
             node = Folder.objects.filter(user = user.id, id = cur_id)[0]
-            if not first and not node.content_id:
+            if not first and ((not node.content_id) or node.is_folder):
                 chain.append(node)
             first = False
             cur_id = node.node
@@ -251,11 +251,13 @@ def get_base_context(request, folder_id, pk, title = '', mode = 'content_form'):
 #----------------------------------
 # Парная запись в Folder для сущности контента
 #----------------------------------
-def check_file_for_content(user, node_id, pk, content_name, content_code):
-    node = Folder.objects.filter(user = user.id, id = node_id).get()
-    if not Folder.objects.filter(user = user.id, node = node_id, model_name = node.model_name, content_id = pk).exists():
+def check_file_for_content(user, folder_id, pk, content_name, content_code, is_new):
+    node = Folder.objects.filter(user = user.id, id = folder_id).get()
+    redirect_id = folder_id
+    if is_new:
+        # При добавлении новой записи folder_id - вышестоящая папка
         Folder.objects.create(user = user,
-                              node = node_id,
+                              node = folder_id,
                               name = content_name,
                               code = content_code,
                               content_id = pk,
@@ -265,10 +267,13 @@ def check_file_for_content(user, node_id, pk, content_name, content_code):
                               color = node.color,
                               model_name = node.model_name)
     else:
-        folder = Folder.objects.filter(user = user.id, node = node_id, model_name = node.model_name, content_id = pk).get()
+        # При редактировании записи folder_id - это ссылка на folder, сопоставленный с записью контента
+        folder = Folder.objects.filter(user = user.id, id = folder_id, model_name = node.model_name, content_id = pk).get()
+        redirect_id = folder.node
         folder.name = content_name
         folder.code = content_code
         folder.save()
+    return redirect_id
         
 
 #----------------------------------

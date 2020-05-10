@@ -1,11 +1,6 @@
 from django import forms
-from .models import Period, Depart, DepHist, Post, Employee, FioHist, Child, Appoint, Education, EmplPer, PayTitle, Payment, Params
+from .models import Period, Depart, DepHist, Post, Employee, FioHist, Child, Appoint, Education, EmplPer, PayTitle, Payment
 
-
-class WageForm(forms.ModelForm):
-    class Meta:
-        model = Params
-        fields = ['period']
 
 class DepartForm(forms.ModelForm):
     class Meta:
@@ -33,11 +28,10 @@ class PayTitleForm(forms.ModelForm):
         fields = ['name']
 
 class PeriodForm(forms.ModelForm):
-    dBeg = forms.DateField(label = 'Месяц/год', required = False, widget=forms.DateInput(format='%m.%Y'))
-    
     class Meta:
         model = Period
-        fields = ['dBeg', 'planDays', 'AvansDate', 'PaymentDate', 'AvansRate', 'PaymentRate', 'DebtInRate', 'Part2Date', 'Part2Rate']
+        fields = ['dBeg', 'planDays', 'AvansDate', 'PaymentDate', 'AvansRate', 'PaymentRate', 'DebtInRate', 'Part2Date', 'Part2Rate', 'active']
+
 
 class EmployeeForm(forms.ModelForm):
     class Meta:

@@ -12,7 +12,7 @@ class EntryForm(forms.ModelForm):
         }
 
 class ParamsForm(forms.ModelForm):
-    ln = forms.IntegerField(label = _('length').capitalize(), min_value = 5, max_value = 100)
+    ln = forms.IntegerField(label = _('length'), min_value = 5, max_value = 100)
     class Meta:
         model = Params
         fields = ['ln', 'uc', 'lc', 'dg', 'sp', 'br', 'mi', 'ul', 'ac']

@@ -9,7 +9,7 @@ from django.core.paginator import Paginator
 from hier.models import Folder
 from hier.utils import get_base_context
 from .utils import next_period
-from .models import Apart, Price
+from .models import Apart, Price, ELECTRICITY
 from .forms import PriceForm
 
 
@@ -46,7 +46,7 @@ def price_add(request, folder_id):
             last = Price.objects.filter(user = request.user.id).order_by('-period')[0]
             period = next_period(last.period)
         form = PriceForm(initial = { 'service': ELECTRICITY, 'period': period, 'tarif': 0, 'border': 0, 'tarif2': 0, 'border2': 0, 'tarif3': 0 })
-    return show_page_form(request, folder_id, 0, _('price'), form, apart)
+    return show_page_form(request, folder_id, 0, _('create a new price'), form, apart)
 
 #----------------------------------
 def price_form(request, folder_id, pk):

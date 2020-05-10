@@ -8,6 +8,7 @@ from hier.utils import get_base_context, get_trash, rmtree
 from hier.models import Folder
 from note.models import List, View, Filter, Note
 from store.models import Group, Entry
+from .etalon import menu
 
 #----------------------------------
 # Convert
@@ -176,3 +177,58 @@ def statistics(request):
 
     template = loader.get_template('statistics.html')
     return HttpResponse(template.render(context, request))
+
+
+def check_menu(user, node_id, branch):
+    p = []
+    m = []
+    n = []
+    for item in branch:
+        name = item[0]
+        code = str(item[1])
+        icon = item[2]
+        color = item[3]
+        app = item[4]
+        if Folder.objects.filter(user = user.id, node = node_id, name = name, model_name = app).exists():
+            folder = Folder.objects.filter(user = user.id, node = node_id, name = name, model_name = app).get()
+            if (folder.code == code) and (folder.icon == icon) and (folder.color == color):
+                p.append(name)
+            else:
+                m.append(name)
+                folder.code = code
+                folder.icon = icon
+                folder.color = color
+                folder.save()
+        else:
+            if Folder.objects.filter(user = user.id, node = 0, name = name, model_name = app).exists():
+                m.append(name)
+                folder.node = node_id
+                folder.code = code
+                folder.icon = icon
+                folder.color = color
+                folder.save()
+            else:
+                n.append(name)
+                folder = Folder.objects.create(user = user, node = node_id, name = name, model_name = app, code = code, icon = icon, color = color)
+        ret = check_menu(user, folder.id, item[5])
+        p.append(ret[0])
+        m.append(ret[1])
+        n.append(ret[2])
+    return [p, m, n]
+
+def clear_folder(user, node_id, name):
+    if Folder.objects.filter(user = user.id, node = node_id, name = name).exists():
+        folder = Folder.objects.filter(user = user.id, node = node_id, name = name).get()
+        rmtree(user, folder.id, False)
+
+def etalon(request):
+    clear_folder(request.user, 0, 'Проезд')
+    clear_folder(request.user, 0, 'Восстановить')
+    clear_folder(request.user, 0, 'Корзина')
+
+    res = check_menu(request.user, 0, menu)
+
+    return HttpResponseRedirect(reverse('hier:folder_list', args = [0]))
+
+
+

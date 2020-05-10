@@ -61,7 +61,7 @@
             <div class="w3-container">
               <h3>
                 {% if folder.icon != "" %} <i class="fa fa-{{ folder.icon }}" style="color:{{ folder.color }}"></i> {% endif %}
-                {{ title }}
+                {{ title|capfirst }}
               </h3>
             </div>
           {% endif %}

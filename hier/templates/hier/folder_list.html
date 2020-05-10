@@ -4,6 +4,7 @@
 {% block win_content %}
   <div class="w3-row">
     <div class="w3-rest">
+      {% for error in errors %} <p class="errornote"> {{ error }} </p> {% endfor %}
       <table class="w3-table-all w3-hoverable w3-card-4" style="width:1200px">
         <thead>
           <tr class="w3-theme-l3">

@@ -54,7 +54,7 @@ def note_add(request, folder_id):
     else:
         new_code = get_next_code(request.user.id, folder_id)
         form = NoteForm(initial = {'name': '', 'code': new_code, })
-    return show_page_form(request, folder_id, 0, 'Заметка', 'note', form)
+    return show_page_form(request, folder_id, 0, _('create a new note'), 'note', form)
 
 #----------------------------------
 def note_form(request, folder_id, content_id):
@@ -67,7 +67,7 @@ def note_form(request, folder_id, content_id):
     else:
         form = NoteForm(instance = data)
 
-    return show_page_form(request, folder_id, content_id, 'Заметка', 'note', form)
+    return show_page_form(request, folder_id, content_id, _('note') + ' "' + data.name + '"', 'note', form)
 
 
 #----------------------------------
@@ -150,7 +150,7 @@ def news_add(request, folder_id):
     else:
         new_code = get_next_code(request.user.id, folder_id)
         form = NoteForm(initial = {'name': '', 'code': new_code, 'publ': datetime.now()})
-    return show_page_form(request, folder_id, 0, 'Новость', 'news', form)
+    return show_page_form(request, folder_id, 0, _('create new news'), 'news', form)
 
 #----------------------------------
 def news_form(request, folder_id, content_id):
@@ -160,7 +160,7 @@ def news_form(request, folder_id, content_id):
     else:
         form = NoteForm(instance = data)
 
-    return show_page_form(request, folder_id, content_id, 'Новость', 'news', form)
+    return show_page_form(request, folder_id, content_id, _('news') + ' "' + data.name + '"', 'news', form)
 
 #----------------------------------
 @login_required(login_url='account:login')
@@ -187,12 +187,7 @@ def show_page_form(request, folder_id, content_id, title, name, form, extra_cont
             data = form.save(commit = False)
             data.user = request.user
             form.save()
-            check_file_for_content(request.user, folder_id, data.id, data.name, data.code)
-            redirect_id = folder_id
-            if Folder.objects.filter(id = folder_id).exists():
-                folder = Folder.objects.filter(id = folder_id).get()
-                if folder.node:
-                    redirect_id = folder.node
+            redirect_id = check_file_for_content(request.user, folder_id, data.id, data.name, data.code, content_id == 0)
             return HttpResponseRedirect(reverse('hier:folder_list', args = [redirect_id]))
     context = get_base_context(request, folder_id, content_id, title)
     context['form'] = form

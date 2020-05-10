@@ -1,16 +1,6 @@
-{% extends "wage/main.html" %}
+{% extends "base_window.html" %}
 
-{% block breadcrumbs %}
-  <a class="w3-bar-item w3-button" href="{% url 'wage:index' %}">Начало</a>
-  <a class="w3-bar-item w3-button" href="{% url 'wage:empl_list' %}">Сотрудники</a>
-  <a class="w3-bar-item w3-button" href="{% url 'wage:empl_form' employee.id %}">{{ employee.fio }}</a>
-  <a class="w3-bar-item w3-button" href="{% url 'wage:education_list' employee.id %}">Образования</a>
-  {% if pk != 0 %}
-    <a class="w3-bar-item w3-button w3-red w3-right" href="{% url 'wage:education_del' employee.id pk %}">Удалить</a>
-  {% endif %}
-{% endblock %}
-
-{% block wage_content %}
+{% block win_content %}
 <div class="w3-container w3-padding">
 
   <form method="post" class="w3-container w3-card-4 w3-light-grey">{% csrf_token %}

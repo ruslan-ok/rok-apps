@@ -17,6 +17,7 @@ class Folder(models.Model):
     # deprecated. use get_folder_enabled
     folder_enabled = models.BooleanField(_('enable folders in items list'), default = False)
     content_id = models.IntegerField(_('content id'), default = 0)
+    is_folder = models.BooleanField(_('node is folder'), default = False)
 
     class Meta:
         verbose_name = _('folder')
@@ -27,6 +28,8 @@ class Folder(models.Model):
 
     def lightness(self):
         if not self.color:
+            return 0
+        if (len(self.color) != 7):
             return 0
         value = self.color.lstrip('#')
         lv = len(value)

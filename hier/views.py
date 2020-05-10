@@ -12,7 +12,9 @@ from django.utils.translation import gettext_lazy as _
 
 from .models import Folder
 from .forms import FolderForm
-from .utils import rmtree, get_base_context, save_folder_id
+from .utils import rmtree, get_base_context, save_folder_id, is_in_trash, put_in_the_trash
+
+errors = []
 
 #----------------------------------
 @login_required(login_url='account:login')
@@ -32,18 +34,29 @@ def _folder_list(request, folder_id, show_content, query = None):
     data = Folder.objects.filter(user = request.user.id, node = folder_id).order_by('code', 'name')
     save_folder_id(request.user, folder_id)
 
-    title = _('folders').capitalize()
+    title = _('folders')
     if folder_id:
         folder = get_object_or_404(Folder.objects.filter(id = folder_id, user = request.user.id))
         if show_content and folder.model_name:
             try:
                 if folder.content_id:
-                    url = reverse(folder.model_name + '_form', args = [folder_id, folder.content_id])
+                    if (folder.model_name[:5] != 'wage:'):
+                        url = reverse(folder.model_name + '_form', args = [folder_id, folder.content_id])
+                    else:
+                        if (folder.model_name == 'wage:empl_per'):
+                            url = reverse(folder.model_name + '_form', args = [folder.content_id])
+                        else: 
+                            url = reverse(folder.model_name + '_list', args = [folder.content_id])
                 else:
                     query_tail = ''
                     if query:
                         query_tail = '?q=' + query
-                    url = reverse(folder.model_name + '_list', args = [folder_id]) + query_tail
+                    
+                    if (folder.model_name[:5] == 'wage:'):
+                        url = reverse(folder.model_name + '_list')
+                    else:
+                        url = reverse(folder.model_name + '_list', args = [folder_id]) + query_tail
+
                 return HttpResponseRedirect(url)
             except NoReverseMatch:
                 pass
@@ -51,7 +64,7 @@ def _folder_list(request, folder_id, show_content, query = None):
                 raise Exception(sys.exc_info()[0])
         title = folder.name
 
-    return show_page_list(request, folder_id, title, 'folder', data)
+    return show_page_list(request, folder_id, title, 'folder', data, {'errors': errors})
 
 #----------------------------------
 def folder_param(request, folder_id):
@@ -73,6 +86,7 @@ def folder_list(request, folder_id):
 
 #----------------------------------
 def folder_down(request, folder_id):
+    errors.clear()
     folder = get_object_or_404(Folder.objects.filter(id = folder_id, user = request.user.id))
     if folder.node:
         node = get_object_or_404(Folder.objects.filter(id = folder.node, user = request.user.id))
@@ -102,7 +116,7 @@ def folder_add(request, folder_id):
             initials['color'] = node.color
             initials['model_name'] = node.model_name
         form = FolderForm(initial = initials)
-    return show_page_form(request, folder_id, 0, _('folder').capitalize(), 'folder', form)
+    return show_page_form(request, folder_id, 0, _('create a new folder'), 'folder', form)
 
 #----------------------------------
 def folder_form(request, folder_id):
@@ -111,16 +125,38 @@ def folder_form(request, folder_id):
         form = FolderForm(request.POST, instance = data)
     else:
         form = FolderForm(instance = data)
-    return show_page_form(request, data.node, folder_id, _('folder').capitalize(), 'folder', form)
+    return show_page_form(request, data.node, folder_id, _('folder') + ' "' + data.name + '"', 'folder', form)
+
+def can_del(folder):
+    if (folder.content_id == 0) or (folder.model_name == ''):
+        if Folder.objects.filter(node = folder.id).exists():
+            errors.append('Папка без контента не пустая, поэтому не может быть удалена')
+        else:
+            return True
+    else:
+        if Folder.objects.filter(content_id = folder.content_id, model_name = folder.model_name).exclude(id = folder.id).exists():
+            # Существует ещё одна другая папка, ассоциированная с этим же контентом. Значит эту можно удалить.
+            return True
+        else:
+            errors.append('Для удаления папки с контентом следует удалить контент')
+    return False
 
 #----------------------------------
 @login_required(login_url='account:login')
 #----------------------------------
 def folder_del(request, folder_id):
     data = get_object_or_404(Folder.objects.filter(id = folder_id, user = request.user.id))
-    node_id = data.node
-    Folder.objects.get(id = folder_id).delete()
-    return HttpResponseRedirect(reverse('hier:folder_list', args = [node_id]))
+    errors.clear()
+    redirect_id = data.node
+    if can_del(data):
+        data.delete()
+    else:
+        if not is_in_trash(folder_id):
+            put_in_the_trash(request.user, folder_id)
+        else:
+            errors.append('Единственная папка для контента и уже находится в корзине')
+
+    return HttpResponseRedirect(reverse('hier:folder_list', args = [redirect_id]))
 
 
 #----------------------------------

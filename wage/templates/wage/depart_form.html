@@ -1,15 +1,6 @@
-{% extends "wage/main.html" %}
+{% extends "base_window.html" %}
 
-{% block breadcrumbs %}
-  <a class="w3-bar-item w3-button" href="{% url 'wage:index'        %}">Начало</a>
-  <a class="w3-bar-item w3-button" href="{% url 'wage:depart_list'  %}">Отделы</a>
-  {% if pk != 0 %}
-    <a class="w3-bar-item w3-button" href="{% url 'wage:dep_hist_add' pk %}">Изменить подчиненность</a>
-    <a class="w3-bar-item w3-button w3-red w3-right" href="{% url 'wage:depart_del' pk %}">Удалить</a>
-  {% endif %}
-{% endblock %}
-
-{% block wage_content %}
+{% block win_content %}
 <div class="w3-container w3-padding">
 
   <form method="post" class="w3-container w3-card-4 w3-light-grey">{% csrf_token %}
@@ -28,9 +19,10 @@
 
     <div class="w3-row w3-padding">
       {% if pk == 0 %}
-        <input type="submit" value="Добавить" class="default">
+        <input type="submit" class="default" name="depart_add" value="Добавить">
       {% else %}
-        <input type="submit" value="Сохранить" class="default">
+        <input type="submit" class="default" name="depart_save" value="Сохранить">
+        <input type="submit" class="default" name="dep_hist_add" value="Изменить подчиненность">
       {% endif %}
       <p>
     </div>

@@ -86,10 +86,16 @@ def entry_add(request, folder_id):
                                     'value': make_random_string(request.user),
                                     'uuid': '',
                                     })
-    return show_page_form(request, folder_id, 0, _('entry').capitalize(), 'entry', form)
+    return show_page_form(request, folder_id, 0, _('create a new entry'), 'entry', form)
 
 #----------------------------------
 def entry_form(request, folder_id, content_id):
+    if not Entry.objects.filter(id = content_id, user = request.user.id).exists():
+        data_file = get_object_or_404(Folder.objects.filter(id = folder_id, user = request.user.id))
+        if (data_file.model_name == 'store:entry'):
+            data_file.content_id = 0
+            data_file.save()
+        return HttpResponseRedirect(reverse('hier:folder_form', args = [folder_id]))
     data = get_object_or_404(Entry.objects.filter(id = content_id, user = request.user.id))
     query = request.GET.get('q')
     page = request.GET.get('page')
@@ -100,15 +106,19 @@ def entry_form(request, folder_id, content_id):
     list_filter = ''
     if query and page:
         list_filter = '?q=' + query + '&page=' + page
-    return show_page_form(request, folder_id, content_id, _('entry').capitalize(), 'entry', form, list_filter = list_filter)
+    return show_page_form(request, folder_id, content_id, _('entry') + ' "' + data.title + '"', 'entry', form, list_filter = list_filter)
 
 #----------------------------------
 @login_required(login_url='account:login')
 @permission_required('store.view_entry')
 #----------------------------------
 def entry_del(request, folder_id, content_id):
-    Entry.objects.get(id = content_id).delete()
-    return HttpResponseRedirect(reverse('store:entry_list', args = [folder_id]))
+    data_file = get_object_or_404(Folder.objects.filter(id = folder_id, user = request.user.id))
+    node_id = data_file.node
+    entry = get_object_or_404(Entry.objects.filter(id = content_id, user = request.user.id))
+    entry.delete()
+    data_file.delete()
+    return HttpResponseRedirect(reverse('store:entry_list', args = [node_id]))
 
 #----------------------------------
 @login_required(login_url='account:login')
@@ -143,12 +153,13 @@ def show_page_form(request, folder_id, content_id, title, name, form, extra_cont
             data = form.save(commit = False)
             data.user = request.user
             form.save()
+            redirect_id = folder_id
             if (name == 'entry'):
-                check_file_for_content(request.user, folder_id, data.id, data.title, data.username)
+                redirect_id = check_file_for_content(request.user, folder_id, data.id, data.title, data.title, content_id == 0)
             if (name == 'entry') or (name == 'param'):
-                return HttpResponseRedirect(reverse('store:entry_list', args = [folder_id]) + list_filter)
+                return HttpResponseRedirect(reverse('store:entry_list', args = [redirect_id]) + list_filter)
             else:
-                return HttpResponseRedirect(reverse('store:' + name + '_list', args = [folder_id]))
+                return HttpResponseRedirect(reverse('store:' + name + '_list', args = [redirect_id]))
     context = get_base_context(request, folder_id, content_id, title)
     context['form'] = form
     context.update(extra_context)
@@ -213,7 +224,7 @@ def entry_param(request, folder_id):
         form = ParamsForm(request.POST, instance = data)
     else:
         form = ParamsForm(instance = data)
-    return show_page_form(request, folder_id, 0, _('parameters').capitalize(), 'param', form)
+    return show_page_form(request, folder_id, 0, _('parameters'), 'param', form)
 
 #----------------------------------
 # Delete all data!

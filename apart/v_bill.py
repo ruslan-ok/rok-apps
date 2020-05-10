@@ -67,7 +67,7 @@ def bill_add(request, folder_id):
 
         form = BillForm(initial = { 'period': period, 'payment': datetime.now() })
 
-    return show_page_form(request, folder_id, 0, _('bills'), form, apart, prev, curr)
+    return show_page_form(request, folder_id, 0, _('create a new bill'), form, apart, prev, curr)
 
 #----------------------------------
 def bill_form(request, folder_id, pk):
@@ -77,7 +77,7 @@ def bill_form(request, folder_id, pk):
         form = BillForm(request.POST, instance = data)
     else:
         form = BillForm(instance = data)
-    return show_page_form(request, folder_id, pk, _('bills'), form, apart, data.prev, data.curr)
+    return show_page_form(request, folder_id, pk, _('bill from ') + data.period.strftime('%m.%Y'), form, apart, data.prev, data.curr)
 
 #----------------------------------
 @login_required(login_url='account:login')

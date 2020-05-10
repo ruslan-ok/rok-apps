@@ -17,6 +17,7 @@ class Period(models.Model):
     DebtInRate = models.DecimalField('Курс входящего остатка', blank=True, null=True, max_digits=15, decimal_places=4)
     Part2Date = models.DateField('Дата выплаты второй части', blank=True, null=True)
     Part2Rate = models.DecimalField('Курс выплаты второй части', blank=True, null=True, max_digits=15, decimal_places=4)
+    active = models.BooleanField('Текущий расчетный период', default = False)
 
     class Meta:
         verbose_name = 'Расчетный период'
@@ -24,6 +25,12 @@ class Period(models.Model):
 
     def __str__(self):
         return self.dBeg.strftime('%Y %b')
+
+    def s_active(self):
+        if self.active:
+            return '*'
+        else:
+            return ''
 
 
 class Depart(models.Model):
@@ -229,6 +236,7 @@ class Payment(models.Model):
 
 class Params(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Пользователь')
+    # deprecated
     period = models.ForeignKey(Period, on_delete=models.CASCADE, verbose_name='Расчетный период', blank=True, null=True)
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, verbose_name='Сотрудник', blank=True, null=True)
 

@@ -68,7 +68,7 @@ def meter_add(request, folder_id):
 
         form = MeterForm(initial = { 'period': period, 'reading': datetime.now(), 'el': el, 'hw': hw, 'cw': cw, 'ga': ga })
 
-    return show_page_form(request, folder_id, 0, _('meters'), form, apart)
+    return show_page_form(request, folder_id, 0, _('adding new meter readings'), form, apart)
 
 #----------------------------------
 def meter_form(request, folder_id, pk):
@@ -78,7 +78,7 @@ def meter_form(request, folder_id, pk):
         form = MeterForm(request.POST, instance = data)
     else:
         form = MeterForm(instance = data)
-    return show_page_form(request, folder_id, pk, _('meters'), form, apart)
+    return show_page_form(request, folder_id, pk, _('meter readings from ') + data.period.strftime('%m.%Y'), form, apart)
 
 #----------------------------------
 @login_required(login_url='account:login')

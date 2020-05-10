@@ -1,28 +1,21 @@
-{% extends "wage/main.html" %}
+{% extends "base_list.html" %}
 
-{% block breadcrumbs %}
-  <a class="w3-bar-item w3-button" href="{% url 'wage:index' %}">Начало</a>
-  <a class="w3-bar-item w3-button" href="{% url 'wage:empl_list' %}">Сотрудники</a>
-  <a class="w3-bar-item w3-button" href="{% url 'wage:empl_form' employee.id %}">{{ employee.fio }}</a>
-  <a class="w3-bar-item w3-button" href="{% url 'wage:accrual_add' employee.id y m %}">Добавить</a>
-{% endblock %}
-
-{% block wage_content %}
+{% block win_content %}
 <div class="w3-container w3-padding">
   <table class="w3-table-all w3-hoverable w3-card-4">
     <thead>
       <tr class="w3-theme-l3"><th>Дата</th> <th>Наименование</th> <th>Сумма</th> <th>Валюта</th> <th>Курс</th> <th>Дополнительная информация</th> <th>Сортировка</th> </tr>
     </thead>
     <tbody>
-      {% for accrual in accruals %}
+      {% for accrual in page_obj %}
       <tr>
-        <td><a href="{% url 'wage:accrual_form' employee.id y m accrual.id %}">{{ accrual.payed|date:'d.m.Y' }}</a></td>
-        <td><a href="{% url 'wage:accrual_form' employee.id y m accrual.id %}">{{ accrual.title    }}</a></td>
-        <td><a href="{% url 'wage:accrual_form' employee.id y m accrual.id %}">{{ accrual.value    }}</a></td>
-        <td><a href="{% url 'wage:accrual_form' employee.id y m accrual.id %}">{{ accrual.currency }}</a></td>
-        <td><a href="{% url 'wage:accrual_form' employee.id y m accrual.id %}">{{ accrual.rate     }}</a></td>
-        <td><a href="{% url 'wage:accrual_form' employee.id y m accrual.id %}">{{ accrual.info     }}</a></td>
-        <td><a href="{% url 'wage:accrual_form' employee.id y m accrual.id %}">{{ accrual.sort     }}</a></td>
+        <td><a href="{% url 'wage:accrual_form' employee.id accrual.id %}">{{ accrual.payed|date:'d.m.Y' }}</a></td>
+        <td><a href="{% url 'wage:accrual_form' employee.id accrual.id %}">{{ accrual.title    }}</a></td>
+        <td><a href="{% url 'wage:accrual_form' employee.id accrual.id %}">{{ accrual.value    }}</a></td>
+        <td><a href="{% url 'wage:accrual_form' employee.id accrual.id %}">{{ accrual.currency }}</a></td>
+        <td><a href="{% url 'wage:accrual_form' employee.id accrual.id %}">{{ accrual.rate     }}</a></td>
+        <td><a href="{% url 'wage:accrual_form' employee.id accrual.id %}">{{ accrual.info     }}</a></td>
+        <td><a href="{% url 'wage:accrual_form' employee.id accrual.id %}">{{ accrual.sort     }}</a></td>
       </tr>
       {% endfor %}
     </tbody>

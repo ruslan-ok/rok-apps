@@ -1,20 +1,13 @@
-{% extends "wage/main.html" %}
+{% extends "base_list.html" %}
 
-{% block breadcrumbs %}
-  <a class="w3-bar-item w3-button" href="{% url 'wage:index' %}">Начало</a>
-  <a class="w3-bar-item w3-button" href="{% url 'wage:empl_list' %}">Сотрудники</a>
-  <a class="w3-bar-item w3-button" href="{% url 'wage:empl_form' employee.id %}">{{ employee.fio }}</a>
-  <a class="w3-bar-item w3-button" href="{% url 'wage:child_add' employee.id %}">Добавить</a>
-{% endblock %}
-
-{% block wage_content %}
+{% block win_content %}
 <div class="w3-container w3-padding">
   <table class="w3-table-all w3-hoverable w3-card-4">
     <thead>
       <tr class="w3-theme-l3"> <th>День рождения</th> <th>Имя</th> <th>Дополнительная информация</th> </tr>
     </thead>
     <tbody>
-      {% for child in childs %}
+      {% for child in page_obj %}
       <tr>
         <td><a href="{% url 'wage:child_form' employee.id child.id %}">{{ child.born|date:'d.m.Y' }}</a></td>
         <td><a href="{% url 'wage:child_form' employee.id child.id %}">{{ child.name }}</a></td>

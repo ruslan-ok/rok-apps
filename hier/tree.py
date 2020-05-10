@@ -35,11 +35,11 @@ class TreeNode():
 
 
 def get_is_node(folder_id):
-    return Folder.objects.filter(node = folder_id, content_id = 0).exists()
+    return Folder.objects.filter(node = folder_id, content_id = 0).exists() or Folder.objects.filter(node = folder_id, is_folder = True).exists()
 
 def scan_level(tree, user_id, node_id, level):
     for folder in Folder.objects.filter(user = user_id, node = node_id).order_by('code', 'name'):
-        if not folder.content_id:
+        if folder.is_folder or (not folder.content_id):
             tree.append(TreeNode(folder.id, node_id, folder.name, level, get_is_node(folder.id), folder.is_open, folder.icon, folder.color, folder.model_name))
 
             if folder.is_open:

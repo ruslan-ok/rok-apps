@@ -1,6 +1,10 @@
 import calendar
-from .models import Depart, DepHist, Appoint
 from datetime import datetime, date
+
+from hier.tree import TreeNode
+from hier.models import Folder
+from hier.utils import rmtree
+from .models import Depart, DepHist, Appoint, Period, Params
 
 def hit_period(pb, ab, ae):
 
@@ -28,34 +32,17 @@ def hit_period(pb, ab, ae):
 
     return False
 
-class TreeNode():
-    is_depart = True
-    id = 0
-    parent = 0
-    name = ''
-    indent = ''
-    is_open = False
-
-    def __init__(self, is_depart, id, parent, name, indent, is_open = False):
-        self.is_depart = is_depart
-        self.id = id
-        self.parent = parent
-        self.name = name
-        self.indent = indent
-        self.is_open = is_open
-
-
-def scan_level(tree, user, node, date, level):
-    if (node == 0):
-        node = None
+def scan_level(user, folder_node_id, dep_hist_node_id, date, level):
+    if (dep_hist_node_id == 0):
+        dep_hist_node_id = None
 
     npp_list = {}
     
-    for hist in DepHist.objects.filter(user = user, node = node):
+    for hist in DepHist.objects.filter(user = user.id, node = dep_hist_node_id):
         if (hist.dBeg > date):
             continue
 
-        nexts = DepHist.objects.filter(user = user, depart = hist.depart, dBeg__gt = hist.dBeg).order_by('dBeg')
+        nexts = DepHist.objects.filter(user = user.id, depart = hist.depart, dBeg__gt = hist.dBeg).order_by('dBeg')
 
         next = None
         if nexts:
@@ -76,25 +63,87 @@ def scan_level(tree, user, node, date, level):
         if (depart == None):
             continue
 
-        tree.append(TreeNode(True, depart.id, node, depart.name, '.' * (level * 6), depart.is_open))
+        dep_folder = Folder.objects.create(user = user,
+            node = folder_node_id,
+            code = depart.sort,
+            name = depart.name,
+            creation = datetime.now(),
+            last_mod = datetime.now(),
+            is_open = depart.is_open,
+            icon = 'door-open',
+            color = '#004080',
+            model_name = 'wage:depart',
+            content_id = depart.id,
+            is_folder = True)
 
-        if depart.is_open:
-            for appoint in Appoint.objects.filter(depart = depart):
-                if (appoint.dBeg > date):
-                    continue
+        for appoint in Appoint.objects.filter(depart = depart):
+            if (appoint.dBeg > date):
+                continue
         
-                if not hit_period(date, appoint.dBeg, appoint.dEnd):
-                    continue
+            if not hit_period(date, appoint.dBeg, appoint.dEnd):
+                continue
         
-                tree.append(TreeNode(False, appoint.employee.id, node, appoint.employee.fio, '.' * ((level + 1) * 6)))
+            empl_folder = Folder.objects.create(user = user,
+                node = dep_folder.id,
+                code = appoint.employee.sort,
+                name = appoint.employee.fio,
+                creation = datetime.now(),
+                last_mod = datetime.now(),
+                is_open = False,
+                icon = 'user',
+                color = '#008080',
+                model_name = 'wage:empl',
+                content_id = appoint.employee.id,
+                is_folder = True)
 
-        if depart.is_open:
-            scan_level(tree, user, depart.id, date, level + 1)
+            add_tab(empl_folder, '10', 'appoint',   'address-card',        'Назначения')
+            add_tab(empl_folder, '20', 'empl_per',  'vote-yea',            'Итоги месца')
+            add_tab(empl_folder, '30', 'accrual',   'file-invoice-dollar', 'Начисления')
+            add_tab(empl_folder, '40', 'payout',    'money-bill-wave',     'Выплаты')
+            add_tab(empl_folder, '50', 'education', 'graduation-cap',      'Образование')
+            add_tab(empl_folder, '60', 'fio_hist',  'signature',           'Фамилии')
+            add_tab(empl_folder, '70', 'child',     'child',               'Дети')
+
+        scan_level(user, dep_folder.id, depart.id, date, level + 1)
+
+def add_tab(empl_folder, sort, model, icon, name):
+    Folder.objects.create(user = empl_folder.user,
+        node = empl_folder.id,
+        code = sort,
+        name = name,
+        creation = datetime.now(),
+        last_mod = datetime.now(),
+        is_open = False,
+        icon = icon,
+        color = '#008080',
+        model_name = 'wage:' + model,
+        content_id = empl_folder.content_id,
+        is_folder = True)
 
 
-def build_tree(user, node, date):
-    tree = []
-    scan_level(tree, user, node, date, 0)
-    return tree
+def build_tree(user, date):
+        if Folder.objects.filter(user = user.id, node = 0, model_name = 'wage:node').exists():
+            node = Folder.objects.filter(user = user.id, node = 0, model_name = 'wage:node').get()
+            if Folder.objects.filter(user = user.id, node = node.id, model_name = 'wage:staff').exists():
+                staff = Folder.objects.filter(user = user.id, node = node.id, model_name = 'wage:staff').get()
+                rmtree(user, staff.id, False)
+                scan_level(user, staff.id, 0, date, 2)
 
+
+def deactivate_all(user_id, period_id):
+    for period in Period.objects.filter(user = user_id, active = True).exclude(id = period_id):
+        period.active = False
+        period.save()
+
+def set_active(user, period_id):
+    if Period.objects.filter(user = user.id, id = period_id).exists():
+        period = Period.objects.filter(user = user.id, id = period_id).get()
+        deactivate_all(user.id, period.id)
+        period.active = True
+        period.save()
+        if Params.objects.filter(user = user.id).exists():
+            par = Params.objects.filter(user = user.id).get()
+            par.period = period
+            par.save()
+        build_tree(user, period.dBeg)
 
