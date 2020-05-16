@@ -25,7 +25,11 @@ def toggle(request, folder_id):
     node = Folder.objects.filter(id = folder_id).get()
     node.is_open = not node.is_open
     node.save()
-    return HttpResponseRedirect(reverse('hier:folder_list', args = [folder_id]))
+    cur_page = request.GET.get('p')
+    if cur_page:
+        return HttpResponseRedirect(cur_page)
+    else:    
+        return HttpResponseRedirect(reverse('hier:folder_list', args = [folder_id]))
 
 #----------------------------------
 def not_hier_app(folder):

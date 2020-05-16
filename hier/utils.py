@@ -26,7 +26,7 @@ NAVBAR_BUTTONS = [
     ('prop', {'icon': 'edit', 'url': 'hier:folder_form', 'p1': 'folder.id', 'color': FOLDERS_COLOR, }, ),
     ('folder_add', {'icon': 'folder-plus', 'url': 'hier:folder_add', 'p1': 'folder.id', 'color': FOLDERS_COLOR, }, ),
 
-    ('profile', {'text': 'firstof user.get_short_name user.get_username', 'url': 'account:service', 'class': 'w3-right w3-hide-small w3-hide-medium', }, ),
+    ('profile', {'text': 'firstof user.get_short_name user.get_username', 'url': 'account:service', 'class': 'w3-right rok-hide-small rok-hide-medium', }, ),
     ('login', {'text': _('Log in'), 'url': 'account:login', 'class': 'w3-right', }, ),
 ]
 

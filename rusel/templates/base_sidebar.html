@@ -18,31 +18,39 @@
   <!-- Sidebar -->
   {% block sidebar %}
     {% if user.is_authenticated %}
-      <div class="w3-sidebar w3-bar-block w3-card w3-collapse w3-theme-l4" style="width: 250px; height: auto; min-height: 590px;" id="mySidebar">
-            <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'index' %}"><i class="fa fa-home"></i> {% trans 'main'|capfirst %}</a>
+      <div class="sidebar theme-l4" id="mySidebar">
+
+            <div class="bar-item">
+              <a class="bar-link" href="{% url 'index' %}"><i class="fa fa-home"></i>&nbsp;{% trans 'main'|capfirst %}</a>
+            </div>
+
             {% for file in tree %}
-              <div class="w3-hover-dark level-{{ file.level }}" style="display: flex; flex-direction: row;">
-                  {% if file.is_node %}
-                    <a href="{% url 'hier:toggle' file.id %}">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" {% if file.is_open %} style="transform: rotate(90deg);" {% endif %}>
-                        <path fill-rule="evenodd" d="M9 8l4 4-4 4z"></path> 
-                      </svg>
-                    </a>
-                  {% else %}
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" ></svg>
-                  {% endif %}
-                  <div>
-                    <a class="w3-button w3-hover-dark" href="{% url 'hier:folder_list' file.id %}">{% if file.icon != "" %} <i class="fa fa-{{ file.icon }}" style="color: {{ file.color }};"></i>{% endif %} {{ file.name }}</a>
-                  </div>
+              <div class="bar-item{% if file.id == folder.id %} current{% endif %}">
+                {% if file.is_node %}
+                <a class="level-{{ file.level }}{% if file.id == folder.id %} current{% endif %}" href="{% url 'hier:toggle' file.id %}?p={{ request.path }}">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17"{% if file.is_open %} style="transform: rotate(90deg);" {% endif %}>
+                    <path fill-rule="evenodd" d="M6 4l4 4-4 4z"></path></svg></a>
+                {% else %}
+                  <svg class="level-{{ file.level }}{% if file.id == folder.id %} current{% endif %}" xmlns="http://www.w3.org/2000/svg" width="17" height="17" ></svg>
+                {% endif %}
+                <a class="bar-link{% if file.id == folder.id %} current{% endif %}" href="{% url 'hier:folder_list' file.id %}">
+                  {% if file.icon != "" %} <i class="fa fa-{{ file.icon }}" style="color: {{ file.color }};"></i>{% endif %}&nbsp;{{ file.name }}</a>
               </div>
             {% endfor %}
-            <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'account:profile' %}"><i class="fa fa-user"></i> {% trans 'profile'|capfirst %}</a>
-            <a class="w3-bar-item w3-button w3-hover-dark" href="{% url 'account:logout'  %}"><i class="fa fa-sign-out-alt"></i> {% trans 'logout'|capfirst  %}</a>
+
+            <div class="bar-item">
+              <a class="bar-link" href="{% url 'account:profile' %}"><i class="fa fa-user"></i>&nbsp;{% trans 'profile'|capfirst %}</a>
+            </div>
+
+            <div class="bar-item">
+              <a class="bar-link" href="{% url 'account:logout' %}"><i class="fa fa-sign-out-alt"></i>&nbsp;{% trans 'logout'|capfirst  %}</a>
+            </div>
+
       </div>
     {% endif %}
   {% endblock %}
 
-  <div id="main" class="w3-main" {% if user.is_authenticated %} style="margin-left:250px" {% endif %}>
+  <div id="main" class="rok-main" {% if user.is_authenticated %} style="margin-left:250px" {% endif %}>
     {% block navbar %}{{ block.super }}{% endblock %}
     {% block content %}{% endblock %}
 
@@ -54,7 +62,7 @@
 
 {% block hamb %}
   {% if user.is_authenticated %}
-    <button id="hamburger" class="w3-bar-item w3-button w3-hide-large" onclick="w3_open()">&#9776;</button>
+    <button id="hamburger" class="w3-bar-item w3-button rok-hide-large" onclick="w3_open()">&#9776;</button>
   {% endif %}
 {% endblock %}
 
