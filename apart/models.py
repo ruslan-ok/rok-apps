@@ -61,6 +61,7 @@ class Meter(models.Model):
     cw = models.IntegerField(_('cold water'), null = True)
     ga = models.IntegerField(_('gas'), null = True)
     zhirovka = models.DecimalField('account amount', null = True, blank = True, max_digits = 15, decimal_places = 2)
+    info = models.CharField(_('information'), max_length = 1000, blank = True)
 
     class Meta:
         verbose_name = _('meters data')

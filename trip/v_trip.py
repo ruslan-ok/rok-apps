@@ -5,15 +5,15 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from hier.utils import get_base_context
+from hier.utils import get_base_context, get_folder_id
 from .models import Person, Saldo, Trip
 from .forms import TripForm
 
-def do_trip(request, folder_id, content_id):
+def do_trip(request, pk):
     t = None
     if (request.method == 'GET'):
-        if (content_id != 0):
-            t = get_object_or_404(Trip, pk = content_id)
+        if (pk != 0):
+            t = get_object_or_404(Trip, pk = pk)
             form = TripForm(request.user,
                             instance = t,
                             initial = { 'summa': t.summa(),
@@ -86,8 +86,8 @@ def do_trip(request, folder_id, content_id):
                                        'text':      '' })
     else:
         s = 0
-        if (content_id != 0):
-            t = get_object_or_404(Trip, pk = content_id)
+        if (pk != 0):
+            t = get_object_or_404(Trip, pk = pk)
             s = t.summa()
         form = TripForm(request.user,
                         request.POST,
@@ -109,8 +109,8 @@ def do_trip(request, folder_id, content_id):
                                     'day_27': request.POST.get('day_27') != None,
                                     })
         if form.is_valid():
-            if (content_id != 0):
-                b = Trip.objects.get(id = content_id)
+            if (pk != 0):
+                b = Trip.objects.get(id = pk)
                 saldo_update(request.user, b.driver, b.passenger, b.oper, -1*b.summa())
             trip = form.save(commit = False)
             trip.user = request.user
@@ -119,9 +119,10 @@ def do_trip(request, folder_id, content_id):
             saldo_update(request.user, trip.driver, trip.passenger, trip.oper, trip.summa())
             return HttpResponseRedirect(reverse('trip:index'))
 
-    context = get_base_context(request, folder_id, content_id, _('trip'))
+    folder_id = get_folder_id(request.user.id)
+    context = get_base_context(request, folder_id, pk, _('trip'))
     context['form'] = form
-    context['trip_id'] = content_id
+    context['trip_id'] = pk
     context['today'] = datetime.today().weekday()
     return render(request, 'trip/trip_form.html', context)
 

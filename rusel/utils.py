@@ -201,6 +201,7 @@ def check_menu(user, node_id, branch):
                 folder.save()
         else:
             if Folder.objects.filter(user = user.id, node = 0, name = name, model_name = app).exists():
+                folder = Folder.objects.filter(user = user.id, node = 0, name = name, model_name = app).get()
                 m.append(name)
                 folder.node = node_id
                 folder.code = code

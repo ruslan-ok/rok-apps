@@ -1,10 +1,5 @@
-{% extends "base_window.html" %}
+{% extends "base_list.html" %}
 {% load i18n %}
-
-{% block breadcrumbs %}
-  <a class="w3-bar-item w3-button" href="{% url 'trip:index' %}">{% trans 'trips'|capfirst %}</a>
-  <a class="w3-bar-item w3-button" href="{% url 'trip:pers_add' %}">{% trans 'add'|capfirst %}</a>
-{% endblock %}
 
 {% block win_content %}
 
@@ -14,10 +9,10 @@
       <th>{% trans 'dative'|capfirst %}</th>
       <th>{% trans 'me'|capfirst %}</th>
     </tr>
-    {% for pers in object_list %}
+    {% for pers in page_obj %}
       <tr>
-        <td><a href="{% url 'trip:pers_edit' folder.id pers.id %}">{{ pers.name }}</a></td>
-        <td><a href="{% url 'trip:pers_edit' folder.id pers.id %}">{{ pers.dative }}</a></td>
+        <td><a href="{% url 'trip:pers_form' pers.id %}">{{ pers.name }}</a></td>
+        <td><a href="{% url 'trip:pers_form' pers.id %}">{{ pers.dative }}</a></td>
         <td>{{ pers.me }}</td>
       </tr>
     {% endfor %}

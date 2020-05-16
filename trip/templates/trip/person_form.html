@@ -1,15 +1,6 @@
 {% extends "base_window.html" %}
 {% load i18n %}
 
-{% block breadcrumbs %}
-  <a class="w3-bar-item w3-button" href="{% url 'trip:index' %}">{% trans 'trips'|capfirst %}</a>
-  <a class="w3-bar-item w3-button" href="{% url 'trip:pers_list' %}">{% trans 'persons'|capfirst %}</a>
-  {% if pers_id != 0 %}
-    <a class="w3-bar-item w3-button w3-red w3-right" href="{% url 'trip:pers_del' pers_id %}">{% trans 'delete'|capfirst %}</a>
-  {% endif %}
-{% endblock %}
-
-
 {% block win_content %}
 
   <form method="post">{% csrf_token %}

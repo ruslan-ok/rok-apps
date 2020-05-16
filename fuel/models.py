@@ -9,8 +9,7 @@ class Car(models.Model):
     user   = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
     name   = models.CharField(_('model'), max_length = 200, blank = False)
     plate  = models.CharField(_('car number'), max_length = 100)
-    active = models.IntegerField(_('active'), default = 0)
-    direct = models.ForeignKey(Direct, on_delete=models.CASCADE, null = True, verbose_name=_('direct'))
+    active = models.BooleanField(_('active'), default = False)
 
     class Meta:
         verbose_name = _('car')
@@ -18,6 +17,24 @@ class Car(models.Model):
 
     def __str__(self):
         return self.name + ' [' + self.plate + ']'
+
+    def s_active(self):
+        if self.active:
+            return '*'
+        else:
+            return ''
+
+def deactivate_all(user_id, cars_id):
+    for car in Car.objects.filter(user = user_id, active = True).exclude(id = cars_id):
+        car.active = False
+        car.save()
+
+def set_active(user_id, cars_id):
+    if Car.objects.filter(user = user_id, id = cars_id).exists():
+        car = Car.objects.filter(user = user_id, id = cars_id).get()
+        deactivate_all(user_id, car.id)
+        car.active = True
+        car.save()
 
 
 class Fuel(models.Model):
@@ -34,8 +51,10 @@ class Fuel(models.Model):
 
     def __str__(self):
         return str(self.pub_date) + ' / ' + str(self.odometr) + ' ' + gettext('km.') +' / ' + str(self.volume) + ' ' + gettext('l.')
-    def summ(self):
-        return float(self.price * self.volume)
+    
+    def summa(self):
+        return self.price * self.volume
+
     def s_pub_date(self):
         d = str(self.pub_date.day)
         m = str(self.pub_date.month)
@@ -49,7 +68,7 @@ class Fuel(models.Model):
 
 def consumption(_user):
   try:
-    car = Car.objects.get(user = _user, active = 1)
+    car = Car.objects.get(user = _user, active = True)
     car_name = car.name + ': '
     fuels = Fuel.objects.filter(car = car.id).order_by('-pub_date', '-odometr')
     counter_max = 0
@@ -76,7 +95,7 @@ def consumption(_user):
 
 def fuel_summary(_user):
   try:
-    car = Car.objects.get(user = _user, active = 1)
+    car = Car.objects.get(user = _user, active = True)
     car_name = car.name + ': '
     cons = consumption(_user)
     if (cons == 0):
@@ -120,16 +139,101 @@ class Part(models.Model): # Список расходников
   
     def repls(self):
         r = Repl.objects.filter(part = self.id)
-        return len(r);
+        return len(r)
+
+    def chg_km_th(self):
+        return self.chg_km // 1000
+
+    def get_rest(self):
+        if (not self.chg_km) or (not self.chg_mo) or (not self.last_odo()):
+            return ''
+
+        fuels = Fuel.objects.filter(car = self.car).order_by('-pub_date')[:1]
+        if (len(fuels) == 0):
+            return ''
+
+        output = ''
+        p1 = ''
+        p2 = ''
+        m1 = False
+        m2 = False
+
+        if (self.chg_km != 0):
+            trip_km = fuels[0].odometr - self.last_odo() # Проехали км от последней замены
+          
+            if (trip_km > 1000):
+                trip_km = round(trip_km / 1000) * 1000
+          
+            if (trip_km > self.chg_km):
+                if (trip_km > 1000):
+                    p1 = 'просрочено на <span id="error">' + round(((trip_km - self.chg_km) / 1000)) + ' тыс.</span> км'
+                else:
+                    p1 = 'просрочено на <span id="error">' + (trip_km - self.chg_km) + '</span> км'
+                m1 = True
+            else:
+                if ((self.chg_km - trip_km) < 1000):
+                    p1 = '<span id="warning">' + (self.chg_km - trip_km) + '</span> км'
+                else:
+                    p1 = str(round(((self.chg_km - trip_km) / 1000))) + ' тыс. км'
+              
+        if (self.chg_mo != 0):
+            trip_days = (fuels[0].pub_date.date() - self.last_date()).days - self.chg_mo * 30.42
+            per = ''
+            days = trip_days
+            if (days < 0):
+                days = -1 * days
+          
+            if (days < 2):
+                per = 'день'
+            elif (days < 5):
+                per = str(round(days)) + ' дня'
+            elif (days < 30):
+                per = str(round(days)) + ' дней'
+            elif (days < 45):
+                per = 'месяц'
+            elif (days < 135):
+                per = str(round(days/30)) + ' месяца'
+            elif (days < 270):
+                per = 'пол года'
+            elif (days < 540):
+                per = 'год'
+            elif (days < 1642):
+                per = str(round(days/365)) + ' года'
+            else:
+                per = str(round(days/365)) + ' лет'
+            
+            if (trip_days > 0):
+                p2 = 'просрочено на <span id="error">' + per + '</span>'
+                m2 = True
+            else:
+                if (days < 32):
+                    p2 = '<span id="warning">' + per + '</span>'
+                else:
+                    p2 = per
+      
+        if m1:
+            output = p1
+        elif m2:
+            output = p2
+        elif (p1 == ''):
+            output = p2
+        elif (p2 == ''):
+            output = p1
+        else:
+            output = p1 + ' или ' + p2
+
+        return output
 
 
 class Repl(models.Model): # Замена расходников
+    car      = models.ForeignKey(Car, on_delete=models.CASCADE, verbose_name=_('car'), null = True)
     part     = models.ForeignKey(Part, on_delete=models.CASCADE, verbose_name=_('part'))
     dt_chg   = models.DateTimeField(_('date'), blank = False)
     odometr  = models.IntegerField(_('odometer, km'), blank = False)
     manuf    = models.CharField(_('manufacturer'), max_length = 1000, blank = True)
     part_num = models.CharField(_('catalog number'), max_length = 100, blank = True)
     name     = models.CharField(_('name'), max_length = 1000, blank = True)
+    # deprecated
     oper     = models.ForeignKey(Proj, on_delete=models.CASCADE, null = True, verbose_name=_('project'))
     comment  = models.TextField(_('information'), blank = True, default = None)
 
@@ -150,3 +254,8 @@ class Repl(models.Model): # Замена расходников
             m = '0' + m
         return d + '.' + m + '.' + y
 
+def init_repl_car():
+    for repl in Repl.objects.filter(car__isnull = True):
+        repl.car = repl.part.car
+        repl.save()
+        

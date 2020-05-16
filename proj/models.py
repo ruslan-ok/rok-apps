@@ -4,15 +4,33 @@ from django.utils.translation import gettext_lazy as _
 
 class Direct(models.Model):
     user   = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
-    name   = models.CharField(_('direction'), max_length=200, blank=False)
-    active = models.IntegerField(_('active'), default=0)
+    name   = models.CharField(_('direction'), max_length = 200, blank = False)
+    active = models.BooleanField(_('active'), default = False)
 
     class Meta:
-        verbose_name = _('direct')
-        verbose_name_plural = _('directs')
+        verbose_name = _('direction')
+        verbose_name_plural = _('directions')
 
     def __str__(self):
         return self.name
+
+    def s_active(self):
+        if self.active:
+            return '*'
+        else:
+            return ''
+
+def deactivate_all(user_id, dirs_id):
+    for dir in Direct.objects.filter(user = user_id, active = True).exclude(id = dirs_id):
+        dir.active = False
+        dir.save()
+
+def set_active(user_id, dirs_id):
+    if Direct.objects.filter(user = user_id, id = dirs_id).exists():
+        dir = Direct.objects.filter(user = user_id, id = dirs_id).get()
+        deactivate_all(user_id, dir.id)
+        dir.active = True
+        dir.save()
 
 
 class Proj(models.Model):

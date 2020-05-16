@@ -13,11 +13,11 @@
           </tr>
         </thead>
         <tbody>
-          {% for apart in object_list %}
+          {% for apart in page_obj %}
           <tr>
-            <td><a class="w3-button w3-padding-small" href="{% url 'apart:apart_form' folder.id apart.id %}">{{ apart.s_active }}</a></td>
-            <td><a class="w3-button w3-padding-small" href="{% url 'apart:apart_form' folder.id apart.id %}">{{ apart.name }}</a></td>
-            <td><a class="w3-button w3-padding-small" href="{% url 'apart:apart_form' folder.id apart.id %}">{{ apart.addr }}</a></td>
+            <td><a class="w3-button w3-padding-small" href="{% url 'apart:apart_form' apart.id %}">{{ apart.s_active }}</a></td>
+            <td><a class="w3-button w3-padding-small" href="{% url 'apart:apart_form' apart.id %}">{{ apart.name }}</a></td>
+            <td><a class="w3-button w3-padding-small" href="{% url 'apart:apart_form' apart.id %}">{{ apart.addr }}</a></td>
           </tr>
           {% endfor %}
         </tbody>

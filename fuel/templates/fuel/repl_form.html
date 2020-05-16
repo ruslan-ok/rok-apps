@@ -1,0 +1,53 @@
+{% extends "base_window.html" %}
+
+{% block win_content %}
+<div class="w3-container w3-padding">
+
+  <form method="post" class="w3-container w3-card-4 w3-light-grey">{% csrf_token %}
+
+    {% if form.errors %} <p class="errornote"> {% if form.errors.items|length == 1 %}Нужно исправить ошибку.{% else %}Нужно исправить ошибки{% endif %} </p> {% endif %}
+    {% if form.non_field_errors %} {% for error in form.non_field_errors %} <p class="errornote"> {{ error }} </p> {% endfor %} {% endif %}
+
+    <div class="w3-row">
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+          {{ form.dt_chg.errors }} {{ form.dt_chg.label_tag }} {{ form.dt_chg }} {% if form.dt_chg.help_text %}<div class="help">{{ form.dt_chg.help_text|safe }}</div>{% endif %}
+      </div></div>
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+          {{ form.odometr.errors }} {{ form.odometr.label_tag }} {{ form.odometr }} {% if form.odometr.help_text %}<div class="help">{{ form.odometr.help_text|safe }}</div>{% endif %}
+      </div></div>
+    </div>
+
+    <div class="w3-row">
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+          {{ form.part.errors }} {{ form.part.label_tag }} {{ form.part }} {% if form.part.help_text %}<div class="help">{{ form.part.help_text|safe }}</div>{% endif %}
+      </div></div>
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+          {{ form.name.errors }} {{ form.name.label_tag }} {{ form.name }} {% if form.name.help_text %}<div class="help">{{ form.name.help_text|safe }}</div>{% endif %}
+      </div></div>
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+          {{ form.manuf.errors }} {{ form.manuf.label_tag }} {{ form.manuf }} {% if form.manuf.help_text %}<div class="help">{{ form.manuf.help_text|safe }}</div>{% endif %}
+      </div></div>
+      <div class="w3-quarter"><div class="w3-margin rok-field">
+          {{ form.part_num.errors }} {{ form.part_num.label_tag }} {{ form.part_num }} {% if form.part_num.help_text %}<div class="help">{{ form.part_num.help_text|safe }}</div>{% endif %}
+      </div></div>
+    </div>
+
+    <div class="w3-row">
+      <div class="w3-rest"><div class="w3-margin rok-field">
+          {{ form.comment.errors }} {{ form.comment.label_tag }} {{ form.comment }} {% if form.comment.help_text %}<div class="help">{{ form.comment.help_text|safe }}</div>{% endif %}
+      </div></div>
+    </div>
+
+    <div class="w3-row w3-padding">
+      {% if pk == 0 %}
+        <input type="submit" class="default" value="Добавить">
+      {% else %}
+        <input type="submit" class="default" value="Сохранить">
+      {% endif %}
+      <p>
+    </div>
+
+  </form>
+
+</div>
+{% endblock %}

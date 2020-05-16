@@ -1,110 +1,81 @@
-from django.shortcuts import get_object_or_404, render
-from django.http import HttpResponseRedirect
+from datetime import datetime
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django import forms
-from datetime import date, datetime, timedelta
-from django.forms import ModelForm
+from django.http import HttpResponse, HttpResponseRedirect
+from django.template import loader
+from django.utils.translation import gettext_lazy as _
+from django.core.paginator import Paginator
 
-from hier.utils import get_base_context
-from proj.models import Direct, Proj, proj_summary
+from hier.utils import get_base_context, get_folder_id
+from .models import Direct, Proj
+from .forms import ProjForm
 
-
-#----------------------------------
-class ProjForm(ModelForm):
-    class Meta:
-        model = Proj
-        exclude = ('direct',)
 
 #----------------------------------
-def edit_context(request, form, adir, folder_id, content_id):
-    opers = Proj.objects.filter(direct = adir).order_by('-date')[:20]
-    curdir = Direct.objects.get(user = request.user.id, active = 1)
-    dirs = Direct.objects.filter(user = request.user.id, active = 0)
-    context = get_base_context(request, folder_id, content_id, 'Операции проекта ' + curdir.name)
-    context['form'] = form
-    context['opers'] = opers
-    context['dirs'] = dirs
-    context['proj_summary'] = proj_summary(request.user)
-    context['total_count'] = Proj.objects.filter(direct = adir).count
-    return context
-
+@login_required(login_url='account:login')
 #----------------------------------
-def do_proj(request, folder_id, content_id):
-    try:
-        adir = Direct.objects.get(user = request.user.id, active = 1)
-    except Direct.DoesNotExist:
-        dirs = Direct.objects.filter(user = request.user.id, active = 0)
-        if (len(dirs) == 0):
-            adir = None
-        else:
-            adir = dirs[0]
-            adir.active = 1
-            adir.save()
-    
-    if (adir == None):
-        return HttpResponseRedirect(reverse('proj:dirs_form', args = [folder_id, 0]))
+def proj_list(request):
+    if not Direct.objects.filter(user = request.user.id, active = True).exists():
+        return HttpResponseRedirect(reverse('proj:dirs_list'))
 
-    if (request.method == 'GET'):
-        ttt = date.today()
-        if (content_id > 0):
-            # Отображение конкретной записи
-            t = get_object_or_404(Proj, id = content_id)
-            ttt = t.date.date()
-            form = ProjForm(instance = t, initial = { 'date': ttt.isoformat() })
-        else:
-            # Пустая форма для новой записи
-            form = ProjForm(initial = { 'direct': adir, 'date': date.today().isoformat(), 'kol': 1, 'price': 0, 'course': 0, 'usd': 0, 'kontr': '', 'text': '' })
-          
-        context = edit_context(request, form, adir, folder_id, content_id)
-        return render(request, 'proj/proj.html', context)
+    direct = Direct.objects.filter(user = request.user.id, active = True).get()
+    data = Proj.objects.filter(direct = direct.id).order_by('-date')
+    if request.method != 'GET':
+        page_number = 1
     else:
-        action = request.POST.get('action', False)
-        
-        act = 0
-        if (action == 'Отменить'):
-            act = 1
-        elif (action == 'Добавить'):
-            act = 2
-        elif (action == 'Сохранить'):
-            act = 3
-        elif (action == 'Удалить'):
-            act = 4
-        else:
-            act = 5
-      
-        if (act > 1):
-            form = ProjForm(request.POST)
-            if not form.is_valid():
-                # Ошибки в форме, отобразить её снова
-                context = edit_context(request, form, adir, folder_id, content_id)
-                return render(request, 'proj/proj.html', context)
-            else:
-                t = form.save(commit = False)
-              
-                if (act == 2):
-                    t.direct = adir
-                    t.date = t.date + timedelta(days = 1)
-                    t.save()
-              
-                if (act == 3):
-                    t.id = content_id
-                    t.direct = adir
-                    t.date = t.date + timedelta(days = 1)
-                    t.save()
-              
-                if (act == 4):
-                    t = get_object_or_404(Proj, id = content_id)
-                    t.delete()
-      
-        return HttpResponseRedirect(reverse('proj:proj_list', args = [folder_id]))
+        page_number = request.GET.get('page')
+    paginator = Paginator(data, 10)
+    page_obj = paginator.get_page(page_number)
+    folder_id = get_folder_id(request.user.id)
+    context = get_base_context(request, folder_id, 0, _('expenses') + ' ' + direct.name, 'content_list')
+    context['page_obj'] = page_obj
+    template_file = 'proj/proj_list.html'
+    template = loader.get_template(template_file)
+    return HttpResponse(template.render(context, request))
 
 #----------------------------------
-def do_change_dir(request, folder_id, content_id):
-    active_dirs = Direct.objects.filter(user = request.user.id, active = 1)
-    for c in active_dirs:
-        c.active = 0
-        c.save()
-    adir = Direct.objects.get(id = content_id)
-    adir.active = 1
-    adir.save()
-    return HttpResponseRedirect(reverse('proj:proj_list', args = [folder_id]))
+def proj_add(request):
+    if (request.method == 'POST'):
+        form = ProjForm(request.POST)
+    else:
+        form = ProjForm(initial = { 'date': datetime.now() })
+    return show_page_form(request, 0, _('creating a new expense') + ' ' + direct.name, form)
+
+#----------------------------------
+def proj_form(request, pk):
+    direct = get_object_or_404(Direct.objects.filter(user = request.user.id, active = True))
+    data = get_object_or_404(Proj.objects.filter(id = pk, direct = direct.id))
+    if (request.method == 'POST'):
+        form = ProjForm(request.POST, instance = data)
+    else:
+        form = ProjForm(instance = data)
+    return show_page_form(request, pk, _('expense') + ' ' + direct.name, form)
+
+#----------------------------------
+@login_required(login_url='account:login')
+#----------------------------------
+def proj_del(request, pk):
+    direct = get_object_or_404(Direct.objects.filter(user = request.user.id, active = True))
+    proj = get_object_or_404(Proj.objects.filter(id = pk, direct = direct.id))
+    proj.delete()
+    return HttpResponseRedirect(reverse('proj:proj_list'))
+
+
+#----------------------------------
+@login_required(login_url='account:login')
+#----------------------------------
+def show_page_form(request, pk, title, form):
+    direct = get_object_or_404(Direct.objects.filter(user = request.user.id, active = True))
+    if (request.method == 'POST'):
+        if form.is_valid():
+            data = form.save(commit = False)
+            data.direct = direct
+            form.save()
+            return HttpResponseRedirect(reverse('proj:proj_list'))
+    folder_id = get_folder_id(request.user.id)
+    context = get_base_context(request, folder_id, pk, title)
+    context['form'] = form
+    template = loader.get_template('proj/proj_form.html')
+    return HttpResponse(template.render(context, request))

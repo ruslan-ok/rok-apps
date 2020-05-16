@@ -1,0 +1,20 @@
+{% extends "base_list.html" %}
+
+{% block win_content %}
+  <table class="w3-table-all w3-hoverable w3-card-4">
+    <thead>
+      <tr class="w3-theme-l3"><th>Наименование</th> <th>Ресурс, тыс.км.</th> <th>Период, мес.</th> <th>Осталось</th> <th>Комментарий</th> </tr>
+    </thead>
+    <tbody>
+      {% for part in page_obj %}
+      <tr>
+        <td><a href="{% url 'fuel:part_form' part.id %}">{{ part.name }}</a></td>
+        <td><a href="{% url 'fuel:part_form' part.id %}">{{ part.chg_km_th|default:"" }}</a></td>
+        <td><a href="{% url 'fuel:part_form' part.id %}">{{ part.chg_mo|default:"" }}</a></td>
+        <td><a href="{% url 'fuel:part_form' part.id %}">{{ part.get_rest }}</a></td>
+        <td><a href="{% url 'fuel:part_form' part.id %}">{{ part.comment }}</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

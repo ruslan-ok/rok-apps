@@ -1,4 +1,4 @@
-{% extends "base_window.html" %}
+{% extends "base_list.html" %}
 {% load i18n %}
 
 {% block win_content %}
@@ -19,37 +19,17 @@
         <tbody>
           {% for price in page_obj %}
           <tr>
-            <td><a class="w3-button w3-padding-small" href="{% url 'apart:price_form' folder.id price.id %}">{{ price.service }}</a></td>
-            <td><a class="w3-button w3-padding-small" href="{% url 'apart:price_form' folder.id price.id %}">{{ price.period|date:'m.Y' }}</a></td>
-            <td><a class="w3-button w3-padding-small" href="{% url 'apart:price_form' folder.id price.id %}">{{ price.tarif }}</a></td>
-            <td><a class="w3-button w3-padding-small" href="{% url 'apart:price_form' folder.id price.id %}">{% if price.border != 0 %}{{ price.border|default_if_none:"" }}{% endif %}</a></td>
-            <td><a class="w3-button w3-padding-small" href="{% url 'apart:price_form' folder.id price.id %}">{% if price.tarif2 != 0 %}{{ price.tarif2|default_if_none:"" }}{% endif %}</a></td>
-            <td><a class="w3-button w3-padding-small" href="{% url 'apart:price_form' folder.id price.id %}">{% if price.border2 != 0 %}{{ price.border2|default_if_none:"" }}{% endif %}</a></td>
-            <td><a class="w3-button w3-padding-small" href="{% url 'apart:price_form' folder.id price.id %}">{% if price.tarif3 != 0 %}{{ price.tarif3|default_if_none:"" }}{% endif %}</a></td>
+            <td><a class="w3-button w3-padding-small" href="{% url 'apart:price_form' price.id %}">{{ price.service }}</a></td>
+            <td><a class="w3-button w3-padding-small" href="{% url 'apart:price_form' price.id %}">{{ price.period|date:'m.Y' }}</a></td>
+            <td><a class="w3-button w3-padding-small" href="{% url 'apart:price_form' price.id %}">{{ price.tarif }}</a></td>
+            <td><a class="w3-button w3-padding-small" href="{% url 'apart:price_form' price.id %}">{% if price.border != 0 %}{{ price.border|default_if_none:"" }}{% endif %}</a></td>
+            <td><a class="w3-button w3-padding-small" href="{% url 'apart:price_form' price.id %}">{% if price.tarif2 != 0 %}{{ price.tarif2|default_if_none:"" }}{% endif %}</a></td>
+            <td><a class="w3-button w3-padding-small" href="{% url 'apart:price_form' price.id %}">{% if price.border2 != 0 %}{{ price.border2|default_if_none:"" }}{% endif %}</a></td>
+            <td><a class="w3-button w3-padding-small" href="{% url 'apart:price_form' price.id %}">{% if price.tarif3 != 0 %}{{ price.tarif3|default_if_none:"" }}{% endif %}</a></td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
   </div>
-
-  <p>
-  <div class="pagination">
-    <span class="step-links">
-        {% if page_obj.has_previous %}
-            <a class="w3-button" href="?page=1">&laquo;</a>
-            <a class="w3-button" href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
-        {% endif %}
-
-        <span class="current active w3-button w3-theme-l1">
-            {{ page_obj.number }}
-        </span>
-
-        {% if page_obj.has_next %}
-            <a class="w3-button" href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>
-            <a class="w3-button" href="?page={{ page_obj.paginator.num_pages }}">&raquo;</a>
-        {% endif %}
-    </span>
-  </div>
-  <p>
 {% endblock %}

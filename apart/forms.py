@@ -13,7 +13,7 @@ class ApartForm(forms.ModelForm):
 class MeterForm(forms.ModelForm):
     class Meta:
         model = Meter
-        fields = ['period', 'reading', 'el', 'hw', 'cw', 'ga']
+        fields = ['period', 'reading', 'el', 'hw', 'cw', 'ga', 'info']
 
 #----------------------------------
 class BillForm(forms.ModelForm):

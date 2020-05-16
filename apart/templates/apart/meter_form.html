@@ -38,6 +38,12 @@
       {% endif %}
     </div>
 
+    <div class="w3-row">
+      <div class="w3-rest"><div class="w3-margin rok-field">
+        {{ form.info.errors }} {{ form.info.label_tag }} {{ form.info }} {% if form.info.help_text %}<div class="help">{{ form.info.help_text|safe }}</div>{% endif %}
+      </div></div>
+    </div>
+
     <div class="w3-row w3-padding">
       {% if pk == 0 %}
         <input type="submit" value="{% trans 'add'|capfirst %}" class="default">

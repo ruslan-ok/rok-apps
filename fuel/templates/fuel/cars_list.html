@@ -1,0 +1,18 @@
+{% extends "base_list.html" %}
+
+{% block win_content %}
+  <table class="w3-table-all w3-hoverable w3-card-4">
+    <thead>
+      <tr class="w3-theme-l3"><th>Акт.</th> <th>Модель</th> <th>Номер</th> </tr>
+    </thead>
+    <tbody>
+      {% for car in page_obj %}
+      <tr>
+        <td>{{ car.s_active }}</td>
+        <td><a href="{% url 'fuel:cars_form' car.id %}">{{ car.name }}</a></td>
+        <td><a href="{% url 'fuel:cars_form' car.id %}">{{ car.plate }}</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

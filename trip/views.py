@@ -1,4 +1,4 @@
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext_lazy as _
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect
@@ -6,12 +6,12 @@ from django.urls import reverse
 from django.shortcuts import get_object_or_404, render
 from django.views.generic.list import ListView
 
-from hier.utils import get_base_context
+from hier.utils import get_base_context, get_folder_id
 from .v_pers import do_pers
 from .v_trip import do_trip, do_count
 from .models import Person, Trip, trip_summary
 
-decorators = [login_required(login_url='account:login'), permission_required('trip.view_person')]
+decorators = [login_required(login_url='account:login')]
 
 #----------------------------------
 #              Trip List
@@ -27,7 +27,8 @@ class TripsListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context_add = get_base_context(self.request, self.kwargs['folder_id'], 0, _('trips'), 'content_list')
+        folder_id = get_folder_id(self.request.user.id)
+        context_add = get_base_context(self.request, folder_id, 0, _('trips'), 'content_list')
         context.update(context_add)
         context['trip_summary'] = trip_summary(self.request.user.id)
         return context
@@ -36,36 +37,32 @@ class TripsListView(ListView):
 #              Trip Form
 #----------------------------------
 @login_required
-@permission_required('trip.view_person')
-def trip_edit(request, folder_id, content_id):
-    return do_trip(request, folder_id, content_id)
+def trip_form(request, pk):
+    return do_trip(request, pk)
 
 #----------------------------------
 #              Trip Create
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('trip.view_person')
-def trip_add(request, folder_id):
-    return do_trip(request, folder_id, 0)
+def trip_add(request):
+    return do_trip(request, 0)
 
 #----------------------------------
 #              Trip Delete
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('trip.view_person')
-def trip_del(request, folder_id, content_id):
-    Trip.objects.get(id = content_id).delete()
-    return HttpResponseRedirect(reverse('trip:trip_list', args = [folder_id]))
+def trip_del(request, pk):
+    Trip.objects.get(id = pk).delete()
+    return HttpResponseRedirect(reverse('trip:trip_list'))
 
 
 #----------------------------------
 #              Trip Recount
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('trip.view_person')
-def trip_count(request, folder_id):
+def trip_count(request):
     do_count(request)
-    return HttpResponseRedirect(reverse('trip:trip_list', args = [folder_id]))
+    return HttpResponseRedirect(reverse('trip:trip_list'))
 
 
 #----------------------------------
@@ -82,7 +79,8 @@ class PersonsListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context_add = get_base_context(self.request, self.kwargs['folder_id'], 0, _('persons'), 'content_list')
+        folder_id = get_folder_id(self.request.user.id)
+        context_add = get_base_context(self.request, folder_id, 0, _('persons'), 'content_list')
         context.update(context_add)
         return context
 
@@ -90,24 +88,21 @@ class PersonsListView(ListView):
 #              Person Form
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('trip.view_person')
-def pers_edit(request, folder_id, content_id):
-    return do_pers(request, folder_id, content_id)
+def pers_form(request, pk):
+    return do_pers(request, pk)
 
 #----------------------------------
 #              Person Create
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('trip.view_person')
-def pers_add(request, folder_id):
-    return do_pers(request, folder_id, 0)
+def pers_add(request):
+    return do_pers(request, 0)
 
 #----------------------------------
 #              Person Delete
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('trip.view_person')
-def pers_del(request, folder_id, content_id):
-    Person.objects.get(id = content_id).delete()
-    return HttpResponseRedirect(reverse('trip:pers_list', args = [folder_id]))
+def pers_del(request, pk):
+    Person.objects.get(id = pk).delete()
+    return HttpResponseRedirect(reverse('trip:pers_list'))
 

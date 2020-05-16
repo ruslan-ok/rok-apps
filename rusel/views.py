@@ -9,6 +9,9 @@ from trip.models import trip_summary
 # Index
 #----------------------------------
 def index(request):
+    title = ''
+    context = get_base_context(request, 0, 0, title, 'content_list')
+
     if request.user.is_authenticated:
         save_folder_id(request.user, 0)
         title = _('applications')
@@ -17,7 +20,6 @@ def index(request):
         title = context['site_header']
         hide_title = True
 
-    context = get_base_context(request, 0, 0, title, 'content_list')
     context['title'] = title
     context['hide_title'] = hide_title
     context['trip_summary'] = trip_summary(request.user.id)

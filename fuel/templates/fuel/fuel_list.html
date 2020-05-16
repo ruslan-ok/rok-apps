@@ -1,0 +1,21 @@
+{% extends "base_list.html" %}
+
+{% block win_content %}
+  <table class="w3-table-all w3-hoverable w3-card-4">
+    <thead>
+      <tr class="w3-theme-l3"><th>Дата</th> <th>Одометр, км.</th> <th>Объём, л.</th> <th>Цена, руб.</th> <th>Сумма, руб.</th> <th>Комментарий</th> </tr>
+    </thead>
+    <tbody>
+      {% for fuel in page_obj %}
+      <tr>
+        <td><a href="{% url 'fuel:fuel_form' fuel.id %}">{{ fuel.pub_date|date:"d.m.Y" }}</a></td>
+        <td><a href="{% url 'fuel:fuel_form' fuel.id %}">{{ fuel.odometr }}</a></td>
+        <td><a href="{% url 'fuel:fuel_form' fuel.id %}">{{ fuel.volume }}</a></td>
+        <td><a href="{% url 'fuel:fuel_form' fuel.id %}">{{ fuel.price }}</a></td>
+        <td><a href="{% url 'fuel:fuel_form' fuel.id %}">{{ fuel.summa|floatformat }}</a></td>
+        <td><a href="{% url 'fuel:fuel_form' fuel.id %}">{{ fuel.comment }}</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

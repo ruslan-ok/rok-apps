@@ -1,82 +1,83 @@
-from django.shortcuts import get_object_or_404, render
-from django.http import HttpResponseRedirect
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django import forms
-from django.forms import ModelForm
+from django.http import HttpResponse, HttpResponseRedirect
+from django.template import loader
+from django.utils.translation import gettext_lazy as _
+from django.core.paginator import Paginator
 
-from hier.utils import get_base_context
-from proj.models import Direct
+from hier.utils import get_base_context, get_folder_id
+from .models import Direct, deactivate_all, set_active, Proj
+from .forms import DirectForm
 
-
-#----------------------------------
-class DirectForm(ModelForm):
-    action = forms.CharField(widget = forms.HiddenInput, required = False)
-    active = forms.IntegerField(label = 'Активное', required = False)
-    class Meta:
-        model = Direct
-        fields = ('name', 'active', 'action')
 
 #----------------------------------
-def do_dirs(request, folder_id, content_id):
-    context = get_base_context(request, folder_id, content_id, 'Направления проектов')
-    dirs = Direct.objects.filter(user = request.user.id)
-    context['dirs'] = dirs
-    context['dirs_count'] = dirs.count
-
-    if (request.method == 'GET'):
-        if (content_id > 0):
-            t = get_object_or_404(Direct, id = content_id)
-            form = DirectForm(instance = t)
-        else:
-            form = DirectForm(initial = {'name': '', 'active': 0})
-        context['form'] = form
-        return render(request, 'proj/dirs.html', context)
+@login_required(login_url='account:login')
+#----------------------------------
+def dirs_list(request):
+    data = Direct.objects.filter(user = request.user.id).order_by('name')
+    if request.method != 'GET':
+        page_number = 1
     else:
-        action = request.POST.get('action', False)
-        active = request.POST.get('active', False)
-        
-        act = 0
-        if (action == 'Отменить'):
-            act = 1
-        elif (action == 'Добавить'):
-            act = 2
-        elif (action == 'Сохранить'):
-            act = 3
-        elif (action == 'Удалить'):
-            act = 4
-        else:
-            act = 5
-      
-        if (act > 1):
-            form = DirectForm(request.POST)
-            if not form.is_valid():
-                # Ошибки в форме, отобразить её снова
-                context['form'] = form
-                return render(request, 'proj/dirs.html', context)
-            else:
-                t = form.save(commit=False)
-              
-                if (act < 4):
-                    if (int(active) > 0):
-                        active_dirs = Direct.objects.filter(user = request.user.id, active = 1)
-                        for c in active_dirs:
-                            c.active = 0
-                            c.save()
-              
-                if (act == 2):
-                    t.user = request.user
-                    t.active = int(active)
-                    t.save()
-              
-                if (act == 3):
-                    t.id = content_id
-                    t.user = request.user
-                    t.active = int(active)
-                    t.save()
-              
-                if (act == 4):
-                    t = get_object_or_404(Direct, id = content_id)
-                    t.delete()
-      
-        return HttpResponseRedirect(reverse('proj:dirs_list', args = [folder_id]))
+        page_number = request.GET.get('page')
+    paginator = Paginator(data, 20)
+    page_obj = paginator.get_page(page_number)
+    folder_id = get_folder_id(request.user.id)
+    context = get_base_context(request, folder_id, 0, _('directions'), 'content_list')
+    context['page_obj'] = page_obj
+    template_file = 'proj/dirs_list.html'
+    template = loader.get_template(template_file)
+    return HttpResponse(template.render(context, request))
 
+#----------------------------------
+def dirs_add(request):
+    if (request.method == 'POST'):
+        form = DirectForm(request.POST)
+    else:
+        form = DirectForm(initial = { 'name': '', 'active': False })
+    return show_page_form(request, 0, _('creating a new direction'), form)
+
+#----------------------------------
+def dirs_form(request, pk):
+    data = get_object_or_404(Direct.objects.filter(id = pk, user = request.user.id))
+    if (request.method == 'POST'):
+        form = DirectForm(request.POST, instance = data)
+    else:
+        form = DirectForm(instance = data)
+    return show_page_form(request, pk, _('direction') + ' "' + data.name + '"', form)
+
+#----------------------------------
+@login_required(login_url='account:login')
+#----------------------------------
+def dirs_del(request, pk):
+    dir = get_object_or_404(Direct.objects.filter(id = pk, user = request.user.id))
+    if Proj.objects.filter(direct = dir.id).exists():
+        set_active(request.user.id, dir.id)
+        return HttpResponseRedirect(reverse('proj:dirs_list'))
+
+    if dir.active:
+        if Direct.objects.filter(user = request.user.id).exclude(id = dir.id).exists():
+            new_active = Direct.objects.filter(user = request.user.id).exclude(id = dir.id)[0]
+            set_active(request.user.id, new_active.id)
+
+    dir.delete()
+    return HttpResponseRedirect(reverse('proj:dirs_list'))
+
+
+#----------------------------------
+@login_required(login_url='account:login')
+#----------------------------------
+def show_page_form(request, pk, title, form):
+    if (request.method == 'POST'):
+        if form.is_valid():
+            data = form.save(commit = False)
+            if data.active:
+                deactivate_all(request.user.id, data.id)
+            data.user = request.user
+            form.save()
+            return HttpResponseRedirect(reverse('proj:dirs_list'))
+    folder_id = get_folder_id(request.user.id)
+    context = get_base_context(request, folder_id, pk, title)
+    context['form'] = form
+    template = loader.get_template('proj/dirs_form.html')
+    return HttpResponse(template.render(context, request))

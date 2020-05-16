@@ -1,120 +1,82 @@
-from django import forms
-from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from datetime import date, datetime, timedelta
-from hier.utils import get_base_context
-from .models import Fuel, Car, Part
+from django.http import HttpResponse, HttpResponseRedirect
+from django.template import loader
+from django.utils.translation import gettext_lazy as _
+from django.core.paginator import Paginator
+
+from hier.utils import get_base_context, get_folder_id
+from .models import Car, Part
+from .forms import PartForm
 
 
-debug_text = ''
+#----------------------------------
+@login_required(login_url='account:login')
+#----------------------------------
+def part_list(request):
+    if not Car.objects.filter(user = request.user.id, active = True).exists():
+        return HttpResponseRedirect(reverse('fuel:cars_list'))
 
-
-#============================================================================
-class PartForm(forms.ModelForm):
-    class Meta:
-        model = Part
-        exclude = ('car',)
-
-#============================================================================
-def edit_context(request, form, car, folder_id, content_id, _last_date, _last_odo, debug_text):
-    car = Car.objects.get(id = car)
-    parts = Part.objects.filter(car = car)
-    fuel_odo  = 0
-    fuel_date = date.min.isoformat()
-    fuel = Fuel.objects.filter(car = car).order_by('-pub_date')[:1]
-    if (len(fuel) == 1):
-      fuel_odo  = fuel[0].odometr
-      fuel_date = date(fuel[0].pub_date.year, fuel[0].pub_date.month, fuel[0].pub_date.day).isoformat()
-    s_last_date = ''
-    if (_last_date != date.min):
-      s_last_date = _last_date.strftime('%d.%m.%Y')
-    context = get_base_context(request, folder_id, content_id, 'Список расходников ' + car.name)
-    context['form'] =        form 
-    context['parts'] =       parts 
-    context['last_date'] =   s_last_date
-    context['last_odo'] =    _last_odo
-    context['fuel_date'] =   fuel_date
-    context['fuel_odo'] =    fuel_odo
-    context['app_text'] =    'Приложения' 
-    context['page_title'] =  'Список расходников ' + car.name 
-    context['fuel_text'] =   'Заправки' 
-    context['debug_text'] =  debug_text 
-    return context
-
-#============================================================================
-def do_part(request, folder_id, content_id):
-    try:
-      car = Car.objects.get(user = request.user.id, active = 1)
-    except Car.DoesNotExist:
-      cars = Car.objects.filter(user = request.user.id, active = 0)
-      if (len(cars) == 0):
-        car = None
-      else:
-        car = cars[0]
-        car.active = 1
-        car.save()
-    
-    if (car == None):
-      return HttpResponseRedirect(reverse('fuel:part_list', args = [folder_id]))
-
-    if (request.method == 'GET'):
-      if (content_id > 0):
-        # Отображение конкретной записи
-        t = get_object_or_404(Part, id = content_id)
-        form = PartForm(instance = t)
-        context = edit_context(request, form, car.id, folder_id, content_id, t.last_date(), t.last_odo(), '')
-      else:
-        # Пустая форма для новой записи
-        form = PartForm(initial={'car': car, 'name': '', 'comment': ''})
-        context = edit_context(request, form, car.id, folder_id, content_id, date.min, 0, '')
-      return render(request, 'fuel/part.html', context)
+    car = Car.objects.filter(user = request.user.id, active = True).get()
+    data = Part.objects.filter(car = car.id).order_by('name')
+    if request.method != 'GET':
+        page_number = 1
     else:
-      action = request.POST.get('action', False)
-      
-      act = 0
-      if (action == 'Отменить'):
-        act = 1
-      else:
-        if (action == 'Добавить'):
-          act = 2
-        else:
-          if (action == 'Сохранить'):
-            act = 3
-          else:
-            if (action == 'Удалить'):
-              act = 4
-            else:
-              act = 5
-    
-      if (act > 1):
+        page_number = request.GET.get('page')
+    paginator = Paginator(data, 20)
+    page_obj = paginator.get_page(page_number)
+    folder_id = get_folder_id(request.user.id)
+    context = get_base_context(request, folder_id, 0, _('parts') + ' ' + car.name, 'content_list')
+    context['page_obj'] = page_obj
+    template_file = 'fuel/part_list.html'
+    template = loader.get_template(template_file)
+    return HttpResponse(template.render(context, request))
+
+#----------------------------------
+def part_add(request):
+    if (request.method == 'POST'):
         form = PartForm(request.POST)
-        if not form.is_valid():
-          # Ошибки в форме, отобразить её снова
-          context = edit_context(request, form, car.id, folder_id, content_id, date.min, 0, 'post-error' + str(form.non_field_errors))
-          return render(request, 'fuel/part.html', context)
-        else:
-          t = form.save(commit = False)
-    
-          if (act == 2):
-            t.car = car
-            if (t.chg_km == None):
-              t.chg_km = 0
-            if (t.chg_mo == None):
-              t.chg_mo = 0
-            t.save()
-    
-          if (act == 3):
-            t.id = content_id
-            t.car = car
-            if (t.chg_km == None):
-              t.chg_km = 0
-            if (t.chg_mo == None):
-              t.chg_mo = 0
-            t.save()
-    
-          if (act == 4):
-            t = get_object_or_404(Part, id=content_id)
-            t.delete()
-    
-      return HttpResponseRedirect(reverse('fuel:part_list', args = [folder_id]))
+    else:
+        form = PartForm(initial = { 'name': '', 'chg_km': 0, 'chg_mo': 0 })
+    return show_page_form(request, 0, _('creating a new part') + ' ' + car.name, form)
+
+#----------------------------------
+def part_form(request, pk):
+    car = get_object_or_404(Car.objects.filter(user = request.user.id, active = True))
+    data = get_object_or_404(Part.objects.filter(id = pk, car = car.id))
+    if (request.method == 'POST'):
+        form = PartForm(request.POST, instance = data)
+    else:
+        form = PartForm(instance = data)
+    return show_page_form(request, pk, _('part') + ' "' + data.name + '" ' + car.name, form)
+
+#----------------------------------
+@login_required(login_url='account:login')
+#----------------------------------
+def part_del(request, pk):
+    car = get_object_or_404(Car.objects.filter(user = request.user.id, active = True))
+    part = get_object_or_404(Part.objects.filter(id = pk, car = car.id))
+    if Repl.objects.filter(part = part.id).exists():
+        return HttpResponseRedirect(reverse('fuel:part_list'))
+
+    part.delete()
+    return HttpResponseRedirect(reverse('fuel:part_list'))
+
+
+#----------------------------------
+@login_required(login_url='account:login')
+#----------------------------------
+def show_page_form(request, pk, title, form):
+    car = get_object_or_404(Car.objects.filter(user = request.user.id, active = True))
+    if (request.method == 'POST'):
+        if form.is_valid():
+            data = form.save(commit = False)
+            data.car = car
+            form.save()
+            return HttpResponseRedirect(reverse('fuel:part_list'))
+    folder_id = get_folder_id(request.user.id)
+    context = get_base_context(request, folder_id, pk, title)
+    context['form'] = form
+    template = loader.get_template('fuel/part_form.html')
+    return HttpResponse(template.render(context, request))

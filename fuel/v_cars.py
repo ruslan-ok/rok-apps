@@ -1,91 +1,83 @@
-from django.shortcuts import get_object_or_404, render
-from django.http import HttpResponseRedirect
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django import forms
-from django.forms import ModelForm
-from hier.utils import get_base_context
-from .models import Car
+from django.http import HttpResponse, HttpResponseRedirect
+from django.template import loader
+from django.utils.translation import gettext_lazy as _
+from django.core.paginator import Paginator
+
+from hier.utils import get_base_context, get_folder_id
+from .models import Car, deactivate_all, set_active, Fuel, Part
+from .forms import CarForm
 
 
-class CarsForm(ModelForm):
-    action = forms.CharField(widget = forms.HiddenInput, required = False)
-    active = forms.IntegerField(label = 'Активная', required = False)
-
-    class Meta:
-        model = Car
-        fields = ('name', 'plate', 'active', 'action')
-
-#============================================================================
-def edit_context(_request, _form, folder_id, _pid, _debug_text):
-    cars = Car.objects.filter(user = _request.user.id)
-    context = get_base_context(_request, folder_id, _pid, 'Автомобили')
-    context['cars'] =  cars 
-    context['form'] =  _form 
-    context['app_text'] =  'Приложения' 
-    context['fuel_text'] =  'Заправка' 
-    context['page_title'] =  'Автомобили' 
-    context['debug_text'] =  _debug_text
-    return context
-
-#============================================================================
-def do_cars(request, folder_id, content_id):
-  if (request.method == 'GET'):
-    if (content_id > 0):
-      t = get_object_or_404(Car, id = content_id)
-      form = CarsForm(instance = t)
+#----------------------------------
+@login_required(login_url='account:login')
+#----------------------------------
+def cars_list(request):
+    data = Car.objects.filter(user = request.user.id).order_by('name')
+    if request.method != 'GET':
+        page_number = 1
     else:
-      form = CarsForm(initial = {'name': '', 'plate': '', 'active': 0})
-    context = edit_context(request, form, folder_id, content_id, 'get-1')
-    return render(request, 'fuel/cars.html', context)
-  else:
-    action = request.POST.get('action', False)
-    active = request.POST.get('active', False)
-    
-    act = 0
-    if (action == 'Отменить'):
-      act = 1
+        page_number = request.GET.get('page')
+    paginator = Paginator(data, 20)
+    page_obj = paginator.get_page(page_number)
+    folder_id = get_folder_id(request.user.id)
+    context = get_base_context(request, folder_id, 0, _('cars'), 'content_list')
+    context['page_obj'] = page_obj
+    template_file = 'fuel/cars_list.html'
+    template = loader.get_template(template_file)
+    return HttpResponse(template.render(context, request))
+
+#----------------------------------
+def cars_add(request):
+    if (request.method == 'POST'):
+        form = CarForm(request.POST)
     else:
-      if (action == 'Добавить'):
-        act = 2
-      else:
-        if (action == 'Сохранить'):
-          act = 3
-        else:
-          if (action == 'Удалить'):
-            act = 4
-          else:
-            act = 5
+        form = CarForm(initial = { 'name': '', 'plate': '', 'active': False })
+    return show_page_form(request, 0, _('creating a new car'), form)
 
-    if (act > 1):
-      form = CarsForm(request.POST)
-      if not form.is_valid():
-        # Ошибки в форме, отобразить её снова
-        context = edit_context(request, form, folder_id, content_id, 'post-error' + str(form.non_field_errors))
-        return render(request, 'fuel/cars.html', context)
-      else:
-        t = form.save(commit=False)
+#----------------------------------
+def cars_form(request, pk):
+    data = get_object_or_404(Car.objects.filter(id = pk, user = request.user.id))
+    if (request.method == 'POST'):
+        form = CarForm(request.POST, instance = data)
+    else:
+        form = CarForm(instance = data)
+    return show_page_form(request, pk, _('car') + ' "' + data.name + '"', form)
 
-        if (act < 4):
-          if (int(active) > 0):
-            active_cars = Car.objects.filter(user = request.user.id, active = 1)
-            for c in active_cars:
-              c.active = 0
-              c.save()
+#----------------------------------
+@login_required(login_url='account:login')
+#----------------------------------
+def cars_del(request, pk):
+    car = get_object_or_404(Car.objects.filter(id = pk, user = request.user.id))
+    if Fuel.objects.filter(car = car.id).exists() or Part.objects.filter(car = car.id).exists():
+        set_active(request.user.id, car.id)
+        return HttpResponseRedirect(reverse('fuel:cars_list'))
 
-        if (act == 2):
-          t.user = request.user
-          t.active = int(active)
-          t.save()
+    if car.active:
+        if Car.objects.filter(user = request.user.id).exclude(id = car.id).exists():
+            new_active = Car.objects.filter(user = request.user.id).exclude(id = car.id)[0]
+            set_active(request.user.id, new_active.id)
 
-        if (act == 3):
-          t.id = content_id
-          t.user = request.user
-          t.active = int(active)
-          t.save()
+    car.delete()
+    return HttpResponseRedirect(reverse('fuel:cars_list'))
 
-        if (act == 4):
-          t = get_object_or_404(Car, id=content_id)
-          t.delete()
 
-    return HttpResponseRedirect(reverse('fuel:cars_list', args = [folder_id]))
-
+#----------------------------------
+@login_required(login_url='account:login')
+#----------------------------------
+def show_page_form(request, pk, title, form):
+    if (request.method == 'POST'):
+        if form.is_valid():
+            data = form.save(commit = False)
+            if data.active:
+                deactivate_all(request.user.id, data.id)
+            data.user = request.user
+            form.save()
+            return HttpResponseRedirect(reverse('fuel:cars_list'))
+    folder_id = get_folder_id(request.user.id)
+    context = get_base_context(request, folder_id, pk, title)
+    context['form'] = form
+    template = loader.get_template('fuel/cars_form.html')
+    return HttpResponse(template.render(context, request))

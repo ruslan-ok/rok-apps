@@ -6,6 +6,7 @@
     <div class="w3-container" style="min-height:450px">
       {% block win_content %}{% endblock %}
 
+      {% if page_obj %}
       <p>
       <div class="pagination">
         <span class="step-links">
@@ -24,6 +25,7 @@
             {% endif %}
         </span>
       </div>
+      {% endif %}
 
       <p>
       {% if site_header == 'localhost:8000' %}

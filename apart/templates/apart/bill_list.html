@@ -1,4 +1,4 @@
-{% extends "base_window.html" %}
+{% extends "base_list.html" %}
 {% load i18n %}
 
 {% block win_content %}
@@ -18,36 +18,16 @@
         <tbody>
           {% for bill in page_obj %}
           <tr>
-            <td><a class="w3-button w3-padding-small" href="{% url 'apart:bill_form' folder.id bill.id %}">{{ bill.period|date:'m.Y' }}</a></td>
-            <td><a class="w3-button w3-padding-small" href="{% url 'apart:bill_form' folder.id bill.id %}">{{ bill.total_usd }}</a></td>
-            <td><a class="w3-button w3-padding-small" href="{% url 'apart:bill_form' folder.id bill.id %}">{{ bill.total_bill }}</a></td>
-            <td><a class="w3-button w3-padding-small" href="{% url 'apart:bill_form' folder.id bill.id %}">{{ bill.total_pay }}</a></td>
-            <td><a class="w3-button w3-padding-small" href="{% url 'apart:bill_form' folder.id bill.id %}">{{ bill.debt }}</a></td>
-            <td><a class="w3-button w3-padding-small" href="{% url 'apart:bill_form' folder.id bill.id %}">{{ bill.info }}</a></td>
+            <td><a class="w3-button w3-padding-small" href="{% url 'apart:bill_form' bill.id %}">{{ bill.period|date:'m.Y' }}</a></td>
+            <td><a class="w3-button w3-padding-small" href="{% url 'apart:bill_form' bill.id %}">{{ bill.total_usd }}</a></td>
+            <td><a class="w3-button w3-padding-small" href="{% url 'apart:bill_form' bill.id %}">{{ bill.total_bill }}</a></td>
+            <td><a class="w3-button w3-padding-small" href="{% url 'apart:bill_form' bill.id %}">{{ bill.total_pay }}</a></td>
+            <td><a class="w3-button w3-padding-small" href="{% url 'apart:bill_form' bill.id %}">{{ bill.debt }}</a></td>
+            <td><a class="w3-button w3-padding-small" href="{% url 'apart:bill_form' bill.id %}">{{ bill.info }}</a></td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
   </div>
-
-  <p>
-  <div class="pagination">
-    <span class="step-links">
-        {% if page_obj.has_previous %}
-            <a class="w3-button" href="?page=1">&laquo;</a>
-            <a class="w3-button" href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
-        {% endif %}
-
-        <span class="current active w3-button w3-theme-l1">
-            {{ page_obj.number }}
-        </span>
-
-        {% if page_obj.has_next %}
-            <a class="w3-button" href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>
-            <a class="w3-button" href="?page={{ page_obj.paginator.num_pages }}">&raquo;</a>
-        {% endif %}
-    </span>
-  </div>
-  <p>
 {% endblock %}

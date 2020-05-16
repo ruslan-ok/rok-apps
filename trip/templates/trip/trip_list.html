@@ -1,11 +1,5 @@
-{% extends "base_window.html" %}
+{% extends "base_list.html" %}
 {% load i18n %}
-
-{% block breadcrumbs %}
-  <a class="w3-bar-item w3-button" href="{% url 'trip:trip_add' %}">{% trans 'add'|capfirst %}</a>
-  <a class="w3-bar-item w3-button" href="{% url 'trip:pers_list' %}">{% trans 'persons'|capfirst %}</a>
-  <a class="w3-bar-item w3-button" href="{% url 'trip:trip_count' %}">{% trans 'recount'|capfirst %}</a>
-{% endblock %}
 
 {% block win_content %}
 
@@ -25,17 +19,17 @@
       <th>{% trans 'summa'|capfirst %}</th>
       <th>{% trans 'comment'|capfirst %}</th>
     </tr>
-    {% for trip in object_list %}
+    {% for trip in page_obj %}
       <tr>
-        <td><a href="{% url 'trip:trip_edit' folder.id trip.id %}">{{ trip.year }}</a></td>
-        <td><a href="{% url 'trip:trip_edit' folder.id trip.id %}">{{ trip.week }}</a></td>
-        <td><a href="{% url 'trip:trip_edit' folder.id trip.id %}">{{ trip.s_oper }}</a></td>
+        <td><a href="{% url 'trip:trip_form' trip.id %}">{{ trip.year }}</a></td>
+        <td><a href="{% url 'trip:trip_form' trip.id %}">{{ trip.week }}</a></td>
+        <td><a href="{% url 'trip:trip_form' trip.id %}">{{ trip.s_oper }}</a></td>
         <td>{{ trip.s_days }}</td>
-        <td><a href="{% url 'trip:trip_edit' folder.id trip.id %}">{{ trip.driver.name }}</a></td>
-        <td><a href="{% url 'trip:trip_edit' folder.id trip.id %}">{{ trip.passenger.name }}</a></td>
-        <td><a href="{% url 'trip:trip_edit' folder.id trip.id %}">{{ trip.price }}</a></td>
-        <td><a href="{% url 'trip:trip_edit' folder.id trip.id %}">{{ trip.summa }}</a></td>
-        <td><a href="{% url 'trip:trip_edit' folder.id trip.id %}">{{ trip.text }}</a></td>
+        <td><a href="{% url 'trip:trip_form' trip.id %}">{{ trip.driver.name }}</a></td>
+        <td><a href="{% url 'trip:trip_form' trip.id %}">{{ trip.passenger.name }}</a></td>
+        <td><a href="{% url 'trip:trip_form' trip.id %}">{{ trip.price }}</a></td>
+        <td><a href="{% url 'trip:trip_form' trip.id %}">{{ trip.summa }}</a></td>
+        <td><a href="{% url 'trip:trip_form' trip.id %}">{{ trip.text }}</a></td>
       </tr>
     {% endfor %}
   </table>

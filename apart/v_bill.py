@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from django.core.paginator import Paginator
 
 from hier.models import Folder
-from hier.utils import get_base_context
+from hier.utils import get_base_context, get_folder_id
 from .utils import next_period
 from .models import Apart, Meter, Bill, get_price_info, count_by_tarif, ELECTRICITY, GAS, WATER
 from .forms import BillForm
@@ -18,10 +18,9 @@ from .forms import BillForm
 #----------------------------------
 @login_required(login_url='account:login')
 #----------------------------------
-def bill_list(request, folder_id):
-    node = get_object_or_404(Folder.objects.filter(id = folder_id, user = request.user.id))
+def bill_list(request):
     if not Apart.objects.filter(user = request.user.id, active = True).exists():
-        return HttpResponseRedirect(reverse('apart:apart_list', args = [folder_id]))
+        return HttpResponseRedirect(reverse('apart:apart_list'))
     apart = get_object_or_404(Apart.objects.filter(user = request.user.id, active = True))
     data = Bill.objects.filter(apart = apart.id).order_by('-period')
     if request.method != 'GET':
@@ -30,6 +29,7 @@ def bill_list(request, folder_id):
         page_number = request.GET.get('page')
     paginator = Paginator(data, 10)
     page_obj = paginator.get_page(page_number)
+    folder_id = get_folder_id(request.user.id)
     context = get_base_context(request, folder_id, 0, _('bills'), 'content_list')
     context['page_obj'] = page_obj
     template_file = 'apart/bill_list.html'
@@ -37,12 +37,12 @@ def bill_list(request, folder_id):
     return HttpResponse(template.render(context, request))
 
 #----------------------------------
-def bill_add(request, folder_id):
+def bill_add(request):
     apart = get_object_or_404(Apart.objects.filter(user = request.user.id, active = True))
     
     if (len(Meter.objects.filter(apart = apart.id)) < 2):
         # Нет показаний счетчиков
-        return HttpResponseRedirect(reverse('apart:meter_list', args = [folder_id]))
+        return HttpResponseRedirect(reverse('apart:meter_list'))
 
     if (request.method == 'POST'):
         form = BillForm(request.POST)
@@ -61,38 +61,38 @@ def bill_add(request, folder_id):
             period = next_period(last.period)
             if not Meter.objects.filter(apart = apart.id, period = period).exists(): 
                 # Нет показаний счетчиков для очередного периода
-                return HttpResponseRedirect(reverse('apart:meter_list', args = [folder_id]))
+                return HttpResponseRedirect(reverse('apart:meter_list'))
             prev = last.curr
             curr = Meter.objects.filter(apart = apart.id, period = period).get()
 
         form = BillForm(initial = { 'period': period, 'payment': datetime.now() })
 
-    return show_page_form(request, folder_id, 0, _('create a new bill'), form, apart, prev, curr)
+    return show_page_form(request, 0, _('create a new bill'), form, apart, prev, curr)
 
 #----------------------------------
-def bill_form(request, folder_id, pk):
+def bill_form(request, pk):
     apart = get_object_or_404(Apart.objects.filter(user = request.user.id, active = True))
     data = get_object_or_404(Bill.objects.filter(id = pk, apart = apart.id))
     if (request.method == 'POST'):
         form = BillForm(request.POST, instance = data)
     else:
         form = BillForm(instance = data)
-    return show_page_form(request, folder_id, pk, _('bill from ') + data.period.strftime('%m.%Y'), form, apart, data.prev, data.curr)
+    return show_page_form(request, pk, _('bill from ') + data.period.strftime('%m.%Y'), form, apart, data.prev, data.curr)
 
 #----------------------------------
 @login_required(login_url='account:login')
 #----------------------------------
-def bill_del(request, folder_id, pk):
+def bill_del(request, pk):
     apart = get_object_or_404(Apart.objects.filter(user = request.user.id, active = True))
     data = get_object_or_404(Bill.objects.filter(id = pk, apart = apart.id))
     data.delete()
-    return HttpResponseRedirect(reverse('apart:bill_list', args = [folder_id]))
+    return HttpResponseRedirect(reverse('apart:bill_list'))
 
 
 #----------------------------------
 @login_required(login_url='account:login')
 #----------------------------------
-def show_page_form(request, folder_id, pk, title, form, apart, prev, curr):
+def show_page_form(request, pk, title, form, apart, prev, curr):
     if (request.method == 'POST'):
         if form.is_valid():
             data = form.save(commit = False)
@@ -100,8 +100,9 @@ def show_page_form(request, folder_id, pk, title, form, apart, prev, curr):
             data.prev = prev
             data.curr = curr
             form.save()
-            return HttpResponseRedirect(reverse('apart:bill_list', args = [folder_id]))
+            return HttpResponseRedirect(reverse('apart:bill_list'))
 
+    folder_id = get_folder_id(request.user.id)
     context = get_base_context(request, folder_id, pk, title)
     context['period_num'] = form.instance.period.year * 100 + form.instance.period.month
     context['form'] = form

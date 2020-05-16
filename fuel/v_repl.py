@@ -1,108 +1,95 @@
-from django import forms
-from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from datetime import datetime
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from datetime import date, datetime, timedelta
-from hier.utils import get_base_context
-from .models import Fuel, Car, Part, Repl
+from django.http import HttpResponse, HttpResponseRedirect
+from django.template import loader
+from django.utils.translation import gettext_lazy as _
+from django.core.paginator import Paginator
+
+from hier.utils import get_base_context, get_folder_id
+from .models import Car, Fuel, Repl, Part, init_repl_car
+from .forms import ReplForm
 
 
-debug_text = ''
+#----------------------------------
+@login_required(login_url='account:login')
+#----------------------------------
+def repl_list(request):
+    if not Car.objects.filter(user = request.user.id, active = True).exists():
+        return HttpResponseRedirect(reverse('fuel:cars_list'))
 
+    if Repl.objects.filter(car__isnull = True).exists():
+        init_repl_car()
+    
+    car = Car.objects.filter(user = request.user.id, active = True).get()
 
-#============================================================================
-class ReplForm(forms.ModelForm):
-    class Meta:
-        model = Repl
-        exclude = ('part', 'oper',)
-
-#============================================================================
-def edit_context(request, form, folder_id, _part, _repl):
-    part = Part.objects.get(id = _part)
-    replaces = Repl.objects.filter(part = _part).order_by('-dt_chg')[:20]
-    context = get_base_context(request, folder_id, _repl, 'Замены расходника ' + part.name)
-    context['form'] =       form 
-    context['replaces'] =   replaces 
-    context['part'] =       _part 
-    context['app_text'] =   'Приложения' 
-    context['page_title'] = 'Замены расходника ' + part.name 
-    context['part_text'] =  'Список расходников' 
-    return context
-
-#============================================================================
-def do_repl(request, folder_id, pt, content_id):
-    if (pt == 0):
-      return HttpResponseRedirect(reverse('fuel:part_list', args = [folder_id]))
-
-    part = Part.objects.get(id = pt)
-
-    if (part == None):
-      return HttpResponseRedirect(reverse('fuel:part_list', args = [folder_id]))
-
-    if (request.method == 'GET'):
-      if (content_id > 0):
-        # Отображение конкретной записи
-        t = get_object_or_404(Repl, id = content_id)
-        ttt = t.dt_chg.date()
-        form = ReplForm(instance = t,
-                        initial={'dt_chg': ttt.isoformat()})
-        context = edit_context(request, form, folder_id, pt, content_id)
-      else:
-        # Пустая форма для новой записи
-        last = Fuel.objects.filter(car = part.car).order_by('-pub_date')[:1]
-        odo = 0
-        if (len(last) > 0):
-          odo = last[0].odometr
-        form = ReplForm(initial={'part':     part,
-                                 'dt_chg':   date.today().isoformat(),
-                                 'odometr':  odo,
-                                 'manuf':    '',
-                                 'part_num': '',
-                                 'name':     '',
-                                 'comment':  '',
-                                 'debug_text': 'pt = ' + str(pt)})
-        context = edit_context(request, form, folder_id, pt, content_id)
-      return render(request, 'fuel/repl.html', context)
+    data = Repl.objects.filter(car = car.id).order_by('-dt_chg')
+    if request.method != 'GET':
+        page_number = 1
     else:
-      action = request.POST.get('action', False)
-      
-      act = 0
-      if (action == 'Отменить'):
-        act = 1
-      else:
-        if (action == 'Добавить'):
-          act = 2
-        else:
-          if (action == 'Сохранить'):
-            act = 3
-          else:
-            if (action == 'Удалить'):
-              act = 4
-            else:
-              act = 5
-    
-      if (act > 1):
+        page_number = request.GET.get('page')
+    paginator = Paginator(data, 20)
+    page_obj = paginator.get_page(page_number)
+    folder_id = get_folder_id(request.user.id)
+    context = get_base_context(request, folder_id, 0, _('replacements') + ' ' + car.name, 'content_list')
+    context['page_obj'] = page_obj
+    template_file = 'fuel/repl_list.html'
+    template = loader.get_template(template_file)
+    return HttpResponse(template.render(context, request))
+
+#----------------------------------
+def repl_add(request):
+    car = get_object_or_404(Car.objects.filter(user = request.user.id, active = True))
+    if (request.method == 'POST'):
         form = ReplForm(request.POST)
-        if not form.is_valid():
-          # Ошибки в форме, отобразить её снова
-          context = edit_context(request, form, folder_id, pt, content_id)
-          return render(request, 'fuel/repl.html', context)
-        else:
-          t = form.save(commit = False)
-    
-          if (act == 2):
-            t.part = part
-            t.dt_chg = t.dt_chg + timedelta(days=1)
-            t.save()
-    
-          if (act == 3):
-            t.id = content_id
-            t.part = part
-            t.dt_chg = t.dt_chg + timedelta(days=1)
-            t.save()
-    
-          if (act == 4):
-            t = get_object_or_404(Repl, id=content_id)
-            t.delete()
-    
-      return HttpResponseRedirect(reverse('fuel:repl_list', args = [folder_id, pt]))
+    else:
+        last = Fuel.objects.filter(car = car.id).order_by('-pub_date')[:1]
+        new_odo = 0
+
+        if (len(last) != 0):
+          new_odo = last[0].odometr
+
+        new_part = None
+
+        form = ReplForm(initial = { 'part': new_part, 'dt_chg': datetime.now(), 'odometr': new_odo, 'name': '', 'manuf': '', 'part_num': '', 'comment': '' })
+    return show_page_form(request, 0, _('creating a new replacement') + ' ' + car.name, form)
+
+#----------------------------------
+def repl_form(request, pk):
+    car = get_object_or_404(Car.objects.filter(user = request.user.id, active = True))
+    data = get_object_or_404(Repl.objects.filter(id = pk, car = car.id))
+    if (request.method == 'POST'):
+        form = ReplForm(request.POST, instance = data)
+    else:
+        form = ReplForm(instance = data)
+    return show_page_form(request, pk, _('replacement') + ' ' + car.name, form)
+
+#----------------------------------
+@login_required(login_url='account:login')
+#----------------------------------
+def repl_del(request, pk):
+    car = get_object_or_404(Car.objects.filter(user = request.user.id, active = True))
+    repl = get_object_or_404(Repl.objects.filter(id = pk, car = car.id))
+    repl.delete()
+    return HttpResponseRedirect(reverse('fuel:repl_list'))
+
+
+#----------------------------------
+@login_required(login_url='account:login')
+#----------------------------------
+def show_page_form(request, pk, title, form):
+    car = get_object_or_404(Car.objects.filter(user = request.user.id, active = True))
+    if (request.method == 'POST'):
+        if form.is_valid():
+            data = form.save(commit = False)
+            data.car = car
+            form.save()
+            return HttpResponseRedirect(reverse('fuel:repl_list'))
+    form.fields['part'].queryset = Part.objects.filter(car = car.id).order_by('name')
+    folder_id = get_folder_id(request.user.id)
+    context = get_base_context(request, folder_id, pk, title)
+    context['form'] = form
+    template = loader.get_template('fuel/repl_form.html')
+    return HttpResponse(template.render(context, request))

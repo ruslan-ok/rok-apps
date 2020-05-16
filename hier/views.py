@@ -28,6 +28,16 @@ def toggle(request, folder_id):
     return HttpResponseRedirect(reverse('hier:folder_list', args = [folder_id]))
 
 #----------------------------------
+def not_hier_app(folder):
+    if (folder.model_name[:6] == 'apart:') or (folder.model_name[:5] == 'fuel:') or (folder.model_name[:5] == 'proj:') or (folder.model_name[:5] == 'trip:') or (folder.model_name[:5] == 'wage:'):
+        return True
+    return False
+
+#----------------------------------
+def hier_app(folder):
+    return not not_hier_app(folder)
+
+#----------------------------------
 # Folders List
 #----------------------------------
 def _folder_list(request, folder_id, show_content, query = None):
@@ -39,23 +49,18 @@ def _folder_list(request, folder_id, show_content, query = None):
         folder = get_object_or_404(Folder.objects.filter(id = folder_id, user = request.user.id))
         if show_content and folder.model_name:
             try:
+                args = []
+                if hier_app(folder):
+                    args.append(folder_id)
+
                 if folder.content_id:
-                    if (folder.model_name[:5] != 'wage:'):
-                        url = reverse(folder.model_name + '_form', args = [folder_id, folder.content_id])
-                    else:
-                        if (folder.model_name == 'wage:empl_per'):
-                            url = reverse(folder.model_name + '_form', args = [folder.content_id])
-                        else: 
-                            url = reverse(folder.model_name + '_list', args = [folder.content_id])
-                else:
-                    query_tail = ''
-                    if query:
-                        query_tail = '?q=' + query
+                    args.append(folder.content_id)
+
+                query_tail = ''
+                if query:
+                    query_tail = '?q=' + query
                     
-                    if (folder.model_name[:5] == 'wage:'):
-                        url = reverse(folder.model_name + '_list')
-                    else:
-                        url = reverse(folder.model_name + '_list', args = [folder_id]) + query_tail
+                url = reverse(folder.model_name + '_list', args = args) + query_tail
 
                 return HttpResponseRedirect(url)
             except NoReverseMatch:
