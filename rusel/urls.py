@@ -31,6 +31,7 @@ urlpatterns = i18n_patterns(
     path('proj/',  include('proj.urls')),
     path('trip/',  include('trip.urls')),
     path('wage/',  include('wage.urls')),
+    path('todo/',  include('todo.urls')),
 
     path('<int:folder_id>/',       include('hier.urls')),
 

@@ -1,0 +1,577 @@
+{% load static i18n %}
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="{% static 'todo/css/todo.css' %}">
+  <title>{{ page_title }}</title>
+  <script>
+      function ShowMenu(menu_id) {
+        document.getElementById(menu_id).style.display = "block";
+      }
+  </script>
+</head>
+<body>
+<div class="wrapper">
+  <header>
+    <div class="header-left">
+      <button class="button" title="{% trans 'application launcher'|capfirst %}"><img src="{% static 'todo/icon/apps-white.png' %}"></button>
+      <a class="site-link" href="/"><img src="{% static 'todo/icon/home.png' %}"></a>
+    </div>
+    <div class="search-container">
+      <form action="#" method="GET" class="search-form">
+        <input type="text" placeholder="search..." name="q">
+      </form>
+    </div>
+    <div>
+      <button class="button" title="{% trans 'parameters'|capfirst %}"><img src="{% static 'todo/icon/param-white.png' %}"></button>
+      <button class="button" title="{% trans 'user profile'|capfirst %}"><img src="{% static 'todo/icon/user-white.png' %}"></button>
+    </div>
+  </header>
+  <content>
+    <nav>
+      <div>
+        <button class="button-min"><img src="{% static 'todo/icon/hamb-blue.png' %}"></button>
+      </div>
+      <div class="scroll">
+        <ul class="nav-menu">
+          <li class="important{% if cur_view == 'myday' %} selected{% endif %}"><a class="fix" href="{% url 'todo:myday' %}">
+              <div class="nav-menu-item-left">
+                <img src="{% static 'todo/icon/myday.png' %}">
+                {% trans 'my day'|capfirst %}
+              </div>
+              <div>{{ in_my_day_qty }}</div>
+            </a></li>
+          <li{% if cur_view == 'important' %} class="selected"{% endif %}><a class="fix" href="{% url 'todo:important' %}">
+              <div class="nav-menu-item-left">
+                <img src="{% static 'todo/icon/important.png' %}">
+                {% trans 'important'|capfirst %}
+              </div>
+              <div>{{ important_qty }}</div>
+            </a></li>
+          <li{% if cur_view == 'planned' %} class="selected"{% endif %}><a class="fix" href="{% url 'todo:planned' %}">
+              <div class="nav-menu-item-left">
+                <img src="{% static 'todo/icon/planned.png' %}">
+                {% trans 'planned'|capfirst %}
+              </div>
+              <div>{{ planned_qty }}</div>
+            </a></li>
+          <li{% if cur_view == 'all' %} class="selected"{% endif %}><a class="fix" href="{% url 'todo:all_tasks' %}">
+              <div class="nav-menu-item-left">
+                <img src="{% static 'todo/icon/all.png' %}">
+                {% trans 'all'|capfirst %}
+              </div>
+              <div>{{ all_qty }}</div>
+            </a></li>
+          <li{% if cur_view == 'completed' %} class="selected"{% endif %}><a class="fix" href="{% url 'todo:completed' %}">
+              <div class="nav-menu-item-left">
+                <img src="{% static 'todo/icon/completed.png' %}">
+                {% trans 'completed'|capfirst %}
+              </div>
+              <div>{{ completed_qty }}</div>
+            </a></li>
+        </ul>
+        <div class="nav-last-static-list"></div>
+        <ul class="nav-menu">
+          {% for node in groups %}
+            <li class="grp-item">
+              {% if node.is_list %}
+                <a href="{% url 'todo:list_form' node.id %}">
+                  <div class="nav-menu-item-left">
+                    <img class="level-{{ node.level }}" src="{% static 'todo/icon/list.png' %}">
+                    <div>{{ node.name }}</div>
+                  </div>
+                </a>
+                <div class="nav-menu-item-right">
+                  {{ node.qty }}
+                </div>
+              {% else %}
+                <a href="{% url 'todo:group_form' node.id %}">
+                  <div class="nav-menu-item-left">
+                    <img class="level-{{ node.level }}" src="{% static 'todo/icon/group.png' %}">
+                    <div>{{ node.name }}</div>
+                  </div>
+                </a>
+                <div class="nav-menu-item-right">
+                  <a href="{% url 'todo:group_toggle' node.id %}">
+                    {% if node.is_open %}
+                      <img src="{% static 'todo/icon/direct-down.png' %}">
+                    {% else %}
+                      <img src="{% static 'todo/icon/direct-left.png' %}">
+                    {% endif %}
+                  </a>
+                </div>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+        <form method="post" class="grp-actions">{% csrf_token %}
+          <button type="submit" name="list-add" class="default lst-add" label="create list"><img src="{% static 'todo/icon/add.png' %}"></button>
+          <input type="text" class="add-grp" placeholder="{% trans 'create list or group'|capfirst %}" name="name">
+          <button type="submit" name="group-add" class="default grp-add" label="create group"><img src="{% static 'todo/icon/group-add.png' %}"></button>
+        </form>
+      </div><!-- nav-scroll -->
+      <div>
+        <button class="nav-button">B1</button>
+        <button class="nav-button">B2</button>
+        <button class="nav-button">B3</button>
+        <button class="nav-button">B4</button>
+      </div>
+    </nav>
+    <main style="width: calc(100vw - 290px{% if details_mode != '' %} - 370px{% endif %});">
+        <div class="top">
+          <div class="main-top-headline">{{ list_title }}</div>
+            {% if cur_view != 'planned' %}
+            <div class="dropdown">
+              <button class="task-list-sort dropbtn" onclick="ShowMenu('sort_menu')">
+                <img src="{% static 'todo/icon/sort.png' %}">
+                {% trans 'sort'|capfirst %}
+              </button>
+              <form method="post" class="sort-actions">{% csrf_token %}
+                <div class="dropdown-content pos-sort" id="sort_menu">
+                  <div class="dropdown-content-title">{% trans 'sort order'|capfirst %}</div>
+                  {% if cur_view != 'important' %}
+                  <button type="submit" class="dropdown-content-item" name="sort-important"> <img src="{% static 'todo/icon/important.png' %}"> {% trans 'by importance'|capfirst %} </button>
+                  {% endif %}
+                  <button type="submit" class="dropdown-content-item" name="sort-termin">    <img src="{% static 'todo/icon/planned.png' %}">   {% trans 'by date of completion'|capfirst %} </button>
+                  {% if cur_view != 'myday' %}
+                  <button type="submit" class="dropdown-content-item" name="sort-myday">     <img src="{% static 'todo/icon/myday.png' %}">     {% trans 'my day'|capfirst %} </button>
+                  {% endif %}
+                  <button type="submit" class="dropdown-content-item" name="sort-name">      <img src="{% static 'todo/icon/sort.png' %}">      {% trans 'by name'|capfirst %}  </button>
+                  <button type="submit" class="dropdown-content-item" name="sort-created">   <img src="{% static 'todo/icon/created.png' %}">   {% trans 'by creation date'|capfirst %}    </button>
+                </div>
+              </form>
+            </div>
+            {% endif %}
+        </div>
+        <div class="sort">
+          {% if sort_mode %}
+          <form method="post" class="sort-actions sort">{% csrf_token %}
+            <button type="submit" name="sort-direction">
+              {% if sort_dir %}
+                <img src="{% static 'todo/icon/direct-down.png' %}">
+              {% else %}
+                <img src="{% static 'todo/icon/direct-up.png' %}">
+              {% endif %}
+            </button>
+            <span>{{ sort_mode }}</span>
+            <button type="submit" name="sort-delete">
+              <img src="{% static 'todo/icon/sort-del.png' %}">
+            </button>
+            {% endif %}
+          </form>
+        </div>
+      <form method="post" class="actions">{% csrf_token %}
+        <button type="submit" name="task-add" class="default" placeholder="{% trans 'add task'|capfirst %}"><img src="{% static 'todo/icon/add-gray.png' %}"></button>
+        <input type="text" class="add-task" placeholder="{% trans 'add task'|capfirst %}" name="task_add-name" maxlength="200" required="" id="id_task_add-name">
+      </form>
+      <div class="tree">
+        {% for term in object_list %}
+          {% if term.name %}
+          <div class="group">
+            <div class="tumbler">V</div>
+            <div class="name">{{ term.name }}</div>
+          </div>
+          {% endif %}
+          <ul>
+            {% for task in term.todo %}
+            <li>
+              <a href="{% url 'todo:task_form' task.id %}" class="{% if task.id == task_id %}current{% endif %}">
+                <div class="task">
+                  <div class="icon">
+                    <form method="post">{% csrf_token %}
+                      <button type="submit" name="list-complete" value="{{ task.id }}">
+                        {% if task.completed %}
+                          <img src="{% static 'todo/icon/complete.png' %}">
+                        {% else %}
+                          <img src="{% static 'todo/icon/uncomplete.png' %}">
+                        {% endif %}
+                      </button>
+                    </form>
+                  </div>
+                  <div class="info">
+                    <div class="name{% if task.completed %} completed{% endif %}">{{ task.name }}</div>
+                    <div class="term{% if task.expired %} expired{% endif %}">{{ task.term }}</div>
+                  </div>
+                </div>
+                <div class="icon">
+                  <form method="post">{% csrf_token %}
+                    <button type="submit" name="list-important" value="{{ task.id }}">
+                      {% if task.important %}
+                        <img src="{% static 'todo/icon/important-on.png' %}">
+                      {% else %}
+                        <img src="{% static 'todo/icon/important-off.png' %}">
+                      {% endif %}
+                    </button>
+                  </form>
+                </div>
+              </a></li>
+            {% endfor %}
+          </ul>
+        {% endfor %}
+      </div>
+    </main>
+    
+    <div class="details"{% if details_mode != 'group' %} style="display: none"{% endif %}>
+      <form method="post" class="body">{% csrf_token %}
+        <div class="fields">
+          <div class="header">
+            {% if grp_form.errors %}
+              <div class="fieldset">
+                <p class="errornote"> {% if grp_form.errors.items|length == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %} </p> 
+              </div>
+            {% endif %}
+            {% if grp_form.non_field_errors %}
+              <div class="fieldset">
+              {% for error in grp_form.non_field_errors %} <p class="errornote"> {{ error }} </p> {% endfor %}
+              </div>
+            {% endif %}
+            <div class="field-error">{{ grp_form.name.errors }}</div>
+            <div class="field-group">
+              <img src="{% static 'todo/icon/group.png' %}">
+              <div class="details-name">
+                <div class="editable-content main-element">
+                  {{ grp_form.name }}
+                </div>
+              </div>
+              <button type="submit" name="group-save"><img src="{% static 'todo/icon/save.png' %}"></button>
+            </div>
+          </div>
+          <div class="section">
+            <div class="field-error">{{ grp_form.node.errors }}</div>
+            <div class="section-item">
+                <div class="section-inner">
+                  <div class="section-icon">
+                    <img src="{% static 'todo/icon/group.png' %}">
+                  </div>
+                  {{ grp_form.node }}
+                </div>
+            </div>
+          </div>
+          <div class="section">
+            <div class="field-error">{{ grp_form.sort.errors }}</div>
+            <div class="section-item">
+                <div class="section-inner ">
+                  <div class="section-icon">
+                    <img src="{% static 'todo/icon/sort.png' %}">
+                  </div>
+                  <div class="editable-content auxiliary-element">
+                    {{ grp_form.sort }}
+                  </div>
+                </div>
+            </div>
+          </div>
+        </div>
+        <div class="footer">
+          <button type="submit" name="details-hide"><img src="{% static 'todo/icon/hide.png' %}"></button>
+          <div class="info">{{ grp_created }}</div>
+          <button type="submit" name="group-delete"><img src="{% static 'todo/icon/trash.png' %}"></button>
+        </div>
+      </form>
+    </div>
+
+    <div class="details"{% if details_mode != 'list' %} style="display: none"{% endif %}>
+      <form method="post" class="body">{% csrf_token %}
+        <div class="fields">
+          <div class="header">
+            {% if lst_form.errors %}
+              <div class="fieldset">
+                <p class="errornote"> {% if lst_form.errors.items|length == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %} </p> 
+              </div>
+            {% endif %}
+            {% if lst_form.non_field_errors %}
+              <div class="fieldset">
+              {% for error in lst_form.non_field_errors %} <p class="errornote"> {{ error }} </p> {% endfor %}
+              </div>
+            {% endif %}
+            <div class="field-error">{{ lst_form.name.errors }}</div>
+            <div class="field-group">
+              <img src="{% static 'todo/icon/list.png' %}">
+              <div class="details-name">
+                <div class="editable-content main-element">
+                  {{ lst_form.name }}
+                </div>
+              </div>
+              <button type="submit" name="list-save"><img src="{% static 'todo/icon/save.png' %}"></button>
+            </div>
+          </div>
+          <div class="section">
+            <div class="field-error">{{ lst_form.grp.errors }}</div>
+            <div class="section-item">
+                <div class="section-inner">
+                  <div class="section-icon">
+                    <img src="{% static 'todo/icon/group.png' %}">
+                  </div>
+                  {{ lst_form.grp }}
+                </div>
+            </div>
+          </div>
+          <div class="section">
+            <div class="field-error">{{ lst_form.sort.errors }}</div>
+            <div class="section-item">
+                <div class="section-inner ">
+                  <div class="section-icon">
+                    <img src="{% static 'todo/icon/sort.png' %}">
+                  </div>
+                  <div class="editable-content auxiliary-element">
+                    {{ lst_form.sort }}
+                  </div>
+                </div>
+            </div>
+          </div>
+        </div>
+        <div class="footer">
+          <button type="submit" name="details-hide"><img src="{% static 'todo/icon/hide.png' %}"></button>
+          <div class="info">{{ grp_created }}</div>
+          <button type="submit" name="list-delete"><img src="{% static 'todo/icon/trash.png' %}"></button>
+        </div>
+      </form>
+    </div>
+
+    <div class="details"{% if details_mode != 'task' %} style="display: none"{% endif %}>
+        <div class="fields">
+          <form method="post" class="header">{% csrf_token %}
+            {% if form.errors %}
+              <div class="fieldset">
+                <p class="errornote"> {% if form.errors.items|length == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %} </p> 
+              </div>
+            {% endif %}
+            {% if form.non_field_errors %}
+              <div class="fieldset">
+              {% for error in form.non_field_errors %} <p class="errornote"> {{ error }} </p> {% endfor %}
+              </div>
+            {% endif %}
+            <div class="field-error">{{ form.name.errors }}</div>
+            <div class="field-group">
+              <button type="submit" name="task-completed" class="task-icon">
+                {% if completed %}
+                  <img src="{% static 'todo/icon/complete.png' %}">
+                {% else %}
+                  <img src="{% static 'todo/icon/uncomplete.png' %}">
+                {% endif %}
+              </button>
+              <div class="details-name{% if completed %} completed{% endif %}">
+                <div class="editable-content main-element">
+                  <input type="text" name="task_edit-name" value="{{ form.name.value }}" maxlength="200" required="" id="id_task_edit-name" class="{% if completed %}completed{% endif %}">
+                </div>
+              </div>
+              <button type="submit" name="task-important" class="task-icon">
+                {% if important %}
+                  <img src="{% static 'todo/icon/important-on.png' %}">
+                {% else %}
+                  <img src="{% static 'todo/icon/important-off.png' %}">
+                {% endif %}
+              </button>
+              <button type="submit" name="task-save" class="task-icon"><img src="{% static 'todo/icon/save.png' %}"></button>
+            </div>
+          </form>
+
+          <div class="steps">
+            <div class="step-list">
+              {% for step in steps %}
+                <form method="post">{% csrf_token %}
+                  <input type="hidden" name="step_edit_id" value="{{ step.id }}" required="" id="id_step_edit_id">
+                  <button type="submit" name="step-save" class="default-and-hidden"></button>
+                  <div class="field-error">{{ step.name.errors }}</div>
+                  <div class="step-field-group">
+                    <button type="submit" name="step-complete" class="task-icon">
+                      {% if step.completed %}
+                        <img src="{% static 'todo/icon/step-complete.png' %}">
+                      {% else %}
+                        <img src="{% static 'todo/icon/step-uncomplete.png' %}">
+                      {% endif %}
+                    </button>
+                    <div class="step-name">
+                      <div class="editable-content auxiliary-element">
+                        <input type="text" name="step_edit_name" value="{{ step.name }}" maxlength="200" required="" id="id_step_edit_name" class="{% if step.completed %}completed{% endif %}">
+                      </div>
+                    </div>
+                    <button type="submit" name="step-save" class="task-icon"><img src="{% static 'todo/icon/save.png' %}"></button>
+                    <button type="submit" name="step-delete" class="task-icon"><img src="{% static 'todo/icon/sort-del.png' %}"></button>
+                  </div>
+                </form>
+              {% endfor %}
+            </div>
+            <div class="step-add">
+              <form method="post">{% csrf_token %}
+                <div class="field-error">{{ step_form.name.errors }}</div>
+                <div class="step-field-group">
+                  <button type="submit" name="step-add" class="task-icon"><img src="{% static 'todo/icon/step-add.png' %}"></button>
+                  <div class="step-name">
+                    <div class="editable-content auxiliary-element">
+                      <input type="text" name="step_add-name" value="{{ step_add_name }}" maxlength="200" required="" placeholder="{% trans 'next step'|capfirst %}" id="id_step_add-name">
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <form method="post" class="body">{% csrf_token %}
+          <div class="section">
+            <div class="section-item">
+              <button type="submit" name="task-myday" class="section-inner-click">
+                <div class="section-inner">
+                  <div class="section-icon">
+                    <img src="{% static 'todo/icon/myday.png' %}">
+                  </div>
+                  <div class="section-content">
+                    <div class="section-title{% if in_my_day %} selected{% endif %}">
+                      {% if in_my_day %}
+                        {% trans 'added in "My day"'|capfirst %}
+                      {% else %}
+                        {% trans 'add to "My day"'|capfirst %}
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-item">
+              <button class="section-inner-click">
+                <div class="section-inner">
+                  <div class="section-icon">
+                    <img src="{% static 'todo/icon/remind.png' %}">
+                  </div>
+                  <div class="section-content">
+                    <div class="section-title">
+                      {% trans 'remind'|capfirst %}
+                    </div>
+                  </div>
+                </div>
+              </button>
+            </div>
+            <div class="section-item dropdown">
+              <button class="section-inner-click task-termin dropbtn">
+                <div class="section-inner">
+                  <div class="section-icon">
+                    <img src="{% static 'todo/icon/planned.png' %}">
+                  </div>
+                  <div class="section-content">
+                    <div class="section-title{% if task_expired %} expired{% elif task_start %} actual{% endif %}">
+                      {% if not task_start %}
+                        {% trans 'add due date'|capfirst %}
+                      {% else %}
+                        {{ task_term }}
+                      {% endif %}
+                    </div>
+                  </div>
+                  {% if task_start %}
+                    <div class="section-icon">
+                      <img src="{% static 'todo/icon/sort-del.png' %}">
+                    </div>
+                  {% endif %}
+                </div>
+              </button>
+              <div class="dropdown-content pos-termin">
+                <div class="dropdown-content-title">{% trans 'termin'|capfirst %}</div>
+                <button type="submit" class="dropdown-content-item c001" name="termin-today">
+                  <div class="c002">
+                    <img src="{% static 'todo/icon/termin-today.png' %}">
+                    <span class="c003">{% trans 'today'|capfirst %}</span>
+                  </div>
+                  <div class="c004">{{ termin_today_info }}</div>
+                </button>
+                <button type="submit" class="dropdown-content-item c001" name="termin-tomorrow">
+                  <div class="c002">
+                    <img src="{% static 'todo/icon/termin-tomorrow.png' %}">
+                    <span class="c003">{% trans 'tomorrow'|capfirst %}</span>
+                  </div>
+                  <div class="c004">{{ termin_tomorrow_info }}</div>
+                </button>
+                <button type="submit" class="dropdown-content-item c001" name="termin-next-week">
+                  <div class="c002">
+                    <img src="{% static 'todo/icon/termin-next-week.png' %}">
+                    <span class="c003">{% trans 'next week'|capfirst %}</span>
+                  </div>
+                  <div class="c004">{{ termin_next_week_info }}</div>
+                </button>
+                <div class="dropdown-content-separator"></div>
+                <button type="submit" class="dropdown-content-item c001" name="termin-select">
+                  <div class="c002">
+                    <img src="{% static 'todo/icon/termin-select.png' %}">
+                    <span class="c003">{% trans 'select date'|capfirst %}</span>
+                  </div>
+                  <img class="c004" src="{% static 'todo/icon/direct-right.png' %}">
+                </button>
+              </div>
+            </div>
+            <div class="section-item">
+              <button class="section-inner-click">
+                <div class="section-inner">
+                  <div class="section-icon">
+                    <img src="{% static 'todo/icon/repeat.png' %}">
+                  </div>
+                  <div class="section-content">
+                    <div class="section-title">
+                      {% trans 'repeat'|capfirst %}
+                    </div>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-item">
+              <button class="section-inner-click">
+                <div class="section-inner">
+                  <div class="section-icon">
+                    <img src="{% static 'todo/icon/category.png' %}">
+                  </div>
+                  <div class="section-content">
+                    <div class="section-title">
+                      {% trans 'categories'|capfirst %}
+                    </div>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-item">
+              <button class="section-inner-click">
+                <div class="section-inner">
+                  <div class="section-icon">
+                    <img src="{% static 'todo/icon/file.png' %}">
+                  </div>
+                  <div class="section-content">
+                    <div class="section-title">
+                      {% trans 'add file'|capfirst %}
+                    </div>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-item section-item-note">
+              <button class="section-inner-click">
+                <div class="section-inner">
+                  <div class="section-content">
+                    <div class="section-title">
+                      {% trans 'add note'|capfirst %}
+                    </div>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+          </form>
+
+        </div>
+        <form method="post" class="footer">{% csrf_token %}
+          <button type="submit" name="details-hide"><img src="{% static 'todo/icon/hide.png' %}"></button>
+          <div class="info">{{ task_status }}</div>
+          <button type="submit" name="task-delete"><img src="{% static 'todo/icon/trash.png' %}"></button>
+        </form>
+    </div>
+  </content>
+</div>
+</body>
+</html>
