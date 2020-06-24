@@ -3,6 +3,7 @@ from . import views
 
 app_name = 'wage'
 urlpatterns = [
+    path('',                              views.index,          name='index'),
     path('tree/<int:pk>/',                views.tree,           name='tree'),
     path('clear/',                        views.clear,          name='clear'),
     path('import/',                       views.xml_import,     name='xml_import'),
@@ -37,22 +38,22 @@ urlpatterns = [
     path('employee/<int:pk>/delete/',     views.empl_del,       name='empl_del'),
 
     path('employee/<int:empl>/appoints/',                  views.appoint_list,   name='appoint_list'),
-    path('employee/<int:empl>/appoint/create/',            views.appoint_add,    name='appoint_add'),
+    path('employee/<int:empl>/appoints/create/',           views.appoint_add,    name='appoint_add'),
     path('employee/<int:empl>/appoint/<int:pk>/',          views.appoint_form,   name='appoint_form'),
     path('employee/<int:empl>/appoint/<int:pk>/delete/',   views.appoint_del,    name='appoint_del'),
                                          
     path('employee/<int:empl>/educations/',                views.education_list, name='education_list'),
-    path('employee/<int:empl>/education/create/',          views.education_add,  name='education_add'),
+    path('employee/<int:empl>/educations/create/',         views.education_add,  name='education_add'),
     path('employee/<int:empl>/education/<int:pk>/',        views.education_form, name='education_form'),
     path('employee/<int:empl>/education/<int:pk>/delete/', views.education_del,  name='education_del'),
                                                                
     path('employee/<int:empl>/fio_hists/',                 views.fio_hist_list,  name='fio_hist_list'),
-    path('employee/<int:empl>/fio_hist/create/',           views.fio_hist_add,   name='fio_hist_add'),
+    path('employee/<int:empl>/fio_hists/create/',          views.fio_hist_add,   name='fio_hist_add'),
     path('employee/<int:empl>/fio_hist/<int:pk>/',         views.fio_hist_form,  name='fio_hist_form'),
     path('employee/<int:empl>/fio_hist/<int:pk>/delete/',  views.fio_hist_del,   name='fio_hist_del'),
                                          
     path('employee/<int:empl>/children/',                  views.child_list,     name='child_list'),
-    path('employee/<int:empl>/child/create/',              views.child_add,      name='child_add'),
+    path('employee/<int:empl>/childs/create/',             views.child_add,      name='child_add'),
     path('employee/<int:empl>/child/<int:pk>/',            views.child_form,     name='child_form'),
     path('employee/<int:empl>/child/<int:pk>/delete/',     views.child_del,      name='child_del'),
                                          

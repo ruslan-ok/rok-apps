@@ -22,6 +22,11 @@ from . import utils
 urlpatterns = i18n_patterns(
     path('',            views.index,      name='index'),
     path('feedback/',   views.feedback,   name='feedback'),
+    path('note/',       views.note,       name='note'),
+    path('news/',       views.news,       name='news'),
+    path('store/',      views.store,      name='store'),
+    path('trash/',      views.trash,      name='trash'),
+
     path('etalon/',     utils.etalon,     name='etalon'),
     path('convert/',    utils.convert,    name='convert'),
     path('statistics/', utils.statistics, name='statistics'),
@@ -32,12 +37,11 @@ urlpatterns = i18n_patterns(
     path('trip/',  include('trip.urls')),
     path('wage/',  include('wage.urls')),
     path('todo/',  include('todo.urls')),
+    path('check/', include('check.urls')),
+    path('pir/',   include('pir.urls')),
 
     path('<int:folder_id>/',       include('hier.urls')),
-
-    path('<int:folder_id>/task/',  include('task.urls')),
     path('<int:folder_id>/note/',  include('note.urls')),
-    path('<int:folder_id>/pir/',   include('pir.urls')),
     path('<int:folder_id>/store/', include('store.urls')),
 
     path('account/', include('account.urls')),

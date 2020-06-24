@@ -1,81 +1,107 @@
 {% extends "base_rok.html" %}
 {% load i18n static %}
 
-{% block extrastyle %}
-<style>
-.level-0 { margin-left: 0px; }
-.level-1 { margin-left: 10px; }
-.level-2 { margin-left: 20px; }
-.level-3 { margin-left: 30px; }
-.level-4 { margin-left: 40px; }
-.level-5 { margin-left: 50px; }
-.level-6 { margin-left: 60px; }
-</style>
-{% endblock %}
-
 {% block window %}
-
-  <!-- Sidebar -->
-  {% block sidebar %}
-    {% if user.is_authenticated %}
-      <div class="sidebar theme-l4" id="mySidebar">
-
-            <div class="bar-item">
-              <a class="bar-link" href="{% url 'index' %}"><i class="fa fa-home"></i>&nbsp;{% trans 'main'|capfirst %}</a>
-            </div>
-
-            {% for file in tree %}
-              <div class="bar-item{% if file.id == folder.id %} current{% endif %}">
-                {% if file.is_node %}
-                <a class="level-{{ file.level }}{% if file.id == folder.id %} current{% endif %}" href="{% url 'hier:toggle' file.id %}?p={{ request.path }}">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17"{% if file.is_open %} style="transform: rotate(90deg);" {% endif %}>
-                    <path fill-rule="evenodd" d="M6 4l4 4-4 4z"></path></svg></a>
-                {% else %}
-                  <svg class="level-{{ file.level }}{% if file.id == folder.id %} current{% endif %}" xmlns="http://www.w3.org/2000/svg" width="17" height="17" ></svg>
-                {% endif %}
-                <a class="bar-link{% if file.id == folder.id %} current{% endif %}" href="{% url 'hier:folder_list' file.id %}">
-                  {% if file.icon != "" %} <i class="fa fa-{{ file.icon }}" style="color: {{ file.color }};"></i>{% endif %}&nbsp;{{ file.name }}</a>
-              </div>
-            {% endfor %}
-
-            <div class="bar-item">
-              <a class="bar-link" href="{% url 'account:profile' %}"><i class="fa fa-user"></i>&nbsp;{% trans 'profile'|capfirst %}</a>
-            </div>
-
-            <div class="bar-item">
-              <a class="bar-link" href="{% url 'account:logout' %}"><i class="fa fa-sign-out-alt"></i>&nbsp;{% trans 'logout'|capfirst  %}</a>
-            </div>
-
-      </div>
-    {% endif %}
-  {% endblock %}
-
-  <div id="main" class="rok-main" {% if user.is_authenticated %} style="margin-left:250px" {% endif %}>
-    {% block navbar %}{{ block.super }}{% endblock %}
-    {% block content %}{% endblock %}
-
-    <div class="w3-bar w3-theme-l2 w3-center" id="footer">
-      {% block footer %}{% endblock %}
+  <nav id="launcher">
+    <div class="launcher-top">
+      <button class="button launcher-icon" onclick="launcher_close()"><img src="{% static 'rok/icon/apps-black.png' %}"></button>
+      <button class="button launcher-icon"><img src="{% static 'rok/icon/param.png' %}"></button>
     </div>
-  </div>
-{% endblock %}
+    <div class="launcher-menu">
+      <a href="/" class="launcher-button"><img src="{% static 'rok/icon/application.png' %}"><span class="">Главная</span></a>
+      <a href="/trash/" class="launcher-button"><img src="{% static 'rok/icon/application.png' %}"><span class="">Корзина</span></a>
+      <a href="/admin/" class="launcher-button"><img src="{% static 'rok/icon/application.png' %}"><span class="">Админ</span></a>
+      <a href="/account/profile/" class="launcher-button"><img src="{% static 'rok/icon/application.png' %}"><span class="">Профиль</span></a>
+      <a href="/account/logout/" class="launcher-button"><img src="{% static 'rok/icon/application.png' %}"><span class="">Выход</span></a>
+    </div>
+  </nav>
 
-{% block hamb %}
-  {% if user.is_authenticated %}
-    <button id="hamburger" class="w3-bar-item w3-button rok-hide-large" onclick="w3_open()">&#9776;</button>
-  {% endif %}
+  <div id="wrapper">
+    {% if user.is_authenticated %}
+    <header>
+      <div class="header-left">
+        <button class="button" title="{% trans 'application launcher'|capfirst %}" onclick="launcher_open()"><img src="{% static 'rok/icon/apps-white.png' %}"></button>
+        <form method="POST">{% csrf_token %}
+          <button name="aside_open" class="button phone-only{% if aside_visible %} hid{% endif %}" title="{% trans 'open sidebar'|capfirst %}" href="#"><img src="{% static 'rok/icon/hamb-white.png' %}"></button>
+        </form>
+      </div>
+      <div class="search-container">
+        <form action="#" method="GET" class="search-form">
+          <input type="text" placeholder="search..." name="q">
+        </form>
+      </div>
+      <div class="desktop-only">
+        <button class="button" title="{% trans 'parameters'|capfirst %}"><img src="{% static 'rok/icon/param.png' %}"></button>
+        <button class="button" title="{% trans 'user profile'|capfirst %}"><img src="{% static 'rok/icon/user.png' %}"></button>
+      </div>
+    </header>
+    {% endif %}
+    
+    <div id="page" {% if user.is_authenticated %}class="with_header"{% endif %}>
+      <aside class="{% if aside_visible %}vis{% else %}hid{% endif %}">
+        <section id="aside-top">
+          <form method="post">{% csrf_token %}
+            <div class="info">{% block aside_top_info %}{% endblock %}</div>
+            <button type="submit" name="aside_close" class="phone-only" title="{% trans 'close sidebar'|capfirst %}"><img src="{% static 'rok/icon/close-left.png' %}"></button>
+          </form>
+        </section>
+        <div class="scroll">
+          <ul class="nav-menu">
+            {% for file in tree %}
+              <li class="grp-item {% if file.id == folder.id %} selected{% endif %}">
+                <a href="{% url 'hier:folder_list' file.id %}">
+                  <div class="nav-menu-item-left">
+                    <div class="level-{{ file.level }}">{% if file.icon != "" %}<i class="fa fa-{{ file.icon }}" style="color: {{ file.color }};"></i>{% endif %}</div>
+                    <div>{{ file.name }}</div>
+                  </div>
+                </a>
+                <div class="nav-menu-item-right">
+                  <a href="{% url 'hier:toggle' file.id %}?p={{ request.path }}">
+                    {% if file.is_open %}
+                      <img src="{% static 'todo/icon/direct-down.png' %}">
+                    {% else %}
+                      <img src="{% static 'todo/icon/direct-left.png' %}">
+                    {% endif %}
+                  </a>
+                </div>
+              </li>
+            {% endfor %}
+            {% block aside_content %}{% endblock %}
+          </ul>
+        </div>
+        <div>
+          {% block aside_footer %}{% endblock %}
+        </div>
+      </aside>
+      <main>
+        {% block content %}{% endblock %}
+      </main>
+      <article class="{% if article_visible %}vis{% else %}hid{% endif %}">
+        <section id="article-top">
+          <form method="post">{% csrf_token %}
+            <button type="submit" name="article_close" title="{% trans 'close details'|capfirst %}"><img src="{% static 'rok/icon/close-right.png' %}"></button>
+            <div class="info">{% block article_info %}{% endblock %}</div>
+            <button type="submit" name="article_delete" title="{% trans 'delete record'|capfirst %}"><img src="{% static 'rok/icon/trash.png' %}"></button>
+          </form>
+        </section>
+        <section id="article-content">
+          {% block article_content %}{% endblock %}
+        </section>
+      </article>
+    </div> <!--page-->
+  </div> <!--wrapper-->
 {% endblock %}
 
 {% block scripts %}
-  {{ block.super }}
-    <script>
-      function w3_open() {
-        document.getElementById("mySidebar").style.display = "block";
-        document.getElementById("hamburger").style.display = 'none';
-      }
-      function w3_close() {
-        document.getElementById("mySidebar").style.display = "none";
-        document.getElementById("hamburger").style.display = "inline-block";
-      }
-    </script>  
+  <script>
+    
+    function launcher_open() {
+      document.getElementById("launcher").style.display = "flex";
+    }
+
+    function launcher_close() {
+      document.getElementById("launcher").style.display = "none";
+    }
+
+  </script>  
 {% endblock %}

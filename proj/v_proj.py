@@ -37,6 +37,7 @@ def proj_list(request):
 
 #----------------------------------
 def proj_add(request):
+    direct = get_object_or_404(Direct.objects.filter(user = request.user.id, active = True))
     if (request.method == 'POST'):
         form = ProjForm(request.POST)
     else:
@@ -75,7 +76,6 @@ def show_page_form(request, pk, title, form):
             form.save()
             return HttpResponseRedirect(reverse('proj:proj_list'))
     folder_id = get_folder_id(request.user.id)
-    context = get_base_context(request, folder_id, pk, title)
-    context['form'] = form
+    context = get_base_context(request, folder_id, pk, title, form = form)
     template = loader.get_template('proj/proj_form.html')
     return HttpResponse(template.render(context, request))

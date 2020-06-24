@@ -1,4 +1,5 @@
 {% extends "base_window.html" %}
+{% load i18n %}
 
 {% block extrastyle %}
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
@@ -9,42 +10,26 @@
 {% endblock %}
 
 {% block win_content %}
-<div class="w3-container w3-padding">
+  <form method="post" class="rok-form w3-light-grey">{% csrf_token %}
 
-  <form method="post" class="w3-container w3-card-4 w3-light-grey">{% csrf_token %}
-
-    {% if form.errors %} <p class="errornote"> {% if form.errors.items|length == 1 %}Нужно исправить ошибку.{% else %}Нужно исправить ошибки{% endif %} </p> {% endif %}
+    {% if form.errors %} <p class="errornote"> {% if form.errors.items|length == 1 %}{{ please_correct_one }}{% else %}{{ please_correct_all }}{% endif %} </p> {% endif %}
     {% if form.non_field_errors %} {% for error in form.non_field_errors %} <p class="errornote"> {{ error }} </p> {% endfor %} {% endif %}
 
-    <div class="w3-row">
-      <div class="w3-half"><div class="w3-margin rok-field">
-          {{ form.name.errors }} {{ form.name.label_tag }} {{ form.name }} {% if form.name.help_text %}<div class="help">{{ form.name.help_text|safe }}</div>{% endif %}
-      </div></div>
-      <div class="w3-quarter"><div class="w3-margin rok-field">
-          {{ form.list.errors }} {{ form.list.label_tag }} {{ form.list }} {% if form.list.help_text %}<div class="help">{{ form.list.help_text|safe }}</div>{% endif %}
-      </div></div>
-      <div class="w3-quarter"><div class="w3-margin rok-field">
-          {{ form.code.errors }} {{ form.code.label_tag }} {{ form.code }} {% if form.code.help_text %}<div class="help">{{ form.code.help_text|safe }}</div>{% endif %}
-      </div></div>
+    <div class="rok-row">
+      <div class="rok-field rok-half">      {{ form.name.errors }} {{ form.name.label_tag }} {{ form.name }}    </div>
+      <div class="rok-field rok-quarter">   {{ form.code.errors }} {{ form.code.label_tag }} {{ form.code }}    </div>
     </div>
 
-    <div class="w3-row">
-      <a href="#descr" data-toggle="collapse">Описание</a>
+    <div class="rok-row">
+      <a href="#descr" data-toggle="collapse">{% trans 'description'|capfirst %}</a>
     </div>
 
     <div class="collapse {% if form.descr.value %}show{% endif %}" id="descr">
-      <div class="w3-rest"><div class="w3-margin rok-field">
-          {{ form.descr.errors }} {{ form.descr }} 
-      </div></div>
+      <div class="rok-field rok-rest">      {{ form.descr.errors }} {{ form.descr }}   </div>
     </div>
 
-    <div class="w3-row w3-padding w3-center">
-      {% if pk == 0 %}
-        <input type="submit" value="Добавить" class="default">
-      {% else %}
-        <input type="submit" value="Сохранить" class="default">
-      {% endif %}
-      <p>
+    <div class="rok-form-buttons">
+      <input type="submit" value="{% if pk == 0 %}{% trans 'add'|capfirst %}{% else %}{% trans 'save'|capfirst %}{% endif %}" class="default">
     </div>
 
   </form>

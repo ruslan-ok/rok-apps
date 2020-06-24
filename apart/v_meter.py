@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from django.core.paginator import Paginator
 
 from hier.models import Folder
-from hier.utils import get_base_context, get_folder_id
+from hier.utils import get_base_context, get_folder_id, process_common_commands
 from .utils import next_period
 from .models import Apart, Meter
 from .forms import MeterForm
@@ -19,6 +19,7 @@ from .forms import MeterForm
 @login_required(login_url='account:login')
 #----------------------------------
 def meter_list(request):
+    process_common_commands(request)
     if not Apart.objects.filter(user = request.user.id, active = True).exists():
         return HttpResponseRedirect(reverse('apart:apart_list'))
     apart = Apart.objects.filter(user = request.user.id, active = True)[0]
@@ -101,8 +102,7 @@ def show_page_form(request, pk, title, form, apart):
             form.save()
             return HttpResponseRedirect(reverse('apart:meter_list'))
     folder_id = get_folder_id(request.user.id)
-    context = get_base_context(request, folder_id, pk, title)
-    context['form'] = form
+    context = get_base_context(request, folder_id, pk, title, form = form)
     context['apart'] = apart
     template = loader.get_template('apart/meter_form.html')
     return HttpResponse(template.render(context, request))

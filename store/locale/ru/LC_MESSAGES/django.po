@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-16 20:42+0300\n"
+"POT-Creation-Date: 2020-06-25 01:34+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,160 +19,131 @@ msgstr ""
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: .\store\forms.py:31 .\store\models.py:59
+#: .\store\forms.py:15 .\store\models.py:63
 msgid "length"
 msgstr "длина"
 
-#: .\store\models.py:8 .\store\models.py:24 .\store\models.py:57
+#: .\store\models.py:11 .\store\models.py:27 .\store\models.py:60
 msgid "user"
 msgstr "пользователь"
 
-#: .\store\models.py:9 .\store\templates\store\group_list.html:15
+#: .\store\models.py:12
 msgid "code"
 msgstr "код"
 
-#: .\store\models.py:10 .\store\templates\store\group_list.html:16
+#: .\store\models.py:13
 msgid "name"
 msgstr "наименование"
 
-#: .\store\models.py:11 .\store\models.py:30
+#: .\store\models.py:14 .\store\models.py:33
 msgid "UUID"
 msgstr "идентификатор"
 
-#: .\store\models.py:12 .\store\models.py:31
+#: .\store\models.py:15 .\store\models.py:34
 msgid "creation time"
 msgstr "дата-время создания"
 
-#: .\store\models.py:13 .\store\models.py:32
+#: .\store\models.py:16 .\store\models.py:35
 msgid "last modification time"
 msgstr "дата-время модификации"
 
-#: .\store\models.py:25 .\store\templates\store\index.html:29
+#: .\store\models.py:28 .\store\templates\store\entry_list.html:11
 msgid "title"
 msgstr "название"
 
-#: .\store\models.py:26 .\store\templates\store\index.html:30
+#: .\store\models.py:29 .\store\templates\store\entry_list.html:12
 msgid "username"
 msgstr "имя пользователя"
 
-#: .\store\models.py:27 .\store\templates\store\index.html:31
+#: .\store\models.py:30 .\store\templates\store\entry_list.html:13
 msgid "value"
 msgstr "значение"
 
-#: .\store\models.py:28
+#: .\store\models.py:31
 msgid "URL"
 msgstr "URL"
 
-#: .\store\models.py:29 .\store\templates\store\index.html:34
+#: .\store\models.py:32 .\store\templates\store\entry_list.html:15
 msgid "notes"
 msgstr "примечание"
 
-#: .\store\models.py:33 .\store\templates\store\index.html:33
-#: .\store\views.py:124 .\store\views.py:133
+#: .\store\models.py:36
 msgid "group"
 msgstr "группа"
 
-#: .\store\models.py:34
+#: .\store\models.py:37
 msgid "actual"
 msgstr "актуальность"
 
-#: .\store\models.py:48
+#: .\store\models.py:51
 msgid "node"
 msgstr "узел"
 
-#: .\store\models.py:49 .\store\views.py:155 .\store\views.py:164
+#: .\store\models.py:52 .\store\views.py:111
 msgid "entry"
 msgstr "запись"
 
-#: .\store\models.py:58
+#: .\store\models.py:62
 msgid "group filter"
 msgstr "фильтр по группе"
 
-#: .\store\models.py:60
+#: .\store\models.py:64
 msgid "upper case"
 msgstr "буквы в верхнем регистре"
 
-#: .\store\models.py:61
+#: .\store\models.py:65
 msgid "lower case"
 msgstr "буквы в нижнем регистре"
 
-#: .\store\models.py:62
+#: .\store\models.py:66
 msgid "digits"
 msgstr "цифры"
 
-#: .\store\models.py:63
+#: .\store\models.py:67
 msgid "special symbols"
 msgstr "специальные символы"
 
-#: .\store\models.py:64
+#: .\store\models.py:68
 msgid "brackets"
 msgstr "скобки"
 
-#: .\store\models.py:65
+#: .\store\models.py:69
 msgid "minus"
 msgstr "минус"
 
-#: .\store\models.py:66
+#: .\store\models.py:70
 msgid "underline"
 msgstr "знак подчеркивания"
 
-#: .\store\models.py:67
+#: .\store\models.py:71
 msgid "avoid confusion"
 msgstr "исключить путаницу"
 
-#: .\store\models.py:70 .\store\models.py:71
+#: .\store\models.py:74 .\store\models.py:75
 msgid "user settings"
 msgstr "настройки пользователя"
 
-#: .\store\templates\store\entry_form.html:5
-#: .\store\templates\store\group_form.html:5
-#: .\store\templates\store\group_list.html:5
-#: .\store\templates\store\param_form.html:5 .\store\views.py:52
-#: .\store\views.py:101
-msgid "entries"
-msgstr "записи"
-
-#: .\store\templates\store\entry_form.html:43
-#: .\store\templates\store\group_form.html:32
+#: .\store\templates\store\entry_form.html:33
 msgid "add"
 msgstr "добавить"
 
-#: .\store\templates\store\entry_form.html:45
-#: .\store\templates\store\group_form.html:34
-#: .\store\templates\store\param_form.html:29
+#: .\store\templates\store\entry_form.html:35
+#: .\store\templates\store\param_form.html:25
 msgid "save"
 msgstr "сохранить"
 
-#: .\store\templates\store\group_form.html:6
-#: .\store\templates\store\index.html:8 .\store\views.py:116
-msgid "groups"
-msgstr "группы"
-
-#: .\store\templates\store\group_list.html:17
-#: .\store\templates\store\index.html:55
-msgid "records"
-msgstr "количество записей"
-
-#: .\store\templates\store\index.html:9 .\store\views.py:72
-msgid "parameters"
-msgstr "параметры"
-
-#: .\store\templates\store\index.html:10
-msgid "delete all"
-msgstr "удалить всё"
-
-#: .\store\templates\store\index.html:11
-msgid "import"
-msgstr "импорт"
-
-#: .\store\templates\store\index.html:17
-msgid "search"
-msgstr "поиск"
-
-#: .\store\templates\store\index.html:32
+#: .\store\templates\store\entry_list.html:14
 msgid "url"
 msgstr "url"
 
-#: .\store\templates\store\index.html:55
-msgid "table"
-msgstr "таблица"
+#: .\store\views.py:90
+msgid "create a new entry"
+msgstr "создание новой записи"
+
+#: .\store\views.py:228
+msgid "parameters"
+msgstr "параметры"
+
+#: .\store\views.py:254
+msgid "entries"
+msgstr "записи"

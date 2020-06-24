@@ -215,8 +215,7 @@ def register(request):
     else:
         f = RegisterForm()
  
-    context = get_base_context(request, 0, 0, title, 'dialog')
-    context['form'] = f
+    context = get_base_context(request, 0, 0, title, 'dialog', form = f)
     context['show_form'] = show_form
     return render(request, 'account/register.html', context)
 
@@ -430,8 +429,7 @@ def profile(request):
     else:
         form = ProfileForm(instance = request.user)
 
-    context = get_base_context(request, 0, 0, gettext('Profile'), 'dialog')
-    context['form'] = form
+    context = get_base_context(request, 0, 0, gettext('Profile'), 'dialog', form = form)
     context['fieldset1_name'] = _('Personal info')
     context['fieldset2_name'] = _('Important dates')
     return render(request, 'account/profile.html', context)

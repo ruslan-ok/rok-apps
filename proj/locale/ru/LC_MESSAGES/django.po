@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-28 12:28+0300\n"
+"POT-Creation-Date: 2020-06-25 01:34+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: .\proj\apps.py:7 .\proj\models.py:33
+#: .\proj\apps.py:7 .\proj\models.py:51
 msgid "projects"
 msgstr "проекты"
 
@@ -27,7 +27,7 @@ msgstr "проекты"
 msgid "user"
 msgstr "пользователь"
 
-#: .\proj\models.py:7
+#: .\proj\models.py:7 .\proj\models.py:11 .\proj\v_dirs.py:47
 msgid "direction"
 msgstr "направление"
 
@@ -35,42 +35,58 @@ msgstr "направление"
 msgid "active"
 msgstr "активно"
 
-#: .\proj\models.py:11 .\proj\models.py:19
+#: .\proj\models.py:12 .\proj\v_dirs.py:26
+msgid "directions"
+msgstr "направления"
+
+#: .\proj\models.py:37
 msgid "direct"
 msgstr "направление"
 
-#: .\proj\models.py:12
-msgid "directs"
-msgstr "направления"
-
-#: .\proj\models.py:20
+#: .\proj\models.py:38
 msgid "date"
 msgstr "дата"
 
-#: .\proj\models.py:21
+#: .\proj\models.py:39
 msgid "quantity"
 msgstr "количество"
 
-#: .\proj\models.py:22
+#: .\proj\models.py:40
 msgid "price"
 msgstr "цена"
 
-#: .\proj\models.py:23
+#: .\proj\models.py:41
 msgid "rate"
 msgstr "курс"
 
-#: .\proj\models.py:24
+#: .\proj\models.py:42
 msgid "in USD"
 msgstr "в USD"
 
-#: .\proj\models.py:25
+#: .\proj\models.py:43
 msgid "manufacturer"
 msgstr "производитель"
 
-#: .\proj\models.py:26
+#: .\proj\models.py:44
 msgid "information"
 msgstr "дополнительная информация"
 
-#: .\proj\models.py:32
+#: .\proj\models.py:50
 msgid "project"
 msgstr "проект"
+
+#: .\proj\v_dirs.py:38
+msgid "creating a new direction"
+msgstr "создание нового направления"
+
+#: .\proj\v_proj.py:32
+msgid "expenses"
+msgstr "расходы"
+
+#: .\proj\v_proj.py:45
+msgid "creating a new expense"
+msgstr "создание нового расхода"
+
+#: .\proj\v_proj.py:55
+msgid "expense"
+msgstr "расход"

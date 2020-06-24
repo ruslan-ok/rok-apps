@@ -1,39 +1,11 @@
+{% extends "base_sidebar.html" %}
 {% load static i18n %}
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+{% block extrastyle %}
   <link rel="stylesheet" type="text/css" href="{% static 'todo/css/todo.css' %}">
-  <title>{{ page_title }}</title>
-  <script>
-      function ShowMenu(menu_id) {
-        document.getElementById(menu_id).style.display = "block";
-      }
-  </script>
-</head>
-<body>
-<div class="wrapper">
-  <header>
-    <div class="header-left">
-      <button class="button" title="{% trans 'application launcher'|capfirst %}"><img src="{% static 'todo/icon/apps-white.png' %}"></button>
-      <a class="site-link" href="/"><img src="{% static 'todo/icon/home.png' %}"></a>
-    </div>
-    <div class="search-container">
-      <form action="#" method="GET" class="search-form">
-        <input type="text" placeholder="search..." name="q">
-      </form>
-    </div>
-    <div>
-      <button class="button" title="{% trans 'parameters'|capfirst %}"><img src="{% static 'todo/icon/param-white.png' %}"></button>
-      <button class="button" title="{% trans 'user profile'|capfirst %}"><img src="{% static 'todo/icon/user-white.png' %}"></button>
-    </div>
-  </header>
-  <content>
-    <nav>
-      <div>
-        <button class="button-min"><img src="{% static 'todo/icon/hamb-blue.png' %}"></button>
-      </div>
-      <div class="scroll">
+{% endblock %}
+
+{% block aside_content %}
         <ul class="nav-menu">
           <li class="important{% if cur_view == 'myday' %} selected{% endif %}"><a class="fix" href="{% url 'todo:myday' %}">
               <div class="nav-menu-item-left">
@@ -110,15 +82,9 @@
           <input type="text" class="add-grp" placeholder="{% trans 'create list or group'|capfirst %}" name="name">
           <button type="submit" name="group-add" class="default grp-add" label="create group"><img src="{% static 'todo/icon/group-add.png' %}"></button>
         </form>
-      </div><!-- nav-scroll -->
-      <div>
-        <button class="nav-button">B1</button>
-        <button class="nav-button">B2</button>
-        <button class="nav-button">B3</button>
-        <button class="nav-button">B4</button>
-      </div>
-    </nav>
-    <main style="width: calc(100vw - 290px{% if details_mode != '' %} - 370px{% endif %});">
+{% endblock %}
+
+{% block content %}
         <div class="top">
           <div class="main-top-headline">{{ list_title }}</div>
             {% if cur_view != 'planned' %}
@@ -180,7 +146,7 @@
                 <div class="task">
                   <div class="icon">
                     <form method="post">{% csrf_token %}
-                      <button type="submit" name="list-complete" value="{{ task.id }}">
+                      <button type="submit" name="task-in-list-complete" value="{{ task.id }}">
                         {% if task.completed %}
                           <img src="{% static 'todo/icon/complete.png' %}">
                         {% else %}
@@ -196,7 +162,7 @@
                 </div>
                 <div class="icon">
                   <form method="post">{% csrf_token %}
-                    <button type="submit" name="list-important" value="{{ task.id }}">
+                    <button type="submit" name="task-in-list-important" value="{{ task.id }}">
                       {% if task.important %}
                         <img src="{% static 'todo/icon/important-on.png' %}">
                       {% else %}
@@ -210,9 +176,10 @@
           </ul>
         {% endfor %}
       </div>
-    </main>
-    
-    <div class="details"{% if details_mode != 'group' %} style="display: none"{% endif %}>
+{% endblock %}
+
+{% block article_content %}
+    {% if details_mode == 'group' %}
       <form method="post" class="body">{% csrf_token %}
         <div class="fields">
           <div class="header">
@@ -228,8 +195,10 @@
             {% endif %}
             <div class="field-error">{{ grp_form.name.errors }}</div>
             <div class="field-group">
-              <img src="{% static 'todo/icon/group.png' %}">
-              <div class="details-name">
+              <div class="field-icon">
+                <img src="{% static 'todo/icon/group.png' %}">
+              </div>
+              <div class="article-name">
                 <div class="editable-content main-element">
                   {{ grp_form.name }}
                 </div>
@@ -262,15 +231,10 @@
             </div>
           </div>
         </div>
-        <div class="footer">
-          <button type="submit" name="details-hide"><img src="{% static 'todo/icon/hide.png' %}"></button>
-          <div class="info">{{ grp_created }}</div>
-          <button type="submit" name="group-delete"><img src="{% static 'todo/icon/trash.png' %}"></button>
-        </div>
       </form>
-    </div>
-
-    <div class="details"{% if details_mode != 'list' %} style="display: none"{% endif %}>
+    {% endif %}
+    
+    {% if details_mode == 'list' %}
       <form method="post" class="body">{% csrf_token %}
         <div class="fields">
           <div class="header">
@@ -286,8 +250,10 @@
             {% endif %}
             <div class="field-error">{{ lst_form.name.errors }}</div>
             <div class="field-group">
-              <img src="{% static 'todo/icon/list.png' %}">
-              <div class="details-name">
+              <div class="field-icon">
+                <img src="{% static 'todo/icon/list.png' %}">
+              </div>
+              <div class="article-name">
                 <div class="editable-content main-element">
                   {{ lst_form.name }}
                 </div>
@@ -320,15 +286,10 @@
             </div>
           </div>
         </div>
-        <div class="footer">
-          <button type="submit" name="details-hide"><img src="{% static 'todo/icon/hide.png' %}"></button>
-          <div class="info">{{ grp_created }}</div>
-          <button type="submit" name="list-delete"><img src="{% static 'todo/icon/trash.png' %}"></button>
-        </div>
       </form>
-    </div>
+    {% endif %}
 
-    <div class="details"{% if details_mode != 'task' %} style="display: none"{% endif %}>
+    {% if details_mode == 'task' %}
         <div class="fields">
           <form method="post" class="header">{% csrf_token %}
             {% if form.errors %}
@@ -343,26 +304,26 @@
             {% endif %}
             <div class="field-error">{{ form.name.errors }}</div>
             <div class="field-group">
-              <button type="submit" name="task-completed" class="task-icon">
+              <button type="submit" name="task-completed" class="field-icon">
                 {% if completed %}
                   <img src="{% static 'todo/icon/complete.png' %}">
                 {% else %}
                   <img src="{% static 'todo/icon/uncomplete.png' %}">
                 {% endif %}
               </button>
-              <div class="details-name{% if completed %} completed{% endif %}">
+              <div class="article-name{% if completed %} completed{% endif %}">
                 <div class="editable-content main-element">
                   <input type="text" name="task_edit-name" value="{{ form.name.value }}" maxlength="200" required="" id="id_task_edit-name" class="{% if completed %}completed{% endif %}">
                 </div>
               </div>
-              <button type="submit" name="task-important" class="task-icon">
+              <button type="submit" name="task-important" class="field-icon">
                 {% if important %}
                   <img src="{% static 'todo/icon/important-on.png' %}">
                 {% else %}
                   <img src="{% static 'todo/icon/important-off.png' %}">
                 {% endif %}
               </button>
-              <button type="submit" name="task-save" class="task-icon"><img src="{% static 'todo/icon/save.png' %}"></button>
+              <button type="submit" name="task-save" class="field-icon"><img src="{% static 'todo/icon/save.png' %}"></button>
             </div>
           </form>
 
@@ -371,10 +332,10 @@
               {% for step in steps %}
                 <form method="post">{% csrf_token %}
                   <input type="hidden" name="step_edit_id" value="{{ step.id }}" required="" id="id_step_edit_id">
-                  <button type="submit" name="step-save" class="default-and-hidden"></button>
+                  <!--button type="submit" name="step-save" class="default-and-hidden"></button-->
                   <div class="field-error">{{ step.name.errors }}</div>
                   <div class="step-field-group">
-                    <button type="submit" name="step-complete" class="task-icon">
+                    <button type="submit" name="step-complete" class="field-icon">
                       {% if step.completed %}
                         <img src="{% static 'todo/icon/step-complete.png' %}">
                       {% else %}
@@ -386,8 +347,8 @@
                         <input type="text" name="step_edit_name" value="{{ step.name }}" maxlength="200" required="" id="id_step_edit_name" class="{% if step.completed %}completed{% endif %}">
                       </div>
                     </div>
-                    <button type="submit" name="step-save" class="task-icon"><img src="{% static 'todo/icon/save.png' %}"></button>
-                    <button type="submit" name="step-delete" class="task-icon"><img src="{% static 'todo/icon/sort-del.png' %}"></button>
+                    <button type="submit" name="step-save" class="field-icon"><img src="{% static 'todo/icon/save.png' %}"></button>
+                    <button type="submit" name="step-delete" class="field-icon"><img src="{% static 'todo/icon/sort-del.png' %}"></button>
                   </div>
                 </form>
               {% endfor %}
@@ -396,7 +357,7 @@
               <form method="post">{% csrf_token %}
                 <div class="field-error">{{ step_form.name.errors }}</div>
                 <div class="step-field-group">
-                  <button type="submit" name="step-add" class="task-icon"><img src="{% static 'todo/icon/step-add.png' %}"></button>
+                  <button type="submit" name="step-add" class="field-icon"><img src="{% static 'todo/icon/step-add.png' %}"></button>
                   <div class="step-name">
                     <div class="editable-content auxiliary-element">
                       <input type="text" name="step_add-name" value="{{ step_add_name }}" maxlength="200" required="" placeholder="{% trans 'next step'|capfirst %}" id="id_step_add-name">
@@ -565,13 +526,16 @@
           </form>
 
         </div>
-        <form method="post" class="footer">{% csrf_token %}
-          <button type="submit" name="details-hide"><img src="{% static 'todo/icon/hide.png' %}"></button>
-          <div class="info">{{ task_status }}</div>
-          <button type="submit" name="task-delete"><img src="{% static 'todo/icon/trash.png' %}"></button>
-        </form>
-    </div>
-  </content>
-</div>
-</body>
-</html>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  <script>
+      function ShowMenu(menu_id) {
+        document.getElementById(menu_id).style.display = "block";
+      }
+  </script>
+{% endblock %}
+
+

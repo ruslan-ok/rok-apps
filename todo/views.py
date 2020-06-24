@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
+from hier.utils import get_base_context, process_common_commands, set_article_visible
 from .models import Grp, Lst, Task, Param, Step
 from .utils import TERM_NAME, ALL, get_task_status
 from .tree import build_tree
@@ -19,7 +20,8 @@ MY_DAY = 1
 IMPORTANT = 2
 PLANNED = 3
 COMPLETED = 4
-LIST = 7
+LIST_MODE = 7
+
 
 NONE = 0
 NAME = 5
@@ -31,7 +33,7 @@ MODE_ID = {
     IMPORTANT: 'important',
     PLANNED: 'planned',
     COMPLETED: 'completed',
-    LIST: 'list_list'
+    LIST_MODE: 'list_list'
 }
 
 MODE_NAME = {
@@ -40,7 +42,7 @@ MODE_NAME = {
     IMPORTANT: _('important'),
     PLANNED: _('planned'),
     COMPLETED: _('completed'),
-    LIST: _('tasks of the list')
+    LIST_MODE: _('tasks of the list')
 }
 
 
@@ -53,9 +55,9 @@ SORT_MODE_DESCR = {
     CREATED: _('sort by create date')
 }
 
-TASK = 1
-LIST = 2
-GROUP = 3
+TASK_DETAILS = 1
+LIST_DETAILS = 2
+GROUP_DETAILS = 3
 
 
 class Term():
@@ -92,24 +94,25 @@ def get_sort_mode(user, mode):
         return param.planned_sort_mode, param.planned_sort_dir
     if (mode == COMPLETED):
         return param.completed_sort_mode, param.completed_sort_dir
-    if (mode == LIST):
+    if (mode == LIST_MODE):
         return param.list_sort_mode, param.list_sort_dir
     return NONE, False
 
 def get_tasks(user, mode, lst_id):
+    ret = []
     if (mode == ALL):
-        data = Task.objects.filter(user = user.id).exclude(completed = True)
+        ret = Task.objects.filter(user = user.id).exclude(completed = True)
     if (mode == MY_DAY):
-        data = Task.objects.filter(user = user.id, in_my_day = True)
+        ret = Task.objects.filter(user = user.id, in_my_day = True)
     if (mode == IMPORTANT):
-        data = Task.objects.filter(user = user.id, important = True).exclude(completed = True)
+        ret = Task.objects.filter(user = user.id, important = True).exclude(completed = True)
     if (mode == PLANNED):
-        data = Task.objects.filter(user = user.id).exclude(start = None).exclude(completed = True)
+        ret = Task.objects.filter(user = user.id).exclude(start = None).exclude(completed = True)
     if (mode == COMPLETED):
-        data = Task.objects.filter(user = user.id, completed = True)
-    if (mode == LIST):
-        data = Task.objects.filter(user = user.id, lst = lst_id)
-    return data
+        ret = Task.objects.filter(user = user.id, completed = True)
+    if (mode == LIST_MODE):
+        ret = Task.objects.filter(user = user.id, lst = lst_id)
+    return ret
 
 def sorted_tasks(user, mode, lst_id):
     sort_mode, sort_dir = get_sort_mode(user, mode)
@@ -138,16 +141,16 @@ def sorted_tasks(user, mode, lst_id):
 
     return data
 
-def get_base_context(request, mode, lst):
-    context = {}
+def todo_base_context(request, mode, lst):
+    context = get_base_context(request, 0, 0, _('tasks'), 'content_list', make_tree = False)
     context['cur_view'] = MODE_ID[mode]
     context['list_url'] = 'todo:' + MODE_ID[mode]
-    if (mode == LIST) and lst:
+    if (mode == LIST_MODE) and lst:
         title = lst.name
     else:
         title = MODE_NAME[mode].capitalize()
     context['list_title'] = title
-    context['page_title'] = title + ' - To Do'
+    context['title'] = title + ' - To Do'
     context['in_my_day_qty'] = len(get_tasks(request.user, MY_DAY, 0))
     context['important_qty'] = len(get_tasks(request.user, IMPORTANT, 0))
     context['planned_qty'] = len(get_tasks(request.user, PLANNED, 0))
@@ -156,7 +159,8 @@ def get_base_context(request, mode, lst):
     tree = build_tree(request.user.id)
     context['groups'] = tree
     sort_mode, sort_dir = get_sort_mode(request.user, mode)
-    context['sort_mode'] = SORT_MODE_DESCR[sort_mode].capitalize()
+    if sort_mode:
+        context['sort_mode'] = SORT_MODE_DESCR[sort_mode].capitalize()
     context['sort_dir'] = sort_dir
     context['termin_today_info'] = 'пн'
     context['termin_tomorrow_info'] = 'пн'
@@ -279,39 +283,48 @@ def get_group_details(request, context, pk):
     return False
 
 def task_list(request):
+    if process_common_commands(request):
+        return HttpResponseRedirect(reverse('todo:task_list'))
+
     param = get_param(request.user)
 
     if (request.method == 'POST'):
-        if ('details-hide' in request.POST):
-            set_details(request.user, NONE, 0)
+        if 'article_delete' in request.POST:
+            article_delete(request)
             return HttpResponseRedirect(reverse('todo:task_list'))
-        if 'list-complete' in request.POST:
-            task = Task.objects.filter(id = request.POST['list-complete']).get()
+        if 'task-in-list-complete' in request.POST:
+            task = Task.objects.filter(id = request.POST['task-in-list-complete']).get()
             task.completed = not task.completed
             if task.completed:
                 task.stop = date.today()
             task.save()
             return HttpResponseRedirect(reverse('todo:task_list'))
-        if 'list-important' in request.POST:
-            task = Task.objects.filter(id = request.POST['list-important']).get()
+        if 'task-in-list-important' in request.POST:
+            task = Task.objects.filter(id = request.POST['task-in-list-important']).get()
             task.important = not task.important
             task.save()
             return HttpResponseRedirect(reverse('todo:task_list'))
-        if ('task-add' in request.POST):
+        if 'task-add' in request.POST:
             task = Task.objects.create(user = request.user, name = request.POST['task_add-name'], created = datetime.now(), last_mod = datetime.now(), lst = param.lst)
             return HttpResponseRedirect(reverse('todo:task_form', args = [task.id]))
+        if 'list-add' in request.POST:
+            lst = Lst.objects.create(user = request.user, name = request.POST['name'], created = datetime.now(), last_mod = datetime.now())
+            return HttpResponseRedirect(reverse('todo:list_form', args = [lst.id]))
+        if 'group-add' in request.POST:
+            grp = Grp.objects.create(user = request.user, name = request.POST['name'], created = datetime.now(), last_mod = datetime.now())
+            return HttpResponseRedirect(reverse('todo:group_form', args = [grp.id]))
 
-    context = get_base_context(request, param.cur_view, param.lst)
+    context = todo_base_context(request, param.cur_view, param.lst)
 
     details_mode = ''
     redirect = ''
-    if (param.details_mode == TASK):
+    if (param.details_mode == TASK_DETAILS):
         details_mode = 'task'
         redirect = get_task_details(request, context, param.details_pk, param.lst)
-    elif (param.details_mode == LIST):
+    elif (param.details_mode == LIST_DETAILS):
         details_mode = 'list'
         redirect = get_list_details(request, context, param.details_pk)
-    elif (param.details_mode == GROUP):
+    elif (param.details_mode == GROUP_DETAILS):
         details_mode = 'group'
         redirect = get_group_details(request, context, param.details_pk)
 
@@ -371,7 +384,7 @@ def completed(request):
     return HttpResponseRedirect(reverse('todo:task_list'))
 
 def list_items(request, pk):
-    set_view(request.user, LIST, pk)
+    set_view(request.user, LIST_MODE, pk)
     return HttpResponseRedirect(reverse('todo:task_list'))
 
 def set_details(user, details_mode, pk):
@@ -379,18 +392,19 @@ def set_details(user, details_mode, pk):
     param.details_mode = details_mode
     param.details_pk = pk
     param.save()
+    set_article_visible(user, param.details_mode in (TASK_DETAILS, LIST_DETAILS, GROUP_DETAILS))
 
 def task_form(request, pk):
-    set_details(request.user, TASK, pk)
+    set_details(request.user, TASK_DETAILS, pk)
     return HttpResponseRedirect(reverse('todo:task_list'))
 
 def list_form(request, pk):
-    set_view(request.user, LIST, pk)
-    set_details(request.user, LIST, pk)
+    set_view(request.user, LIST_MODE, pk)
+    set_details(request.user, LIST_DETAILS, pk)
     return HttpResponseRedirect(reverse('todo:task_list'))
 
 def group_form(request, pk):
-    set_details(request.user, GROUP, pk)
+    set_details(request.user, GROUP_DETAILS, pk)
     return HttpResponseRedirect(reverse('todo:task_list'))
 
 def group_toggle(request, pk):
@@ -398,4 +412,21 @@ def group_toggle(request, pk):
     grp.is_open = not grp.is_open
     grp.save()
     return HttpResponseRedirect(reverse('todo:task_list'))
+
+def article_delete(request):
+    param = get_param(request.user)
+    if (param.details_mode == TASK_DETAILS):
+        data = get_object_or_404(Task.objects.filter(user = request.user.id, id = param.details_pk))
+        data.delete()
+        set_details(request.user, NONE, 0)
+    elif (param.details_mode == LIST_DETAILS):
+        if not Task.objects.filter(lst = param.details_pk).exists():
+            data = get_object_or_404(Lst.objects.filter(user = request.user.id, id = param.details_pk))
+            data.delete()
+            set_details(request.user, NONE, 0)
+    elif (param.details_mode == GROUP_DETAILS):
+        if not Grp.objects.filter(node = param.details_pk).exists() and not Lst.objects.filter(grp = param.details_pk).exists():
+            data = get_object_or_404(Grp.objects.filter(user = request.user.id, id = param.details_pk))
+            data.delete()
+            set_details(request.user, NONE, 0)
 

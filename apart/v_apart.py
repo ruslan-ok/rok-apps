@@ -6,7 +6,7 @@ from django.template import loader
 from django.utils.translation import gettext_lazy as _
 
 from hier.models import Folder
-from hier.utils import get_base_context, get_folder_id
+from hier.utils import get_base_context, get_folder_id, process_common_commands
 from .models import Apart, Meter, Price, Bill, deactivate_all, set_active
 from .forms import ApartForm
 from .convert import convert_old_data
@@ -22,6 +22,7 @@ def apart_param(request):
 @login_required(login_url='account:login')
 #----------------------------------
 def apart_list(request):
+    process_common_commands(request)
     data = Apart.objects.filter(user = request.user.id).order_by('name')
     folder_id = get_folder_id(request.user.id)
     context = get_base_context(request, folder_id, 0, _('apartments'), 'content_list')
@@ -80,7 +81,6 @@ def show_page_form(request, pk, title, form):
                 convert_old_data(request.user, data)
             return HttpResponseRedirect(reverse('apart:apart_list'))
     folder_id = get_folder_id(request.user.id)
-    context = get_base_context(request, folder_id, pk, title)
-    context['form'] = form
+    context = get_base_context(request, folder_id, pk, title, form = form)
     template = loader.get_template('apart/apart_form.html')
     return HttpResponse(template.render(context, request))

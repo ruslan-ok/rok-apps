@@ -47,6 +47,8 @@ class Folder(models.Model):
 class Param(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
     folder_id = models.IntegerField(_('folder id'), null = True)
+    aside = models.BooleanField(_('aside visible'), default = False)
+    article = models.BooleanField(_('article visible'), default = False)
 
     class Meta:
         verbose_name = _('user parameters')

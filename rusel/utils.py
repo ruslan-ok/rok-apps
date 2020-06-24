@@ -34,7 +34,7 @@ def convert(request):
 # Build Tree for Notes
 #----------------------------------
 def build_tree_notes(user, root):
-    for view in View.objects.filter(chrono = False):
+    for view in View.objects.filter(user = user, chrono = False):
         f = Folder.objects.create(user = user,
             node = root.id,
             code = view.code.replace('\\', ''),
@@ -61,9 +61,9 @@ def build_tree_notes(user, root):
                 model_name = root.model_name,
                 content_id = 0)
 
-            for note in Note.objects.filter(list = list.id).order_by('code', 'name'):
-                note.user = user
-                note.save()
+            for note in Note.objects.filter(user = user, list = list.id).order_by('code', 'name'):
+                #note.user = user
+                #note.save()
                 Folder.objects.create(user = user,
                     node = l.id,
                     code = note.code.replace('\\', ''),
@@ -80,12 +80,12 @@ def build_tree_notes(user, root):
 # Build Tree for News
 #----------------------------------
 def build_tree_news(user, root):
-    for view in View.objects.filter(chrono = True):
+    for view in View.objects.filter(user = user, chrono = True):
         for flt in Filter.objects.filter(view = view.id, entity = 1).order_by('npp'):
             list = List.objects.filter(id = flt.value).get()
-            for note in Note.objects.filter(list = list.id).order_by('code', 'name'):
-                note.user = user
-                note.save()
+            for note in Note.objects.filter(user = user, list = list.id).order_by('code', 'name'):
+                #note.user = user
+                #note.save()
                 Folder.objects.create(user = user,
                     node = root.id,
                     code = note.code.replace('\\', ''),
@@ -102,7 +102,7 @@ def build_tree_news(user, root):
 # Build Tree for Entries
 #----------------------------------
 def build_tree_entry(user, root):
-    for grp in Group.objects.all():
+    for grp in Group.objects.filter(user = user):
         g = Folder.objects.create(user = user,
             node = root.id,
             code = grp.code.replace('\\', ''),
@@ -115,8 +115,8 @@ def build_tree_entry(user, root):
             model_name = root.model_name,
             content_id = 0)
         for entry in Entry.objects.filter(group = grp.id):
-            entry.user = user
-            entry.save()
+            #entry.user = user
+            #entry.save()
             Folder.objects.create(user = user,
                 node = g.id,
                 code = entry.username.replace('\\', ''),

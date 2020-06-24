@@ -3,12 +3,13 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.template import loader
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator
 
-from hier.utils import get_base_context, get_folder_id
+from hier.utils import get_base_context, get_folder_id, process_common_commands
+from hier.models import Folder
 from .forms import PeriodForm,  DepartForm,  DepHistForm,  PostForm,  EmployeeForm,  FioHistForm,  ChildForm,  AppointForm,  EducationForm,  EmplInfoForm, PayTitleForm,  AccrualForm, PayoutForm
 from .models import Period, Depart, DepHist, Post, Employee, FioHist, Child, Appoint, Education, EmplPer, PayTitle, Payment, Params
 from .tree import deactivate_all, set_active
@@ -16,10 +17,20 @@ from .wage_xml import delete_all, import_all
 
 
 #----------------------------------
+# Index
+#----------------------------------
+@login_required(login_url='account:login')
+#----------------------------------
+def index(request):
+    folder_id = 0
+    if Folder.objects.filter(user = request.user.id, node = 0, model_name = 'wage:node').exists():
+        folder_id = Folder.objects.filter(user = request.user.id, node = 0, model_name = 'wage:node').get().id
+    return HttpResponseRedirect(reverse('hier:folder_list', args = [folder_id]))
+
+#----------------------------------
 # Tree node toggle
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('wage.view_person')
 #----------------------------------
 def tree(request, pk):
     depart = Depart.objects.get(id = pk)
@@ -32,7 +43,6 @@ def tree(request, pk):
 # Delete all data!
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('wage.view_person')
 #----------------------------------
 def clear(request):
     delete_all()
@@ -42,7 +52,6 @@ def clear(request):
 # Import from XML
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('wage.view_person')
 #----------------------------------
 def xml_import(request):
     imp_data  = []
@@ -85,7 +94,6 @@ def depart_form(request, pk):
 
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('wage.view_person')
 #----------------------------------
 def depart_del(request, pk):
     Depart.objects.get(id = pk).delete()
@@ -115,7 +123,6 @@ def dep_hist_form(request, dep, pk):
 
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('wage.view_person')
 #----------------------------------
 def dep_hist_del(request, dep, pk):
     depart = get_object_or_404(Depart.objects.filter(id = dep, user = request.user.id))
@@ -155,7 +162,6 @@ def post_form(request, pk):
 
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('wage.view_person')
 #----------------------------------
 def post_del(request, pk):
     Post.objects.get(id = pk).delete()
@@ -194,7 +200,6 @@ def pay_title_form(request, pk):
 
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('wage.view_person')
 #----------------------------------
 def pay_title_del(request, pk):
     PayTitle.objects.get(id = pk).delete()
@@ -238,7 +243,6 @@ def period_form(request, pk):
 
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('wage.view_person')
 #----------------------------------
 def period_del(request, pk):
     period = get_object_or_404(Period.objects.filter(id = pk, user = request.user.id))
@@ -288,7 +292,6 @@ def empl_form(request, pk):
 
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('wage.view_person')
 #----------------------------------
 def empl_del(request, pk):
     Employee.objects.get(id = pk).delete()
@@ -330,7 +333,6 @@ def appoint_form(request, empl, pk):
 
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('wage.view_person')
 #----------------------------------
 def appoint_del(request, empl, pk):
     Appoint.objects.get(id = pk).delete()
@@ -371,7 +373,6 @@ def education_form(request, empl, pk):
 
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('wage.view_person')
 #----------------------------------
 def education_del(request, empl, pk):
     Education.objects.get(id = pk).delete()
@@ -412,7 +413,6 @@ def fio_hist_form(request, empl, pk):
 
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('wage.view_person')
 #----------------------------------
 def fio_hist_del(request, empl, pk):
     FioHist.objects.get(id = pk).delete()
@@ -453,7 +453,6 @@ def child_form(request, empl, pk):
 
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('wage.view_person')
 #----------------------------------
 def child_del(request, empl, pk):
     Child.objects.get(id = pk).delete()
@@ -536,7 +535,6 @@ def accrual_form(request, empl, pk):
 
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('wage.view_person')
 #----------------------------------
 def accrual_del(request, empl, pk):
     Payment.objects.get(id = pk).delete()
@@ -579,7 +577,6 @@ def payout_form(request, empl, pk):
 
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('wage.view_person')
 #----------------------------------
 def payout_del(request, empl, pk):
     Payment.objects.get(id = pk).delete()
@@ -627,9 +624,9 @@ def get_param(user):
 
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('wage.view_person')
 #----------------------------------
 def list_view(request, employee, title, name, page_obj):
+    process_common_commands(request)
     empl = 0
     if employee:
         empl = employee.id
@@ -643,7 +640,6 @@ def list_view(request, employee, title, name, page_obj):
 
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('wage.view_person')
 #----------------------------------
 def form_view(request, employee, pk, title, name, form, list_filter = ''):
     empl = 0
@@ -686,8 +682,7 @@ def form_view(request, employee, pk, title, name, form, list_filter = ''):
         form.fields['title'].queryset = PayTitle.objects.filter(user = request.user.id).order_by('name')
     
     folder_id = get_folder_id(request.user.id)
-    context = get_base_context(request, folder_id, pk, title)
-    context['form'] = form
+    context = get_base_context(request, folder_id, pk, title, form = form)
     context['employee'] = employee
     template = loader.get_template('wage/' + name + '_form.html')
     return HttpResponse(template.render(context, request))
@@ -696,7 +691,6 @@ def form_view(request, employee, pk, title, name, form, list_filter = ''):
 # Depart Form (дополнительная панель - история DepHist)
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('wage.view_person')
 #----------------------------------
 def depart_form_view(request, pk, title, name, form):
     if (request.method == 'POST'):
@@ -707,8 +701,7 @@ def depart_form_view(request, pk, title, name, form):
             return HttpResponseRedirect(reverse('wage:depart_list'))
     param = get_param(request.user)
     folder_id = get_folder_id(request.user.id)
-    context = get_base_context(request, folder_id, pk, 'Отдел')
-    context['form'] = form
+    context = get_base_context(request, folder_id, pk, 'Отдел', form = form)
     context['empl_id'] = 0
     context['dep_hists'] = DepHist.objects.filter(user = request.user.id, depart = pk).order_by('-dBeg')
     template = loader.get_template('wage/depart_form.html')
@@ -718,7 +711,6 @@ def depart_form_view(request, pk, title, name, form):
 # Depart Subitem Form (DepHist)
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('wage.view_person')
 #----------------------------------
 def dep_info_form_view(request, depart, pk, title, name, form):
     if (request.method == 'POST'):
@@ -731,8 +723,7 @@ def dep_info_form_view(request, depart, pk, title, name, form):
     
     param = get_param(request.user)
     folder_id = get_folder_id(request.user.id)
-    context = get_base_context(request, folder_id, pk, title)
-    context['form'] = form
+    context = get_base_context(request, folder_id, pk, title, form = form)
     context['depart'] = depart
     template = loader.get_template('wage/' + name + '_form.html')
     return HttpResponse(template.render(context, request))

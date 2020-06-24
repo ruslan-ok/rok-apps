@@ -9,7 +9,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 
 from hier.models import Folder
-from hier.utils import get_base_context, check_file_for_content, is_in_trash, put_in_the_trash, get_folder_id
+from hier.utils import get_base_context, check_file_for_content, is_in_trash, put_in_the_trash, get_folder_id, process_common_commands
 
 from .models import Note
 from .forms import NoteForm
@@ -22,6 +22,7 @@ from .utils import get_ready_folder
 @permission_required('note.view_note')
 #----------------------------------
 def note_list(request, folder_id):
+    process_common_commands(request)
     node = get_object_or_404(Folder.objects.filter(id = folder_id, user = request.user.id))
     data = Folder.objects.filter(user = request.user.id, node = folder_id).order_by('code', 'name')
 
@@ -115,6 +116,7 @@ def note_del(request, folder_id, content_id):
 @permission_required('note.view_note')
 #----------------------------------
 def news_list(request, folder_id):
+    process_common_commands(request)
     data = Folder.objects.filter(user = request.user.id, node = folder_id).order_by('-creation')
     if request.method != 'GET':
         page_number = 1
@@ -189,8 +191,7 @@ def show_page_form(request, folder_id, content_id, title, name, form, extra_cont
             form.save()
             redirect_id = check_file_for_content(request.user, folder_id, data.id, data.name, data.code, content_id == 0)
             return HttpResponseRedirect(reverse('hier:folder_list', args = [redirect_id]))
-    context = get_base_context(request, folder_id, content_id, title)
-    context['form'] = form
+    context = get_base_context(request, folder_id, content_id, title, form = form)
     context.update(extra_context)
     template = loader.get_template('note/' + name + '_form.html')
     return HttpResponse(template.render(context, request))

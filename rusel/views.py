@@ -1,14 +1,20 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.decorators import login_required
 
-from hier.utils import get_base_context, save_folder_id
+from hier.utils import get_base_context, save_folder_id, process_common_commands, get_trash
+from hier.models import Param, Folder
 from trip.models import trip_summary
 
 #----------------------------------
 # Index
 #----------------------------------
+@login_required(login_url='account:login')
+#----------------------------------
 def index(request):
+    process_common_commands(request)
     title = ''
     context = get_base_context(request, 0, 0, title, 'content_list')
 
@@ -17,7 +23,7 @@ def index(request):
         title = _('applications')
         hide_title = False
     else:
-        title = context['site_header']
+        title = context['site']
         hide_title = True
 
     context['title'] = title
@@ -29,8 +35,61 @@ def index(request):
 #----------------------------------
 # Feedback
 #----------------------------------
+@login_required(login_url='account:login')
+#----------------------------------
 def feedback(request):
     context = get_base_context(request, 0, 0, _('feedback'))
     template = loader.get_template('feedback.html')
     return HttpResponse(template.render(context, request))
+
+
+#----------------------------------
+# Notes
+#----------------------------------
+@login_required(login_url='account:login')
+#----------------------------------
+def note(request):
+    folder_id = 0
+    top_folders = Folder.objects.filter(user = request.user.id, node = 0, model_name = '')
+    for f in top_folders:
+        if Folder.objects.filter(user = request.user.id, node = f.id, model_name = 'note:note_list').exists():
+            folder_id = Folder.objects.filter(user = request.user.id, node = f.id, model_name = 'note:note_list').get().id
+            break
+    return HttpResponseRedirect(reverse('hier:folder_list', args = [folder_id]))
+
+#----------------------------------
+# News
+#----------------------------------
+@login_required(login_url='account:login')
+#----------------------------------
+def news(request):
+    folder_id = 0
+    top_folders = Folder.objects.filter(user = request.user.id, node = 0, model_name = '')
+    for f in top_folders:
+        if Folder.objects.filter(user = request.user.id, node = f.id, model_name = 'note:news_list').exists():
+            folder_id = Folder.objects.filter(user = request.user.id, node = f.id, model_name = 'note:news_list').get().id
+            break
+    return HttpResponseRedirect(reverse('hier:folder_list', args = [folder_id]))
+
+#----------------------------------
+# Store
+#----------------------------------
+@login_required(login_url='account:login')
+#----------------------------------
+def store(request):
+    folder_id = 0
+    top_folders = Folder.objects.filter(user = request.user.id, node = 0, model_name = '')
+    for f in top_folders:
+        if Folder.objects.filter(user = request.user.id, node = f.id, model_name = 'store:entry').exists():
+            folder_id = Folder.objects.filter(user = request.user.id, node = f.id, model_name = 'store:entry').get().id
+            break
+    return HttpResponseRedirect(reverse('hier:folder_list', args = [folder_id]))
+
+#----------------------------------
+# Trash
+#----------------------------------
+@login_required(login_url='account:login')
+#----------------------------------
+def trash(request):
+    return HttpResponseRedirect(reverse('hier:folder_list', args = [get_trash(request.user).id]))
 

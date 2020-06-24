@@ -26,8 +26,7 @@ def do_pers(request, pk):
             return HttpResponseRedirect(reverse('trip:pers_list'))
 
     folder_id = get_folder_id(request.user.id)
-    context = get_base_context(request, folder_id, pk, _('person'))
-    context['form'] = form
+    context = get_base_context(request, folder_id, pk, _('person'), form = form)
     context['pers_id'] = pk
     context['me'] = get_me_code(request.user)
     return render(request, 'trip/person_form.html', context)

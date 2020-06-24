@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from hier.utils import get_base_context, get_folder_id
+from hier.utils import get_base_context, get_folder_id, set_article_visible
 from .models import Person, Saldo, Trip
 from .forms import TripForm
 
@@ -85,6 +85,10 @@ def do_trip(request, pk):
                                        'day_27': get_day(0, 2, 7),
                                        'text':      '' })
     else:
+        if 'article_close' in request.POST:
+            set_article_visible(request.user, False)
+            return HttpResponseRedirect(reverse('trip:trip_list'))
+
         s = 0
         if (pk != 0):
             t = get_object_or_404(Trip, pk = pk)
@@ -117,11 +121,10 @@ def do_trip(request, pk):
             trip.modif = datetime.now()
             trip.save()
             saldo_update(request.user, trip.driver, trip.passenger, trip.oper, trip.summa())
-            return HttpResponseRedirect(reverse('trip:index'))
+            return HttpResponseRedirect(reverse('trip:trip_list'))
 
     folder_id = get_folder_id(request.user.id)
-    context = get_base_context(request, folder_id, pk, _('trip'))
-    context['form'] = form
+    context = get_base_context(request, folder_id, pk, _('trip'), form = form)
     context['trip_id'] = pk
     context['today'] = datetime.today().weekday()
     return render(request, 'trip/trip_form.html', context)

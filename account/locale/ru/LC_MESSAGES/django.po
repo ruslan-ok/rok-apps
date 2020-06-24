@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-28 12:28+0300\n"
+"POT-Creation-Date: 2020-06-25 01:34+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,7 +29,7 @@ msgstr "Имя пользователя"
 
 #: .\account\forms.py:37
 msgid "Enter email"
-msgstr "Адрес электронной почты"
+msgstr "Почта"
 
 #: .\account\forms.py:38
 msgid "Enter password"
@@ -53,7 +53,7 @@ msgstr "Пароли не совпадают"
 
 #: .\account\forms.py:75
 msgid "Email"
-msgstr "Адрес электронной почты"
+msgstr "Почта"
 
 #: .\account\forms.py:157
 msgid "The two password fields didn’t match."
@@ -98,21 +98,21 @@ msgstr ""
 "этого пользователя, но вы можете изменить пароль, воспользовавшись<a href="
 "\"{}\">этой формой</a>."
 
+#: .\account\forms.py:247 .\account\models.py:13
+msgid "email validated"
+msgstr "email-адрес проверен"
+
+#: .\account\forms.py:249 .\account\models.py:11
+msgid "phone"
+msgstr "телефон"
+
 #: .\account\models.py:8
 msgid "user"
 msgstr "пользователь"
 
-#: .\account\models.py:11
-msgid "phone"
-msgstr "телефон"
-
 #: .\account\models.py:12
 msgid "activation key"
 msgstr "ключ активации"
-
-#: .\account\models.py:13
-msgid "email validated"
-msgstr "адрес электронной почты проверен"
 
 #: .\account\models.py:16
 msgid "user extension"
@@ -130,19 +130,19 @@ msgstr "Учетная запись активирована! Пожалуйст
 msgid "login"
 msgstr "вход"
 
-#: .\account\templates\account\login.html:21
+#: .\account\templates\account\login.html:8
 #: .\account\templates\account\password_change_form.html:11
 #: .\account\templates\account\profile.html:10
 msgid "Please correct the error below."
 msgstr "Пожалуйста, исправьте ошибку ниже."
 
-#: .\account\templates\account\login.html:21
+#: .\account\templates\account\login.html:8
 #: .\account\templates\account\password_change_form.html:11
 #: .\account\templates\account\profile.html:10
 msgid "Please correct the errors below."
 msgstr "Пожалуйста, исправьте ошибки ниже."
 
-#: .\account\templates\account\login.html:37
+#: .\account\templates\account\login.html:24
 #, python-format
 msgid ""
 "You are authenticated as %(username)s, but are not authorized to access this "
@@ -152,17 +152,17 @@ msgstr ""
 "просмотра данной страницы. Возможно, вы хотели бы войти в систему, используя "
 "другую учётную запись?"
 
-#: .\account\templates\account\login.html:60
+#: .\account\templates\account\login.html:49
 msgid "Forgotten your password or username?"
 msgstr "Забыли свой пароль или имя пользователя?"
 
-#: .\account\templates\account\login.html:67
-#: .\account\templates\account\register.html:42 .\account\views.py:185
-#: .\account\views.py:209
+#: .\account\templates\account\login.html:56
+#: .\account\templates\account\register.html:46 .\account\views.py:176
+#: .\account\views.py:200
 msgid "Register"
 msgstr "Регистрация"
 
-#: .\account\templates\account\login.html:72
+#: .\account\templates\account\login.html:61
 msgid "Login"
 msgstr "Войти"
 
@@ -188,8 +188,8 @@ msgstr ""
 "Пожалуйста, для безопасности введите свой старый пароль, а затем дважды "
 "введите новый пароль, чтобы мы могли проверить, правильно ли вы его ввели."
 
-#: .\account\templates\account\password_change_form.html:43
-#: .\account\templates\account\password_reset_confirm.html:21
+#: .\account\templates\account\password_change_form.html:49
+#: .\account\templates\account\password_reset_confirm.html:25
 msgid "Change my password"
 msgstr "Изменить мой пароль"
 
@@ -198,7 +198,7 @@ msgid "Your password has been set. You may go ahead and log in now:"
 msgstr "Ваш пароль сохранен. Теперь вы можете войти:"
 
 #: .\account\templates\account\password_reset_complete.html:4
-#: .\account\views.py:104
+#: .\account\views.py:63
 msgid "Log in"
 msgstr "Вход"
 
@@ -210,15 +210,15 @@ msgstr ""
 "Пожалуйста, введите новый пароль дважды, чтобы мы могли убедиться в "
 "правильности написания."
 
-#: .\account\templates\account\password_reset_confirm.html:13
+#: .\account\templates\account\password_reset_confirm.html:14
 msgid "New password:"
 msgstr "Новый пароль:"
 
-#: .\account\templates\account\password_reset_confirm.html:18
+#: .\account\templates\account\password_reset_confirm.html:21
 msgid "Confirm password:"
 msgstr "Подтверждение пароля:"
 
-#: .\account\templates\account\password_reset_confirm.html:27
+#: .\account\templates\account\password_reset_confirm.html:31
 msgid ""
 "The password reset link was invalid, possibly because it has already been "
 "used. Please request a new password reset."
@@ -280,9 +280,9 @@ msgstr ""
 
 #: .\account\templates\account\password_reset_form.html:12
 msgid "Email address:"
-msgstr "Адрес электронной почты:"
+msgstr "Почта:"
 
-#: .\account\templates\account\password_reset_form.html:15
+#: .\account\templates\account\password_reset_form.html:18
 msgid "Reset my password"
 msgstr "Сбросить мой пароль"
 
@@ -291,7 +291,7 @@ msgstr "Сбросить мой пароль"
 msgid "Password reset on %(site_name)s"
 msgstr "Сброс пароля на %(site_name)s"
 
-#: .\account\templates\account\profile.html:95
+#: .\account\templates\account\profile.html:103
 msgid "Save"
 msgstr "Сохранить"
 
@@ -299,19 +299,19 @@ msgstr "Сохранить"
 msgid "Edit profile"
 msgstr "Редактирование профиля"
 
-#: .\account\views.py:171
+#: .\account\views.py:123
 msgid "Logged out"
 msgstr "Выход выполнен"
 
-#: .\account\views.py:193
+#: .\account\views.py:184
 msgid "Account Verification"
 msgstr "Проверка учетной записи"
 
-#: .\account\views.py:195
+#: .\account\views.py:186
 msgid "Please visit the following link to verify your account"
 msgstr "Перейдите по следующей ссылке для активации учетной записи"
 
-#: .\account\views.py:204
+#: .\account\views.py:195
 msgid ""
 "Account created. Click on the link sent to your email to activate the "
 "account."
@@ -319,54 +319,54 @@ msgstr ""
 "Учетная запись создана. Перейди по ссылке в отправленном письме для её "
 "активации."
 
-#: .\account\views.py:208
+#: .\account\views.py:199
 msgid "Unable to send email verification. Please try again."
 msgstr "Не удалось отправить письмо. Попробуйте ещё раз."
 
-#: .\account\views.py:256
+#: .\account\views.py:235
 msgid "Account activated"
 msgstr "Учетная запись активирована"
 
-#: .\account\views.py:283
+#: .\account\views.py:259
 msgid "Password reset"
 msgstr "Восстановление пароля"
 
-#: .\account\views.py:310
+#: .\account\views.py:286
 msgid "Password reset sent"
 msgstr "Письмо отправлено"
 
-#: .\account\views.py:320
+#: .\account\views.py:296
 msgid "Enter new password"
 msgstr "Новый пароль"
 
-#: .\account\views.py:380
+#: .\account\views.py:356
 msgid "Password reset unsuccessful"
 msgstr "Сброс пароля неуспешен"
 
-#: .\account\views.py:388
+#: .\account\views.py:364
 msgid "Password reset complete"
 msgstr "Установка пароля завершена"
 
-#: .\account\views.py:400
+#: .\account\views.py:376
 msgid "Password change"
 msgstr "Изменение пароля"
 
-#: .\account\views.py:423
+#: .\account\views.py:399
 msgid "Password change successful"
 msgstr "Пароль успешно изменен"
 
-#: .\account\views.py:442
+#: .\account\views.py:413
 msgid "Profile service"
 msgstr "Действия с профилем"
 
-#: .\account\views.py:467
+#: .\account\views.py:432
 msgid "Profile"
 msgstr "Профиль"
 
-#: .\account\views.py:469
+#: .\account\views.py:433
 msgid "Personal info"
 msgstr "Персональная информация"
 
-#: .\account\views.py:470
+#: .\account\views.py:434
 msgid "Important dates"
 msgstr "Важные даты"

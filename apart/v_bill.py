@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from django.core.paginator import Paginator
 
 from hier.models import Folder
-from hier.utils import get_base_context, get_folder_id
+from hier.utils import get_base_context, get_folder_id, process_common_commands
 from .utils import next_period
 from .models import Apart, Meter, Bill, get_price_info, count_by_tarif, ELECTRICITY, GAS, WATER
 from .forms import BillForm
@@ -19,6 +19,7 @@ from .forms import BillForm
 @login_required(login_url='account:login')
 #----------------------------------
 def bill_list(request):
+    process_common_commands(request)
     if not Apart.objects.filter(user = request.user.id, active = True).exists():
         return HttpResponseRedirect(reverse('apart:apart_list'))
     apart = get_object_or_404(Apart.objects.filter(user = request.user.id, active = True))
@@ -103,9 +104,8 @@ def show_page_form(request, pk, title, form, apart, prev, curr):
             return HttpResponseRedirect(reverse('apart:bill_list'))
 
     folder_id = get_folder_id(request.user.id)
-    context = get_base_context(request, folder_id, pk, title)
+    context = get_base_context(request, folder_id, pk, title, form = form)
     context['period_num'] = form.instance.period.year * 100 + form.instance.period.month
-    context['form'] = form
     context['apart'] = apart
     context['prev'] = prev
     context['curr'] = curr

@@ -2,6 +2,34 @@
 {% load i18n %}
 
 {% block content %}
+    <div class="w3-bar w3-theme-l1 w3-left-align rok-header-a">
+      {% block hamb %}{% endblock %}
+      {% for btn in buttons %}
+        {% if btn.icon == 'search' %}  <!-- Поля формы поиска -->
+        {% elif btn.icon == 'share-square' %}  <!-- Кнопка со списком для перемещения -->
+          <div class="w3-dropdown-click">
+            <button onclick="ShowMenu('move')" class="w3-button"><i class="fa fa-share-square"></i></button>
+            <div id="move" class="w3-dropdown-content w3-bar-block w3-card-4">
+              {% for move in moves %}
+                  <a class="w3-bar-item w3-button w3-hover-dark" href="{{ move.href }}">
+                    {% if move.icon %}<i class="fas fa-{{ move.icon }}" {% if move.color %}style="color: {{ move.color }};"{% endif %}></i> {% endif %}{{ move.name }}</a>
+              {% endfor %}
+            </div>
+          </div>    
+        {% else %}
+          {% if btn.href %}  <!-- Кнопка -->
+            <a class="w3-bar-item w3-button {{ btn.class }}" href="{{ btn.href }}" {% if btn.color %}style="color: {{ btn.color }};"{% endif %}>
+              {% if btn.icon %}<i class="fas fa-{{ btn.icon }} fa-lg"></i>{% endif %}{{ btn.text }}
+            </a>
+          {% else %}  <!-- Текстовая метка -->
+            <span class="w3-bar-item {{ btn.class }}" {% if btn.color %}style="color: {{ btn.color }};"{% endif %}>
+              {% if btn.icon %}<i class="fas fa-{{ btn.icon }} fa-lg"></i>{% endif %}{{ btn.text }}
+            </span>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+
+    </div>
     {% block contenttitle %}{{ block.super }}{% endblock %}
     <div class="w3-container" style="min-height:450px">
       {% block win_content %}{% endblock %}
@@ -28,7 +56,7 @@
       {% endif %}
 
       <p>
-      {% if site_header == 'localhost:8000' %}
+      {% if site == 'localhost:8000' %}
         <div class="w3-card-4 w3-border" style="width:500px">
           <table class="w3-table-all" style="width:500px">
             <thead>

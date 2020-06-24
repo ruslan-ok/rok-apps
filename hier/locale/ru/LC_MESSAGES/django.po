@@ -3,11 +3,12 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-25 01:34+0300\n"
+"POT-Creation-Date: 2020-06-25 00:24+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +19,6 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
-
 #: .\hier\models.py:7 .\hier\models.py:48
 msgid "user"
 msgstr "пользователь"
@@ -61,7 +61,7 @@ msgstr "идентификатор приложения"
 
 #: .\hier\models.py:18
 msgid "enable folders in items list"
-msgstr "в списке допустимы папки"
+msgstr "в списке значений могут быть папки"
 
 #: .\hier\models.py:19 .\hier\templates\hier\folder_list.html:14
 msgid "content id"
@@ -101,11 +101,11 @@ msgstr "параметры пользователей"
 
 #: .\hier\templates\hier\folder_form.html:10 .\hier\utils.py:273
 msgid "Please correct the error below."
-msgstr "Пожалуйста исправьте запись ниже."
+msgstr "Пожалуйста исправьте ошибку ниже."
 
 #: .\hier\templates\hier\folder_form.html:10 .\hier\utils.py:274
 msgid "Please correct the errors below."
-msgstr "Пожалуйста исправьте записи ниже."
+msgstr "Пожалуйста исправьте ошибки ниже."
 
 #: .\hier\templates\hier\folder_form.html:36
 msgid "add"
@@ -113,11 +113,11 @@ msgstr "добавить"
 
 #: .\hier\templates\hier\folder_form.html:38
 msgid "save"
-msgstr "сохранить"
+msgstr "дохранить"
 
 #: .\hier\utils.py:31
 msgid "Log in"
-msgstr "Войти"
+msgstr "Вход"
 
 #: .\hier\utils.py:40
 msgid "trash"
@@ -126,60 +126,3 @@ msgstr "корзина"
 #: .\hier\views.py:130
 msgid "create a new folder"
 msgstr "создание новой папки"
-
-#: .\rusel\templates\base_list.html:85 .\rusel\templates\base_window.html:65
-#: .\rusel\views.py:41
-msgid "feedback"
-msgstr "контакты"
-
-#: .\rusel\templates\base_sidebar.html:32
-msgid "application launcher"
-msgstr "средство запуска приложений"
-
-#: .\rusel\templates\base_sidebar.html:34
-msgid "open sidebar"
-msgstr "открыть боковую панель"
-
-#: .\rusel\templates\base_sidebar.html:43
-msgid "parameters"
-msgstr "параметры"
-
-#: .\rusel\templates\base_sidebar.html:44
-msgid "user profile"
-msgstr "профиль пользователя"
-
-#: .\rusel\templates\base_sidebar.html:54
-msgid "close sidebar"
-msgstr "закрыть боковую панель"
-
-#: .\rusel\templates\base_sidebar.html:91
-msgid "close details"
-msgstr "закрыть карточку записи"
-
-#: .\rusel\templates\base_sidebar.html:93
-msgid "delete record"
-msgstr "удалить запись"
-
-#: .\rusel\templates\index.html:10
-msgid ""
-"It looks like you got here by accident, because it is a personal, not a "
-"public site."
-msgstr ""
-"Похоже вы попали сюда случайно, потому что это персональный, а не публичный "
-"сайт."
-
-#: .\rusel\templates\index.html:11
-msgid ""
-"This site does not provide any useful services, so you have a small choice - "
-"either close the page or"
-msgstr ""
-"На этом сайте нет никаких полезных сервисов, поэтому у вас небольшой выбор - "
-"закрыть эту страницу или"
-
-#: .\rusel\templates\index.html:12
-msgid "find something more interesting"
-msgstr "найти что-нибудь более интересное"
-
-#: .\rusel\views.py:23
-msgid "applications"
-msgstr "приложения"

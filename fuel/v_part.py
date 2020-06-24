@@ -6,7 +6,7 @@ from django.template import loader
 from django.utils.translation import gettext_lazy as _
 from django.core.paginator import Paginator
 
-from hier.utils import get_base_context, get_folder_id
+from hier.utils import get_base_context, get_folder_id, process_common_commands
 from .models import Car, Part
 from .forms import PartForm
 
@@ -15,6 +15,7 @@ from .forms import PartForm
 @login_required(login_url='account:login')
 #----------------------------------
 def part_list(request):
+    process_common_commands(request)
     if not Car.objects.filter(user = request.user.id, active = True).exists():
         return HttpResponseRedirect(reverse('fuel:cars_list'))
 
@@ -76,7 +77,6 @@ def show_page_form(request, pk, title, form):
             form.save()
             return HttpResponseRedirect(reverse('fuel:part_list'))
     folder_id = get_folder_id(request.user.id)
-    context = get_base_context(request, folder_id, pk, title)
-    context['form'] = form
+    context = get_base_context(request, folder_id, pk, title, form = form)
     template = loader.get_template('fuel/part_form.html')
     return HttpResponse(template.render(context, request))

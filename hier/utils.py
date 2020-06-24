@@ -2,6 +2,7 @@ from datetime import datetime
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.contrib.sites.shortcuts import get_current_site
+from django.contrib.auth.models import AnonymousUser
 
 from note.utils import get_ready_folder
 from .models import Folder, Param
@@ -215,16 +216,28 @@ def get_moves(user, mode, folder_id, tree, folder):
     return moves
 
 #----------------------------------
+def get_param(user):
+    if not user.is_authenticated:
+        return None
+    if Param.objects.filter(user = user.id).exists():
+        return Param.objects.filter(user = user.id).get()
+    return Param.objects.create(user = user, folder_id = 0, aside = False, article = False)
+
+#----------------------------------
 # Контекст для любой страницы
 #----------------------------------
-def get_base_context(request, folder_id, pk, title = '', mode = 'content_form'):
+def get_base_context(request, folder_id, pk, title = '', mode = 'content_form', form = None, make_tree = True):
     context = {}
     if (pk == 0) and (mode == 'content_form'):
         mode = 'content_add'
     context['mode'] = mode
     folder = None
     if request:
-        context['site_header'] = get_current_site(request).name
+        context['site'] = get_current_site(request).name
+        param = get_param(request.user)
+        if param:
+            context['aside_visible'] = (not param.article) and param.aside
+            context['article_visible'] = param.article
 
         if (folder_id != 0):
             folder = Folder.objects.filter(user = request.user.id, id = folder_id).get()
@@ -233,7 +246,10 @@ def get_base_context(request, folder_id, pk, title = '', mode = 'content_form'):
             if Folder.objects.filter(user = request.user.id, content_id = pk).exists():
                 folder = Folder.objects.filter(user = request.user.id, content_id = pk)[0]
 
-        tree = build_tree(request.user.id, 0)
+        if make_tree:
+            tree = build_tree(request.user.id, 0)
+        else:
+            tree = []
         context['tree'] = tree
 
         context['buttons'] = get_buttons(request.user, folder_id, mode, folder)
@@ -242,10 +258,21 @@ def get_base_context(request, folder_id, pk, title = '', mode = 'content_form'):
     if folder and not title:
         title = folder.name
 
+    if folder:
+        context['page_id'] = folder.id
+    else:
+        context['page_id'] = 0
+
     context['title'] = title
     context['folder'] = folder
     context['content_id'] = pk
     context['pk'] = pk
+
+    if form:
+        context['form'] = form
+        context['please_correct_one'] = _('Please correct the error below.')
+        context['please_correct_all'] = _('Please correct the errors below.')
+
     return context
 
 #----------------------------------
@@ -293,8 +320,33 @@ def get_folder_id(user_id):
     else:
         return 0
 
+#----------------------------------
+def set_article_visible(user, visible):
+    param = get_param(user)
+    param.article = visible
+    param.save()
 
+#----------------------------------
+def set_aside_visible(user, visible):
+    param = get_param(user)
+    param.aside = visible
+    param.save()
 
+def process_common_commands(request):
+    if (request.method == 'POST'):
+        if 'aside_open' in request.POST:
+            set_aside_visible(request.user, True)
+            return True
+        if 'aside_close' in request.POST:
+            set_aside_visible(request.user, False)
+            return True
+        if 'article_open' in request.POST:
+            set_article_visible(request.user, True)
+            return True
+        if 'article_close' in request.POST:
+            set_article_visible(request.user, False)
+            return True
+    return False
 
 
 

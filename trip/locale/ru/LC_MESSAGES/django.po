@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-05 17:18+0300\n"
+"POT-Creation-Date: 2020-06-25 01:34+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,15 +19,12 @@ msgstr ""
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: .\trip\apps.py:7 .\trip\models.py:48
-#: .\trip\templates\trip\person_form.html:5
-#: .\trip\templates\trip\person_list.html:5
-#: .\trip\templates\trip\trip_form.html:5 .\trip\views.py:30
+#: .\trip\apps.py:7 .\trip\models.py:48 .\trip\views.py:50 .\trip\views.py:120
 msgid "trips"
 msgstr "поездки"
 
 #: .\trip\forms.py:15 .\trip\models.py:25 .\trip\models.py:52
-#: .\trip\templates\trip\trip_list.html:25
+#: .\trip\templates\trip\trip_list.html:19
 msgid "summa"
 msgstr "сумма"
 
@@ -35,16 +32,16 @@ msgstr "сумма"
 msgid "user"
 msgstr "пользователь"
 
-#: .\trip\models.py:9 .\trip\templates\trip\person_list.html:13
+#: .\trip\models.py:9 .\trip\templates\trip\person_list.html:8
 msgid "name"
 msgstr "имя"
 
-#: .\trip\models.py:10 .\trip\templates\trip\person_list.html:14
+#: .\trip\models.py:10 .\trip\templates\trip\person_list.html:9
 msgid "dative"
 msgstr "в дательном падеже"
 
 #: .\trip\models.py:11 .\trip\models.py:24
-#: .\trip\templates\trip\person_list.html:15
+#: .\trip\templates\trip\person_list.html:10
 msgid "me"
 msgstr "я"
 
@@ -52,8 +49,7 @@ msgstr "я"
 msgid "person"
 msgstr "человек"
 
-#: .\trip\models.py:15 .\trip\templates\trip\person_form.html:6
-#: .\trip\templates\trip\trip_list.html:6 .\trip\views.py:85
+#: .\trip\models.py:15
 msgid "persons"
 msgstr "люди"
 
@@ -73,34 +69,34 @@ msgstr "сальдо"
 msgid "saldos"
 msgstr "сальдо"
 
-#: .\trip\models.py:36 .\trip\templates\trip\trip_list.html:18
+#: .\trip\models.py:36 .\trip\templates\trip\trip_list.html:12
 msgid "year"
 msgstr "год"
 
 #: .\trip\models.py:37 .\trip\models.py:51
-#: .\trip\templates\trip\trip_list.html:19
+#: .\trip\templates\trip\trip_list.html:13
 msgid "week"
 msgstr "неделя"
 
-#: .\trip\models.py:38 .\trip\templates\trip\trip_list.html:21
+#: .\trip\models.py:38 .\trip\templates\trip\trip_list.html:15
 msgid "days"
 msgstr "дни"
 
-#: .\trip\models.py:39 .\trip\templates\trip\trip_list.html:20
+#: .\trip\models.py:39 .\trip\templates\trip\trip_list.html:14
 msgid "operation"
 msgstr "операция"
 
-#: .\trip\models.py:40 .\trip\templates\trip\trip_list.html:24
+#: .\trip\models.py:40 .\trip\templates\trip\trip_list.html:18
 msgid "price"
 msgstr "цена"
 
 #: .\trip\models.py:41 .\trip\models.py:52
-#: .\trip\templates\trip\trip_list.html:22
+#: .\trip\templates\trip\trip_list.html:16
 msgid "driver"
 msgstr "водитель"
 
 #: .\trip\models.py:42 .\trip\models.py:52
-#: .\trip\templates\trip\trip_list.html:23
+#: .\trip\templates\trip\trip_list.html:17
 msgid "passenger"
 msgstr "пассажир"
 
@@ -112,7 +108,7 @@ msgstr "дополнительная информация"
 msgid "last modification"
 msgstr "время последнего изменения"
 
-#: .\trip\models.py:47 .\trip\v_trip.py:123
+#: .\trip\models.py:47 .\trip\v_trip.py:127
 msgid "trip"
 msgstr "поездка"
 
@@ -124,38 +120,32 @@ msgstr "проезд"
 msgid "payment"
 msgstr "оплата"
 
-#: .\trip\templates\trip\person_form.html:8
-#: .\trip\templates\trip\trip_form.html:7
-msgid "delete"
-msgstr "удалить"
-
-#: .\trip\templates\trip\person_form.html:19
-#: .\trip\templates\trip\trip_form.html:17
+#: .\trip\templates\trip\person_form.html:10
+#: .\trip\templates\trip\trip_form.html:10
 msgid "Please correct the error below."
 msgstr "Пожалуйста, исправьте ошибку ниже."
 
-#: .\trip\templates\trip\person_form.html:19
-#: .\trip\templates\trip\trip_form.html:17
+#: .\trip\templates\trip\person_form.html:10
+#: .\trip\templates\trip\trip_form.html:10
 msgid "Please correct the errors below."
 msgstr "Пожалуйста, исправьте ошибки ниже."
 
-#: .\trip\templates\trip\person_form.html:63
-#: .\trip\templates\trip\person_list.html:6
-#: .\trip\templates\trip\trip_form.html:146
-#: .\trip\templates\trip\trip_list.html:5
+#: .\trip\templates\trip\person_form.html:48
+#: .\trip\templates\trip\trip_form.html:143
 msgid "add"
 msgstr "добавить"
 
-#: .\trip\templates\trip\person_form.html:65
-#: .\trip\templates\trip\trip_form.html:148
+#: .\trip\templates\trip\person_form.html:50
+#: .\trip\templates\trip\trip_form.html:145
 msgid "save"
 msgstr "сохранить"
 
-#: .\trip\templates\trip\trip_list.html:7
-msgid "recount"
-msgstr "пересчитать"
-
-#: .\trip\templates\trip\trip_list.html:26
+#: .\trip\templates\trip\trip_list.html:20
 msgid "comment"
 msgstr "комментарий"
 
+#~ msgid "delete"
+#~ msgstr "удалить"
+
+#~ msgid "recount"
+#~ msgstr "пересчитать"

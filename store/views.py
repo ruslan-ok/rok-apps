@@ -10,7 +10,7 @@ from django.utils.crypto import get_random_string
 from django.core.paginator import Paginator
 
 from hier.models import Folder
-from hier.utils import get_base_context, check_file_for_content
+from hier.utils import get_base_context, check_file_for_content, process_common_commands
 from .models import Entry, Params
 from .forms import EntryForm, ParamsForm
 from .imp_xml import delete_all, import_all
@@ -22,6 +22,7 @@ from .imp_xml import delete_all, import_all
 @permission_required('store.view_entry')
 #----------------------------------
 def entry_list(request, folder_id):
+    process_common_commands(request)
     if Folder.objects.filter(user = request.user.id, node = folder_id, content_id = 0).exists():
         return HttpResponseRedirect(reverse('hier:folder_dir', args = [folder_id]))
 
@@ -90,6 +91,7 @@ def entry_add(request, folder_id):
 
 #----------------------------------
 def entry_form(request, folder_id, content_id):
+    process_common_commands(request)
     if not Entry.objects.filter(id = content_id, user = request.user.id).exists():
         data_file = get_object_or_404(Folder.objects.filter(id = folder_id, user = request.user.id))
         if (data_file.model_name == 'store:entry'):
@@ -160,8 +162,7 @@ def show_page_form(request, folder_id, content_id, title, name, form, extra_cont
                 return HttpResponseRedirect(reverse('store:entry_list', args = [redirect_id]) + list_filter)
             else:
                 return HttpResponseRedirect(reverse('store:' + name + '_list', args = [redirect_id]))
-    context = get_base_context(request, folder_id, content_id, title)
-    context['form'] = form
+    context = get_base_context(request, folder_id, content_id, title, form = form)
     context.update(extra_context)
     template = loader.get_template('store/' + name + '_form.html')
     return HttpResponse(template.render(context, request))

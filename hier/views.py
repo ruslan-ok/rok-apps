@@ -12,7 +12,7 @@ from django.utils.translation import gettext_lazy as _
 
 from .models import Folder
 from .forms import FolderForm
-from .utils import rmtree, get_base_context, save_folder_id, is_in_trash, put_in_the_trash
+from .utils import rmtree, get_base_context, save_folder_id, is_in_trash, put_in_the_trash, process_common_commands
 
 errors = []
 
@@ -33,7 +33,8 @@ def toggle(request, folder_id):
 
 #----------------------------------
 def not_hier_app(folder):
-    if (folder.model_name[:6] == 'apart:') or (folder.model_name[:5] == 'fuel:') or (folder.model_name[:5] == 'proj:') or (folder.model_name[:5] == 'trip:') or (folder.model_name[:5] == 'wage:'):
+    if (folder.model_name[:6] == 'apart:') or (folder.model_name[:5] == 'fuel:') or (folder.model_name[:5] == 'proj:') or \
+       (folder.model_name[:5] == 'trip:') or (folder.model_name[:5] == 'wage:') or (folder.model_name[:5] == 'todo:'):
         return True
     return False
 
@@ -45,6 +46,7 @@ def hier_app(folder):
 # Folders List
 #----------------------------------
 def _folder_list(request, folder_id, show_content, query = None):
+    process_common_commands(request)
     data = Folder.objects.filter(user = request.user.id, node = folder_id).order_by('code', 'name')
     save_folder_id(request.user, folder_id)
 
@@ -64,7 +66,7 @@ def _folder_list(request, folder_id, show_content, query = None):
                 if query:
                     query_tail = '?q=' + query
                     
-                url = reverse(folder.model_name + '_list', args = args) + query_tail
+                url = reverse(folder.model_name, args = args) + query_tail
 
                 return HttpResponseRedirect(url)
             except NoReverseMatch:
@@ -205,8 +207,7 @@ def show_page_form(request, node_id, folder_id, title, name, form, extra_context
             form.save()
             folder_id = data.id
             return HttpResponseRedirect(reverse('hier:' + name + '_list', args = [folder_id]))
-    context = get_base_context(request, folder_id, 0, title, 'folder')
-    context['form'] = form
+    context = get_base_context(request, folder_id, 0, title, 'folder', form = form)
     context['pk'] = folder_id
     context.update(extra_context)
     template = loader.get_template('hier/' + name + '_form.html')
