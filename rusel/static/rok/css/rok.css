@@ -298,7 +298,7 @@ article .header {
 
 p.errornote, div.field-error {
   color: red;
-  font-size: 1.5rem;
+  font-size: 1rem;
   margin: 0px 15px;
 }
 
@@ -314,10 +314,6 @@ article .section {
   position: relative;
   background: white;
   margin: 10px 0;
-  margin-top: 10px;
-  margin-right: 0px;
-  margin-bottom: 10px;
-  margin-left: 0px;
   border: 1px solid #eaeaea;
   border-radius: 2px;
   display: flex;
@@ -325,17 +321,20 @@ article .section {
 }
 
 article .section-item {
-  min-height: 52px;
   padding: 0 10px;
   position: relative;
-  display: flex;
-  align-items: center;
-  box-shadow: 24px 25px 0 -24px rgba(0,0,0,0.08);
 }
 
 article .section-item .section-inner-click {
   height: auto;
   min-height: 52px;
+}
+
+article .section-item .section-52 {
+  height: auto;
+  min-height: 52px;
+  display: flex;
+  flex: auto;
 }
 
 article .section-item .section-inner {
@@ -404,6 +403,13 @@ article .section-item .section-content {
 
 .editable-content {
   overflow: visible;
+}
+
+.clickable-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-decoration: none;
 }
 
 .editable-content input[type="text"] {
