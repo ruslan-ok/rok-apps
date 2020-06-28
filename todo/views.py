@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, date, timedelta
 
 from django.urls import reverse
@@ -8,11 +9,11 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
-from hier.utils import get_base_context, process_common_commands, set_article_visible
-from .models import Grp, Lst, Task, Param, Step
+from hier.utils import get_base_context, process_common_commands, set_aside_visible, set_article_visible
+from .models import Grp, Lst, Task, Param, Step, TaskFiles
 from .utils import TERM_NAME, ALL, get_task_status
 from .tree import build_tree
-from .forms import GrpForm, LstForm, TaskForm, StepForm
+from .forms import GrpForm, LstForm, TaskForm, TaskLstForm, TaskInfoForm, StepForm, TaskFilesForm
 
 # Modes
 ALL = 0
@@ -98,6 +99,38 @@ def get_sort_mode(user, mode):
         return param.list_sort_mode, param.list_sort_dir
     return NONE, False
 
+def set_sort_mode(user, sort_mode):
+    param = get_param(user)
+    if (param.cur_view == ALL):
+        param.all_sort_mode = sort_mode
+    if (param.cur_view == MY_DAY):
+        param.myday_sort_mode = sort_mode
+    if (param.cur_view == IMPORTANT):
+        param.important_sort_mode = sort_mode
+    if (param.cur_view == PLANNED):
+        param.planned_sort_mode = sort_mode
+    if (param.cur_view == COMPLETED):
+        param.completed_sort_mode = sort_mode
+    if (param.cur_view == LIST_MODE):
+        param.list_sort_mode = sort_mode
+    param.save()
+
+def toggle_sort_dir(user):
+    param = get_param(user)
+    if (param.cur_view == ALL):
+        param.all_sort_dir = not param.all_sort_dir
+    if (param.cur_view == MY_DAY):
+        param.myday_sort_dir = not param.myday_sort_dir
+    if (param.cur_view == IMPORTANT):
+        param.important_sort_dir = not param.important_sort_dir
+    if (param.cur_view == PLANNED):
+        param.planned_sort_dir = not param.planned_sort_dir
+    if (param.cur_view == COMPLETED):
+        param.completed_sort_dir = not param.completed_sort_dir
+    if (param.cur_view == LIST_MODE):
+        param.list_sort_dir = not param.list_sort_dir
+    param.save()
+
 def get_tasks(user, mode, lst_id):
     ret = []
     if (mode == ALL):
@@ -149,7 +182,11 @@ def todo_base_context(request, mode, lst):
         title = lst.name
     else:
         title = MODE_NAME[mode].capitalize()
+    if lst:
+        context['list_id'] = lst.id
     context['list_title'] = title
+    if (mode == MY_DAY):
+        context['list_info'] = datetime.today()
     context['title'] = title + ' - To Do'
     context['in_my_day_qty'] = len(get_tasks(request.user, MY_DAY, 0))
     context['important_qty'] = len(get_tasks(request.user, IMPORTANT, 0))
@@ -171,6 +208,9 @@ def todo_base_context(request, mode, lst):
 def get_task_details(request, context, pk, lst):
     ed_task = get_object_or_404(Task.objects.filter(id = pk, user = request.user.id))
     form = None
+    form_lst = None
+    form_info = None
+    form_file = None
     if (request.method == 'POST'):
         if 'task-save' in request.POST:
             form = TaskForm(request.POST, instance = ed_task, prefix = 'task_edit')
@@ -181,6 +221,38 @@ def get_task_details(request, context, pk, lst):
                 task.last_mod = datetime.now()
                 form.save()
                 return True
+        if 'task-lst-save' in request.POST:
+            form_lst = TaskLstForm(request.POST, instance = ed_task, prefix = 'task_lst_edit')
+            if form_lst.is_valid():
+                task = form_lst.save(commit = False)
+                task.user = request.user
+                task.last_mod = datetime.now()
+                form_lst.save()
+                return True
+        if 'task-info-save' in request.POST:
+            form_info = TaskInfoForm(request.POST, instance = ed_task, prefix = 'task_info_edit')
+            if form_info.is_valid():
+                task = form_info.save(commit = False)
+                task.user = request.user
+                task.last_mod = datetime.now()
+                form_info.save()
+                return True
+        if 'task-file-upload' in request.POST:
+            form_file = TaskFilesForm(request.POST, request.FILES)
+            if form_file.is_valid():
+                fl = form_file.save(commit = False)
+                fl.user = request.user
+                fl.task = ed_task
+                fl.name = fl.upload.name
+                fl.size = fl.upload.size
+                f1, f2 = os.path.splitext(fl.name)
+                fl.ext = f2[1:]
+                form_file.save()
+                return True
+        if 'task-file-delete' in request.POST:
+            tf = TaskFiles.objects.filter(user = request.user.id, id = int(request.POST['task-file-delete'])).get()
+            tf.delete()
+            return True
         if 'task-important' in request.POST:
             ed_task.important = not ed_task.important
             ed_task.save()
@@ -221,7 +293,20 @@ def get_task_details(request, context, pk, lst):
     if not form:
         form = TaskForm(instance = ed_task, prefix = 'task_edit')
 
+    if not form_lst:
+        form_lst = TaskLstForm(instance = ed_task, prefix = 'task_lst_edit')
+
+    if not form_info:
+        form_info = TaskInfoForm(instance = ed_task, prefix = 'task_info_edit')
+
+    if not form_file:
+        form_file = TaskFilesForm()
+
     context['form'] = form
+    context['form_lst'] = form_lst
+    context['form_info'] = form_info
+    context['files'] = TaskFiles.objects.filter(task = ed_task.id)
+    context['form_file'] = form_file
     context['task_id'] = ed_task.id
     context['created'] = ed_task.created
     context['important'] = ed_task.important
@@ -282,8 +367,35 @@ def get_group_details(request, context, pk):
     context['grp_form'] = form
     return False
 
+def process_sort_commands(request):
+    if ('sort-delete' in request.POST):
+        set_sort_mode(request.user, NONE)
+        return True
+    if ('sort-important' in request.POST):
+        set_sort_mode(request.user, IMPORTANT)
+        return True
+    if ('sort-termin' in request.POST):
+        set_sort_mode(request.user, PLANNED)
+        return True
+    if ('sort-myday' in request.POST):
+        set_sort_mode(request.user, MY_DAY)
+        return True
+    if ('sort-name' in request.POST):
+        set_sort_mode(request.user, NAME)
+        return True
+    if ('sort-created' in request.POST):
+        set_sort_mode(request.user, CREATED)
+        return True
+    if ('sort-direction' in request.POST):
+        toggle_sort_dir(request.user)
+        return True
+    return False
+
 def task_list(request):
     if process_common_commands(request):
+        return HttpResponseRedirect(reverse('todo:task_list'))
+
+    if process_sort_commands(request):
         return HttpResponseRedirect(reverse('todo:task_list'))
 
     param = get_param(request.user)
@@ -305,7 +417,8 @@ def task_list(request):
             task.save()
             return HttpResponseRedirect(reverse('todo:task_list'))
         if 'task-add' in request.POST:
-            task = Task.objects.create(user = request.user, name = request.POST['task_add-name'], created = datetime.now(), last_mod = datetime.now(), lst = param.lst)
+            task = Task.objects.create(user = request.user, name = request.POST['task_add-name'], created = datetime.now(), \
+                                       last_mod = datetime.now(), lst = param.lst, in_my_day = (param.cur_view == MY_DAY), important = (param.cur_view == IMPORTANT))
             return HttpResponseRedirect(reverse('todo:task_form', args = [task.id]))
         if 'list-add' in request.POST:
             lst = Lst.objects.create(user = request.user, name = request.POST['name'], created = datetime.now(), last_mod = datetime.now())
@@ -362,6 +475,7 @@ def set_view(user, view, lst_id = 0):
         lst = Lst.objects.filter(user = user.id, id = lst_id).get()
     param.lst = lst
     param.save()
+    set_aside_visible(user, False)
 
 def all_tasks(request):
     set_view(request.user, ALL)

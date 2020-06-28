@@ -180,4 +180,23 @@ class Step(models.Model):
     def __str__(self):
         return self.name
 
+def user_directory_path(instance, filename):
+    return 'uploads/user_{0}/{1}'.format(instance.user.id, filename)
+    
+class TaskFiles(models.Model):
+    user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'todo_file_user')
+    task = models.ForeignKey(Task, on_delete = models.CASCADE, verbose_name = _('task'))
+    sort = models.CharField(_('sort code'), max_length = 50, blank = True)
+    upload = models.FileField(upload_to = user_directory_path)
+    name = models.CharField(_('file name'), max_length = 200, blank = True)
+    ext = models.CharField(_('file type'), max_length = 50, blank = True)
+    size = models.IntegerField(_('file size'), blank = True, null = True)
+
+    class Meta:
+        verbose_name = _('file')
+        verbose_name_plural = _('files')
+
+    def __str__(self):
+        return self.upload.name
+
 

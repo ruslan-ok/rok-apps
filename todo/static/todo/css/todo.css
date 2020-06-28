@@ -70,6 +70,22 @@ main .top {
   flex-basis: 0px;
   flex-grow: 1;
   flex-shrink: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 6px 8px;
+}
+
+.main-title-container {
+  display: flex;
+  align-items: center;
+}
+
+.main-title-subline {
+  font-size: 0.875rem;
+  color: black;
+  font-weight: 200;
+  padding-top: 10px;
 }
 
 .task-list-sort {
@@ -289,6 +305,16 @@ main .tree ul .task .icon {
 .step-add {
 }
 
+.file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.file-info {
+  height: 20px;
+}
+
 .dropdown-content-separator {
   width: 100%;
   border-bottom-width: 1px;
@@ -298,7 +324,6 @@ main .tree ul .task .icon {
 
 .details .section-item-note {
   align-items: flex-start;
-  padding: 16px;
   height: auto;
   border: 1px solid #eaeaea;
   border-width: 1px;
@@ -343,17 +368,16 @@ main .tree ul .task .icon {
 
 .dropdown-content {
   display: none;
-  position: relative;
+  position: absolute;
   background-color: white;
-  min-width: 200px;
-  max-width: 290px;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-  z-index: 20;
+  z-index: 200;
 }
 
 .pos-sort {
-  top: 80px;
-  left: -50px;
+  top: 40px;
+  right: 50px;
+  width: 220px;
 }
 
 .pos-termin {
@@ -376,7 +400,7 @@ main .tree ul .task .icon {
   align-items: center;
   height: 40px;
   width: 100%;
-  font-size: 1.4rem;
+  font-size: 0.875rem;
   font-weight: bold;
   justify-content: center;
   border-bottom-width: 1px;
@@ -389,6 +413,7 @@ main .tree ul .task .icon {
   align-items: center;
   height: 40px;
   width: 100%;
+  font-size: 0.875rem;
 }
 
 .dropdown-content-item:hover {
@@ -426,4 +451,66 @@ main .tree ul .task .icon {
 .level-4 { margin-left: 40px; }
 .level-5 { margin-left: 50px; }
 .level-6 { margin-left: 60px; }
+
+.file-item {
+  border-radius: 1px;
+  padding: 8px 16px 8px 14px;
+  min-height: 52px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-shadow: 24px 25px 0 -24px rgba(0,0,0,0.08);
+  cursor: pointer;
+}
+
+.thumbnail-wrapper {
+  width: 36px;
+  height: 36px;
+  border-radius: 3px;
+  background-color: #3e69e3;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.thumbnail {
+  max-width: 36px;
+  height: 24px;
+  text-align: center;
+  line-height: 1.6rem;
+}
+
+.file-item {
+  height: 52px;
+}
+
+.file-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #333333;
+  margin-left: 16px;
+  width: 180px;
+}
+
+.file-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.9rem;
+}
+
+.file-metadata {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.9rem;
+}
 

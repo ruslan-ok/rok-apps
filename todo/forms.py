@@ -2,7 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-from .models import Grp, Lst, Task, Step
+from .models import Grp, Lst, Task, Step, TaskFiles
 
 #----------------------------------
 class GrpForm(forms.ModelForm):
@@ -45,12 +45,34 @@ class TaskForm(forms.ModelForm):
     class Meta:
         model = Task
         fields = ['name']
-        #fields = ['name', 'in_my_day', 'start', 'reminder', 'repeat', 'completed', 'important']
 
+#----------------------------------
+class TaskLstForm(forms.ModelForm):
+
+    class Meta:
+        model = Task
+        fields = ['lst']
+
+#----------------------------------
+class TaskInfoForm(forms.ModelForm):
+
+    class Meta:
+        model = Task
+        fields = ['info']
+        widgets = {
+          'info': forms.Textarea(attrs={'rows':3, 'cols':10, 'placeholder':_('add note').capitalize()}),
+        }
 #----------------------------------
 class StepForm(forms.ModelForm):
 
     class Meta:
         model = Step
         fields = ['name', 'sort']
+
+#----------------------------------
+class TaskFilesForm(forms.ModelForm):
+
+    class Meta:
+        model = TaskFiles
+        fields = ['upload']
 

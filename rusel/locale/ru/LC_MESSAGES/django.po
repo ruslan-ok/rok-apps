@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-25 01:34+0300\n"
+"POT-Creation-Date: 2020-06-28 20:02+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,114 +18,6 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
-
-#: .\hier\models.py:7 .\hier\models.py:48
-msgid "user"
-msgstr "пользователь"
-
-#: .\hier\models.py:8
-msgid "node"
-msgstr "вышестоящая"
-
-#: .\hier\models.py:9 .\hier\templates\hier\folder_list.html:13
-msgid "code"
-msgstr "код"
-
-#: .\hier\models.py:10 .\hier\templates\hier\folder_list.html:12
-msgid "name"
-msgstr "наименование"
-
-#: .\hier\models.py:11
-msgid "creation time"
-msgstr "дата создания"
-
-#: .\hier\models.py:12
-msgid "last modification time"
-msgstr "дата последней модификации"
-
-#: .\hier\models.py:13
-msgid "node is opened"
-msgstr "узел раскрыт"
-
-#: .\hier\models.py:14 .\hier\templates\hier\folder_list.html:11
-msgid "icon"
-msgstr "иконка"
-
-#: .\hier\models.py:15
-msgid "color"
-msgstr "цвет"
-
-#: .\hier\models.py:16
-msgid "application entity name"
-msgstr "идентификатор приложения"
-
-#: .\hier\models.py:18
-msgid "enable folders in items list"
-msgstr "в списке допустимы папки"
-
-#: .\hier\models.py:19 .\hier\templates\hier\folder_list.html:14
-msgid "content id"
-msgstr "идентификатор записи контента"
-
-#: .\hier\models.py:20
-msgid "node is folder"
-msgstr "узел является папкой"
-
-#: .\hier\models.py:23 .\hier\views.py:139
-msgid "folder"
-msgstr "папка"
-
-#: .\hier\models.py:24 .\hier\views.py:53
-msgid "folders"
-msgstr "папки"
-
-#: .\hier\models.py:49
-msgid "folder id"
-msgstr "идентификатор папки"
-
-#: .\hier\models.py:50
-msgid "aside visible"
-msgstr "боковая панель открыта"
-
-#: .\hier\models.py:51
-msgid "article visible"
-msgstr "карточка записи открыта"
-
-#: .\hier\models.py:54
-msgid "user parameters"
-msgstr "параметры пользователя"
-
-#: .\hier\models.py:55
-msgid "users parameters"
-msgstr "параметры пользователей"
-
-#: .\hier\templates\hier\folder_form.html:10 .\hier\utils.py:273
-msgid "Please correct the error below."
-msgstr "Пожалуйста исправьте запись ниже."
-
-#: .\hier\templates\hier\folder_form.html:10 .\hier\utils.py:274
-msgid "Please correct the errors below."
-msgstr "Пожалуйста исправьте записи ниже."
-
-#: .\hier\templates\hier\folder_form.html:36
-msgid "add"
-msgstr "добавить"
-
-#: .\hier\templates\hier\folder_form.html:38
-msgid "save"
-msgstr "сохранить"
-
-#: .\hier\utils.py:31
-msgid "Log in"
-msgstr "Войти"
-
-#: .\hier\utils.py:40
-msgid "trash"
-msgstr "корзина"
-
-#: .\hier\views.py:130
-msgid "create a new folder"
-msgstr "создание новой папки"
 
 #: .\rusel\templates\base_list.html:85 .\rusel\templates\base_window.html:65
 #: .\rusel\views.py:41
@@ -183,3 +75,4 @@ msgstr "найти что-нибудь более интересное"
 #: .\rusel\views.py:23
 msgid "applications"
 msgstr "приложения"
+
