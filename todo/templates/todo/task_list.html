@@ -152,12 +152,12 @@
           <ul>
             {% for task in term.todo %}
             <li>
-              <a href="{% url 'todo:task_form' task.id %}" class="{% if task.id == task_id %}current{% endif %}">
+              <a href="{% url 'todo:task_form' task.0.id %}" class="{% if task.0.id == task_id %}current{% endif %}">
                 <div class="task">
                   <div class="icon">
                     <form method="post">{% csrf_token %}
-                      <button type="submit" name="task-in-list-complete" value="{{ task.id }}">
-                        {% if task.completed %}
+                      <button type="submit" name="task-in-list-complete" value="{{ task.0.id }}">
+                        {% if task.0.completed %}
                           <img src="{% static 'todo/icon/complete.png' %}">
                         {% else %}
                           <img src="{% static 'todo/icon/uncomplete.png' %}">
@@ -166,14 +166,45 @@
                     </form>
                   </div>
                   <div class="info">
-                    <div class="name{% if task.completed %} completed{% endif %}">{{ task.name }}</div>
-                    <div class="term{% if task.expired %} expired{% endif %}">{{ task.term }}</div>
+                    <div class="name{% if task.0.completed %} completed{% endif %}">{{ task.0.name }}</div>
+                    <div class="descr">
+                      {% for attr in task.1 %}
+                        {% if attr.icon == "attach" %}
+                          <img class="inline-icon" src="{% static 'todo/icon/inline/attach.png' %}">
+                        {% elif attr.icon == "category" %}
+                          <img class="inline-icon" src="{% static 'todo/icon/inline/category.png' %}">
+                        {% elif attr.icon == "termin" %}
+                          <img class="inline-icon" src="{% static 'todo/icon/inline/termin.png' %}">
+                        {% elif attr.icon == "termin-expired" %}
+                          <img class="inline-icon" src="{% static 'todo/icon/inline/termin-expired.png' %}">
+                        {% elif attr.icon == "termin-actual" %}
+                          <img class="inline-icon" src="{% static 'todo/icon/inline/termin-actual.png' %}">
+                        {% elif attr.icon == "myday" %}
+                          <img class="inline-icon" src="{% static 'todo/icon/inline/myday.png' %}">
+                        {% elif attr.icon == "notes" %}
+                          <img class="inline-icon" src="{% static 'todo/icon/inline/notes.png' %}">
+                        {% elif attr.icon == "remind" %}
+                          <img class="inline-icon" src="{% static 'todo/icon/inline/remind.png' %}">
+                        {% elif attr.icon == "repeat" %}
+                          <img class="inline-icon" src="{% static 'todo/icon/inline/repeat.png' %}">
+                        {% elif attr.icon == "repeat-expired" %}
+                          <img class="inline-icon" src="{% static 'todo/icon/inline/repeat-expired.png' %}">
+                        {% elif attr.icon == "repeat-actual" %}
+                          <img class="inline-icon" src="{% static 'todo/icon/inline/repeat-actual.png' %}">
+                        {% elif attr.icon == "separator" %}
+                          <img class="inline-icon" src="{% static 'todo/icon/inline/separator.png' %}">
+                        {% endif %}
+                        {% if attr.text %}
+                          <div{% if attr.color %} class="{{ attr.color }}"{% endif %}>&nbsp;{{ attr.text }}&nbsp;</div>
+                        {% endif %}
+                      {% endfor %}
+                    </div>
                   </div>
                 </div>
                 <div class="icon">
                   <form method="post">{% csrf_token %}
-                    <button type="submit" name="task-in-list-important" value="{{ task.id }}">
-                      {% if task.important %}
+                    <button type="submit" name="task-in-list-important" value="{{ task.0.id }}">
+                      {% if task.0.important %}
                         <img src="{% static 'todo/icon/important-on.png' %}">
                       {% else %}
                         <img src="{% static 'todo/icon/important-off.png' %}">
@@ -312,6 +343,7 @@
               {% for error in form.non_field_errors %} <p class="errornote"> {{ error }} </p> {% endfor %}
               </div>
             {% endif %}
+            <div class="field-error">{{ termin_form.stop.errors }}</div>
             <div class="field-error">{{ form.name.errors }}</div>
             <div class="field-group">
               <button type="submit" name="task-completed" class="field-icon">
@@ -378,9 +410,9 @@
             </div>
           </div>
 
-          <form method="post" class="body">{% csrf_token %}
+          <div class="body">
             <div class="section">
-              <div class="section-item">
+              <form class="section-item" method="post">{% csrf_token %}
                 <button type="submit" name="task-myday" class="section-inner-click">
                   <div class="section-inner">
                     <div class="section-icon">
@@ -397,92 +429,80 @@
                     </div>
                   </div>
                 </button>
-              </div>
+              </form>
             </div>
           
             <div class="section">
-              <div class="section-item">
-                <button class="section-inner-click">
+              <div class="section-item dropdown">
+                <button class="section-inner-click dropbtn" onclick="ShowMenu('remind_menu')">
                   <div class="section-inner">
                     <div class="section-icon">
                       <img src="{% static 'todo/icon/remind.png' %}">
                     </div>
                     <div class="section-content">
                       <div class="section-title">
-                        {% trans 'remind'|capfirst %}
+                        {% if task_b_remind %}
+                          <div {% if remind_active %} class="actual"{% endif %}> {{ task_remind_time }} </div>
+                          <div class="section-description"> {{ task_remind_date }} </div>
+                        {% else %}
+                          {% trans 'to remind'|capfirst %}
+                        {% endif %}
                       </div>
                     </div>
                   </div>
                 </button>
+                {% if task_b_remind %}
+                  <form method="post">{% csrf_token %}
+                    <button type="submit" name="remind-delete" class="field-icon"><img src="{% static 'rok/icon/delete.png' %}"></button>
+                  </form>
+                {% endif %}
               </div>
               <div class="section-item dropdown">
-                <button class="section-inner-click task-termin dropbtn">
+                <button class="section-inner-click dropbtn" onclick="ShowMenu('termin_menu')">
                   <div class="section-inner">
                     <div class="section-icon">
                       <img src="{% static 'todo/icon/planned.png' %}">
                     </div>
                     <div class="section-content">
-                      <div class="section-title{% if task_expired %} expired{% elif task_start %} actual{% endif %}">
-                        {% if not task_start %}
-                          {% trans 'add due date'|capfirst %}
+                      <div class="section-title{% if task_expired %} expired{% elif task_d_termin %} actual{% endif %}">
+                        {% if task_d_termin %}
+                          {{ task_s_termin }}
                         {% else %}
-                          {{ task_term }}
+                          {% trans 'add due date'|capfirst %}
                         {% endif %}
                       </div>
                     </div>
-                    {% if task_start %}
-                      <div class="section-icon">
-                        <img src="{% static 'rok/icon/delete.png' %}">
-                      </div>
-                    {% endif %}
                   </div>
                 </button>
-                <div class="dropdown-content pos-termin">
-                  <div class="dropdown-content-title">{% trans 'termin'|capfirst %}</div>
-                  <button type="submit" class="dropdown-content-item c001" name="termin-today">
-                    <div class="c002">
-                      <img src="{% static 'todo/icon/termin-today.png' %}">
-                      <span class="c003">{% trans 'today'|capfirst %}</span>
-                    </div>
-                    <div class="c004">{{ termin_today_info }}</div>
-                  </button>
-                  <button type="submit" class="dropdown-content-item c001" name="termin-tomorrow">
-                    <div class="c002">
-                      <img src="{% static 'todo/icon/termin-tomorrow.png' %}">
-                      <span class="c003">{% trans 'tomorrow'|capfirst %}</span>
-                    </div>
-                    <div class="c004">{{ termin_tomorrow_info }}</div>
-                  </button>
-                  <button type="submit" class="dropdown-content-item c001" name="termin-next-week">
-                    <div class="c002">
-                      <img src="{% static 'todo/icon/termin-next-week.png' %}">
-                      <span class="c003">{% trans 'next week'|capfirst %}</span>
-                    </div>
-                    <div class="c004">{{ termin_next_week_info }}</div>
-                  </button>
-                  <div class="dropdown-content-separator"></div>
-                  <button type="submit" class="dropdown-content-item c001" name="termin-select">
-                    <div class="c002">
-                      <img src="{% static 'todo/icon/termin-select.png' %}">
-                      <span class="c003">{% trans 'select date'|capfirst %}</span>
-                    </div>
-                    <img class="c004" src="{% static 'todo/icon/direct-right.png' %}">
-                  </button>
-                </div>
+                {% if task_d_termin %}
+                  <form method="post">{% csrf_token %}
+                    <button type="submit" name="termin-delete" class="field-icon"><img src="{% static 'rok/icon/delete.png' %}"></button>
+                  </form>
+                {% endif %}
               </div>
-              <div class="section-item">
-                <button class="section-inner-click">
+              <div class="section-item dropdown">
+                <button class="section-inner-click dropbtn" onclick="ShowMenu('repeat_menu')">
                   <div class="section-inner">
                     <div class="section-icon">
                       <img src="{% static 'todo/icon/repeat.png' %}">
                     </div>
                     <div class="section-content">
                       <div class="section-title">
-                        {% trans 'repeat'|capfirst %}
+                        {% if task_b_repeat %}
+                          <div {% if task_b_repeat %} class="actual"{% endif %}> {{ task_s_repeat }} </div>
+                          <div class="section-description"> {{ task_repeat_days }} </div>
+                        {% else %}
+                          {% trans 'repeat'|capfirst %}
+                        {% endif %}
                       </div>
                     </div>
                   </div>
                 </button>
+                {% if task_b_repeat %}
+                  <form method="post">{% csrf_token %}
+                    <button type="submit" name="repeat-delete" class="field-icon"><img src="{% static 'rok/icon/delete.png' %}"></button>
+                  </form>
+                {% endif %}
               </div>
             </div>
           
@@ -502,7 +522,7 @@
                 </button>
               </div>
             </div>
-          </form>
+          </div>
           
           <div class="section">
             <div class="file-list">
@@ -576,6 +596,117 @@
           </form>
 
         </div>
+
+        <div class="dropdown-content pos-remind" id="remind_menu">
+          <div class="dropdown-content-title">{% trans 'reminder'|capfirst %}</div>
+          <form method="post">{% csrf_token %}
+            <button type="submit" class="dropdown-content-item c001" name="remind-today">
+              <div class="c002">
+                <img src="{% static 'todo/icon/remind-today.png' %}">
+                <span class="c003">{% trans 'later'|capfirst %}</span>
+              </div>
+              <div class="c004">{{ remind_today_info }}</div>
+            </button>
+            <button type="submit" class="dropdown-content-item c001" name="remind-tomorrow">
+              <div class="c002">
+                <img src="{% static 'todo/icon/remind-tomorrow.png' %}">
+                <span class="c003">{% trans 'tomorrow'|capfirst %}</span>
+              </div>
+              <div class="c004">{{ remind_tomorrow_info }}</div>
+            </button>
+            <button type="submit" class="dropdown-content-item c001" name="remind-next-week">
+              <div class="c002">
+                <img src="{% static 'todo/icon/remind-next-week.png' %}">
+                <span class="c003">{% trans 'next week'|capfirst %}</span>
+              </div>
+              <div class="c004">{{ remind_next_week_info }}</div>
+            </button>
+            <div class="dropdown-content-separator"></div>
+            <div class="dropdown-content-item c001">
+              <img src="{% static 'todo/icon/remind-select.png' %}">
+              <div class="c005">{{ remind_form.remind_time }}</div>
+              <button type="submit" name="remind-save" class="field-icon"><img src="{% static 'todo/icon/save.png' %}"></button>
+            </div>
+          </form>
+        </div>
+    
+        <div class="dropdown-content pos-termin" id="termin_menu">
+          <div class="dropdown-content-title">{% trans 'termin'|capfirst %}</div>
+          <form method="post">{% csrf_token %}
+            <button type="submit" class="dropdown-content-item c001" name="termin-today">
+              <div class="c002">
+                <img src="{% static 'todo/icon/termin-today.png' %}">
+                <span class="c003">{% trans 'today'|capfirst %}</span>
+              </div>
+              <div class="c004">{{ termin_today_info|date:'D' }}</div>
+            </button>
+            <button type="submit" class="dropdown-content-item c001" name="termin-tomorrow">
+              <div class="c002">
+                <img src="{% static 'todo/icon/termin-tomorrow.png' %}">
+                <span class="c003">{% trans 'tomorrow'|capfirst %}</span>
+              </div>
+              <div class="c004">{{ termin_tomorrow_info|date:'D' }}</div>
+            </button>
+            <button type="submit" class="dropdown-content-item c001" name="termin-next-week">
+              <div class="c002">
+                <img src="{% static 'todo/icon/termin-next-week.png' %}">
+                <span class="c003">{% trans 'next week'|capfirst %}</span>
+              </div>
+              <div class="c004">{{ termin_next_week_info|date:'D' }}</div>
+            </button>
+            <div class="dropdown-content-separator"></div>
+            <div class="dropdown-content-item c001">
+              <img src="{% static 'todo/icon/termin-select.png' %}">
+              <div class="c005">{{ termin_form.stop }}</div>
+              <button type="submit" name="termin-save" class="field-icon"><img src="{% static 'todo/icon/save.png' %}"></button>
+            </div>
+          </form>
+        </div>
+    
+        <div class="dropdown-content pos-repeat" id="repeat_menu">
+          <div class="dropdown-content-title">{% trans 'repeat'|capfirst %}</div>
+          <form method="post">{% csrf_token %}
+            <button type="submit" class="dropdown-content-item c001" name="repeat-daily">
+              <div class="c002">
+                <img src="{% static 'todo/icon/repeat-daily.png' %}">
+                <span class="c003">{% trans 'daily'|capfirst %}</span>
+              </div>
+            </button>
+            <button type="submit" class="dropdown-content-item c001" name="repeat-workdays">
+              <div class="c002">
+                <img src="{% static 'todo/icon/repeat-workdays.png' %}">
+                <span class="c003">{% trans 'work days'|capfirst %}</span>
+              </div>
+            </button>
+            <button type="submit" class="dropdown-content-item c001" name="repeat-weekly">
+              <div class="c002">
+                <img src="{% static 'todo/icon/repeat-weekly.png' %}">
+                <span class="c003">{% trans 'weekly'|capfirst %}</span>
+              </div>
+            </button>
+            <button type="submit" class="dropdown-content-item c001" name="repeat-monthly">
+              <div class="c002">
+                <img src="{% static 'todo/icon/repeat-monthly.png' %}">
+                <span class="c003">{% trans 'monthly'|capfirst %}</span>
+              </div>
+            </button>
+            <button type="submit" class="dropdown-content-item c001" name="repeat-annually">
+              <div class="c002">
+                <img src="{% static 'todo/icon/repeat-annually.png' %}">
+                <span class="c003">{% trans 'annually'|capfirst %}</span>
+              </div>
+            </button>
+            <div class="dropdown-content-separator"></div>
+            <div class="dropdown-content-title">{% trans 'repeat every...'|capfirst %}</div>
+            <div class="dropdown-content-item c001">
+              <img src="{% static 'todo/icon/repeat.png' %}">
+              <div class="c005">{{ repeat_form.repeat_num }}</div>
+              <div class="c005">{{ repeat_form.repeat }}</div>
+              <button type="submit" name="repeat-save" class="field-icon"><img src="{% static 'todo/icon/save.png' %}"></button>
+            </div>
+          </form>
+        </div>
+    
     {% endif %}
 {% endblock %}
 

@@ -1,6 +1,5 @@
-from datetime import date
+from datetime import datetime, date
 from django.db import models
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 
@@ -8,8 +7,8 @@ from .utils import nice_date
 
 class Grp(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'))
-    created = models.DateTimeField(_('creation time'), default = timezone.now, blank = True)
-    last_mod = models.DateTimeField(_('last modification time'), default = timezone.now, blank = True)
+    created = models.DateTimeField(_('creation time'), blank = True, auto_now_add = True)
+    last_mod = models.DateTimeField(_('last modification time'), blank = True, auto_now = True)
     node = models.ForeignKey('self', on_delete = models.CASCADE, verbose_name = _('node'), blank = True, null = True)
     name = models.CharField(_('group name'), max_length = 200, blank = False)
     sort = models.CharField(_('sort code'), max_length = 50, blank = True)
@@ -25,8 +24,8 @@ class Grp(models.Model):
 
 class Lst(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'))
-    created = models.DateTimeField(_('creation time'), default = timezone.now, blank = True)
-    last_mod = models.DateTimeField(_('last modification time'), default = timezone.now, blank = True)
+    created = models.DateTimeField(_('creation time'), blank = True, auto_now_add = True)
+    last_mod = models.DateTimeField(_('last modification time'), blank = True, auto_now = True)
     grp = models.ForeignKey(Grp, on_delete = models.CASCADE, verbose_name = _('group'), blank = True, null = True)
     name = models.CharField(_('list name'), max_length = 200, blank = False)
     sort = models.CharField(_('sort code'), max_length = 50, blank = True)
@@ -41,13 +40,15 @@ class Lst(models.Model):
 
 NONE = 0
 DAILY = 1
-WEEKLY = 2
-MONTHLY = 3
-ANNUALLY = 4
+WORKDAYS = 2
+WEEKLY = 3
+MONTHLY = 4
+ANNUALLY = 5
 
 REPEAT = [
     (NONE, _('no')),
     (DAILY, _('daily')),
+    (WORKDAYS, _('work days')),
     (WEEKLY, _('weekly')),
     (MONTHLY, _('monthly')),
     (ANNUALLY, _('annually')),
@@ -56,17 +57,20 @@ REPEAT = [
 class Task(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'todo_user')
     lst = models.ForeignKey(Lst, on_delete = models.CASCADE, verbose_name = _('list'), blank = True, null = True)
-    created = models.DateTimeField(_('creation time'), default = timezone.now)
-    last_mod = models.DateTimeField(_('last modification time'), blank = True)
+    created = models.DateTimeField(_('creation time'), auto_now_add = True)
+    last_mod = models.DateTimeField(_('last modification time'), blank = True, auto_now = True)
     name = models.CharField(_('name'), max_length = 200, blank = False)
     start = models.DateField(_('start date'), blank = True, null = True)
     stop = models.DateField(_('stop date'), blank = True, null = True)
     completed = models.BooleanField(_('completed'), default = False)
+    completion = models.DateTimeField(_('completion time'), blank = True, null = True, default = None)
     in_my_day = models.BooleanField(_('in my day'), default = False)
     important = models.BooleanField(_('important'), default = False)
     reminder = models.BooleanField(_('reminder'), default = False)
     remind_time = models.DateTimeField(_('time of reminder'), blank = True, null = True)
     repeat = models.IntegerField(_('repeat'), blank = True, choices = REPEAT, default = NONE)
+    repeat_num = models.IntegerField(_('repeat num'), blank = True, default = 1)
+    repeat_days = models.IntegerField(_('repeat days'), blank = True, default = 0)
     categories = models.TextField(_('categories'), blank = True, default = "")
     info = models.TextField(_('information'), blank = True, default = "")
     
@@ -128,22 +132,59 @@ class Task(models.Model):
             next = None
         return next
 
-    def term(self):
-        if not self.start:
-            return ''
-            
-        d = self.next_iteration()
-
-        if (d < date.today()):
-            return _('expired').capitalize() + ': ' + nice_date(d)
+    def d_termin(self):
+        if self.start and self.repeat:
+            return self.next_iteration()
         else:
-            return _('termin').capitalize() + ': ' + nice_date(d)
+            if self.stop:
+                return self.stop
+        return None
 
-    def expired(self):
-        if not self.start:
-            return False
-        d = self.next_iteration()
-        return (d < date.today())
+    def b_expired(self):
+        d = self.d_termin()
+        if d:
+            return (d < date.today())
+        return False
+
+    def s_termin(self):
+        d = self.d_termin()
+
+        if not d:
+            return ''
+
+        if self.b_expired():
+            s = str(_('expired')).capitalize() + ', '
+        else:
+            s = str(_('termin')).capitalize() + ': '
+        return s + str(nice_date(d))
+            
+    def s_repeat(self):
+        if (self.repeat == NONE):
+            return ''
+        if (self.repeat_num == 1):
+            if (self.repeat == WORKDAYS):
+                return REPEAT[WEEKLY][1].capitalize()
+            return REPEAT[self.repeat][1].capitalize()
+        return '???'
+
+    def repeat_s_days(self):
+        if (self.repeat == WEEKLY):
+            if (self.repeat_days == 0):
+                return self.stop.strftime('%A')
+            if (self.repeat_days == 1+2+4+8+16):
+                return str(_('work days')).capitalize()
+            ret = ''
+            monday = datetime(2020, 7, 6, 0, 0)
+            if (self.repeat_days & 1):
+                ret += monday.strftime('%A')
+            if (self.repeat_days & 2):
+                if (ret != ''):
+                    ret += ', '
+                ret += (monday +timedelta(1)).strftime('%A')
+            return ret
+        return ''
+
+
 
 class Param(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'todo_param_user')
@@ -167,8 +208,8 @@ class Param(models.Model):
 
 class Step(models.Model):
     task = models.ForeignKey(Task, on_delete = models.CASCADE, verbose_name = _('task'))
-    created = models.DateTimeField(_('creation time'), default = timezone.now, blank = True)
-    last_mod = models.DateTimeField(_('last modification time'), default = timezone.now, blank = True)
+    created = models.DateTimeField(_('creation time'), blank = True, auto_now_add = True)
+    last_mod = models.DateTimeField(_('last modification time'), blank = True, auto_now = True)
     name = models.CharField(_('list name'), max_length = 200, blank = False)
     sort = models.CharField(_('sort code'), max_length = 50, blank = True)
     completed = models.BooleanField(_('step is completed'), default = False)

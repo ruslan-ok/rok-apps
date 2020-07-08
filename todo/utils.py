@@ -101,28 +101,37 @@ def get_term_for_two_dates(today, next):
 
     return LONG_TIME
 
-def nice_date(d):
+def only_nice_date(d):
 
     if not d:
-        return '???'
+        return ''
     
     term = get_term_for_two_dates(date.today(), d)
 
     if (term == TODAY):
-        return 'сегодня'
+        return str(_('today')).capitalize()
     
     if (term == TOMORROW):
-        return 'завтра'
+        return str(_('tomorrow')).capitalize()
     
     if (term == YESTERDAY):
-        return 'вчера'
+        return str(_('yesterday')).capitalize()
 
+    return ''
+
+
+def nice_date(d):
+
+    ret = only_nice_date(d)
+    if (ret != ''):
+        return ret
+    
     if (d.year == date.today().year):
-        return d.strftime('%a, %d %b')
+        return d.strftime('%a, %d %B')
     else:
-        return d.strftime('%a, %d %b %Y')
+        return d.strftime('%a, %d %B %Y')
 
 def get_task_status(task):
     if task.completed:
-        return 'Завершено ' + nice_date(task.stop)
-    return 'Создано ' + nice_date(task.created.date())
+        return str(_('completed').capitalize()) + ' ' + nice_date(task.stop)
+    return str(_('created').capitalize()) + ' ' + nice_date(task.created.date())

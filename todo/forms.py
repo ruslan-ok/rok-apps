@@ -62,6 +62,7 @@ class TaskInfoForm(forms.ModelForm):
         widgets = {
           'info': forms.Textarea(attrs={'rows':3, 'cols':10, 'placeholder':_('add note').capitalize()}),
         }
+
 #----------------------------------
 class StepForm(forms.ModelForm):
 
@@ -75,4 +76,27 @@ class TaskFilesForm(forms.ModelForm):
     class Meta:
         model = TaskFiles
         fields = ['upload']
+
+#----------------------------------
+class TaskRemindForm(forms.ModelForm):
+
+    class Meta:
+        model = Task
+        fields = ['remind_time']
+
+#----------------------------------
+class TaskTerminForm(forms.ModelForm):
+
+    class Meta:
+        model = Task
+        fields = ['stop']
+
+#----------------------------------
+class TaskRepeatForm(forms.ModelForm):
+
+    class Meta:
+        model = Task
+        fields = ['repeat', 'repeat_num']
+
+
 

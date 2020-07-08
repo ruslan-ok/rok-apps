@@ -207,27 +207,38 @@ main .tree ul .task .icon {
   margin: 0px 15px;
 }
 
-.task .info .name {
-  font-size: 0.875rem;
-  font-weight: 500;
-  line-height: 2rem;
-  color: #34373d;
+.task .info {
   height: 49px;
   overflow: hidden;
 }
 
-.task .info .term {
-  font-size: 1rem;
-  margin-left: 10px;
-  color: blue;
+.task .info .name {
+  padding: 8px 0px;
+  font-size: 0.933rem;
+  font-weight: 500;
+  line-height: 1rem;
+  color: #34373d;
+}
+
+.task .info .descr {
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1rem;
+  color: #767678;
+  overflow: hidden;
+  display: flex;
+}
+
+img.inline-icon {
+  height: 12px;
 }
 
 .expired {
-  color: red;
+  color: #af2e20 !important;
 }
 
 .actual {
-  color: blue;
+  color: #465efc !important;
 }
 
 .completed {
@@ -380,9 +391,22 @@ main .tree ul .task .icon {
   width: 220px;
 }
 
+.pos-remind {
+  top: 270px;
+  right: 30px;
+  width: 260px;
+}
+
 .pos-termin {
-  top: -30px;
-  left: -100px;
+  top: 320px;
+  right: 30px;
+  width: 220px;
+}
+
+.pos-repeat {
+  top: 375px;
+  right: 30px;
+  width: 220px;
 }
 
 .dropdown-content a {
@@ -442,6 +466,11 @@ main .tree ul .task .icon {
 
 .c004 {
   padding-right: 10px;
+}
+
+.c005  input[type="text"] {
+  width: 140px;
+  padding: 5px;
 }
 
 .level-0 { margin-left: 0px; }
