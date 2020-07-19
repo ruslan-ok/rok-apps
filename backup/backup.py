@@ -216,15 +216,22 @@ class Backup:
                     continue
                 fsrc = src + part + '\\' + f
                 fdst = test + '\\' + f
-                print(_dst + '\\' + _folder + part + '\\' + f, '...')
+                sat = os.path.getatime(fsrc)
+                smt = os.path.getmtime(fsrc)
                 if zzz or not os.path.exists(fdst):
+                    print(_dst + '\\' + _folder + part + '\\' + f, 'copied...')
                     shutil.copyfile(fsrc, fdst)
+                    os.utime(fdst, (sat, smt))
                     self.add_info(_src + '\\' + _folder + ' -> ' + _dst + '\\' + _folder, 'Файл скопирован в ' + _dst + '\\' + _folder + part + '\\' + f)
                 else:
-                    st = int(os.path.getmtime(fsrc))
-                    dt = int(os.path.getmtime(fdst))
-                    if ((st - dt) > 5):
+                    dmt = os.path.getmtime(fdst)
+                    if (smt == dmt):
+                        pass
+                        #print(_dst + '\\' + _folder + part + '\\' + f, '[skipped]')
+                    else:
+                        print(_dst + '\\' + _folder + part + '\\' + f, 'copied...')
                         shutil.copyfile(fsrc, fdst)
+                        os.utime(fdst, (sat, smt))
                         self.add_info(_src + '\\' + _folder + ' -> ' + _dst + '\\' + _folder, 'Файл обновлен в ' + _dst + '\\' + _folder + part + '\\' + f)
     
         if (self.case == 0):
