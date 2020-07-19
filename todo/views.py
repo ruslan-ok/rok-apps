@@ -12,7 +12,7 @@ from django.utils.translation import gettext_lazy as _
 
 from hier.utils import get_base_context, process_common_commands, set_aside_visible, set_article_visible
 from .models import Grp, Lst, Task, Param, Step, TaskFiles, NONE, DAILY, WORKDAYS, WEEKLY, MONTHLY, ANNUALLY
-from .utils import TERM_NAME, ALL, get_task_status, nice_date
+from .utils import get_task_status, nice_date, get_grp_planned, GRPS_PLANNED, GRP_PLANNED_NONE, get_week_day_name
 from .tree import build_tree
 from .forms import GrpForm, LstForm, TaskForm, TaskLstForm, TaskInfoForm, StepForm, TaskFilesForm, TaskRemindForm, TaskTerminForm, TaskRepeatForm
 
@@ -60,7 +60,6 @@ SORT_MODE_DESCR = {
 TASK_DETAILS = 1
 LIST_DETAILS = 2
 GROUP_DETAILS = 3
-
 
 class Term():
     id = 0
@@ -141,7 +140,7 @@ def get_tasks(user, mode, lst_id):
     if (mode == IMPORTANT):
         ret = Task.objects.filter(user = user.id, important = True).exclude(completed = True)
     if (mode == PLANNED):
-        ret = Task.objects.filter(user = user.id).exclude(start = None).exclude(completed = True)
+        ret = Task.objects.filter(user = user.id).exclude(stop = None).exclude(completed = True)
     if (mode == COMPLETED):
         ret = Task.objects.filter(user = user.id, completed = True)
     if (mode == LIST_MODE):
@@ -153,25 +152,25 @@ def sorted_tasks(user, mode, lst_id):
     data = get_tasks(user, mode, lst_id)
 
     if (sort_mode == IMPORTANT) and (not sort_dir):
-        data = data.order_by('important', '-start')
+        data = data.order_by('important', '-stop')
     elif (sort_mode == IMPORTANT) and sort_dir:
-        data = data.order_by('-important', '-start')
+        data = data.order_by('-important', '-stop')
     elif (sort_mode == PLANNED) and (not sort_dir):
-        data = data.order_by('-start')
+        data = data.order_by('-completion', '-stop')
     elif (sort_mode == PLANNED) and sort_dir:
-        data = data.order_by('start')
+        data = data.order_by('completion', 'stop')
     elif (sort_mode == MY_DAY) and (not sort_dir):
-        data = data.order_by('-in_my_day', '-start')
+        data = data.order_by('-in_my_day', '-stop')
     elif (sort_mode == MY_DAY) and sort_dir:
-        data = data.order_by('in_my_day', '-start')
+        data = data.order_by('in_my_day', '-stop')
     elif (sort_mode == NAME) and (not sort_dir):
-        data = data.order_by('name', '-start')
+        data = data.order_by('name', '-stop')
     elif (sort_mode == NAME) and sort_dir:
-        data = data.order_by('-name', '-start')
+        data = data.order_by('-name', '-stop')
     elif (sort_mode == CREATED) and (not sort_dir):
-        data = data.order_by('created', '-start')
+        data = data.order_by('created', '-stop')
     elif (sort_mode == CREATED) and sort_dir:
-        data = data.order_by('-created', '-start')
+        data = data.order_by('-created', '-stop')
 
     return data
 
@@ -282,8 +281,11 @@ def get_task_details(request, context, pk, lst, user_tz):
         if ('task-completed' in request.POST):
             ed_task.completed = not ed_task.completed
             if ed_task.completed:
-                ed_task.stop = date.today()
+                if not ed_task.stop:
+                    ed_task.stop = date.today()
                 ed_task.completion = timezone.now()
+            else:
+                ed_task.completion = None
             ed_task.save()
             return True
         if ('task-delete' in request.POST):
@@ -329,6 +331,7 @@ def get_task_details(request, context, pk, lst, user_tz):
             form_remind = TaskRemindForm(request.POST, instance = ed_task, prefix = 'task_remind_edit')
             if form_remind.is_valid():
                 fr = form_remind.save(commit = False)
+                ed_task.reminder = True
                 ed_task.remind_time = fr.remind_time
                 ed_task.save()
                 return True
@@ -444,7 +447,6 @@ def get_task_details(request, context, pk, lst, user_tz):
     context['important'] = ed_task.important
     context['in_my_day'] = ed_task.in_my_day
     context['completed'] = ed_task.completed
-    context['task_status'] = get_task_status(ed_task)
     context['task_start'] = ed_task.start
     context['task_stop'] = ed_task.stop
     context['task_d_termin'] = ed_task.d_termin()
@@ -470,6 +472,14 @@ def get_task_details(request, context, pk, lst, user_tz):
     context['task_s_repeat'] = ed_task.s_repeat()
     context['task_repeat_days'] = ed_task.repeat_s_days()
     context['repeat_form'] = form_repeat
+    context['repeat_form_d1'] = get_week_day_name(1)
+    context['repeat_form_d2'] = get_week_day_name(2)
+    context['repeat_form_d3'] = get_week_day_name(3)
+    context['repeat_form_d4'] = get_week_day_name(4)
+    context['repeat_form_d5'] = get_week_day_name(5)
+    context['repeat_form_d6'] = get_week_day_name(6)
+    context['repeat_form_d7'] = get_week_day_name(7)
+    context['task_info'] = get_task_status(ed_task)
     return False
 
 
@@ -606,9 +616,18 @@ def get_task_info(task, cur_view):
 
     return ret
 
+def find_term(data, grp_id):
+    for term in data:
+        if (term.id == grp_id):
+            return term
+    term = Term(grp_id, GRPS_PLANNED[grp_id].capitalize(), True)
+    data.append(term)
+    return term
+
 def task_list(request):
     locale.setlocale(locale.LC_CTYPE, request.LANGUAGE_CODE)
     locale.setlocale(locale.LC_TIME, request.LANGUAGE_CODE)
+
     if process_common_commands(request):
         return HttpResponseRedirect(reverse('todo:task_list'))
 
@@ -625,8 +644,11 @@ def task_list(request):
             task = Task.objects.filter(id = request.POST['task-in-list-complete']).get()
             task.completed = not task.completed
             if task.completed:
-                task.stop = date.today()
+                if not task.stop:
+                  task.stop = date.today()
                 task.completion = timezone.now()
+            else:
+                task.completion = None
             task.save()
             return HttpResponseRedirect(reverse('todo:task_list'))
         if 'task-in-list-important' in request.POST:
@@ -682,19 +704,17 @@ def task_list(request):
     context['details_pk'] = param.details_pk
 
     data = []
-    terms = []
     if (param.cur_view != PLANNED):
-        t = Term(ALL, TERM_NAME[ALL].capitalize(), True)
-        data.append(t)
+        term = Term(GRP_PLANNED_NONE, '', True)
+        data.append(term)
 
     for task in sorted_tasks(request.user, param.cur_view, param.lst):
         if (param.cur_view == PLANNED):
-            term = task.count_term()
-            terms.append(term)
-            t = find_term(data, term)
-        t.todo.append([task, get_task_info(task, param.cur_view)])
+            grp_id = get_grp_planned(task.d_termin())
+            term = find_term(data, grp_id)
+        term.todo.append([task, get_task_info(task, param.cur_view)])
     
-    context['object_list'] = data
+    context['object_list'] = sorted(data, key=lambda term: term.id)
     context['task_add_form'] = TaskForm(prefix='task_add')
 
     template_file = 'todo/task_list.html'

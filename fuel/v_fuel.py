@@ -38,10 +38,10 @@ def fuel_list(request):
 
 #----------------------------------
 def fuel_add(request):
+    car = get_object_or_404(Car.objects.filter(user = request.user.id, active = True))
     if (request.method == 'POST'):
         form = FuelForm(request.POST)
     else:
-        car = get_object_or_404(Car.objects.filter(user = request.user.id, active = True))
         last = Fuel.objects.filter(car = car.id).order_by('-pub_date')[:3]
         new_odo = 0
         new_prc = 0

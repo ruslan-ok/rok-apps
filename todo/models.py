@@ -54,6 +54,20 @@ REPEAT = [
     (ANNUALLY, _('annually')),
 ]
 
+REPEAT_SELECT = [
+    (DAILY, _('days')),
+    (WEEKLY, _('weeks')),
+    (MONTHLY, _('months')),
+    (ANNUALLY, _('years')),
+]
+
+REPEAT_NAME = {
+    DAILY: _('days'),
+    WEEKLY: _('weeks'),
+    MONTHLY: _('months'),
+    ANNUALLY: _('years'),
+}
+
 class Task(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'todo_user')
     lst = models.ForeignKey(Lst, on_delete = models.CASCADE, verbose_name = _('list'), blank = True, null = True)
@@ -68,7 +82,7 @@ class Task(models.Model):
     important = models.BooleanField(_('important'), default = False)
     reminder = models.BooleanField(_('reminder'), default = False)
     remind_time = models.DateTimeField(_('time of reminder'), blank = True, null = True)
-    repeat = models.IntegerField(_('repeat'), blank = True, choices = REPEAT, default = NONE)
+    repeat = models.IntegerField(_('repeat'), blank = True, choices = REPEAT_SELECT, default = NONE)
     repeat_num = models.IntegerField(_('repeat num'), blank = True, default = 1)
     repeat_days = models.IntegerField(_('repeat days'), blank = True, default = 0)
     categories = models.TextField(_('categories'), blank = True, default = "")
@@ -165,7 +179,8 @@ class Task(models.Model):
             if (self.repeat == WORKDAYS):
                 return REPEAT[WEEKLY][1].capitalize()
             return REPEAT[self.repeat][1].capitalize()
-        return '???'
+        
+        return '{} {} {}'.format(_('once every').capitalize(), self.repeat_num, REPEAT_NAME[self.repeat])
 
     def repeat_s_days(self):
         if (self.repeat == WEEKLY):

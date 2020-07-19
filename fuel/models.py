@@ -101,7 +101,7 @@ def fuel_summary(_user):
     if (cons == 0):
       return car_name + gettext('failed to calculate average consumption')
     else:
-      return car_name + '<span id="warning">' + str(cons) + '</span> ' + gettext(' l. per 100 km')
+      return car_name + '<span class="warning">' + str(cons) + '</span> ' + gettext(' l. per 100 km')
   except Car.DoesNotExist:
     return gettext('no active car')
     
@@ -145,7 +145,7 @@ class Part(models.Model): # Список расходников
         return self.chg_km // 1000
 
     def get_rest(self):
-        if (not self.chg_km) or (not self.chg_mo) or (not self.last_odo()):
+        if ((not self.chg_km) and (not self.chg_mo)) or (not self.last_odo()):
             return ''
 
         fuels = Fuel.objects.filter(car = self.car).order_by('-pub_date')[:1]
@@ -159,20 +159,21 @@ class Part(models.Model): # Список расходников
         m2 = False
 
         if (self.chg_km != 0):
-            trip_km = fuels[0].odometr - self.last_odo() # Проехали км от последней замены
+            trip_km_unround = fuels[0].odometr - self.last_odo() # Проехали км от последней замены
           
+            trip_km = trip_km_unround
             if (trip_km > 1000):
-                trip_km = round(trip_km / 1000) * 1000
+                trip_km = round(trip_km_unround / 1000) * 1000
           
-            if (trip_km > self.chg_km):
-                if (trip_km > 1000):
-                    p1 = 'просрочено на <span id="error">' + round(((trip_km - self.chg_km) / 1000)) + ' тыс.</span> км'
+            if (trip_km_unround > self.chg_km):
+                if ((trip_km_unround - self.chg_km) > 1000):
+                    p1 = '<span class="error">просрочено на ' + str(round(((trip_km_unround - self.chg_km) / 1000))) + ' тыс. км</span>'
                 else:
-                    p1 = 'просрочено на <span id="error">' + (trip_km - self.chg_km) + '</span> км'
+                    p1 = '<span class="error">просрочено на ' + str(trip_km_unround - self.chg_km) + ' км</span>'
                 m1 = True
             else:
                 if ((self.chg_km - trip_km) < 1000):
-                    p1 = '<span id="warning">' + (self.chg_km - trip_km) + '</span> км'
+                    p1 = '<span class="warning">' + str(self.chg_km - trip_km_unround) + ' км</span>'
                 else:
                     p1 = str(round(((self.chg_km - trip_km) / 1000))) + ' тыс. км'
               
@@ -203,11 +204,11 @@ class Part(models.Model): # Список расходников
                 per = str(round(days/365)) + ' лет'
             
             if (trip_days > 0):
-                p2 = 'просрочено на <span id="error">' + per + '</span>'
+                p2 = '<span class="error">просрочено на ' + per + '</span>'
                 m2 = True
             else:
                 if (days < 32):
-                    p2 = '<span id="warning">' + per + '</span>'
+                    p2 = '<span class="warning">' + per + '</span>'
                 else:
                     p2 = per
       

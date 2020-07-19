@@ -594,7 +594,7 @@ li.grp-item:hover {
     width: 95%;
 }
 
-.rok-field-2 input[type=text], .rok-field-2 input[type=password], .rok-field-2 input[type=email], .rok-field-2 input[type=url], .rok-field-2 input[type=number], .rok-field-2 input[type=tel] {
+.rok-field-2 input[type=text], .rok-field-2 input[type=password], .rok-field-2 input[type=email], .rok-field-2 input[type=url], .rok-field-2 input[type=number], .rok-field-2 input[type=tel], textarea, select {
     border: 1px solid #ccc;
     border-top-color: rgb(204, 204, 204);
     border-top-style: solid;

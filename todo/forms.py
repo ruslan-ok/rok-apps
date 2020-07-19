@@ -96,7 +96,7 @@ class TaskRepeatForm(forms.ModelForm):
 
     class Meta:
         model = Task
-        fields = ['repeat', 'repeat_num']
+        fields = ['repeat', 'repeat_num', 'repeat_days']
 
 
 

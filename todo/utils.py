@@ -1,4 +1,4 @@
-from datetime import datetime, date, timezone
+from datetime import datetime, date, timezone, timedelta
 from django.utils.translation import gettext_lazy as _
 
 LONG_TIME = 20 # Совсем давно
@@ -46,7 +46,6 @@ TERM_NAME = {
     NEXT_MONTH: _('next month'), # В следующем месяце
     MUCH_LATER: _('later than a month later') # Позже, чем через месяц
 }
-
 
 def get_term_for_two_dates(today, next):
     if not next:
@@ -101,6 +100,44 @@ def get_term_for_two_dates(today, next):
 
     return LONG_TIME
 
+GRP_PLANNED_NONE     = 0
+GRP_PLANNED_EARLIER  = 1
+GRP_PLANNED_TODAY    = 2
+GRP_PLANNED_TOMORROW = 3
+GRP_PLANNED_ON_WEEK  = 4
+GRP_PLANNED_LATER    = 5
+
+GRPS_PLANNED = {
+    GRP_PLANNED_NONE:     _('undefined'),
+    GRP_PLANNED_EARLIER:  _('earlier'),
+    GRP_PLANNED_TODAY:    _('today'),
+    GRP_PLANNED_TOMORROW: _('tomorrow'),
+    GRP_PLANNED_ON_WEEK:  _('on the week'),
+    GRP_PLANNED_LATER:    _('later'),
+}  
+
+def get_grp_planned(d):
+    if not d:
+        return GRP_PLANNED_NONE
+    
+    today = date.today()
+
+    if (d == today):
+        return GRP_PLANNED_TODAY
+
+    days = (d - today).days
+
+    if (days == 1):
+        return GRP_PLANNED_TOMORROW
+
+    if (days < 0):
+        return GRP_PLANNED_EARLIER
+
+    if (days < 8):
+        return GRP_PLANNED_ON_WEEK
+
+    return GRP_PLANNED_LATER
+
 def only_nice_date(d):
 
     if not d:
@@ -133,5 +170,15 @@ def nice_date(d):
 
 def get_task_status(task):
     if task.completed:
-        return str(_('completed').capitalize()) + ' ' + nice_date(task.stop)
-    return str(_('created').capitalize()) + ' ' + nice_date(task.created.date())
+        if task.completion:
+            return str(_('completed:').capitalize()) + nice_date(task.completion.date())
+        else:
+            return str(_('completed:').capitalize()) + nice_date(task.stop)
+    return str(_('created:').capitalize()) + nice_date(task.created.date())
+
+def get_week_day_name(weekday_num):
+    d = date(2020, 7, 13)
+    if (weekday_num > 1):
+        d = d + timedelta(weekday_num - 1)
+    return d.strftime('%a')
+

@@ -40,7 +40,6 @@ urlpatterns = i18n_patterns(
     path('trip/',  include('trip.urls')),
     path('wage/',  include('wage.urls')),
     path('todo/',  include('todo.urls')),
-    path('check/', include('check.urls')),
     path('pir/',   include('pir.urls')),
 
     path('<int:folder_id>/',       include('hier.urls')),

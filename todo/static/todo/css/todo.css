@@ -186,12 +186,12 @@ main .tree ul li a {
   height: 100%;
 }
 
-main .tree ul li a:hover {
-  background: #f7f7f7;
-}
-
 main .tree ul li a.current {
   background: #eee;
+}
+
+main .tree ul li a:hover {
+  background: #f7f7f7;
 }
 
 main .tree ul .task {
@@ -252,7 +252,7 @@ img.inline-icon {
 
 .auxiliary-element input[type="text"] {
   font-size: 0.875rem;
-  height: 20px;
+  height: 25px;
 }
 
 .details-name .editable-content input[type="text"] {
@@ -406,7 +406,7 @@ img.inline-icon {
 .pos-repeat {
   top: 375px;
   right: 30px;
-  width: 220px;
+  width: 270px;
 }
 
 .dropdown-content a {
@@ -432,6 +432,16 @@ img.inline-icon {
   border-bottom-color: rgb(234, 234, 234);
 }
 
+.dropdown-content-title-part {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  width: 100%;
+  font-size: 0.875rem;
+  font-weight: bold;
+  justify-content: center;
+}
+
 .dropdown-content-item {
   display: flex;
   align-items: center;
@@ -440,7 +450,7 @@ img.inline-icon {
   font-size: 0.875rem;
 }
 
-.dropdown-content-item:hover {
+button.dropdown-content-item:hover {
   background-color: #ddd;
 }
 
@@ -542,4 +552,70 @@ img.inline-icon {
   text-overflow: ellipsis;
   font-size: 0.9rem;
 }
+
+.repeat-options-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 0.875rem;
+}
+
+.repeat-options-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+  width: 100%;
+}
+
+.repeat-options-main img {
+  padding: 0px 10px;
+}
+
+.repeat-options-input {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.repeat-options-num {
+}
+
+.repeat-options-num input[type="number"] {
+  width: 70px;
+  height: 27px;
+  margin-right: 5px;
+}
+
+.repeat-options-type select {
+  width: 100px;
+  height: 27px;
+}
+
+.repeat-options-week {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+  width: 100%;
+  padding: 0px 5px;
+}
+
+.repeat-options-day {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 35px;
+  width: 35px;
+  padding: 5px;
+  text-align: center !important;
+}
+
+button.repeat-options-day:hover {
+  background-color: #ddd;
+}
+
+
 

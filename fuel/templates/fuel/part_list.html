@@ -1,4 +1,9 @@
 {% extends "base_list.html" %}
+{% load static %}
+
+{% block extrastyle %}
+  <link rel="stylesheet" type="text/css" href="{% static 'fuel/css/fuel.css' %}">
+{% endblock %}
 
 {% block win_content %}
   <table class="w3-table-all w3-hoverable w3-card-4">
@@ -9,10 +14,10 @@
       {% for part in page_obj %}
       <tr>
         <td><a href="{% url 'fuel:part_form' part.id %}">{{ part.name }}</a></td>
-        <td><a href="{% url 'fuel:part_form' part.id %}">{{ part.chg_km_th|default:"" }}</a></td>
-        <td><a href="{% url 'fuel:part_form' part.id %}">{{ part.chg_mo|default:"" }}</a></td>
-        <td><a href="{% url 'fuel:part_form' part.id %}">{{ part.get_rest }}</a></td>
-        <td><a href="{% url 'fuel:part_form' part.id %}">{{ part.comment }}</a></td>
+        <td>{{ part.chg_km_th|default:"" }}</td>
+        <td>{{ part.chg_mo|default:"" }}</td>
+        <td>{% autoescape off %}{{ part.get_rest }}{% endautoescape %}</td>
+        <td>{{ part.comment }}</td>
       </tr>
       {% endfor %}
     </tbody>

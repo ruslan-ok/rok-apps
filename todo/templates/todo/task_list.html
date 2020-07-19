@@ -67,9 +67,9 @@
                 <div class="nav-menu-item-right">
                   <a href="{% url 'todo:group_toggle' node.id %}">
                     {% if node.is_open %}
-                      <img src="{% static 'todo/icon/direct-down.png' %}">
+                      <img src="{% static 'rok/icon/direct-down.png' %}">
                     {% else %}
-                      <img src="{% static 'todo/icon/direct-left.png' %}">
+                      <img src="{% static 'rok/icon/direct-left.png' %}">
                     {% endif %}
                   </a>
                 </div>
@@ -125,9 +125,9 @@
           <form method="post" class="sort-actions sort">{% csrf_token %}
             <button type="submit" name="sort-direction">
               {% if sort_dir %}
-                <img src="{% static 'todo/icon/direct-down.png' %}">
+                <img src="{% static 'rok/icon/direct-down.png' %}">
               {% else %}
-                <img src="{% static 'todo/icon/direct-up.png' %}">
+                <img src="{% static 'rok/icon/direct-up.png' %}">
               {% endif %}
             </button>
             <span>{{ sort_mode }}</span>
@@ -145,78 +145,92 @@
         {% for term in object_list %}
           {% if term.name %}
           <div class="group">
-            <div class="tumbler">V</div>
+            <div class="tumbler">
+              {% if term.is_open %}
+                <img src="{% static 'rok/icon/direct-down.png' %}">
+              {% else %}
+                <img src="{% static 'rok/icon/direct-right.png' %}">
+              {% endif %}
+            </div>
             <div class="name">{{ term.name }}</div>
           </div>
           {% endif %}
-          <ul>
-            {% for task in term.todo %}
-            <li>
-              <a href="{% url 'todo:task_form' task.0.id %}" class="{% if task.0.id == task_id %}current{% endif %}">
-                <div class="task">
+          {% if term.is_open %}
+            <ul>
+              {% for task in term.todo %}
+              <li>
+                <a href="{% url 'todo:task_form' task.0.id %}" class="{% if task.0.id == task_id %}current{% endif %}">
+                  <div class="task">
+                    <div class="icon">
+                      <form method="post">{% csrf_token %}
+                        <button type="submit" name="task-in-list-complete" value="{{ task.0.id }}">
+                          {% if task.0.completed %}
+                            <img src="{% static 'todo/icon/complete.png' %}">
+                          {% else %}
+                            <img src="{% static 'todo/icon/uncomplete.png' %}">
+                          {% endif %}
+                        </button>
+                      </form>
+                    </div>
+                    <div class="info">
+                      <div class="name{% if task.0.completed %} completed{% endif %}">{{ task.0.name }}</div>
+                      <div class="descr">
+                        {% for attr in task.1 %}
+                          {% if attr.icon == "attach" %}
+                            <img class="inline-icon" src="{% static 'todo/icon/inline/attach.png' %}">
+                          {% elif attr.icon == "category" %}
+                            <img class="inline-icon" src="{% static 'todo/icon/inline/category.png' %}">
+                          {% elif attr.icon == "termin" %}
+                            <img class="inline-icon" src="{% static 'todo/icon/inline/termin.png' %}">
+                          {% elif attr.icon == "termin-expired" %}
+                            <img class="inline-icon" src="{% static 'todo/icon/inline/termin-expired.png' %}">
+                          {% elif attr.icon == "termin-actual" %}
+                            <img class="inline-icon" src="{% static 'todo/icon/inline/termin-actual.png' %}">
+                          {% elif attr.icon == "myday" %}
+                            <img class="inline-icon" src="{% static 'todo/icon/inline/myday.png' %}">
+                          {% elif attr.icon == "notes" %}
+                            <img class="inline-icon" src="{% static 'todo/icon/inline/notes.png' %}">
+                          {% elif attr.icon == "remind" %}
+                            <img class="inline-icon" src="{% static 'todo/icon/inline/remind.png' %}">
+                          {% elif attr.icon == "repeat" %}
+                            <img class="inline-icon" src="{% static 'todo/icon/inline/repeat.png' %}">
+                          {% elif attr.icon == "repeat-expired" %}
+                            <img class="inline-icon" src="{% static 'todo/icon/inline/repeat-expired.png' %}">
+                          {% elif attr.icon == "repeat-actual" %}
+                            <img class="inline-icon" src="{% static 'todo/icon/inline/repeat-actual.png' %}">
+                          {% elif attr.icon == "separator" %}
+                            <img class="inline-icon" src="{% static 'todo/icon/inline/separator.png' %}">
+                          {% endif %}
+                          {% if attr.text %}
+                            <div{% if attr.color %} class="{{ attr.color }}"{% endif %}>&nbsp;{{ attr.text }}&nbsp;</div>
+                          {% endif %}
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
                   <div class="icon">
                     <form method="post">{% csrf_token %}
-                      <button type="submit" name="task-in-list-complete" value="{{ task.0.id }}">
-                        {% if task.0.completed %}
-                          <img src="{% static 'todo/icon/complete.png' %}">
+                      <button type="submit" name="task-in-list-important" value="{{ task.0.id }}">
+                        {% if task.0.important %}
+                          <img src="{% static 'todo/icon/important-on.png' %}">
                         {% else %}
-                          <img src="{% static 'todo/icon/uncomplete.png' %}">
+                          <img src="{% static 'todo/icon/important-off.png' %}">
                         {% endif %}
                       </button>
                     </form>
                   </div>
-                  <div class="info">
-                    <div class="name{% if task.0.completed %} completed{% endif %}">{{ task.0.name }}</div>
-                    <div class="descr">
-                      {% for attr in task.1 %}
-                        {% if attr.icon == "attach" %}
-                          <img class="inline-icon" src="{% static 'todo/icon/inline/attach.png' %}">
-                        {% elif attr.icon == "category" %}
-                          <img class="inline-icon" src="{% static 'todo/icon/inline/category.png' %}">
-                        {% elif attr.icon == "termin" %}
-                          <img class="inline-icon" src="{% static 'todo/icon/inline/termin.png' %}">
-                        {% elif attr.icon == "termin-expired" %}
-                          <img class="inline-icon" src="{% static 'todo/icon/inline/termin-expired.png' %}">
-                        {% elif attr.icon == "termin-actual" %}
-                          <img class="inline-icon" src="{% static 'todo/icon/inline/termin-actual.png' %}">
-                        {% elif attr.icon == "myday" %}
-                          <img class="inline-icon" src="{% static 'todo/icon/inline/myday.png' %}">
-                        {% elif attr.icon == "notes" %}
-                          <img class="inline-icon" src="{% static 'todo/icon/inline/notes.png' %}">
-                        {% elif attr.icon == "remind" %}
-                          <img class="inline-icon" src="{% static 'todo/icon/inline/remind.png' %}">
-                        {% elif attr.icon == "repeat" %}
-                          <img class="inline-icon" src="{% static 'todo/icon/inline/repeat.png' %}">
-                        {% elif attr.icon == "repeat-expired" %}
-                          <img class="inline-icon" src="{% static 'todo/icon/inline/repeat-expired.png' %}">
-                        {% elif attr.icon == "repeat-actual" %}
-                          <img class="inline-icon" src="{% static 'todo/icon/inline/repeat-actual.png' %}">
-                        {% elif attr.icon == "separator" %}
-                          <img class="inline-icon" src="{% static 'todo/icon/inline/separator.png' %}">
-                        {% endif %}
-                        {% if attr.text %}
-                          <div{% if attr.color %} class="{{ attr.color }}"{% endif %}>&nbsp;{{ attr.text }}&nbsp;</div>
-                        {% endif %}
-                      {% endfor %}
-                    </div>
-                  </div>
-                </div>
-                <div class="icon">
-                  <form method="post">{% csrf_token %}
-                    <button type="submit" name="task-in-list-important" value="{{ task.0.id }}">
-                      {% if task.0.important %}
-                        <img src="{% static 'todo/icon/important-on.png' %}">
-                      {% else %}
-                        <img src="{% static 'todo/icon/important-off.png' %}">
-                      {% endif %}
-                    </button>
-                  </form>
-                </div>
-              </a></li>
-            {% endfor %}
-          </ul>
+                </a></li>
+              {% endfor %}
+            </ul>
+          {% endif %}
         {% endfor %}
       </div>
+{% endblock %}
+
+{% block article_info %}
+    {% if details_mode == 'task' %}
+      {{ task_info }}
+    {% endif %}
 {% endblock %}
 
 {% block article_content %}
@@ -697,12 +711,26 @@
               </div>
             </button>
             <div class="dropdown-content-separator"></div>
-            <div class="dropdown-content-title">{% trans 'repeat every...'|capfirst %}</div>
-            <div class="dropdown-content-item c001">
-              <img src="{% static 'todo/icon/repeat.png' %}">
-              <div class="c005">{{ repeat_form.repeat_num }}</div>
-              <div class="c005">{{ repeat_form.repeat }}</div>
-              <button type="submit" name="repeat-save" class="field-icon"><img src="{% static 'todo/icon/save.png' %}"></button>
+            <div class="dropdown-content-title-part">{% trans 'repeat every...'|capfirst %}</div>
+            <div class="repeat-options-block">
+              <div class="repeat-options-main">
+                <img src="{% static 'todo/icon/repeat.png' %}">
+                <div class="repeat-options-input">
+                  <div class="rok-field-2 repeat-options-num">{{ repeat_form.repeat_num }}</div>
+                  <div class="rok-field-2 repeat-options-type">{{ repeat_form.repeat }}</div>
+                </div>
+                <button type="submit" name="repeat-save" class="field-icon"><img src="{% static 'todo/icon/save.png' %}"></button>
+              </div>
+              <div class="repeat-options-week">
+                <input type="hidden" id="id_repeat_week_days" name="repeat_week_days" value="{{ repeat_form.repeat_days.value }}" required="">
+                <button class="repeat-options-day">{{ repeat_form_d1 }}</button>
+                <button class="repeat-options-day">{{ repeat_form_d2 }}</button>
+                <button class="repeat-options-day">{{ repeat_form_d3 }}</button>
+                <button class="repeat-options-day">{{ repeat_form_d4 }}</button>
+                <button class="repeat-options-day">{{ repeat_form_d5 }}</button>
+                <button class="repeat-options-day">{{ repeat_form_d6 }}</button>
+                <button class="repeat-options-day">{{ repeat_form_d7 }}</button>
+              </div>
             </div>
           </form>
         </div>

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-25 01:34+0300\n"
+"POT-Creation-Date: 2020-07-19 11:03+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -40,7 +40,7 @@ msgid "active"
 msgstr "активна"
 
 #: .\fuel\models.py:15 .\fuel\models.py:41 .\fuel\models.py:110
-#: .\fuel\models.py:229 .\fuel\v_cars.py:48
+#: .\fuel\models.py:230 .\fuel\v_cars.py:48
 msgid "car"
 msgstr "автомобиль"
 
@@ -48,7 +48,7 @@ msgstr "автомобиль"
 msgid "cars"
 msgstr "автомобили"
 
-#: .\fuel\models.py:42 .\fuel\models.py:231
+#: .\fuel\models.py:42 .\fuel\models.py:232
 msgid "date"
 msgstr "дата"
 
@@ -64,7 +64,7 @@ msgstr "объём"
 msgid "price"
 msgstr "цена"
 
-#: .\fuel\models.py:46 .\fuel\models.py:114 .\fuel\models.py:238
+#: .\fuel\models.py:46 .\fuel\models.py:114 .\fuel\models.py:239
 msgid "information"
 msgstr "дополнительная информация"
 
@@ -76,7 +76,7 @@ msgstr "заправка"
 msgid "fuelings"
 msgstr "заправки"
 
-#: .\fuel\models.py:53 .\fuel\models.py:245
+#: .\fuel\models.py:53 .\fuel\models.py:246
 msgid "km."
 msgstr "км."
 
@@ -96,7 +96,7 @@ msgstr "л. на 100 км."
 msgid "no active car"
 msgstr "нет активного автомобиля"
 
-#: .\fuel\models.py:111 .\fuel\models.py:235
+#: .\fuel\models.py:111 .\fuel\models.py:236
 msgid "name"
 msgstr "наименование"
 
@@ -108,7 +108,7 @@ msgstr "интервал замены, км"
 msgid "replacement interval, months"
 msgstr "интервал замены, месяцев"
 
-#: .\fuel\models.py:117 .\fuel\models.py:230 .\fuel\v_part.py:53
+#: .\fuel\models.py:117 .\fuel\models.py:231 .\fuel\v_part.py:53
 msgid "part"
 msgstr "запчасть"
 
@@ -116,27 +116,27 @@ msgstr "запчасть"
 msgid "parts"
 msgstr "запчасти"
 
-#: .\fuel\models.py:232
+#: .\fuel\models.py:233
 msgid "odometer, km"
 msgstr "показания одометра, км"
 
-#: .\fuel\models.py:233
+#: .\fuel\models.py:234
 msgid "manufacturer"
 msgstr "производитель"
 
-#: .\fuel\models.py:234
+#: .\fuel\models.py:235
 msgid "catalog number"
 msgstr "номер по каталогу"
 
-#: .\fuel\models.py:237
+#: .\fuel\models.py:238
 msgid "project"
 msgstr "проект"
 
-#: .\fuel\models.py:241 .\fuel\v_repl.py:68
+#: .\fuel\models.py:242 .\fuel\v_repl.py:68
 msgid "replacement"
 msgstr "замена"
 
-#: .\fuel\models.py:242 .\fuel\v_repl.py:37
+#: .\fuel\models.py:243 .\fuel\v_repl.py:37
 msgid "replacements"
 msgstr "замены"
 
