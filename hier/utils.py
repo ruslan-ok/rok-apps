@@ -226,7 +226,7 @@ def get_param(user):
 #----------------------------------
 # Контекст для любой страницы
 #----------------------------------
-def get_base_context(request, folder_id, pk, title = '', mode = 'content_form', form = None, make_tree = True):
+def get_base_context(request, folder_id, pk, title = '', mode = 'content_form', form = None, make_tree = True, article_enabled = False):
     context = {}
     if (pk == 0) and (mode == 'content_form'):
         mode = 'content_add'
@@ -237,7 +237,7 @@ def get_base_context(request, folder_id, pk, title = '', mode = 'content_form', 
         param = get_param(request.user)
         if param:
             context['aside_visible'] = (not param.article) and param.aside
-            context['article_visible'] = param.article
+            context['article_visible'] = param.article and article_enabled
 
         if (folder_id != 0):
             folder = Folder.objects.filter(user = request.user.id, id = folder_id).get()

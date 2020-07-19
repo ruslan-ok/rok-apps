@@ -175,7 +175,7 @@ def sorted_tasks(user, mode, lst_id):
     return data
 
 def todo_base_context(request, mode, lst):
-    context = get_base_context(request, 0, 0, _('tasks'), 'content_list', make_tree = False)
+    context = get_base_context(request, 0, 0, _('tasks'), 'content_list', make_tree = False, article_enabled = True)
     context['cur_view'] = MODE_ID[mode]
     context['list_url'] = 'todo:' + MODE_ID[mode]
     if (mode == LIST_MODE) and lst:
