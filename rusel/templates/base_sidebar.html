@@ -73,7 +73,7 @@
           {% block aside_footer %}{% endblock %}
         </div>
       </aside>
-      <main>
+      <main class="{% if article_visible %}narrow{% else %}wide{% endif %}">
         {% block content %}{% endblock %}
       </main>
       <article class="{% if article_visible %}vis{% else %}hid{% endif %}">
