@@ -29,7 +29,8 @@ def price_list(request):
     paginator = Paginator(data, 10)
     page_obj = paginator.get_page(page_number)
     folder_id = get_folder_id(request.user.id)
-    context = get_base_context(request, folder_id, 0, _('pricess'), 'content_list')
+    title = '{} {}'.format(_('pricess in'), apart.name)
+    context = get_base_context(request, folder_id, 0, title, 'content_list')
     context['page_obj'] = page_obj
     template_file = 'apart/price_list.html'
     template = loader.get_template(template_file)
@@ -47,7 +48,8 @@ def price_add(request):
             last = Price.objects.filter(user = request.user.id).order_by('-period')[0]
             period = next_period(last.period)
         form = PriceForm(initial = { 'service': ELECTRICITY, 'period': period, 'tarif': 0, 'border': 0, 'tarif2': 0, 'border2': 0, 'tarif3': 0 })
-    return show_page_form(request, 0, _('create a new price'), form, apart)
+    title = '{} {}'.format(_('create a new price in'), apart.name)
+    return show_page_form(request, 0, title, form, apart)
 
 #----------------------------------
 def price_form(request, pk):
@@ -57,7 +59,8 @@ def price_form(request, pk):
         form = PriceForm(request.POST, instance = data)
     else:
         form = PriceForm(instance = data)
-    return show_page_form(request, pk, _('price'), form, apart)
+    title = '{} {}'.format(_('price in'), apart.name)
+    return show_page_form(request, pk, title, form, apart)
 
 #----------------------------------
 @login_required(login_url='account:login')

@@ -152,13 +152,13 @@ main .tree {
 
 main .tree .group {
   height: 50px;
-  padding: 5px 15px;
+  padding: 5px 0px;
   display: flex;
   align-items: center;
 }
 
 main .tree .group .tumbler {
-  margin: 0px 10px;
+  margin: 0px 15px;
 }
 
 main .tree .group .name {
@@ -197,6 +197,7 @@ main .tree ul li a:hover {
 main .tree ul .task {
   display: flex;
   align-items: center;
+  width: 100%;
 }
 
 .task-complete-icon {

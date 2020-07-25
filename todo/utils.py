@@ -108,7 +108,7 @@ GRP_PLANNED_ON_WEEK  = 4
 GRP_PLANNED_LATER    = 5
 
 GRPS_PLANNED = {
-    GRP_PLANNED_NONE:     _('undefined'),
+    GRP_PLANNED_NONE:     '',
     GRP_PLANNED_EARLIER:  _('earlier'),
     GRP_PLANNED_TODAY:    _('today'),
     GRP_PLANNED_TOMORROW: _('tomorrow'),

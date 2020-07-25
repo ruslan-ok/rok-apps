@@ -31,7 +31,8 @@ def bill_list(request):
     paginator = Paginator(data, 10)
     page_obj = paginator.get_page(page_number)
     folder_id = get_folder_id(request.user.id)
-    context = get_base_context(request, folder_id, 0, _('bills'), 'content_list')
+    title = '{} {}'.format(_('bills in'), apart.name)
+    context = get_base_context(request, folder_id, 0, title, 'content_list')
     context['page_obj'] = page_obj
     template_file = 'apart/bill_list.html'
     template = loader.get_template(template_file)
@@ -68,7 +69,8 @@ def bill_add(request):
 
         form = BillForm(initial = { 'period': period, 'payment': datetime.now() })
 
-    return show_page_form(request, 0, _('create a new bill'), form, apart, prev, curr)
+    title = '{} {}'.format(_('create a new bill in'), apart.name)
+    return show_page_form(request, 0, title, form, apart, prev, curr)
 
 #----------------------------------
 def bill_form(request, pk):
@@ -78,7 +80,8 @@ def bill_form(request, pk):
         form = BillForm(request.POST, instance = data)
     else:
         form = BillForm(instance = data)
-    return show_page_form(request, pk, _('bill from ') + data.period.strftime('%m.%Y'), form, apart, data.prev, data.curr)
+    title = '{} {} {} {}'.format(_('bill in'), apart.name, _('for the period'), data.period.strftime('%m.%Y'))
+    return show_page_form(request, pk, title, form, apart, data.prev, data.curr)
 
 #----------------------------------
 @login_required(login_url='account:login')

@@ -31,7 +31,8 @@ def meter_list(request):
     paginator = Paginator(data, 10)
     page_obj = paginator.get_page(page_number)
     folder_id = get_folder_id(request.user.id)
-    context = get_base_context(request, folder_id, 0, _('meters'), 'content_list')
+    title = '{} {}'.format(_('meters in'), apart.name)
+    context = get_base_context(request, folder_id, 0, title, 'content_list')
     context['page_obj'] = page_obj
     context['apart'] = apart
     template_file = 'apart/meter_list.html'
@@ -69,7 +70,8 @@ def meter_add(request):
 
         form = MeterForm(initial = { 'period': period, 'reading': datetime.now(), 'el': el, 'hw': hw, 'cw': cw, 'ga': ga })
 
-    return show_page_form(request, 0, _('adding new meter readings'), form, apart)
+    title = '{} {}'.format(_('adding new meter readings in'), apart.name)
+    return show_page_form(request, 0, title, form, apart)
 
 #----------------------------------
 def meter_form(request, pk):
@@ -79,7 +81,8 @@ def meter_form(request, pk):
         form = MeterForm(request.POST, instance = data)
     else:
         form = MeterForm(instance = data)
-    return show_page_form(request, pk, _('meter readings from ') + data.period.strftime('%m.%Y'), form, apart)
+    title = '{} {} {} {}'.format(_('meter readings in'), apart.name, _('for the period'), data.period.strftime('%m.%Y'))
+    return show_page_form(request, pk, title, form, apart)
 
 #----------------------------------
 @login_required(login_url='account:login')

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-25 01:34+0300\n"
+"POT-Creation-Date: 2020-07-25 08:42+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -246,37 +246,42 @@ msgid "creating a new apartment"
 msgstr "создание новой квартиры"
 
 #: .\apart\v_bill.py:34
-msgid "bills"
-msgstr "начисления"
+msgid "bills in"
+msgstr "начисления в"
 
-#: .\apart\v_bill.py:71
-msgid "create a new bill"
-msgstr "создание нового начисления"
+#: .\apart\v_bill.py:72
+msgid "create a new bill in"
+msgstr "создание нового начисления в"
 
-#: .\apart\v_bill.py:81
-msgid "bill from "
-msgstr "начисления на "
+#: .\apart\v_bill.py:83
+msgid "bill in"
+msgstr "начисления в"
+
+#: .\apart\v_bill.py:83 .\apart\v_meter.py:84
+msgid "for the period"
+msgstr "за период"
 
 #: .\apart\v_meter.py:34
-msgid "meters"
-msgstr "показания счетчиков"
+msgid "meters in"
+msgstr "показания счетчиков в"
 
-#: .\apart\v_meter.py:72
-msgid "adding new meter readings"
-msgstr "добавление показаний счетчиков"
+#: .\apart\v_meter.py:73
+msgid "adding new meter readings in"
+msgstr "добавление показаний счетчиков в"
 
-#: .\apart\v_meter.py:82
-msgid "meter readings from "
-msgstr "показаний счетчиков на "
+#: .\apart\v_meter.py:84
+msgid "meter readings in"
+msgstr "показания счетчиков в "
 
 #: .\apart\v_price.py:32
-msgid "pricess"
-msgstr "тарифы"
+msgid "pricess in"
+msgstr "тарифы в"
 
-#: .\apart\v_price.py:50
-msgid "create a new price"
-msgstr "создание нового тарифа"
+#: .\apart\v_price.py:51
+msgid "create a new price in"
+msgstr "создание нового тарифа в"
 
-#: .\apart\v_price.py:60
-msgid "price"
-msgstr "тариф"
+#: .\apart\v_price.py:62
+msgid "price in"
+msgstr "тариф в"
+

@@ -143,19 +143,21 @@
       </form>
       <div class="tree">
         {% for term in object_list %}
-          {% if term.name %}
+          {% if term.per_grp.name %}
           <div class="group">
             <div class="tumbler">
-              {% if term.is_open %}
+              <a href="{% url 'todo:period_toggle' term.per_grp.grp_id %}">
+                {% if term.per_grp.is_open %}
                 <img src="{% static 'rok/icon/direct-down.png' %}">
               {% else %}
                 <img src="{% static 'rok/icon/direct-right.png' %}">
               {% endif %}
+              </a>
             </div>
-            <div class="name">{{ term.name }}</div>
+            <div class="name">{{ term.per_grp.name }}</div>
           </div>
           {% endif %}
-          {% if term.is_open %}
+          {% if term.per_grp.is_open %}
             <ul>
               {% for task in term.todo %}
               <li>

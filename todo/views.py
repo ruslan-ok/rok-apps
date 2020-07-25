@@ -11,8 +11,8 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from hier.utils import get_base_context, process_common_commands, set_aside_visible, set_article_visible
-from .models import Grp, Lst, Task, Param, Step, TaskFiles, NONE, DAILY, WORKDAYS, WEEKLY, MONTHLY, ANNUALLY
-from .utils import get_task_status, nice_date, get_grp_planned, GRPS_PLANNED, GRP_PLANNED_NONE, get_week_day_name
+from .models import Grp, Lst, Task, Param, Step, TaskFiles, NONE, DAILY, WORKDAYS, WEEKLY, MONTHLY, ANNUALLY, PerGrp
+from .utils import get_task_status, nice_date, get_grp_planned, GRP_PLANNED_NONE, get_week_day_name
 from .tree import build_tree
 from .forms import GrpForm, LstForm, TaskForm, TaskLstForm, TaskInfoForm, StepForm, TaskFilesForm, TaskRemindForm, TaskTerminForm, TaskRepeatForm
 
@@ -61,16 +61,17 @@ TASK_DETAILS = 1
 LIST_DETAILS = 2
 GROUP_DETAILS = 3
 
+def get_per_grp(user, grp_id):
+    if PerGrp.objects.filter(user = user.id, grp_id = grp_id).exists():
+        return PerGrp.objects.filter(user = user.id, grp_id = grp_id).get()
+    return PerGrp.objects.create(user = user, grp_id = grp_id, is_open = True)
+
 class Term():
-    id = 0
-    name = ''
-    is_open = False
+    per_grp = None
     todo = []
 
-    def __init__(self, id, name, is_open):
-        self.id = id
-        self.name = name
-        self.is_open = is_open
+    def __init__(self, user, grp_id):
+        self.per_grp = get_per_grp(user, grp_id)
         self.todo = []
 
 def get_param(user):
@@ -616,11 +617,11 @@ def get_task_info(task, cur_view):
 
     return ret
 
-def find_term(data, grp_id):
+def find_term(data, user, grp_id):
     for term in data:
-        if (term.id == grp_id):
+        if (term.per_grp.grp_id == grp_id):
             return term
-    term = Term(grp_id, GRPS_PLANNED[grp_id].capitalize(), True)
+    term = Term(user, grp_id)
     data.append(term)
     return term
 
@@ -705,16 +706,16 @@ def task_list(request):
 
     data = []
     if (param.cur_view != PLANNED):
-        term = Term(GRP_PLANNED_NONE, '', True)
+        term = Term(request.user, GRP_PLANNED_NONE)
         data.append(term)
 
     for task in sorted_tasks(request.user, param.cur_view, param.lst):
         if (param.cur_view == PLANNED):
             grp_id = get_grp_planned(task.d_termin())
-            term = find_term(data, grp_id)
+            term = find_term(data, request.user, grp_id)
         term.todo.append([task, get_task_info(task, param.cur_view)])
     
-    context['object_list'] = sorted(data, key=lambda term: term.id)
+    context['object_list'] = sorted(data, key=lambda term: term.per_grp.grp_id)
     context['task_add_form'] = TaskForm(prefix='task_add')
 
     template_file = 'todo/task_list.html'
@@ -797,4 +798,10 @@ def article_delete(request):
             data = get_object_or_404(Grp.objects.filter(user = request.user.id, id = param.details_pk))
             data.delete()
             set_details(request.user, NONE, 0)
+
+def period_toggle(request, pk):
+    per_grp = get_object_or_404(PerGrp.objects.filter(user = request.user.id, grp_id = pk))
+    per_grp.is_open = not per_grp.is_open
+    per_grp.save()
+    return HttpResponseRedirect(reverse('todo:task_list'))
 

@@ -3,7 +3,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 
-from .utils import nice_date
+from .utils import nice_date, GRPS_PLANNED
 
 class Grp(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'))
@@ -254,5 +254,21 @@ class TaskFiles(models.Model):
 
     def __str__(self):
         return self.upload.name
+
+
+class PerGrp(models.Model):
+    user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'todo_period_user')
+    grp_id = models.IntegerField(_('period group id'), blank = True, null = True)
+    is_open = models.BooleanField(_('period group is open'), default = False)
+
+    class Meta:
+        verbose_name = _('period group')
+        verbose_name_plural = _('period groups')
+
+    def name(self):
+        return GRPS_PLANNED[self.grp_id].capitalize()
+
+    def __str__(self):
+        return self.name
 
 
