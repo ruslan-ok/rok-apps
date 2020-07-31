@@ -298,23 +298,19 @@ msgstr "файлы"
 
 #: .\todo\models.py:261
 msgid "period group id"
-msgstr ""
+msgstr "идентификатор периода"
 
 #: .\todo\models.py:262
-#, fuzzy
-#| msgid "node is open"
 msgid "period group is open"
-msgstr "узел раскрыт"
+msgstr "период раскрыт"
 
 #: .\todo\models.py:265
 msgid "period group"
-msgstr ""
+msgstr "период"
 
 #: .\todo\models.py:266
-#, fuzzy
-#| msgid "groups"
 msgid "period groups"
-msgstr "группы"
+msgstr "периоды"
 
 #: .\todo\templates\todo\task_list.html:13
 #: .\todo\templates\todo\task_list.html:114 .\todo\views.py:43
@@ -541,6 +537,3 @@ msgstr "Мой день"
 #: .\todo\views.py:575
 msgid "out of"
 msgstr "из"
-
-#~ msgid "undefined"
-#~ msgstr "не задано"

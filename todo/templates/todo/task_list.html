@@ -3,6 +3,7 @@
 
 {% block extrastyle %}
   <link rel="stylesheet" type="text/css" href="{% static 'todo/css/todo.css' %}">
+  <link rel="manifest" href="{% static 'todo/json/manifest.json' %}">
 {% endblock %}
 
 {% block aside_content %}
@@ -148,10 +149,10 @@
             <div class="tumbler">
               <a href="{% url 'todo:period_toggle' term.per_grp.grp_id %}">
                 {% if term.per_grp.is_open %}
-                <img src="{% static 'rok/icon/direct-down.png' %}">
-              {% else %}
-                <img src="{% static 'rok/icon/direct-right.png' %}">
-              {% endif %}
+                  <img src="{% static 'rok/icon/direct-down.png' %}">
+                {% else %}
+                  <img src="{% static 'rok/icon/direct-right.png' %}">
+                {% endif %}
               </a>
             </div>
             <div class="name">{{ term.per_grp.name }}</div>
@@ -450,11 +451,13 @@
           
             <div class="section">
               <div class="section-item dropdown">
+                <a href="{% url 'todo:fcm_send' task_id %}">
+                  <div class="section-icon">
+                    <img src="{% static 'todo/icon/remind.png' %}">
+                  </div>
+                </a>
                 <button class="section-inner-click dropbtn" onclick="ShowMenu('remind_menu')">
                   <div class="section-inner">
-                    <div class="section-icon">
-                      <img src="{% static 'todo/icon/remind.png' %}">
-                    </div>
                     <div class="section-content">
                       <div class="section-title">
                         {% if task_b_remind %}
@@ -758,6 +761,12 @@
         document.getElementById('loadFile').innerText = document.getElementById('id_upload').files[0].name;
       }
   </script>
+
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-messaging.js"></script>
+    <script src="{% static 'todo/js/fcm.js' %}"></script>
+  
 {% endblock %}
 
 

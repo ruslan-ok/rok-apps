@@ -31,7 +31,7 @@
         </form>
       </div>
       <div class="desktop-only">
-        <button class="button" title="{% trans 'parameters'|capfirst %}"><img src="{% static 'rok/icon/param.png' %}"></button>
+        <a href="{% url 'todo:fcm' %}" class="button" title="{% trans 'parameters'|capfirst %}"><img src="{% static 'rok/icon/param.png' %}"></a>
         <button class="button" title="{% trans 'user profile'|capfirst %}"><img src="{% static 'rok/icon/user.png' %}"></button>
       </div>
     </header>

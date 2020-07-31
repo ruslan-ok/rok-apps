@@ -272,3 +272,14 @@ class PerGrp(models.Model):
         return self.name
 
 
+class Subscription(models.Model):
+    user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'todo_subscription_user')
+    token = models.CharField(_('user device token'), max_length = 200, blank = False)
+
+    class Meta:
+        verbose_name = _('subscription')
+        verbose_name_plural = _('subscriptions')
+
+    def __str__(self):
+        return self.user.username + ': ' + self.token
+

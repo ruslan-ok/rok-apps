@@ -7,7 +7,7 @@ from django.template import loader
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
-from django.utils import timezone
+from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext_lazy as _
 
 from hier.utils import get_base_context, process_common_commands, set_aside_visible, set_article_visible
@@ -206,8 +206,8 @@ def todo_base_context(request, mode, lst):
     return context
 
 
-def get_remind_today(user_tz):
-    remind_today = timezone.now().astimezone(user_tz)
+def get_remind_today():
+    remind_today = datetime.now()
     remind_today += timedelta(hours = 3)
     if (remind_today.minute > 0):
         correct_min = -remind_today.minute
@@ -216,14 +216,13 @@ def get_remind_today(user_tz):
         remind_today += timedelta(minutes = correct_min)
     return remind_today
 
-def get_remind_tomorrow(user_tz):
-    today = timezone.now()
-    return user_tz.localize(datetime(today.year, today.month, today.day, 9, 0, 0) + timedelta(1))
+def get_remind_tomorrow():
+    return datetime.now().replace(hour = 9, minute = 0, second = 0) + timedelta(1)
 
-def get_remind_next_week(user_tz):
-    return datetime(date.today().year, date.today().month, date.today().day, 9, 0, 0) + timedelta(8 - datetime.today().isoweekday())
+def get_remind_next_week():
+    return datetime.now().replace(hour = 9, minute = 0, second = 0) + timedelta(8 - datetime.today().isoweekday())
 
-def get_task_details(request, context, pk, lst, user_tz):
+def get_task_details(request, context, pk, lst):
     ed_task = get_object_or_404(Task.objects.filter(id = pk, user = request.user.id))
     form = None
     form_lst = None
@@ -284,7 +283,7 @@ def get_task_details(request, context, pk, lst, user_tz):
             if ed_task.completed:
                 if not ed_task.stop:
                     ed_task.stop = date.today()
-                ed_task.completion = timezone.now()
+                ed_task.completion = datetime.now()
             else:
                 ed_task.completion = None
             ed_task.save()
@@ -315,17 +314,17 @@ def get_task_details(request, context, pk, lst, user_tz):
         
         if ('remind-today' in request.POST):
             ed_task.reminder = True
-            ed_task.remind_time = get_remind_today(user_tz)
+            ed_task.remind_time = get_remind_today()
             ed_task.save()
             return True
         if ('remind-tomorrow' in request.POST):
             ed_task.reminder = True
-            ed_task.remind_time = get_remind_tomorrow(user_tz)
+            ed_task.remind_time = get_remind_tomorrow()
             ed_task.save()
             return True
         if ('remind-next-week' in request.POST):
             ed_task.reminder = True
-            ed_task.remind_time = get_remind_next_week(user_tz)
+            ed_task.remind_time = get_remind_next_week()
             ed_task.save()
             return True
         if ('remind-save' in request.POST):
@@ -457,14 +456,14 @@ def get_task_details(request, context, pk, lst, user_tz):
     context['steps'] = Step.objects.filter(task = ed_task.id)
     context['step_form'] = StepForm(prefix = 'step_form')
 
-    context['remind_active'] = ed_task.reminder and (ed_task.remind_time > timezone.now())
+    context['remind_active'] = ed_task.reminder and (ed_task.remind_time > datetime.now())
     context['task_b_remind'] = ed_task.reminder
     if ed_task.remind_time:
-        context['task_remind_time'] = _('remind in').capitalize() + ' ' + ed_task.remind_time.astimezone(user_tz).strftime('%H:%M')
-        context['task_remind_date'] = nice_date(ed_task.remind_time.astimezone(user_tz).date())
-    context['remind_today_info'] = get_remind_today(user_tz).strftime('%H:%M')
-    context['remind_tomorrow_info'] = get_remind_tomorrow(user_tz).strftime('%a, %H:%M')
-    context['remind_next_week_info'] = get_remind_next_week(user_tz).strftime('%a, %H:%M')
+        context['task_remind_time'] = _('remind in').capitalize() + ' ' + ed_task.remind_time.strftime('%H:%M')
+        context['task_remind_date'] = nice_date(ed_task.remind_time.date())
+    context['remind_today_info'] = get_remind_today().strftime('%H:%M')
+    context['remind_tomorrow_info'] = get_remind_tomorrow().strftime('%a, %H:%M')
+    context['remind_next_week_info'] = get_remind_next_week().strftime('%a, %H:%M')
     context['remind_form'] = form_remind
 
     context['termin_form'] = form_termin
@@ -625,6 +624,9 @@ def find_term(data, user, grp_id):
     data.append(term)
     return term
 
+#----------------------------------
+@login_required(login_url='account:login')
+#----------------------------------
 def task_list(request):
     locale.setlocale(locale.LC_CTYPE, request.LANGUAGE_CODE)
     locale.setlocale(locale.LC_TIME, request.LANGUAGE_CODE)
@@ -647,7 +649,7 @@ def task_list(request):
             if task.completed:
                 if not task.stop:
                   task.stop = date.today()
-                task.completion = timezone.now()
+                task.completion = datetime.now()
             else:
                 task.completion = None
             task.save()
@@ -679,8 +681,7 @@ def task_list(request):
             redirect = True
         else:
             details_mode = 'task'
-            user_tz = pytz.timezone('Europe/Minsk')
-            redirect = get_task_details(request, context, param.details_pk, param.lst, user_tz)
+            redirect = get_task_details(request, context, param.details_pk, param.lst)
     elif (param.details_mode == LIST_DETAILS):
         if not Lst.objects.filter(id = param.details_pk, user = request.user.id).exists():
             param.details_mode = NONE
@@ -804,4 +805,5 @@ def period_toggle(request, pk):
     per_grp.is_open = not per_grp.is_open
     per_grp.save()
     return HttpResponseRedirect(reverse('todo:task_list'))
+
 
