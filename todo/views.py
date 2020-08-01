@@ -12,17 +12,9 @@ from django.utils.translation import gettext_lazy as _
 
 from hier.utils import get_base_context, process_common_commands, set_aside_visible, set_article_visible
 from .models import Grp, Lst, Task, Param, Step, TaskFiles, NONE, DAILY, WORKDAYS, WEEKLY, MONTHLY, ANNUALLY, PerGrp
-from .utils import get_task_status, nice_date, get_grp_planned, GRP_PLANNED_NONE, get_week_day_name
+from .utils import get_task_status, nice_date, get_grp_planned, GRP_PLANNED_NONE, get_week_day_name, ALL, MY_DAY, IMPORTANT, PLANNED, COMPLETED, LIST_MODE
 from .tree import build_tree
 from .forms import GrpForm, LstForm, TaskForm, TaskLstForm, TaskInfoForm, StepForm, TaskFilesForm, TaskRemindForm, TaskTerminForm, TaskRepeatForm
-
-# Modes
-ALL = 0
-MY_DAY = 1
-IMPORTANT = 2
-PLANNED = 3
-COMPLETED = 4
-LIST_MODE = 7
 
 
 NONE = 0
@@ -189,7 +181,7 @@ def todo_base_context(request, mode, lst):
     if (mode == MY_DAY):
         context['list_info'] = datetime.today()
     context['title'] = title + ' - To Do'
-    context['in_my_day_qty'] = len(get_tasks(request.user, MY_DAY, 0))
+    context['in_my_day_qty'] = len(get_tasks(request.user, MY_DAY, 0).exclude(completed = True))
     context['important_qty'] = len(get_tasks(request.user, IMPORTANT, 0))
     context['planned_qty'] = len(get_tasks(request.user, PLANNED, 0))
     context['all_qty'] = len(get_tasks(request.user, ALL, 0))
@@ -221,6 +213,27 @@ def get_remind_tomorrow():
 
 def get_remind_next_week():
     return datetime.now().replace(hour = 9, minute = 0, second = 0) + timedelta(8 - datetime.today().isoweekday())
+
+
+def complete_task(task):
+    next = None
+    if (not task.completed) and task.repeat:
+        if not task.start:
+            task.start = task.stop # Для повторяющейся задачи запоминаем срок, который был указан в первой итерации, чтобы использовать его для корректировки дат следующих этапов
+        next = task.next_iteration()
+    task.completed = not task.completed
+    if task.completed:
+        if not task.stop:
+          task.stop = date.today()
+        task.completion = datetime.now()
+    else:
+        task.completion = None
+    task.save()
+    if task.completed and next: # Завершен этап повторяющейся задачи и определен срок следующей итерации
+        if not Task.objects.filter(user = task.user, name = task.name, lst = task.lst, completed = False).exists():
+            Task.objects.create(user = task.user, lst = task.lst, name = task.name, start = task.start, stop = next, important = task.important, \
+                                reminder = task.reminder, remind_time = task.next_remind_time(), repeat = task.repeat, repeat_num = task.repeat_num, \
+                                repeat_days = task.repeat_days, categories = task.categories, info = task.info)
 
 def get_task_details(request, context, pk, lst):
     ed_task = get_object_or_404(Task.objects.filter(id = pk, user = request.user.id))
@@ -279,14 +292,7 @@ def get_task_details(request, context, pk, lst):
             ed_task.save()
             return True
         if ('task-completed' in request.POST):
-            ed_task.completed = not ed_task.completed
-            if ed_task.completed:
-                if not ed_task.stop:
-                    ed_task.stop = date.today()
-                ed_task.completion = datetime.now()
-            else:
-                ed_task.completion = None
-            ed_task.save()
+            complete_task(ed_task)
             return True
         if ('task-delete' in request.POST):
             ed_task.delete()
@@ -447,16 +453,16 @@ def get_task_details(request, context, pk, lst):
     context['important'] = ed_task.important
     context['in_my_day'] = ed_task.in_my_day
     context['completed'] = ed_task.completed
-    context['task_start'] = ed_task.start
     context['task_stop'] = ed_task.stop
-    context['task_d_termin'] = ed_task.d_termin()
+    context['task_d_termin'] = ed_task.stop
     context['task_s_termin'] = ed_task.s_termin()
+    context['task_actual'] = (not ed_task.completed) and (not ed_task.b_expired()) and ed_task.stop
     context['task_expired'] = ed_task.b_expired()
     
     context['steps'] = Step.objects.filter(task = ed_task.id)
     context['step_form'] = StepForm(prefix = 'step_form')
 
-    context['remind_active'] = ed_task.reminder and (ed_task.remind_time > datetime.now())
+    context['remind_active'] = ed_task.reminder and (not ed_task.completed) and (ed_task.remind_time > datetime.now())
     context['task_b_remind'] = ed_task.reminder
     if ed_task.remind_time:
         context['task_remind_time'] = _('remind in').capitalize() + ' ' + ed_task.remind_time.strftime('%H:%M')
@@ -573,7 +579,7 @@ def get_task_info(task, cur_view):
             ret.append({'icon': 'separator'})
         ret.append({'text': '{} {} {}'.format(step_completed, _('out of'), step_total)})
     
-    d = task.d_termin()
+    d = task.stop
     if d:
         if (len(ret) > 0):
             ret.append({'icon': 'separator'})
@@ -588,7 +594,7 @@ def get_task_info(task, cur_view):
                 color = 'expired'
                 repeat = 'repeat-expired'
             ret.append({'icon': icon, 'color': color, 'text': s})
-        elif (task.d_termin() == date.today()):
+        elif (task.stop == date.today()):
             if task.completed:
                 icon = 'termin'
                 color = ''
@@ -604,10 +610,10 @@ def get_task_info(task, cur_view):
             ret.append({'icon': repeat})
 
 
-    if task.reminder or task.info or (len(TaskFiles.objects.filter(task = task.id)) > 0):
+    if (task.reminder and (task.remind_time >= datetime.now())) or task.info or (len(TaskFiles.objects.filter(task = task.id)) > 0):
         if (len(ret) > 0):
             ret.append({'icon': 'separator'})
-        if task.reminder:
+        if (task.reminder and (task.remind_time >= datetime.now())):
             ret.append({'icon': 'remind'})
         if task.info:
             ret.append({'icon': 'notes'})
@@ -623,6 +629,7 @@ def find_term(data, user, grp_id):
     term = Term(user, grp_id)
     data.append(term)
     return term
+
 
 #----------------------------------
 @login_required(login_url='account:login')
@@ -645,14 +652,7 @@ def task_list(request):
             return HttpResponseRedirect(reverse('todo:task_list'))
         if 'task-in-list-complete' in request.POST:
             task = Task.objects.filter(id = request.POST['task-in-list-complete']).get()
-            task.completed = not task.completed
-            if task.completed:
-                if not task.stop:
-                  task.stop = date.today()
-                task.completion = datetime.now()
-            else:
-                task.completion = None
-            task.save()
+            complete_task(task)
             return HttpResponseRedirect(reverse('todo:task_list'))
         if 'task-in-list-important' in request.POST:
             task = Task.objects.filter(id = request.POST['task-in-list-important']).get()
@@ -706,14 +706,9 @@ def task_list(request):
     context['details_pk'] = param.details_pk
 
     data = []
-    if (param.cur_view != PLANNED):
-        term = Term(request.user, GRP_PLANNED_NONE)
-        data.append(term)
-
     for task in sorted_tasks(request.user, param.cur_view, param.lst):
-        if (param.cur_view == PLANNED):
-            grp_id = get_grp_planned(task.d_termin())
-            term = find_term(data, request.user, grp_id)
+        grp_id = get_grp_planned(param.cur_view, task.stop, task.completed)
+        term = find_term(data, request.user, grp_id)
         term.todo.append([task, get_task_info(task, param.cur_view)])
     
     context['object_list'] = sorted(data, key=lambda term: term.per_grp.grp_id)

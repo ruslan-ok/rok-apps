@@ -133,7 +133,7 @@ main .actions input[type="text"] {
   float: right;
   padding: 16px 12px;
   border: none;
-  font-size: 0.875rem;
+  font-size: 0.933rem;
   width: 100%;
 }
 
@@ -483,14 +483,6 @@ button.dropdown-content-item:hover {
   width: 140px;
   padding: 5px;
 }
-
-.level-0 { margin-left: 0px; }
-.level-1 { margin-left: 10px; }
-.level-2 { margin-left: 20px; }
-.level-3 { margin-left: 30px; }
-.level-4 { margin-left: 40px; }
-.level-5 { margin-left: 50px; }
-.level-6 { margin-left: 60px; }
 
 .file-item {
   border-radius: 1px;

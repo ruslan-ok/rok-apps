@@ -35,7 +35,7 @@ def scan_level(tree, user_id, node_id, level):
         tree.append(TreeNode(grp.id, node_id, grp.name, level, False, grp.is_open))
         if grp.is_open:
             for lst in Lst.objects.filter(user = user_id, grp = grp.id).order_by('sort', 'name'):
-                qty = len(Task.objects.filter(lst = lst.id))
+                qty = len(Task.objects.filter(lst = lst.id).exclude(completed = True))
                 tree.append(TreeNode(lst.id, grp.id, lst.name, level + 1, True, False, qty))
             scan_level(tree, user_id, grp.id, level + 1)
 
@@ -44,7 +44,7 @@ def build_tree(user_id):
     tree = []
     scan_level(tree, user_id, 0, 0)
     for lst in Lst.objects.filter(user = user_id, grp = None).order_by('sort', 'name'):
-        qty = len(Task.objects.filter(lst = lst.id))
+        qty = len(Task.objects.filter(lst = lst.id).exclude(completed = True))
         tree.append(TreeNode(lst.id, 0, lst.name, 0, True, False, qty))
     return tree
 

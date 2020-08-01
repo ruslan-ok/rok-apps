@@ -13,35 +13,35 @@
                 <img src="{% static 'todo/icon/myday.png' %}">
                 {% trans 'my day'|capfirst %}
               </div>
-              <div>{{ in_my_day_qty }}</div>
+              <div class="nav-menu-qty">{{ in_my_day_qty }}</div>
             </a></li>
           <li{% if cur_view == 'important' %} class="selected"{% endif %}><a class="fix" href="{% url 'todo:important' %}">
               <div class="nav-menu-item-left">
                 <img src="{% static 'todo/icon/important.png' %}">
                 {% trans 'important'|capfirst %}
               </div>
-              <div>{{ important_qty }}</div>
+              <div class="nav-menu-qty">{{ important_qty }}</div>
             </a></li>
           <li{% if cur_view == 'planned' %} class="selected"{% endif %}><a class="fix" href="{% url 'todo:planned' %}">
               <div class="nav-menu-item-left">
                 <img src="{% static 'todo/icon/planned.png' %}">
                 {% trans 'planned'|capfirst %}
               </div>
-              <div>{{ planned_qty }}</div>
+              <div class="nav-menu-qty">{{ planned_qty }}</div>
             </a></li>
           <li{% if cur_view == 'all' %} class="selected"{% endif %}><a class="fix" href="{% url 'todo:all_tasks' %}">
               <div class="nav-menu-item-left">
                 <img src="{% static 'todo/icon/all.png' %}">
                 {% trans 'all'|capfirst %}
               </div>
-              <div>{{ all_qty }}</div>
+              <div class="nav-menu-qty">{{ all_qty }}</div>
             </a></li>
           <li{% if cur_view == 'completed' %} class="selected"{% endif %}><a class="fix" href="{% url 'todo:completed' %}">
               <div class="nav-menu-item-left">
                 <img src="{% static 'todo/icon/completed.png' %}">
                 {% trans 'completed'|capfirst %}
               </div>
-              <div>{{ completed_qty }}</div>
+              <div class="nav-menu-qty">{{ completed_qty }}</div>
             </a></li>
         </ul>
         <div class="nav-last-static-list"></div>
@@ -55,14 +55,14 @@
                     <div>{{ node.name }}</div>
                   </div>
                 </a>
-                <div class="nav-menu-item-right">
+                <div class="nav-menu-qty">
                   {{ node.qty }}
                 </div>
               {% else %}
                 <a href="{% url 'todo:group_form' node.id %}">
-                  <div class="nav-menu-item-left">
+                  <div class="nav-menu-item-x1">
                     <img class="level-{{ node.level }}" src="{% static 'todo/icon/group.png' %}">
-                    <div>{{ node.name }}</div>
+                    <div class="nav-menu-item-x2">{{ node.name }}</div>
                   </div>
                 </a>
                 <div class="nav-menu-item-right">
@@ -133,7 +133,7 @@
             </button>
             <span>{{ sort_mode }}</span>
             <button type="submit" name="sort-delete">
-              <img src="{% static 'rok/icon/delete.png' %}">
+              <img class="img-20_20" src="{% static 'rok/icon/delete.png' %}">
             </button>
             {% endif %}
           </form>
@@ -261,7 +261,7 @@
                   {{ grp_form.name }}
                 </div>
               </div>
-              <button type="submit" name="group-save"><img src="{% static 'todo/icon/save.png' %}"></button>
+              <button type="submit" name="group-save"><img class="img-20_20" src="{% static 'todo/icon/save.png' %}"></button>
             </div>
           </div>
           <div class="section">
@@ -316,7 +316,7 @@
                   {{ lst_form.name }}
                 </div>
               </div>
-              <button type="submit" name="list-save"><img src="{% static 'todo/icon/save.png' %}"></button>
+              <button type="submit" name="list-save"><img class="img-20_20" src="{% static 'todo/icon/save.png' %}"></button>
             </div>
           </div>
           <div class="section">
@@ -483,7 +483,7 @@
                       <img src="{% static 'todo/icon/planned.png' %}">
                     </div>
                     <div class="section-content">
-                      <div class="section-title{% if task_expired %} expired{% elif task_d_termin %} actual{% endif %}">
+                      <div class="section-title{% if task_expired %} expired{% elif task_actual %} actual{% endif %}">
                         {% if task_d_termin %}
                           {{ task_s_termin }}
                         {% else %}

@@ -140,8 +140,16 @@ header .button {
   text-decoration: none;
 }
 
-header .button:hover {
+header .button img:hover {
   background-color: #314d61;
+}
+
+header a.button {
+  margin: 0px;
+}
+
+header .button img {
+  padding: 14px;
 }
 
 .header-left {
@@ -377,6 +385,10 @@ article .section-item .section-content {
   font-size: 0.7rem;
 }
 
+img.img-20_20 {
+  padding: 8px;
+}
+
 .article-name {
   width: 100%;
   margin: 10px 0;
@@ -428,24 +440,35 @@ ul.nav-menu li a {
   font-size: 0.875rem;
   display: flex;
   justify-content: space-between;
+  width: 100%;
+}
+
+ul.nav-menu li a.fix {
+  padding: 0px 6px;
 }
 
 ul.nav-menu li a:hover {
   background-color: #ddd;
 }
 
-ul.nav-menu li a.fix {
-  padding: 8px 14px;
-}
-
 .nav-menu-item-left {
   display: flex;
   align-items: center;
-  width: 242px;
+  width: 100%;
 }
 
-.nav-menu-item-left img{
-  margin-right: 7px;
+.nav-menu-item-x1 {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+}
+
+.nav-menu-item-x2 {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
 }
 
 .nav-last-static-list {
@@ -458,25 +481,31 @@ li.grp-item {
   font-size: 0.875rem;
   display: flex;
   justify-content: space-between;
-  padding: 8px 7px 8px 14px;
+  padding: 0px 6px;
 }
 
 li.grp-item:hover {
   background-color: #ddd;
 }
 
-.nav-menu-item-right {
-  width: 20px;
+.nav-menu-qty {
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse;
+  padding: 0px 6px;
 }
 
-.level-0 { margin-left: 0px;  margin-right: 10px; }
-.level-1 { margin-left: 10px; margin-right: 10px; }
-.level-2 { margin-left: 20px; margin-right: 10px; }
-.level-3 { margin-left: 30px; margin-right: 10px; }
-.level-4 { margin-left: 40px; margin-right: 10px; }
-.level-5 { margin-left: 50px; margin-right: 10px; }
-.level-6 { margin-left: 60px; margin-right: 10px; }
+.nav-menu-item-left img, .nav-menu-item-x1 img, .nav-menu-item-right img {
+  padding: 8px;
+}
 
+.level-0 { margin-left: 0px; }
+.level-1 { margin-left: 10px; }
+.level-2 { margin-left: 20px; }
+.level-3 { margin-left: 30px; }
+.level-4 { margin-left: 40px; }
+.level-5 { margin-left: 50px; }
+.level-6 { margin-left: 60px; }
 
 .rok-padding {
   padding: 8px 16px!important;

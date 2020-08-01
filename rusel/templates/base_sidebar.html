@@ -42,7 +42,7 @@
         <section id="aside-top">
           <form method="post">{% csrf_token %}
             <div class="info">{% block aside_top_info %}{% endblock %}</div>
-            <button type="submit" name="aside_close" class="phone-only" title="{% trans 'close sidebar'|capfirst %}"><img src="{% static 'rok/icon/close-left.png' %}"></button>
+            <button type="submit" name="aside_close" class="phone-only" title="{% trans 'close sidebar'|capfirst %}"><img class="img-20_20" src="{% static 'rok/icon/close-left.png' %}"></button>
           </form>
         </section>
         <div class="scroll">
@@ -79,9 +79,9 @@
       <article class="{% if article_visible %}vis{% else %}hid{% endif %}">
         <section id="article-top">
           <form method="post">{% csrf_token %}
-            <button type="submit" name="article_close" title="{% trans 'close details'|capfirst %}"><img src="{% static 'rok/icon/close-right.png' %}"></button>
+            <button type="submit" name="article_close" title="{% trans 'close details'|capfirst %}"><img class="img-20_20" src="{% static 'rok/icon/close-right.png' %}"></button>
             <div class="info">{% block article_info %}{% endblock %}</div>
-            <button type="submit" name="article_delete" title="{% trans 'delete record'|capfirst %}"><img src="{% static 'rok/icon/trash.png' %}"></button>
+            <button type="submit" name="article_delete" title="{% trans 'delete record'|capfirst %}"><img class="img-20_20" src="{% static 'rok/icon/trash.png' %}"></button>
           </form>
         </section>
         <section id="article-content">

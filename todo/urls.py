@@ -22,6 +22,6 @@ urlpatterns = [
     path('fcm_del/',                fcm.fcm_del,         name = 'fcm_del'),
     path('fcm_send/<int:pk>/',      fcm.fcm_send,        name = 'fcm_send'),
     path('fcm_test/',               fcm.fcm_test,        name = 'fcm_test'),
-    path('delay/<int:pk>/',         fcm.fcm_delay,       name = 'fcm_delay'),
-    path('ready/<int:pk>/',         fcm.fcm_ready,       name = 'fcm_ready'),
+    path('postpone/<int:pk>/',      fcm.fcm_postpone,    name = 'fcm_postpone'),
+    path('done/<int:pk>/',          fcm.fcm_done,        name = 'fcm_done'),
 ]

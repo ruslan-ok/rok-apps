@@ -1,6 +1,15 @@
 from datetime import datetime, date, timezone, timedelta
 from django.utils.translation import gettext_lazy as _
 
+# Modes
+ALL = 0
+MY_DAY = 1
+IMPORTANT = 2
+PLANNED = 3
+COMPLETED = 4
+LIST_MODE = 7
+
+
 LONG_TIME = 20 # Совсем давно
 LAST_MONTH = 19 # В прошлом месяце
 THREE_WEEKS = 18 # Три недели назад
@@ -106,6 +115,7 @@ GRP_PLANNED_TODAY    = 2
 GRP_PLANNED_TOMORROW = 3
 GRP_PLANNED_ON_WEEK  = 4
 GRP_PLANNED_LATER    = 5
+GRP_PLANNED_DONE     = 6
 
 GRPS_PLANNED = {
     GRP_PLANNED_NONE:     '',
@@ -114,14 +124,17 @@ GRPS_PLANNED = {
     GRP_PLANNED_TOMORROW: _('tomorrow'),
     GRP_PLANNED_ON_WEEK:  _('on the week'),
     GRP_PLANNED_LATER:    _('later'),
+    GRP_PLANNED_DONE:     _('completed'),
 }  
 
-def get_grp_planned(d):
-    if not d:
-        return GRP_PLANNED_NONE
-    
-    today = date.today()
+def get_grp_planned(view, d, completed):
+    if completed and (view in [MY_DAY, LIST_MODE]):
+        return GRP_PLANNED_DONE
 
+    if (not d) or (view != PLANNED):
+        return GRP_PLANNED_NONE
+     
+    today = date.today()
     if (d == today):
         return GRP_PLANNED_TODAY
 

@@ -73,7 +73,7 @@ def remind_one_task(task, debug = False):
         priority = 'high'
     else:
         priority = 'normal'
-    icon = 'https://rusel.by/favicon.ico'
+    icon = 'https://rusel.by/static/todo/img/rusel-192.png'
     click_action = 'https://rusel.by/todo/task/' + str(task.id) + '/'
     an = messaging.AndroidNotification(title = task.name, body = body, icon = icon, color = None, sound = None, tag = None, click_action = click_action, body_loc_key = None, \
                                        body_loc_args = None, title_loc_key = None, title_loc_args = None, channel_id = None, image = None, ticker = None, sticky = None, \
@@ -81,8 +81,8 @@ def remind_one_task(task, debug = False):
                                        default_sound = None, light_settings = None, default_light_settings = None, visibility = None, notification_count = None)
     aс = messaging.AndroidConfig(collapse_key = None, priority = priority, ttl = None, restricted_package_name = None, data = None, notification = an, fcm_options = None)
     actions = []
-    a1 = messaging.WebpushNotificationAction('delay', _('delay').capitalize(), icon = 'https://rusel.by/static/todo/icon/remind-today.png')
-    a2 = messaging.WebpushNotificationAction('ready', _('ready').capitalize(), icon = 'https://rusel.by/static/rok/icon/delete.png')
+    a1 = messaging.WebpushNotificationAction('postpone', _('postpone').capitalize(), icon = 'https://rusel.by/static/todo/icon/remind-today.png')
+    a2 = messaging.WebpushNotificationAction('done', _('done').capitalize(), icon = 'https://rusel.by/static/rok/icon/delete.png')
     actions.append(a1)
     actions.append(a2)
 
@@ -92,19 +92,25 @@ def remind_one_task(task, debug = False):
     wc = messaging.WebpushConfig(headers = None, data = None, notification = wn, fcm_options = None)
     
     tokens = []
-    for s in Subscription.objects.filter(user = task.user.id):
+    ss = Subscription.objects.filter(user = task.user.id)
+    for s in ss:
         tokens.append(s.token)
     
     mm = messaging.MulticastMessage(tokens = tokens, data = None, notification = n, android = None, webpush = wc, apns = None, fcm_options = None)
     r = messaging.send_multicast(mm, dry_run = False, app = None)
     ret_resp = '[' + str(len(r.responses)) + ']: '
+    npp = 0
     for z in r.responses:
         if (len(ret_resp) > 0):
             ret_resp += ', '
         if z.success:
             ret_resp += '1'
         else:
-            ret_resp += '0'
+            ret_resp += '0 ' + z.exception.code
+            if (z.exception.code == 'NOT_FOUND'):
+                ss[npp].delete()
+        npp += 1
+
         if z.message_id:
             ret_resp += ':' + z.message_id
     
@@ -125,7 +131,7 @@ def fcm_send(request, pk):
 def fcm_check(request):
     ret = 'ok'
     try:
-        tasks = Task.objects.filter(reminder = True).order_by('remind_time')
+        tasks = Task.objects.filter(reminder = True, completed = False).order_by('remind_time')
         now = datetime.now()
         for task in tasks:
             if (task.remind_time <= now):
@@ -142,8 +148,8 @@ def log(info):
          f.write(datetime.now().strftime('%H:%M:%S') + '   ' + info + '\n')
 
 
-def fcm_delay(request, pk):
-    log('fcm_delay(..., pk = ' + str(pk) + ')')
+def fcm_postpone(request, pk):
+    log('fcm_postpone(..., pk = ' + str(pk) + ')')
     task = get_object_or_404(Task.objects.filter(id = pk))
     task.remind_time = (datetime.now() + timedelta(seconds = 300))
     task.reminder = True
@@ -152,8 +158,8 @@ def fcm_delay(request, pk):
     return HttpResponse('ok, id = ' + str(task.id) + ', remind = ' + str(task.reminder) + ', time = ' + task.remind_time.strftime('%H:%M'))
 
 
-def fcm_ready(request, pk):
-    log('fcm_ready(..., pk = ' + str(pk) + ')')
+def fcm_done(request, pk):
+    log('fcm_done(..., pk = ' + str(pk) + ')')
     task = get_object_or_404(Task.objects.filter(id = pk))
     task.reminder = False
     task.completed = True

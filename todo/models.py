@@ -1,3 +1,4 @@
+import calendar
 from datetime import datetime, date
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -96,72 +97,60 @@ class Task(models.Model):
         return self.name
 
     def next_iteration(self):
-        next = date.today()
+        next = None
 
-        if self.start and (self.repeat == NONE):
-            next = self.start
-        elif self.start and (self.repeat != NONE):
-            if (not self.last_compl):
-                next = self.start
-            else:
-                if (self.repeat == DAILY):
-                    next = self.last_compl + timedelta(1)
-                elif (self.repeat == WEEKLY):
-                    next = self.last_compl + timedelta(7)
-                elif (self.repeat == MONTHLY):
-                    d = self.last_compl.day
-                    m = self.last_compl.month
-                    y = self.last_compl.year
-                    if (m < 12):
-                        m += 1
-                    else:
-                        m = 1
-                        y += 1
-                    last_day = calendar.monthrange(y, m)[1]
-                    if (d > last_day):
-                        d = last_day
-                    next = date(y, m, d)
-                    if (next.day != self.start.day):
-                        # Теперь попытаемся скорректировать день, чтобы он был как у стартовой даты
-                        d = next.day
-                        m = next.month
-                        y = next.year
-                        last_day = calendar.monthrange(next.year, next.month)[1]
-                        if (last_day < self.start.day):
-                            d = last_day
-                        else:
-                            d = self.start.day
-                        next = date(y, m, d)
-                elif (self.repeat == ANNUALLY):
-                    d = self.last_compl.day
-                    m = self.last_compl.month
-                    y = self.last_compl.year
+        if self.stop and self.repeat:
+            if (self.repeat == DAILY):
+                next = self.stop + timedelta(1)
+            elif (self.repeat == WEEKLY):
+                next = self.stop + timedelta(7)
+            elif (self.repeat == MONTHLY):
+                d = self.stop.day
+                m = self.stop.month
+                y = self.stop.year
+                if (m < 12):
+                    m += 1
+                else:
+                    m = 1
                     y += 1
-                    last_day = calendar.monthrange(y, m)[1]
-                    if (d > last_day): # 29.02.YYYY
+                last_day = calendar.monthrange(y, m)[1]
+                if (d > last_day):
+                    d = last_day
+                next = date(y, m, d)
+                if self.start and (next.day != self.start.day):
+                    # Теперь попытаемся скорректировать день, чтобы он был как у стартовой даты
+                    d = next.day
+                    m = next.month
+                    y = next.year
+                    last_day = calendar.monthrange(next.year, next.month)[1]
+                    if (last_day < self.start.day):
                         d = last_day
+                    else:
+                        d = self.start.day
                     next = date(y, m, d)
+            elif (self.repeat == ANNUALLY):
+                d = self.stop.day
+                m = self.stop.month
+                y = self.stop.year
+                y += 1
+                last_day = calendar.monthrange(y, m)[1]
+                if (d > last_day): # 29.02.YYYY
+                    d = last_day
+                next = date(y, m, d)
 
-        if self.stop and next and (next > self.stop):
-            next = None
         return next
 
-    def d_termin(self):
-        if self.start and self.repeat:
-            return self.next_iteration()
-        else:
-            if self.stop:
-                return self.stop
-        return None
-
     def b_expired(self):
-        d = self.d_termin()
+        if self.completed:
+            return False
+
+        d = self.stop
         if d:
             return (d < date.today())
         return False
 
     def s_termin(self):
-        d = self.d_termin()
+        d = self.stop
 
         if not d:
             return ''
@@ -198,6 +187,16 @@ class Task(models.Model):
                 ret += (monday +timedelta(1)).strftime('%A')
             return ret
         return ''
+
+    def next_remind_time(self):
+        if (not self.remind_time) or (not self.stop):
+            return None
+        delta = self.stop - self.remind_time.date()
+        next = self.next_iteration()
+        if (not next):
+            return None
+        rd = next - delta
+        return datetime(rd.year, rd.month, rd.day, self.remind_time.hour, self.remind_time.minute, self.remind_time.second)
 
 
 

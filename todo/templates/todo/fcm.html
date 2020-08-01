@@ -1,4 +1,4 @@
-{% load static %}
+{% load static i18n %}
 
 <html>
   <head>
@@ -9,7 +9,7 @@
   <body>
     <main>
       <section>
-        <h3>Токен этого приложения</h3>
+        <h3>{% trans 'the token of this application'|capfirst %}</h3>
         <div id="this_app_token" class="token">There will be a token</div>
         <div id="permission_div" style="display: none;">
           <h4>Needs Permission</h4>
@@ -17,7 +17,7 @@
         </div>
       </section>
       <section>
-        <h3>Токены всех подписок пользователя на push-уведомления</h3>
+        <h3>{% trans 'tokens for all user subscriptions to push notifications'|capfirst %}</h3>
           {% for subscription in object_list %}
             <div class="token-info">
               <form method="post">{% csrf_token %}
@@ -33,13 +33,13 @@
       </section>
       <section>
         <form method="post" class="app_token_add">{% csrf_token %}
-          <h3>Добавить новый токен</h3>
+          <h3>{% trans 'add new token'|capfirst %}</h3>
           <input type="text" name="app_token" maxlength="200" required="" id="id_app_token">
           <button type="submit" name="app_token_add" class="app_token_add"><img src="{% static 'todo/icon/add.png' %}"></button>
         </form>
       </section>
       <section>
-        <p>Вернуться в приложение <a href="{% url 'todo:task_list' %}">ToDo</a></p>
+        <p>{% trans 'return to app'|capfirst %} <a href="{% url 'todo:task_list' %}">ToDo</a></p>
       </section>
     </main>
   </body>
