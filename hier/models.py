@@ -1,5 +1,5 @@
+from datetime import datetime
 from django.db import models
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 
@@ -8,7 +8,7 @@ class Folder(models.Model):
     node = models.IntegerField(_('node'), null = True)
     code = models.CharField(_('code'), max_length=500, blank = True)
     name = models.CharField(_('name'), max_length=1000)
-    creation = models.DateTimeField(_('creation time'), default = timezone.now)
+    creation = models.DateTimeField(_('creation time'), default = datetime.now)
     last_mod = models.DateTimeField(_('last modification time'), null = True)
     is_open = models.BooleanField(_('node is opened'), default = False)
     icon = models.CharField(_('icon'), max_length=50, blank = True)
@@ -49,10 +49,18 @@ class Param(models.Model):
     folder_id = models.IntegerField(_('folder id'), null = True)
     aside = models.BooleanField(_('aside visible'), default = False)
     article = models.BooleanField(_('article visible'), default = False)
+    cur_app = models.CharField(_('current application'), max_length=50, blank = True)
+    cur_view = models.CharField(_('current view'), max_length=50, blank = True)
+    article_mode = models.CharField(_('article mode'), max_length=50, blank = True)
+    article_pk = models.IntegerField(_('article pk'), blank = True, null = True)
+    last_url = models.CharField(_('last visited url'), max_length=200, blank = True)
+    last_app = models.CharField(_('last visited app'), max_length=200, blank = True)
+    last_page = models.CharField(_('last visited page'), max_length=200, blank = True)
 
     class Meta:
         verbose_name = _('user parameters')
         verbose_name_plural = _('users parameters')
 
-        
+    def __str__(self):
+        return self.user.name + ' - ' + cur_view
 

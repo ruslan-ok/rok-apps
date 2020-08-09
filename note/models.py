@@ -1,6 +1,6 @@
+from datetime import datetime
 from django.contrib.auth.models import User
 from django.db import models
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 #----------------------------------
@@ -30,7 +30,7 @@ class Note(models.Model):
     descr = models.TextField(_('description'), blank = True)
     # deprecated
     list  = models.ForeignKey(List, on_delete=models.CASCADE, blank = True, null = True, verbose_name=_('list'))
-    publ  = models.DateTimeField(_('publication date'), blank=True, default = timezone.now)
+    publ  = models.DateTimeField(_('publication date'), blank=True, default = datetime.now)
 
     class Meta:
         verbose_name = _('note')

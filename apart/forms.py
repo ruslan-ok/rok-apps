@@ -1,7 +1,11 @@
 from django import forms
+from django.utils.translation import gettext_lazy as _
 
 from .models import Apart, Meter, Bill, Price
 
+#----------------------------------
+class MyDateInput(forms.DateInput):
+    input_type = 'date'
 
 #----------------------------------
 class ApartForm(forms.ModelForm):
@@ -14,16 +18,19 @@ class MeterForm(forms.ModelForm):
     class Meta:
         model = Meter
         fields = ['period', 'reading', 'el', 'hw', 'cw', 'ga', 'info']
+        widgets = { 'period': MyDateInput() }
 
 #----------------------------------
 class BillForm(forms.ModelForm):
     class Meta:
         model = Bill
         fields = ['period', 'payment', 'el_pay', 'tv_bill', 'tv_pay', 'phone_bill', 'phone_pay', 'zhirovka', 'hot_pay', 'repair_pay', 'ZKX_pay', 'water_pay', 'gas_pay', 'rate', 'info']
+        widgets = { 'period': MyDateInput(), 'info': forms.Textarea(attrs={'rows':3, 'cols':10, 'placeholder':_('add note').capitalize()}) }
     
 #----------------------------------
 class PriceForm(forms.ModelForm):
     class Meta:
         model = Price
-        fields = ['service', 'period', 'tarif', 'border', 'tarif2', 'border2', 'tarif3', 'info']
+        exclude = ['apart', 'service', 'period']
+        widgets = { 'start': MyDateInput(), 'info': forms.Textarea(attrs={'rows':3, 'cols':10, 'placeholder':_('add note').capitalize()}) }
 

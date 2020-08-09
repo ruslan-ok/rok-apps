@@ -139,7 +139,7 @@
           </form>
         </div>
       <form method="post" class="actions">{% csrf_token %}
-        <button type="submit" name="task-add" class="default" placeholder="{% trans 'add task'|capfirst %}"><img src="{% static 'todo/icon/add-gray.png' %}"></button>
+        <button type="submit" name="task-add" class="default" placeholder="{% trans 'add task'|capfirst %}"><img class="img-20_20" src="{% static 'rok/icon/add-gray.png' %}"></button>
         <input type="text" class="add-task" placeholder="{% trans 'add task'|capfirst %}" name="task_add-name" maxlength="200" required="" id="id_task_add-name">
       </form>
       <div class="tree">
@@ -162,8 +162,7 @@
             <ul>
               {% for task in term.todo %}
               <li>
-                <a href="{% url 'todo:task_form' task.0.id %}" class="{% if task.0.id == task_id %}current{% endif %}">
-                  <div class="task">
+                <a href="{% url 'todo:task_form' task.0.id %}" class="tree-item{% if task.0.id == task_id %} current{% endif %}">
                     <div class="icon">
                       <form method="post">{% csrf_token %}
                         <button type="submit" name="task-in-list-complete" value="{{ task.0.id }}">
@@ -210,7 +209,6 @@
                         {% endfor %}
                       </div>
                     </div>
-                  </div>
                   <div class="icon">
                     <form method="post">{% csrf_token %}
                       <button type="submit" name="task-in-list-important" value="{{ task.0.id }}">
@@ -261,7 +259,7 @@
                   {{ grp_form.name }}
                 </div>
               </div>
-              <button type="submit" name="group-save"><img class="img-20_20" src="{% static 'todo/icon/save.png' %}"></button>
+              <button type="submit" name="group-save"><img class="img-20_20" src="{% static 'rok/icon/save.png' %}"></button>
             </div>
           </div>
           <div class="section">
@@ -316,7 +314,7 @@
                   {{ lst_form.name }}
                 </div>
               </div>
-              <button type="submit" name="list-save"><img class="img-20_20" src="{% static 'todo/icon/save.png' %}"></button>
+              <button type="submit" name="list-save"><img class="img-20_20" src="{% static 'rok/icon/save.png' %}"></button>
             </div>
           </div>
           <div class="section">
@@ -382,7 +380,7 @@
                   <img src="{% static 'todo/icon/important-off.png' %}">
                 {% endif %}
               </button>
-              <button type="submit" name="task-save" class="field-icon"><img src="{% static 'todo/icon/save.png' %}"></button>
+              <button type="submit" name="task-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
             </div>
           </form>
 
@@ -406,7 +404,7 @@
                         <input type="text" name="step_edit_name" value="{{ step.name }}" maxlength="200" required="" id="id_step_edit_name" class="{% if step.completed %}completed{% endif %}">
                       </div>
                     </div>
-                    <button type="submit" name="step-save" class="field-icon"><img src="{% static 'todo/icon/save.png' %}"></button>
+                    <button type="submit" name="step-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
                     <button type="submit" name="step-delete" class="field-icon"><img src="{% static 'rok/icon/delete.png' %}"></button>
                   </div>
                 </form>
@@ -589,7 +587,7 @@
               <div class="section-inner">
                 {{ form_info.info }}
                 <div class="section-icon">
-                  <button type="submit" name="task-info-save" class="field-icon"><img src="{% static 'todo/icon/save.png' %}"></button>
+                  <button type="submit" name="task-info-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
                 </div>
               </div>
             </div>
@@ -608,7 +606,7 @@
                   </div>
                 </div>
                 <div class="section-icon">
-                  <button type="submit" name="task-lst-save" class="field-icon"><img src="{% static 'todo/icon/save.png' %}"></button>
+                  <button type="submit" name="task-lst-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
                 </div>
               </div>
             </div>
@@ -644,7 +642,7 @@
             <div class="dropdown-content-item c001">
               <img src="{% static 'todo/icon/remind-select.png' %}">
               <div class="c005">{{ remind_form.remind_time }}</div>
-              <button type="submit" name="remind-save" class="field-icon"><img src="{% static 'todo/icon/save.png' %}"></button>
+              <button type="submit" name="remind-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
             </div>
           </form>
         </div>
@@ -677,7 +675,7 @@
             <div class="dropdown-content-item c001">
               <img src="{% static 'todo/icon/termin-select.png' %}">
               <div class="c005">{{ termin_form.stop }}</div>
-              <button type="submit" name="termin-save" class="field-icon"><img src="{% static 'todo/icon/save.png' %}"></button>
+              <button type="submit" name="termin-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
             </div>
           </form>
         </div>
@@ -724,7 +722,7 @@
                   <div class="rok-field-2 repeat-options-num">{{ repeat_form.repeat_num }}</div>
                   <div class="rok-field-2 repeat-options-type">{{ repeat_form.repeat }}</div>
                 </div>
-                <button type="submit" name="repeat-save" class="field-icon"><img src="{% static 'todo/icon/save.png' %}"></button>
+                <button type="submit" name="repeat-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
               </div>
               <div class="repeat-options-week">
                 <input type="hidden" id="id_repeat_week_days" name="repeat_week_days" value="{{ repeat_form.repeat_days.value }}" required="">

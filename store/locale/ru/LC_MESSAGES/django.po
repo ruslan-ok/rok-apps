@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-25 01:34+0300\n"
+"POT-Creation-Date: 2020-08-09 00:05+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,107 +19,107 @@ msgstr ""
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: .\store\forms.py:15 .\store\models.py:63
+#: .\store\forms.py:15 .\store\models.py:64
 msgid "length"
 msgstr "длина"
 
-#: .\store\models.py:11 .\store\models.py:27 .\store\models.py:60
+#: .\store\models.py:12 .\store\models.py:28 .\store\models.py:61
 msgid "user"
 msgstr "пользователь"
 
-#: .\store\models.py:12
+#: .\store\models.py:13
 msgid "code"
 msgstr "код"
 
-#: .\store\models.py:13
+#: .\store\models.py:14
 msgid "name"
 msgstr "наименование"
 
-#: .\store\models.py:14 .\store\models.py:33
+#: .\store\models.py:15 .\store\models.py:34
 msgid "UUID"
 msgstr "идентификатор"
 
-#: .\store\models.py:15 .\store\models.py:34
+#: .\store\models.py:16 .\store\models.py:35
 msgid "creation time"
 msgstr "дата-время создания"
 
-#: .\store\models.py:16 .\store\models.py:35
+#: .\store\models.py:17 .\store\models.py:36
 msgid "last modification time"
 msgstr "дата-время модификации"
 
-#: .\store\models.py:28 .\store\templates\store\entry_list.html:11
+#: .\store\models.py:29 .\store\templates\store\entry_list.html:11
 msgid "title"
 msgstr "название"
 
-#: .\store\models.py:29 .\store\templates\store\entry_list.html:12
+#: .\store\models.py:30 .\store\templates\store\entry_list.html:12
 msgid "username"
 msgstr "имя пользователя"
 
-#: .\store\models.py:30 .\store\templates\store\entry_list.html:13
+#: .\store\models.py:31 .\store\templates\store\entry_list.html:13
 msgid "value"
 msgstr "значение"
 
-#: .\store\models.py:31
+#: .\store\models.py:32
 msgid "URL"
 msgstr "URL"
 
-#: .\store\models.py:32 .\store\templates\store\entry_list.html:15
+#: .\store\models.py:33 .\store\templates\store\entry_list.html:15
 msgid "notes"
 msgstr "примечание"
 
-#: .\store\models.py:36
+#: .\store\models.py:37
 msgid "group"
 msgstr "группа"
 
-#: .\store\models.py:37
+#: .\store\models.py:38
 msgid "actual"
 msgstr "актуальность"
 
-#: .\store\models.py:51
+#: .\store\models.py:52
 msgid "node"
 msgstr "узел"
 
-#: .\store\models.py:52 .\store\views.py:111
+#: .\store\models.py:53 .\store\views.py:111
 msgid "entry"
 msgstr "запись"
 
-#: .\store\models.py:62
+#: .\store\models.py:63
 msgid "group filter"
 msgstr "фильтр по группе"
 
-#: .\store\models.py:64
+#: .\store\models.py:65
 msgid "upper case"
 msgstr "буквы в верхнем регистре"
 
-#: .\store\models.py:65
+#: .\store\models.py:66
 msgid "lower case"
 msgstr "буквы в нижнем регистре"
 
-#: .\store\models.py:66
+#: .\store\models.py:67
 msgid "digits"
 msgstr "цифры"
 
-#: .\store\models.py:67
+#: .\store\models.py:68
 msgid "special symbols"
 msgstr "специальные символы"
 
-#: .\store\models.py:68
+#: .\store\models.py:69
 msgid "brackets"
 msgstr "скобки"
 
-#: .\store\models.py:69
+#: .\store\models.py:70
 msgid "minus"
 msgstr "минус"
 
-#: .\store\models.py:70
+#: .\store\models.py:71
 msgid "underline"
 msgstr "знак подчеркивания"
 
-#: .\store\models.py:71
+#: .\store\models.py:72
 msgid "avoid confusion"
 msgstr "исключить путаницу"
 
-#: .\store\models.py:74 .\store\models.py:75
+#: .\store\models.py:75 .\store\models.py:76
 msgid "user settings"
 msgstr "настройки пользователя"
 

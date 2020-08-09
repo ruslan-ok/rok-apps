@@ -1,5 +1,5 @@
+from datetime import datetime
 from django.db import models
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 
@@ -12,7 +12,7 @@ class Group(models.Model):
     code = models.CharField(_('code'), max_length=100, blank = True)
     name = models.CharField(_('name'), max_length=300)
     uuid = models.CharField(_('UUID'), max_length=100, blank = True)
-    creation = models.DateTimeField(_('creation time'), default = timezone.now)
+    creation = models.DateTimeField(_('creation time'), default = datetime.now)
     last_mod = models.DateTimeField(_('last modification time'), null = True)
 
     def __str__(self):
@@ -31,7 +31,7 @@ class Entry(models.Model):
     url = models.CharField(_('URL'), max_length=150, blank = True)
     notes = models.TextField(_('notes'), blank = True, null = True)
     uuid = models.CharField(_('UUID'), max_length=100, blank = True)
-    creation = models.DateTimeField(_('creation time'), default = timezone.now)
+    creation = models.DateTimeField(_('creation time'), default = datetime.now)
     last_mod = models.DateTimeField(_('last modification time'), null = True)
     group = models.ForeignKey(Group, verbose_name = _('group'), on_delete = models.CASCADE, null = True)
     actual = models.IntegerField(_('actual'), default = 1)

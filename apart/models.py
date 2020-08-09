@@ -2,7 +2,6 @@ from datetime import datetime, date
 
 from django.contrib.auth.models import User
 from django.db import models
-from django.utils import timezone
 from django.utils.translation import gettext, gettext_lazy as _
 from django.urls import reverse
 
@@ -54,8 +53,8 @@ def set_active(user_id, apart_id):
 
 class Meter(models.Model):
     apart = models.ForeignKey(Apart, on_delete = models.CASCADE, verbose_name = _('apartment'))
-    period = models.DateField(_('reporting period'), default = get_new_period())
-    reading = models.DateTimeField(_('meters reading date'), default = timezone.now)
+    period = models.DateField(_('reporting period'), default = get_new_period)
+    reading = models.DateTimeField(_('meters reading date'), default = datetime.now)
     el = models.IntegerField(_('electricity'), null = True)
     hw = models.IntegerField(_('hot water'), null = True)
     cw = models.IntegerField(_('cold water'), null = True)
@@ -70,14 +69,20 @@ class Meter(models.Model):
     def __str__(self):
         return self.period.strftime('%m.%Y') + ' el: ' + str(self.el) + ', hw: ' + str(self.hw) + ', cw: ' + str(self.cw) + ', ga: ' + str(self.ga)
 
+    def name(self):
+        return self.period.strftime('%m.%Y')
+
+    def descr(self):
+        return 'el: ' + str(self.el) + ', hw: ' + str(self.hw) + ', cw: ' + str(self.cw) + ', ga: ' + str(self.ga)
+
 
 #----------------------------------
 # Bill
 
 class Bill(models.Model):
     apart = models.ForeignKey(Apart, on_delete = models.CASCADE, verbose_name = _('apartment'))
-    period = models.DateField(_('reporting period'), default = get_new_period())
-    payment = models.DateTimeField(_('date of payment'), default = timezone.now)
+    period = models.DateField(_('reporting period'), default = get_new_period)
+    payment = models.DateTimeField(_('date of payment'), default = datetime.now)
     prev = models.ForeignKey(Meter, on_delete = models.CASCADE, verbose_name = _('previous period meters data'), related_name = 'previous')
     curr = models.ForeignKey(Meter, on_delete = models.CASCADE, verbose_name = _('current period meters data'),  related_name = 'current')
     el_pay = models.DecimalField('electro - payment', null = True, blank = True, max_digits = 15, decimal_places = 2)
@@ -92,7 +97,7 @@ class Bill(models.Model):
     water_pay = models.DecimalField('water - payment', null = True, blank = True, max_digits = 15, decimal_places = 2)
     gas_pay = models.DecimalField('gas - payment', null = True, blank = True, max_digits = 15, decimal_places = 2)
     rate = models.DecimalField('rate', null = True, blank = True, max_digits = 15, decimal_places = 4)
-    info = models.CharField(_('information'), max_length = 1000, blank = True)
+    info = models.TextField(_('information'), blank = True, default = "")
 
     def total_usd(self):
         if (self.rate == 0) or (not self.rate):
@@ -110,11 +115,11 @@ class Bill(models.Model):
         return (self.curr.hw + self.curr.cw) - (self.prev.hw + self.prev.cw)
   
     def total_bill(self):
-        bill = count_by_tarif(self.apart.user.id, self.prev, self.curr, ELECTRICITY) + \
-               count_by_tarif(self.apart.user.id, self.prev, self.curr, GAS) + \
-               count_by_tarif(self.apart.user.id, self.prev, self.curr, WATER) + \
-               count_by_tarif(self.apart.user.id, self.prev, self.curr, WATER_SUPPLY) + \
-               count_by_tarif(self.apart.user.id, self.prev, self.curr, SEWERAGE)
+        bill = count_by_tarif(self.apart.id, self.prev, self.curr, ELECTRICITY) + \
+               count_by_tarif(self.apart.id, self.prev, self.curr, GAS) + \
+               count_by_tarif(self.apart.id, self.prev, self.curr, WATER) + \
+               count_by_tarif(self.apart.id, self.prev, self.curr, WATER_SUPPLY) + \
+               count_by_tarif(self.apart.id, self.prev, self.curr, SEWERAGE)
         if self.tv_bill:
             bill += self.tv_bill
         if self.phone_bill:
@@ -128,6 +133,12 @@ class Bill(models.Model):
 
     def debt(self):
         return int(round(self.total_bill(), 0)) - self.total_pay()
+
+    def name(self):
+        return self.period.strftime('%m.%Y')
+
+    def descr(self):
+        return 'total bill: ' + str(self.total_bill()) + ', total pay: ' + str(self.total_pay())
 
 def zero(value):
     if value:
@@ -158,12 +169,40 @@ SERVICE = [
     (WATER, _('water')),
 ]    
 
-class Price(models.Model):
-    user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'))
-    service = models.CharField(_('resource type'), choices = SERVICE, max_length = 100)
-    period = models.DateField(_('reporting period'), default = get_new_period(), null = True,  blank = True)
+SERVICE_STR = {
+    ELECTRICITY: _('power supply'),
+    GAS: _('gas supply'),
+    WATER_SUPPLY: _('water supply'),
+    SEWERAGE: _('sewerage'),
+    TV: _('television'),
+    INTERNET: _('internet'),
+    PHONE: _('phone'),
+    WATER: _('water'),
+}    
 
-    tarif = models.DecimalField(_('tariff 1'), blank = False, max_digits = 15, decimal_places = 5)
+class Service(models.Model):
+    apart = models.ForeignKey(Apart, on_delete = models.CASCADE, verbose_name = _('apartment'), null = True)
+    abbr = models.CharField(_('abbreviation'), max_length = 2)
+    name = models.CharField(_('name'), max_length = 100)
+    is_open = models.BooleanField(_('node is opened'), default = False)
+
+    class Meta:
+        verbose_name = _('service')
+        verbose_name_plural = _('services')
+
+    def __str__(self):
+        return self.name
+
+class Price(models.Model):
+    apart = models.ForeignKey(Apart, on_delete = models.CASCADE, verbose_name = _('apartment'))
+    serv = models.ForeignKey(Service, on_delete = models.CASCADE, verbose_name = _('service'), null = True)
+    #service - deprecated
+    service = models.CharField(_('resource type'), choices = SERVICE, max_length = 100)
+    #period - deprecated
+    period = models.DateField(_('reporting period'), default = get_new_period, null = True,  blank = True)
+    start = models.DateField(_('valid from'), default = datetime.now, null = True,  blank = True)
+
+    tarif = models.DecimalField(_('tariff 1'), null = True, blank = False, max_digits = 15, decimal_places = 5)
     border = models.DecimalField(_('border 1'), null = True,  blank = True, max_digits = 15, decimal_places = 4)
     tarif2 = models.DecimalField(_('tariff 2'), null = True,  blank = True, max_digits = 15, decimal_places = 5)
     border2 = models.DecimalField(_('border 2'), null = True,  blank = True, max_digits = 15, decimal_places = 4)
@@ -204,27 +243,36 @@ class Price(models.Model):
         if (b2 != 0):
             ret += ' ' + gettext('until') + ' ' + str(b2) + ' / ' + str(t3)
         return ret
+
+    def s_service(self):
+        return SERVICE_STR[self.service]
+
+    def name(self):
+        return self.start.strftime('%d.%m.%Y')
+
+    def descr(self):
+        return str(self)
   
 def get_price_info(user_id, service_id, year, month):
     prices = Price.objects.filter(user = user_id,
                                   service = service_id,
-                                  period__lte = date(year, month, 1)).order_by('-period')[:1]
+                                  period__lte = date(year, month, 1)).order_by('-start')[:1]
     if (len(prices) == 0):
         return ''
     else:
         return str(prices[0])
     
 #----------------------------------
-def get_per_price(user_id, service_id, year, month):
+def get_per_price(apart_id, service_id, year, month):
     ret = {'t1': 0,
            'b1': 0,
            't2': 0,
            'b2': 0,
            't3': 0}
 
-    tarifs = Price.objects.filter(user = user_id,
+    tarifs = Price.objects.filter(apart = apart_id,
                                   service = service_id,
-                                  period__lte = date(year, month, 1)).order_by('-period')[:1]
+                                  period__lte = date(year, month, 1)).order_by('-start')[:1]
     if (len(tarifs) > 0):
       
         if tarifs[0].tarif:
@@ -254,7 +302,7 @@ def get_per_price(user_id, service_id, year, month):
   
     return ret
 
-def count_by_tarif(user_id, prev, curr, service_id):
+def count_by_tarif(apart_id, prev, curr, service_id):
 
     if (service_id == ELECTRICITY):
         vol = curr.el - prev.el
@@ -265,7 +313,7 @@ def count_by_tarif(user_id, prev, curr, service_id):
     else:
         vol = 0
 
-    tar = get_per_price(user_id, service_id, curr.period.year, curr.period.month)
+    tar = get_per_price(apart_id, service_id, curr.period.year, curr.period.month)
 
     if (tar['b1'] == 0) or (vol <= tar['b1']):
         return vol * tar['t1']
@@ -275,4 +323,21 @@ def count_by_tarif(user_id, prev, curr, service_id):
             return i_sum + (vol - tar['b1']) * tar['t2']
         else:
             return i_sum + (tar['b2'] - tar['b1']) * tar['t2'] + (vol - tar['b2']) * tar['t3']
+
+
+
+#----------------------------------
+def enrich_context(context, param, user_id):
+    context['cur_view'] = param.cur_view
+    context['article_mode'] = param.article_mode
+    context['article_pk'] = param.article_pk
+
+    context['apart_qty'] = len(Apart.objects.filter(user = user_id))
+    if Apart.objects.filter(user = user_id, active = True).exists():
+        cur_apart = Apart.objects.filter(user = user_id, active = True).get()
+        context['bill_qty']  = len(Bill.objects.filter(apart = cur_apart.id))
+        context['meter_qty'] = len(Meter.objects.filter(apart = cur_apart.id))
+        context['price_qty'] = len(Price.objects.filter(apart = cur_apart.id))
+
+
 

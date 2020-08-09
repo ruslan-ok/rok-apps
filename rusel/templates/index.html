@@ -5,6 +5,9 @@
   {% if user.is_authenticated %}
     <div class="w3-row w3-padding">
       <a href="{% url 'trip:trip_list' %}">{{ trip_summary|safe }}</a>
+      {% if last_visited_url %}
+        <p><a href="{{ last_visited_url }}">{{ last_visited_app }} - {{ last_visited_page }}</a></p>
+      {% endif %}
     </div>
   {% else %}
     <p>{% trans 'It looks like you got here by accident, because it is a personal, not a public site.' %}</p>

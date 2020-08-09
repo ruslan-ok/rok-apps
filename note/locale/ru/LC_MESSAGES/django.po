@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-25 01:34+0300\n"
+"POT-Creation-Date: 2020-08-09 00:05+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,89 +19,89 @@ msgstr ""
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: .\note\models.py:9 .\note\models.py:27 .\note\models.py:46
-#: .\note\models.py:77
+#: .\note\models.py:10 .\note\models.py:28 .\note\models.py:47
+#: .\note\models.py:78
 msgid "user"
 msgstr "пользователь"
 
-#: .\note\models.py:10 .\note\models.py:28 .\note\models.py:47
+#: .\note\models.py:11 .\note\models.py:29 .\note\models.py:48
 msgid "name"
 msgstr "наименование"
 
-#: .\note\models.py:11 .\note\models.py:29 .\note\models.py:48
+#: .\note\models.py:12 .\note\models.py:30 .\note\models.py:49
 msgid "code"
 msgstr "код"
 
-#: .\note\models.py:12
+#: .\note\models.py:13
 msgid "color"
 msgstr "цвет"
 
-#: .\note\models.py:13 .\note\models.py:30
+#: .\note\models.py:14 .\note\models.py:31
 #: .\note\templates\note\note_form.html:24
 msgid "description"
 msgstr "описание"
 
-#: .\note\models.py:16
+#: .\note\models.py:17
 msgid "notes list"
 msgstr "список заметок"
 
-#: .\note\models.py:17
+#: .\note\models.py:18
 msgid "notes lists"
 msgstr "списки заметок"
 
-#: .\note\models.py:32
+#: .\note\models.py:33
 msgid "list"
 msgstr "список"
 
-#: .\note\models.py:33
+#: .\note\models.py:34
 msgid "publication date"
 msgstr "дата публикации"
 
-#: .\note\models.py:36 .\note\views.py:71
+#: .\note\models.py:37 .\note\views.py:71
 msgid "note"
 msgstr "заметка"
 
-#: .\note\models.py:37
+#: .\note\models.py:38
 msgid "notes"
 msgstr "заметки"
 
-#: .\note\models.py:49
+#: .\note\models.py:50
 msgid "chronological list of entries"
 msgstr "список в хронологическом порядке"
 
-#: .\note\models.py:52
+#: .\note\models.py:53
 msgid "notes view"
 msgstr "представление"
 
-#: .\note\models.py:53
+#: .\note\models.py:54
 msgid "notes views"
 msgstr "представления"
 
-#: .\note\models.py:64 .\note\models.py:78
+#: .\note\models.py:65 .\note\models.py:79
 msgid "view"
 msgstr "представление"
 
-#: .\note\models.py:65
+#: .\note\models.py:66
 msgid "entity"
 msgstr "сущность"
 
-#: .\note\models.py:66
+#: .\note\models.py:67
 msgid "sort number"
 msgstr "номер для сортировки"
 
-#: .\note\models.py:67
+#: .\note\models.py:68
 msgid "value"
 msgstr "значение"
 
-#: .\note\models.py:70
+#: .\note\models.py:71
 msgid "view filter"
 msgstr "фильтр"
 
-#: .\note\models.py:71
+#: .\note\models.py:72
 msgid "view filters"
 msgstr "фильтры"
 
-#: .\note\models.py:81 .\note\models.py:82
+#: .\note\models.py:82 .\note\models.py:83
 msgid "user settings"
 msgstr "параметры пользователя"
 

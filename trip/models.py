@@ -1,6 +1,6 @@
+from datetime import datetime
 from django.contrib.auth.models import User
 from django.db import models
-from django.utils import timezone
 from django.utils.translation import gettext, gettext_lazy as _
 
 
@@ -41,7 +41,7 @@ class Trip(models.Model):
     driver    = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='driver', verbose_name=_('driver'))
     passenger = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='passenger', verbose_name=_('passenger'))
     text      = models.CharField(_('information'), max_length=1000, blank=True)
-    modif     = models.DateTimeField(_('last modification'), blank=True, default = timezone.now)
+    modif     = models.DateTimeField(_('last modification'), blank=True, default = datetime.now)
 
     class Meta:
         verbose_name = _('trip')

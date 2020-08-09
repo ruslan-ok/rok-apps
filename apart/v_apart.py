@@ -5,57 +5,93 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.utils.translation import gettext_lazy as _
 
-from hier.models import Folder
-from hier.utils import get_base_context, get_folder_id, process_common_commands
-from .models import Apart, Meter, Price, Bill, deactivate_all, set_active
+from hier.utils import get_base_context, process_common_commands, get_param, set_article, save_last_visited
+from .models import Apart, Meter, set_active, enrich_context
 from .forms import ApartForm
-from .convert import convert_old_data
-
-
-#----------------------------------
-@login_required(login_url='account:login')
-#----------------------------------
-def apart_param(request):
-    return HttpResponseRedirect(reverse('apart:apart_list'))
 
 #----------------------------------
 @login_required(login_url='account:login')
 #----------------------------------
 def apart_list(request):
-    process_common_commands(request)
-    data = Apart.objects.filter(user = request.user.id).order_by('name')
-    folder_id = get_folder_id(request.user.id)
-    context = get_base_context(request, folder_id, 0, _('apartments'), 'content_list')
-    context['page_obj'] = data
-    template_file = 'apart/apart_list.html'
+    if process_common_commands(request):
+        return HttpResponseRedirect(reverse('apart:apart_list'))
+
+    if (request.method == 'POST'):
+        if ('item-add' in request.POST):
+            apart = Apart.objects.create(user = request.user, name = request.POST['apart_name_add'])
+            return HttpResponseRedirect(reverse('apart:apart_form', args = [apart.id]))
+        if ('apart-in-list-active' in request.POST):
+            set_active(request.user.id, request.POST['apart-in-list-active'])
+            return HttpResponseRedirect(reverse('apart:apart_list'))
+
+    context = get_base_context(request, 0, 0, _('apartments').capitalize(), 'content_list', make_tree = False, article_enabled = True)
+    save_last_visited(request.user, 'apart:apart_list', 'Коммуналка', context['title'])
+
+    redirect = False
+
+    param = get_param(request.user, 'apart:apart')
+    if (param.article_mode == 'apart:apart') and param.article:
+        if Apart.objects.filter(id = param.article_pk, user = request.user.id).exists():
+            redirect = get_apart_article(request, context, param.article_pk)
+        else:
+            set_article(request.user, '', 0)
+            redirect = True
+    
+    if redirect:
+        return HttpResponseRedirect(reverse('apart:apart_list'))
+
+    enrich_context(context, param, request.user.id)
+    context['page_obj'] = Apart.objects.filter(user = request.user.id).order_by('name')
+
+    template_file = 'apart/apart_form.html'
     template = loader.get_template(template_file)
     return HttpResponse(template.render(context, request))
 
-#----------------------------------
-def apart_add(request):
-    if (request.method == 'POST'):
-        form = ApartForm(request.POST)
-    else:
-        form = ApartForm(initial = { 'name': '', 'addr': '', 'active': False, 'has_gas': True })
-    return show_page_form(request, 0, _('creating a new apartment'), form)
-
-#----------------------------------
-def apart_form(request, pk):
-    data = get_object_or_404(Apart.objects.filter(id = pk, user = request.user.id))
-    if (request.method == 'POST'):
-        form = ApartForm(request.POST, instance = data)
-    else:
-        form = ApartForm(instance = data)
-    return show_page_form(request, pk, _('apartment') + ' "' + data.name + '"', form)
 
 #----------------------------------
 @login_required(login_url='account:login')
 #----------------------------------
-def apart_del(request, pk):
-    apart = get_object_or_404(Apart.objects.filter(id = pk, user = request.user.id))
-    if Communal.objects.filter(apart = apart.id).exists():
+def apart_form(request, pk):
+    set_article(request.user, 'apart:apart', pk)
+    return HttpResponseRedirect(reverse('apart:apart_list'))
+
+#----------------------------------
+def get_apart_article(request, context, pk):
+    ed_apart = get_object_or_404(Apart.objects.filter(id = pk, user = request.user.id))
+    form = None
+    if (request.method == 'POST'):
+        if ('article_delete' in request.POST):
+            apart_delete(request, ed_apart)
+            return HttpResponseRedirect(reverse('apart:apart_list'))
+        if ('apart-active' in request.POST):
+            set_active(request.user.id, pk)
+            return True
+        if ('apart-save' in request.POST):
+            ed_apart.name = request.POST['apart_name_edit']
+            ed_apart.save()
+            return True
+        if ('apart-addr' in request.POST):
+            ed_apart.addr = request.POST['apart_addr_edit']
+            ed_apart.save()
+            return True
+        if ('apart-gas' in request.POST):
+            ed_apart.has_gas = not ed_apart.has_gas
+            ed_apart.save()
+            return True
+
+    if not form:
+        form = ApartForm(instance = ed_apart, prefix = 'apart_edit')
+
+    context['form'] = form
+    context['item_id'] = ed_apart.id
+    context['item_active'] = ed_apart.active
+    return False
+
+#----------------------------------
+def apart_delete(request, apart):
+    if Meter.objects.filter(apart = apart.id).exists():
         set_active(request.user.id, apart.id)
-        return HttpResponseRedirect(reverse('apart:apart_list'))
+        return False
 
     if apart.active:
         if Apart.objects.filter(user = request.user.id).exclude(id = apart.id).exists():
@@ -63,24 +99,5 @@ def apart_del(request, pk):
             set_active(request.user.id, new_active.id)
 
     apart.delete()
-    return HttpResponseRedirect(reverse('apart:apart_list'))
-
-
-#----------------------------------
-@login_required(login_url='account:login')
-#----------------------------------
-def show_page_form(request, pk, title, form):
-    if (request.method == 'POST'):
-        if form.is_valid():
-            data = form.save(commit = False)
-            if data.active:
-                deactivate_all(request.user.id, data.id)
-            data.user = request.user
-            form.save()
-            if not pk and data.active and not Price.objects.all().exists():
-                convert_old_data(request.user, data)
-            return HttpResponseRedirect(reverse('apart:apart_list'))
-    folder_id = get_folder_id(request.user.id)
-    context = get_base_context(request, folder_id, pk, title, form = form)
-    template = loader.get_template('apart/apart_form.html')
-    return HttpResponse(template.render(context, request))
+    set_article(request.user, '', 0)
+    return True

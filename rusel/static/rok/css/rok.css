@@ -50,14 +50,9 @@ p {
   margin-block-end: 1em;
 }
 
-input[type="text"]:focus {
-  outline: none;  
-}
-
 button {
   background: none;
   border: none;
-  outline: none;
   cursor: pointer;
 }
 
@@ -192,7 +187,6 @@ header .button img {
 .launcher-button {
   background: none;
   border: none;
-  outline: none;
   cursor: pointer;
   float: left;
   width: 146px;
@@ -240,6 +234,171 @@ header .button img {
 aside .scroll {
   height: calc(100vh - 48px - 38px);
   overflow: auto;
+}
+
+main .top {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: center;
+  height: 60px;
+  padding: 12px 16px 0px 16px;
+}
+
+.main-top-headline {
+  min-width: 100px;
+  margin-right: 20px;
+  color: DarkBlue;
+  font-size: 1.25rem;
+  font-weight: 600;
+  flex-basis: 0px;
+  flex-grow: 1;
+  flex-shrink: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 6px 8px;
+}
+
+.main-title-container {
+  display: flex;
+  align-items: center;
+}
+
+.main-title-subline {
+  font-size: 0.875rem;
+  color: black;
+  font-weight: 200;
+  padding-top: 10px;
+}
+
+main .sort {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 40px;
+}
+
+main .sort img {
+  padding: 2px 3px;
+}
+
+main .sort img:hover {
+  background-color: #eee;
+}
+
+main .sort span {
+  padding: 2px 3px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: #34373d;
+}
+
+main .actions {
+  display: flex;
+  height: 50px;
+  align-items: center;
+  margin: 0px 8px;
+  padding: 0px 13px;
+}
+
+main .actions input[type="text"] {
+  float: right;
+  padding: 16px 12px;
+  border: none;
+  font-size: 0.933rem;
+  width: 100%;
+}
+
+main .actions button {
+  padding: 8px;
+  border: none;
+  background: white;
+}
+
+main .tree {
+  padding: 5px 15px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+main .tree .group {
+  height: 50px;
+  padding: 5px 0px;
+  display: flex;
+  align-items: center;
+}
+
+main .tree .group .tumbler {
+  margin: 0px 15px;
+}
+
+main .tree .group .name {
+  font-weight: bold;
+}
+
+main .tree ul li {
+  height: 50px;
+  border-width: 1px;
+  border-color: #ccc;
+  border-top-style: solid;
+}
+
+main .tree ul li .tree-item:hover {
+  background: #f7f7f7;
+}
+
+main .tree ul li a {
+  text-decoration: none;
+  color: black;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+}
+
+main .tree ul li a.current {
+  background: #eee;
+}
+
+main .tree ul li a:hover {
+  background: #f7f7f7;
+}
+
+main .tree ul .tree-item {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+}
+
+main .tree ul .tree-item .icon {
+  margin: 0px 7px;
+}
+
+.tree-item .info {
+  width: 100%;
+  height: 49px;
+  overflow: hidden;
+}
+
+.tree-item .info .name {
+  padding: 8px 0px;
+  font-size: 0.933rem;
+  font-weight: 500;
+  line-height: 1rem;
+  color: #34373d;
+}
+
+.tree-item .info .descr {
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1rem;
+  color: #767678;
+  overflow: hidden;
+  display: flex;
 }
 
 #article-top {
@@ -324,9 +483,10 @@ article .section-item {
   align-items: center;
 }
 
-article .section-item .section-inner-click {
+article .section-item .section-inner-click, article .section-item .editable-content {
   height: auto;
   min-height: 52px;
+  width: 100%;
 }
 
 article .section-item .section-52 {
@@ -366,6 +526,22 @@ article .section-item .section-content {
   display: flex;
   align-items: center; 
   text-align: left;
+}
+
+article .section-item .short {
+  width: 100px;
+}
+
+.quarter-width {
+  width: 25%;
+}
+
+.half-width {
+  width: 50%;
+}
+
+.threequarter-width {
+  width: 75%;
 }
 
 .section-content .section-title {
@@ -408,6 +584,8 @@ img.img-20_20 {
 
 .editable-content {
   overflow: visible;
+  display: flex;
+  align-items: center;
 }
 
 .clickable-item {
@@ -417,11 +595,34 @@ img.img-20_20 {
   text-decoration: none;
 }
 
-.editable-content input[type="text"] {
+.main-element input[type="text"] {
+  font-size: 1rem;
+  height: 30px;
+}
+
+.auxiliary-element {
+  width: 100%;
+}
+
+.auxiliary-element input[type="text"] {
+  font-size: 0.875rem;
+  height: 25px;
+}
+
+.details-name .editable-content input[type="text"] {
+  font-weight: bold;
+}
+
+.editable-content input[type="text"], .editable-content input[type="number"] {
   float: right;
   padding: 4px 0px;
   border: none;
   width: 100%;
+}
+
+.editable-content input[type="text"]:focus {
+  border: 1px solid;
+  border-radius: 3px;
 }
 
 .important {
@@ -669,26 +870,7 @@ input[type=color] {
 .password-reset-link {
     text-align: center;
 }
-/*
-.button, input[type=submit], input[type=button], .submit-row input, a.button {
-    background: #79aec8;
-    background-image: initial;
-    background-position-x: initial;
-    background-position-y: initial;
-    background-size: initial;
-    background-repeat-x: initial;
-    background-repeat-y: initial;
-    background-attachment: initial;
-    background-origin: initial;
-    background-clip: initial;
-    background-color: rgb(121, 174, 200);
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
-    color: #fff;
-    cursor: pointer;
-}
-*/
+
 #footer {
     clear: both;
     padding: 10px;
@@ -705,20 +887,7 @@ input[type=color] {
 .today {
     color: red;
 }
-/*
-.errornote {
-    font-size: 14px;
-    font-weight: 700;
-    display: block;
-    padding: 10px 12px;
-    margin: 0 0 10px 0;
-    color: #ba2121;
-    border: 1px solid #ba2121;
-    border-radius: 4px;
-    background-color: #fff;
-    background-position: 5px 12px;
-}
-*/
+
 ul.errorlist {
     margin: 0 0 4px;
     padding: 0;
@@ -813,7 +982,6 @@ div.help ul {
   text-align: left;
   white-space: normal;
   float: none;
-  outline: 0;
   display: flex; 
   flex-direction: row;
   box-sizing: border-box;
@@ -829,14 +997,12 @@ div.help ul {
   border: none;
   white-space: normal;
   float: none;
-  outline: 0;
   display: flex; 
   flex-direction: row;
   box-sizing: border-box;
 }
 
 .current {
-  /*background-color: #87aac3;*/
   font-weight: bold;
 }
 

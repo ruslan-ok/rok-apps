@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext_lazy as _
 
-from hier.utils import get_base_context, process_common_commands, set_aside_visible, set_article_visible
+from hier.utils import get_base_context, process_common_commands, set_aside_visible, set_article_visible, save_last_visited
 from .models import Grp, Lst, Task, Param, Step, TaskFiles, NONE, DAILY, WORKDAYS, WEEKLY, MONTHLY, ANNUALLY, PerGrp
 from .utils import get_task_status, nice_date, get_grp_planned, GRP_PLANNED_NONE, get_week_day_name, ALL, MY_DAY, IMPORTANT, PLANNED, COMPLETED, LIST_MODE
 from .tree import build_tree
@@ -671,6 +671,7 @@ def task_list(request):
             return HttpResponseRedirect(reverse('todo:group_form', args = [grp.id]))
 
     context = todo_base_context(request, param.cur_view, param.lst)
+    save_last_visited(request.user, 'todo:task_list', 'Задачи', context['list_title'])
 
     details_mode = ''
     redirect = False

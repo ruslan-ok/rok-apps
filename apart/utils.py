@@ -1,5 +1,4 @@
 from datetime import datetime, date, timedelta
-from django.utils import timezone
 
 #----------------------------------
 def next_period(last = None):
@@ -37,7 +36,7 @@ def get_prev_period(period):
 
 #----------------------------------
 def get_new_period():
-    dt1 = timezone.now()
+    dt1 = datetime.today()
     dt2 = dt1.replace(day = 1)
     dt3 = dt2 - timedelta(days = 1)
     dt4 = dt3.replace(day = 1)

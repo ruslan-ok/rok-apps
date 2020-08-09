@@ -216,12 +216,16 @@ def get_moves(user, mode, folder_id, tree, folder):
     return moves
 
 #----------------------------------
-def get_param(user):
+def get_param(user, default_view = ''):
     if not user.is_authenticated:
         return None
     if Param.objects.filter(user = user.id).exists():
-        return Param.objects.filter(user = user.id).get()
-    return Param.objects.create(user = user, folder_id = 0, aside = False, article = False)
+        param = Param.objects.filter(user = user.id).get()
+        if (param.cur_view == '') and (default_view != ''):
+            param.cur_view = default_view
+            param.save
+        return param
+    return Param.objects.create(user = user, folder_id = 0, aside = False, article = False, cur_view = default_view)
 
 #----------------------------------
 # Контекст для любой страницы
@@ -236,7 +240,7 @@ def get_base_context(request, folder_id, pk, title = '', mode = 'content_form', 
         context['site'] = get_current_site(request).name
         param = get_param(request.user)
         if param:
-            context['aside_visible'] = (not param.article) and param.aside
+            context['aside_visible'] = ((not article_enabled) or (not param.article)) and param.aside
             context['article_visible'] = param.article and article_enabled
 
         if (folder_id != 0):
@@ -332,6 +336,15 @@ def set_aside_visible(user, visible):
     param.aside = visible
     param.save()
 
+#----------------------------------
+def set_article(user, article_mode, pk):
+    param = get_param(user)
+    if param:
+        param.article_mode = article_mode
+        param.article_pk = pk
+        param.save()
+        set_article_visible(user, article_mode in ('todo:task', 'todo:list', 'todo:group', 'apart:apart', 'apart:bill', 'apart:meter', 'apart:price'))
+
 def process_common_commands(request):
     if (request.method == 'POST'):
         if 'aside_open' in request.POST:
@@ -348,6 +361,13 @@ def process_common_commands(request):
             return True
     return False
 
+def save_last_visited(user, url, app, page):
+    param = get_param(user)
+    if param:
+        param.last_url = url
+        param.last_app = app
+        param.last_page = page
+        param.save()
 
 
 

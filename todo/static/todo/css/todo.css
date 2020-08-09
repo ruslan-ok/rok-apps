@@ -52,42 +52,6 @@ button.grp-add {
   background-color: #ccc;
 }
 
-main .top {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  align-items: center;
-  height: 60px;
-  padding: 12px 16px 0px 16px;
-}
-
-.main-top-headline {
-  min-width: 100px;
-  margin-right: 20px;
-  color: DarkBlue;
-  font-size: 1.25rem;
-  font-weight: 600;
-  flex-basis: 0px;
-  flex-grow: 1;
-  flex-shrink: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding: 6px 8px;
-}
-
-.main-title-container {
-  display: flex;
-  align-items: center;
-}
-
-.main-title-subline {
-  font-size: 0.875rem;
-  color: black;
-  font-weight: 200;
-  padding-top: 10px;
-}
-
 .task-list-sort {
   display: flex;
   align-items: center;
@@ -97,107 +61,6 @@ main .top {
 
 .task-list-sort:hover {
   background-color: #eee;
-}
-
-main .sort {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  height: 40px;
-}
-
-main .sort img {
-  padding: 2px 3px;
-}
-
-main .sort img:hover {
-  background-color: #eee;
-}
-
-main .sort span {
-  padding: 2px 3px;
-  font-size: 0.75rem;
-  font-weight: bold;
-  color: #34373d;
-}
-
-main .actions {
-  display: flex;
-  height: 50px;
-  align-items: center;
-  margin: 0px 8px;
-  padding: 0px 13px;
-}
-
-main .actions input[type="text"] {
-  float: right;
-  padding: 16px 12px;
-  border: none;
-  font-size: 0.933rem;
-  width: 100%;
-}
-
-main .actions button {
-  padding: 8px;
-  border: none;
-  background: white;
-}
-
-main .tree {
-  padding: 5px 15px;
-  overflow: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-main .tree .group {
-  height: 50px;
-  padding: 5px 0px;
-  display: flex;
-  align-items: center;
-}
-
-main .tree .group .tumbler {
-  margin: 0px 15px;
-}
-
-main .tree .group .name {
-  font-weight: bold;
-}
-
-main .tree ul li {
-  height: 50px;
-  border-width: 1px;
-  border-color: #ccc;
-  border-top-style: solid;
-}
-
-main .tree ul li .task:hover {
-  background: #f7f7f7;
-}
-
-main .tree ul li a {
-  text-decoration: none;
-  color: black;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  height: 100%;
-}
-
-main .tree ul li a.current {
-  background: #eee;
-}
-
-main .tree ul li a:hover {
-  background: #f7f7f7;
-}
-
-main .tree ul .task {
-  display: flex;
-  align-items: center;
-  width: 100%;
 }
 
 .task-complete-icon {
@@ -244,25 +107,6 @@ img.inline-icon {
 
 .completed {
   text-decoration: line-through;
-}
-
-.main-element input[type="text"] {
-  font-size: 1rem;
-  height: 30px;
-}
-
-.auxiliary-element input[type="text"] {
-  font-size: 0.875rem;
-  height: 25px;
-}
-
-.details-name .editable-content input[type="text"] {
-  font-weight: bold;
-}
-
-.editable-content input[type="text"]:focus {
-  border: 1px solid;
-  border-radius: 3px;
 }
 
 .steps {

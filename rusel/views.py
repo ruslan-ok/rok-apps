@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.decorators import login_required
 
-from hier.utils import get_base_context, save_folder_id, process_common_commands, get_trash
+from hier.utils import get_base_context, save_folder_id, process_common_commands, get_trash, get_param
 from hier.models import Param, Folder
 from trip.models import trip_summary
 
@@ -29,6 +29,12 @@ def index(request):
     context['title'] = title
     context['hide_title'] = hide_title
     context['trip_summary'] = trip_summary(request.user.id)
+    param = get_param(request.user)
+    if param and param.last_url:
+        context['last_visited_url'] = reverse(param.last_url)
+        context['last_visited_app'] = param.last_app
+        context['last_visited_page'] = param.last_page
+
     template = loader.get_template('index.html')
     return HttpResponse(template.render(context, request))
 

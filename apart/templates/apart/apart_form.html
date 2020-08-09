@@ -1,39 +1,71 @@
-{% extends "base_window.html" %}
-{% load i18n %}
+{% extends "apart/apart.html" %}
+{% load static i18n %}
 
-{% block win_content %}
-<div class="w3-container w3-padding">
-<div class="w3-row">
-<div class="w3-half">
-  <form method="post" class="w3-container w3-card-4 w3-light-grey">{% csrf_token %}
+{% block article_content %}
+    <div class="fields">
+      <form method="post" class="header">{% csrf_token %}
+        {% if form.errors %}
+          <div class="fieldset">
+            <p class="errornote"> {% if form.errors.items|length == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %} </p> 
+          </div>
+        {% endif %}
+        {% if form.non_field_errors %}
+          <div class="fieldset">
+          {% for error in form.non_field_errors %} <p class="errornote"> {{ error }} </p> {% endfor %}
+          </div>
+        {% endif %}
+        <div class="field-group">
+          <button type="submit" name="apart-active" class="field-icon">
+            {% if item_active %}
+              <img src="{% static 'todo/icon/complete.png' %}">
+            {% else %}
+              <img src="{% static 'todo/icon/uncomplete.png' %}">
+            {% endif %}
+          </button>
+          <div class="article-name">
+            <div class="editable-content main-element">
+              {{ form.name.errors }}
+              <input type="text" name="apart_name_edit" value="{{ form.name.value }}" maxlength="200" required="" id="id_apart_name_edit" placeholder="{% trans 'apartment name'|capfirst %}">
+            </div>
+          </div>
+          <button type="submit" name="apart-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
+        </div>
+      </form>
 
-    {% if form.errors %} <p class="errornote"> {% if form.errors.items|length == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %} </p> {% endif %}
-    {% if form.non_field_errors %} {% for error in form.non_field_errors %} <p class="errornote"> {{ error }} </p> {% endfor %} {% endif %}
+      <div class="body">
+        <div class="section">
+          <form class="section-inner"method="post">{% csrf_token %}
+            <div class="section-item">
+              <div class="editable-content auxiliary-element">
+                <input type="text" name="apart_addr_edit" value="{{ form.addr.value }}" maxlength="200" required="" id="id_apart_addr_edit" placeholder="{% trans 'apartment address'|capfirst %}">
+              </div>
+              <button type="submit" name="apart-addr" class="">
+                <div class="section-icon">
+                  <img src="{% static 'rok/icon/save.png' %}">
+                </div>
+              </button>
+            </div>
 
-    <div class="w3-row w3-margin rok-field">
-      {{ form.name.errors }} {{ form.name.label_tag }} {{ form.name }} {% if form.name.help_text %}<div class="help">{{ form.name.help_text|safe }}</div>{% endif %}
+            <div class="section-item">
+              <button type="submit" name="apart-gas" class="section-inner-click">
+                <div class="section-inner">
+                  <div class="section-icon">
+                    <img src="{% static 'todo/icon/myday.png' %}">
+                  </div>
+                  <div class="section-content">
+                    <div class="section-title{% if form.has_gas.value %} selected{% endif %}">
+                      {% if form.has_gas.value %}
+                        {% trans 'gas supplied'|capfirst %}
+                      {% else %}
+                        {% trans 'gas not supplied'|capfirst %}
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
-    <div class="w3-row w3-margin rok-field">
-      {{ form.addr.errors }} {{ form.addr.label_tag }} {{ form.addr }} {% if form.addr.help_text %}<div class="help">{{ form.addr.help_text|safe }}</div>{% endif %}
-    </div>
-    <div class="w3-row w3-margin rok-field">
-      {{ form.active.errors }} {{ form.active.label_tag }} {{ form.active }} {% if form.active.help_text %}<div class="help">{{ form.active.help_text|safe }}</div>{% endif %}
-    </div>
-    <div class="w3-row w3-margin rok-field">
-      {{ form.has_gas.errors }} {{ form.has_gas.label_tag }} {{ form.has_gas }} {% if form.has_gas.help_text %}<div class="help">{{ form.has_gas.help_text|safe }}</div>{% endif %}
-    </div>
-
-    <div class="w3-row w3-padding">
-      {% if pk == 0 %}
-        <input type="submit" value="{% trans 'add'|capfirst %}" class="default">
-      {% else %}
-        <input type="submit" value="{% trans 'save'|capfirst %}" class="default">
-      {% endif %}
-      <p>
-    </div>
-
-  </form>
-</div>
-</div>
-</div>
 {% endblock %}
