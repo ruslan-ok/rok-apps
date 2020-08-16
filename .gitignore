@@ -5,7 +5,12 @@ sqlite3.exe
 *.mo
 migrations
 migrations_zen
-
+manage.py
+etalon.py
+s.bat
+secret.py
+todo/fcm/
+rusel/media/
 
 # Windows image file caches
 Thumbs.db
