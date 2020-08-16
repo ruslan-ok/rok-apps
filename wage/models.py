@@ -1,6 +1,5 @@
 from datetime import datetime, date
 from django.db import models
-from django.utils import timezone
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.utils.translation import gettext
@@ -8,7 +7,7 @@ from django.utils.translation import gettext
 
 class Period(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Пользователь')
-    dBeg = models.DateField('Месяц/год', default=timezone.now)
+    dBeg = models.DateField('Месяц/год', default=datetime.today)
     planDays  = models.IntegerField('План, дней', blank=True)
     AvansDate = models.DateField('Дата аванса', blank=True, null=True)
     PaymentDate = models.DateField('Дата выплаты', blank=True, null=True)
@@ -51,7 +50,7 @@ class Depart(models.Model):
 
 class DepHist(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Пользователь') # deprecated
-    dBeg = models.DateField('Дата начала', default=timezone.now)
+    dBeg = models.DateField('Дата начала', default=datetime.today)
     dEnd = models.DateField('Дата окончания', blank=True, null=True) # deprecated
     depart = models.ForeignKey(Depart, on_delete=models.CASCADE, null=True, related_name='D', verbose_name='Отдел')
     node = models.ForeignKey(Depart, on_delete=models.CASCADE, blank=True, null=True, related_name='N', verbose_name='Вышестоящий отдел')
@@ -102,7 +101,7 @@ class Employee(models.Model):
 
 class FioHist(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, verbose_name='Сотрудник')
-    dEnd = models.DateField('Использовалась до', default=timezone.now)
+    dEnd = models.DateField('Использовалась до', default=datetime.today)
     fio = models.CharField('Фамилия', max_length=100, blank=False)
     info = models.CharField('Дополнительная информация', max_length=1000, blank=True)
 

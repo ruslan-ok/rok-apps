@@ -1,11 +1,8 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
+from hier.forms import DateInput, DateTimeInput
 from .models import Apart, Meter, Bill, Price
-
-#----------------------------------
-class MyDateInput(forms.DateInput):
-    input_type = 'date'
 
 #----------------------------------
 class ApartForm(forms.ModelForm):
@@ -18,19 +15,19 @@ class MeterForm(forms.ModelForm):
     class Meta:
         model = Meter
         fields = ['period', 'reading', 'el', 'hw', 'cw', 'ga', 'info']
-        widgets = { 'period': MyDateInput() }
+        widgets = { 'period': DateInput(), 'reading': DateTimeInput() }
 
 #----------------------------------
 class BillForm(forms.ModelForm):
     class Meta:
         model = Bill
         fields = ['period', 'payment', 'el_pay', 'tv_bill', 'tv_pay', 'phone_bill', 'phone_pay', 'zhirovka', 'hot_pay', 'repair_pay', 'ZKX_pay', 'water_pay', 'gas_pay', 'rate', 'info']
-        widgets = { 'period': MyDateInput(), 'info': forms.Textarea(attrs={'rows':3, 'cols':10, 'placeholder':_('add note').capitalize()}) }
+        widgets = { 'period': DateInput(), 'payment': DateTimeInput(), 'info': forms.Textarea(attrs={'rows':3, 'cols':10, 'placeholder':_('add note').capitalize()}) }
     
 #----------------------------------
 class PriceForm(forms.ModelForm):
     class Meta:
         model = Price
         exclude = ['apart', 'service', 'period']
-        widgets = { 'start': MyDateInput(), 'info': forms.Textarea(attrs={'rows':3, 'cols':10, 'placeholder':_('add note').capitalize()}) }
+        widgets = { 'start': DateInput(), 'info': forms.Textarea(attrs={'rows':3, 'cols':10, 'placeholder':_('add note').capitalize()}) }
 

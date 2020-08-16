@@ -1,37 +1,53 @@
-{% extends "base_list.html" %}
-{% load i18n %}
+{% extends "trip/trip.html" %}
+{% load static i18n %}
 
-{% block win_content %}
-
-  <div class="w3-row w3-padding">
-    {{ trip_summary|safe }}
+{% block content %}
+  <div class="top">
+    <div class="main-top-headline">
+      <div class="main-title-container">
+        {{ title|capfirst }}
+      </div>
+      <div class="main-title-subline">
+        {{ trip_summary }}
+      </div>
+    </div>
   </div>
   
-  <table class="w3-table-all w3-hoverable w3-card-4">
-    <tr class="w3-theme-l3">
-      <th>{% trans 'year'|capfirst %}</th>
-      <th>{% trans 'week'|capfirst %}</th>
-      <th>{% trans 'operation'|capfirst %}</th>
-      <th>{% trans 'days'|capfirst %}</th>
-      <th>{% trans 'driver'|capfirst %}</th>
-      <th>{% trans 'passenger'|capfirst %}</th>
-      <th>{% trans 'price'|capfirst %}</th>
-      <th>{% trans 'summa'|capfirst %}</th>
-      <th>{% trans 'comment'|capfirst %}</th>
-    </tr>
-    {% for trip in page_obj %}
-      <tr>
-        <td><a href="{% url 'trip:trip_form' trip.id %}">{{ trip.year }}</a></td>
-        <td><a href="{% url 'trip:trip_form' trip.id %}">{{ trip.week }}</a></td>
-        <td><a href="{% url 'trip:trip_form' trip.id %}">{{ trip.s_oper }}</a></td>
-        <td>{{ trip.s_days }}</td>
-        <td><a href="{% url 'trip:trip_form' trip.id %}">{{ trip.driver.name }}</a></td>
-        <td><a href="{% url 'trip:trip_form' trip.id %}">{{ trip.passenger.name }}</a></td>
-        <td><a href="{% url 'trip:trip_form' trip.id %}">{{ trip.price }}</a></td>
-        <td><a href="{% url 'trip:trip_form' trip.id %}">{{ trip.summa }}</a></td>
-        <td><a href="{% url 'trip:trip_form' trip.id %}">{{ trip.text }}</a></td>
-      </tr>
-    {% endfor %}
-  </table>
-
+  <div class="sort">
+  </div>
+  
+  <form method="post" class="actions">{% csrf_token %}
+    <button type="submit" name="item-add"><img class="img-20_20" src="{% static 'rok/icon/add-gray.png' %}">{% trans 'add new trip'|capfirst %}</button>
+    <button type="submit" name="trip-count"><img class="img-20_20" src="{% static 'todo/icon/myday.png' %}">{% trans 'count saldo'|capfirst %}</button>
+  </form>
+  
+  <div class="tree">
+    <ul>
+      {% for item in page_obj %}
+        <li>
+          <a href="{% url 'trip:trip_form' item.id %}" class="{% if item.id == item_id %}current{% endif %}">
+            <div class="icon"> 
+              {% if item.oper == 0 %}
+                <img class="img-20_20" src="{% static 'rok/icon/car.png' %}">
+              {% else %}
+                <img class="img-20_20" src="{% static 'rok/icon/cost.png' %}">
+              {% endif %}
+            </div>
+            <div class="tree-item">
+              <div class="info">
+                <div class="name">{{ item.name }}</div>
+                <div class="descr">{{ item.descr }}</div>
+              </div>
+            </div>
+            <div class="icon"> </div>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
 {% endblock %}
+
+{% block article_info %}
+  {{ item_info }}
+{% endblock %}
+

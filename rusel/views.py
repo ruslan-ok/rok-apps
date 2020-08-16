@@ -11,8 +11,6 @@ from trip.models import trip_summary
 #----------------------------------
 # Index
 #----------------------------------
-@login_required(login_url='account:login')
-#----------------------------------
 def index(request):
     process_common_commands(request)
     title = ''

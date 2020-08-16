@@ -56,7 +56,13 @@ button {
   cursor: pointer;
 }
 
-ul {
+.button {
+  padding: 0;
+  margin: 0;
+  background: inherit;
+}
+
+ul li {
   list-style-type: none;
 }
 
@@ -401,8 +407,13 @@ main .tree ul .tree-item .icon {
   display: flex;
 }
 
-#article-top {
+.article-bottom {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 0 10px;
+  margin-top: 8px;
   min-height: 38px;
   border-bottom: 1px solid #eaeaea;
   display: flex;
@@ -410,21 +421,14 @@ main .tree ul .tree-item .icon {
   background: #f5f5f5;
 }
 
-#article-top>form {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-#article-top .info {
+.article-bottom .info {
   font-size: 0.875rem;
 }
 
 #article-content {
-  height: calc(100vh - 48px - 16px - 38px);
+  height: calc(100vh - 48px - 8px - 38px);
   overflow: auto;
-  padding: 0px 10px 16px 10px;
+  padding: 8px 10px;
   background: #f5f5f5;
 }
 
@@ -439,8 +443,7 @@ article .body {
 }
 
 article .header {
-  height: 52px;
-  z-index: 10;
+  min-height: 52px;
   position: sticky;
   top: 0;
   display: flex;
@@ -449,13 +452,11 @@ article .header {
   border: 1px solid #eaeaea;
   border-radius: 2px 2px 0 0;
   border-bottom: 0;
-  padding: 0 10px 2px 10px;
 }
 
 p.errornote, div.field-error {
   color: red;
   font-size: 1rem;
-  margin: 0px 15px;
 }
 
 article .section-inner-click {
@@ -466,7 +467,6 @@ article .section-inner-click {
 }
 
 article .section {
-  z-index: 5;
   position: relative;
   background: white;
   margin: 10px 0;
@@ -481,12 +481,21 @@ article .section-item {
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
 }
 
 article .section-item .section-inner-click, article .section-item .editable-content {
   height: auto;
   min-height: 52px;
   width: 100%;
+}
+
+article .section-item .section-inner-label {
+  height: auto;
+  min-height: 30px;
+  width: 100%;
+  display: flex;
+  align-items: center;
 }
 
 article .section-item .section-52 {
@@ -499,13 +508,12 @@ article .section-item .section-52 {
 article .section-item .section-inner {
   display: flex;
   flex: auto;
+  align-items: center;
   padding: 4px 0;
 }
 
-.section-inner select {
-  padding: 5px 0px;
-  border-style: none;
-  width: 100%;
+.section-inner label {
+  margin-right: 10px;
 }
 
 article .section-item .section-icon {
@@ -536,12 +544,16 @@ article .section-item .short {
   width: 25%;
 }
 
-.half-width {
+.half-width, .half-width input {
   width: 50%;
 }
 
 .threequarter-width {
   width: 75%;
+}
+
+.full-width, .full-width input {
+  width: 100%;
 }
 
 .section-content .section-title {
@@ -613,11 +625,25 @@ img.img-20_20 {
   font-weight: bold;
 }
 
-.editable-content input[type="text"], .editable-content input[type="number"] {
-  float: right;
-  padding: 4px 0px;
-  border: none;
-  width: 100%;
+p.datetime {
+  font-weight: normal;
+}
+
+.datefld span {
+  white-space: nowrap;
+  font-weight: normal;
+  font-size: 11px;
+}
+
+.vDateField {
+  width: 7em;
+  min-width: 6em;
+}
+
+label {
+  font-weight: inherit;
+  color: inherit;
+  font-size: inherit;
 }
 
 .editable-content input[type="text"]:focus {
@@ -656,6 +682,10 @@ ul.nav-menu li a:hover {
   display: flex;
   align-items: center;
   width: 100%;
+}
+
+.nav-menu-item-left i {
+  padding: 6px;
 }
 
 .nav-menu-item-x1 {
@@ -775,7 +805,6 @@ li.grp-item:hover {
     position: absolute;
     top: 48px;
     left: 0px;
-    z-index: 50;
   }
   aside.vis { display: flex; }
   aside.hid { display: none; }
@@ -785,7 +814,6 @@ li.grp-item:hover {
     position: absolute;
     top: 48px;
     right: 0px;
-    z-index: 50;
     box-shadow: -10px 0px 20px rgba(0, 0, 0, 0.15), -5px 0px 10px rgba(0, 0, 0, 0.05);
   }
   article.hid { display: none; }
@@ -808,168 +836,126 @@ li.grp-item:hover {
 }
 
 .rok-row {
-    margin: 10px 0;
+  margin: 10px 0;
 }
 
 .rok-form-buttons {
-    margin: 10px 0;
+  margin: 10px 0;
 }
 
 .rok-field input[type=text], .rok-field input[type=password], .rok-field input[type=email], .rok-field input[type=url], .rok-field input[type=number], .rok-field input[type=tel], textarea, select, .vTextField {
-    border: 1px solid #ccc;
-    border-top-color: rgb(204, 204, 204);
-    border-top-style: solid;
-    border-top-width: 1px;
-    border-right-color: rgb(204, 204, 204);
-    border-right-style: solid;
-    border-right-width: 1px;
-    border-bottom-color: rgb(204, 204, 204);
-    border-bottom-style: solid;
-    border-bottom-width: 1px;
-    border-left-color: rgb(204, 204, 204);
-    border-left-style: solid;
-    border-left-width: 1px;
-    border-image-source: initial;
-    border-image-slice: initial;
-    border-image-width: initial;
-    border-image-outset: initial;
-    border-image-repeat: initial;
-    border-radius: 4px;
-    padding: 5px 6px;
-    width: 95%;
+  border: 1px solid #ccc;
+  border-top-color: rgb(204, 204, 204);
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-right-color: rgb(204, 204, 204);
+  border-right-style: solid;
+  border-right-width: 1px;
+  border-bottom-color: rgb(204, 204, 204);
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-left-color: rgb(204, 204, 204);
+  border-left-style: solid;
+  border-left-width: 1px;
+  border-image-source: initial;
+  border-image-slice: initial;
+  border-image-width: initial;
+  border-image-outset: initial;
+  border-image-repeat: initial;
+  border-radius: 4px;
+  padding: 5px 6px;
+  width: 95%;
 }
 
 .rok-field-2 input[type=text], .rok-field-2 input[type=password], .rok-field-2 input[type=email], .rok-field-2 input[type=url], .rok-field-2 input[type=number], .rok-field-2 input[type=tel], textarea, select {
-    border: 1px solid #ccc;
-    border-top-color: rgb(204, 204, 204);
-    border-top-style: solid;
-    border-top-width: 1px;
-    border-right-color: rgb(204, 204, 204);
-    border-right-style: solid;
-    border-right-width: 1px;
-    border-bottom-color: rgb(204, 204, 204);
-    border-bottom-style: solid;
-    border-bottom-width: 1px;
-    border-left-color: rgb(204, 204, 204);
-    border-left-style: solid;
-    border-left-width: 1px;
-    border-image-source: initial;
-    border-image-slice: initial;
-    border-image-width: initial;
-    border-image-outset: initial;
-    border-image-repeat: initial;
-    border-radius: 4px;
-    padding: 5px 6px;
+  border: 1px solid #ccc;
+  border-top-color: rgb(204, 204, 204);
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-right-color: rgb(204, 204, 204);
+  border-right-style: solid;
+  border-right-width: 1px;
+  border-bottom-color: rgb(204, 204, 204);
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-left-color: rgb(204, 204, 204);
+  border-left-style: solid;
+  border-left-width: 1px;
+  border-image-source: initial;
+  border-image-slice: initial;
+  border-image-width: initial;
+  border-image-outset: initial;
+  border-image-repeat: initial;
+  border-radius: 4px;
+  padding: 5px 6px;
 }
 
 input[type=color] {
-    height: 34px;
-    width: 8em;
+  height: 34px;
+  width: 8em;
 }
 
 .password-reset-link {
-    text-align: center;
+  text-align: center;
 }
 
 #footer {
-    clear: both;
-    padding: 10px;
-    padding-top: 10px;
-    padding-right: 10px;
-    padding-bottom: 10px;
-    padding-left: 10px;
+  clear: both;
+  padding: 10px;
+  padding-top: 10px;
+  padding-right: 10px;
+  padding-bottom: 10px;
+  padding-left: 10px;
 }
 
 .day-th {
-    padding-right: 30px;
+  padding-right: 30px;
 }
 
 .today {
-    color: red;
+  color: red;
 }
 
 ul.errorlist {
-    margin: 0 0 4px;
-    padding: 0;
-    color: #ba2121;
-    background: #fff;
-}
-
-ul.errorlist li {
-    font-size: 13px;
-    display: block;
-    margin-bottom: 4px;
-}
-
-ul.errorlist li:first-child {
-    margin-top: 0;
-}
-
-ul.errorlist li a {
-    color: inherit;
-    text-decoration: underline;
-}
-
-td ul.errorlist {
-    margin: 0;
-    padding: 0;
-}
-
-td ul.errorlist li {
-    margin: 0;
-}
-
-.form-row.errors {
-    margin: 0;
-    border: none;
-    border-bottom: 1px solid #eee;
-    background: none;
-}
-
-.form-row.errors ul.errorlist li {
-    padding-left: 0;
-}
-
-.errors input, .errors select, .errors textarea {
-    border: 1px solid #ba2121;
+  color: #ba2121;
+  background: #fff;
 }
 
 .help, p.help, form p.help, div.help, form div.help, div.help li {
-    font-size: 11px;
-    color: #999;
+  font-size: 11px;
+  color: #999;
 }
 
 div.help ul {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
 
 .help-tooltip {
-    cursor: help;
+  cursor: help;
 }
 
 .pagination {
-    display: inline-block;
+  display: inline-block;
 }
 
 .pagination a {
-    color: black;
-    padding: 8px 16px;
-    text-decoration: none;
+  color: black;
+  padding: 8px 16px;
+  text-decoration: none;
 }
 
 .pagination a.active {
-    background-color: #4CAF50;
-    color: white;
+  background-color: #4CAF50;
+  color: white;
 }
 
 .pagination a:hover:not(.active) {
-    background-color: #ddd;
+  background-color: #ddd;
 }
 
 .sidebar {
   background-color: #d7e3eb;
   position: fixed;
-  z-index: 1;
   overflow: auto;
   width: 250px; 
   max-height: 100%;
@@ -1026,6 +1012,10 @@ svg {
   width: 100%;
 }
 
+.marked {
+  font-weight: bold;
+}
+
 @media (min-width:601px){.rok-col.m1{width:8.33333%}.rok-col.m2{width:16.66666%}.rok-col.m3,.rok-quarter{width:24.99999%}.rok-col.m4,.rok-third{width:33.33333%}
 .rok-col.m5{width:41.66666%}.rok-col.m6,.rok-half{width:49.99999%}.rok-col.m7{width:58.33333%}.rok-col.m8,.rok-twothird{width:66.66666%}
 .rok-col.m9,.rok-threequarter{width:74.99999%}.rok-col.m10{width:83.33333%}.rok-col.m11{width:91.66666%}.rok-col.m12{width:99.99999%}}
@@ -1047,7 +1037,15 @@ svg {
 @media (max-width:992px) and (min-width:601px){.rok-hide-medium{display:none!important}}
 @media (max-width:992px){.sidebar{display:none}.rok-main{margin-left:0!important;margin-right:0!important}.rok-auto{max-width:100%}}
 
+.button:active, input[type=submit]:active, input[type=button]:active, 
+.button:focus, input[type=submit]:focus, input[type=button]:focus, 
+.button:hover, input[type=submit]:hover, input[type=button]:hover {
+  background: inherit;
+}
 
+a.button {
+  padding: inherit;
+}
 
 
 

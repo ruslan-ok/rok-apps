@@ -52,7 +52,7 @@ def price_list(request):
 
     title = '{} {}'.format(_('pricess in').capitalize(), apart.name)
     context = get_base_context(request, 0, 0, title, 'content_list', make_tree = False, article_enabled = True)
-    save_last_visited(request.user, 'apart:price_list', 'Коммуналка', context['title'])
+    save_last_visited(request.user, 'apart:price_list', 'apart', context['title'])
 
     redirect = False
     if param.article and (param.article_mode == 'apart:price'):

@@ -1,17 +1,11 @@
 from django.urls import path
-from . import views
+from . import v_pers, v_trip
 
 app_name = 'trip'
 urlpatterns = [
-    path('trips/',                   views.trip_list,  name='trip_list'),
-    path('trips/create/',            views.trip_add,   name='trip_add'),
-    path('trip/<int:pk>/',           views.trip_form,  name='trip_form'),
-    path('trip/<int:pk>/delete/',    views.trip_del,   name='trip_del'),
-                                    
-    path('count/',                   views.trip_count, name='trip_count'),
-                                  
-    path('trips/parameters/',        views.pers_list,  name='pers_list'),
-    path('trips/parameters/create/', views.pers_add,   name='pers_add'),
-    path('pers/<int:pk>/',           views.pers_form,  name='pers_form'),
-    path('pers/<int:pk>/delete/',    views.pers_del,   name='pers_del'),
+    path('',                  v_trip.trip_list, name='trip_list'),
+    path('<int:pk>/',         v_trip.trip_form, name='trip_form'),
+    path('create/',           v_trip.trip_add,  name='trip_add'),
+    path('persons/',          v_pers.pers_list, name='pers_list'),
+    path('persons/<int:pk>/', v_pers.pers_form, name='pers_form'),
 ]

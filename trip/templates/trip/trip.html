@@ -1,0 +1,37 @@
+{% extends "base_sidebar.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+  <link rel="stylesheet" type="text/css" href="{% static 'trip/css/trip.css' %}">
+{% endblock %}
+
+{% block aside_content %}
+  <ul class="nav-menu">
+    <li{% if cur_view == 'trip:person' %} class="selected"{% endif %}><a class="fix" href="{% url 'trip:pers_list' %}">
+        <div class="nav-menu-item-left">
+          <img src="{% static 'rok/icon/application.png' %}">
+          {% trans 'persons'|capfirst %}
+        </div>
+        <div class="nav-menu-qty">{{ person_qty }}</div>
+      </a></li>
+    <li{% if cur_view == 'trip:trip' %} class="selected"{% endif %}><a class="fix" href="{% url 'trip:trip_list' %}">
+        <div class="nav-menu-item-left">
+          <img src="{% static 'rok/icon/application.png' %}">
+          {% trans 'trips'|capfirst %}
+        </div>
+        <div class="nav-menu-qty">{{ trip_qty }}</div>
+      </a></li>
+  </ul>
+{% endblock %}
+
+{% block content %}
+{% endblock %}
+
+{% block article_info %}
+  {{ item_info }}
+{% endblock %}
+
+{% block article_content %}
+{% endblock %}
+
+

@@ -13,13 +13,6 @@
         </div>
         <div class="nav-menu-qty">{{ apart_qty }}</div>
       </a></li>
-    <li{% if cur_view == 'apart:bill' %} class="selected"{% endif %}><a class="fix" href="{% url 'apart:bill_list' %}">
-        <div class="nav-menu-item-left">
-          <img src="{% static 'todo/icon/important.png' %}">
-          {% trans 'bills'|capfirst %}
-        </div>
-        <div class="nav-menu-qty">{{ bill_qty }}</div>
-      </a></li>
     <li{% if cur_view == 'apart:meter' %} class="selected"{% endif %}><a class="fix" href="{% url 'apart:meter_list' %}">
         <div class="nav-menu-item-left">
           <img src="{% static 'todo/icon/planned.png' %}">
@@ -33,6 +26,13 @@
           {% trans 'prices'|capfirst %}
         </div>
         <div class="nav-menu-qty">{{ price_qty }}</div>
+      </a></li>
+    <li{% if cur_view == 'apart:bill' %} class="selected"{% endif %}><a class="fix" href="{% url 'apart:bill_list' %}">
+        <div class="nav-menu-item-left">
+          <img src="{% static 'todo/icon/important.png' %}">
+          {% trans 'bills'|capfirst %}
+        </div>
+        <div class="nav-menu-qty">{{ bill_qty }}</div>
       </a></li>
   </ul>
 {% endblock %}

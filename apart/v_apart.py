@@ -25,7 +25,7 @@ def apart_list(request):
             return HttpResponseRedirect(reverse('apart:apart_list'))
 
     context = get_base_context(request, 0, 0, _('apartments').capitalize(), 'content_list', make_tree = False, article_enabled = True)
-    save_last_visited(request.user, 'apart:apart_list', 'Коммуналка', context['title'])
+    save_last_visited(request.user, 'apart:apart_list', 'apart', context['title'])
 
     redirect = False
 

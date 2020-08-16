@@ -1,18 +1,19 @@
-from django.forms import ModelForm, ChoiceField, DecimalField, BooleanField
-from .models import Person, Trip
+from django.forms import ModelForm, DecimalField, Textarea, BooleanField, NumberInput
 from django.utils.translation import gettext, gettext_lazy as _
 from django.core.exceptions import ValidationError
+
+from .models import Person, Trip
 
 class TripFormBase(ModelForm):
 
     class Meta:
         model = Trip
-        fields = ['year', 'week', 'days', 'oper', 'price', 'driver', 'passenger', 'text', 'modif',]
+        fields = ['year', 'week', 'days', 'oper', 'price', 'driver', 'passenger', 'text']
 
 
 class TripForm(TripFormBase):
 
-    summa = DecimalField(label = _('summa'))
+    summa = DecimalField(label = _('summa').capitalize(), widget=NumberInput(attrs={"step":"0.01", "class":"summa-style"}))
     day_11 = BooleanField(label = 'day_11', required = False)
     day_12 = BooleanField(label = 'day_12', required = False)
     day_13 = BooleanField(label = 'day_13', required = False)
@@ -29,15 +30,18 @@ class TripForm(TripFormBase):
     day_27 = BooleanField(label = 'day_27', required = False)
 
     class Meta(TripFormBase.Meta):
-        fields = TripFormBase.Meta.fields + ['summa',
+        fields = TripFormBase.Meta.fields + ['summa', 'text',
                                              'day_11', 'day_12', 'day_13', 'day_14', 'day_15', 'day_16', 'day_17',
                                              'day_21', 'day_22', 'day_23', 'day_24', 'day_25', 'day_26', 'day_27',
                                              ]
+        widgets = { 'week': NumberInput(attrs={"class":"week-style"}),
+                    'year': NumberInput(attrs={"class":"year-style"}),
+                    'price': NumberInput(attrs={"step":"0.01", "class":"price-style"}),
+                    'text': Textarea(attrs={'rows':3, 'cols':10, 'placeholder':_('add note').capitalize()}) }
 
     def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['days'].hidden = True
-        self.fields['modif'].hidden = True
         self.fields['driver'].queryset = Person.objects.filter(user = user).order_by('name')
         self.fields['passenger'].queryset = Person.objects.filter(user = user).order_by('name')
         instance = getattr(self, 'instance', None)
@@ -81,4 +85,4 @@ class PersonForm(ModelForm):
 
     class Meta:
         model = Person
-        exclude = ('user',)
+        exclude = ('user', 'me')

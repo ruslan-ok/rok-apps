@@ -2,6 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
+from hier.forms import DateInput
 from .models import Grp, Lst, Task, Step, TaskFiles
 
 #----------------------------------
@@ -90,6 +91,7 @@ class TaskTerminForm(forms.ModelForm):
     class Meta:
         model = Task
         fields = ['stop']
+        widgets = { 'stop': DateInput() }
 
 #----------------------------------
 class TaskRepeatForm(forms.ModelForm):

@@ -53,7 +53,7 @@ def set_active(user_id, apart_id):
 
 class Meter(models.Model):
     apart = models.ForeignKey(Apart, on_delete = models.CASCADE, verbose_name = _('apartment'))
-    period = models.DateField(_('reporting period'), default = get_new_period)
+    period = models.DateField(_('period'), default = get_new_period)
     reading = models.DateTimeField(_('meters reading date'), default = datetime.now)
     el = models.IntegerField(_('electricity'), null = True)
     hw = models.IntegerField(_('hot water'), null = True)
@@ -81,7 +81,7 @@ class Meter(models.Model):
 
 class Bill(models.Model):
     apart = models.ForeignKey(Apart, on_delete = models.CASCADE, verbose_name = _('apartment'))
-    period = models.DateField(_('reporting period'), default = get_new_period)
+    period = models.DateField(_('period'), default = get_new_period)
     payment = models.DateTimeField(_('date of payment'), default = datetime.now)
     prev = models.ForeignKey(Meter, on_delete = models.CASCADE, verbose_name = _('previous period meters data'), related_name = 'previous')
     curr = models.ForeignKey(Meter, on_delete = models.CASCADE, verbose_name = _('current period meters data'),  related_name = 'current')
@@ -194,12 +194,12 @@ class Service(models.Model):
         return self.name
 
 class Price(models.Model):
-    apart = models.ForeignKey(Apart, on_delete = models.CASCADE, verbose_name = _('apartment'))
+    apart = models.ForeignKey(Apart, on_delete = models.CASCADE, null = True, verbose_name = _('apartment'))
     serv = models.ForeignKey(Service, on_delete = models.CASCADE, verbose_name = _('service'), null = True)
     #service - deprecated
     service = models.CharField(_('resource type'), choices = SERVICE, max_length = 100)
     #period - deprecated
-    period = models.DateField(_('reporting period'), default = get_new_period, null = True,  blank = True)
+    period = models.DateField(_('period'), default = get_new_period, null = True,  blank = True)
     start = models.DateField(_('valid from'), default = datetime.now, null = True,  blank = True)
 
     tarif = models.DecimalField(_('tariff 1'), null = True, blank = False, max_digits = 15, decimal_places = 5)
@@ -245,6 +245,8 @@ class Price(models.Model):
         return ret
 
     def s_service(self):
+        if (len(self.service) < 2):
+            return _('unknown')
         return SERVICE_STR[self.service]
 
     def name(self):
@@ -253,8 +255,8 @@ class Price(models.Model):
     def descr(self):
         return str(self)
   
-def get_price_info(user_id, service_id, year, month):
-    prices = Price.objects.filter(user = user_id,
+def get_price_info(apart_id, service_id, year, month):
+    prices = Price.objects.filter(apart = apart_id,
                                   service = service_id,
                                   period__lte = date(year, month, 1)).order_by('-start')[:1]
     if (len(prices) == 0):

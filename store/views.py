@@ -23,10 +23,19 @@ from .imp_xml import delete_all, import_all
 #----------------------------------
 def entry_list(request, folder_id):
     process_common_commands(request)
+
+    for e in Folder.objects.filter(user = request.user.id, node = folder_id, model_name = 'store:entry').exclude(content_id = 0):
+        e.model_name = 'store:entry_form'
+        e.save()
+
+    for e in Folder.objects.filter(user = request.user.id, node = folder_id, content_id = 0, model_name = 'store:entry'):
+        e.model_name = 'store:entry_list'
+        e.save()
+
     if Folder.objects.filter(user = request.user.id, node = folder_id, content_id = 0).exists():
         return HttpResponseRedirect(reverse('hier:folder_dir', args = [folder_id]))
 
-    if Folder.objects.filter(user = request.user.id, node = folder_id).exclude(content_id = 0).exclude(model_name = 'store:entry').exists():
+    if Folder.objects.filter(user = request.user.id, node = folder_id).exclude(content_id = 0).exclude(model_name = 'store:entry_form').exists():
         return HttpResponseRedirect(reverse('hier:folder_dir', args = [folder_id]))
 
     data = []
@@ -158,6 +167,10 @@ def show_page_form(request, folder_id, content_id, title, name, form, extra_cont
             redirect_id = folder_id
             if (name == 'entry'):
                 redirect_id = check_file_for_content(request.user, folder_id, data.id, data.title, data.title, content_id == 0)
+                if (content_id == 0):
+                    folder = Folder.objects.filter(user = request.user.id, node = redirect_id, content_id = data.id).get()
+                    folder.model_name = 'store:entry_form'
+                    folder.save()
             if (name == 'entry') or (name == 'param'):
                 return HttpResponseRedirect(reverse('store:entry_list', args = [redirect_id]) + list_filter)
             else:

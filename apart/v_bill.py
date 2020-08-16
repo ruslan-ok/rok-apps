@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from django.core.paginator import Paginator
 
 from hier.utils import get_base_context, process_common_commands, get_param, set_article, save_last_visited
-from .models import Apart, Meter, Bill, enrich_context
+from .models import Apart, Meter, Bill, enrich_context, get_price_info, count_by_tarif, ELECTRICITY, GAS, WATER
 from .forms import BillForm
 from .utils import next_period
 
@@ -41,7 +41,7 @@ def bill_list(request):
             return HttpResponseRedirect(reverse('apart:bill_form', args = [bill.id]))
 
     context = get_base_context(request, 0, 0, title, 'content_list', make_tree = False, article_enabled = True)
-    save_last_visited(request.user, 'apart:bill_list', 'Коммуналка', context['title'])
+    save_last_visited(request.user, 'apart:bill_list', 'apart', context['title'])
 
     redirect = False
     if param.article:
@@ -121,6 +121,21 @@ def get_bill_article(request, context, pk):
 
     context['form'] = form
     context['item_id'] = ed_bill.id
+    context['period_num'] = form.instance.period.year * 100 + form.instance.period.month
+    context['apart'] = ed_bill.apart
+    prev = ed_bill.prev
+    curr = ed_bill.curr
+    context['prev'] = prev
+    context['curr'] = curr
+    context['volume'] = { 'el': curr.el - prev.el,
+                          'ga': curr.ga - prev.ga,
+                          'wt': (curr.hw + curr.cw) - (prev.hw + prev.cw) }
+    context['el_tar'] = get_price_info(ed_bill.apart.id, ELECTRICITY, curr.period.year, curr.period.month)
+    context['gas_tar'] = get_price_info(ed_bill.apart.id, GAS, curr.period.year, curr.period.month)
+    context['water_tar'] = get_price_info(ed_bill.apart.id, WATER, curr.period.year, curr.period.month)
+    context['el_bill'] = count_by_tarif(ed_bill.apart.id, prev, curr, ELECTRICITY)
+    context['gas_bill'] = count_by_tarif(ed_bill.apart.id, prev, curr, GAS)
+    context['water_bill'] = count_by_tarif(ed_bill.apart.id, prev, curr, WATER)
     return False
 
 

@@ -23,13 +23,15 @@
 
         <div class="field-group">
           <div class="article-name">
-            <div class="editable-content period-field">
-              {{ form.start.errors }} 
-              {{ form.start.label_tag }}
-              <input type="date" name="start" value="{{ form.start.value|date:'Y-m-d' }}" required="" id="id_start">
+            <div class="section-item">
+              <div class="editable-content">
+                {{ form.start.errors }} 
+                <div class="">{{ form.start.label_tag }}</div>
+                {{ form.start }}
+              </div>
+              <button type="submit" name="price-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
             </div>
           </div>
-          <button type="submit" name="price-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
         </div>
       </div>
     

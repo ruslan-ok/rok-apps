@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-25 01:34+0300\n"
+"POT-Creation-Date: 2020-08-16 19:04+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,10 +23,10 @@ msgstr ""
 msgid "wage"
 msgstr "зарплата"
 
-#: .\wage\models.py:114
+#: .\wage\models.py:113
 msgid "before"
 msgstr "действовало до"
 
-#: .\wage\models.py:128
+#: .\wage\models.py:127
 msgid "was born on"
 msgstr "дата рождения"

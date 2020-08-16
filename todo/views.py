@@ -359,7 +359,7 @@ def get_task_details(request, context, pk, lst):
             ed_task.save()
             return True
         if ('termin-save' in request.POST):
-            form_termin = TaskTerminForm(request.POST, instance = ed_task, prefix = 'task_termin_edit')
+            form_termin = TaskTerminForm(request.POST, instance = ed_task)
             if form_termin.is_valid():
                 ft = form_termin.save(commit = False)
                 ed_task.stop = ft.stop
@@ -671,7 +671,7 @@ def task_list(request):
             return HttpResponseRedirect(reverse('todo:group_form', args = [grp.id]))
 
     context = todo_base_context(request, param.cur_view, param.lst)
-    save_last_visited(request.user, 'todo:task_list', 'Задачи', context['list_title'])
+    save_last_visited(request.user, 'todo:task_list', 'todo', context['list_title'])
 
     details_mode = ''
     redirect = False

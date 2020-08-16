@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-09 00:05+0300\n"
+"POT-Creation-Date: 2020-08-16 19:04+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,183 +23,191 @@ msgstr ""
 msgid "apart"
 msgstr "квартира"
 
-#: .\apart\forms.py:49 .\apart\forms.py:57
+#: .\apart\forms.py:25 .\apart\forms.py:32
 msgid "add note"
 msgstr "добавить заметку"
 
-#: .\apart\models.py:17
+#: .\apart\models.py:16
 msgid "user"
 msgstr "пользователь"
 
-#: .\apart\models.py:18 .\apart\models.py:187
+#: .\apart\models.py:17 .\apart\models.py:186
 msgid "name"
 msgstr "наименование"
 
-#: .\apart\models.py:19
+#: .\apart\models.py:18
 msgid "address"
 msgstr "адрес"
 
-#: .\apart\models.py:20
+#: .\apart\models.py:19
 msgid "active"
 msgstr "активная"
 
-#: .\apart\models.py:21
+#: .\apart\models.py:20
 msgid "has gas"
 msgstr "есть газ"
 
-#: .\apart\models.py:24 .\apart\models.py:56 .\apart\models.py:84
-#: .\apart\models.py:185 .\apart\models.py:198
+#: .\apart\models.py:23 .\apart\models.py:55 .\apart\models.py:83
+#: .\apart\models.py:184 .\apart\models.py:197
 msgid "apartment"
 msgstr "квартира"
 
-#: .\apart\models.py:25 .\apart\templates\apart\apart.html:12
+#: .\apart\models.py:24 .\apart\templates\apart\apart.html:12
 #: .\apart\v_apart.py:27
 msgid "apartments"
 msgstr "квартиры"
 
-#: .\apart\models.py:57 .\apart\models.py:85 .\apart\models.py:203
-msgid "reporting period"
-msgstr "отчетный период"
+#: .\apart\models.py:56 .\apart\models.py:84 .\apart\models.py:202
+msgid "period"
+msgstr "период"
 
-#: .\apart\models.py:58
+#: .\apart\models.py:57
 msgid "meters reading date"
 msgstr "дата снятия показаний счетчиков"
 
-#: .\apart\models.py:59
+#: .\apart\models.py:58
 msgid "electricity"
 msgstr "электроэнергия"
 
-#: .\apart\models.py:60
+#: .\apart\models.py:59
 msgid "hot water"
 msgstr "горячая вода"
 
-#: .\apart\models.py:61
+#: .\apart\models.py:60
 msgid "cold water"
 msgstr "холодная вода"
 
-#: .\apart\models.py:62
+#: .\apart\models.py:61 .\apart\templates\apart\bill_form.html:63
+#: .\apart\templates\apart\bill_form.html:125
 msgid "gas"
 msgstr "газ"
 
-#: .\apart\models.py:64 .\apart\models.py:101 .\apart\models.py:212
+#: .\apart\models.py:63 .\apart\models.py:100 .\apart\models.py:211
 msgid "information"
 msgstr "дополнительная информация"
 
-#: .\apart\models.py:67 .\apart\models.py:68
+#: .\apart\models.py:66 .\apart\models.py:67
 msgid "meters data"
 msgstr "показания счетчиков"
 
-#: .\apart\models.py:86
+#: .\apart\models.py:85
 msgid "date of payment"
 msgstr "дата оплаты"
 
-#: .\apart\models.py:87
+#: .\apart\models.py:86
 msgid "previous period meters data"
 msgstr "показания счетчиков за предыдущий период"
 
-#: .\apart\models.py:88
+#: .\apart\models.py:87
 msgid "current period meters data"
 msgstr "показания счетчиков за текущий период"
 
-#: .\apart\models.py:163 .\apart\models.py:174
+#: .\apart\models.py:162 .\apart\models.py:173
 msgid "power supply"
 msgstr "электроснабжение"
 
-#: .\apart\models.py:164 .\apart\models.py:175
+#: .\apart\models.py:163 .\apart\models.py:174
 msgid "gas supply"
 msgstr "газоснабжение"
 
-#: .\apart\models.py:165 .\apart\models.py:176
+#: .\apart\models.py:164 .\apart\models.py:175
 msgid "water supply"
 msgstr "водоснабжение"
 
-#: .\apart\models.py:166 .\apart\models.py:177
+#: .\apart\models.py:165 .\apart\models.py:176
 msgid "sewerage"
 msgstr "водоотведение"
 
-#: .\apart\models.py:167 .\apart\models.py:178
+#: .\apart\models.py:166 .\apart\models.py:177
 msgid "television"
 msgstr "телевидение"
 
-#: .\apart\models.py:168 .\apart\models.py:179
+#: .\apart\models.py:167 .\apart\models.py:178
+#: .\apart\templates\apart\bill_form.html:81
 msgid "internet"
 msgstr "интернет"
 
-#: .\apart\models.py:169 .\apart\models.py:180
+#: .\apart\models.py:168 .\apart\models.py:179
+#: .\apart\templates\apart\bill_form.html:86
 msgid "phone"
 msgstr "телефон"
 
-#: .\apart\models.py:170 .\apart\models.py:181
+#: .\apart\models.py:169 .\apart\models.py:180
+#: .\apart\templates\apart\bill_form.html:131
 msgid "water"
 msgstr "вода"
 
-#: .\apart\models.py:186
+#: .\apart\models.py:185
 msgid "abbreviation"
 msgstr "аббревиатура"
 
-#: .\apart\models.py:188
+#: .\apart\models.py:187
 msgid "node is opened"
 msgstr "узел раскрыт"
 
-#: .\apart\models.py:191 .\apart\models.py:199
+#: .\apart\models.py:190 .\apart\models.py:198
 msgid "service"
 msgstr "услуга"
 
-#: .\apart\models.py:192
+#: .\apart\models.py:191
 msgid "services"
 msgstr "услуги"
 
-#: .\apart\models.py:201
+#: .\apart\models.py:200
 msgid "resource type"
 msgstr "тип ресурса"
 
-#: .\apart\models.py:204
+#: .\apart\models.py:203
 msgid "valid from"
 msgstr "действует с"
 
-#: .\apart\models.py:206
+#: .\apart\models.py:205
 msgid "tariff 1"
 msgstr "тариф 1"
 
-#: .\apart\models.py:207
+#: .\apart\models.py:206
 msgid "border 1"
 msgstr "граница 1"
 
-#: .\apart\models.py:208
+#: .\apart\models.py:207
 msgid "tariff 2"
 msgstr "тариф 2"
 
-#: .\apart\models.py:209
+#: .\apart\models.py:208
 msgid "border 2"
 msgstr "граница 2"
 
-#: .\apart\models.py:210
+#: .\apart\models.py:209
 msgid "tariff 3"
 msgstr "тариф 3"
 
-#: .\apart\models.py:215
+#: .\apart\models.py:214
 msgid "tariff"
 msgstr "тариф"
 
-#: .\apart\models.py:216
+#: .\apart\models.py:215
 msgid "tariffs"
 msgstr "тарифы"
 
-#: .\apart\models.py:242 .\apart\models.py:245
+#: .\apart\models.py:241 .\apart\models.py:244
 msgid "until"
 msgstr "до"
 
+#: .\apart\models.py:249
+msgid "unknown"
+msgstr "не задано"
+
 #: .\apart\templates\apart\apart.html:19
-msgid "bills"
-msgstr "счета"
+msgid "meters"
+msgstr "счетчики"
 
 #: .\apart\templates\apart\apart.html:26
-msgid "meters"
-msgstr "показания счетчиков"
-
-#: .\apart\templates\apart\apart.html:33
 msgid "prices"
 msgstr "тарифы"
+
+#: .\apart\templates\apart\apart.html:33
+msgid "bills"
+msgstr "счета"
 
 #: .\apart\templates\apart\apart.html:51
 msgid "add apartment"
@@ -247,15 +255,60 @@ msgstr "газ используется"
 msgid "gas not supplied"
 msgstr "газ не используется"
 
-#: .\apart\v_bills.py:31
+#: .\apart\templates\apart\bill_form.html:53
+msgid "old"
+msgstr "старые"
+
+#: .\apart\templates\apart\bill_form.html:54
+msgid "new"
+msgstr "новые"
+
+#: .\apart\templates\apart\bill_form.html:55
+msgid "volume"
+msgstr "объем"
+
+#: .\apart\templates\apart\bill_form.html:57
+#: .\apart\templates\apart\bill_form.html:119
+msgid "electro"
+msgstr "электроэнергия"
+
+#: .\apart\templates\apart\bill_form.html:69
+msgid "cold"
+msgstr "холодная"
+
+#: .\apart\templates\apart\bill_form.html:74
+msgid "hot"
+msgstr "горячая"
+
+#: .\apart\templates\apart\bill_form.html:92
+msgid "communal"
+msgstr "коммунальные"
+
+#: .\apart\templates\apart\bill_form.html:98
+msgid "bill"
+msgstr "жировка"
+
+#: .\apart\templates\apart\bill_form.html:103
+msgid "heat"
+msgstr "тепло"
+
+#: .\apart\templates\apart\bill_form.html:108
+msgid "overhaul"
+msgstr "капремонт"
+
+#: .\apart\templates\apart\bill_form.html:113
+msgid "HCS"
+msgstr "ЖКХ"
+
+#: .\apart\v_bill.py:31
 msgid "bill in"
 msgstr "начисления в"
 
-#: .\apart\v_bills.py:31 .\apart\v_meter.py:31
+#: .\apart\v_bill.py:31 .\apart\v_meter.py:31
 msgid "for the period"
 msgstr "за период"
 
-#: .\apart\v_bills.py:33
+#: .\apart\v_bill.py:33
 msgid "bills in"
 msgstr "начисления в"
 
@@ -271,47 +324,5 @@ msgstr "показания счетчиков в"
 msgid "pricess in"
 msgstr "тарифы в"
 
-#~ msgid "period"
-#~ msgstr "период"
-
-#~ msgid "tarif"
-#~ msgstr "тариф"
-
-#~ msgid "border"
-#~ msgstr "граница 1"
-
-#~ msgid "tarif 2"
-#~ msgstr "тариф 2"
-
-#~ msgid "tarif 3"
-#~ msgstr "тариф 3"
-
-#~ msgid "add"
-#~ msgstr "добавить"
-
-#~ msgid "save"
-#~ msgstr "сохранить"
-
-#~ msgid "USD"
-#~ msgstr "USD"
-
-#~ msgid "billed"
-#~ msgstr "начислено"
-
-#~ msgid "payed"
-#~ msgstr "оплачено"
-
-#~ msgid "debt"
-#~ msgstr "долг"
-
-#~ msgid "info"
-#~ msgstr "дополнительная информация"
-
-#~ msgid "reading"
-#~ msgstr "дата фиксации показаний"
-
-#~ msgid "creating a new apartment"
-#~ msgstr "создание новой квартиры"
-
-#~ msgid "price in"
-#~ msgstr "тариф в"
+#~ msgid "reporting period"
+#~ msgstr "отчетный период"

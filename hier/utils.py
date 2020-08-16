@@ -277,6 +277,21 @@ def get_base_context(request, folder_id, pk, title = '', mode = 'content_form', 
         context['please_correct_one'] = _('Please correct the error below.')
         context['please_correct_all'] = _('Please correct the errors below.')
 
+    context['menu_item_home']    = get_main_menu_item('home')
+    context['menu_item_todo']    = get_main_menu_item('todo')
+    context['menu_item_note']    = get_main_menu_item('note')
+    context['menu_item_news']    = get_main_menu_item('news')
+    context['menu_item_store']   = get_main_menu_item('store')
+    context['menu_item_trip']    = get_main_menu_item('trip')
+    context['menu_item_fuel']    = get_main_menu_item('fuel')
+    context['menu_item_apart']   = get_main_menu_item('apart')
+    context['menu_item_proj']    = get_main_menu_item('proj')
+    context['menu_item_wage']    = get_main_menu_item('wage')
+    context['menu_item_trash']   = get_main_menu_item('trash')
+    context['menu_item_admin']   = get_main_menu_item('admin')
+    context['menu_item_profile'] = get_main_menu_item('profile')
+    context['menu_item_logout']  = get_main_menu_item('logout')
+    set_aside_visible(request.user, False)
     return context
 
 #----------------------------------
@@ -333,8 +348,9 @@ def set_article_visible(user, visible):
 #----------------------------------
 def set_aside_visible(user, visible):
     param = get_param(user)
-    param.aside = visible
-    param.save()
+    if param:
+        param.aside = visible
+        param.save()
 
 #----------------------------------
 def set_article(user, article_mode, pk):
@@ -343,7 +359,7 @@ def set_article(user, article_mode, pk):
         param.article_mode = article_mode
         param.article_pk = pk
         param.save()
-        set_article_visible(user, article_mode in ('todo:task', 'todo:list', 'todo:group', 'apart:apart', 'apart:bill', 'apart:meter', 'apart:price'))
+        set_article_visible(user, article_mode in ('todo:task', 'todo:list', 'todo:group', 'apart:apart', 'apart:bill', 'apart:meter', 'apart:price', 'trip:person', 'trip:trip'))
 
 def process_common_commands(request):
     if (request.method == 'POST'):
@@ -365,10 +381,49 @@ def save_last_visited(user, url, app, page):
     param = get_param(user)
     if param:
         param.last_url = url
-        param.last_app = app
+        param.last_app = get_app_name(app)
         param.last_page = page
         param.save()
 
+def get_app_name(id):
+    if (id == 'apart'):
+        return _('communal').capitalize()
+    if (id == 'fuel'):
+        return _('fueling').capitalize()
+    if (id == 'hier'):
+        return _('hierarchy').capitalize()
+    if (id == 'note'):
+        return _('notes').capitalize()
+    if (id == 'pir'):
+        return _('problems and solutions').capitalize()
+    if (id == 'proj'):
+        return _('expenses').capitalize()
+    if (id == 'store'):
+        return _('passwords').capitalize()
+    if (id == 'todo'):
+        return _('tasks').capitalize()
+    if (id == 'trip'):
+        return _('trips').capitalize()
+    if (id == 'wage'):
+        return _('work').capitalize()
+    return None
 
+def get_main_menu_item(id):
+    name = get_app_name(id)
+    if name:
+        return name
+    if (id == 'home'):
+        return _('home').capitalize()
+    if (id == 'news'):
+        return _('news').capitalize()
+    if (id == 'trash'):
+        return _('trash').capitalize()
+    if (id == 'admin'):
+        return _('admin').capitalize()
+    if (id == 'profile'):
+        return _('profile').capitalize()
+    if (id == 'logout'):
+        return _('log out').capitalize()
+    return None
 
 

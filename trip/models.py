@@ -17,6 +17,18 @@ class Person(models.Model):
     def __str__(self):
         return self.name
 
+def deactivate_all(user_id, person_id):
+    for person in Person.objects.filter(user = user_id, me = True).exclude(id = person_id):
+        person.me = False
+        person.save()
+
+def set_active(user_id, person_id):
+    if Person.objects.filter(user = user_id, id = person_id).exists():
+        person = Person.objects.filter(user = user_id, id = person_id).get()
+        deactivate_all(user_id, person.id)
+        person.me = True
+        person.save()
+
 class Saldo(models.Model):
     user   = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
     p1   = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='p1', verbose_name=_('person 1'))
@@ -32,16 +44,16 @@ class Saldo(models.Model):
         return '[' + self.user.username + '] ' + self.p1.name + ' ' + self.p2.name + ' ' + str(self.summ)
 
 class Trip(models.Model):
-    user      = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
-    year      = models.IntegerField(_('year'), blank=False)
-    week      = models.IntegerField(_('week'), blank=False)
-    days      = models.IntegerField(_('days'), blank=False)
-    oper      = models.IntegerField(_('operation'), blank=False)
-    price     = models.DecimalField(_('price'), blank=False, max_digits=15, decimal_places=2)
-    driver    = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='driver', verbose_name=_('driver'))
-    passenger = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='passenger', verbose_name=_('passenger'))
-    text      = models.CharField(_('information'), max_length=1000, blank=True)
-    modif     = models.DateTimeField(_('last modification'), blank=True, default = datetime.now)
+    user      = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'))
+    year      = models.IntegerField(_('year'), blank = False)
+    week      = models.IntegerField(_('week'), blank = False)
+    days      = models.IntegerField(_('days'), blank = False, default = 0)
+    oper      = models.IntegerField(_('operation'), blank = False, default = 0)
+    price     = models.DecimalField(_('price'), blank = False, max_digits = 15, decimal_places = 2, default = 0)
+    driver    = models.ForeignKey(Person, on_delete = models.CASCADE, related_name = 'driver', verbose_name = _('driver'))
+    passenger = models.ForeignKey(Person, on_delete = models.CASCADE, related_name = 'passenger', verbose_name = _('passenger'))
+    text      = models.CharField(_('information'), max_length = 1000, blank = True)
+    modif     = models.DateTimeField(_('last modification'), blank = True, auto_now = True)
 
     class Meta:
         verbose_name = _('trip')
@@ -112,6 +124,15 @@ class Trip(models.Model):
                     kol = kol + 1
         return kol * self.price
 
+    def name(self):
+        return str(self.week) + '-' + str(self.year) + ': ' + gettext('driver') + ': ' + self.s_driv() + ', ' + gettext('passenger') + ': ' + self.s_pass()
+
+    def descr(self):
+        ret = gettext('summa') + ': ' + str(self.summa())
+        if (self.oper == 0):
+            ret += ' ' + self.s_days()
+        return ret
+
 
 def NameI(p):
     try:
@@ -129,7 +150,7 @@ def NameD(p):
         return '?'
 
 
-def trip_summary(_user):
+def trip_summary(_user, with_span = True):
     ret = ''
     saldos = Saldo.objects.filter(user = _user)
     
@@ -142,4 +163,16 @@ def trip_summary(_user):
             else:
                 ret += NameI(s.p2) + ' ' + NameD(s.p1) + ' ' + str(s.summ)
     
+    if not with_span:
+        return ret
+
     return '<span id="warning">' + ret + '</span>'
+
+#----------------------------------
+def enrich_context(context, param, user_id):
+    context['cur_view'] = param.cur_view
+    context['article_mode'] = param.article_mode
+    context['article_pk'] = param.article_pk
+
+    context['person_qty'] = len(Person.objects.filter(user = user_id))
+    context['trip_qty'] = len(Trip.objects.filter(user = user_id))

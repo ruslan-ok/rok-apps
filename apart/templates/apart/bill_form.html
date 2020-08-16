@@ -23,104 +23,112 @@
 
         <div class="field-group">
           <div class="article-name">
-            <div class="editable-content period-field">
-              {{ form.period.errors }} 
-              {{ form.period.label_tag }}
-              <input type="date" name="period" value="{{ form.period.value|date:'Y-m-d' }}" required="" id="id_period">
+            <div class="section-item">
+              <div class="editable-content">
+                {{ form.period.errors }} 
+                <div class="">{{ form.period.label_tag }}</div>
+                {{ form.period }}
+              </div>
+              <button type="submit" name="bill-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
             </div>
           </div>
-          <button type="submit" name="bill-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
         </div>
       </div>
     
       <div class="body">
         <div class="section">
           <div class="section-item">
+            {{ form.payment.errors }} 
+            <div class="section-inner-label">{{ form.payment.label_tag }}</div>
+          </div>
+          <div class="section-item">
             <div class="editable-content">
-              {{ form.payment.errors }} 
-              <div class="half-width">{{ form.payment.label_tag }}</div>
               {{ form.payment }}
             </div>
           </div>
 
     <table>
     <tbody>
-      <tr> <td style="width: 25%"></td> <td style="width: 25%"> <b>Старое</b> </td> <td style="width: 25%"> <b>Новое</b> </td> <td style="width: 25%"> <b>Объем</b> </td> </tr>
-      <tr><td> Электро </td>
+      <tr> <td style="width: 25%"></td>
+        <td style="width: 25%"> <b>{% trans 'old'|capfirst %}</b> </td>
+        <td style="width: 25%"> <b>{% trans 'new'|capfirst %}</b> </td>
+        <td style="width: 25%"> <b>{% trans 'volume'|capfirst %}</b> </td>
+      </tr>
+      <tr><td>{% trans 'electro'|capfirst %}</td>
         <td>{{ prev.el }}</td>
         <td>{{ curr.el }}</td>
         <td>{{ volume.el }}</td>
       </tr>
       {% if apart.has_gas %}
-      <tr><td> Газ </td>
+      <tr><td>{% trans 'gas'|capfirst %}</td>
         <td>{{ prev.ga }}</td>
         <td>{{ curr.ga }}</td>
         <td>{{ volume.ga }}</td>
       </tr>
       {% endif %}
-      <tr><td> Холодная </td>
+      <tr><td>{% trans 'cold'|capfirst %}</td>
         <td>{{ prev.cw }}</td>
         <td>{{ curr.cw }}</td>
         <td>{{ volume.wt }}</td>
       </tr>
-      <tr><td> Горячая </td>
+      <tr><td>{% trans 'hot'|capfirst %}</td>
         <td>{{ prev.hw }}</td>
         <td>{{ curr.hw }}</td>
         <td></td>
       </tr>
       <tr><td>&nbsp;</td> <td></td> <td></td> <td></td> </tr>
       <tr> <td></td> <td> <b>Тариф</b> </td> <td> <b>Начислено</b> </td> <td> <b>Оплата</b> </td> </tr>
-      <tr><td> Интернет </td>
+      <tr><td>{% trans 'internet'|capfirst %}</td>
           <td></td>
           <td class="rok-field">{{ form.tv_bill.errors }} {{ form.tv_bill }}</td>
           <td class="rok-field">{{ form.tv_pay.errors }} {{ form.tv_pay }}</td>
       </tr>
-      <tr><td> Телефон </td>
+      <tr><td>{% trans 'phone'|capfirst %}</td>
           <td></td>
           <td class="rok-field">{{ form.phone_bill.errors }} {{ form.phone_bill }}</td>
           <td class="rok-field">{{ form.phone_pay.errors }} {{ form.phone_pay }}</td>
       </tr>
     {% if period_num >= 201508 %}
-      <tr><td> Коммунальные </td>
+      <tr><td>{% trans 'communal'|capfirst %}</td>
           <td></td>
           <td class="rok-field">{{ form.zhirovka.errors }} {{ form.zhirovka }}</td>
           <td class="rok-field">{{ form.ZKX_pay.errors }} {{ form.ZKX_pay }}</td>
       </tr>
     {% else %}
-      <tr><td> Жировка </td>
+      <tr><td>{% trans 'bill'|capfirst %}</td>
           <td></td>
           <td class="rok-field">{{ form.zhirovka.errors }} {{ form.zhirovka }}</td>
           <td> {{ form.zhir_pay }} </td>
       </tr>
-      <tr><td> Тепло </td>
+      <tr><td>{% trans 'heat'|capfirst %}</td>
           <td></td>
           <td></td>
           <td class="rok-field">{{ form.hot_pay.errors }} {{ form.hot_pay }}</td>
       </tr>
-      <tr><td> Капремонт </td>
+      <tr><td>{% trans 'overhaul'|capfirst %}</td>
           <td></td>
           <td></td>
           <td class="rok-field">{{ form.repair_pay.errors }} {{ form.repair_pay }}</td>
       </tr>
-      <tr><td> ЖКХ </td>
+      <tr><td>{% trans 'HCS' %}</td>
           <td></td>
           <td></td>
           <td class="rok-field">{{ form.ZKX_pay.errors }} {{ form.ZKX_pay }}</td>
       </tr>
     {% endif %}
-      <tr><td> Электро </td>
+      <tr><td>{% trans 'electro'|capfirst %}</td>
           <td>{{ el_tar }}</td>
           <td>{{ el_bill }}</td>
           <td class="rok-field">{{ form.el_pay.errors }} {{ form.el_pay }}</td>
       </tr>
       {% if apart.has_gas %}
-      <tr><td> Газ </td>
+      <tr><td>{% trans 'gas'|capfirst %}</td>
           <td>{{ gas_tar }}</td>
           <td>{{ gas_bill }}</td>
           <td class="rok-field">{{ form.gas_pay.errors }} {{ form.gas_pay }}</td>
       </tr>
       {% endif %}
-      <tr><td> Вода </td>
+      <tr><td>{% trans 'water'|capfirst %}</td>
           <td>{{ water_tar }}</td>
           <td>{{ water_bill }}</td>
           <td class="rok-field">{{ form.water_pay.errors }} {{ form.water_pay }}</td>

@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 
-from django.utils import timezone
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.template import loader
 from django.contrib.auth.decorators import login_required
@@ -589,7 +588,7 @@ def payout_del(request, empl, pk):
 
 
 def get_new_period(user):
-    dt1 = timezone.now()
+    dt1 = datetime.today()
     dt2 = dt1.replace(day = 1)
     dt3 = dt2 - timedelta(days = 1)
     dt4 = dt3.replace(day = 1)
