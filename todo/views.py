@@ -14,7 +14,7 @@ from hier.utils import get_base_context, process_common_commands, set_aside_visi
 from .models import Grp, Lst, Task, Param, Step, TaskFiles, NONE, DAILY, WORKDAYS, WEEKLY, MONTHLY, ANNUALLY, PerGrp
 from .utils import get_task_status, nice_date, get_grp_planned, GRP_PLANNED_NONE, get_week_day_name, ALL, MY_DAY, IMPORTANT, PLANNED, COMPLETED, LIST_MODE
 from .tree import build_tree
-from .forms import GrpForm, LstForm, TaskForm, TaskLstForm, TaskInfoForm, StepForm, TaskFilesForm, TaskRemindForm, TaskTerminForm, TaskRepeatForm
+from .forms import GrpForm, LstForm, TaskNameForm, TaskForm, StepForm, TaskFilesForm
 
 
 NONE = 0
@@ -192,11 +192,7 @@ def todo_base_context(request, mode, lst):
     if sort_mode:
         context['sort_mode'] = SORT_MODE_DESCR[sort_mode].capitalize()
     context['sort_dir'] = sort_dir
-    context['termin_today_info'] = datetime.today()
-    context['termin_tomorrow_info'] = datetime.today() + timedelta(1)
-    context['termin_next_week_info'] = datetime.today() + timedelta(8 - datetime.today().isoweekday())
     return context
-
 
 def get_remind_today():
     remind_today = datetime.now()
@@ -213,7 +209,6 @@ def get_remind_tomorrow():
 
 def get_remind_next_week():
     return datetime.now().replace(hour = 9, minute = 0, second = 0) + timedelta(8 - datetime.today().isoweekday())
-
 
 def complete_task(task):
     next = None
@@ -232,52 +227,50 @@ def complete_task(task):
     if task.completed and next: # Завершен этап повторяющейся задачи и определен срок следующей итерации
         if not Task.objects.filter(user = task.user, name = task.name, lst = task.lst, completed = False).exists():
             Task.objects.create(user = task.user, lst = task.lst, name = task.name, start = task.start, stop = next, important = task.important, \
-                                reminder = task.reminder, remind_time = task.next_remind_time(), repeat = task.repeat, repeat_num = task.repeat_num, \
+                                remind = task.next_remind_time(), repeat = task.repeat, repeat_num = task.repeat_num, \
                                 repeat_days = task.repeat_days, categories = task.categories, info = task.info)
 
 def get_task_details(request, context, pk, lst):
     ed_task = get_object_or_404(Task.objects.filter(id = pk, user = request.user.id))
+
+    name_form = None
     form = None
-    form_lst = None
-    form_info = None
-    form_file = None
-    form_remind = None
-    form_termin = None
-    form_repeat = None
+    file_form = None
+
     if (request.method == 'POST'):
+        #raise Exception(request.POST)
+        if ('article-delete' in request.POST):
+            ed_task.delete()
+            set_details(request.user, NONE, 0)
+            return True
+        if ('task-name-save' in request.POST):
+            name_form = TaskNameForm(request.POST, instance = ed_task)
+            if name_form.is_valid():
+                task = name_form.save(commit = False)
+                task.user = request.user
+                task.lst = lst
+                name_form.save()
+                return True
         if ('task-save' in request.POST):
-            form = TaskForm(request.POST, instance = ed_task, prefix = 'task_edit')
+            form = TaskForm(request.POST, instance = ed_task)
             if form.is_valid():
                 task = form.save(commit = False)
                 task.user = request.user
-                task.lst = lst
+                if not request.POST['repeat']:
+                    task.repeat = NONE
                 form.save()
                 return True
-        if ('task-lst-save' in request.POST):
-            form_lst = TaskLstForm(request.POST, instance = ed_task, prefix = 'task_lst_edit')
-            if form_lst.is_valid():
-                task = form_lst.save(commit = False)
-                task.user = request.user
-                form_lst.save()
-                return True
-        if ('task-info-save' in request.POST):
-            form_info = TaskInfoForm(request.POST, instance = ed_task, prefix = 'task_info_edit')
-            if form_info.is_valid():
-                task = form_info.save(commit = False)
-                task.user = request.user
-                form_info.save()
-                return True
         if ('task-file-upload' in request.POST):
-            form_file = TaskFilesForm(request.POST, request.FILES)
-            if form_file.is_valid():
-                fl = form_file.save(commit = False)
+            file_form = TaskFilesForm(request.POST, request.FILES)
+            if file_form.is_valid():
+                fl = file_form.save(commit = False)
                 fl.user = request.user
                 fl.task = ed_task
                 fl.name = fl.upload.name
                 fl.size = fl.upload.size
                 f1, f2 = os.path.splitext(fl.name)
                 fl.ext = f2[1:]
-                form_file.save()
+                file_form.save()
                 return True
         if ('task-file-delete' in request.POST):
             tf = TaskFiles.objects.filter(user = request.user.id, id = int(request.POST['task-file-delete'])).get()
@@ -294,55 +287,39 @@ def get_task_details(request, context, pk, lst):
         if ('task-completed' in request.POST):
             complete_task(ed_task)
             return True
-        if ('task-delete' in request.POST):
-            ed_task.delete()
-            set_details(request.user, NONE, 0)
-            return True
-
         if ('step-add' in request.POST):
             task = Task.objects.filter(user = request.user, id = pk).get()
-            step = Step.objects.create(name = request.POST['step_add-name'], task = task)
+            step = Step.objects.create(name = request.POST['step_add_name'], task = task)
             return True
         if ('step-complete' in request.POST):
-            step = Step.objects.filter(id = request.POST['step_edit_id']).get()
+            step = Step.objects.filter(id = request.POST['step_id']).get()
             step.completed = not step.completed
             step.save()
             return True
         if ('step-save' in request.POST):
-            step = Step.objects.filter(id = request.POST['step_edit_id']).get()
+            step = Step.objects.filter(id = request.POST['step_id']).get()
             step.name = request.POST['step_edit_name']
             step.save()
             return True
         if ('step-delete' in request.POST):
-            step = Step.objects.filter(id = request.POST['step_edit_id']).get()
+            step = Step.objects.filter(id = request.POST['step_id']).get()
             step.delete()
             return True
         
         if ('remind-today' in request.POST):
-            ed_task.reminder = True
-            ed_task.remind_time = get_remind_today()
+            ed_task.remind = get_remind_today()
             ed_task.save()
             return True
         if ('remind-tomorrow' in request.POST):
-            ed_task.reminder = True
-            ed_task.remind_time = get_remind_tomorrow()
+            ed_task.remind = get_remind_tomorrow()
             ed_task.save()
             return True
         if ('remind-next-week' in request.POST):
-            ed_task.reminder = True
-            ed_task.remind_time = get_remind_next_week()
+            ed_task.remind = get_remind_next_week()
             ed_task.save()
             return True
-        if ('remind-save' in request.POST):
-            form_remind = TaskRemindForm(request.POST, instance = ed_task, prefix = 'task_remind_edit')
-            if form_remind.is_valid():
-                fr = form_remind.save(commit = False)
-                ed_task.reminder = True
-                ed_task.remind_time = fr.remind_time
-                ed_task.save()
-                return True
         if ('remind-delete' in request.POST):
-            ed_task.reminder = False
+            ed_task.remind = None
             ed_task.save()
             return True
         
@@ -358,13 +335,6 @@ def get_task_details(request, context, pk, lst):
             ed_task.stop = datetime.today() + timedelta(8 - datetime.today().isoweekday())
             ed_task.save()
             return True
-        if ('termin-save' in request.POST):
-            form_termin = TaskTerminForm(request.POST, instance = ed_task)
-            if form_termin.is_valid():
-                ft = form_termin.save(commit = False)
-                ed_task.stop = ft.stop
-                ed_task.save()
-                return True
         if ('termin-delete' in request.POST):
             ed_task.stop = None
             if ed_task.repeat != NONE:
@@ -409,75 +379,55 @@ def get_task_details(request, context, pk, lst):
                 ed_task.stop = datetime.today()
             ed_task.save()
             return True
-        if ('repeat-save' in request.POST):
-            form_repeat = TaskRepeatForm(request.POST, instance = ed_task, prefix = 'task_repeat_edit')
-            if form_repeat.is_valid():
-                fr = form_repeat.save(commit = False)
-                ed_task.repeat = fr.repeat
-                ed_task.repeat_num = fr.repeat_num
-                ed_task.save()
-                return True
         if ('repeat-delete' in request.POST):
             ed_task.repeat = NONE
             ed_task.save()
             return True
+        if ('url-delete' in request.POST):
+            ed_task.url = ''
+            ed_task.save()
+            return True
+
+    if not name_form:
+        name_form = TaskNameForm(instance = ed_task)
 
     if not form:
-        form = TaskForm(instance = ed_task, prefix = 'task_edit')
+        form = TaskForm(instance = ed_task)
 
-    if not form_lst:
-        form_lst = TaskLstForm(instance = ed_task, prefix = 'task_lst_edit')
+    if not file_form:
+        file_form = TaskFilesForm()
 
-    if not form_info:
-        form_info = TaskInfoForm(instance = ed_task, prefix = 'task_info_edit')
-
-    if not form_file:
-        form_file = TaskFilesForm()
-
-    if not form_remind:
-        form_remind = TaskRemindForm(instance = ed_task, prefix = 'task_remind_edit')
-
-    if not form_termin:
-        form_termin = TaskTerminForm(instance = ed_task, prefix = 'task_termin_edit')
-
-    if not form_repeat:
-        form_repeat = TaskRepeatForm(instance = ed_task, prefix = 'task_repeat_edit')
-
+    context['name_form'] = name_form
     context['form'] = form
-    context['form_lst'] = form_lst
-    context['form_info'] = form_info
+    context['file_form'] = file_form
     context['files'] = TaskFiles.objects.filter(task = ed_task.id)
-    context['form_file'] = form_file
     context['task_id'] = ed_task.id
-    context['created'] = ed_task.created
     context['important'] = ed_task.important
     context['in_my_day'] = ed_task.in_my_day
     context['completed'] = ed_task.completed
-    context['task_stop'] = ed_task.stop
     context['task_d_termin'] = ed_task.stop
     context['task_s_termin'] = ed_task.s_termin()
     context['task_actual'] = (not ed_task.completed) and (not ed_task.b_expired()) and ed_task.stop
     context['task_expired'] = ed_task.b_expired()
     
     context['steps'] = Step.objects.filter(task = ed_task.id)
-    context['step_form'] = StepForm(prefix = 'step_form')
 
-    context['remind_active'] = ed_task.reminder and (not ed_task.completed) and (ed_task.remind_time > datetime.now())
-    context['task_b_remind'] = ed_task.reminder
-    if ed_task.remind_time:
-        context['task_remind_time'] = _('remind in').capitalize() + ' ' + ed_task.remind_time.strftime('%H:%M')
-        context['task_remind_date'] = nice_date(ed_task.remind_time.date())
+    context['remind_active'] = ed_task.remind and (not ed_task.completed) and (ed_task.remind > datetime.now())
+    context['task_b_remind'] = (ed_task.remind != None)
+    if ed_task.remind:
+        context['task_remind_time'] = _('remind in').capitalize() + ' ' + ed_task.remind.strftime('%H:%M')
+        context['task_remind_date'] = nice_date(ed_task.remind.date())
     context['remind_today_info'] = get_remind_today().strftime('%H:%M')
     context['remind_tomorrow_info'] = get_remind_tomorrow().strftime('%a, %H:%M')
     context['remind_next_week_info'] = get_remind_next_week().strftime('%a, %H:%M')
-    context['remind_form'] = form_remind
-
-    context['termin_form'] = form_termin
+    context['termin_today_info'] = datetime.today()
+    context['termin_tomorrow_info'] = datetime.today() + timedelta(1)
+    context['termin_next_week_info'] = datetime.today() + timedelta(8 - datetime.today().isoweekday())
 
     context['task_b_repeat'] = ed_task.repeat != NONE
     context['task_s_repeat'] = ed_task.s_repeat()
     context['task_repeat_days'] = ed_task.repeat_s_days()
-    context['repeat_form'] = form_repeat
+
     context['repeat_form_d1'] = get_week_day_name(1)
     context['repeat_form_d2'] = get_week_day_name(2)
     context['repeat_form_d3'] = get_week_day_name(3)
@@ -485,7 +435,11 @@ def get_task_details(request, context, pk, lst):
     context['repeat_form_d5'] = get_week_day_name(5)
     context['repeat_form_d6'] = get_week_day_name(6)
     context['repeat_form_d7'] = get_week_day_name(7)
+
     context['task_info'] = get_task_status(ed_task)
+    context['url_cutted'] = ed_task.url
+    if (len(ed_task.url) > 50):
+        context['url_cutted'] = ed_task.url[:50] + '...'
     return False
 
 
@@ -494,7 +448,7 @@ def get_list_details(request, context, pk):
     form = None
     if (request.method == 'POST'):
         if ('list-save' in request.POST):
-            form = LstForm(request.POST, instance = ed_lst, prefix = 'lst_edit')
+            form = LstForm(request.POST, instance = ed_lst)
             if form.is_valid():
                 lst = form.save(commit = False)
                 lst.user = request.user
@@ -506,9 +460,9 @@ def get_list_details(request, context, pk):
             return True
 
     if not form:
-        form = LstForm(instance = ed_lst, prefix = 'lst_edit')
+        form = LstForm(instance = ed_lst)
 
-    context['lst_form'] = form
+    context['form'] = form
     return False
 
 def get_group_details(request, context, pk):
@@ -516,7 +470,7 @@ def get_group_details(request, context, pk):
     form = None
     if (request.method == 'POST'):
         if ('group-save' in request.POST):
-            form = GrpForm(request.user, request.POST, instance = ed_grp, prefix = 'grp_edit')
+            form = GrpForm(request.user, request.POST, instance = ed_grp)
             if form.is_valid():
                 grp = form.save(commit = False)
                 grp.user = request.user
@@ -528,9 +482,9 @@ def get_group_details(request, context, pk):
             return True
 
     if not form:
-        form = GrpForm(request.user, instance = ed_grp, prefix = 'grp_edit')
+        form = GrpForm(request.user, instance = ed_grp)
 
-    context['grp_form'] = form
+    context['form'] = form
     return False
 
 def process_sort_commands(request):
@@ -610,10 +564,10 @@ def get_task_info(task, cur_view):
             ret.append({'icon': repeat})
 
 
-    if (task.reminder and (task.remind_time >= datetime.now())) or task.info or (len(TaskFiles.objects.filter(task = task.id)) > 0):
+    if ((task.remind != None) and (task.remind >= datetime.now())) or task.info or (len(TaskFiles.objects.filter(task = task.id)) > 0):
         if (len(ret) > 0):
             ret.append({'icon': 'separator'})
-        if (task.reminder and (task.remind_time >= datetime.now())):
+        if ((task.remind != None) and (task.remind >= datetime.now())):
             ret.append({'icon': 'remind'})
         if task.info:
             ret.append({'icon': 'notes'})
@@ -673,7 +627,7 @@ def task_list(request):
     context = todo_base_context(request, param.cur_view, param.lst)
     save_last_visited(request.user, 'todo:task_list', 'todo', context['list_title'])
 
-    details_mode = ''
+    template_file = ''
     redirect = False
     if (param.details_mode == TASK_DETAILS):
         if not Task.objects.filter(id = param.details_pk, user = request.user.id).exists():
@@ -681,7 +635,7 @@ def task_list(request):
             param.save()
             redirect = True
         else:
-            details_mode = 'task'
+            template_file = 'todo/task_form.html'
             redirect = get_task_details(request, context, param.details_pk, param.lst)
     elif (param.details_mode == LIST_DETAILS):
         if not Lst.objects.filter(id = param.details_pk, user = request.user.id).exists():
@@ -689,7 +643,7 @@ def task_list(request):
             param.save()
             redirect = True
         else:
-            details_mode = 'list'
+            template_file = 'todo/list_form.html'
             redirect = get_list_details(request, context, param.details_pk)
     elif (param.details_mode == GROUP_DETAILS):
         if not Grp.objects.filter(id = param.details_pk, user = request.user.id).exists():
@@ -697,13 +651,12 @@ def task_list(request):
             param.save()
             redirect = True
         else:
-            details_mode = 'group'
+            template_file = 'todo/group_form.html'
             redirect = get_group_details(request, context, param.details_pk)
 
     if redirect:
         return HttpResponseRedirect(reverse('todo:task_list'))
 
-    context['details_mode'] = details_mode
     context['details_pk'] = param.details_pk
 
     data = []
@@ -713,9 +666,8 @@ def task_list(request):
         term.todo.append([task, get_task_info(task, param.cur_view)])
     
     context['object_list'] = sorted(data, key=lambda term: term.per_grp.grp_id)
-    context['task_add_form'] = TaskForm(prefix='task_add')
+    context['task_add_form'] = TaskForm()
 
-    template_file = 'todo/task_list.html'
     template = loader.get_template(template_file)
     return HttpResponse(template.render(context, request))
 

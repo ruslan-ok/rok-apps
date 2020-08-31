@@ -323,7 +323,13 @@ button.dropdown-content-item:hover {
   padding-right: 10px;
 }
 
-.c005  input[type="text"] {
+.c005 {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.c005  input[type="text"], .c005  input[type="date"] {
   width: 140px;
   padding: 5px;
 }
@@ -450,9 +456,14 @@ button.dropdown-content-item:hover {
   text-align: center !important;
 }
 
-button.repeat-options-day:hover {
+.button.day:hover {
   background-color: #ddd;
 }
 
+.button.day {
+  color: black;
+}
 
-
+.button.day.selected {
+	background-color: #bbb;
+}

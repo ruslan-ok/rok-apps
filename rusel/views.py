@@ -1,8 +1,10 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
+from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.decorators import login_required
+from django.views import View
 
 from hier.utils import get_base_context, save_folder_id, process_common_commands, get_trash, get_param
 from hier.models import Param, Folder
@@ -18,7 +20,7 @@ def index(request):
 
     if request.user.is_authenticated:
         save_folder_id(request.user, 0)
-        title = _('applications')
+        title = _('applications').capitalize()
         hide_title = False
     else:
         title = context['site']
@@ -96,4 +98,10 @@ def store(request):
 #----------------------------------
 def trash(request):
     return HttpResponseRedirect(reverse('hier:folder_list', args = [get_trash(request.user).id]))
+
+#----------------------------------
+class ServiceWorkerView(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'firebase-messaging-sw.js', content_type="application/x-javascript")
+
 

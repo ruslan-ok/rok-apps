@@ -506,6 +506,7 @@ article .section-item .section-52 {
 }
 
 article .section-item .section-inner {
+  min-height: 52px;
   display: flex;
   flex: auto;
   align-items: center;
@@ -1013,7 +1014,7 @@ svg {
 }
 
 .marked {
-  font-weight: bold;
+  color: black;
 }
 
 @media (min-width:601px){.rok-col.m1{width:8.33333%}.rok-col.m2{width:16.66666%}.rok-col.m3,.rok-quarter{width:24.99999%}.rok-col.m4,.rok-third{width:33.33333%}

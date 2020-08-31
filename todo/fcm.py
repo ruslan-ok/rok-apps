@@ -57,6 +57,9 @@ def fcm_del(request):
 
 
 def remind_one_task(task, debug = False):
+    if not task.remind:
+        return
+
     if not firebase_admin._apps:
         cred = credentials.Certificate(cred_cert)
         default_app = firebase_admin.initialize_app(cred)
@@ -64,7 +67,7 @@ def remind_one_task(task, debug = False):
     if debug:
         rt = datetime.now()
     else:
-        rt = task.remind_time
+        rt = task.remind
     body = '{} {}'.format(_('remind time').capitalize(), rt.strftime('%H:%M'))
     #if task.info:
     #    body += '\n' + task.info
@@ -115,26 +118,26 @@ def remind_one_task(task, debug = False):
             ret_resp += ':' + z.message_id
     
     ret = 'ok: ' + str(r.success_count) + ', err: ' + str(r.failure_count) + ', resp: ' + ret_resp
-    task.reminder = False
+    task.remind = None
     task.save()
 
     return ret
 
-
+"""
 def fcm_send(request, pk):
     task = get_object_or_404(Task.objects.filter(id = pk, user = request.user.id))
     status = remind_one_task(task)
     #return HttpResponse('fcm_send: ' + status)
     return HttpResponseRedirect(reverse('todo:task_list'))
-
+"""
 
 def fcm_check(request):
     ret = 'ok'
     try:
-        tasks = Task.objects.filter(reminder = True, completed = False).order_by('remind_time')
+        tasks = Task.objects.filter(completed = False).exclude(remind = None).order_by('remind')
         now = datetime.now()
         for task in tasks:
-            if (task.remind_time <= now):
+            if task.remind and (task.remind <= now):
                 rot = remind_one_task(task)
                 ret += ' * "' + task.name + '" ' + rot
     except:
@@ -151,21 +154,20 @@ def log(info):
 def fcm_postpone(request, pk):
     log('fcm_postpone(..., pk = ' + str(pk) + ')')
     task = get_object_or_404(Task.objects.filter(id = pk))
-    task.remind_time = (datetime.now() + timedelta(seconds = 300))
-    task.reminder = True
+    task.remind = (datetime.now() + timedelta(seconds = 300))
     task.save()
-    log('saved: id = ' + str(task.id) + ', remind = ' + str(task.reminder) + ', time = ' + task.remind_time.strftime('%H:%M'))
-    return HttpResponse('ok, id = ' + str(task.id) + ', remind = ' + str(task.reminder) + ', time = ' + task.remind_time.strftime('%H:%M'))
+    log('saved: id = ' + str(task.id) + ', remind time = ' + task.remind.strftime('%H:%M'))
+    return HttpResponse('ok, id = ' + str(task.id) + ', remind time = ' + task.remind.strftime('%H:%M'))
 
 
 def fcm_done(request, pk):
     log('fcm_done(..., pk = ' + str(pk) + ')')
     task = get_object_or_404(Task.objects.filter(id = pk))
-    task.reminder = False
+    task.remind = None
     task.completed = True
     task.completion = datetime.now()
     task.save()
-    log('saved: id = ' + str(task.id) + ', remind = ' + str(task.reminder) + ', time = ' + task.remind_time.strftime('%H:%M'))
+    log('saved: id = ' + str(task.id) + ', remind = False')
     return HttpResponse('ok')
 
 

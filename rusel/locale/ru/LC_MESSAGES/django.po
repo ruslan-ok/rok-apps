@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-16 19:04+0300\n"
+"POT-Creation-Date: 2020-08-31 05:06+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,7 +20,7 @@ msgstr ""
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 
 #: .\rusel\templates\base_list.html:85 .\rusel\templates\base_window.html:65
-#: .\rusel\views.py:45
+#: .\rusel\views.py:47
 msgid "feedback"
 msgstr "контакты"
 
@@ -72,6 +72,6 @@ msgstr ""
 msgid "find something more interesting"
 msgstr "найти что-нибудь более интересное"
 
-#: .\rusel\views.py:21
+#: .\rusel\views.py:23
 msgid "applications"
 msgstr "приложения"

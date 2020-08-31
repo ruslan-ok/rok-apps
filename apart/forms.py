@@ -22,8 +22,8 @@ class BillForm(forms.ModelForm):
     class Meta:
         model = Bill
         fields = ['period', 'payment', 'el_pay', 'tv_bill', 'tv_pay', 'phone_bill', 'phone_pay', 'zhirovka', 'hot_pay', 'repair_pay', 'ZKX_pay', 'water_pay', 'gas_pay', 'rate', 'info']
-        widgets = { 'period': DateInput(), 'payment': DateTimeInput(), 'info': forms.Textarea(attrs={'rows':3, 'cols':10, 'placeholder':_('add note').capitalize()}) }
-    
+        widgets = { 'period': DateInput(), 'info': forms.Textarea(attrs={'rows':3, 'cols':10, 'placeholder':_('add note').capitalize()}) }
+        
 #----------------------------------
 class PriceForm(forms.ModelForm):
     class Meta:

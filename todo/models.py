@@ -1,5 +1,5 @@
 import calendar
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
@@ -76,18 +76,18 @@ class Task(models.Model):
     last_mod = models.DateTimeField(_('last modification time'), blank = True, auto_now = True)
     name = models.CharField(_('name'), max_length = 200, blank = False)
     start = models.DateField(_('start date'), blank = True, null = True)
-    stop = models.DateField(_('stop date'), blank = True, null = True)
+    stop = models.DateField(_('termin'), blank = True, null = True)
     completed = models.BooleanField(_('completed'), default = False)
     completion = models.DateTimeField(_('completion time'), blank = True, null = True, default = None)
     in_my_day = models.BooleanField(_('in my day'), default = False)
     important = models.BooleanField(_('important'), default = False)
-    reminder = models.BooleanField(_('reminder'), default = False)
-    remind_time = models.DateTimeField(_('time of reminder'), blank = True, null = True)
-    repeat = models.IntegerField(_('repeat'), blank = True, choices = REPEAT_SELECT, default = NONE)
+    remind = models.DateTimeField(_('remind'), blank = True, null = True)
+    repeat = models.IntegerField(_('repeat'), blank = True, null = True, choices = REPEAT_SELECT, default = NONE)
     repeat_num = models.IntegerField(_('repeat num'), blank = True, default = 1)
     repeat_days = models.IntegerField(_('repeat days'), blank = True, default = 0)
     categories = models.TextField(_('categories'), blank = True, default = "")
     info = models.TextField(_('information'), blank = True, default = "")
+    url = models.CharField(_('url'), max_length = 2000, blank = True)
     
     class Meta:
         verbose_name = _('task')
@@ -162,14 +162,17 @@ class Task(models.Model):
         return s + str(nice_date(d))
             
     def s_repeat(self):
-        if (self.repeat == NONE):
+        if (not self.repeat) or (self.repeat == NONE):
             return ''
         if (self.repeat_num == 1):
             if (self.repeat == WORKDAYS):
                 return REPEAT[WEEKLY][1].capitalize()
             return REPEAT[self.repeat][1].capitalize()
         
-        return '{} {} {}'.format(_('once every').capitalize(), self.repeat_num, REPEAT_NAME[self.repeat])
+        rn = ''
+        if self.repeat:
+            rn = REPEAT_NAME[self.repeat]
+        return '{} {} {}'.format(_('once every').capitalize(), self.repeat_num, rn)
 
     def repeat_s_days(self):
         if (self.repeat == WEEKLY):
@@ -179,24 +182,23 @@ class Task(models.Model):
                 return str(_('work days')).capitalize()
             ret = ''
             monday = datetime(2020, 7, 6, 0, 0)
-            if (self.repeat_days & 1):
-                ret += monday.strftime('%A')
-            if (self.repeat_days & 2):
-                if (ret != ''):
-                    ret += ', '
-                ret += (monday +timedelta(1)).strftime('%A')
+            for i in range(7):
+                if (self.repeat_days & (1 << i)):
+                    if (ret != ''):
+                        ret += ', '
+                    ret += (monday +timedelta(i)).strftime('%A')
             return ret
         return ''
 
     def next_remind_time(self):
-        if (not self.remind_time) or (not self.stop):
+        if (not self.remind) or (not self.stop):
             return None
-        delta = self.stop - self.remind_time.date()
+        delta = self.stop - self.remind.date()
         next = self.next_iteration()
         if (not next):
             return None
         rd = next - delta
-        return datetime(rd.year, rd.month, rd.day, self.remind_time.hour, self.remind_time.minute, self.remind_time.second)
+        return datetime(rd.year, rd.month, rd.day, self.remind.hour, self.remind.minute, self.remind.second)
 
 
 

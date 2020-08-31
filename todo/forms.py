@@ -2,6 +2,8 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
+from django.contrib.admin.widgets import AdminSplitDateTime
+
 from hier.forms import DateInput
 from .models import Grp, Lst, Task, Step, TaskFiles
 
@@ -41,27 +43,22 @@ class LstForm(forms.ModelForm):
         fields = ['name', 'grp', 'sort']
 
 #----------------------------------
-class TaskForm(forms.ModelForm):
+class TaskNameForm(forms.ModelForm):
 
     class Meta:
         model = Task
         fields = ['name']
 
 #----------------------------------
-class TaskLstForm(forms.ModelForm):
-
+class TaskForm(forms.ModelForm):
+    remind = forms.SplitDateTimeField(widget = AdminSplitDateTime(), label = _('remind').capitalize(), required = False)
+    url = forms.CharField(widget = forms.TextInput(attrs = {'placeholder': _('add link').capitalize()}), required = False)
     class Meta:
         model = Task
-        fields = ['lst']
-
-#----------------------------------
-class TaskInfoForm(forms.ModelForm):
-
-    class Meta:
-        model = Task
-        fields = ['info']
+        fields = ['lst', 'stop', 'remind', 'repeat', 'repeat_num', 'repeat_days', 'info', 'url']
         widgets = {
-          'info': forms.Textarea(attrs={'rows':3, 'cols':10, 'placeholder':_('add note').capitalize()}),
+            'stop': DateInput(),
+            'info': forms.Textarea(attrs={'rows':3, 'cols':10, 'placeholder':_('add note').capitalize(), 'data-autoresize':''}),
         }
 
 #----------------------------------
@@ -77,28 +74,6 @@ class TaskFilesForm(forms.ModelForm):
     class Meta:
         model = TaskFiles
         fields = ['upload']
-
-#----------------------------------
-class TaskRemindForm(forms.ModelForm):
-
-    class Meta:
-        model = Task
-        fields = ['remind_time']
-
-#----------------------------------
-class TaskTerminForm(forms.ModelForm):
-
-    class Meta:
-        model = Task
-        fields = ['stop']
-        widgets = { 'stop': DateInput() }
-
-#----------------------------------
-class TaskRepeatForm(forms.ModelForm):
-
-    class Meta:
-        model = Task
-        fields = ['repeat', 'repeat_num', 'repeat_days']
 
 
 
