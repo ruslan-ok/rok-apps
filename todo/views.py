@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext_lazy as _
+from django.db.models import Q
 
 from hier.utils import get_base_context, process_common_commands, set_aside_visible, set_article_visible, save_last_visited
 from .models import Grp, Lst, Task, Param, Step, TaskFiles, NONE, DAILY, WORKDAYS, WEEKLY, MONTHLY, ANNUALLY, PerGrp
@@ -140,9 +141,29 @@ def get_tasks(user, mode, lst_id):
         ret = Task.objects.filter(user = user.id, lst = lst_id)
     return ret
 
-def sorted_tasks(user, mode, lst_id):
+def get_search_mode(query):
+    if not query:
+        return 0
+    if (len(query) > 1) and (query[0] == '#') and (query.find(' ') == -1):
+        return 2
+    else:
+        return 1
+
+def get_filtered_tasks(user, mode, lst_id, query):
+    ret = get_tasks(user, mode, lst_id)
+    search_mode = get_search_mode(query)
+    lookups = None
+    if (search_mode == 0):
+        return ret
+    elif (search_mode == 1):
+        lookups = Q(name__icontains=query) | Q(info__icontains=query) | Q(url__icontains=query)
+    elif (search_mode == 2):
+        lookups = Q(categories__icontains=query[1:])
+    return ret.filter(lookups)
+
+def sorted_tasks(user, mode, lst_id, query):
     sort_mode, sort_dir = get_sort_mode(user, mode)
-    data = get_tasks(user, mode, lst_id)
+    data = get_filtered_tasks(user, mode, lst_id, query)
 
     if (sort_mode == IMPORTANT) and (not sort_dir):
         data = data.order_by('important', '-stop')
@@ -243,6 +264,11 @@ def get_task_details(request, context, pk, lst):
             ed_task.delete()
             set_details(request.user, NONE, 0)
             return True
+        if ('category-delete' in request.POST):
+            category = request.POST['category-delete']
+            ed_task.categories = ed_task.categories.replace(category, '')
+            ed_task.save()
+            return True
         if ('task-name-save' in request.POST):
             name_form = TaskNameForm(request.POST, instance = ed_task)
             if name_form.is_valid():
@@ -258,6 +284,10 @@ def get_task_details(request, context, pk, lst):
                 task.user = request.user
                 if not request.POST['repeat']:
                     task.repeat = NONE
+                if form.cleaned_data['category']:
+                    if task.categories:
+                        task.categories += ' '
+                    task.categories += form.cleaned_data['category']
                 form.save()
                 return True
         if ('task-file-upload' in request.POST):
@@ -437,6 +467,7 @@ def get_task_details(request, context, pk, lst):
     context['repeat_form_d7'] = get_week_day_name(7)
 
     context['task_info'] = get_task_status(ed_task)
+    context['categories'] = get_categories_list(ed_task.categories)
     context['url_cutted'] = ed_task.url
     if (len(ed_task.url) > 50):
         context['url_cutted'] = ed_task.url[:50] + '...'
@@ -574,6 +605,39 @@ def get_task_info(task, cur_view):
         if (len(TaskFiles.objects.filter(task = task.id)) > 0):
             ret.append({'icon': 'attach'})
 
+    if task.categories:
+        if (len(ret) > 0):
+            ret.append({'icon': 'separator'})
+        categs = get_categories_list(task.categories)
+        for categ in categs:
+            ret.append({'icon': 'category', 'text': categ.name, 'color': 'category-design-' + categ.design})
+
+    return ret
+
+CATEGORY_DESIGN = [
+    'green',
+    'blue',
+    'red',
+    'purple',
+    'yellow',
+    'orange'
+]
+
+def get_category_design(categ):
+    l = 0
+    for c in categ:
+        l += ord(c)
+    return CATEGORY_DESIGN[l % 6]
+
+class Category():
+    def __init__(self, name):
+        self.name = name
+        self.design = get_category_design(name)
+
+def get_categories_list(caterories_string):
+    ret = []
+    for categ in caterories_string.split():
+        ret.append(Category(categ))
     return ret
 
 def find_term(data, user, grp_id):
@@ -660,11 +724,20 @@ def task_list(request):
     context['details_pk'] = param.details_pk
 
     data = []
-    for task in sorted_tasks(request.user, param.cur_view, param.lst):
+    query = None
+    if request.method == 'GET':
+        query = request.GET.get('q')
+    search_mode = 0
+    for task in sorted_tasks(request.user, param.cur_view, param.lst, query):
         grp_id = get_grp_planned(param.cur_view, task.stop, task.completed)
         term = find_term(data, request.user, grp_id)
         term.todo.append([task, get_task_info(task, param.cur_view)])
     
+    search_mode = get_search_mode(query)
+    if (search_mode == 1):
+        context['search_info'] = _('contained').capitalize() + ' "' + query + '"'
+    elif (search_mode == 2):
+        context['search_info'] = _('contained category').capitalize() + ' "' + query[1:] + '"'
     context['object_list'] = sorted(data, key=lambda term: term.per_grp.grp_id)
     context['task_add_form'] = TaskForm()
 

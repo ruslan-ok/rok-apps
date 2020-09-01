@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-31 05:06+0300\n"
+"POT-Creation-Date: 2020-09-01 14:01+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,7 +23,7 @@ msgstr ""
 msgid "apart"
 msgstr "квартира"
 
-#: .\apart\forms.py:25 .\apart\forms.py:33
+#: .\apart\forms.py:25 .\apart\forms.py:32
 msgid "add note"
 msgstr "добавить заметку"
 

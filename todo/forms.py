@@ -53,12 +53,13 @@ class TaskNameForm(forms.ModelForm):
 class TaskForm(forms.ModelForm):
     remind = forms.SplitDateTimeField(widget = AdminSplitDateTime(), label = _('remind').capitalize(), required = False)
     url = forms.CharField(widget = forms.TextInput(attrs = {'placeholder': _('add link').capitalize()}), required = False)
+    category = forms.CharField(widget = forms.TextInput(attrs = {'placeholder': _('add category').capitalize()}), required = False)
     class Meta:
         model = Task
-        fields = ['lst', 'stop', 'remind', 'repeat', 'repeat_num', 'repeat_days', 'info', 'url']
+        fields = ['lst', 'stop', 'remind', 'repeat', 'repeat_num', 'repeat_days', 'info', 'url', 'category']
         widgets = {
             'stop': DateInput(),
-            'info': forms.Textarea(attrs={'rows':3, 'cols':10, 'placeholder':_('add note').capitalize(), 'data-autoresize':''}),
+            'info': forms.Textarea(attrs={'rows':3, 'cols':10, 'placeholder': _('add note').capitalize(), 'data-autoresize':''}),
         }
 
 #----------------------------------

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-31 05:06+0300\n"
+"POT-Creation-Date: 2020-09-01 14:01+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,15 +20,15 @@ msgstr ""
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: .\todo\fcm.py:72
+#: .\todo\fcm.py:71
 msgid "remind time"
 msgstr "напомнить в"
 
-#: .\todo\fcm.py:88
+#: .\todo\fcm.py:87
 msgid "postpone"
 msgstr "отложить"
 
-#: .\todo\fcm.py:89
+#: .\todo\fcm.py:88
 msgid "done"
 msgstr "готово"
 
@@ -40,31 +40,35 @@ msgstr "ссылка на самого себя"
 msgid "loop link"
 msgstr "циклическая ссылка"
 
-#: .\todo\forms.py:55 .\todo\models.py:84
+#: .\todo\forms.py:54 .\todo\models.py:84
 msgid "remind"
 msgstr "напомнить"
 
-#: .\todo\forms.py:56
+#: .\todo\forms.py:55
 msgid "add link"
 msgstr "добавить ссылку"
+
+#: .\todo\forms.py:56
+msgid "add category"
+msgstr "добавить категорию"
 
 #: .\todo\forms.py:62
 msgid "add note"
 msgstr "добавить заметку"
 
 #: .\todo\models.py:10 .\todo\models.py:27 .\todo\models.py:73
-#: .\todo\models.py:211 .\todo\models.py:249 .\todo\models.py:266
-#: .\todo\models.py:282
+#: .\todo\models.py:206 .\todo\models.py:244 .\todo\models.py:261
+#: .\todo\models.py:277
 msgid "user"
 msgstr "пользователь"
 
 #: .\todo\models.py:11 .\todo\models.py:28 .\todo\models.py:75
-#: .\todo\models.py:232
+#: .\todo\models.py:227
 msgid "creation time"
 msgstr "создано"
 
 #: .\todo\models.py:12 .\todo\models.py:29 .\todo\models.py:76
-#: .\todo\models.py:233
+#: .\todo\models.py:228
 msgid "last modification time"
 msgstr "последняя модификация"
 
@@ -76,8 +80,8 @@ msgstr "вышестоящая"
 msgid "group name"
 msgstr "наименование группы"
 
-#: .\todo\models.py:15 .\todo\models.py:32 .\todo\models.py:235
-#: .\todo\models.py:251
+#: .\todo\models.py:15 .\todo\models.py:32 .\todo\models.py:230
+#: .\todo\models.py:246
 msgid "sort code"
 msgstr "код для сортировки"
 
@@ -93,11 +97,11 @@ msgstr "группа"
 msgid "groups"
 msgstr "группы"
 
-#: .\todo\models.py:31 .\todo\models.py:234
+#: .\todo\models.py:31 .\todo\models.py:229
 msgid "list name"
 msgstr "наименование списка"
 
-#: .\todo\models.py:35 .\todo\models.py:74 .\todo\models.py:225
+#: .\todo\models.py:35 .\todo\models.py:74 .\todo\models.py:220
 msgid "list"
 msgstr "список"
 
@@ -109,24 +113,24 @@ msgstr "списки"
 msgid "no"
 msgstr "нет"
 
-#: .\todo\models.py:51 .\todo\templates\todo\task_form.html:279
+#: .\todo\models.py:51 .\todo\templates\todo\task_form.html:280
 msgid "daily"
 msgstr "ежедневно"
 
-#: .\todo\models.py:52 .\todo\models.py:184
-#: .\todo\templates\todo\task_form.html:285
+#: .\todo\models.py:52 .\todo\models.py:182
+#: .\todo\templates\todo\task_form.html:286
 msgid "work days"
 msgstr "по рабочим дням"
 
-#: .\todo\models.py:53 .\todo\templates\todo\task_form.html:291
+#: .\todo\models.py:53 .\todo\templates\todo\task_form.html:292
 msgid "weekly"
 msgstr "еженедельно"
 
-#: .\todo\models.py:54 .\todo\templates\todo\task_form.html:297
+#: .\todo\models.py:54 .\todo\templates\todo\task_form.html:298
 msgid "monthly"
 msgstr "ежемесячно"
 
-#: .\todo\models.py:55 .\todo\templates\todo\task_form.html:303
+#: .\todo\models.py:55 .\todo\templates\todo\task_form.html:304
 msgid "annually"
 msgstr "ежегодно"
 
@@ -154,12 +158,12 @@ msgstr "наименование"
 msgid "start date"
 msgstr "начало"
 
-#: .\todo\models.py:79 .\todo\models.py:163
+#: .\todo\models.py:79 .\todo\models.py:161
 msgid "termin"
 msgstr "срок"
 
 #: .\todo\models.py:80 .\todo\templates\todo\task_list.html:42
-#: .\todo\utils.py:127 .\todo\views.py:38
+#: .\todo\utils.py:127 .\todo\views.py:39
 msgid "completed"
 msgstr "завершенные"
 
@@ -172,167 +176,167 @@ msgid "in my day"
 msgstr "мой день"
 
 #: .\todo\models.py:83 .\todo\templates\todo\task_list.html:21
-#: .\todo\views.py:36
+#: .\todo\views.py:37
 msgid "important"
 msgstr "важно"
 
-#: .\todo\models.py:87 .\todo\templates\todo\task_form.html:262
+#: .\todo\models.py:85 .\todo\templates\todo\task_form.html:263
 msgid "repeat"
 msgstr "повторять"
 
-#: .\todo\models.py:88
+#: .\todo\models.py:86
 msgid "repeat num"
 msgstr "частота повторений"
 
-#: .\todo\models.py:89
+#: .\todo\models.py:87
 msgid "repeat days"
 msgstr "дни повторения"
 
-#: .\todo\models.py:90 .\todo\templates\todo\task_form.html:343
+#: .\todo\models.py:88
 msgid "categories"
 msgstr "категории"
 
-#: .\todo\models.py:91
+#: .\todo\models.py:89
 msgid "information"
 msgstr "примечания"
 
-#: .\todo\models.py:92
+#: .\todo\models.py:90
 msgid "url"
 msgstr "url"
 
-#: .\todo\models.py:95 .\todo\models.py:231 .\todo\models.py:250
+#: .\todo\models.py:93 .\todo\models.py:226 .\todo\models.py:245
 msgid "task"
 msgstr "задача"
 
-#: .\todo\models.py:96 .\todo\views.py:171
+#: .\todo\models.py:94 .\todo\views.py:192
 msgid "tasks"
 msgstr "задачи"
 
-#: .\todo\models.py:161
+#: .\todo\models.py:159
 msgid "expired"
 msgstr "просрочено"
 
-#: .\todo\models.py:177
+#: .\todo\models.py:175
 msgid "once every"
 msgstr "раз в"
 
-#: .\todo\models.py:212
+#: .\todo\models.py:207
 msgid "current view"
 msgstr "текущее представление"
 
-#: .\todo\models.py:213
+#: .\todo\models.py:208
 msgid "sorting mode for view \"My day\""
 msgstr "режим сортировки для предстваления \"Мой день\""
 
-#: .\todo\models.py:214
+#: .\todo\models.py:209
 msgid "sorting direction for view \"My day\""
 msgstr "направление сортировки для предстваления \"Мой день\""
 
-#: .\todo\models.py:215
+#: .\todo\models.py:210
 msgid "sorting mode for view \"Important\""
 msgstr "режим сортировки для предстваления \"Важно\""
 
-#: .\todo\models.py:216
+#: .\todo\models.py:211
 msgid "sorting direction for view \"Important\""
 msgstr "направление сортировки для предстваления \"Важно\""
 
-#: .\todo\models.py:217
+#: .\todo\models.py:212
 msgid "sorting mode for view \"Planned\""
 msgstr "режим сортировки для предстваления \"Запланировано\""
 
-#: .\todo\models.py:218
+#: .\todo\models.py:213
 msgid "sorting direction for view \"Planned\""
 msgstr "направление сортировки для предстваления \"Запланировано\""
 
-#: .\todo\models.py:219
+#: .\todo\models.py:214
 msgid "sorting mode for view \"All\""
 msgstr "режим сортировки для предстваления \"Все\""
 
-#: .\todo\models.py:220
+#: .\todo\models.py:215
 msgid "sorting direction for view \"All\""
 msgstr "направление сортировки для предстваления \"Все\""
 
-#: .\todo\models.py:221
+#: .\todo\models.py:216
 msgid "sorting mode for view \"Completed\""
 msgstr "режим сортировки для предстваления \"Завершенные\""
 
-#: .\todo\models.py:222
+#: .\todo\models.py:217
 msgid "sorting direction for view \"Completed\""
 msgstr "направление сортировки для предстваления \"Завершенные\""
 
-#: .\todo\models.py:223
+#: .\todo\models.py:218
 msgid "sorting mode for view \"List\""
 msgstr "режим сортировки для предстваления \"Список\""
 
-#: .\todo\models.py:224
+#: .\todo\models.py:219
 msgid "sorting direction for view \"List\""
 msgstr "направление сортировки для предстваления \"Список\""
 
-#: .\todo\models.py:226
+#: .\todo\models.py:221
 msgid "details mode"
 msgstr "режим детализации"
 
-#: .\todo\models.py:227
+#: .\todo\models.py:222
 msgid "details pk"
 msgstr "первичный ключ детализации"
 
-#: .\todo\models.py:236
+#: .\todo\models.py:231
 msgid "step is completed"
 msgstr "шаг выполнен"
 
-#: .\todo\models.py:239
+#: .\todo\models.py:234
 msgid "step"
 msgstr "шаг"
 
-#: .\todo\models.py:240
+#: .\todo\models.py:235
 msgid "steps"
 msgstr "шаги"
 
-#: .\todo\models.py:253
+#: .\todo\models.py:248
 msgid "file name"
 msgstr "имя файла"
 
-#: .\todo\models.py:254
+#: .\todo\models.py:249
 msgid "file type"
 msgstr "тип файла"
 
-#: .\todo\models.py:255
+#: .\todo\models.py:250
 msgid "file size"
 msgstr "размер файла"
 
-#: .\todo\models.py:258
+#: .\todo\models.py:253
 msgid "file"
 msgstr "файл"
 
-#: .\todo\models.py:259
+#: .\todo\models.py:254
 msgid "files"
 msgstr "файлы"
 
-#: .\todo\models.py:267
+#: .\todo\models.py:262
 msgid "period group id"
 msgstr "идентификатор периода"
 
-#: .\todo\models.py:268
+#: .\todo\models.py:263
 msgid "period group is open"
 msgstr "период раскрыт"
 
-#: .\todo\models.py:271
+#: .\todo\models.py:266
 msgid "period group"
 msgstr "период"
 
-#: .\todo\models.py:272
+#: .\todo\models.py:267
 msgid "period groups"
 msgstr "периоды"
 
-#: .\todo\models.py:283
+#: .\todo\models.py:278
 msgid "user device token"
 msgstr "идентификатор пользовательского устройства"
 
-#: .\todo\models.py:286
+#: .\todo\models.py:281
 msgid "subscription"
 msgstr "подписка"
 
-#: .\todo\models.py:287
+#: .\todo\models.py:282
 msgid "subscriptions"
 msgstr "подписки"
 
@@ -370,60 +374,60 @@ msgstr "Пожалуйста исправьте ошибки ниже."
 msgid "next step"
 msgstr "следующий шаг"
 
-#: .\todo\templates\todo\task_form.html:119
+#: .\todo\templates\todo\task_form.html:120
 msgid "added in \"My day\""
 msgstr "добавлено в \"Мой день\""
 
-#: .\todo\templates\todo\task_form.html:121
+#: .\todo\templates\todo\task_form.html:122
 msgid "add to \"My day\""
 msgstr "добавить в \"Мой день\""
 
-#: .\todo\templates\todo\task_form.html:146
+#: .\todo\templates\todo\task_form.html:147
 msgid "to remind"
 msgstr "напомнить"
 
-#: .\todo\templates\todo\task_form.html:164 .\todo\utils.py:126
+#: .\todo\templates\todo\task_form.html:165 .\todo\utils.py:126
 msgid "later"
 msgstr "позже"
 
-#: .\todo\templates\todo\task_form.html:171
-#: .\todo\templates\todo\task_form.html:225 .\todo\utils.py:51
+#: .\todo\templates\todo\task_form.html:172
+#: .\todo\templates\todo\task_form.html:226 .\todo\utils.py:51
 #: .\todo\utils.py:124 .\todo\utils.py:165
 msgid "tomorrow"
 msgstr "завтра"
 
-#: .\todo\templates\todo\task_form.html:178
-#: .\todo\templates\todo\task_form.html:232 .\todo\utils.py:53
+#: .\todo\templates\todo\task_form.html:179
+#: .\todo\templates\todo\task_form.html:233 .\todo\utils.py:53
 msgid "next week"
 msgstr "следующая неделя"
 
-#: .\todo\templates\todo\task_form.html:201
+#: .\todo\templates\todo\task_form.html:202
 msgid "add due date"
 msgstr "добавить дату выполнения"
 
-#: .\todo\templates\todo\task_form.html:218 .\todo\utils.py:50
+#: .\todo\templates\todo\task_form.html:219 .\todo\utils.py:50
 #: .\todo\utils.py:123 .\todo\utils.py:162
 msgid "today"
 msgstr "сегодня"
 
-#: .\todo\templates\todo\task_form.html:307
+#: .\todo\templates\todo\task_form.html:308
 msgid "repeat every..."
 msgstr "повторять каждые..."
 
-#: .\todo\templates\todo\task_form.html:422
+#: .\todo\templates\todo\task_form.html:442
 msgid "add file"
 msgstr "добавить файл"
 
 #: .\todo\templates\todo\task_list.html:14
-#: .\todo\templates\todo\task_list.html:118 .\todo\views.py:35
+#: .\todo\templates\todo\task_list.html:121 .\todo\views.py:36
 msgid "my day"
 msgstr "мой день"
 
-#: .\todo\templates\todo\task_list.html:28 .\todo\views.py:37
+#: .\todo\templates\todo\task_list.html:28 .\todo\views.py:38
 msgid "planned"
 msgstr "запланировано"
 
-#: .\todo\templates\todo\task_list.html:35 .\todo\views.py:34
+#: .\todo\templates\todo\task_list.html:35 .\todo\views.py:35
 msgid "all"
 msgstr "все"
 
@@ -431,32 +435,32 @@ msgstr "все"
 msgid "create list or group"
 msgstr "создать список или группу"
 
-#: .\todo\templates\todo\task_list.html:108
+#: .\todo\templates\todo\task_list.html:111
 msgid "sort"
 msgstr "сортировка"
 
-#: .\todo\templates\todo\task_list.html:112
+#: .\todo\templates\todo\task_list.html:115
 msgid "sort order"
 msgstr "порядок сортировки"
 
-#: .\todo\templates\todo\task_list.html:114
+#: .\todo\templates\todo\task_list.html:117
 msgid "by importance"
 msgstr "по важности"
 
-#: .\todo\templates\todo\task_list.html:116
+#: .\todo\templates\todo\task_list.html:119
 msgid "by date of completion"
 msgstr "по дате выполнения"
 
-#: .\todo\templates\todo\task_list.html:120
+#: .\todo\templates\todo\task_list.html:123
 msgid "by name"
 msgstr "по названию"
 
-#: .\todo\templates\todo\task_list.html:121
+#: .\todo\templates\todo\task_list.html:124
 msgid "by creation date"
 msgstr "по дате создания"
 
-#: .\todo\templates\todo\task_list.html:147
-#: .\todo\templates\todo\task_list.html:148
+#: .\todo\templates\todo\task_list.html:150
+#: .\todo\templates\todo\task_list.html:151
 msgid "add task"
 msgstr "добавить задачу"
 
@@ -544,41 +548,49 @@ msgstr "завершено:"
 msgid "created:"
 msgstr "создано:"
 
-#: .\todo\views.py:39
+#: .\todo\views.py:40
 msgid "tasks of the list"
 msgstr "задачи списка"
 
-#: .\todo\views.py:45
+#: .\todo\views.py:46
 msgid "sort by important"
 msgstr "сортировка по важности"
 
-#: .\todo\views.py:46
+#: .\todo\views.py:47
 msgid "sort by termin"
 msgstr "сортировка по дате выполнения"
 
-#: .\todo\views.py:47
+#: .\todo\views.py:48
 msgid "sort by My day"
 msgstr "сортировка по добавленным в \"Мой день\""
 
-#: .\todo\views.py:48
+#: .\todo\views.py:49
 msgid "sort by name"
 msgstr "сортировка по алфавиту"
 
-#: .\todo\views.py:49
+#: .\todo\views.py:50
 msgid "sort by create date"
 msgstr "сортировка по дате создания"
 
-#: .\todo\views.py:430
+#: .\todo\views.py:448
 msgid "remind in"
 msgstr "напомнить в"
 
-#: .\todo\views.py:536
+#: .\todo\views.py:554
 msgid "My day"
 msgstr "Мой день"
 
-#: .\todo\views.py:547
+#: .\todo\views.py:565
 msgid "out of"
 msgstr "из"
+
+#: .\todo\views.py:738
+msgid "contained"
+msgstr "содержат"
+
+#: .\todo\views.py:740
+msgid "contained category"
+msgstr "содержат категорию"
 
 #~ msgid "stop date"
 #~ msgstr "дата окончания"
