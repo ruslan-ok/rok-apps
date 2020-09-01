@@ -165,7 +165,9 @@ def sorted_tasks(user, mode, lst_id, query):
     sort_mode, sort_dir = get_sort_mode(user, mode)
     data = get_filtered_tasks(user, mode, lst_id, query)
 
-    if (sort_mode == IMPORTANT) and (not sort_dir):
+    if (mode == PLANNED):
+        data = data.order_by('stop')
+    elif (sort_mode == IMPORTANT) and (not sort_dir):
         data = data.order_by('important', '-stop')
     elif (sort_mode == IMPORTANT) and sort_dir:
         data = data.order_by('-important', '-stop')
