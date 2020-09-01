@@ -16,6 +16,7 @@ from firebase_admin.exceptions import FirebaseError
 
 from .models import Task, Subscription
 from .secret import url, cacert, cred_cert, log_path
+from .views import complete_task
 
 #----------------------------------
 @login_required(login_url='account:login')
@@ -118,18 +119,20 @@ def remind_one_task(task, debug = False):
             ret_resp += ':' + z.message_id
     
     ret = 'ok: ' + str(r.success_count) + ', err: ' + str(r.failure_count) + ', resp: ' + ret_resp
+    task.last_remind = task.remind
     task.remind = None
     task.save()
 
     return ret
 
-"""
+
+# Debug purpose only
 def fcm_send(request, pk):
     task = get_object_or_404(Task.objects.filter(id = pk, user = request.user.id))
     status = remind_one_task(task)
     #return HttpResponse('fcm_send: ' + status)
     return HttpResponseRedirect(reverse('todo:task_list'))
-"""
+
 
 def fcm_check(request):
     ret = 'ok'
@@ -163,11 +166,7 @@ def fcm_postpone(request, pk):
 def fcm_done(request, pk):
     log('fcm_done(..., pk = ' + str(pk) + ')')
     task = get_object_or_404(Task.objects.filter(id = pk))
-    task.remind = None
-    task.completed = True
-    task.completion = datetime.now()
-    task.save()
-    log('saved: id = ' + str(task.id) + ', remind = False')
+    complete_task(task)
     return HttpResponse('ok')
 
 

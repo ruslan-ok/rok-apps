@@ -723,6 +723,9 @@ def task_list(request):
     if redirect:
         return HttpResponseRedirect(reverse('todo:task_list'))
 
+    if (template_file == ''):
+        template_file = 'todo/task_list.html'
+    
     context['details_pk'] = param.details_pk
 
     data = []

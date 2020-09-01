@@ -82,6 +82,7 @@ class Task(models.Model):
     in_my_day = models.BooleanField(_('in my day'), default = False)
     important = models.BooleanField(_('important'), default = False)
     remind = models.DateTimeField(_('remind'), blank = True, null = True)
+    last_remind = models.DateTimeField(_('last remind'), blank = True, null = True)
     repeat = models.IntegerField(_('repeat'), blank = True, null = True, choices = REPEAT_SELECT, default = NONE)
     repeat_num = models.IntegerField(_('repeat num'), blank = True, default = 1)
     repeat_days = models.IntegerField(_('repeat days'), blank = True, default = 0)
@@ -191,14 +192,18 @@ class Task(models.Model):
         return ''
 
     def next_remind_time(self):
-        if (not self.remind) or (not self.stop):
+        if ((not self.remind) and (not self.last_remind)) or (not self.stop):
             return None
-        delta = self.stop - self.remind.date()
+        if self.remind:
+            rmd = self.remind
+        else:
+            rmd = self.last_remind
+        delta = self.stop - rmd.date()
         next = self.next_iteration()
         if (not next):
             return None
         rd = next - delta
-        return datetime(rd.year, rd.month, rd.day, self.remind.hour, self.remind.minute, self.remind.second)
+        return datetime(rd.year, rd.month, rd.day, rmd.hour, rmd.minute, rmd.second)
 
 
 
