@@ -19,10 +19,10 @@
 
     <div class="w3-row w3-padding">
       {% if pk == 0 %}
-        <input type="submit" class="default" name="depart_add" value="Добавить">
+        <button type="submit" class="dialog default" name="depart_add">{% trans 'add'|capfirst %}</button>
       {% else %}
-        <input type="submit" class="default" name="depart_save" value="Сохранить">
-        <input type="submit" class="default" name="dep_hist_add" value="Изменить подчиненность">
+        <button type="submit" class="dialog default" name="depart_save">{% trans 'save'|capfirst %}</button>
+        <button type="submit" class="dialog" name="dep_hist_add">{% trans 'change node'|capfirst %}</button>
       {% endif %}
       <p>
     </div>

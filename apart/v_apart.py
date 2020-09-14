@@ -5,15 +5,16 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.utils.translation import gettext_lazy as _
 
-from hier.utils import get_base_context, process_common_commands, get_param, set_article, save_last_visited
-from .models import Apart, Meter, set_active, enrich_context
+from hier.utils import get_base_context_ext, process_common_commands
+from hier.params import set_article_visible, set_article_kind
+from .models import app_name, Apart, Meter, set_active, enrich_context
 from .forms import ApartForm
 
 #----------------------------------
 @login_required(login_url='account:login')
 #----------------------------------
 def apart_list(request):
-    if process_common_commands(request):
+    if process_common_commands(request, app_name):
         return HttpResponseRedirect(reverse('apart:apart_list'))
 
     if (request.method == 'POST'):
@@ -24,23 +25,24 @@ def apart_list(request):
             set_active(request.user.id, request.POST['apart-in-list-active'])
             return HttpResponseRedirect(reverse('apart:apart_list'))
 
-    context = get_base_context(request, 0, 0, _('apartments').capitalize(), 'content_list', make_tree = False, article_enabled = True)
-    save_last_visited(request.user, 'apart:apart_list', 'apart', context['title'])
+    app_param, context = get_base_context_ext(request, app_name, 'apart', _('apartments').capitalize())
 
     redirect = False
 
-    param = get_param(request.user, 'apart:apart')
-    if (param.article_mode == 'apart:apart') and param.article:
-        if Apart.objects.filter(id = param.article_pk, user = request.user.id).exists():
-            redirect = get_apart_article(request, context, param.article_pk)
+    if app_param.article:
+        if (app_param.kind != 'apart'):
+            set_article_visible(request.user, app_name, False)
+            redirect = True
+        elif Apart.objects.filter(id = app_param.art_id, user = request.user.id).exists():
+            redirect = get_apart_article(request, context, app_param.art_id)
         else:
-            set_article(request.user, '', 0)
+            set_article_visible(request.user, app_name, False)
             redirect = True
     
     if redirect:
         return HttpResponseRedirect(reverse('apart:apart_list'))
 
-    enrich_context(context, param, request.user.id)
+    enrich_context(context, app_param, request.user.id)
     context['page_obj'] = Apart.objects.filter(user = request.user.id).order_by('name')
 
     template_file = 'apart/apart_form.html'
@@ -52,7 +54,7 @@ def apart_list(request):
 @login_required(login_url='account:login')
 #----------------------------------
 def apart_form(request, pk):
-    set_article(request.user, 'apart:apart', pk)
+    set_article_kind(request.user, app_name, 'apart', pk)
     return HttpResponseRedirect(reverse('apart:apart_list'))
 
 #----------------------------------
@@ -99,5 +101,5 @@ def apart_delete(request, apart):
             set_active(request.user.id, new_active.id)
 
     apart.delete()
-    set_article(request.user, '', 0)
+    set_article_visible(request.user, app_name, False)
     return True

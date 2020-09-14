@@ -7,8 +7,9 @@ from django.template import loader
 from django.utils.translation import gettext_lazy as _
 from django.core.paginator import Paginator
 
-from hier.utils import get_base_context, process_common_commands, get_param, set_article, save_last_visited
-from .models import Apart, Meter, enrich_context
+from hier.utils import get_base_context_ext, process_common_commands
+from hier.params import set_article_visible, set_article_kind
+from .models import app_name, Apart, Meter, enrich_context
 from .forms import MeterForm
 from .utils import next_period
 
@@ -16,7 +17,7 @@ from .utils import next_period
 @login_required(login_url='account:login')
 #----------------------------------
 def meter_list(request):
-    if process_common_commands(request):
+    if process_common_commands(request, app_name):
         return HttpResponseRedirect(reverse('apart:meter_list'))
 
     if not Apart.objects.filter(user = request.user.id, active = True).exists():
@@ -24,35 +25,30 @@ def meter_list(request):
     apart = get_object_or_404(Apart.objects.filter(user = request.user.id, active = True))
     data = Meter.objects.filter(apart = apart.id).order_by('-period')
 
-    param = get_param(request.user, 'apart:meter')
-
-    if param.article and Meter.objects.filter(apart = apart.id, id = param.article_pk).exists():
-        meter = Meter.objects.filter(apart = apart.id, id = param.article_pk).get()
-        title = '{} {} {} {}'.format(_('meter readings in').capitalize(), apart.name, _('for the period'), meter.period.strftime('%m.%Y'))
-    else:
-        title = '{} {}'.format(_('meters in').capitalize(), apart.name)
-
     if (request.method == 'POST'):
         if ('item-add' in request.POST):
             meter = meter_add(request, apart)
-            set_article(request.user, 'apart:meter', meter.id)
             return HttpResponseRedirect(reverse('apart:meter_form', args = [meter.id]))
 
-    context = get_base_context(request, 0, 0, title, 'content_list', make_tree = False, article_enabled = True)
-    save_last_visited(request.user, 'apart:meter_list', 'apart', context['title'])
+    title = '{} {}'.format(_('meters in').capitalize(), apart.name)
+    app_param, context = get_base_context_ext(request, app_name, 'meter', title)
 
     redirect = False
-    if param.article:
-        if Meter.objects.filter(id = param.article_pk, apart = apart.id).exists():
-            redirect = get_meter_article(request, context, param.article_pk)
+    
+    if app_param.article:
+        if (app_param.kind != 'meter'):
+            set_article_visible(request.user, app_name, False)
+            redirect = True
+        elif Meter.objects.filter(id = app_param.art_id, apart = apart.id).exists():
+            redirect = get_meter_article(request, context, app_param.art_id)
         else:
-            set_article(request.user, '', 0)
+            set_article_visible(request.user, app_name, False)
             redirect = True
     
     if redirect:
         return HttpResponseRedirect(reverse('apart:meter_list'))
 
-    enrich_context(context, param, request.user.id)
+    enrich_context(context, app_param, request.user.id)
     page_number = 1
     if (request.method == 'GET'):
         page_number = request.GET.get('page')
@@ -69,7 +65,7 @@ def meter_list(request):
 @login_required(login_url='account:login')
 #----------------------------------
 def meter_form(request, pk):
-    set_article(request.user, 'apart:meter', pk)
+    set_article_kind(request.user, app_name, 'meter', pk)
     return HttpResponseRedirect(reverse('apart:meter_list'))
 
 #----------------------------------
@@ -107,7 +103,7 @@ def get_meter_article(request, context, pk):
     if (request.method == 'POST'):
         if ('article_delete' in request.POST):
             ed_meter.delete()
-            set_article(request.user, '', 0)
+            set_article_visible(request.user, app_name, False)
             return HttpResponseRedirect(reverse('apart:meter_list'))
         if ('meter-save' in request.POST):
             form = MeterForm(request.POST, instance = ed_meter)

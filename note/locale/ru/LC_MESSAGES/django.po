@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-01 21:37+0300\n"
+"POT-Creation-Date: 2020-09-14 14:32+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -57,7 +57,7 @@ msgstr "список"
 msgid "publication date"
 msgstr "дата публикации"
 
-#: .\note\models.py:36 .\note\views.py:71
+#: .\note\models.py:36 .\note\views.py:72
 msgid "note"
 msgstr "заметка"
 
@@ -105,22 +105,24 @@ msgstr "фильтры"
 msgid "user settings"
 msgstr "параметры пользователя"
 
-#: .\note\templates\note\note_form.html:32
+#: .\note\templates\note\news_form.html:31
+#: .\note\templates\note\note_form.html:33
 msgid "add"
 msgstr "добавить"
 
-#: .\note\templates\note\note_form.html:32
+#: .\note\templates\note\news_form.html:33
+#: .\note\templates\note\note_form.html:35
 msgid "save"
 msgstr "сохранить"
 
-#: .\note\views.py:58
+#: .\note\views.py:59
 msgid "create a new note"
 msgstr "создание новой заметки"
 
-#: .\note\views.py:139 .\note\views.py:165
+#: .\note\views.py:137 .\note\views.py:163
 msgid "news"
 msgstr "новости"
 
-#: .\note\views.py:155
+#: .\note\views.py:153
 msgid "create new news"
 msgstr "создание новости"

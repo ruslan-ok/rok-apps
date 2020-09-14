@@ -1,4 +1,5 @@
 {% extends "base_window.html" %}
+{% load i18n %}
 
 {% block win_content %}
 <div class="w3-container w3-padding">
@@ -27,9 +28,9 @@
 
     <div class="w3-row w3-padding w3-center">
       {% if pk == 0 %}
-        <input type="submit" value="Добавить" class="default">
+        <button type="submit" class="dialog default">{% trans 'add'|capfirst %}</button>
       {% else %}
-        <input type="submit" value="Сохранить" class="default">
+        <button type="submit" class="dialog default">{% trans 'save'|capfirst %}</button>
       {% endif %}
       <p>
     </div>

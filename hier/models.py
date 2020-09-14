@@ -3,6 +3,8 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 
+from todo.models import Lst
+
 class Folder(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
     node = models.IntegerField(_('node'), null = True)
@@ -44,6 +46,8 @@ class Folder(models.Model):
             return True
         return False
 
+# Параметры сайта в целом
+# deprecated
 class Param(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
     folder_id = models.IntegerField(_('folder id'), null = True)
@@ -63,4 +67,40 @@ class Param(models.Model):
 
     def __str__(self):
         return self.user.name + ' - ' + cur_view
+
+
+# Параметры приложений
+class AppParam(models.Model):
+    user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'params_user')
+    app = models.CharField(_('application'), max_length = 50)
+    aside = models.BooleanField(_('aside visible'), default = False)
+    article = models.BooleanField(_('article visible'), default = False)
+    content = models.CharField(_('kind of objects in page'), max_length = 50, blank = True)
+    kind = models.CharField(_('kind of object in article'), max_length = 50, blank = True)
+    lst = models.ForeignKey(Lst, on_delete = models.CASCADE, verbose_name = _('list'), blank = True, null = True)
+    art_id = models.IntegerField(_('entity id for article'), blank = True, null = True)
+    sort = models.CharField(_('sorting mode'), max_length = 1000, blank = True)
+    reverse = models.BooleanField(_('reverse sorting'), default = False)
+    restriction = models.CharField(_('filter mode'), max_length = 1000, blank = True)
+
+    class Meta:
+        verbose_name = _('user parameters')
+        verbose_name_plural = _('users parameters')
+
+    def __str__(self):
+        return self.user.name + ' - ' + app + ':' + kind
+
+# Параметры приложений
+class VisitedHistory(models.Model):
+    stamp = models.DateTimeField(_('visit time'), null = False)
+    app = models.CharField(_('visited application'), max_length=200, blank = True)
+    page = models.CharField(_('visited page'), max_length=200, blank = True)
+    url = models.CharField(_('visited url'), max_length=200, blank = True)
+
+    class Meta:
+        verbose_name = _('visited page')
+        verbose_name_plural = _('visited pages')
+
+    def __str__(self):
+        return self.app + ' - ' + self.page
 

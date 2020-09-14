@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-01 21:37+0300\n"
+"POT-Creation-Date: 2020-09-14 14:32+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,3 +30,37 @@ msgstr "действовало до"
 #: .\wage\models.py:127
 msgid "was born on"
 msgstr "дата рождения"
+
+#: .\wage\templates\wage\accrual_form.html:41
+#: .\wage\templates\wage\appoint_form.html:50
+#: .\wage\templates\wage\child_form.html:29
+#: .\wage\templates\wage\dep_hist_form.html:23
+#: .\wage\templates\wage\depart_form.html:22
+#: .\wage\templates\wage\education_form.html:59
+#: .\wage\templates\wage\empl_form.html:50
+#: .\wage\templates\wage\fio_hist_form.html:26
+#: .\wage\templates\wage\pay_title_form.html:20
+#: .\wage\templates\wage\payout_form.html:41
+#: .\wage\templates\wage\period_form.html:53
+#: .\wage\templates\wage\post_form.html:20
+msgid "add"
+msgstr "добавить"
+
+#: .\wage\templates\wage\accrual_form.html:43
+#: .\wage\templates\wage\appoint_form.html:52
+#: .\wage\templates\wage\child_form.html:31
+#: .\wage\templates\wage\dep_hist_form.html:25
+#: .\wage\templates\wage\depart_form.html:24
+#: .\wage\templates\wage\education_form.html:61
+#: .\wage\templates\wage\empl_form.html:52
+#: .\wage\templates\wage\fio_hist_form.html:28
+#: .\wage\templates\wage\pay_title_form.html:22
+#: .\wage\templates\wage\payout_form.html:43
+#: .\wage\templates\wage\period_form.html:55
+#: .\wage\templates\wage\post_form.html:22
+msgid "save"
+msgstr "сохранить"
+
+#: .\wage\templates\wage\depart_form.html:25
+msgid "change node"
+msgstr "изменить вышестоящее"

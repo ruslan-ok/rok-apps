@@ -13,10 +13,10 @@ class GrpForm(forms.ModelForm):
         model = Grp
         fields = ['name', 'node', 'sort']
 
-    def __init__(self, user, *args, **kwargs):
+    def __init__(self, user, app_name, *args, **kwargs):
         self.user = user
         super().__init__(*args, **kwargs)
-        self.fields['node'].queryset = Grp.objects.filter(user = user).order_by('name')
+        self.fields['node'].queryset = Grp.objects.filter(user = user, app = app_name).order_by('name')
 
     def clean_node(self):
         node_ok = self.cleaned_data['node']

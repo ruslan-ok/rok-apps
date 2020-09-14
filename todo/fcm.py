@@ -77,9 +77,10 @@ def remind_one_task(task, debug = False):
         priority = 'high'
     else:
         priority = 'normal'
-    icon = 'https://rusel.by/static/todo/img/rusel-192.png'
+    myicon = 'https://rusel.by/static/rok/img/test-192.png'
+    mybadge = 'https://rusel.by/static/rok/img/test-72.png'
     click_action = 'https://rusel.by/todo/task/' + str(task.id) + '/'
-    an = messaging.AndroidNotification(title = task.name, body = body, icon = icon, color = None, sound = None, tag = None, click_action = click_action, body_loc_key = None, \
+    an = messaging.AndroidNotification(title = task.name, body = body, icon = myicon, color = None, sound = None, tag = None, click_action = click_action, body_loc_key = None, \
                                        body_loc_args = None, title_loc_key = None, title_loc_args = None, channel_id = None, image = None, ticker = None, sticky = None, \
                                        event_timestamp = None, local_only = None, priority = None, vibrate_timings_millis = None, default_vibrate_timings = None, \
                                        default_sound = None, light_settings = None, default_light_settings = None, visibility = None, notification_count = None)
@@ -91,7 +92,7 @@ def remind_one_task(task, debug = False):
     actions.append(a2)
 
     #wn = messaging.WebpushNotification(title = task.name, body = body, icon = icon, actions = actions, badge = None, data = None, direction = None, image = None, language = None, renotify = True, require_interaction = True, silent = False, tag = None, timestamp_millis = None, vibrate = None, custom_data = None)
-    wn = messaging.WebpushNotification(title = task.name, body = body, actions = actions, tag = str(task.id), custom_data = {"click_action": click_action})
+    wn = messaging.WebpushNotification(title = task.name, body = body, icon = myicon, badge = mybadge, actions = actions, tag = str(task.id), custom_data = {"click_action": click_action})
     wo = messaging.WebpushFCMOptions(click_action)
     wc = messaging.WebpushConfig(headers = None, data = None, notification = wn, fcm_options = None)
     

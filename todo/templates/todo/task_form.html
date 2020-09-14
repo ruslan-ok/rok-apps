@@ -334,7 +334,7 @@
     <div class="section">
       <!-- Task.categories -->
       {% if categories %}
-	    <button type="hidden" name="category-delete" id="id_category_delete" value="???"></button>
+        <button type="hidden" name="category-delete" id="id_category_delete" value="???"></button>
         <div class="section-item">
           <div class="section-inner">
             <div class="categories">
@@ -346,13 +346,13 @@
                     </div>
                   </div>
                   <div class="icon" onclick="CategoryDelete('{{categ.name}}')">
-	                <div class="delete">
-				      <svg height="8" width="8" style="fill: currentcolor;">
-					    <path d="M4.46607 4L8 7.53905L7.53905 8L4 4.46607L0.460948 8L0 7.53905L3.53393 4L0 0.460948L0.460948 0L4 3.53393L7.53905 0L8 0.460948L4.46607 4Z"></path>
-					  </svg>
-				    </div>
+                    <div class="delete">
+                      <svg height="8" width="8" style="fill: currentcolor;">
+                        <path d="M4.46607 4L8 7.53905L7.53905 8L4 4.46607L0.460948 8L0 7.53905L3.53393 4L0 0.460948L0.460948 0L4 3.53393L7.53905 0L8 0.460948L4.46607 4Z"></path>
+                      </svg>
+                    </div>
                   </div>
-				</div>
+                </div>
               {% endfor %}
             </div>
           </div>
@@ -378,12 +378,12 @@
               <div class="section-title">
                 <input type="hidden" name="url" value="{{ form.url.value }}" id="id_url">
                 <a href="{{ form.url.value }}">{{ url_cutted }}</a>
-		      </div>
-		    </div>
+              </div>
+            </div>
             <button type="submit" name="url-delete" class="field-icon"><img src="{% static 'rok/icon/delete.png' %}"></button>
-		  {% else %}
-		    {{ form.url }}
-		  {% endif %}
+          {% else %}
+            {{ form.url }}
+          {% endif %}
         </div>
       </div>
 
@@ -462,29 +462,29 @@
     document.getElementById('remind-select').style.display = "none";
     document.getElementById('termin-select').style.display = "none";
     document.getElementById('repeat-select').style.display = "none";
-	InitDays();
-	AddAutoResize();
+    InitDays();
+    AddAutoResize();
 
     function ToggleSelectField(name)
-	{
+    {
       var sel_id = name + '-select';
       if (document.getElementById(sel_id).style.display == "none")
         document.getElementById(sel_id).style.display = "block";
       else
         document.getElementById(sel_id).style.display = "none";
     }
-	
-	function InitDays()
-	{
+
+    function InitDays()
+    {
       var frm = document.getElementById('task_form');
       var days = frm.elements['repeat_days'].value;
       for (var i = 1; i <= 7; i++)
       {
-	    if ((days & (1 << (i-1))) != 0)
+        if ((days & (1 << (i-1))) != 0)
           document.getElementById('d' + i).classList.add('selected');
       }
-	}
-	
+    }
+
     function GetDays()
     {
       var days = 0;
@@ -498,7 +498,7 @@
     
     function DayClick(_num)
     {
-	  var day = document.getElementById('d' + _num);
+      var day = document.getElementById('d' + _num);
       day.classList.toggle('selected');
       var frm = document.getElementById('task_form');
       var days = GetDays();
@@ -506,18 +506,18 @@
     }
 
     function UploadFile()
-	{
+    {
       document.getElementById('id_upload').click();
     }
     
     function FileSelected()
-	{
+    {
       document.getElementById('loadFile').innerText = document.getElementById('id_upload').files[0].name;
       document.getElementById('id_submit').click();
     }
-	
-	function AddAutoResize()
-	{
+
+    function AddAutoResize()
+    {
       document.querySelectorAll('[data-autoresize]').forEach(function (element) {
       element.style.boxSizing = 'border-box';
       var offset = element.offsetHeight - element.clientHeight;
@@ -525,12 +525,12 @@
         event.target.style.height = 'auto';
         event.target.style.height = event.target.scrollHeight + offset + 'px';});
       element.removeAttribute('data-autoresize');});
-	  
-	  element = document.getElementById('id_info');
+
+      element = document.getElementById('id_info');
       element.style.minHeight = "25px";
       element.style.height = (element.scrollHeight + element.offsetHeight - element.clientHeight)+"px";
     }
-	
+
     function CategoryDelete(_category)
     {
       element = document.getElementById('id_category_delete');

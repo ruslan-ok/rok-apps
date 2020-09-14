@@ -15,6 +15,8 @@ from .tree import deactivate_all, set_active
 from .wage_xml import delete_all, import_all
 
 
+app_name = 'wage'
+
 #----------------------------------
 # Index
 #----------------------------------
@@ -625,7 +627,7 @@ def get_param(user):
 @login_required(login_url='account:login')
 #----------------------------------
 def list_view(request, employee, title, name, page_obj):
-    process_common_commands(request)
+    process_common_commands(request, app_name)
     empl = 0
     if employee:
         empl = employee.id

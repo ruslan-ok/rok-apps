@@ -16,6 +16,8 @@ from .utils import rmtree, get_base_context, save_folder_id, is_in_trash, put_in
 
 errors = []
 
+app_name = 'hier'
+
 #----------------------------------
 @login_required(login_url='account:login')
 #----------------------------------
@@ -46,7 +48,7 @@ def hier_app(folder):
 # Folders List
 #----------------------------------
 def _folder_list(request, folder_id, show_content, query = None):
-    process_common_commands(request)
+    process_common_commands(request, app_name)
     data = Folder.objects.filter(user = request.user.id, node = folder_id).order_by('code', 'name')
     save_folder_id(request.user, folder_id)
 

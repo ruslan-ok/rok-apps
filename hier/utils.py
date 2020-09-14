@@ -7,6 +7,7 @@ from django.contrib.auth.models import AnonymousUser
 from note.utils import get_ready_folder
 from .models import Folder, Param
 from .tree import build_tree
+from .params import get_app_params, set_aside_visible, set_article_visible
 
 
 FOLDERS_COLOR = '#b9ffdc'
@@ -223,14 +224,17 @@ def get_param(user, default_view = ''):
         param = Param.objects.filter(user = user.id).get()
         if (param.cur_view == '') and (default_view != ''):
             param.cur_view = default_view
-            param.save
+            param.save()
         return param
     return Param.objects.create(user = user, folder_id = 0, aside = False, article = False, cur_view = default_view)
 
 #----------------------------------
 # Контекст для любой страницы
 #----------------------------------
-def get_base_context(request, folder_id, pk, title = '', mode = 'content_form', form = None, make_tree = True, article_enabled = False):
+
+# !!!! DEPRECATED !!!!
+
+def get_base_context(request, folder_id, pk, title = '', mode = 'content_form', form = None, make_tree = True, article_enabled = False, app_name = ''):
     context = {}
     if (pk == 0) and (mode == 'content_form'):
         mode = 'content_add'
@@ -291,8 +295,45 @@ def get_base_context(request, folder_id, pk, title = '', mode = 'content_form', 
     context['menu_item_admin']   = get_main_menu_item('admin')
     context['menu_item_profile'] = get_main_menu_item('profile')
     context['menu_item_logout']  = get_main_menu_item('logout')
-    set_aside_visible(request.user, False)
+    set_aside_visible(request.user, app_name, False)
     return context
+
+#----------------------------------
+# Контекст для любой страницы
+#----------------------------------
+def get_base_context_ext(request, app_name, content_kind, title, article_enabled = True):
+    context = {}
+    context['title'] = title
+    app_param = None
+    if request:
+        app_param = get_app_params(request.user, app_name)
+        if app_param:
+            if (app_param.content != content_kind):
+                app_param.content = content_kind
+                app_param.save()
+            context['aside_visible'] = ((not article_enabled) or (not app_param.article)) and app_param.aside
+            context['article_visible'] = app_param.article and article_enabled
+
+    context['please_correct_one'] = _('Please correct the error below.')
+    context['please_correct_all'] = _('Please correct the errors below.')
+
+    context['menu_item_home']    = get_main_menu_item('home')
+    context['menu_item_todo']    = get_main_menu_item('todo')
+    context['menu_item_note']    = get_main_menu_item('note')
+    context['menu_item_news']    = get_main_menu_item('news')
+    context['menu_item_store']   = get_main_menu_item('store')
+    context['menu_item_trip']    = get_main_menu_item('trip')
+    context['menu_item_fuel']    = get_main_menu_item('fuel')
+    context['menu_item_apart']   = get_main_menu_item('apart')
+    context['menu_item_proj']    = get_main_menu_item('proj')
+    context['menu_item_wage']    = get_main_menu_item('wage')
+    context['menu_item_trash']   = get_main_menu_item('trash')
+    context['menu_item_admin']   = get_main_menu_item('admin')
+    context['menu_item_profile'] = get_main_menu_item('profile')
+    context['menu_item_logout']  = get_main_menu_item('logout')
+    set_aside_visible(request.user, app_name, False)
+    save_last_visited(request.user, app_name + ':' + content_kind + '_list', app_name, title)
+    return app_param, context
 
 #----------------------------------
 # Парная запись в Folder для сущности контента
@@ -340,40 +381,21 @@ def get_folder_id(user_id):
         return 0
 
 #----------------------------------
-def set_article_visible(user, visible):
-    param = get_param(user)
-    param.article = visible
-    param.save()
-
-#----------------------------------
-def set_aside_visible(user, visible):
-    param = get_param(user)
-    if param:
-        param.aside = visible
-        param.save()
-
-#----------------------------------
-def set_article(user, article_mode, pk):
-    param = get_param(user)
-    if param:
-        param.article_mode = article_mode
-        param.article_pk = pk
-        param.save()
-        set_article_visible(user, article_mode in ('todo:task', 'todo:list', 'todo:group', 'apart:apart', 'apart:bill', 'apart:meter', 'apart:price', 'trip:person', 'trip:trip'))
-
-def process_common_commands(request):
+def process_common_commands(request, app_name):
     if (request.method == 'POST'):
         if 'aside_open' in request.POST:
-            set_aside_visible(request.user, True)
+            set_article_visible(request.user, app_name, False)
+            set_aside_visible(request.user, app_name, True)
             return True
         if 'aside_close' in request.POST:
-            set_aside_visible(request.user, False)
+            set_aside_visible(request.user, app_name, False)
             return True
         if 'article_open' in request.POST:
-            set_article_visible(request.user, True)
+            set_aside_visible(user, app_name, False)
+            set_article_visible(request.user, app_name, True)
             return True
         if 'article_close' in request.POST:
-            set_article_visible(request.user, False)
+            set_article_visible(request.user, app_name, False)
             return True
     return False
 
@@ -427,3 +449,19 @@ def get_main_menu_item(id):
     return None
 
 
+def sort_data(data, sort, reverse):
+    sort_fields = sort.split()
+    if reverse:
+        revers_list = []
+        for sf in sort_fields:
+            revers_list.append('-' + sf)
+        sort_fields = revers_list
+
+    if (len(sort_fields) == 1):
+        data = data.order_by(sort_fields[0])
+    elif (len(sort_fields) == 2):
+        data = data.order_by(sort_fields[0], sort_fields[1])
+    elif (len(sort_fields) == 3):
+        data = data.order_by(sort_fields[0], sort_fields[1], sort_fields[2])
+
+    return data

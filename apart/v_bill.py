@@ -7,8 +7,9 @@ from django.template import loader
 from django.utils.translation import gettext_lazy as _
 from django.core.paginator import Paginator
 
-from hier.utils import get_base_context, process_common_commands, get_param, set_article, save_last_visited
-from .models import Apart, Meter, Bill, enrich_context, get_price_info, count_by_tarif, ELECTRICITY, GAS, WATER
+from hier.utils import get_base_context_ext, process_common_commands
+from hier.params import set_article_visible, set_article_kind
+from .models import app_name, Apart, Meter, Bill, enrich_context, get_price_info, count_by_tarif, ELECTRICITY, GAS, WATER
 from .forms import BillForm
 from .utils import next_period
 
@@ -16,7 +17,7 @@ from .utils import next_period
 @login_required(login_url='account:login')
 #----------------------------------
 def bill_list(request):
-    if process_common_commands(request):
+    if process_common_commands(request, app_name):
         return HttpResponseRedirect(reverse('apart:bill_list'))
 
     if not Apart.objects.filter(user = request.user.id, active = True).exists():
@@ -24,37 +25,32 @@ def bill_list(request):
     apart = get_object_or_404(Apart.objects.filter(user = request.user.id, active = True))
     data = Bill.objects.filter(apart = apart.id).order_by('-period')
 
-    param = get_param(request.user, 'apart:bill')
-
-    if param.article and Bill.objects.filter(apart = apart.id, id = param.article_pk).exists():
-        bill = Bill.objects.filter(apart = apart.id, id = param.article_pk).get()
-        title = '{} {} {} {}'.format(_('bill in').capitalize(), apart.name, _('for the period'), bill.period.strftime('%m.%Y'))
-    else:
-        title = '{} {}'.format(_('bills in').capitalize(), apart.name)
-
     if (request.method == 'POST'):
         if ('item-add' in request.POST):
             bill = bill_add(request, apart)
             if not bill:
                 return HttpResponseRedirect(reverse('apart:meter_list'))
-            set_article(request.user, 'apart:bill', bill.id)
             return HttpResponseRedirect(reverse('apart:bill_form', args = [bill.id]))
 
-    context = get_base_context(request, 0, 0, title, 'content_list', make_tree = False, article_enabled = True)
-    save_last_visited(request.user, 'apart:bill_list', 'apart', context['title'])
+    title = '{} {}'.format(_('bills in').capitalize(), apart.name)
+    app_param, context = get_base_context_ext(request, app_name, 'bill', title)
 
     redirect = False
-    if param.article:
-        if Bill.objects.filter(id = param.article_pk, apart = apart.id).exists():
-            redirect = get_bill_article(request, context, param.article_pk)
+    
+    if app_param.article:
+        if (app_param.kind != 'bill'):
+            set_article_visible(request.user, app_name, False)
+            redirect = True
+        elif Bill.objects.filter(id = app_param.art_id, apart = apart.id).exists():
+            redirect = get_bill_article(request, context, app_param.art_id)
         else:
-            set_article(request.user, '', 0)
+            set_article_visible(request.user, app_name, False)
             redirect = True
     
     if redirect:
         return HttpResponseRedirect(reverse('apart:bill_list'))
 
-    enrich_context(context, param, request.user.id)
+    enrich_context(context, app_param, request.user.id)
     page_number = 1
     if (request.method == 'GET'):
         page_number = request.GET.get('page')
@@ -71,7 +67,7 @@ def bill_list(request):
 @login_required(login_url='account:login')
 #----------------------------------
 def bill_form(request, pk):
-    set_article(request.user, 'apart:bill', pk)
+    set_article_kind(request.user, app_name, 'bill', pk)
     return HttpResponseRedirect(reverse('apart:bill_list'))
 
 #----------------------------------
@@ -107,7 +103,7 @@ def get_bill_article(request, context, pk):
     if (request.method == 'POST'):
         if ('article_delete' in request.POST):
             ed_bill.delete()
-            set_article(request.user, '', 0)
+            set_article_visible(request.user, app_name, False)
             return HttpResponseRedirect(reverse('apart:bill_list'))
         if ('bill-save' in request.POST):
             form = BillForm(request.POST, instance = ed_bill)
@@ -136,6 +132,9 @@ def get_bill_article(request, context, pk):
     context['el_bill'] = count_by_tarif(ed_bill.apart.id, prev, curr, ELECTRICITY)
     context['gas_bill'] = count_by_tarif(ed_bill.apart.id, prev, curr, GAS)
     context['water_bill'] = count_by_tarif(ed_bill.apart.id, prev, curr, WATER)
+    context['url_cutted'] = ed_bill.url
+    if (len(ed_bill.url) > 50):
+        context['url_cutted'] = ed_bill.url[:50] + '...'
     return False
 
 

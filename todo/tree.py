@@ -28,23 +28,29 @@ class TreeNode():
         return ret
 
 
-def scan_level(tree, user_id, node_id, level):
+def scan_level(tree, user_id, node_id, level, app_name):
     if (node_id == 0):
         node_id = None
-    for grp in Grp.objects.filter(user = user_id, node = node_id).order_by('sort', 'name'):
+    for grp in Grp.objects.filter(user = user_id, app = app_name, node = node_id).order_by('sort', 'name'):
         tree.append(TreeNode(grp.id, node_id, grp.name, level, False, grp.is_open))
         if grp.is_open:
             for lst in Lst.objects.filter(user = user_id, grp = grp.id).order_by('sort', 'name'):
-                qty = len(Task.objects.filter(lst = lst.id).exclude(completed = True))
+                if (app_name == 'todo'):
+                    qty = len(Task.objects.filter(lst = lst.id).exclude(completed = True))
+                else:
+                    qty = 0
                 tree.append(TreeNode(lst.id, grp.id, lst.name, level + 1, True, False, qty))
-            scan_level(tree, user_id, grp.id, level + 1)
+            scan_level(tree, user_id, grp.id, level + 1, app_name)
 
 
-def build_tree(user_id):
+def build_tree(user_id, app_name):
     tree = []
-    scan_level(tree, user_id, 0, 0)
-    for lst in Lst.objects.filter(user = user_id, grp = None).order_by('sort', 'name'):
-        qty = len(Task.objects.filter(lst = lst.id).exclude(completed = True))
+    scan_level(tree, user_id, 0, 0, app_name)
+    for lst in Lst.objects.filter(user = user_id, grp = None, app = app_name).order_by('sort', 'name'):
+        if (app_name == 'todo'):
+            qty = len(Task.objects.filter(lst = lst.id).exclude(completed = True))
+        else:
+            qty = 0
         tree.append(TreeNode(lst.id, 0, lst.name, 0, True, False, qty))
     return tree
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-01 21:37+0300\n"
+"POT-Creation-Date: 2020-09-14 14:32+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -74,6 +74,16 @@ msgstr "дополнительная информация"
 #: .\proj\models.py:50
 msgid "project"
 msgstr "проект"
+
+#: .\proj\templates\proj\dirs_form.html:23
+#: .\proj\templates\proj\proj_form.html:41
+msgid "add"
+msgstr "добавить"
+
+#: .\proj\templates\proj\dirs_form.html:25
+#: .\proj\templates\proj\proj_form.html:43
+msgid "save"
+msgstr "сохранить"
 
 #: .\proj\v_dirs.py:38
 msgid "creating a new direction"

@@ -6,8 +6,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.utils.translation import gettext_lazy as _
 
-from hier.utils import get_base_context, process_common_commands, get_param, set_article, save_last_visited
-from .models import Apart, Price, Service, enrich_context
+from hier.utils import get_base_context_ext, process_common_commands
+from hier.params import set_article_visible, set_article_kind
+from .models import app_name, Apart, Price, Service, enrich_context
 from .forms import PriceForm
 from .utils import next_period
 
@@ -33,7 +34,7 @@ class Grp():
 @login_required(login_url='account:login')
 #----------------------------------
 def price_list(request):
-    if process_common_commands(request):
+    if process_common_commands(request, app_name):
         return HttpResponseRedirect(reverse('apart:price_list'))
 
     if not Apart.objects.filter(user = request.user.id, active = True).exists():
@@ -42,30 +43,30 @@ def price_list(request):
     convert_data(apart)
     data = Price.objects.filter(apart = apart.id).order_by('-start')
 
-    param = get_param(request.user, 'apart:price')
-
     if (request.method == 'POST'):
         if ('item-add' in request.POST):
             price = price_add(request, apart)
-            set_article(request.user, 'apart:price', price.id)
             return HttpResponseRedirect(reverse('apart:price_form', args = [price.id]))
 
     title = '{} {}'.format(_('pricess in').capitalize(), apart.name)
-    context = get_base_context(request, 0, 0, title, 'content_list', make_tree = False, article_enabled = True)
-    save_last_visited(request.user, 'apart:price_list', 'apart', context['title'])
+    app_param, context = get_base_context_ext(request, app_name, 'price', title)
 
     redirect = False
-    if param.article and (param.article_mode == 'apart:price'):
-        if Price.objects.filter(id = param.article_pk, apart = apart.id).exists():
-            redirect = get_price_article(request, context, param.article_pk)
+
+    if app_param.article:
+        if (app_param.kind != 'price'):
+            set_article_visible(request.user, app_name, False)
+            redirect = True
+        elif Price.objects.filter(id = app_param.art_id, apart = apart.id).exists():
+            redirect = get_price_article(request, context, app_param.art_id)
         else:
-            set_article(request.user, '', 0)
+            set_article_visible(request.user, app_name, False)
             redirect = True
     
     if redirect:
         return HttpResponseRedirect(reverse('apart:price_list'))
 
-    enrich_context(context, param, request.user.id)
+    enrich_context(context, app_param, request.user.id)
 
     prices_tree = []
     for price in data:
@@ -91,7 +92,7 @@ def price_list(request):
 @login_required(login_url='account:login')
 #----------------------------------
 def price_form(request, pk):
-    set_article(request.user, 'apart:price', pk)
+    set_article_kind(request.user, app_name, 'price', pk)
     return HttpResponseRedirect(reverse('apart:price_list'))
 
 #----------------------------------
@@ -106,7 +107,7 @@ def get_price_article(request, context, pk):
     if (request.method == 'POST'):
         if ('article_delete' in request.POST):
             ed_price.delete()
-            set_article(request.user, '', 0)
+            set_article_visible(request.user, app_name, False)
             return HttpResponseRedirect(reverse('apart:price_list'))
         if ('price-save' in request.POST):
             form = PriceForm(request.POST, instance = ed_price)

@@ -68,7 +68,7 @@
             </div>
           </a>
           <div class="nav-menu-item-right">
-            <a href="{% url 'todo:group_toggle' node.id %}">
+            <a href="{% url 'todo:toggle_group' node.id %}">
               {% if node.is_open %}
                 <img class="img-20_20" src="{% static 'rok/icon/direct-down.png' %}">
               {% else %}
@@ -142,8 +142,8 @@
       <button type="submit" name="sort-delete">
         <img class="img-20_20" src="{% static 'rok/icon/delete.png' %}">
       </button>
-      {% endif %}
     </form>
+    {% endif %}
   </div>
     
   <form method="post" class="actions">{% csrf_token %}

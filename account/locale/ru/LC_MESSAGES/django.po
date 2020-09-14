@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-01 21:37+0300\n"
+"POT-Creation-Date: 2020-09-14 14:32+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -105,6 +105,10 @@ msgstr "email-адрес проверен"
 #: .\account\forms.py:249 .\account\models.py:11
 msgid "phone"
 msgstr "телефон"
+
+#: .\account\forms.py:251
+msgid "id"
+msgstr ""
 
 #: .\account\models.py:8
 msgid "user"
@@ -291,7 +295,7 @@ msgstr "Сбросить мой пароль"
 msgid "Password reset on %(site_name)s"
 msgstr "Сброс пароля на %(site_name)s"
 
-#: .\account\templates\account\profile.html:103
+#: .\account\templates\account\profile.html:111
 msgid "Save"
 msgstr "Сохранить"
 

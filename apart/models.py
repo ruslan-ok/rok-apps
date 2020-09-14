@@ -9,6 +9,8 @@ from rusel.const import a_months
 from .utils import get_new_period
 
 
+app_name = 'apart'
+
 #----------------------------------
 # Apartment
 
@@ -98,6 +100,7 @@ class Bill(models.Model):
     gas_pay = models.DecimalField('gas - payment', null = True, blank = True, max_digits = 15, decimal_places = 2)
     rate = models.DecimalField('rate', null = True, blank = True, max_digits = 15, decimal_places = 4)
     info = models.TextField(_('information'), blank = True, default = "")
+    url = models.CharField(_('url'), max_length = 2000, blank = True)
 
     def total_usd(self):
         if (self.rate == 0) or (not self.rate):
@@ -329,10 +332,10 @@ def count_by_tarif(apart_id, prev, curr, service_id):
 
 
 #----------------------------------
-def enrich_context(context, param, user_id):
-    context['cur_view'] = param.cur_view
-    context['article_mode'] = param.article_mode
-    context['article_pk'] = param.article_pk
+def enrich_context(context, app_param, user_id):
+    context['cur_view'] = app_param.content
+    context['article_mode'] = app_param.kind
+    context['article_pk'] = app_param.art_id
 
     context['apart_qty'] = len(Apart.objects.filter(user = user_id))
     if Apart.objects.filter(user = user_id, active = True).exists():

@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from django.core.paginator import Paginator
 
 from hier.utils import get_base_context, get_folder_id, process_common_commands
-from .models import Car, Fuel, consumption
+from .models import app_name, Car, Fuel, consumption
 from .forms import FuelForm
 
 
@@ -17,7 +17,7 @@ from .forms import FuelForm
 @login_required(login_url='account:login')
 #----------------------------------
 def fuel_list(request):
-    process_common_commands(request)
+    process_common_commands(request, app_name)
     if not Car.objects.filter(user = request.user.id, active = True).exists():
         return HttpResponseRedirect(reverse('fuel:cars_list'))
 

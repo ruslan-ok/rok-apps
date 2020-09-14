@@ -28,13 +28,13 @@ urlpatterns = i18n_patterns(
     path('feedback/',   views.feedback,   name='feedback'),
     path('note/',       views.note,       name='note'),
     path('news/',       views.news,       name='news'),
-    path('store/',      views.store,      name='store'),
     path('trash/',      views.trash,      name='trash'),
 
     path('etalon/',     utils.etalon,     name='etalon'),
     path('convert/',    utils.convert,    name='convert'),
     path('statistics/', utils.statistics, name='statistics'),
 
+    path('check/', include('check.urls')),
     path('apart/', include('apart.urls')),
     path('fuel/',  include('fuel.urls')),
     path('proj/',  include('proj.urls')),
@@ -42,12 +42,13 @@ urlpatterns = i18n_patterns(
     path('wage/',  include('wage.urls')),
     path('todo/',  include('todo.urls')),
     path('pir/',   include('pir.urls')),
+    path('store/', include('store.urls')),
 
     path('<int:folder_id>/',       include('hier.urls')),
     path('<int:folder_id>/note/',  include('note.urls')),
-    path('<int:folder_id>/store/', include('store.urls')),
 
     path('account/', include('account.urls')),
     path('admin/',   admin.site.urls, name='admin'),
     path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
+    path('firebase-messaging-sw.js', views.ServiceWorkerView.as_view(), name='service_worker'),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

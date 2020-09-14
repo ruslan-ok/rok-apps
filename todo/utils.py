@@ -2,12 +2,12 @@ from datetime import datetime, date, timezone, timedelta
 from django.utils.translation import gettext_lazy as _
 
 # Modes
-ALL = 0
-MY_DAY = 1
-IMPORTANT = 2
-PLANNED = 3
-COMPLETED = 4
-LIST_MODE = 7
+ALL = 'all'
+MY_DAY = 'myday'
+IMPORTANT = 'important'
+PLANNED = 'planned'
+COMPLETED = 'completed'
+LIST_MODE = 'list'
 
 
 LONG_TIME = 20 # Совсем давно

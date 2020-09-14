@@ -29,7 +29,11 @@
     </div>
 
     <div class="rok-form-buttons">
-      <input type="submit" value="{% if pk == 0 %}{% trans 'add'|capfirst %}{% else %}{% trans 'save'|capfirst %}{% endif %}" class="default">
+      {% if pk == 0 %}
+        <button type="submit" class="dialog default">{% trans 'add'|capfirst %}</button>
+      {% else %}
+        <button type="submit" class="dialog default">{% trans 'save'|capfirst %}</button>
+      {% endif %}
     </div>
 
   </form>

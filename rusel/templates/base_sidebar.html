@@ -8,20 +8,20 @@
       <button class="button launcher-icon"><img src="{% static 'rok/icon/param.png' %}"></button>
     </div>
     <div class="launcher-menu">
-      <a href="/" class="launcher-button"><img src="{% static 'rok/icon/home.png' %}"><span class="">{{ menu_item_home }}</span></a>
+      <a href="/" class="launcher-button"><img src="{% static 'rok/icon/home.png' %}"><span class="marked">{{ menu_item_home }}</span></a>
       <a href="/todo/" class="launcher-button"><img src="{% static 'rok/icon/application.png' %}"><span class="marked">{{ menu_item_todo }}</span></a>
       <a href="/note/" class="launcher-button"><img src="{% static 'rok/icon/note.png' %}"><span class="">{{ menu_item_note }}</span></a>
       <a href="/news/" class="launcher-button"><img src="{% static 'rok/icon/news.png' %}"><span class="">{{ menu_item_news }}</span></a>
-      <a href="/store/" class="launcher-button"><img src="{% static 'rok/icon/key.png' %}"><span class="">{{ menu_item_store }}</span></a>
+      <a href="/store/" class="launcher-button"><img src="{% static 'rok/icon/key.png' %}"><span class="marked">{{ menu_item_store }}</span></a>
       <a href="/trip/" class="launcher-button"><img src="{% static 'rok/icon/car.png' %}"><span class="marked">{{ menu_item_trip }}</span></a>
       <a href="/fuel/refuel/" class="launcher-button"><img src="{% static 'rok/icon/gas.png' %}"><span class="">{{ menu_item_fuel }}</span></a>
       <a href="/apart/" class="launcher-button"><img src="{% static 'rok/icon/apartment.png' %}"><span class="marked">{{ menu_item_apart }}</span></a>
       <a href="/proj/proj/" class="launcher-button"><img src="{% static 'rok/icon/cost.png' %}"><span class="">{{ menu_item_proj }}</span></a>
       <a href="/wage/" class="launcher-button"><img src="{% static 'rok/icon/work.png' %}"><span class="">{{ menu_item_wage }}</span></a>
-      <a href="/trash/" class="launcher-button"><img src="{% static 'rok/icon/trash.png' %}"><span class="">{{ menu_item_trash }}</span></a>
-      <a href="/admin/" class="launcher-button"><img src="{% static 'rok/icon/admin.png' %}"><span class="">{{ menu_item_admin }}</span></a>
-      <a href="/account/profile/" class="launcher-button"><img src="{% static 'rok/icon/user.png' %}"><span class="">{{ menu_item_profile }}</span></a>
-      <a href="/account/logout/" class="launcher-button"><img src="{% static 'rok/icon/exit.png' %}"><span class="">{{ menu_item_logout }}</span></a>
+      <a href="/trash/" class="launcher-button"><img src="{% static 'rok/icon/trash.png' %}"><span class="marked">{{ menu_item_trash }}</span></a>
+      <a href="/admin/" class="launcher-button"><img src="{% static 'rok/icon/admin.png' %}"><span class="marked">{{ menu_item_admin }}</span></a>
+      <a href="/account/profile/" class="launcher-button"><img src="{% static 'rok/icon/user.png' %}"><span class="marked">{{ menu_item_profile }}</span></a>
+      <a href="/account/logout/" class="launcher-button"><img src="{% static 'rok/icon/exit.png' %}"><span class="marked">{{ menu_item_logout }}</span></a>
     </div>
   </nav>
 
@@ -31,7 +31,7 @@
       <div class="header-left">
         <button class="button" title="{% trans 'application launcher'|capfirst %}" onclick="launcher_open()"><img src="{% static 'rok/icon/apps-white.png' %}"></button>
         <form method="POST">{% csrf_token %}
-          <button name="aside_open" class="button phone-only{% if aside_visible %} hid{% endif %}" title="{% trans 'open sidebar'|capfirst %}" href="#"><img src="{% static 'rok/icon/hamb-white.png' %}"></button>
+          <button name="aside_open" class="button phone-only{% if aside_disabled or aside_visible %} hid{% endif %}" title="{% trans 'open sidebar'|capfirst %}" href="#"><img src="{% static 'rok/icon/hamb-white.png' %}"></button>
         </form>
       </div>
       <div class="search-container">
@@ -47,7 +47,7 @@
     {% endif %}
     
     <div id="page" {% if user.is_authenticated %}class="with_header"{% endif %}>
-      <aside class="{% if aside_visible %}vis{% else %}hid{% endif %}">
+      <aside class="{% if aside_visible %}vis{% else %}hid{% endif %}{% if not user.is_authenticated %} no_header{% endif %}">
         <section id="aside-top">
           <form method="post">{% csrf_token %}
             <div class="info">{% block aside_top_info %}{% endblock %}</div>

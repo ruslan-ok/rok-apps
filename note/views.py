@@ -1,5 +1,5 @@
 from datetime import datetime
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
@@ -15,14 +15,15 @@ from .models import Note
 from .forms import NoteForm
 from .utils import get_ready_folder
 
+app_name = 'note'
+
 #----------------------------------
 # Note
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('note.view_note')
 #----------------------------------
 def note_list(request, folder_id):
-    process_common_commands(request)
+    process_common_commands(request, app_name)
     node = get_object_or_404(Folder.objects.filter(id = folder_id, user = request.user.id))
     data = Folder.objects.filter(user = request.user.id, node = folder_id).order_by('code', 'name')
 
@@ -73,7 +74,6 @@ def note_form(request, folder_id, content_id):
 
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('note.view_note')
 #----------------------------------
 def note_move(request, folder_id, content_id, to_folder):
     note_file = get_object_or_404(Folder.objects.filter(id = folder_id, user = request.user.id))
@@ -85,7 +85,6 @@ def note_move(request, folder_id, content_id, to_folder):
 
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('note.view_note')
 #----------------------------------
 def note_del(request, folder_id, content_id):
     note_file = get_object_or_404(Folder.objects.filter(id = folder_id, user = request.user.id))
@@ -113,10 +112,9 @@ def note_del(request, folder_id, content_id):
 # News
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('note.view_note')
 #----------------------------------
 def news_list(request, folder_id):
-    process_common_commands(request)
+    process_common_commands(request, app_name)
     data = Folder.objects.filter(user = request.user.id, node = folder_id).order_by('-creation')
     if request.method != 'GET':
         page_number = 1
@@ -166,7 +164,6 @@ def news_form(request, folder_id, content_id):
 
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('note.view_note')
 #----------------------------------
 def news_del(request, folder_id, content_id):
     file = get_object_or_404(Folder.objects.filter(id = folder_id, user = request.user.id))
@@ -181,7 +178,6 @@ def news_del(request, folder_id, content_id):
 
 #----------------------------------
 @login_required(login_url='account:login')
-@permission_required('note.view_note')
 #----------------------------------
 def show_page_form(request, folder_id, content_id, title, name, form, extra_context = {}):
     if (request.method == 'POST'):

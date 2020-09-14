@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-01 21:37+0300\n"
+"POT-Creation-Date: 2020-09-14 14:32+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,122 +23,136 @@ msgstr ""
 msgid "fuel"
 msgstr "заправка"
 
-#: .\fuel\models.py:9
+#: .\fuel\models.py:10
 msgid "user"
 msgstr "пользователь"
 
-#: .\fuel\models.py:10
+#: .\fuel\models.py:11
 msgid "model"
 msgstr "модель"
 
-#: .\fuel\models.py:11
+#: .\fuel\models.py:12
 msgid "car number"
 msgstr "гос. номер"
 
-#: .\fuel\models.py:12
+#: .\fuel\models.py:13
 msgid "active"
 msgstr "активна"
 
-#: .\fuel\models.py:15 .\fuel\models.py:41 .\fuel\models.py:110
-#: .\fuel\models.py:230 .\fuel\v_cars.py:48
+#: .\fuel\models.py:16 .\fuel\models.py:42 .\fuel\models.py:111
+#: .\fuel\models.py:231 .\fuel\v_cars.py:48
 msgid "car"
 msgstr "автомобиль"
 
-#: .\fuel\models.py:16 .\fuel\v_cars.py:27
+#: .\fuel\models.py:17 .\fuel\v_cars.py:27
 msgid "cars"
 msgstr "автомобили"
 
-#: .\fuel\models.py:42 .\fuel\models.py:232
+#: .\fuel\models.py:43 .\fuel\models.py:233
 msgid "date"
 msgstr "дата"
 
-#: .\fuel\models.py:43
+#: .\fuel\models.py:44
 msgid "odometer"
 msgstr "одометер"
 
-#: .\fuel\models.py:44
+#: .\fuel\models.py:45
 msgid "volume"
 msgstr "объём"
 
-#: .\fuel\models.py:45
+#: .\fuel\models.py:46
 msgid "price"
 msgstr "цена"
 
-#: .\fuel\models.py:46 .\fuel\models.py:114 .\fuel\models.py:239
+#: .\fuel\models.py:47 .\fuel\models.py:115 .\fuel\models.py:240
 msgid "information"
 msgstr "дополнительная информация"
 
-#: .\fuel\models.py:49
+#: .\fuel\models.py:50
 msgid "fueling"
 msgstr "заправка"
 
-#: .\fuel\models.py:50
+#: .\fuel\models.py:51
 msgid "fuelings"
 msgstr "заправки"
 
-#: .\fuel\models.py:53 .\fuel\models.py:246
+#: .\fuel\models.py:54 .\fuel\models.py:247
 msgid "km."
 msgstr "км."
 
-#: .\fuel\models.py:53
+#: .\fuel\models.py:54
 msgid "l."
 msgstr "л."
 
-#: .\fuel\models.py:102
+#: .\fuel\models.py:103
 msgid "failed to calculate average consumption"
 msgstr "не удалось вычислить средний расход"
 
-#: .\fuel\models.py:104
+#: .\fuel\models.py:105
 msgid " l. per 100 km"
 msgstr "л. на 100 км."
 
-#: .\fuel\models.py:106
+#: .\fuel\models.py:107
 msgid "no active car"
 msgstr "нет активного автомобиля"
 
-#: .\fuel\models.py:111 .\fuel\models.py:236
+#: .\fuel\models.py:112 .\fuel\models.py:237
 msgid "name"
 msgstr "наименование"
 
-#: .\fuel\models.py:112
+#: .\fuel\models.py:113
 msgid "replacement interval, km"
 msgstr "интервал замены, км"
 
-#: .\fuel\models.py:113
+#: .\fuel\models.py:114
 msgid "replacement interval, months"
 msgstr "интервал замены, месяцев"
 
-#: .\fuel\models.py:117 .\fuel\models.py:231 .\fuel\v_part.py:53
+#: .\fuel\models.py:118 .\fuel\models.py:232 .\fuel\v_part.py:53
 msgid "part"
 msgstr "запчасть"
 
-#: .\fuel\models.py:118 .\fuel\v_part.py:31
+#: .\fuel\models.py:119 .\fuel\v_part.py:31
 msgid "parts"
 msgstr "запчасти"
 
-#: .\fuel\models.py:233
+#: .\fuel\models.py:234
 msgid "odometer, km"
 msgstr "показания одометра, км"
 
-#: .\fuel\models.py:234
+#: .\fuel\models.py:235
 msgid "manufacturer"
 msgstr "производитель"
 
-#: .\fuel\models.py:235
+#: .\fuel\models.py:236
 msgid "catalog number"
 msgstr "номер по каталогу"
 
-#: .\fuel\models.py:238
+#: .\fuel\models.py:239
 msgid "project"
 msgstr "проект"
 
-#: .\fuel\models.py:242 .\fuel\v_repl.py:68
+#: .\fuel\models.py:243 .\fuel\v_repl.py:68
 msgid "replacement"
 msgstr "замена"
 
-#: .\fuel\models.py:243 .\fuel\v_repl.py:37
+#: .\fuel\models.py:244 .\fuel\v_repl.py:37
 msgid "replacements"
 msgstr "замены"
+
+#: .\fuel\templates\fuel\cars_form.html:26
+#: .\fuel\templates\fuel\fuel_form.html:35
+#: .\fuel\templates\fuel\part_form.html:32
+#: .\fuel\templates\fuel\repl_form.html:44
+msgid "add"
+msgstr "добавить"
+
+#: .\fuel\templates\fuel\cars_form.html:28
+#: .\fuel\templates\fuel\fuel_form.html:37
+#: .\fuel\templates\fuel\part_form.html:34
+#: .\fuel\templates\fuel\repl_form.html:46
+msgid "save"
+msgstr "сохранить"
 
 #: .\fuel\v_cars.py:39
 msgid "creating a new car"

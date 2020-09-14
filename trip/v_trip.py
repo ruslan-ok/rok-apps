@@ -7,42 +7,45 @@ from django.template import loader
 from django.utils.translation import gettext_lazy as _
 from django.core.paginator import Paginator
 
-from hier.utils import get_base_context, process_common_commands, get_param, set_article, save_last_visited
-from .models import Trip, Saldo, Person, enrich_context, trip_summary
+from hier.utils import get_base_context_ext, process_common_commands
+from hier.params import set_article_visible, set_article_kind
+from .models import app_name, Trip, Saldo, Person, enrich_context, trip_summary
 from .forms import TripForm
 
 #----------------------------------
 @login_required(login_url='account:login')
 #----------------------------------
 def trip_list(request):
-    if process_common_commands(request):
+    if process_common_commands(request, app_name):
         return HttpResponseRedirect(reverse('trip:trip_list'))
 
     form = None
     if (request.method == 'POST'):
+        #raise Exception(request.POST)
         if ('item-add' in request.POST):
             return HttpResponseRedirect(reverse('trip:trip_add'))
         if ('trip-count' in request.POST):
             do_count(request)
             return HttpResponseRedirect(reverse('trip:trip_list'))
 
-    context = get_base_context(request, 0, 0, _('trips').capitalize(), 'content_list', make_tree = False, article_enabled = True)
-    save_last_visited(request.user, 'trip:trip_list', 'trip', context['title'])
+    app_param, context = get_base_context_ext(request, app_name, 'trip', _('trips').capitalize())
 
     redirect = False
 
-    param = get_param(request.user, 'trip:trip')
-    if (param.article_mode == 'trip:trip') and param.article:
-        if Trip.objects.filter(id = param.article_pk, user = request.user.id).exists():
-            redirect = get_trip_article(request, context, param.article_pk)
+    if app_param.article:
+        if (app_param.kind != 'trip'):
+            set_article_visible(request.user, app_name, False)
+            redirect = True
+        elif Trip.objects.filter(id = app_param.art_id, user = request.user.id).exists():
+            redirect = get_trip_article(request, context, app_param.art_id)
         else:
-            set_article(request.user, '', 0)
+            set_article_visible(request.user, app_name, False)
             redirect = True
     
     if redirect:
         return HttpResponseRedirect(reverse('trip:trip_list'))
 
-    enrich_context(context, param, request.user.id)
+    enrich_context(context, app_param, request.user.id)
     context['trip_summary'] = trip_summary(request.user.id, False)
 
     data = Trip.objects.filter(user = request.user.id).order_by('-year', '-week', '-modif')
@@ -62,7 +65,7 @@ def trip_list(request):
 @login_required(login_url='account:login')
 #----------------------------------
 def trip_form(request, pk):
-    set_article(request.user, 'trip:trip', pk)
+    set_article_kind(request.user, app_name, 'trip', pk)
     return HttpResponseRedirect(reverse('trip:trip_list'))
 
 #----------------------------------
@@ -135,15 +138,15 @@ def trip_add(request):
     # Инициализация полей новой записи
     last_trip = Trip.objects.filter(user = request.user.id, oper = 0).order_by('-year', '-week', '-days')[:1]
     price_new  = 0
-    drvr_new = 2
-    pass_new = 1
+    drvr_new = None
+    pass_new = None
     debt_sum = 0
     week_new = int(datetime.now().strftime("%W")) + 1
     
     if (len(last_trip) > 0): # последняя поездка
         price_new = last_trip[0].price
-        drvr_new  = last_trip[0].driver.id
-        pass_new  = last_trip[0].passenger.id
+        drvr_new  = last_trip[0].driver
+        pass_new  = last_trip[0].passenger
     
     saldos = Saldo.objects.filter(user = request.user.id)
     for s in saldos:
@@ -151,13 +154,13 @@ def trip_add(request):
             tmp = -1*s.summ
             if (debt_sum < tmp):
                 debt_sum = tmp
-                drvr_new = s.p2.id
-                pass_new = s.p1.id
+                drvr_new = s.p2
+                pass_new = s.p1
         else:
             if (debt_sum < s.summ):
                 debt_sum = s.summ
-                drvr_new = s.p1.id
-                pass_new = s.p2.id
+                drvr_new = s.p1
+                pass_new = s.p2
 
             form = TripForm(request.user,
                             initial = {'year':      datetime.now().year,
@@ -165,8 +168,8 @@ def trip_add(request):
                                        'days':      0,
                                        'oper':      0,
                                        'price':     price_new,
-                                       'driver':    drvr_new,
-                                       'passenger': pass_new,
+                                       'driver':    drvr_new.id,
+                                       'passenger': pass_new.id,
                                        'summa':     0, 
                                        'day_11': get_day(0, 1, 1),
                                        'day_12': get_day(0, 1, 2),
@@ -184,7 +187,8 @@ def trip_add(request):
                                        'day_27': get_day(0, 2, 7),
                                        'text':      '' })
 
-    return Trip.objects.create(user = user, year = datetime.now().year, week = week_new, price = price_new, driver = drvr_new, passenger = pass_new)
+    new_trip = Trip.objects.create(user = request.user, year = datetime.now().year, week = week_new, price = price_new, driver = drvr_new, passenger = pass_new)
+    return HttpResponseRedirect(reverse('trip:trip_form', args = [new_trip.id]))
 
 #----------------------------------
 def trip_delete(request, trip):
@@ -192,7 +196,7 @@ def trip_delete(request, trip):
         return False
 
     trip.delete()
-    set_article(request.user, '', 0)
+    set_article_visible(request.user, app_name, False)
     return True
 
 #----------------------------------

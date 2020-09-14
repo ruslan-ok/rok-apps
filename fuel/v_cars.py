@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from django.core.paginator import Paginator
 
 from hier.utils import get_base_context, get_folder_id, process_common_commands
-from .models import Car, deactivate_all, set_active, Fuel, Part
+from .models import app_name, Car, deactivate_all, set_active, Fuel, Part
 from .forms import CarForm
 
 
@@ -15,7 +15,7 @@ from .forms import CarForm
 @login_required(login_url='account:login')
 #----------------------------------
 def cars_list(request):
-    process_common_commands(request)
+    process_common_commands(request, app_name)
     data = Car.objects.filter(user = request.user.id).order_by('name')
     if request.method != 'GET':
         page_number = 1

@@ -4,6 +4,7 @@ from datetime import date
 from proj.models import Direct, Proj
 from django.utils.translation import gettext, gettext_lazy as _
 
+app_name = 'fuel'
 
 class Car(models.Model):
     user   = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))

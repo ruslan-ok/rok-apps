@@ -4,6 +4,9 @@ from django.db import models
 from django.utils.translation import gettext, gettext_lazy as _
 
 
+app_name = 'trip'
+
+
 class Person(models.Model):
     user   = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
     name   = models.CharField(_('name'), max_length=500, blank=False)
@@ -169,10 +172,10 @@ def trip_summary(_user, with_span = True):
     return '<span id="warning">' + ret + '</span>'
 
 #----------------------------------
-def enrich_context(context, param, user_id):
-    context['cur_view'] = param.cur_view
-    context['article_mode'] = param.article_mode
-    context['article_pk'] = param.article_pk
+def enrich_context(context, app_param, user_id):
+    context['cur_view'] = app_param.content
+    context['article_mode'] = app_param.kind
+    context['article_pk'] = app_param.art_id
 
     context['person_qty'] = len(Person.objects.filter(user = user_id))
     context['trip_qty'] = len(Trip.objects.filter(user = user_id))

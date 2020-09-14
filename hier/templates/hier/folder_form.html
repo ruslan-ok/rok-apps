@@ -33,9 +33,9 @@
 
     <div class="w3-row w3-padding">
       {% if pk == 0 %}
-        <input type="submit" value="{% trans 'add'|capfirst %}" class="default">
+        <button type="submit" class="dialog default">{% trans 'add'|capfirst %}</button>
       {% else %}
-        <input type="submit" value="{% trans 'save'|capfirst %}" class="default">
+        <button type="submit" class="dialog default">{% trans 'save'|capfirst %}</button>
       {% endif %}
       <p>
     </div>
