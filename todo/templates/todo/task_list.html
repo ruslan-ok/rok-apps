@@ -124,27 +124,28 @@
             <button type="submit" class="dropdown-content-item" name="sort-created">   <img src="{% static 'todo/icon/created.png' %}">   {% trans 'by creation date'|capfirst %}    </button>
           </div>
         </form>
+
+        <div class="sort">
+          {% if sort_mode %}
+          <form method="post" class="sort-actions sort">{% csrf_token %}
+            <button type="submit" name="sort-direction">
+              {% if sort_dir %}
+                <img class="img-20_20" src="{% static 'rok/icon/direct-down.png' %}">
+              {% else %}
+                <img class="img-20_20" src="{% static 'rok/icon/direct-up.png' %}">
+              {% endif %}
+            </button>
+            <span>{{ sort_mode }}</span>
+            <button type="submit" name="sort-delete">
+              <img class="img-20_20" src="{% static 'rok/icon/delete.png' %}">
+            </button>
+          </form>
+          {% endif %}
+        </div>
       </div>
     {% endif %}
   </div>
   
-  <div class="sort">
-    {% if sort_mode %}
-    <form method="post" class="sort-actions sort">{% csrf_token %}
-      <button type="submit" name="sort-direction">
-        {% if sort_dir %}
-          <img class="img-20_20" src="{% static 'rok/icon/direct-down.png' %}">
-        {% else %}
-          <img class="img-20_20" src="{% static 'rok/icon/direct-up.png' %}">
-        {% endif %}
-      </button>
-      <span>{{ sort_mode }}</span>
-      <button type="submit" name="sort-delete">
-        <img class="img-20_20" src="{% static 'rok/icon/delete.png' %}">
-      </button>
-    </form>
-    {% endif %}
-  </div>
     
   <form method="post" class="actions">{% csrf_token %}
     <button type="submit" name="task-add" class="default" placeholder="{% trans 'add task'|capfirst %}"><img class="img-20_20" src="{% static 'rok/icon/add-gray.png' %}"></button>

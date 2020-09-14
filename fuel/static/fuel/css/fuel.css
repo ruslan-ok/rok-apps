@@ -1,7 +1,7 @@
-.warning {
-  color: Orange;
+.rest-color-warning {
+  color: Blue;
 }
 
-.error {
+.rest-color-error {
   color: Red;
 }

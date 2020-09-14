@@ -303,7 +303,7 @@ def get_base_context(request, folder_id, pk, title = '', mode = 'content_form', 
 #----------------------------------
 def get_base_context_ext(request, app_name, content_kind, title, article_enabled = True):
     context = {}
-    context['title'] = title
+    context['title'] = title.capitalize()
     app_param = None
     if request:
         app_param = get_app_params(request.user, app_name)
@@ -332,7 +332,7 @@ def get_base_context_ext(request, app_name, content_kind, title, article_enabled
     context['menu_item_profile'] = get_main_menu_item('profile')
     context['menu_item_logout']  = get_main_menu_item('logout')
     set_aside_visible(request.user, app_name, False)
-    save_last_visited(request.user, app_name + ':' + content_kind + '_list', app_name, title)
+    save_last_visited(request.user, app_name + ':' + content_kind + '_list', app_name, title.capitalize())
     return app_param, context
 
 #----------------------------------
@@ -411,7 +411,7 @@ def get_app_name(id):
     if (id == 'apart'):
         return _('communal').capitalize()
     if (id == 'fuel'):
-        return _('fueling').capitalize()
+        return _('fuelings').capitalize()
     if (id == 'hier'):
         return _('hierarchy').capitalize()
     if (id == 'note'):

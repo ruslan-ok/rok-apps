@@ -11,7 +11,7 @@ from django.template import loader
 from django.utils.crypto import get_random_string
 
 from hier.utils import get_base_context_ext, process_common_commands, sort_data
-from hier.params import set_article_visible, set_restriction, set_aside_visible
+from hier.params import set_article_visible, set_restriction, set_aside_visible, get_search_mode, get_search_info
 from hier.categories import get_categories_list
 from hier.grp_lst import group_add, group_details, group_toggle, list_add, list_details
 from .models import Entry, Params
@@ -140,13 +140,7 @@ def entry_list(request):
     paginator = Paginator(items, items_in_page)
     page_obj = paginator.get_page(page_number)
     context['page_obj'] = paginator.get_page(page_number)
-
-    search_mode = get_search_mode(query)
-    if (search_mode == 1):
-        context['search_info'] = _('contained').capitalize() + ' "' + query + '"'
-    elif (search_mode == 2):
-        context['search_info'] = _('contained category').capitalize() + ' "' + query[1:] + '"'
-
+    context['search_info'] = get_search_info(query)
     template = loader.get_template(template_file)
     return HttpResponse(template.render(context, request))
 
@@ -338,15 +332,6 @@ def get_store_params(user):
         return Params.objects.filter(user = user.id).get()
     else:
         return Params.objects.create(user = user, ln = 30, uc = True, lc = True, dg = True, sp = True, br = True, mi = True, ul = True, ac = False)
-
-
-def get_search_mode(query):
-    if not query:
-        return 0
-    if (len(query) > 1) and (query[0] == '#') and (query.find(' ') == -1):
-        return 2
-    else:
-        return 1
 
 
 def get_item_info(item, app_param):

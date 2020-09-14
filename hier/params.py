@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 from .models import AppParam
 from todo.models import Lst
 
@@ -75,5 +76,20 @@ def toggle_sort_dir(user, app_name):
     app_param.reverse = not app_param.reverse
     app_param.save()
 
+#----------------------------------
+def get_search_mode(query):
+    if not query:
+        return 0
+    if (len(query) > 1) and (query[0] == '#') and (query.find(' ') == -1):
+        return 2
+    else:
+        return 1
 
-
+def get_search_info(query):
+    search_mode = get_search_mode(query)
+    if (search_mode == 1):
+        return _('contained').capitalize() + ' "' + query + '"'
+    elif (search_mode == 2):
+        return _('contained category').capitalize() + ' "' + query[1:] + '"'
+    else:
+        return ''

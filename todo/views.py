@@ -12,7 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from django.db.models import Q
 
 from hier.utils import get_app_params, get_base_context_ext, process_common_commands, sort_data
-from hier.params import set_restriction, set_article_kind, set_article_visible, set_sort_mode, toggle_sort_dir
+from hier.params import set_restriction, set_article_kind, set_article_visible, set_sort_mode, toggle_sort_dir, get_search_mode, get_search_info
 from hier.categories import get_categories_list
 from hier.grp_lst import group_add, group_details, group_toggle, list_add, list_details
 from .models import Lst, Task, Param, Step, TaskFiles, DAILY, WORKDAYS, WEEKLY, MONTHLY, ANNUALLY, PerGrp
@@ -85,14 +85,6 @@ def get_tasks(user, mode, lst_id):
     else: # ALL or NONE
         ret = Task.objects.filter(user = user.id).exclude(completed = True)
     return ret
-
-def get_search_mode(query):
-    if not query:
-        return 0
-    if (len(query) > 1) and (query[0] == '#') and (query.find(' ') == -1):
-        return 2
-    else:
-        return 1
 
 def get_filtered_tasks(user, mode, lst_id, query):
     ret = get_tasks(user, mode, lst_id)
@@ -576,12 +568,8 @@ def task_list(request):
         term = find_term(data, request.user, grp_id)
         term.todo.append([task, get_task_info(task, app_param.restriction)])
     
-    search_mode = get_search_mode(query)
-    if (search_mode == 1):
-        context['search_info'] = _('contained').capitalize() + ' "' + query + '"'
-    elif (search_mode == 2):
-        context['search_info'] = _('contained category').capitalize() + ' "' + query[1:] + '"'
     context['object_list'] = sorted(data, key=lambda term: term.per_grp.grp_id)
+    context['search_info'] = get_search_info(query)
     context['task_add_form'] = TaskForm()
 
     template = loader.get_template(template_file)

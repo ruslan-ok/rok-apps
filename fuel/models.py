@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
-from datetime import date
+from datetime import datetime, date
 from proj.models import Direct, Proj
 from django.utils.translation import gettext, gettext_lazy as _
 
@@ -40,11 +40,13 @@ def set_active(user_id, cars_id):
 
 class Fuel(models.Model):
     car      = models.ForeignKey(Car, on_delete=models.CASCADE, verbose_name=_('car'))
-    pub_date = models.DateTimeField(_('date'))
+    pub_date = models.DateTimeField(_('date'), default = datetime.now)
     odometr  = models.IntegerField(_('odometer'), blank=False)
     volume   = models.DecimalField(_('volume'), blank=False, max_digits=5, decimal_places=3)
     price    = models.DecimalField(_('price'), blank=False, max_digits=15, decimal_places=2)
     comment  = models.CharField(_('information'), max_length=1000, blank=True)
+    created  = models.DateTimeField(_('creation time'), auto_now_add = True, null = True)
+    last_mod = models.DateTimeField(_('last modification time'), blank = True, auto_now = True, null = True)
 
     class Meta:
         verbose_name = _('fueling')
@@ -67,9 +69,11 @@ class Fuel(models.Model):
         return d + '.' + m + '.' + y
 
 
-def consumption(_user):
+# средний расход
+def consumption(_user, car = None):
   try:
-    car = Car.objects.get(user = _user, active = True)
+    if not car:
+        car = Car.objects.get(user = _user, active = True)
     car_name = car.name + ': '
     fuels = Fuel.objects.filter(car = car.id).order_by('-pub_date', '-odometr')
     counter_max = 0
@@ -110,8 +114,8 @@ def fuel_summary(_user):
 class Part(models.Model): # Список расходников
     car      = models.ForeignKey(Car, on_delete=models.CASCADE, verbose_name=_('car'))
     name     = models.CharField(_('name'), max_length = 1000, blank = False)
-    chg_km   = models.IntegerField(_('replacement interval, km'), blank = True)
-    chg_mo   = models.IntegerField(_('replacement interval, months'), blank = True)
+    chg_km   = models.IntegerField(_('replacement interval, km'), blank = True, null = True)
+    chg_mo   = models.IntegerField(_('replacement interval, months'), blank = True, null = True)
     comment  = models.TextField(_('information'), blank = True)
 
     class Meta:
@@ -147,17 +151,18 @@ class Part(models.Model): # Список расходников
 
     def get_rest(self):
         if ((not self.chg_km) and (not self.chg_mo)) or (not self.last_odo()):
-            return ''
+            return '', ''
 
         fuels = Fuel.objects.filter(car = self.car).order_by('-pub_date')[:1]
         if (len(fuels) == 0):
-            return ''
+            return '', ''
 
         output = ''
         p1 = ''
         p2 = ''
         m1 = False
         m2 = False
+        color = ''
 
         if (self.chg_km != 0):
             trip_km_unround = fuels[0].odometr - self.last_odo() # Проехали км от последней замены
@@ -168,13 +173,16 @@ class Part(models.Model): # Список расходников
           
             if (trip_km_unround > self.chg_km):
                 if ((trip_km_unround - self.chg_km) > 1000):
-                    p1 = '<span class="error">просрочено на ' + str(round(((trip_km_unround - self.chg_km) / 1000))) + ' тыс. км</span>'
+                    p1 = 'просрочено на ' + str(round(((trip_km_unround - self.chg_km) / 1000))) + ' тыс. км'
+                    color = 'error'
                 else:
-                    p1 = '<span class="error">просрочено на ' + str(trip_km_unround - self.chg_km) + ' км</span>'
+                    p1 = 'просрочено на ' + str(trip_km_unround - self.chg_km) + ' км'
+                    color = 'error'
                 m1 = True
             else:
                 if ((self.chg_km - trip_km) < 1000):
-                    p1 = '<span class="warning">' + str(self.chg_km - trip_km_unround) + ' км</span>'
+                    p1 = str(self.chg_km - trip_km_unround) + ' км'
+                    color = 'warning'
                 else:
                     p1 = str(round(((self.chg_km - trip_km) / 1000))) + ' тыс. км'
               
@@ -205,11 +213,13 @@ class Part(models.Model): # Список расходников
                 per = str(round(days/365)) + ' лет'
             
             if (trip_days > 0):
-                p2 = '<span class="error">просрочено на ' + per + '</span>'
+                p2 = 'просрочено на ' + per
                 m2 = True
+                color = 'error'
             else:
                 if (days < 32):
-                    p2 = '<span class="warning">' + per + '</span>'
+                    p2 = per
+                    color = 'warning'
                 else:
                     p2 = per
       
@@ -224,12 +234,12 @@ class Part(models.Model): # Список расходников
         else:
             output = p1 + ' или ' + p2
 
-        return output
+        return output, color
 
 
 class Repl(models.Model): # Замена расходников
     car      = models.ForeignKey(Car, on_delete=models.CASCADE, verbose_name=_('car'), null = True)
-    part     = models.ForeignKey(Part, on_delete=models.CASCADE, verbose_name=_('part'))
+    part     = models.ForeignKey(Part, on_delete=models.CASCADE, verbose_name=_('part'), null = True)
     dt_chg   = models.DateTimeField(_('date'), blank = False)
     odometr  = models.IntegerField(_('odometer, km'), blank = False)
     manuf    = models.CharField(_('manufacturer'), max_length = 1000, blank = True)
@@ -237,7 +247,9 @@ class Repl(models.Model): # Замена расходников
     name     = models.CharField(_('name'), max_length = 1000, blank = True)
     # deprecated
     oper     = models.ForeignKey(Proj, on_delete=models.CASCADE, null = True, verbose_name=_('project'))
-    comment  = models.TextField(_('information'), blank = True, default = None)
+    comment  = models.TextField(_('information'), blank = True, default = None, null = True)
+    created  = models.DateTimeField(_('creation time'), auto_now_add = True, null = True)
+    last_mod = models.DateTimeField(_('last modification time'), blank = True, auto_now = True, null = True)
 
     class Meta:
         verbose_name = _('replacement')
@@ -260,4 +272,16 @@ def init_repl_car():
     for repl in Repl.objects.filter(car__isnull = True):
         repl.car = repl.part.car
         repl.save()
+
+def enrich_context(context, app_param, user_id):
+    context['article_mode'] = app_param.kind
+    context['article_pk'] = app_param.art_id
+
+    context['cars_qty']      = len(Car.objects.filter(user = user_id))
+    if Car.objects.filter(user = user_id, active = True).exists():
+        car = Car.objects.filter(user = user_id, active = True).get()
+        context['intervals_qty'] = len(Part.objects.filter(car = car))
+        context['fueling_qty']   = len(Fuel.objects.filter(car = car))
+        context['service_qty']   = len(Repl.objects.filter(car = car))
+    return context
         

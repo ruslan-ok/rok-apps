@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-14 14:32+0300\n"
+"POT-Creation-Date: 2020-09-14 23:44+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -467,8 +467,8 @@ msgstr "по названию"
 msgid "by creation date"
 msgstr "по дате создания"
 
-#: .\todo\templates\todo\task_list.html:150
 #: .\todo\templates\todo\task_list.html:151
+#: .\todo\templates\todo\task_list.html:152
 msgid "add task"
 msgstr "добавить задачу"
 
@@ -580,25 +580,23 @@ msgstr "сортировка по алфавиту"
 msgid "sort by create date"
 msgstr "по дате создания"
 
-#: .\todo\views.py:373
+#: .\todo\views.py:365
 msgid "remind in"
 msgstr "напомнить в"
 
-#: .\todo\views.py:434
+#: .\todo\views.py:426
 msgid "My day"
 msgstr "Мой день"
 
-#: .\todo\views.py:445
+#: .\todo\views.py:437
 msgid "out of"
 msgstr "из"
 
-#: .\todo\views.py:581
-msgid "contained"
-msgstr "содержат"
+#~ msgid "contained"
+#~ msgstr "содержат"
 
-#: .\todo\views.py:583
-msgid "contained category"
-msgstr "содержат категорию"
+#~ msgid "contained category"
+#~ msgstr "содержат категорию"
 
 #~ msgid "stop date"
 #~ msgstr "дата окончания"

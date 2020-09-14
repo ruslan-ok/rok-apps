@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-14 14:32+0300\n"
+"POT-Creation-Date: 2020-09-14 23:44+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -178,6 +178,14 @@ msgstr "адрес последней посещенной страницы"
 #: .\hier\models.py:102
 msgid "visited pages"
 msgstr "посещенные страницы"
+
+#: .\hier\params.py:91
+msgid "contained"
+msgstr "содержат"
+
+#: .\hier\params.py:93
+msgid "contained category"
+msgstr "содержат категорию"
 
 #: .\hier\templates\hier\folder_form.html:10 .\hier\utils.py:281
 #: .\hier\utils.py:317

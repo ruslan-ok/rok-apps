@@ -1,0 +1,36 @@
+{% extends "base_sidebar.html" %}
+{% load static i18n %}
+
+{% block aside_content %}
+  <ul class="nav-menu">
+    <li{% if cur_view == 'cars' %} class="selected"{% endif %}><a class="fix" href="{% url 'fuel:car_list' %}">
+        <div class="nav-menu-item-left">
+          <img src="{% static 'rok/icon/car.png' %}">
+          {% trans 'cars'|capfirst %}
+        </div>
+        <div class="nav-menu-qty">{{ cars_qty }}</div>
+      </a></li>
+    <li{% if cur_view == 'fueling' %} class="selected"{% endif %}><a class="fix" href="{% url 'fuel:fueling_list' %}">
+        <div class="nav-menu-item-left">
+          <img src="{% static 'rok/icon/gas.png' %}">
+          {% trans 'fuelings'|capfirst %}
+        </div>
+        <div class="nav-menu-qty">{{ fueling_qty }}</div>
+      </a></li>
+    <li{% if cur_view == 'intervals' %} class="selected"{% endif %}><a class="fix" href="{% url 'fuel:interval_list' %}">
+        <div class="nav-menu-item-left">
+          <img src="{% static 'todo/icon/remind-today.png' %}">
+          {% trans 'service intervals'|capfirst %}
+        </div>
+        <div class="nav-menu-qty">{{ intervals_qty }}</div>
+      </a></li>
+    <li{% if cur_view == 'service' %} class="selected"{% endif %}><a class="fix" href="{% url 'fuel:service_list' %}">
+        <div class="nav-menu-item-left">
+          <img src="{% static 'todo/icon/myday.png' %}">
+          {% trans 'repair and service'|capfirst %}
+        </div>
+        <div class="nav-menu-qty">{{ service_qty }}</div>
+      </a></li>
+  </ul>
+{% endblock %}
+
