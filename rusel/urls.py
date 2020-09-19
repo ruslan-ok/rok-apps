@@ -34,7 +34,6 @@ urlpatterns = i18n_patterns(
     path('convert/',    utils.convert,    name='convert'),
     path('statistics/', utils.statistics, name='statistics'),
 
-    path('check/', include('check.urls')),
     path('apart/', include('apart.urls')),
     path('fuel/',  include('fuel.urls')),
     path('proj/',  include('proj.urls')),

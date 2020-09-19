@@ -71,6 +71,13 @@ REPEAT_NAME = {
     ANNUALLY: _('years'),
 }
 
+def add_months(sourcedate, months):
+    month = sourcedate.month - 1 + months
+    year = sourcedate.year + month // 12
+    month = month % 12 + 1
+    day = min(sourcedate.day, calendar.monthrange(year,month)[1])
+    return date(year, month, day)
+    
 class Task(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'todo_user')
     lst = models.ForeignKey(Lst, on_delete = models.CASCADE, verbose_name = _('list'), blank = True, null = True)
@@ -104,22 +111,11 @@ class Task(models.Model):
 
         if self.stop and self.repeat:
             if (self.repeat == DAILY):
-                next = self.stop + timedelta(1)
+                next = self.stop + timedelta(self.repeat_num)
             elif (self.repeat == WEEKLY):
-                next = self.stop + timedelta(7)
+                next = self.stop + timedelta(self.repeat_num * 7)
             elif (self.repeat == MONTHLY):
-                d = self.stop.day
-                m = self.stop.month
-                y = self.stop.year
-                if (m < 12):
-                    m += 1
-                else:
-                    m = 1
-                    y += 1
-                last_day = calendar.monthrange(y, m)[1]
-                if (d > last_day):
-                    d = last_day
-                next = date(y, m, d)
+                next = add_months(self.stop, self.repeat_num)
                 if self.start and (next.day != self.start.day):
                     # Теперь попытаемся скорректировать день, чтобы он был как у стартовой даты
                     d = next.day
@@ -135,7 +131,7 @@ class Task(models.Model):
                 d = self.stop.day
                 m = self.stop.month
                 y = self.stop.year
-                y += 1
+                y += self.repeat_num
                 last_day = calendar.monthrange(y, m)[1]
                 if (d > last_day): # 29.02.YYYY
                     d = last_day

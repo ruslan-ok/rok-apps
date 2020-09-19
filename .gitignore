@@ -11,6 +11,9 @@ s.bat
 secret.py
 todo/fcm/
 rusel/media/
+DateTimeShortcuts.js
+firebase-messaging-sw.js
+
 
 # Windows image file caches
 Thumbs.db
