@@ -20,6 +20,7 @@ class Apart(models.Model):
     addr = models.CharField(_('address'), max_length = 5000, blank = True)
     active = models.BooleanField(_('active'), default = False)
     has_gas = models.BooleanField(_('has gas'), default = True)
+    has_ppo = models.BooleanField(_('payments to the partnership of owners'), default = False)
 
     class Meta:
         verbose_name = _('apartment')
@@ -101,6 +102,8 @@ class Bill(models.Model):
     rate = models.DecimalField('rate', null = True, blank = True, max_digits = 15, decimal_places = 4)
     info = models.TextField(_('information'), blank = True, default = "")
     url = models.CharField(_('url'), max_length = 2000, blank = True)
+    PoO = models.DecimalField('pay to the Partnersheep of Owners - accrued', null = True, blank = True, max_digits = 15, decimal_places = 2)
+    PoO_pay = models.DecimalField('pay to the Partnersheep of Owners - payment', null = True, blank = True, max_digits = 15, decimal_places = 2)
 
     def total_usd(self):
         if (self.rate == 0) or (not self.rate):
@@ -122,17 +125,12 @@ class Bill(models.Model):
                count_by_tarif(self.apart.id, self.prev, self.curr, GAS) + \
                count_by_tarif(self.apart.id, self.prev, self.curr, WATER) + \
                count_by_tarif(self.apart.id, self.prev, self.curr, WATER_SUPPLY) + \
-               count_by_tarif(self.apart.id, self.prev, self.curr, SEWERAGE)
-        if self.tv_bill:
-            bill += self.tv_bill
-        if self.phone_bill:
-            bill += self.phone_bill
-        if self.zhirovka:
-            bill += self.zhirovka
+               count_by_tarif(self.apart.id, self.prev, self.curr, SEWERAGE) + \
+               zero(self.tv_bill) + zero(self.phone_bill) + zero(self.zhirovka) + zero(self.PoO)
         return round(bill, 2)
 
     def total_pay(self):
-        return zero(self.tv_pay) + zero(self.phone_pay) + zero(self.hot_pay) + zero(self.repair_pay) + zero(self.ZKX_pay) + zero(self.el_pay) + zero(self.water_pay) + zero(self.gas_pay)
+        return zero(self.tv_pay) + zero(self.phone_pay) + zero(self.hot_pay) + zero(self.repair_pay) + zero(self.ZKX_pay) + zero(self.el_pay) + zero(self.water_pay) + zero(self.gas_pay) + zero(self.PoO_pay)
 
     def debt(self):
         return int(round(self.total_bill(), 0)) - self.total_pay()
@@ -141,7 +139,7 @@ class Bill(models.Model):
         return self.period.strftime('%m.%Y')
 
     def descr(self):
-        return 'total bill: ' + str(self.total_bill()) + ', total pay: ' + str(self.total_pay())
+        return '{0}: {1}, {2}: {3}'.format(_('total bill'), self.total_bill(), _('total pay'), self.total_pay())
 
 def zero(value):
     if value:

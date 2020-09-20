@@ -157,12 +157,6 @@ main .tree ul .task .icon {
 .step-add {
 }
 
-.file-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
 .file-info {
   height: 20px;
 }
@@ -328,68 +322,6 @@ button.dropdown-content-item:hover {
 .c005  input[type="text"], .c005  input[type="date"] {
   width: 140px;
   padding: 5px;
-}
-
-.file-item {
-  border-radius: 1px;
-  padding: 8px 16px 8px 14px;
-  min-height: 52px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  box-shadow: 24px 25px 0 -24px rgba(0,0,0,0.08);
-  cursor: pointer;
-}
-
-.thumbnail-wrapper {
-  width: 36px;
-  height: 36px;
-  border-radius: 3px;
-  background-color: #3e69e3;
-  color: #fff;
-  font-size: 0.875rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.thumbnail {
-  max-width: 36px;
-  height: 24px;
-  text-align: center;
-  line-height: 1.6rem;
-}
-
-.file-item {
-  height: 52px;
-}
-
-.file-content {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 0px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: #333333;
-  margin-left: 16px;
-  width: 180px;
-}
-
-.file-title {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 0.9rem;
-}
-
-.file-metadata {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 0.9rem;
 }
 
 .repeat-options-block {

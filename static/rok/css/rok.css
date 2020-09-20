@@ -615,6 +615,12 @@ article .section-item .short {
   flex-direction: column;
 }
 
+.section-content .section-title a {
+  overflow-wrap: anywhere;
+  max-height: 50px;
+  align-items: flex-start;
+}
+
 .section-content .selected {
   color: blue;
 }
@@ -1119,5 +1125,65 @@ a.button {
 
 .margin-auto {
   margin: auto;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 1px;
+  padding: 8px 16px 8px 14px;
+  min-height: 52px;
+  position: relative;
+  box-shadow: 24px 25px 0 -24px rgba(0,0,0,0.08);
+  cursor: pointer;
+  height: 52px;
+}
+
+.thumbnail-wrapper {
+  width: 36px;
+  height: 36px;
+  border-radius: 3px;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.thumbnail {
+  max-width: 36px;
+  height: 24px;
+  text-align: center;
+  line-height: 1.6rem;
+}
+
+.file-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #333333;
+  margin-left: 16px;
+  width: 180px;
+}
+
+.file-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.9rem;
+}
+
+.file-metadata {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.7rem;
+  margin-left: 10px;
 }
 

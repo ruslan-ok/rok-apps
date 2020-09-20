@@ -64,6 +64,25 @@
                 </div>
               </button>
             </div>
+
+            <div class="section-item">
+              <button type="submit" name="apart-ppo" class="section-inner-click">
+                <div class="section-inner">
+                  <div class="section-icon">
+                    <img src="{% static 'rok/icon/cost.png' %}">
+                  </div>
+                  <div class="section-content">
+                    <div class="section-title{% if form.has_ppo.value %} selected{% endif %}">
+                      {% if form.has_ppo.value %}
+                        {% trans 'Payments to the PoO' %}
+                      {% else %}
+                        {% trans 'No payments to the PoO' %}
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </button>
+            </div>
           </form>
         </div>
       </div>

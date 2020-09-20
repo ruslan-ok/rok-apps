@@ -1,3 +1,4 @@
+import requests
 from datetime import datetime
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -465,3 +466,13 @@ def sort_data(data, sort, reverse):
         data = data.order_by(sort_fields[0], sort_fields[1], sort_fields[2])
 
     return data
+
+
+def get_rate_on_date(currency, date):
+    url = 'https://www.nbrb.by/api/exrates/rates/{0}?ondate={1}-{2}-{3}'.format(currency, date.year, date.month, date.day)
+    resp = requests.get(url)
+    data = resp.json()
+    return data['Cur_OfficialRate']
+
+
+

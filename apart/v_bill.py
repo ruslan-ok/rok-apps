@@ -1,16 +1,18 @@
+import os
 from datetime import datetime
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, FileResponse
 from django.template import loader
 from django.utils.translation import gettext_lazy as _
 from django.core.paginator import Paginator
 
-from hier.utils import get_base_context_ext, process_common_commands
+from hier.utils import get_base_context_ext, process_common_commands, get_rate_on_date
 from hier.params import set_article_visible, set_article_kind
+from hier.files import file_storage_path, get_files_list
 from .models import app_name, Apart, Meter, Bill, enrich_context, get_price_info, count_by_tarif, ELECTRICITY, GAS, WATER
-from .forms import BillForm
+from .forms import BillForm, FileForm
 from .utils import next_period
 
 #----------------------------------
@@ -92,7 +94,8 @@ def bill_add(request, apart):
 
     form = BillForm(initial = { 'period': period, 'payment': datetime.now() })
 
-    bill = Bill.objects.create(apart = apart, period = period, payment = datetime.now(), prev = prev, curr = curr)
+    rate = get_rate_on_date(145, datetime.now())
+    bill = Bill.objects.create(apart = apart, period = period, payment = datetime.now(), prev = prev, curr = curr, rate = rate)
     return bill
 
 
@@ -109,7 +112,13 @@ def get_bill_article(request, context, pk):
             form = BillForm(request.POST, instance = ed_bill)
             if form.is_valid():
                 data = form.save(commit = False)
+                data.rate = get_rate_on_date(145, data.payment)
                 form.save()
+                return True
+        if ('file-upload' in request.POST):
+            file_form = FileForm(request.POST, request.FILES)
+            if file_form.is_valid():
+                handle_uploaded_file(request.FILES['upload'], request.user, ed_bill)
                 return True
 
     if not form:
@@ -135,7 +144,29 @@ def get_bill_article(request, context, pk):
     context['url_cutted'] = ed_bill.url
     if (len(ed_bill.url) > 50):
         context['url_cutted'] = ed_bill.url[:50] + '...'
+    context['files'] = get_files_list(request.user, app_name, 'apart_{0}/{1}/{2}'.format(ed_bill.apart.id, ed_bill.period.year, str(ed_bill.period.month).zfill(2)))
     return False
 
+
+
+def get_file_storage_path(user, bill):
+    return file_storage_path.format(user.id) + '{0}/apart_{1}/{2}/{3}/'.format(app_name, bill.apart.id, bill.period.year, str(bill.period.month).zfill(2))
+
+def handle_uploaded_file(f, user, bill):
+    path = get_file_storage_path(user, bill)
+    os.makedirs(os.path.dirname(path), exist_ok = True)
+    with open(path + f.name, 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
+
+def get_doc(request, name):
+    app_param, context = get_base_context_ext(request, app_name, 'bill', '')
+    bill = get_object_or_404(Bill.objects.filter(id = app_param.art_id))
+    path = get_file_storage_path(request.user, bill)
+    try:
+        fsock = open(path + name, 'rb')
+        return FileResponse(fsock)
+    except IOError:
+        response = HttpResponseNotFound()
 
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-14 23:44+0300\n"
+"POT-Creation-Date: 2020-09-20 07:16+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -173,7 +173,7 @@ msgstr "добавить автомобиль"
 msgid "service intervals"
 msgstr "сервисные интервалы"
 
-#: .\fuel\templates\fuel\fuel_aside.html:30
+#: .\fuel\templates\fuel\fuel_aside.html:30 .\fuel\v_service.py:38
 msgid "repair and service"
 msgstr "ремонт и сервисное обслуживание"
 
@@ -213,7 +213,5 @@ msgstr "км: "
 msgid "months: "
 msgstr "мес.: "
 
-#: .\fuel\v_service.py:38
-msgid "services"
-msgstr "ремонты и сервисные обслуживания"
-
+#~ msgid "services"
+#~ msgstr "ремонты и сервисные обслуживания"

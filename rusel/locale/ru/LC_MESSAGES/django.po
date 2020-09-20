@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-14 23:44+0300\n"
+"POT-Creation-Date: 2020-09-20 07:16+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,7 +20,7 @@ msgstr ""
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 
 #: .\rusel\templates\base_list.html:85 .\rusel\templates\base_window.html:65
-#: .\rusel\views.py:54
+#: .\rusel\views.py:62
 msgid "feedback"
 msgstr "контакты"
 
@@ -52,7 +52,7 @@ msgstr "закрыть карточку записи"
 msgid "delete record"
 msgstr "удалить запись"
 
-#: .\rusel\templates\index.html:13
+#: .\rusel\templates\index.html:14
 msgid ""
 "It looks like you got here by accident, because it is a personal, not a "
 "public site."
@@ -60,7 +60,7 @@ msgstr ""
 "Похоже вы попали сюда случайно, потому что это персональный, а не публичный "
 "сайт."
 
-#: .\rusel\templates\index.html:14
+#: .\rusel\templates\index.html:15
 msgid ""
 "This site does not provide any useful services, so you have a small choice - "
 "either close the page or"
@@ -68,10 +68,10 @@ msgstr ""
 "На этом сайте нет никаких полезных сервисов, поэтому у вас небольшой выбор - "
 "закрыть эту страницу или"
 
-#: .\rusel\templates\index.html:15
+#: .\rusel\templates\index.html:16
 msgid "find something more interesting"
 msgstr "найти что-нибудь более интересное"
 
-#: .\rusel\views.py:26
+#: .\rusel\views.py:33
 msgid "applications"
 msgstr "приложения"

@@ -49,5 +49,4 @@ urlpatterns = i18n_patterns(
     path('account/', include('account.urls')),
     path('admin/',   admin.site.urls, name='admin'),
     path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
-    path('firebase-messaging-sw.js', views.ServiceWorkerView.as_view(), name='service_worker'),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

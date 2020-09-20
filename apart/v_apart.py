@@ -80,6 +80,10 @@ def get_apart_article(request, context, pk):
             ed_apart.has_gas = not ed_apart.has_gas
             ed_apart.save()
             return True
+        if ('apart-ppo' in request.POST):
+            ed_apart.has_ppo = not ed_apart.has_ppo
+            ed_apart.save()
+            return True
 
     if not form:
         form = ApartForm(instance = ed_apart, prefix = 'apart_edit')

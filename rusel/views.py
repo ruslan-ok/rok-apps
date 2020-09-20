@@ -93,9 +93,3 @@ def news(request):
 def trash(request):
     return HttpResponseRedirect(reverse('hier:folder_list', args = [get_trash(request.user).id]))
 
-#----------------------------------
-class ServiceWorkerView(View):
-    def get(self, request, *args, **kwargs):
-        return render(request, 'firebase-messaging-sw.js', content_type="application/x-javascript")
-
-
