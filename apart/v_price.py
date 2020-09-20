@@ -6,7 +6,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.utils.translation import gettext_lazy as _
 
-from hier.utils import get_base_context_ext, process_common_commands
+from hier.utils import get_base_context_ext, process_common_commands, extract_get_params
 from hier.params import set_article_visible, set_article_kind
 from .models import app_name, Apart, Price, Service, enrich_context
 from .forms import PriceForm
@@ -48,7 +48,7 @@ def price_list(request):
             price = price_add(request, apart)
             return HttpResponseRedirect(reverse('apart:price_form', args = [price.id]))
 
-    title = '{} {}'.format(_('pricess in').capitalize(), apart.name)
+    title = '{} [{}]'.format(_('pricess').capitalize(), apart.name)
     app_param, context = get_base_context_ext(request, app_name, 'price', title)
 
     redirect = False
@@ -93,7 +93,7 @@ def price_list(request):
 #----------------------------------
 def price_form(request, pk):
     set_article_kind(request.user, app_name, 'price', pk)
-    return HttpResponseRedirect(reverse('apart:price_list'))
+    return HttpResponseRedirect(reverse('apart:price_list') + extract_get_params(request))
 
 #----------------------------------
 def price_add(request, apart):

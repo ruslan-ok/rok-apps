@@ -304,7 +304,8 @@ def get_base_context(request, folder_id, pk, title = '', mode = 'content_form', 
 #----------------------------------
 def get_base_context_ext(request, app_name, content_kind, title, article_enabled = True):
     context = {}
-    context['title'] = title.capitalize()
+    context['title'] = title
+    context['app_name'] = get_app_name(app_name)
     app_param = None
     if request:
         app_param = get_app_params(request.user, app_name)
@@ -333,7 +334,7 @@ def get_base_context_ext(request, app_name, content_kind, title, article_enabled
     context['menu_item_profile'] = get_main_menu_item('profile')
     context['menu_item_logout']  = get_main_menu_item('logout')
     set_aside_visible(request.user, app_name, False)
-    save_last_visited(request.user, app_name + ':' + content_kind + '_list', app_name, title.capitalize())
+    save_last_visited(request.user, app_name + ':' + content_kind + '_list', app_name, title)
     return app_param, context
 
 #----------------------------------
@@ -474,5 +475,22 @@ def get_rate_on_date(currency, date):
     data = resp.json()
     return data['Cur_OfficialRate']
 
+def extract_get_params(request):
+    q = request.GET.get('q')
+    if not q:
+        q = ''
+    p = request.GET.get('page')
+    if not p:
+        p = ''
+    ret = ''
+    if q or p:
+        ret = '?'
+        if q:
+            ret += '?q={}'.format(q)
+        if p:
+            if q:
+                ret += '&'
+            ret += 'page={}'.format(p)
+    return ret
 
 

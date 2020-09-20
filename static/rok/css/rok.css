@@ -440,6 +440,7 @@ main .tree ul .tree-item .icon {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  margin-left: 10px;
 }
 
 .article-bottom {
@@ -669,6 +670,10 @@ img.img-20_20 {
   height: 30px;
 }
 
+.section-item .main-element {
+  font-size: 1rem;
+}
+
 .auxiliary-element {
   width: 100%;
 }
@@ -676,6 +681,10 @@ img.img-20_20 {
 .auxiliary-element input[type="text"] {
   font-size: 0.875rem;
   height: 25px;
+}
+
+.section-item .auxiliary-element {
+  font-size: 0.8rem;
 }
 
 .details-name .editable-content input[type="text"] {

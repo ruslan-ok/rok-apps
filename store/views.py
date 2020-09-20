@@ -83,8 +83,6 @@ def entry_list(request):
 
     app_param, context = get_base_context_ext(request, app_name, 'entry', title)
 
-    context['title'] = title + ' - ' + _('entries').capitalize()
-    context['list_title'] = title
     if app_param.lst:
         context['list_id'] = app_param.lst.id
     context['restriction'] = app_param.restriction

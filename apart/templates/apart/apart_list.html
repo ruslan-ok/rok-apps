@@ -1,0 +1,55 @@
+{% extends "apart/apart.html" %}
+{% load static i18n %}
+
+{% block content %}
+  <div class="top">
+    <div class="main-top-headline">
+      <div class="main-title-container">
+        {{ title|capfirst }}
+      </div>
+    </div>
+  </div>
+
+  <form method="post" class="actions">{% csrf_token %}
+    <button type="submit" name="item-add"><img class="img-20_20" src="{% static 'rok/icon/add-gray.png' %}"></button>
+    <input type="text" name="apart_name_add" maxlength="200" required="" id="id_apart_name_add" placeholder="{% trans 'add apartment'|capfirst %}">
+  </form>
+
+  <div class="tree">
+    <ul>
+      {% for item in page_obj %}
+        <li>
+          <a href="{% url 'apart:apart_form' item.id %}?q={{ request.GET.q }}" class="{% if item.id == item_id %}current{% endif %}">
+            <div class="tree-item">
+              <div class="icon">
+                <form method="post">{% csrf_token %}
+                  <button type="submit" name="apart-in-list-active" value="{{ item.id }}">
+                    {% if item.active %}
+                      <img class="img-20_20" src="{% static 'todo/icon/complete.png' %}">
+                    {% else %}
+                      <img class="img-20_20" src="{% static 'todo/icon/uncomplete.png' %}">
+                    {% endif %}
+                  </button>
+                </form>
+              </div>
+              <div class="info">
+                <div class="name">{{ item.name }}</div>
+                <div class="descr">{{ item.addr }}</div>
+              </div>
+            </div>
+            <div class="icon"> </div>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endblock %}
+
+{% block article_info %}
+  {{ item_info }}
+{% endblock %}
+
+{% block article_content %}
+{% endblock %}
+
+

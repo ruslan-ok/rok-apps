@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-20 07:16+0300\n"
+"POT-Creation-Date: 2020-09-20 10:11+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,15 +23,19 @@ msgstr ""
 msgid "apart"
 msgstr "квартира"
 
-#: .\apart\forms.py:23
+#: .\apart\forms.py:16 .\apart\models.py:60
+msgid "meters reading date"
+msgstr "дата снятия показаний счетчиков"
+
+#: .\apart\forms.py:24
 msgid "add link"
 msgstr "добавить ссылку"
 
-#: .\apart\forms.py:24 .\apart\models.py:88
+#: .\apart\forms.py:25 .\apart\models.py:88
 msgid "date of payment"
 msgstr "дата оплаты"
 
-#: .\apart\forms.py:28 .\apart\forms.py:40
+#: .\apart\forms.py:29 .\apart\forms.py:42
 msgid "add note"
 msgstr "добавить заметку"
 
@@ -73,10 +77,6 @@ msgstr "квартиры"
 msgid "period"
 msgstr "период"
 
-#: .\apart\models.py:60
-msgid "meters reading date"
-msgstr "дата снятия показаний счетчиков"
-
 #: .\apart\models.py:61
 msgid "electricity"
 msgstr "электроэнергия"
@@ -89,8 +89,8 @@ msgstr "горячая вода"
 msgid "cold water"
 msgstr "холодная вода"
 
-#: .\apart\models.py:64 .\apart\templates\apart\bill_form.html:66
-#: .\apart\templates\apart\bill_form.html:135
+#: .\apart\models.py:64 .\apart\templates\apart\bill_form.html:77
+#: .\apart\templates\apart\bill_form.html:146
 msgid "gas"
 msgstr "газ"
 
@@ -109,6 +109,10 @@ msgstr "показания счетчиков за предыдущий пери
 #: .\apart\models.py:90
 msgid "current period meters data"
 msgstr "показания счетчиков за текущий период"
+
+#: .\apart\models.py:102
+msgid "rate"
+msgstr "курс"
 
 #: .\apart\models.py:104
 msgid "url"
@@ -143,17 +147,17 @@ msgid "television"
 msgstr "телевидение"
 
 #: .\apart\models.py:168 .\apart\models.py:179
-#: .\apart\templates\apart\bill_form.html:84
+#: .\apart\templates\apart\bill_form.html:95
 msgid "internet"
 msgstr "интернет"
 
 #: .\apart\models.py:169 .\apart\models.py:180
-#: .\apart\templates\apart\bill_form.html:89
+#: .\apart\templates\apart\bill_form.html:100
 msgid "phone"
 msgstr "телефон"
 
 #: .\apart\models.py:170 .\apart\models.py:181
-#: .\apart\templates\apart\bill_form.html:141
+#: .\apart\templates\apart\bill_form.html:152
 msgid "water"
 msgstr "вода"
 
@@ -217,7 +221,7 @@ msgstr "до"
 msgid "unknown"
 msgstr "не задано"
 
-#: .\apart\templates\apart\apart.html:19
+#: .\apart\templates\apart\apart.html:19 .\apart\v_meter.py:33
 msgid "meters"
 msgstr "счетчики"
 
@@ -225,7 +229,7 @@ msgstr "счетчики"
 msgid "prices"
 msgstr "тарифы"
 
-#: .\apart\templates\apart\apart.html:33
+#: .\apart\templates\apart\apart.html:33 .\apart\v_bill.py:37
 msgid "bills"
 msgstr "счета"
 
@@ -283,67 +287,56 @@ msgstr "Платежи ТС"
 msgid "No payments to the PoO"
 msgstr "Нет платежей ТС"
 
-#: .\apart\templates\apart\bill_form.html:56
+#: .\apart\templates\apart\bill_form.html:67
 msgid "old"
 msgstr "старые"
 
-#: .\apart\templates\apart\bill_form.html:57
+#: .\apart\templates\apart\bill_form.html:68
 msgid "new"
 msgstr "новые"
 
-#: .\apart\templates\apart\bill_form.html:58
+#: .\apart\templates\apart\bill_form.html:69
 msgid "volume"
 msgstr "объем"
 
-#: .\apart\templates\apart\bill_form.html:60
-#: .\apart\templates\apart\bill_form.html:129
+#: .\apart\templates\apart\bill_form.html:71
+#: .\apart\templates\apart\bill_form.html:140
 msgid "electro"
 msgstr "эл.энергия"
 
-#: .\apart\templates\apart\bill_form.html:72
+#: .\apart\templates\apart\bill_form.html:83
 msgid "cold"
 msgstr "холодная"
 
-#: .\apart\templates\apart\bill_form.html:77
+#: .\apart\templates\apart\bill_form.html:88
 msgid "hot"
 msgstr "горячая"
 
-#: .\apart\templates\apart\bill_form.html:95
-msgid "communal"
-msgstr "ком-ные"
+#: .\apart\templates\apart\bill_form.html:106
+#: .\apart\templates\apart\bill_form.html:134
+msgid "HCS"
+msgstr "ЖКУ"
 
-#: .\apart\templates\apart\bill_form.html:101
+#: .\apart\templates\apart\bill_form.html:112
 msgid "PoO"
 msgstr "ТС"
 
-#: .\apart\templates\apart\bill_form.html:108
+#: .\apart\templates\apart\bill_form.html:119
 msgid "bill"
-msgstr "жировка"
+msgstr "счет"
 
-#: .\apart\templates\apart\bill_form.html:113
+#: .\apart\templates\apart\bill_form.html:124
 msgid "heat"
 msgstr "тепло"
 
-#: .\apart\templates\apart\bill_form.html:118
+#: .\apart\templates\apart\bill_form.html:129
 msgid "overhaul"
 msgstr "капремонт"
 
-#: .\apart\templates\apart\bill_form.html:123
-msgid "HCS"
-msgstr "ЖКХ"
-
-#: .\apart\templates\apart\bill_form.html:211
+#: .\apart\templates\apart\bill_form.html:222
 msgid "add file"
 msgstr "добавить файл"
 
-#: .\apart\v_bill.py:37
-msgid "bills in"
-msgstr "начисления в"
-
-#: .\apart\v_meter.py:33
-msgid "meters in"
-msgstr "показания счетчиков в"
-
 #: .\apart\v_price.py:51
-msgid "pricess in"
-msgstr "тарифы в"
+msgid "pricess"
+msgstr "тарифы"

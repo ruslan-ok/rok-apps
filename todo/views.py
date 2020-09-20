@@ -116,10 +116,8 @@ def todo_base_context(request):
     context['list_url'] = 'todo:' + app_param.restriction
     if app_param.lst:
         context['list_id'] = app_param.lst.id
-    context['list_title'] = title
     if (app_param.restriction == MY_DAY):
         context['list_info'] = datetime.today()
-    context['title'] = title + ' - To Do'
     context['in_my_day_qty'] = len(get_tasks(request.user, MY_DAY, 0).exclude(completed = True))
     context['important_qty'] = len(get_tasks(request.user, IMPORTANT, 0))
     context['planned_qty'] = len(get_tasks(request.user, PLANNED, 0))

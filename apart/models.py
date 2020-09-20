@@ -7,6 +7,7 @@ from django.urls import reverse
 
 from rusel.const import a_months
 from .utils import get_new_period
+from hier.files import get_files_list
 
 
 app_name = 'apart'
@@ -99,7 +100,7 @@ class Bill(models.Model):
     ZKX_pay = models.DecimalField('HCS - payment', null = True, blank = True, max_digits = 15, decimal_places = 2)
     water_pay = models.DecimalField('water - payment', null = True, blank = True, max_digits = 15, decimal_places = 2)
     gas_pay = models.DecimalField('gas - payment', null = True, blank = True, max_digits = 15, decimal_places = 2)
-    rate = models.DecimalField('rate', null = True, blank = True, max_digits = 15, decimal_places = 4)
+    rate = models.DecimalField(_('rate').capitalize(), null = True, blank = True, max_digits = 15, decimal_places = 4)
     info = models.TextField(_('information'), blank = True, default = "")
     url = models.CharField(_('url'), max_length = 2000, blank = True)
     PoO = models.DecimalField('pay to the Partnersheep of Owners - accrued', null = True, blank = True, max_digits = 15, decimal_places = 2)
@@ -140,6 +141,30 @@ class Bill(models.Model):
 
     def descr(self):
         return '{0}: {1}, {2}: {3}'.format(_('total bill'), self.total_bill(), _('total pay'), self.total_pay())
+
+    def get_info(self):
+        ret = []
+        
+        ret.append({'text': '{}: {}'.format(_('total bill'), self.total_bill()) })
+        ret.append({'icon': 'separator'})
+        ret.append({'text': '{}: {}'.format(_('total pay'), self.total_pay()) })
+    
+        files = get_files_list(self.apart.user, app_name, 'apart_{0}/{1}/{2}'.format(self.apart.id, self.period.year, str(self.period.month).zfill(2)))
+    
+        if self.url or self.info or len(files):
+            ret.append({'icon': 'separator'})
+    
+        if self.url:
+            ret.append({'icon': 'url'})
+    
+        if self.info:
+            ret.append({'icon': 'notes'})
+    
+        if len(files):
+            ret.append({'icon': 'attach'})
+    
+        return ret
+        
 
 def zero(value):
     if value:

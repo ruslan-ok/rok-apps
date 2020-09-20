@@ -30,7 +30,7 @@ def car_list(request):
                 set_active(request.user.id, pk)
                 return HttpResponseRedirect(reverse('fuel:car_form', args = [pk]))
 
-    app_param, context = get_base_context_ext(request, app_name, 'car', _('cars'))
+    app_param, context = get_base_context_ext(request, app_name, 'car', _('cars').capitalize())
     template_file = 'fuel/car_list.html'
 
     if app_param.article:

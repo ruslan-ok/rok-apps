@@ -8,7 +8,7 @@ from django.template import loader
 from django.utils.translation import gettext_lazy as _
 from django.core.paginator import Paginator
 
-from hier.utils import get_base_context_ext, process_common_commands, get_rate_on_date
+from hier.utils import get_base_context_ext, process_common_commands, get_rate_on_date, extract_get_params
 from hier.params import set_article_visible, set_article_kind
 from hier.files import file_storage_path, get_files_list
 from .models import app_name, Apart, Meter, Bill, enrich_context, get_price_info, count_by_tarif, ELECTRICITY, GAS, WATER
@@ -34,7 +34,7 @@ def bill_list(request):
                 return HttpResponseRedirect(reverse('apart:meter_list'))
             return HttpResponseRedirect(reverse('apart:bill_form', args = [bill.id]))
 
-    title = '{} {}'.format(_('bills in').capitalize(), apart.name)
+    title = '{} [{}]'.format(_('bills').capitalize(), apart.name)
     app_param, context = get_base_context_ext(request, app_name, 'bill', title)
 
     redirect = False
@@ -70,7 +70,7 @@ def bill_list(request):
 #----------------------------------
 def bill_form(request, pk):
     set_article_kind(request.user, app_name, 'bill', pk)
-    return HttpResponseRedirect(reverse('apart:bill_list'))
+    return HttpResponseRedirect(reverse('apart:bill_list') + extract_get_params(request))
 
 #----------------------------------
 def bill_add(request, apart):
@@ -105,8 +105,9 @@ def get_bill_article(request, context, pk):
     form = None
     if (request.method == 'POST'):
         if ('article_delete' in request.POST):
-            ed_bill.delete()
-            set_article_visible(request.user, app_name, False)
+            if not Bill.objects.filter(period__gt = ed_bill.period).exists():
+                ed_bill.delete()
+                set_article_visible(request.user, app_name, False)
             return HttpResponseRedirect(reverse('apart:bill_list'))
         if ('bill-save' in request.POST):
             form = BillForm(request.POST, instance = ed_bill)
@@ -115,6 +116,10 @@ def get_bill_article(request, context, pk):
                 data.rate = get_rate_on_date(145, data.payment)
                 form.save()
                 return True
+        if ('url-delete' in request.POST):
+            ed_bill.url = ''
+            ed_bill.save()
+            return True
         if ('file-upload' in request.POST):
             file_form = FileForm(request.POST, request.FILES)
             if file_form.is_valid():
@@ -126,6 +131,7 @@ def get_bill_article(request, context, pk):
 
     context['form'] = form
     context['item_id'] = ed_bill.id
+    context['bill_period'] = ed_bill.period
     context['period_num'] = form.instance.period.year * 100 + form.instance.period.month
     context['apart'] = ed_bill.apart
     prev = ed_bill.prev
@@ -146,7 +152,6 @@ def get_bill_article(request, context, pk):
         context['url_cutted'] = ed_bill.url[:50] + '...'
     context['files'] = get_files_list(request.user, app_name, 'apart_{0}/{1}/{2}'.format(ed_bill.apart.id, ed_bill.period.year, str(ed_bill.period.month).zfill(2)))
     return False
-
 
 
 def get_file_storage_path(user, bill):

@@ -58,7 +58,6 @@ class File():
 def get_files_list(user, app_name, path):
     ret = []
     fss_path = file_storage_path.format(user.id) + app_name + '/' + path + '/'
-    #raise Exception(fss_path)
     fs = FileSystemStorage(location = fss_path, base_url = file_storage_url)
     try:
         npp = 1

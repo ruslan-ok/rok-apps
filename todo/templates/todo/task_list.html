@@ -92,7 +92,7 @@
   <div class="top">
     <div class="main-top-headline">
       <div class="main-title-container">
-        {{ list_title }}
+        {{ title }}
         {% if list_id %}
           <a href="{% url 'todo:list_form' list_id %}" class="field-icon"><img class="img-20_20" src="{% static 'rok/icon/edit.png' %}"></a>
         {% endif %}
@@ -190,29 +190,29 @@
                     {% for attr in task.1 %}
                       <div class="inline-element">
                         {% if attr.icon == "attach" %}
-                          <img class="inline-icon" src="{% static 'todo/icon/inline/attach.png' %}">
+                          <img class="inline-icon" src="{% static 'rok/icon/inline/attach.png' %}">
                         {% elif attr.icon == "category" %}
                           <span class="inline-icon category-icon {{ attr.color }}"></span>
                         {% elif attr.icon == "termin" %}
-                          <img class="inline-icon" src="{% static 'todo/icon/inline/termin.png' %}">
+                          <img class="inline-icon" src="{% static 'rok/icon/inline/termin.png' %}">
                         {% elif attr.icon == "termin-expired" %}
-                          <img class="inline-icon" src="{% static 'todo/icon/inline/termin-expired.png' %}">
+                          <img class="inline-icon" src="{% static 'rok/icon/inline/termin-expired.png' %}">
                         {% elif attr.icon == "termin-actual" %}
-                          <img class="inline-icon" src="{% static 'todo/icon/inline/termin-actual.png' %}">
+                          <img class="inline-icon" src="{% static 'rok/icon/inline/termin-actual.png' %}">
                         {% elif attr.icon == "myday" %}
-                          <img class="inline-icon" src="{% static 'todo/icon/inline/myday.png' %}">
+                          <img class="inline-icon" src="{% static 'rok/icon/inline/myday.png' %}">
                         {% elif attr.icon == "notes" %}
-                          <img class="inline-icon" src="{% static 'todo/icon/inline/notes.png' %}">
+                          <img class="inline-icon" src="{% static 'rok/icon/inline/notes.png' %}">
                         {% elif attr.icon == "remind" %}
-                          <img class="inline-icon" src="{% static 'todo/icon/inline/remind.png' %}">
+                          <img class="inline-icon" src="{% static 'rok/icon/inline/remind.png' %}">
                         {% elif attr.icon == "repeat" %}
-                          <img class="inline-icon" src="{% static 'todo/icon/inline/repeat.png' %}">
+                          <img class="inline-icon" src="{% static 'rok/icon/inline/repeat.png' %}">
                         {% elif attr.icon == "repeat-expired" %}
-                          <img class="inline-icon" src="{% static 'todo/icon/inline/repeat-expired.png' %}">
+                          <img class="inline-icon" src="{% static 'rok/icon/inline/repeat-expired.png' %}">
                         {% elif attr.icon == "repeat-actual" %}
-                          <img class="inline-icon" src="{% static 'todo/icon/inline/repeat-actual.png' %}">
+                          <img class="inline-icon" src="{% static 'rok/icon/inline/repeat-actual.png' %}">
                         {% elif attr.icon == "separator" %}
-                          <img class="inline-icon" src="{% static 'todo/icon/inline/separator.png' %}">
+                          <img class="inline-icon" src="{% static 'rok/icon/inline/separator.png' %}">
 					    {% endif %}
                         {% if attr.text %}
                           <div class="inline-label {% if attr.color %}{{ attr.color }}{% endif %}"><span>{{ attr.text }}</span></div>

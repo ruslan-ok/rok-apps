@@ -1,4 +1,4 @@
-{% extends "apart/apart.html" %}
+{% extends "apart/bill_list.html" %}
 {% load static i18n %}
 
 {% block extrastyle %}
@@ -24,10 +24,12 @@
         <div class="field-group">
           <div class="article-name">
             <div class="section-item">
-              <div class="editable-content">
-                {{ form.period.errors }} 
-                <div class="">{{ form.period.label_tag }}</div>
-                {{ form.period }}
+              <div class="editable-content main-element">
+                {{ bill_period|date:'M.Y' }}
+              </div>
+              <div class="editable-content auxiliary-element">
+                  {{ form.rate.label_tag }}
+                  {{ form.rate.value }}
               </div>
               <button type="submit" name="bill-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
             </div>
@@ -37,124 +39,120 @@
     
       <div class="body">
         <div class="section">
-          <div class="section-item">
-            {{ form.payment.errors }} 
-            <div class="section-inner-label">{{ form.payment.label_tag }}</div>
-          </div>
-          <div class="section-item">
-            <div class="editable-content">
-              {{ form.payment }}
+          <!-- Entry.payment -->
+          {% if form.payment.errors %}
+            <div class="row">
+              <div class="field-error">{{ form.payment.errors }}</div>
             </div>
+          {% endif %}
+          <div class="row">
+            {{ form.payment.label_tag }}
           </div>
-        </div>
+          <div class="row" id="id_payment_view">
+            <div class="full-width">{{ form.payment.value|date:'d.m.Y G:i' }}</div>
+            <div class="button field-icon" id="id_edit" onclick="OpenPaymentEdit()"><img src="{% static 'rok/icon/edit.png' %}"></div>
+          </div>
+          <div class="row" id="id_payment_edit">
+            {{ form.payment }}
+          </div>
+        </div> <!-- section -->
 
         <div class="section">
-          <div class="section-item section-item-note">
-            <div class="field-error">{{ form.rate.errors }}</div>
-            <div class="section-inner">
-              {{ form.rate }}
-            </div>
-          </div>
-        </div>
-
-        <div class="section">
-
-        <table>
-        <tbody>
-          <tr> <td style="width: 25%"></td>
-            <td style="width: 25%"> <b>{% trans 'old'|capfirst %}</b> </td>
-            <td style="width: 25%"> <b>{% trans 'new'|capfirst %}</b> </td>
-            <td style="width: 25%"> <b>{% trans 'volume'|capfirst %}</b> </td>
-          </tr>
-          <tr><td>{% trans 'electro'|capfirst %}</td>
-            <td>{{ prev.el }}</td>
-            <td>{{ curr.el }}</td>
-            <td>{{ volume.el }}</td>
-          </tr>
-          {% if apart.has_gas %}
-          <tr><td>{% trans 'gas'|capfirst %}</td>
-            <td>{{ prev.ga }}</td>
-            <td>{{ curr.ga }}</td>
-            <td>{{ volume.ga }}</td>
-          </tr>
-          {% endif %}
-          <tr><td>{% trans 'cold'|capfirst %}</td>
-            <td>{{ prev.cw }}</td>
-            <td>{{ curr.cw }}</td>
-            <td>{{ volume.wt }}</td>
-          </tr>
-          <tr><td>{% trans 'hot'|capfirst %}</td>
-            <td>{{ prev.hw }}</td>
-            <td>{{ curr.hw }}</td>
-            <td></td>
-          </tr>
-          <tr><td>&nbsp;</td> <td></td> <td></td> <td></td> </tr>
-          <tr> <td></td> <td> <b>Тариф</b> </td> <td> <b>Начислено</b> </td> <td> <b>Оплата</b> </td> </tr>
-          <tr><td>{% trans 'internet'|capfirst %}</td>
-              <td></td>
-              <td class="rok-field">{{ form.tv_bill.errors }} {{ form.tv_bill }}</td>
-              <td class="rok-field">{{ form.tv_pay.errors }} {{ form.tv_pay }}</td>
-          </tr>
-          <tr><td>{% trans 'phone'|capfirst %}</td>
-              <td></td>
-              <td class="rok-field">{{ form.phone_bill.errors }} {{ form.phone_bill }}</td>
-              <td class="rok-field">{{ form.phone_pay.errors }} {{ form.phone_pay }}</td>
-          </tr>
-        {% if period_num >= 201508 %}
-          <tr><td>{% trans 'communal'|capfirst %}</td>
-              <td></td>
-              <td class="rok-field">{{ form.zhirovka.errors }} {{ form.zhirovka }}</td>
-              <td class="rok-field">{{ form.ZKX_pay.errors }} {{ form.ZKX_pay }}</td>
-          </tr>
-          {% if apart.has_ppo %}
-          <tr><td>{% trans 'PoO' %}</td>
-              <td></td>
-              <td class="rok-field">{{ form.PoO.errors }} {{ form.PoO }}</td>
-              <td class="rok-field">{{ form.PoO_pay.errors }} {{ form.PoO_pay }}</td>
-          </tr>
-          {% endif %}
-        {% else %}
-          <tr><td>{% trans 'bill'|capfirst %}</td>
-              <td></td>
-              <td class="rok-field">{{ form.zhirovka.errors }} {{ form.zhirovka }}</td>
-              <td> {{ form.zhir_pay }} </td>
-          </tr>
-          <tr><td>{% trans 'heat'|capfirst %}</td>
-              <td></td>
-              <td></td>
-              <td class="rok-field">{{ form.hot_pay.errors }} {{ form.hot_pay }}</td>
-          </tr>
-          <tr><td>{% trans 'overhaul'|capfirst %}</td>
-              <td></td>
-              <td></td>
-              <td class="rok-field">{{ form.repair_pay.errors }} {{ form.repair_pay }}</td>
-          </tr>
-          <tr><td>{% trans 'HCS' %}</td>
-              <td></td>
-              <td></td>
-              <td class="rok-field">{{ form.ZKX_pay.errors }} {{ form.ZKX_pay }}</td>
-          </tr>
-        {% endif %}
-          <tr><td>{% trans 'electro'|capfirst %}</td>
-              <td>{{ el_tar|floatformat:3 }}</td>
-              <td>{{ el_bill|floatformat:2 }}</td>
-              <td class="rok-field">{{ form.el_pay.errors }} {{ form.el_pay }}</td>
-          </tr>
-          {% if apart.has_gas %}
-          <tr><td>{% trans 'gas'|capfirst %}</td>
-              <td>{{ gas_tar|floatformat:3 }}</td>
-              <td>{{ gas_bill|floatformat:2 }}</td>
-              <td class="rok-field">{{ form.gas_pay.errors }} {{ form.gas_pay }}</td>
-          </tr>
-          {% endif %}
-          <tr><td>{% trans 'water'|capfirst %}</td>
-              <td>{{ water_tar|floatformat:3 }}</td>
-              <td>{{ water_bill|floatformat:2 }}</td>
-              <td class="rok-field">{{ form.water_pay.errors }} {{ form.water_pay }}</td>
-          </tr>
-        </tbody>
-        </table>
-
+          <table>
+            <tbody>
+              <tr> <td style="width: 25%"></td>
+                <td style="width: 25%"> <b>{% trans 'old'|capfirst %}</b> </td>
+                <td style="width: 25%"> <b>{% trans 'new'|capfirst %}</b> </td>
+                <td style="width: 25%"> <b>{% trans 'volume'|capfirst %}</b> </td>
+              </tr>
+              <tr><td>{% trans 'electro'|capfirst %}</td>
+                <td>{{ prev.el }}</td>
+                <td>{{ curr.el }}</td>
+                <td>{{ volume.el }}</td>
+              </tr>
+              {% if apart.has_gas %}
+              <tr><td>{% trans 'gas'|capfirst %}</td>
+                <td>{{ prev.ga }}</td>
+                <td>{{ curr.ga }}</td>
+                <td>{{ volume.ga }}</td>
+              </tr>
+              {% endif %}
+              <tr><td>{% trans 'cold'|capfirst %}</td>
+                <td>{{ prev.cw }}</td>
+                <td>{{ curr.cw }}</td>
+                <td>{{ volume.wt }}</td>
+              </tr>
+              <tr><td>{% trans 'hot'|capfirst %}</td>
+                <td>{{ prev.hw }}</td>
+                <td>{{ curr.hw }}</td>
+                <td></td>
+              </tr>
+              <tr><td>&nbsp;</td> <td></td> <td></td> <td></td> </tr>
+              <tr> <td></td> <td> <b>Тариф</b> </td> <td> <b>Начислено</b> </td> <td> <b>Оплата</b> </td> </tr>
+              <tr><td>{% trans 'internet'|capfirst %}</td>
+                  <td></td>
+                  <td class="rok-field">{{ form.tv_bill.errors }} {{ form.tv_bill }}</td>
+                  <td class="rok-field">{{ form.tv_pay.errors }} {{ form.tv_pay }}</td>
+              </tr>
+              <tr><td>{% trans 'phone'|capfirst %}</td>
+                  <td></td>
+                  <td class="rok-field">{{ form.phone_bill.errors }} {{ form.phone_bill }}</td>
+                  <td class="rok-field">{{ form.phone_pay.errors }} {{ form.phone_pay }}</td>
+              </tr>
+              {% if period_num >= 201508 %}
+                <tr><td>{% trans 'HCS' %}</td>
+                    <td></td>
+                    <td class="rok-field">{{ form.zhirovka.errors }} {{ form.zhirovka }}</td>
+                    <td class="rok-field">{{ form.ZKX_pay.errors }} {{ form.ZKX_pay }}</td>
+                </tr>
+                {% if apart.has_ppo %}
+                  <tr><td>{% trans 'PoO' %}</td>
+                      <td></td>
+                      <td class="rok-field">{{ form.PoO.errors }} {{ form.PoO }}</td>
+                      <td class="rok-field">{{ form.PoO_pay.errors }} {{ form.PoO_pay }}</td>
+                  </tr>
+                {% endif %}
+              {% else %}
+                <tr><td>{% trans 'bill'|capfirst %}</td>
+                    <td></td>
+                    <td class="rok-field">{{ form.zhirovka.errors }} {{ form.zhirovka }}</td>
+                    <td> {{ form.zhir_pay }} </td>
+                </tr>
+                <tr><td>{% trans 'heat'|capfirst %}</td>
+                    <td></td>
+                    <td></td>
+                    <td class="rok-field">{{ form.hot_pay.errors }} {{ form.hot_pay }}</td>
+                </tr>
+                <tr><td>{% trans 'overhaul'|capfirst %}</td>
+                    <td></td>
+                    <td></td>
+                    <td class="rok-field">{{ form.repair_pay.errors }} {{ form.repair_pay }}</td>
+                </tr>
+                <tr><td>{% trans 'HCS' %}</td>
+                    <td></td>
+                    <td></td>
+                    <td class="rok-field">{{ form.ZKX_pay.errors }} {{ form.ZKX_pay }}</td>
+                </tr>
+              {% endif %}
+              <tr><td>{% trans 'electro'|capfirst %}</td>
+                  <td>{{ el_tar|floatformat:3 }}</td>
+                  <td>{{ el_bill|floatformat:2 }}</td>
+                  <td class="rok-field">{{ form.el_pay.errors }} {{ form.el_pay }}</td>
+              </tr>
+              {% if apart.has_gas %}
+                <tr><td>{% trans 'gas'|capfirst %}</td>
+                    <td>{{ gas_tar|floatformat:3 }}</td>
+                    <td>{{ gas_bill|floatformat:2 }}</td>
+                    <td class="rok-field">{{ form.gas_pay.errors }} {{ form.gas_pay }}</td>
+                </tr>
+              {% endif %}
+              <tr><td>{% trans 'water'|capfirst %}</td>
+                  <td>{{ water_tar|floatformat:3 }}</td>
+                  <td>{{ water_bill|floatformat:2 }}</td>
+                  <td class="rok-field">{{ form.water_pay.errors }} {{ form.water_pay }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
         <div class="section">
@@ -236,6 +234,7 @@
 {% block scripts %}
   {{ block.super }}
   <script>
+    document.getElementById('id_payment_edit').style.display = "none";
     AddAutoResize();
 
     function AddAutoResize()
@@ -251,6 +250,12 @@
       element = document.getElementById('id_info');
       element.style.minHeight = "25px";
       element.style.height = (element.scrollHeight + element.offsetHeight - element.clientHeight)+"px";
+    }
+
+    function OpenPaymentEdit()
+    {
+      document.getElementById('id_payment_view').style.display = "none";
+      document.getElementById('id_payment_edit').style.display = "block";
     }
 
     function UploadFile()

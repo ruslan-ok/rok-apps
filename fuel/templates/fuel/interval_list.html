@@ -36,11 +36,11 @@
                     {% for attr in item.1 %}
                       <div class="inline-element">
                         {% if attr.icon == "notes" %}
-                          <img class="inline-icon" src="{% static 'todo/icon/inline/notes.png' %}">
+                          <img class="inline-icon" src="{% static 'rok/icon/inline/notes.png' %}">
                         {% elif attr.icon == "separator" %}
-                          <img class="inline-icon" src="{% static 'todo/icon/inline/separator.png' %}">
+                          <img class="inline-icon" src="{% static 'rok/icon/inline/separator.png' %}">
                         {% elif attr.icon == "notes" %}
-                          <img class="inline-icon" src="{% static 'todo/icon/inline/notes.png' %}">
+                          <img class="inline-icon" src="{% static 'rok/icon/inline/notes.png' %}">
                         {% endif %}
                         {% if attr.text %}
                           <div class="inline-label {% if attr.color %}{{ attr.color }}{% endif %}"><span>{{ attr.text }}</span></div>

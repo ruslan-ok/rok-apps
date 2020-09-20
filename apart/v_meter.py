@@ -7,7 +7,7 @@ from django.template import loader
 from django.utils.translation import gettext_lazy as _
 from django.core.paginator import Paginator
 
-from hier.utils import get_base_context_ext, process_common_commands
+from hier.utils import get_base_context_ext, process_common_commands, extract_get_params
 from hier.params import set_article_visible, set_article_kind
 from .models import app_name, Apart, Meter, enrich_context
 from .forms import MeterForm
@@ -30,7 +30,7 @@ def meter_list(request):
             meter = meter_add(request, apart)
             return HttpResponseRedirect(reverse('apart:meter_form', args = [meter.id]))
 
-    title = '{} {}'.format(_('meters in').capitalize(), apart.name)
+    title = '{} [{}]'.format(_('meters').capitalize(), apart.name)
     app_param, context = get_base_context_ext(request, app_name, 'meter', title)
 
     redirect = False
@@ -66,7 +66,7 @@ def meter_list(request):
 #----------------------------------
 def meter_form(request, pk):
     set_article_kind(request.user, app_name, 'meter', pk)
-    return HttpResponseRedirect(reverse('apart:meter_list'))
+    return HttpResponseRedirect(reverse('apart:meter_list') + extract_get_params(request))
 
 #----------------------------------
 def meter_add(request, apart):

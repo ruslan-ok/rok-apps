@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.utils.translation import gettext_lazy as _
 
-from hier.utils import get_base_context_ext, process_common_commands
+from hier.utils import get_base_context_ext, process_common_commands, extract_get_params
 from hier.params import set_article_visible, set_article_kind
 from .models import app_name, Apart, Meter, set_active, enrich_context
 from .forms import ApartForm
@@ -55,7 +55,7 @@ def apart_list(request):
 #----------------------------------
 def apart_form(request, pk):
     set_article_kind(request.user, app_name, 'apart', pk)
-    return HttpResponseRedirect(reverse('apart:apart_list'))
+    return HttpResponseRedirect(reverse('apart:apart_list') + extract_get_params(request))
 
 #----------------------------------
 def get_apart_article(request, context, pk):

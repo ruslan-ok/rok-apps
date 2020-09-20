@@ -35,7 +35,7 @@ def fueling_list(request):
             item = item_add(car)
             return HttpResponseRedirect(reverse('fuel:fueling_form', args = [item.id]))
 
-    app_param, context = get_base_context_ext(request, app_name, 'fueling', _('fuelings'))
+    app_param, context = get_base_context_ext(request, app_name, 'fueling', _('fuelings').capitalize() + ' [' + car.name + ']')
     template_file = 'fuel/fueling_list.html'
 
     if app_param.article:

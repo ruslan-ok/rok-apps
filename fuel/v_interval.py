@@ -33,7 +33,7 @@ def interval_list(request):
             item = Part.objects.create(car = car, name = request.POST['item_name_add'])
             return HttpResponseRedirect(reverse('fuel:interval_form', args = [item.id]))
 
-    app_param, context = get_base_context_ext(request, app_name, 'interval', _('service intervals'))
+    app_param, context = get_base_context_ext(request, app_name, 'interval', _('service intervals').capitalize() + ' [' + car.name + ']')
     template_file = 'fuel/interval_list.html'
 
     if app_param.article:
