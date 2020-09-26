@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from django.core.paginator import Paginator
 from django.db.models import Q
 
-from hier.utils import get_base_context_ext, process_common_commands, sort_data
+from hier.utils import get_base_context_ext, process_common_commands, sort_data, extract_get_params
 from hier.params import set_article_visible, set_article_kind, get_search_mode, get_search_info
 from .models import app_name, Car, Fuel, Part, Repl, enrich_context
 from .forms import PartForm
@@ -21,7 +21,7 @@ items_in_page = 10
 #----------------------------------
 def interval_list(request):
     if process_common_commands(request, app_name):
-        return HttpResponseRedirect(reverse('fuel:interval_list'))
+        return HttpResponseRedirect(reverse('fuel:interval_list') + extract_get_params(request))
 
     if not Car.objects.filter(user = request.user.id, active = True).exists():
         return HttpResponseRedirect(reverse('fuel:car_list'))
@@ -48,7 +48,7 @@ def interval_list(request):
             redirect = True
     
         if redirect:
-            return HttpResponseRedirect(reverse('fuel:interval_list'))
+            return HttpResponseRedirect(reverse('fuel:interval_list') + extract_get_params(request))
         else:
             template_file = 'fuel/interval_form.html'
 
@@ -78,7 +78,7 @@ def interval_list(request):
 #----------------------------------
 def interval_form(request, pk):
     set_article_kind(request.user, app_name, 'interval', pk)
-    return HttpResponseRedirect(reverse('fuel:interval_list'))
+    return HttpResponseRedirect(reverse('fuel:interval_list') + extract_get_params(request))
 
 
 #----------------------------------

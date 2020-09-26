@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 
 from hier.models import Folder, Lst
 
+app_name = 'store'
+
 #----------------------------------
 # deprecated
 class Group(models.Model):

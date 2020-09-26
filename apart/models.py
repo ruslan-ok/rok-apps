@@ -140,7 +140,7 @@ class Bill(models.Model):
         return self.period.strftime('%m.%Y')
 
     def descr(self):
-        return '{0}: {1}, {2}: {3}'.format(_('total bill'), self.total_bill(), _('total pay'), self.total_pay())
+        return '{}: {}, {}: {}'.format(_('total bill'), self.total_bill(), _('total pay'), self.total_pay())
 
     def get_info(self):
         ret = []
@@ -149,7 +149,7 @@ class Bill(models.Model):
         ret.append({'icon': 'separator'})
         ret.append({'text': '{}: {}'.format(_('total pay'), self.total_pay()) })
     
-        files = get_files_list(self.apart.user, app_name, 'apart_{0}/{1}/{2}'.format(self.apart.id, self.period.year, str(self.period.month).zfill(2)))
+        files = get_files_list(self.apart.user, app_name, 'apart_{}/{}/{}'.format(self.apart.id, self.period.year, str(self.period.month).zfill(2)))
     
         if self.url or self.info or len(files):
             ret.append({'icon': 'separator'})

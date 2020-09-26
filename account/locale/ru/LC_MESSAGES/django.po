@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-20 10:11+0300\n"
+"POT-Creation-Date: 2020-09-26 09:56+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -108,7 +108,7 @@ msgstr "телефон"
 
 #: .\account\forms.py:251
 msgid "id"
-msgstr ""
+msgstr "идентификатор"
 
 #: .\account\models.py:8
 msgid "user"
@@ -133,18 +133,6 @@ msgstr "Учетная запись активирована! Пожалуйст
 #: .\account\templates\account\activated.html:6
 msgid "login"
 msgstr "вход"
-
-#: .\account\templates\account\login.html:8
-#: .\account\templates\account\password_change_form.html:11
-#: .\account\templates\account\profile.html:10
-msgid "Please correct the error below."
-msgstr "Пожалуйста, исправьте ошибку ниже."
-
-#: .\account\templates\account\login.html:8
-#: .\account\templates\account\password_change_form.html:11
-#: .\account\templates\account\profile.html:10
-msgid "Please correct the errors below."
-msgstr "Пожалуйста, исправьте ошибки ниже."
 
 #: .\account\templates\account\login.html:24
 #, python-format
@@ -374,3 +362,4 @@ msgstr "Персональная информация"
 #: .\account\views.py:434
 msgid "Important dates"
 msgstr "Важные даты"
+

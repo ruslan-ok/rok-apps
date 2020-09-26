@@ -1,17 +1,16 @@
 from django.urls import path
-from . import views
+from . import views, convert
 
 app_name = 'note'
 urlpatterns = [
-    path('',                              views.note_list,   name='note_list'),
-    path('down/',                         views.note_down,   name='note_down'),
-    path('create/',                       views.note_add,    name='note_add'),
-    path('<int:content_id>/',             views.note_form,   name='note_form'),
-    path('<int:content_id>/delete/',      views.note_del,    name='note_del'),
-    path('<int:content_id>/move/<int:to_folder>/', views.note_move, name='note_move'),
+    path('',                       views.note_list,    name='note_list'),
+    path('<int:pk>/',              views.note_form,    name='note_form'),
+    path('all/',                   views.all_notes,    name='all_notes'),
+    path('list/<int:pk>/',         views.list_notes,   name='list_notes'),
+    path('list_article/<int:pk>/', views.note_list_form,    name='note_list_form'),
+    path('group/<int:pk>/',        views.note_group_form,   name='note_group_form'),
+    path('toggle_group/<int:pk>/', views.note_toggle_group, name='note_toggle_group'),
+    path('docs/<str:name>',        views.note_get_doc,      name='note_get_doc'),
 
-    path('news/',                         views.news_list,   name='news_list'),
-    path('news/<int:content_id>/',        views.news_form,   name='news_form'),
-    path('news/create/',                  views.news_add,    name='news_add'),
-    path('news/<int:content_id>/delete/', views.news_del,    name='news_del'),
+    path('convert/', convert.convert, name='convert'),
 ]

@@ -24,7 +24,7 @@
       </a></li>
     <li{% if restriction == 'all' %} class="selected"{% endif %}><a class="fix" href="{% url 'store:all' %}">
         <div class="nav-menu-item-left">
-          <img src="{% static 'todo/icon/all.png' %}">
+          <img src="{% static 'rok/icon/all.png' %}">
           {% trans 'all'|capfirst %}
         </div>
         <div class="nav-menu-qty">{{ all_qty }}</div>
@@ -45,7 +45,7 @@
         {% if node.is_list %}
           <a href="{% url 'store:list_items' node.id %}">
             <div class="nav-menu-item-left">
-              <img class="level-{{ node.level }}" src="{% static 'todo/icon/list.png' %}">
+              <img class="level-{{ node.level }}" src="{% static 'rok/icon/list.png' %}">
               <div>{{ node.name }}</div>
             </div>
           </a>
@@ -55,7 +55,7 @@
         {% else %}
           <a href="{% url 'store:group_form' node.id %}">
             <div class="nav-menu-item-x1">
-              <img class="level-{{ node.level }}" src="{% static 'todo/icon/group.png' %}">
+              <img class="level-{{ node.level }}" src="{% static 'rok/icon/group.png' %}">
               <div class="nav-menu-item-x2">{{ node.name }}</div>
             </div>
           </a>
@@ -74,9 +74,9 @@
   </ul>
   
   <form method="post" class="grp-actions">{% csrf_token %}
-    <button type="submit" name="list-add" class="default lst-add" label="create list"><img class="img-20_20" src="{% static 'todo/icon/add.png' %}"></button>
+    <button type="submit" name="list-add" class="default lst-add" label="create list"><img class="img-20_20" src="{% static 'rok/icon/add.png' %}"></button>
     <input type="text" class="add-grp" placeholder="{% trans 'create list or group'|capfirst %}" name="name">
-    <button type="submit" name="group-add" class="default grp-add" label="create group"><img class="img-20_20" src="{% static 'todo/icon/group-add.png' %}"></button>
+    <button type="submit" name="group-add" class="default grp-add" label="create group"><img class="img-20_20" src="{% static 'rok/icon/group-add.png' %}"></button>
   </form>
 {% endblock %}
 
@@ -137,7 +137,7 @@
     <ul>
       {% for item in page_obj %}
       <li>
-        <a href="{% url 'store:entry_form' item.0.id %}" class="tree-item{% if item.0.id == art_id %} current{% endif %}">
+        <a href="{% url 'store:entry_form' item.0.id %}?q={{ request.GET.q }}&page={{ page_obj.number }}" class="tree-item{% if item.0.id == art_id %} current{% endif %}">
           <div class="info">
             <div class="name">{{ item.0.title }}</div>
             <div class="descr">

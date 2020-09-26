@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.admin.widgets import AdminSplitDateTime
 
 from hier.forms import DateInput
-from .models import Grp, Lst, Task, Step, TaskFiles
+from .models import app_name, Grp, Lst, Task, Step, TaskFiles
 
 #----------------------------------
 class GrpForm(forms.ModelForm):
@@ -42,6 +42,11 @@ class LstForm(forms.ModelForm):
         model = Lst
         fields = ['name', 'grp', 'sort']
 
+    def __init__(self, user, app_name, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+        self.fields['grp'].queryset = Grp.objects.filter(user = user, app = app_name).order_by('name')
+
 #----------------------------------
 class TaskNameForm(forms.ModelForm):
 
@@ -61,6 +66,11 @@ class TaskForm(forms.ModelForm):
             'stop': DateInput(),
             'info': forms.Textarea(attrs={'rows':3, 'cols':10, 'placeholder': _('add note').capitalize(), 'data-autoresize':''}),
         }
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+        self.fields['lst'].queryset = Lst.objects.filter(user = user, app = app_name).order_by('name')
 
 #----------------------------------
 class StepForm(forms.ModelForm):

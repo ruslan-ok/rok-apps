@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-20 10:11+0300\n"
+"POT-Creation-Date: 2020-09-26 09:56+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -187,16 +187,6 @@ msgstr "содержат"
 msgid "contained category"
 msgstr "содержат категорию"
 
-#: .\hier\templates\hier\folder_form.html:10 .\hier\utils.py:282
-#: .\hier\utils.py:318
-msgid "Please correct the error below."
-msgstr "Пожалуйста исправьте ошибку ниже."
-
-#: .\hier\templates\hier\folder_form.html:10 .\hier\utils.py:283
-#: .\hier\utils.py:319
-msgid "Please correct the errors below."
-msgstr "Пожалуйста исправьте ошибки ниже."
-
 #: .\hier\templates\hier\folder_form.html:36
 msgid "add"
 msgstr "добавить"
@@ -209,96 +199,78 @@ msgstr "дохранить"
 msgid "Log in"
 msgstr "Вход"
 
-#: .\hier\utils.py:42 .\hier\utils.py:443
+#: .\hier\utils.py:42 .\hier\utils.py:447
 msgid "trash"
 msgstr "корзина"
 
-#: .\hier\utils.py:413
+#: .\hier\utils.py:282 .\hier\utils.py:320
+msgid "Please correct the error below."
+msgstr "Пожалуйста исправьте ошибку ниже."
+
+#: .\hier\utils.py:283 .\hier\utils.py:321
+msgid "Please correct the errors below."
+msgstr "Пожалуйста исправьте ошибки ниже."
+
+#: .\hier\utils.py:415
 msgid "communal"
 msgstr "коммуналка"
 
-#: .\hier\utils.py:415
-#, fuzzy
-#| msgid "fueling"
-msgid "fuelings"
-msgstr "заправка"
-
 #: .\hier\utils.py:417
+msgid "fuelings"
+msgstr "заправки"
+
+#: .\hier\utils.py:419
 msgid "hierarchy"
 msgstr "иерархия"
 
-#: .\hier\utils.py:419
+#: .\hier\utils.py:421
 msgid "notes"
 msgstr "заметки"
 
-#: .\hier\utils.py:421
-msgid "problems and solutions"
-msgstr "ПиР"
-
-#: .\hier\utils.py:423
-msgid "expenses"
-msgstr "затраты"
-
-#: .\hier\utils.py:425
-msgid "passwords"
-msgstr "пароли"
-
-#: .\hier\utils.py:427
-msgid "tasks"
-msgstr "задачи"
-
-#: .\hier\utils.py:429
-msgid "trips"
-msgstr "поездки"
-
-#: .\hier\utils.py:431
-msgid "work"
-msgstr "работа"
-
-#: .\hier\utils.py:439
-msgid "home"
-msgstr "главная"
-
-#: .\hier\utils.py:441
+#: .\hier\utils.py:423 .\hier\utils.py:445
 msgid "news"
 msgstr "новости"
 
-#: .\hier\utils.py:445
+#: .\hier\utils.py:425
+msgid "problems and solutions"
+msgstr "ПиР"
+
+#: .\hier\utils.py:427
+msgid "expenses"
+msgstr "затраты"
+
+#: .\hier\utils.py:429
+msgid "passwords"
+msgstr "пароли"
+
+#: .\hier\utils.py:431
+msgid "tasks"
+msgstr "задачи"
+
+#: .\hier\utils.py:433
+msgid "trips"
+msgstr "поездки"
+
+#: .\hier\utils.py:435
+msgid "work"
+msgstr "работа"
+
+#: .\hier\utils.py:443
+msgid "home"
+msgstr "главная"
+
+#: .\hier\utils.py:449
 msgid "admin"
 msgstr "админ"
 
-#: .\hier\utils.py:447
+#: .\hier\utils.py:451
 msgid "profile"
 msgstr "профиль"
 
-#: .\hier\utils.py:449
+#: .\hier\utils.py:453
 msgid "log out"
 msgstr "выход"
 
 #: .\hier\views.py:132
 msgid "create a new folder"
 msgstr "создание новой папки"
-
-#~ msgid "application name"
-#~ msgstr "идентификатор приложения"
-
-#~ msgid "group name"
-#~ msgstr "наименование группы"
-
-#~ msgid "sort code"
-#~ msgstr "код для сортировки"
-
-#~ msgid "node is open"
-#~ msgstr "узел раскрыт"
-
-#~ msgid "group"
-#~ msgstr "группа"
-
-#~ msgid "groups"
-#~ msgstr "группы"
-
-#~ msgid "list name"
-#~ msgstr "наименование списка"
-
-#~ msgid "lists"
-#~ msgstr "списки"

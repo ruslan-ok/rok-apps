@@ -35,7 +35,7 @@ class Grp():
 #----------------------------------
 def price_list(request):
     if process_common_commands(request, app_name):
-        return HttpResponseRedirect(reverse('apart:price_list'))
+        return HttpResponseRedirect(reverse('apart:price_list') + extract_get_params(request))
 
     if not Apart.objects.filter(user = request.user.id, active = True).exists():
         return HttpResponseRedirect(reverse('apart:apart_list'))
@@ -64,7 +64,7 @@ def price_list(request):
             redirect = True
     
     if redirect:
-        return HttpResponseRedirect(reverse('apart:price_list'))
+        return HttpResponseRedirect(reverse('apart:price_list') + extract_get_params(request))
 
     enrich_context(context, app_param, request.user.id)
 

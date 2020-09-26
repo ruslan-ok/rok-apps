@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-20 10:11+0300\n"
+"POT-Creation-Date: 2020-09-26 09:56+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -151,20 +151,6 @@ msgstr "замена"
 msgid "replacements"
 msgstr "замены"
 
-#: .\fuel\templates\fuel\car_form.html:13
-#: .\fuel\templates\fuel\fueling_form.html:13
-#: .\fuel\templates\fuel\interval_form.html:13
-#: .\fuel\templates\fuel\service_form.html:13
-msgid "Please correct the error below."
-msgstr "Пожалуйста исправьте ошибку ниже."
-
-#: .\fuel\templates\fuel\car_form.html:13
-#: .\fuel\templates\fuel\fueling_form.html:13
-#: .\fuel\templates\fuel\interval_form.html:13
-#: .\fuel\templates\fuel\service_form.html:13
-msgid "Please correct the errors below."
-msgstr "Пожалуйста исправьте ошибки ниже."
-
 #: .\fuel\templates\fuel\car_list.html:18
 msgid "add car"
 msgstr "добавить автомобиль"
@@ -213,5 +199,3 @@ msgstr "км: "
 msgid "months: "
 msgstr "мес.: "
 
-#~ msgid "services"
-#~ msgstr "ремонты и сервисные обслуживания"

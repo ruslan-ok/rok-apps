@@ -12,7 +12,7 @@
     <!-- Form Errors -->
     {% if name_form.errors %}
       <div class="fieldset">
-        <p class="errornote"> {% if name_form.errors.items|length == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %} </p> 
+        <p class="errornote"> {% if name_form.errors.items|length == 1 %}{{ please_correct_one }}{% else %}{{ please_correct_all }}{% endif %} </p> 
       </div>
     {% endif %}
     {% if name_form.non_field_errors %}
@@ -95,7 +95,7 @@
     <!-- Form Errors -->
     {% if form.errors %}
       <div class="fieldset">
-        <p class="errornote"> {% if form.errors.items|length == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %} </p> 
+        <p class="errornote"> {% if form.errors.items|length == 1 %}{{ please_correct_one }}{% else %}{{ please_correct_all }}{% endif %} </p> 
       </div>
     {% endif %}
     {% if form.non_field_errors %}
@@ -400,7 +400,7 @@
         <div class="field-error">{{ form.lst.errors }}</div>
         <div class="section-52">
           <div class="section-icon">
-            <img src="{% static 'todo/icon/list.png' %}">
+            <img src="{% static 'rok/icon/list.png' %}">
           </div>
           <div class="section-content">
             <div class="section-title full-width">
@@ -416,8 +416,8 @@
         {% for file in files %}
           <!-- LIST TaskFiles -->
           <div class="file-item">
-            <a href="{{ file.upload.url }}" class="clickable-item">
-              <div class="thumbnail-wrapper">
+            <a href="{{ file.url }}" class="clickable-item">
+              <div class="thumbnail-wrapper" style="background-color: {{ file.design }}">
                 <div class="thumbnail">{{ file.ext }}</div>
               </div>
               <div class="file-content">

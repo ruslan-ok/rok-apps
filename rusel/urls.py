@@ -21,18 +21,11 @@ from django.conf.urls.static import static
 from django.views.i18n import JavaScriptCatalog
 
 from . import views
-from . import utils
 
 urlpatterns = i18n_patterns(
     path('',            views.index,      name='index'),
     path('feedback/',   views.feedback,   name='feedback'),
-    path('note/',       views.note,       name='note'),
-    path('news/',       views.news,       name='news'),
     path('trash/',      views.trash,      name='trash'),
-
-    path('etalon/',     utils.etalon,     name='etalon'),
-    path('convert/',    utils.convert,    name='convert'),
-    path('statistics/', utils.statistics, name='statistics'),
 
     path('apart/', include('apart.urls')),
     path('fuel/',  include('fuel.urls')),
@@ -42,9 +35,10 @@ urlpatterns = i18n_patterns(
     path('todo/',  include('todo.urls')),
     path('pir/',   include('pir.urls')),
     path('store/', include('store.urls')),
+    path('note/',  include('note.urls')),
+    path('news/',  include('note.urls_news')),
 
     path('<int:folder_id>/',       include('hier.urls')),
-    path('<int:folder_id>/note/',  include('note.urls')),
 
     path('account/', include('account.urls')),
     path('admin/',   admin.site.urls, name='admin'),

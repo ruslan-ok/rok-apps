@@ -11,17 +11,16 @@ from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext_lazy as _
 from django.db.models import Q
 
-from hier.utils import get_app_params, get_base_context_ext, process_common_commands, sort_data
+from hier.utils import get_app_params, get_base_context_ext, process_common_commands, sort_data, extract_get_params
 from hier.params import set_restriction, set_article_kind, set_article_visible, set_sort_mode, toggle_sort_dir, get_search_mode, get_search_info
 from hier.categories import get_categories_list
 from hier.grp_lst import group_add, group_details, group_toggle, list_add, list_details
-from .models import Lst, Task, Param, Step, TaskFiles, DAILY, WORKDAYS, WEEKLY, MONTHLY, ANNUALLY, PerGrp
+from hier.files import File
+from .models import app_name, Lst, Task, Param, Step, TaskFiles, DAILY, WORKDAYS, WEEKLY, MONTHLY, ANNUALLY, PerGrp
 from .utils import get_task_status, nice_date, get_grp_planned, GRP_PLANNED_NONE, get_week_day_name
 from .tree import build_tree
 from .forms import TaskNameForm, TaskForm, StepForm, TaskFilesForm
 
-
-app_name = 'todo'
 
 NONE = ''
 NAME = 'name'
@@ -193,7 +192,7 @@ def get_task_details(request, context, pk, lst):
                 name_form.save()
                 return True
         if ('task-save' in request.POST):
-            form = TaskForm(request.POST, instance = ed_task)
+            form = TaskForm(request.user, request.POST, instance = ed_task)
             if form.is_valid():
                 task = form.save(commit = False)
                 task.user = request.user
@@ -337,7 +336,7 @@ def get_task_details(request, context, pk, lst):
         name_form = TaskNameForm(instance = ed_task)
 
     if not form:
-        form = TaskForm(instance = ed_task)
+        form = TaskForm(request.user, instance = ed_task)
 
     if not file_form:
         file_form = TaskFilesForm()
@@ -345,7 +344,7 @@ def get_task_details(request, context, pk, lst):
     context['name_form'] = name_form
     context['form'] = form
     context['file_form'] = file_form
-    context['files'] = TaskFiles.objects.filter(task = ed_task.id)
+    context['files'] = get_files_list(request.user, ed_task.id)
     context['task_id'] = ed_task.id
     context['important'] = ed_task.important
     context['in_my_day'] = ed_task.in_my_day
@@ -411,6 +410,21 @@ def process_sort_commands(request):
         toggle_sort_dir(request.user, app_name)
         return True
     return False
+
+
+def get_files_list(user, task_id):
+    ret = []
+    npp = 1
+    for f in TaskFiles.objects.filter(task = task_id):
+        name = os.path.splitext(f.name)[0]
+        ext = f.ext
+        size = f.size
+        url = f.upload.url
+        fl = File(npp, name, ext, size, url)
+        npp += 1
+        ret.append(fl)
+    return ret
+
 
 def get_task_info(task, cur_view):
     ret = []
@@ -500,10 +514,10 @@ def task_list(request):
     locale.setlocale(locale.LC_TIME, request.LANGUAGE_CODE)
 
     if process_common_commands(request, app_name):
-        return HttpResponseRedirect(reverse('todo:task_list'))
+        return HttpResponseRedirect(reverse('todo:task_list') + extract_get_params(request))
 
     if process_sort_commands(request):
-        return HttpResponseRedirect(reverse('todo:task_list'))
+        return HttpResponseRedirect(reverse('todo:task_list') + extract_get_params(request))
 
     app_param, context = todo_base_context(request)
 
@@ -518,8 +532,11 @@ def task_list(request):
             task.save()
             return HttpResponseRedirect(reverse('todo:task_list'))
         if 'task-add' in request.POST:
+            lst = None
+            if (app_param.restriction == 'list') and app_param.lst:
+                lst = app_param.lst
             task = Task.objects.create(user = request.user, name = request.POST['task_add-name'], \
-                                       lst = app_param.lst, in_my_day = (app_param.restriction == MY_DAY), important = (app_param.restriction == IMPORTANT))
+                                       lst = lst, in_my_day = (app_param.restriction == MY_DAY), important = (app_param.restriction == IMPORTANT))
             return HttpResponseRedirect(reverse('todo:task_form', args = [task.id]))
         if 'list-add' in request.POST:
             lst_id = list_add(request.user, app_name, request.POST['name'])
@@ -549,7 +566,7 @@ def task_list(request):
                 template_file = 'todo/group_form.html'
 
     if redirect:
-        return HttpResponseRedirect(reverse('todo:task_list'))
+        return HttpResponseRedirect(reverse('todo:task_list') + extract_get_params(request))
 
     if (template_file == ''):
         template_file = 'todo/task_list.html'
@@ -568,7 +585,7 @@ def task_list(request):
     
     context['object_list'] = sorted(data, key=lambda term: term.per_grp.grp_id)
     context['search_info'] = get_search_info(query)
-    context['task_add_form'] = TaskForm()
+    context['task_add_form'] = TaskForm(request.user)
 
     template = loader.get_template(template_file)
     return HttpResponse(template.render(context, request))
@@ -599,7 +616,7 @@ def list_items(request, pk):
 
 def task_form(request, pk):
     set_article_kind(request.user, app_name, TASK_DETAILS, pk)
-    return HttpResponseRedirect(reverse('todo:task_list'))
+    return HttpResponseRedirect(reverse('todo:task_list') + extract_get_params(request))
 
 def list_form(request, pk):
     set_article_kind(request.user, app_name, LIST_DETAILS, pk)
@@ -611,7 +628,7 @@ def group_form(request, pk):
 
 def toggle_group(request, pk):
     group_toggle(request.user, app_name, pk)
-    return HttpResponseRedirect(reverse('todo:task_list'))
+    return HttpResponseRedirect(reverse('todo:task_list') + extract_get_params(request))
 
 def period_toggle(request, pk):
     per_grp = get_object_or_404(PerGrp.objects.filter(user = request.user.id, grp_id = pk))

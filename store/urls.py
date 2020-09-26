@@ -14,6 +14,4 @@ urlpatterns = [
     path('list_article/<int:pk>/', views.list_form,    name='list_form'),
     path('group/<int:pk>/',        views.group_form,   name='group_form'),
     path('toggle_group/<int:pk>/', views.toggle_group, name='toggle_group'),
-
-    path('convert/',  views.convert, name='convert'),
 ]

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-20 10:11+0300\n"
+"POT-Creation-Date: 2020-09-26 09:56+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,110 +19,141 @@ msgstr ""
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: .\note\models.py:9 .\note\models.py:27 .\note\models.py:46
-#: .\note\models.py:77
-msgid "user"
-msgstr "пользователь"
-
-#: .\note\models.py:10 .\note\models.py:28 .\note\models.py:47
-msgid "name"
-msgstr "наименование"
-
-#: .\note\models.py:11 .\note\models.py:29 .\note\models.py:48
-msgid "code"
-msgstr "код"
-
-#: .\note\models.py:12
-msgid "color"
-msgstr "цвет"
-
-#: .\note\models.py:13 .\note\models.py:30
-#: .\note\templates\note\note_form.html:24
-msgid "description"
-msgstr "описание"
-
-#: .\note\models.py:16
-msgid "notes list"
-msgstr "список заметок"
-
-#: .\note\models.py:17
-msgid "notes lists"
-msgstr "списки заметок"
-
-#: .\note\models.py:32
-msgid "list"
-msgstr "список"
-
-#: .\note\models.py:33
+#: .\note\forms.py:11 .\note\models.py:19
 msgid "publication date"
 msgstr "дата публикации"
 
-#: .\note\models.py:36 .\note\views.py:72
+#: .\note\forms.py:12 .\note\models.py:23
+msgid "categories"
+msgstr "категории"
+
+#: .\note\forms.py:12
+msgid "add category"
+msgstr "добавить категорию"
+
+#: .\note\forms.py:17
+msgid "add description"
+msgstr "добавить описание"
+
+#: .\note\models.py:15
+msgid "user"
+msgstr "пользователь"
+
+#: .\note\models.py:16
+msgid "name"
+msgstr "наименование"
+
+#: .\note\models.py:17 .\note\models.py:49
+msgid "code"
+msgstr "код"
+
+#: .\note\models.py:18
+msgid "description"
+msgstr "описание"
+
+#: .\note\models.py:20
+msgid "list"
+msgstr "список"
+
+#: .\note\models.py:21
+msgid "last modification time"
+msgstr "время модификации"
+
+#: .\note\models.py:22
+msgid "URL"
+msgstr "URL"
+
+#: .\note\models.py:24
+msgid "kind of note"
+msgstr "вид заметки"
+
+#: .\note\models.py:27
 msgid "note"
 msgstr "заметка"
 
-#: .\note\models.py:37
+#: .\note\models.py:28
 msgid "notes"
 msgstr "заметки"
 
-#: .\note\models.py:49
-msgid "chronological list of entries"
-msgstr "список в хронологическом порядке"
+#: .\note\templates\note\news_form.html:176
+#: .\note\templates\note\note_form.html:176
+msgid "add file"
+msgstr "добавить файл"
 
-#: .\note\models.py:52
-msgid "notes view"
-msgstr "представление"
+#: .\note\templates\note\news_list.html:14
+#: .\note\templates\note\note_list.html:14 .\note\views.py:76
+msgid "all"
+msgstr "все"
 
-#: .\note\models.py:53
-msgid "notes views"
-msgstr "представления"
+#: .\note\templates\note\news_list.html:58
+#: .\note\templates\note\note_list.html:58
+msgid "create list or group"
+msgstr "создать список или группу"
 
-#: .\note\models.py:64 .\note\models.py:78
-msgid "view"
-msgstr "представление"
+#: .\note\templates\note\news_list.html:79
+#: .\note\templates\note\note_list.html:79
+msgid "sort"
+msgstr "сортировка"
 
-#: .\note\models.py:65
-msgid "entity"
-msgstr "сущность"
-
-#: .\note\models.py:66
-msgid "sort number"
+#: .\note\templates\note\news_list.html:83
+#: .\note\templates\note\note_list.html:83
+msgid "sort order"
 msgstr "номер для сортировки"
 
-#: .\note\models.py:67
-msgid "value"
-msgstr "значение"
+#: .\note\templates\note\news_list.html:84
+#: .\note\templates\note\note_list.html:84
+msgid "by name"
+msgstr "по заголовку"
 
-#: .\note\models.py:70
-msgid "view filter"
-msgstr "фильтр"
+#: .\note\templates\note\news_list.html:85
+#: .\note\templates\note\note_list.html:85
+msgid "by description"
+msgstr "по описанию"
 
-#: .\note\models.py:71
-msgid "view filters"
-msgstr "фильтры"
+#: .\note\templates\note\news_list.html:86
+#: .\note\templates\note\note_list.html:86
+msgid "by publication date"
+msgstr "по дате публикации"
 
-#: .\note\models.py:81 .\note\models.py:82
-msgid "user settings"
-msgstr "параметры пользователя"
+#: .\note\templates\note\news_list.html:87
+#: .\note\templates\note\note_list.html:87
+msgid "by last modification date"
+msgstr "по времени модификации"
 
-#: .\note\templates\note\news_form.html:31
-#: .\note\templates\note\note_form.html:33
-msgid "add"
-msgstr "добавить"
+#: .\note\templates\note\news_list.html:112
+#: .\note\templates\note\news_list.html:113
+msgid "add news"
+msgstr "добавить новость"
 
-#: .\note\templates\note\news_form.html:33
-#: .\note\templates\note\note_form.html:35
-msgid "save"
-msgstr "сохранить"
+#: .\note\templates\note\note_list.html:112
+#: .\note\templates\note\note_list.html:113
+msgid "add note"
+msgstr "добавить заметку"
 
-#: .\note\views.py:59
-msgid "create a new note"
-msgstr "создание новой заметки"
+#: .\note\views.py:29
+msgid "sort by name"
+msgstr "сортировка по заголовку"
 
-#: .\note\views.py:137 .\note\views.py:163
-msgid "news"
-msgstr "новости"
+#: .\note\views.py:30
+msgid "sort by code"
+msgstr "сортировка по коду"
 
-#: .\note\views.py:153
-msgid "create new news"
-msgstr "создание новости"
+#: .\note\views.py:31
+msgid "sort by description"
+msgstr "сортировка по описанию"
+
+#: .\note\views.py:32
+msgid "sort by publication date"
+msgstr "сортировка по дате публикации"
+
+#: .\note\views.py:33
+msgid "sort by last modification date"
+msgstr "сортировка по времени модификации"
+
+#: .\note\views.py:34
+msgid "sort by URL"
+msgstr "сортировка по URL"
+
+#: .\note\views.py:81
+msgid "notes with unknown restriction"
+msgstr "заметки с неизвестным ограничением"

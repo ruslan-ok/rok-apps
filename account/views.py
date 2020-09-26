@@ -184,7 +184,7 @@ def register(request):
             title = subject = _('Account Verification')
  
             message = '\n' + gettext('Please visit the following link to verify your account') + ' \n\n' + \
-                      '{0}://{1}/account/activate/?key={2}'.format(request.scheme, request.get_host(), activation_key)            
+                      '{}://{}/account/activate/?key={}'.format(request.scheme, request.get_host(), activation_key)            
  
             error = False
  

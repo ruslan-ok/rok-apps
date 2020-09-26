@@ -18,7 +18,7 @@ from .utils import next_period
 #----------------------------------
 def meter_list(request):
     if process_common_commands(request, app_name):
-        return HttpResponseRedirect(reverse('apart:meter_list'))
+        return HttpResponseRedirect(reverse('apart:meter_list') + extract_get_params(request))
 
     if not Apart.objects.filter(user = request.user.id, active = True).exists():
         return HttpResponseRedirect(reverse('apart:apart_list'))
@@ -46,7 +46,7 @@ def meter_list(request):
             redirect = True
     
     if redirect:
-        return HttpResponseRedirect(reverse('apart:meter_list'))
+        return HttpResponseRedirect(reverse('apart:meter_list') + extract_get_params(request))
 
     enrich_context(context, app_param, request.user.id)
     page_number = 1

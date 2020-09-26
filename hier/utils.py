@@ -315,6 +315,7 @@ def get_base_context_ext(request, app_name, content_kind, title, article_enabled
                 app_param.save()
             context['aside_visible'] = ((not article_enabled) or (not app_param.article)) and app_param.aside
             context['article_visible'] = app_param.article and article_enabled
+            context['restriction'] = app_param.restriction
 
     context['please_correct_one'] = _('Please correct the error below.')
     context['please_correct_all'] = _('Please correct the errors below.')
@@ -418,6 +419,8 @@ def get_app_name(id):
         return _('hierarchy').capitalize()
     if (id == 'note'):
         return _('notes').capitalize()
+    if (id == 'news'):
+        return _('news').capitalize()
     if (id == 'pir'):
         return _('problems and solutions').capitalize()
     if (id == 'proj'):
@@ -470,7 +473,7 @@ def sort_data(data, sort, reverse):
 
 
 def get_rate_on_date(currency, date):
-    url = 'https://www.nbrb.by/api/exrates/rates/{0}?ondate={1}-{2}-{3}'.format(currency, date.year, date.month, date.day)
+    url = 'https://www.nbrb.by/api/exrates/rates/{}?ondate={}-{}-{}'.format(currency, date.year, date.month, date.day)
     resp = requests.get(url)
     data = resp.json()
     return data['Cur_OfficialRate']
@@ -483,14 +486,14 @@ def extract_get_params(request):
     if not p:
         p = ''
     ret = ''
-    if q or p:
-        ret = '?'
+    if q:
+        ret += 'q={}'.format(q)
+    if p:
         if q:
-            ret += '?q={}'.format(q)
-        if p:
-            if q:
-                ret += '&'
-            ret += 'page={}'.format(p)
+            ret += '&'
+        ret += 'page={}'.format(p)
+    if ret:
+        ret = '?' + ret
     return ret
 
 

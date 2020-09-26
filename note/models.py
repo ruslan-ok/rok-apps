@@ -3,24 +3,12 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-#----------------------------------
-# deprecated
-class List(models.Model):
-    user    = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
-    name    = models.CharField(_('name'), max_length = 200, blank = False)
-    code    = models.CharField(_('code'), max_length = 50, blank = True)
-    color   = models.CharField(_('color'), max_length = 20, blank = True)
-    comment = models.CharField(_('description'), max_length = 2000, blank = True)
+from todo.models import Lst
+from hier.files import get_files_list
+from hier.params import get_app_params
+from hier.categories import get_categories_list
 
-    class Meta:
-        verbose_name = _('notes list')
-        verbose_name_plural = _('notes lists')
-
-    def __str__(self):
-        return self.full_name()
-
-    def full_name(self):
-        return self.code + ': ' + self.name
+app_name = 'note'
 
 #----------------------------------
 class Note(models.Model):
@@ -28,9 +16,12 @@ class Note(models.Model):
     name  = models.CharField(_('name'), max_length = 200, blank = False)
     code  = models.CharField(_('code'), max_length = 200, blank = True)
     descr = models.TextField(_('description'), blank = True)
-    # deprecated
-    list  = models.ForeignKey(List, on_delete=models.CASCADE, blank = True, null = True, verbose_name=_('list'))
     publ  = models.DateTimeField(_('publication date'), blank=True, default = datetime.now)
+    lst = models.ForeignKey(Lst, on_delete = models.CASCADE, verbose_name = _('list'), blank = True, null = True)
+    last_mod = models.DateTimeField(_('last modification time'), blank = True, auto_now = True)
+    url = models.CharField(_('URL'), max_length=2000, blank = True)
+    categories = models.CharField(_('categories'), max_length = 2000, blank = True, default = '', null = True)
+    kind  = models.CharField(_('kind of note'), max_length = 200, blank = True, default = 'note')
 
     class Meta:
         verbose_name = _('note')
@@ -39,47 +30,43 @@ class Note(models.Model):
     def __str__(self):
         return self.name
 
+    def get_info(self):
+        ret = []
 
-#----------------------------------
-# deprecated
-class View(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
-    name = models.CharField(_('name'), max_length = 200, blank = False)
-    code = models.CharField(_('code'), max_length = 200, blank = True, default = '')
-    chrono = models.BooleanField(_('chronological list of entries'), default = False)
+        if (self.kind == 'news'):
+            ret.append({'text': self.publ.strftime('%d.%m.%Y %H:%M')})
 
-    class Meta:
-        verbose_name = _('notes view')
-        verbose_name_plural = _('notes views')
+        if self.lst:
+            app_param = get_app_params(self.user, app_name)
+            if (app_param.restriction != 'list'):
+                if ret:
+                    ret.append({'icon': 'separator'})
+                ret.append({'text': self.lst.name})
 
-    def __str__(self):
-        return self.full_name()
+        if self.code:
+            if ret:
+                ret.append({'icon': 'separator'})
+            ret.append({'text': '{}: {}'.format(_('code'), self.code) })
 
-    def full_name(self):
-        return self.code + ': ' + self.name
+        files = get_files_list(self.user, app_name, 'note_{}'.format(self.id))
+    
+        if ret and (self.url or self.descr or len(files)):
+            ret.append({'icon': 'separator'})
+    
+        if self.url:
+            ret.append({'icon': 'url'})
+    
+        if self.descr:
+            ret.append({'icon': 'notes'})
+    
+        if len(files):
+            ret.append({'icon': 'attach'})
 
-#----------------------------------
-# deprecated
-class Filter(models.Model):
-    view   = models.ForeignKey(View, on_delete=models.CASCADE, verbose_name=_('view'))
-    entity = models.IntegerField(_('entity'), default = 0)
-    npp    = models.IntegerField(_('sort number'), default = 0)
-    value  = models.IntegerField(_('value'), default = 0)
-
-    class Meta:
-        verbose_name = _('view filter')
-        verbose_name_plural = _('view filters')
-
-
-#----------------------------------
-# deprecated
-class Param(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'), related_name='notes_user')
-    view = models.ForeignKey(View, on_delete=models.CASCADE, null = True, verbose_name=_('view'))
-
-    class Meta:
-        verbose_name = _('user settings')
-        verbose_name_plural = _('user settings')
-
-
-
+        if self.categories:
+            if (len(ret) > 0):
+                ret.append({'icon': 'separator'})
+            categs = get_categories_list(self.categories)
+            for categ in categs:
+                ret.append({'icon': 'category', 'text': categ.name, 'color': 'category-design-' + categ.design})
+    
+        return ret

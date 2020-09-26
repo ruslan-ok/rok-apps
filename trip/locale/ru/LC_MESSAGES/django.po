@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-20 10:11+0300\n"
+"POT-Creation-Date: 2020-09-26 09:56+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -121,16 +121,6 @@ msgstr "проезд"
 msgid "payment"
 msgstr "оплата"
 
-#: .\trip\templates\trip\pers_form.html:13
-#: .\trip\templates\trip\trip_form.html:13
-msgid "Please correct the error below."
-msgstr "Пожалуйста, исправьте ошибку ниже."
-
-#: .\trip\templates\trip\pers_form.html:13
-#: .\trip\templates\trip\trip_form.html:13
-msgid "Please correct the errors below."
-msgstr "Пожалуйста, исправьте ошибки ниже."
-
 #: .\trip\templates\trip\pers_list.html:15
 msgid "add person"
 msgstr "Добавить человека"
@@ -143,11 +133,3 @@ msgstr "добавить поездку или оплату"
 msgid "count saldo"
 msgstr "расчет сальдо"
 
-#~ msgid "person name"
-#~ msgstr "Имя"
-
-#~ msgid "person dative name"
-#~ msgstr "Имя в дательном падеже"
-
-#~ msgid "comment"
-#~ msgstr "комментарий"

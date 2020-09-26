@@ -20,7 +20,7 @@ from .utils import next_period
 #----------------------------------
 def bill_list(request):
     if process_common_commands(request, app_name):
-        return HttpResponseRedirect(reverse('apart:bill_list'))
+        return HttpResponseRedirect(reverse('apart:bill_list') + extract_get_params(request))
 
     if not Apart.objects.filter(user = request.user.id, active = True).exists():
         return HttpResponseRedirect(reverse('apart:apart_list'))
@@ -50,7 +50,7 @@ def bill_list(request):
             redirect = True
     
     if redirect:
-        return HttpResponseRedirect(reverse('apart:bill_list'))
+        return HttpResponseRedirect(reverse('apart:bill_list') + extract_get_params(request))
 
     enrich_context(context, app_param, request.user.id)
     page_number = 1
@@ -150,12 +150,12 @@ def get_bill_article(request, context, pk):
     context['url_cutted'] = ed_bill.url
     if (len(ed_bill.url) > 50):
         context['url_cutted'] = ed_bill.url[:50] + '...'
-    context['files'] = get_files_list(request.user, app_name, 'apart_{0}/{1}/{2}'.format(ed_bill.apart.id, ed_bill.period.year, str(ed_bill.period.month).zfill(2)))
+    context['files'] = get_files_list(request.user, app_name, 'apart_{}/{}/{}'.format(ed_bill.apart.id, ed_bill.period.year, str(ed_bill.period.month).zfill(2)))
     return False
 
 
 def get_file_storage_path(user, bill):
-    return file_storage_path.format(user.id) + '{0}/apart_{1}/{2}/{3}/'.format(app_name, bill.apart.id, bill.period.year, str(bill.period.month).zfill(2))
+    return file_storage_path.format(user.id) + '{}/apart_{}/{}/{}/'.format(app_name, bill.apart.id, bill.period.year, str(bill.period.month).zfill(2))
 
 def handle_uploaded_file(f, user, bill):
     path = get_file_storage_path(user, bill)

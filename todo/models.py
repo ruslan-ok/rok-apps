@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 
 from .utils import nice_date, GRPS_PLANNED
 
+app_name = 'todo'
+
 class Grp(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'))
     app = models.CharField(_('application name'), max_length = 50, blank = False, default = 'todo', null = True)
@@ -241,7 +243,7 @@ class Step(models.Model):
         return self.name
 
 def user_directory_path(instance, filename):
-    return 'uploads/user_{0}/{1}'.format(instance.user.id, filename)
+    return 'uploads/user_{}/{}'.format(instance.user.id, filename)
     
 class TaskFiles(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'todo_file_user')

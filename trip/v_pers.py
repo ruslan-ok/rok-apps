@@ -6,7 +6,7 @@ from django.template import loader
 from django.utils.translation import gettext_lazy as _
 from django.core.paginator import Paginator
 
-from hier.utils import get_base_context_ext, process_common_commands
+from hier.utils import get_base_context_ext, process_common_commands, extract_get_params
 from hier.params import set_article_visible, set_article_kind
 from .models import app_name, Person, Trip, set_active, enrich_context
 from .forms import PersonForm
@@ -16,7 +16,7 @@ from .forms import PersonForm
 #----------------------------------
 def pers_list(request):
     if process_common_commands(request, app_name):
-        return HttpResponseRedirect(reverse('trip:pers_list'))
+        return HttpResponseRedirect(reverse('trip:pers_list') + extract_get_params(request))
 
     if (request.method == 'POST'):
         if ('item-add' in request.POST):
@@ -43,7 +43,7 @@ def pers_list(request):
             redirect = True
     
     if redirect:
-        return HttpResponseRedirect(reverse('trip:pers_list'))
+        return HttpResponseRedirect(reverse('trip:pers_list') + extract_get_params(request))
 
     enrich_context(context, app_param, request.user.id)
     data = Person.objects.filter(user = request.user.id).order_by('-me', 'name')
@@ -64,7 +64,7 @@ def pers_list(request):
 #----------------------------------
 def pers_form(request, pk):
     set_article_kind(request.user, app_name, 'person', pk)
-    return HttpResponseRedirect(reverse('trip:pers_list'))
+    return HttpResponseRedirect(reverse('trip:pers_list') + extract_get_params(request))
 
 #----------------------------------
 def get_pers_article(request, context, pk):

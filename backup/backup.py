@@ -13,7 +13,7 @@ class BackupError(Exception):
         self.stage = stage
         self.info = info
     def __str__(self):
-        return 'Ошибка на этапе {0}. {1}'.format(self.stage, self.info)
+        return 'Ошибка на этапе {}. {}'.format(self.stage, self.info)
 
 def sizeof_fmt(num, suffix = 'B'):
     magnitude = int(math.floor(math.log(num, 1024)))

@@ -1,6 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
-from .models import Entry, Params
+from todo.models import Lst
+from .models import app_name, Entry, Params
 
 
 class EntryForm(forms.ModelForm):
@@ -11,6 +12,11 @@ class EntryForm(forms.ModelForm):
         widgets = {
             'notes': forms.Textarea(attrs={'rows': 3, 'cols':10, 'placeholder': _('add note').capitalize(), 'data-autoresize': ''}),
         }
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+        self.fields['lst'].queryset = Lst.objects.filter(user = user, app = app_name).order_by('name')
 
 class ParamsForm(forms.ModelForm):
     ln = forms.IntegerField(label = _('length').capitalize(), min_value = 5, max_value = 100)

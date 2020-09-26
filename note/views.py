@@ -1,6 +1,7 @@
+import os
 from datetime import datetime
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, FileResponse
 from django.template import loader
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -8,219 +9,356 @@ from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator
 from django.db.models import Q
 
-from hier.models import Folder
-from hier.utils import get_base_context, check_file_for_content, is_in_trash, put_in_the_trash, get_folder_id, process_common_commands
+from hier.utils import get_base_context_ext, process_common_commands, sort_data, extract_get_params
+from hier.params import get_app_params, set_sort_mode, toggle_sort_dir, get_search_mode, get_search_info, set_restriction, set_article_kind, set_article_visible
+from hier.grp_lst import group_add, group_details, group_toggle, list_add, list_details
+from hier.categories import get_categories_list
+from hier.files import file_storage_path, get_files_list
 
-from .models import Note
-from .forms import NoteForm
-from .utils import get_ready_folder
+from .models import app_name, Note
+from .forms import NoteForm, FileForm
+from todo.tree import build_tree
 
-app_name = 'note'
+from todo.models import Grp, Lst
+
+
+items_in_page = 10
+
+SORT_MODE_DESCR = {
+    '': '',
+    'name': _('sort by name'),
+    'code': _('sort by code'),
+    'descr': _('sort by description'),
+    'publ': _('sort by publication date'),
+    'last_mod': _('sort by last modification date'),
+    'url': _('sort by URL')
+}
+
+def get_url_list(app):
+    if (app == 'note'):
+        return 'note:note_list'
+    else:
+        return 'news:news_list'
+
+def get_url_form(app):
+    if (app == 'note'):
+        return 'note:note_form'
+    else:
+        return 'news:news_form'
 
 #----------------------------------
 # Note
 #----------------------------------
 @login_required(login_url='account:login')
 #----------------------------------
-def note_list(request, folder_id):
-    process_common_commands(request, app_name)
-    node = get_object_or_404(Folder.objects.filter(id = folder_id, user = request.user.id))
-    data = Folder.objects.filter(user = request.user.id, node = folder_id).order_by('code', 'name')
+def item_list(request, app):
+    if process_common_commands(request, app): # aside open/close, article open/close
+        return HttpResponseRedirect(reverse(get_url_list(app)) + extract_get_params(request))
 
-    sets = []
-    for file in data:
-        sets.append([file, Folder.objects.filter(user = request.user.id, node = file.id).order_by('code', 'name'), can_create_note(file.id, file.content_id),])
+    if process_sort_commands(request, app):
+        return HttpResponseRedirect(reverse(get_url_list(app)) + extract_get_params(request))
+
+    app_param = get_app_params(request.user, app)
+
+    if (request.method == 'POST'):
+        #raise Exception(request.POST)
+        if ('item-add' in request.POST):
+            item = Note.objects.create(user = request.user, kind = app, name = request.POST['item_add-name'], publ = datetime.now(), lst = app_param.lst)
+            return HttpResponseRedirect(reverse(get_url_form(app), args = [item.id]))
+        if ('list-add' in request.POST):
+            lst_id = list_add(request.user, app, request.POST['name'])
+            return HttpResponseRedirect(reverse('note:' + app + '_list_form', args = [lst_id]))
+        if ('group-add' in request.POST):
+            grp_id = group_add(request.user, app, request.POST['name'])
+            return HttpResponseRedirect(reverse('note:' + app + '_group_form', args = [grp_id]))
+
+    if (app_param.restriction == 'all'):
+        title = _('all').capitalize()
+    elif (app_param.restriction == 'list') and app_param.lst:
+        lst = Lst.objects.filter(user = request.user.id, id = app_param.lst.id).get()
+        title = lst.name
+    else:
+        title = _('notes with unknown restriction').capitalize()
+
+    app_param, context = get_base_context_ext(request, app, 'note', title)
+
+    if app_param.lst:
+        context['list_id'] = app_param.lst.id
+    context['restriction'] = app_param.restriction
+    context['all_qty'] = len(filtered_list(request.user, 'all', app))
+
+    if app_param.sort:
+        context['sort_mode'] = SORT_MODE_DESCR[app_param.sort].capitalize()
+    context['sort_dir'] = not app_param.reverse
+
+    if (app == 'note'):
+        template_file = 'note/note_form.html'
+    else:
+        template_file = 'note/news_form.html'
     
-    context = get_base_context(request, folder_id, 0, node.name, 'content_list')
-    context['sets'] = sets
-    template_file = 'note/note_list.html'
-    template = loader.get_template(template_file)
-    return HttpResponse(template.render(context, request))
-
-#----------------------------------
-def note_down(request, folder_id):
-    folder = get_object_or_404(Folder.objects.filter(id = folder_id, user = request.user.id))
-    node = get_object_or_404(Folder.objects.filter(id = folder.node, user = request.user.id))
-    if not node.is_open:
-        node.is_open = True
-        node.save()
-    if folder.content_id:
-        return HttpResponseRedirect(reverse('note:note_form', args = [folder_id, folder.content_id]))
-    else:
-        return HttpResponseRedirect(reverse('note:note_list', args = [folder_id]))
-
-#----------------------------------
-def note_add(request, folder_id):
-    if (request.method == 'POST'):
-        form = NoteForm(request.POST)
-    else:
-        new_code = get_next_code(request.user.id, folder_id)
-        form = NoteForm(initial = {'name': '', 'code': new_code, })
-    return show_page_form(request, folder_id, 0, _('create a new note'), 'note', form)
-
-#----------------------------------
-def note_form(request, folder_id, content_id):
-    if not Note.objects.filter(id = content_id, user = request.user.id).exists():
-        return HttpResponseRedirect(reverse('hier:folder_form', args = [folder_id]))
-    note_file = get_object_or_404(Folder.objects.filter(id = folder_id, user = request.user.id))
-    data = Note.objects.filter(id = content_id, user = request.user.id).get()
-    if (request.method == 'POST'):
-        form = NoteForm(request.POST, instance = data)
-    else:
-        form = NoteForm(instance = data)
-
-    return show_page_form(request, folder_id, content_id, _('note') + ' "' + data.name + '"', 'note', form)
-
-
-#----------------------------------
-@login_required(login_url='account:login')
-#----------------------------------
-def note_move(request, folder_id, content_id, to_folder):
-    note_file = get_object_or_404(Folder.objects.filter(id = folder_id, user = request.user.id))
-    dst_folder = get_object_or_404(Folder.objects.filter(id = to_folder, user = request.user.id))
-    note_file.node = to_folder
-    note_file.save()
-    return HttpResponseRedirect(reverse('hier:folder_list', args = [dst_folder.node]))
-
-
-#----------------------------------
-@login_required(login_url='account:login')
-#----------------------------------
-def note_del(request, folder_id, content_id):
-    note_file = get_object_or_404(Folder.objects.filter(id = folder_id, user = request.user.id))
-    node_id = note_file.node
-    if is_in_trash(folder_id):
-        note = get_object_or_404(Note.objects.filter(id = content_id, user = request.user.id))
-        note.delete()
-        note_file.delete()
-    else:
-        ready = get_ready_folder(request.user.id, folder_id)
-        if not ready:
-            put_in_the_trash(request.user, folder_id)
-        else:
-            if (ready.id == node_id):
-                put_in_the_trash(request.user, folder_id)
+    redirect = False
+    if app_param.article:
+        if (app_param.kind == 'item'):
+            if not Note.objects.filter(id = app_param.art_id, user = request.user.id, kind = app).exists():
+                set_article_visible(request.user, app, False)
+                redirect = True
             else:
-                # Put in the Ready-Folder
-                note_file.node = ready.id
-                note_file.save()
-                node_id = ready.node
+                redirect = item_details(request, context, app_param, app)
+        elif (app_param.kind == 'list'):
+            can_delete = not Note.objects.filter(lst = app_param.art_id).exists()
+            redirect = list_details(request, context, app_param.art_id, app, can_delete)
+            if not redirect:
+                template_file = 'note/' + app + '_list_form.html'
+        elif (app_param.kind == 'group'):
+            redirect = group_details(request, context, app_param.art_id, app)
+            if not redirect:
+                template_file = 'note/' + app + '_group_form.html'
 
-    return HttpResponseRedirect(reverse('hier:folder_list', args = [node_id]))
+    if redirect:
+        return HttpResponseRedirect(reverse(get_url_list(app)) + extract_get_params(request))
 
-#----------------------------------
-# News
-#----------------------------------
-@login_required(login_url='account:login')
-#----------------------------------
-def news_list(request, folder_id):
-    process_common_commands(request, app_name)
-    data = Folder.objects.filter(user = request.user.id, node = folder_id).order_by('-creation')
-    if request.method != 'GET':
-        page_number = 1
-    else:
-        page_number = request.GET.get('page')
+    tree = build_tree(request.user.id, app)
+    for t in tree:
+        if t.is_list:
+            t.qty = len(Note.objects.filter(user = request.user.id, lst = t.id))
+    context['groups'] = tree
+
+    query = None
+    if request.method == 'GET':
         query = request.GET.get('q')
-        if query:
-            lookups = Q(name__icontains=query) | Q(code__icontains=query) | Q(descr__icontains=query) | Q(publ__icontains=query)
-            filtered_news = Note.objects.filter(user = request.user.id).filter(lookups).distinct()
-            data = Folder.objects.filter(user = request.user.id, node = folder_id, content_id__in = filtered_news).order_by('-creation')
-            
-    paginator = Paginator(data, 10)
-    page_obj = paginator.get_page(page_number)
-    
-    news = []
-    for entry in page_obj:
-        note = Note.objects.filter(user = request.user.id, id = entry.content_id).get()
-        news.append([entry, note])
+    data = filtered_sorted_list(request.user, app_param, query, app)
 
-    context = get_base_context(request, folder_id, 0, _('news'), 'content_list')
-    context['news'] = news
-    context['total'] = len(data)
-    context['page_obj'] = page_obj
-    template_file = 'note/news_list.html'
+    page_number = 1
+    if (request.method == 'GET'):
+        page_number = request.GET.get('page')
+    paginator = Paginator(data, items_in_page)
+    page_obj = paginator.get_page(page_number)
+    context['page_obj'] = paginator.get_page(page_number)
+    context['search_info'] = get_search_info(query)
     template = loader.get_template(template_file)
     return HttpResponse(template.render(context, request))
 
+
 #----------------------------------
-def news_add(request, folder_id):
-    node = get_object_or_404(Folder.objects.filter(id = folder_id, user = request.user.id))
+def item_form(request, pk, app):
+    set_article_kind(request.user, app, 'item', pk)
+    return HttpResponseRedirect(reverse(get_url_list(app)) + extract_get_params(request))
+
+
+#----------------------------------
+def all_items(request, app):
+    set_restriction(request.user, app, 'all')
+    return HttpResponseRedirect(reverse(get_url_list(app)))
+
+
+#----------------------------------
+def list_items(request, pk, app):
+    set_restriction(request.user, app, 'list', pk)
+    return HttpResponseRedirect(reverse(get_url_list(app)))
+
+#----------------------------------
+def list_form(request, pk, app):
+    set_article_kind(request.user, app, 'list', pk)
+    return HttpResponseRedirect(reverse(get_url_list(app)))
+
+#----------------------------------
+def group_form(request, pk, app):
+    set_article_kind(request.user, app, 'group', pk)
+    return HttpResponseRedirect(reverse(get_url_list(app)))
+
+#----------------------------------
+def toggle_group(request, pk, app):
+    group_toggle(request.user, app, pk)
+    return HttpResponseRedirect(reverse(get_url_list(app)) + extract_get_params(request))
+
+#----------------------------------
+def filtered_sorted_list(user, app_param, query, app):
+    data = filtered_list(user, app_param.restriction, app, query, app_param.lst)
+
+    if not data:
+        return data
+
+    if (app == 'news') and (app_param.sort == ''):
+        return data.order_by('-publ')
+
+    return sort_data(data, app_param.sort, app_param.reverse)
+
+#----------------------------------
+def filtered_list(user, restriction, app, query = None, lst = None):
+    if (restriction == 'all'):
+        data = Note.objects.filter(user = user.id, kind = app)
+    elif (restriction == 'list') and lst:
+        data = Note.objects.filter(user = user.id, kind = app, lst = lst.id)
+    else:
+        data = []
+
+    if not query:
+        return data
+
+    search_mode = get_search_mode(query)
+    lookups = None
+    if (search_mode == 0):
+        return data
+    elif (search_mode == 1):
+        lookups = Q(name__icontains=query) | Q(code__icontains=query) | Q(descr__icontains=query) | Q(url__icontains=query)
+    elif (search_mode == 2):
+        lookups = Q(categories__icontains=query[1:])
+    
+    return data.filter(lookups).distinct()
+
+#----------------------------------
+def process_sort_commands(request, app):
+    if ('sort-delete' in request.POST):
+        set_sort_mode(request.user, app, '')
+        return True
+    if ('sort-name' in request.POST):
+        set_sort_mode(request.user, app, 'name')
+        return True
+    if ('sort-descr' in request.POST):
+        set_sort_mode(request.user, app, 'descr')
+        return True
+    if ('sort-publ' in request.POST):
+        set_sort_mode(request.user, app, 'publ')
+        return True
+    if ('sort-lmod' in request.POST):
+        set_sort_mode(request.user, app, 'last_mod')
+        return True
+    if ('sort-direction' in request.POST):
+        toggle_sort_dir(request.user, app)
+        return True
+    return False
+
+#----------------------------------
+def item_details(request, context, app_param, app):
+    if not Note.objects.filter(user = request.user.id, kind = app, id = app_param.art_id).exists():
+        set_article_visible(request.user, app, False)
+        return True
+
+    item = get_object_or_404(Note.objects.filter(user = request.user.id, kind = app, id = app_param.art_id))
+
+    form = None
+
     if (request.method == 'POST'):
-        form = NoteForm(request.POST)
-    else:
-        new_code = get_next_code(request.user.id, folder_id)
-        form = NoteForm(initial = {'name': '', 'code': new_code, 'publ': datetime.now()})
-    return show_page_form(request, folder_id, 0, _('create new news'), 'news', form)
+        #raise Exception(request.POST)
+        if ('article_delete' in request.POST):
+            delete_item(request, app_param.kind, app_param.art_id, app)
+            return True
+        if ('item-save' in request.POST):
+            form = NoteForm(request.user, app, request.POST, instance = item)
+            if form.is_valid():
+                data = form.save(commit = False)
+                data.user = request.user
+                if form.cleaned_data.get('category'):
+                    if data.categories:
+                        data.categories += ' '
+                    data.categories += form.cleaned_data['category']
+                form.save()
+                return True
+        if ('url-delete' in request.POST):
+            item.url = ''
+            item.save()
+            return True
+        if ('category-delete' in request.POST):
+            category = request.POST['category-delete']
+            item.categories = item.categories.replace(category, '')
+            item.save()
+            return True
+        if ('file-upload' in request.POST):
+            file_form = FileForm(request.POST, request.FILES)
+            if file_form.is_valid():
+                handle_uploaded_file(request.FILES['upload'], request.user, item, app)
+                return True
 
-#----------------------------------
-def news_form(request, folder_id, content_id):
-    data = get_object_or_404(Note.objects.filter(id = content_id, user = request.user.id))
-    if (request.method == 'POST'):
-        form = NoteForm(request.POST, instance = data)
-    else:
-        form = NoteForm(instance = data)
+    if not form:
+        form = NoteForm(request.user, app, instance = item)
 
-    return show_page_form(request, folder_id, content_id, _('news') + ' "' + data.name + '"', 'news', form)
-
-#----------------------------------
-@login_required(login_url='account:login')
-#----------------------------------
-def news_del(request, folder_id, content_id):
-    file = get_object_or_404(Folder.objects.filter(id = folder_id, user = request.user.id))
-    node_id = file.node
-    data = get_object_or_404(Note.objects.filter(id = content_id, user = request.user.id))
-    if is_in_trash(folder_id):
-        data.delete()
-        file.delete()
-    else:
-        put_in_the_trash(request.user, folder_id)
-    return HttpResponseRedirect(reverse('note:news_list', args = [node_id]))
-
-#----------------------------------
-@login_required(login_url='account:login')
-#----------------------------------
-def show_page_form(request, folder_id, content_id, title, name, form, extra_context = {}):
-    if (request.method == 'POST'):
-        if form.is_valid():
-            data = form.save(commit = False)
-            data.user = request.user
-            form.save()
-            redirect_id = check_file_for_content(request.user, folder_id, data.id, data.name, data.code, content_id == 0)
-            return HttpResponseRedirect(reverse('hier:folder_list', args = [redirect_id]))
-    context = get_base_context(request, folder_id, content_id, title, form = form)
-    context.update(extra_context)
-    template = loader.get_template('note/' + name + '_form.html')
-    return HttpResponse(template.render(context, request))
+    context['form'] = form
+    context['item_id'] = item.id
+    context['categories'] = get_categories_list(item.categories)
+    context['files'] = get_files_list(request.user, app, 'note_{}'.format(item.id))
+    return False
 
 
 #----------------------------------
-# Нужно ли добавлять заметку по клиек на папке
-#----------------------------------
-def can_create_note(folder_id, content_id):
-    if content_id:
-        ret = False
-    else:
-        ret = True
-        for file in Folder.objects.filter(node = folder_id):
-            if not file.content_id:
-                ret = False
-                break
-    return ret
+def delete_item(request, kind, art_id, app):
+    if (kind == 'item'):
+        item = get_object_or_404(Note.objects.filter(user = request.user.id, id = art_id))
+        item.delete()
+        set_article_visible(request.user, app, False)
+
 
 #----------------------------------
-# Инкрементация кода для новой заметки
-#----------------------------------
-def get_next_code(user_id, list_folder_id):
-    new_code = '1'
-    last = Folder.objects.filter(user = user_id, node = list_folder_id).order_by('-code')[0:1]
-    if (len(last) > 0):
-        try:
-            num_code = int(last[0].code)
-            num_code = num_code + 1
-            new_code = str(num_code)
-        except ValueError:
-            pass
-    return new_code
+def get_file_storage_path(user, item, app):
+    return file_storage_path.format(user.id) + '{}/note_{}/'.format(app, item.id)
 
+#----------------------------------
+def handle_uploaded_file(f, user, item, app):
+    path = get_file_storage_path(user, item, app)
+    os.makedirs(os.path.dirname(path), exist_ok = True)
+    with open(path + f.name, 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
+
+#----------------------------------
+def get_doc(request, name, app):
+    app_param = get_app_params(request.user, app)
+    item = get_object_or_404(Note.objects.filter(id = app_param.art_id))
+    path = get_file_storage_path(request.user, item, app)
+    try:
+        fsock = open(path + name, 'rb')
+        return FileResponse(fsock)
+    except IOError:
+        response = HttpResponseNotFound()
+
+
+#----------------------------------
+def note_list(request):
+    return item_list(request, 'note')
+
+def note_form(request, pk):
+    return item_form(request, pk, 'note')
+
+def all_notes(request):
+    return all_items(request, 'note')
+
+def list_notes(request, pk):
+    return list_items(request, pk, 'note')
+
+def note_list_form(request, pk):
+    return list_form(request, pk, 'note')
+
+def note_group_form(request, pk):
+    return group_form(request, pk, 'note')
+
+def note_toggle_group(request, pk):
+    return toggle_group(request, pk, 'note')
+
+def note_get_doc(request, name):
+    return get_doc(request, name, 'note')
+
+#----------------------------------
+def news_list(request):
+    return item_list(request, 'news')
+
+def news_form(request, pk):
+    return item_form(request, pk, 'news')
+
+def all_news(request):
+    return all_items(request, 'news')
+
+def list_news(request, pk):
+    return list_items(request, pk, 'news')
+
+def news_list_form(request, pk):
+    return list_form(request, pk, 'news')
+
+def news_group_form(request, pk):
+    return group_form(request, pk, 'news')
+
+def news_toggle_group(request, pk):
+    return toggle_group(request, pk, 'news')
+
+def news_get_doc(request, name):
+    return get_doc(request, name, 'news')
 
 

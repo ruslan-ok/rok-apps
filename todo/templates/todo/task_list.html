@@ -31,7 +31,7 @@
       </a></li>
     <li{% if cur_view == 'all' %} class="selected"{% endif %}><a class="fix" href="{% url 'todo:all_tasks' %}">
         <div class="nav-menu-item-left">
-          <img src="{% static 'todo/icon/all.png' %}">
+          <img src="{% static 'rok/icon/all.png' %}">
           {% trans 'all'|capfirst %}
         </div>
         <div class="nav-menu-qty">{{ all_qty }}</div>
@@ -53,7 +53,7 @@
         {% if node.is_list %}
           <a href="{% url 'todo:list_items' node.id %}">
             <div class="nav-menu-item-left">
-              <img class="level-{{ node.level }}" src="{% static 'todo/icon/list.png' %}">
+              <img class="level-{{ node.level }}" src="{% static 'rok/icon/list.png' %}">
               <div>{{ node.name }}</div>
             </div>
           </a>
@@ -63,12 +63,12 @@
         {% else %}
           <a href="{% url 'todo:group_form' node.id %}">
             <div class="nav-menu-item-x1">
-              <img class="level-{{ node.level }}" src="{% static 'todo/icon/group.png' %}">
+              <img class="level-{{ node.level }}" src="{% static 'rok/icon/group.png' %}">
               <div class="nav-menu-item-x2">{{ node.name }}</div>
             </div>
           </a>
           <div class="nav-menu-item-right">
-            <a href="{% url 'todo:toggle_group' node.id %}">
+            <a href="{% url 'todo:toggle_group' node.id %}?q={{ request.GET.q }}&page={{ page_obj.number }}">
               {% if node.is_open %}
                 <img class="img-20_20" src="{% static 'rok/icon/direct-down.png' %}">
               {% else %}
@@ -82,9 +82,9 @@
   </ul>
   
   <form method="post" class="grp-actions">{% csrf_token %}
-    <button type="submit" name="list-add" class="default lst-add" label="create list"><img class="img-20_20" src="{% static 'todo/icon/add.png' %}"></button>
+    <button type="submit" name="list-add" class="default lst-add" label="create list"><img class="img-20_20" src="{% static 'rok/icon/add.png' %}"></button>
     <input type="text" class="add-grp" placeholder="{% trans 'create list or group'|capfirst %}" name="name">
-    <button type="submit" name="group-add" class="default grp-add" label="create group"><img class="img-20_20" src="{% static 'todo/icon/group-add.png' %}"></button>
+    <button type="submit" name="group-add" class="default grp-add" label="create group"><img class="img-20_20" src="{% static 'rok/icon/group-add.png' %}"></button>
   </form>
 {% endblock %}
 
@@ -172,7 +172,7 @@
         <ul>
           {% for task in term.todo %}
           <li>
-            <a href="{% url 'todo:task_form' task.0.id %}" class="tree-item{% if task.0.id == task_id %} current{% endif %}">
+            <a href="{% url 'todo:task_form' task.0.id %}?q={{ request.GET.q }}" class="tree-item{% if task.0.id == task_id %} current{% endif %}">
                 <div class="icon">
                   <form method="post">{% csrf_token %}
                     <button type="submit" name="task-in-list-complete" value="{{ task.0.id }}">
@@ -245,20 +245,11 @@
 
 {% block scripts %}
   {{ block.super }}
-  <script>
-    function ShowMenu(menu_id) {
-      if (document.getElementById(menu_id).style.display == "block")
-        document.getElementById(menu_id).style.display = "none";
-      else
-        document.getElementById(menu_id).style.display = "block";
-    }
-  </script>
-
   <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-analytics.js"></script>
   <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-messaging.js"></script>
   <script src="{% static 'todo/js/fcm.js' %}"></script>
-  
+  <script src="{% static 'rok/js/dropdown-menu.js' %}"></script>
 {% endblock %}
 
 

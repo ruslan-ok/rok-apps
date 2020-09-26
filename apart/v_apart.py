@@ -15,7 +15,7 @@ from .forms import ApartForm
 #----------------------------------
 def apart_list(request):
     if process_common_commands(request, app_name):
-        return HttpResponseRedirect(reverse('apart:apart_list'))
+        return HttpResponseRedirect(reverse('apart:apart_list') + extract_get_params(request))
 
     if (request.method == 'POST'):
         if ('item-add' in request.POST):
@@ -40,7 +40,7 @@ def apart_list(request):
             redirect = True
     
     if redirect:
-        return HttpResponseRedirect(reverse('apart:apart_list'))
+        return HttpResponseRedirect(reverse('apart:apart_list') + extract_get_params(request))
 
     enrich_context(context, app_param, request.user.id)
     context['page_obj'] = Apart.objects.filter(user = request.user.id).order_by('name')

@@ -8,7 +8,11 @@ def group_add(user, app_name, name):
     return grp.id
 
 def group_details(request, context, pk, app_name):
-    ed_grp = get_object_or_404(Grp.objects.filter(id = pk, user = request.user.id, app = app_name))
+    if not Grp.objects.filter(id = pk, user = request.user.id, app = app_name).exists():
+        set_aside_visible(request.user, app_name, False)
+        return False
+
+    ed_grp = Grp.objects.filter(id = pk, user = request.user.id, app = app_name).get()
     
     form = None
     if (request.method == 'POST'):
@@ -47,12 +51,16 @@ def list_add(user, app_name, name):
     return lst.id
 
 def list_details(request, context, pk, app_name, can_delete):
-    ed_lst = get_object_or_404(Lst.objects.filter(id = pk, user = request.user.id, app = app_name))
+    if not Lst.objects.filter(id = pk, user = request.user.id, app = app_name).exists():
+        set_aside_visible(request.user, app_name, False)
+        return False
+
+    ed_lst = Lst.objects.filter(id = pk, user = request.user.id, app = app_name).get()
     
     form = None
     if (request.method == 'POST'):
         if ('list-save' in request.POST):
-            form = LstForm(request.POST, instance = ed_lst)
+            form = LstForm(request.user, app_name, request.POST, instance = ed_lst)
             if form.is_valid():
                 lst = form.save(commit = False)
                 lst.user = request.user
@@ -65,7 +73,7 @@ def list_details(request, context, pk, app_name, can_delete):
             return True
 
     if not form:
-        form = LstForm(instance = ed_lst)
+        form = LstForm(request.user, app_name, instance = ed_lst)
 
     context['form'] = form
     return False

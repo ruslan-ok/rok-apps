@@ -10,11 +10,11 @@ from django.utils.translation import gettext_lazy as _
 from django.template import loader
 from django.utils.crypto import get_random_string
 
-from hier.utils import get_base_context_ext, process_common_commands, sort_data
+from hier.utils import get_base_context_ext, process_common_commands, sort_data, extract_get_params
 from hier.params import set_article_visible, set_restriction, set_aside_visible, get_search_mode, get_search_info
 from hier.categories import get_categories_list
 from hier.grp_lst import group_add, group_details, group_toggle, list_add, list_details
-from .models import Entry, Params
+from .models import app_name, Entry, Params
 from .forms import EntryForm, ParamsForm
 from hier.models import Folder
 from hier.params import get_app_params, set_sort_mode, toggle_sort_dir, set_article_kind
@@ -22,7 +22,6 @@ from todo.models import Grp, Lst
 from todo.utils import nice_date
 from todo.tree import build_tree
 
-app_name = 'store'
 url_list = 'store:entry_list'
 url_form = 'store:entry_form'
 url_param = 'store:param_list'
@@ -50,10 +49,10 @@ def entry_list(request):
     locale.setlocale(locale.LC_TIME, request.LANGUAGE_CODE)
 
     if process_common_commands(request, app_name): # aside open/close, article open/close
-        return HttpResponseRedirect(reverse(url_list))
+        return HttpResponseRedirect(reverse(url_list) + extract_get_params(request))
 
     if process_sort_commands(request):
-        return HttpResponseRedirect(reverse(url_list))
+        return HttpResponseRedirect(reverse(url_list) + extract_get_params(request))
 
     app_param = get_app_params(request.user, app_name)
 
@@ -122,7 +121,7 @@ def entry_list(request):
                 template_file = template_group_details
 
     if redirect:
-        return HttpResponseRedirect(reverse(url_list))
+        return HttpResponseRedirect(reverse(url_list) + extract_get_params(request))
 
     query = None
     if request.method == 'GET':
@@ -148,7 +147,7 @@ def entry_list(request):
 #----------------------------------
 def entry_form(request, pk):
     set_article_kind(request.user, app_name, 'item', pk)
-    return HttpResponseRedirect(reverse(url_list))
+    return HttpResponseRedirect(reverse(url_list) + extract_get_params(request))
 
 
 def filtered_sorted_list(user, app_param, query):
@@ -201,7 +200,7 @@ def get_article_item(request, context, app_param):
             article_delete(request, app_param.kind, app_param.art_id)
             return True
         if ('item-save' in request.POST):
-            form = EntryForm(request.POST, instance = item)
+            form = EntryForm(request.user, request.POST, instance = item)
             if form.is_valid():
                 data = form.save(commit = False)
                 data.user = request.user
@@ -226,7 +225,7 @@ def get_article_item(request, context, app_param):
             return True
 
     if not form:
-        form = EntryForm(instance = item)
+        form = EntryForm(request.user, instance = item)
 
     context['form'] = form
     context['article_id'] = item.id
@@ -289,7 +288,7 @@ def param_list(request):
     locale.setlocale(locale.LC_TIME, request.LANGUAGE_CODE)
 
     if process_common_commands(request, app_name): # aside open/close
-        return HttpResponseRedirect(reverse(url_param))
+        return HttpResponseRedirect(reverse(url_param) + extract_get_params(request))
 
     store_params = get_store_params(request.user)
 
@@ -395,7 +394,7 @@ def group_form(request, pk):
 
 def toggle_group(request, pk):
     group_toggle(request.user, app_name, pk)
-    return HttpResponseRedirect(reverse(url_list))
+    return HttpResponseRedirect(reverse(url_list) + extract_get_params(request))
 
 #----------------------------------
 # Parameters
@@ -442,65 +441,6 @@ def make_random_string(user):
         allowed_chars = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#$%^&*(-_=+)'
 
     return get_random_string(params.ln, allowed_chars)
-
-
-
-#======================================================================================================
-def get_lst(user, folder_id):
-    path = []
-    ok = True
-    lst_folder = None
-    while folder_id:
-        if not Folder.objects.filter(id = folder_id).exists():
-            ok = False
-            break
-        f = Folder.objects.filter(id = folder_id).get()
-        if not lst_folder:
-            lst_folder = f
-        else:
-            if (f.model_name == 'store:entry_list'):
-                if (f.name == 'Пароли'):
-                    break
-                path.append(f)
-        folder_id = f.node
-        
-    if (not ok) or (not lst_folder):
-        return ok, None
-        
-    grp = None
-    for f in reversed(path):
-        if Grp.objects.filter(user = user.id, app = 'store', node = grp, name = f.name).exists():
-            grp = Grp.objects.filter(user = user.id, app = 'store', node = grp, name = f.name).get()
-        else:
-            grp = Grp.objects.create(user = user, app = 'store', node = grp, sort = f.code, is_open = f.is_open, name = f.name)
-
-    if Lst.objects.filter(user = user.id, app = 'store', grp = grp, name = lst_folder.name).exists():
-        return ok, Lst.objects.filter(user = user.id, app = 'store', grp = grp, name = lst_folder.name).get()
-
-    return ok, Lst.objects.create(user = user, app = 'store', grp = grp, name = lst_folder.name, sort = lst_folder.code)
-
-
-def convert(request):
-    for e in Entry.objects.all():
-        e.lst = None
-        e.save()
-    Lst.objects.filter(app = 'store').delete()
-    Grp.objects.filter(app = 'store').delete()
-    for e in Entry.objects.all():
-        ok = False
-        lst = None
-        for f in Folder.objects.filter(user = e.user.id, content_id = e.id):
-            if (f.model_name[:6] == 'store:'):
-                ok, lst = get_lst(e.user, f.node)
-                if ok:
-                    break
-        if ok:
-            e.lst = lst
-            e.save()
-    return HttpResponseRedirect(reverse(url_list))
-
-
-
 
 
 

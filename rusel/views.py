@@ -57,35 +57,6 @@ def feedback(request):
 
 
 #----------------------------------
-# Notes
-#----------------------------------
-@login_required(login_url='account:login')
-#----------------------------------
-def note(request):
-    folder_id = 0
-    top_folders = Folder.objects.filter(user = request.user.id, node = 0, model_name = '')
-    for f in top_folders:
-        if Folder.objects.filter(user = request.user.id, node = f.id, model_name = 'note:note_list').exists():
-            folder_id = Folder.objects.filter(user = request.user.id, node = f.id, model_name = 'note:note_list').get().id
-            break
-    return HttpResponseRedirect(reverse('hier:folder_list', args = [folder_id]))
-
-#----------------------------------
-# News
-#----------------------------------
-@login_required(login_url='account:login')
-#----------------------------------
-def news(request):
-    folder_id = 0
-    top_folders = Folder.objects.filter(user = request.user.id, node = 0, model_name = '')
-    for f in top_folders:
-        if Folder.objects.filter(user = request.user.id, node = f.id, model_name = 'note:news_list').exists():
-            folder_id = Folder.objects.filter(user = request.user.id, node = f.id, model_name = 'note:news_list').get().id
-            break
-    return HttpResponseRedirect(reverse('hier:folder_list', args = [folder_id]))
-
-
-#----------------------------------
 # Trash
 #----------------------------------
 @login_required(login_url='account:login')
