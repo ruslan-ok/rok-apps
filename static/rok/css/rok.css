@@ -170,7 +170,7 @@ header .button {
   text-decoration: none;
 }
 
-header .button img:hover {
+header .button:hover, header .button img:hover {
   background-color: #314d61;
 }
 
@@ -182,9 +182,20 @@ header .button img {
   padding: 14px;
 }
 
+header .site-label {
+  color: yellow;
+  padding: 0 15px;
+}
+
 .header-left {
   display: flex;
   align-items: center;
+}
+
+.centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .search-container {

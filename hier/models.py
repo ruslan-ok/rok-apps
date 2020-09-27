@@ -66,7 +66,7 @@ class Param(models.Model):
         verbose_name_plural = _('users parameters')
 
     def __str__(self):
-        return self.user.name + ' - ' + cur_view
+        return self.user.username + ' - ' + self.cur_view
 
 
 # Параметры приложений
@@ -88,7 +88,7 @@ class AppParam(models.Model):
         verbose_name_plural = _('users parameters')
 
     def __str__(self):
-        return self.user.name + ' - ' + app + ':' + kind
+        return self.user.username + ' - ' + self.app + ':' + self.kind
 
 # Параметры приложений
 class VisitedHistory(models.Model):

@@ -335,7 +335,8 @@ def get_base_context_ext(request, app_name, content_kind, title, article_enabled
     context['menu_item_profile'] = get_main_menu_item('profile')
     context['menu_item_logout']  = get_main_menu_item('logout')
     set_aside_visible(request.user, app_name, False)
-    save_last_visited(request.user, app_name + ':' + content_kind + '_list', app_name, title)
+    if content_kind:
+        save_last_visited(request.user, app_name + ':' + content_kind + '_list', app_name, title)
     return app_param, context
 
 #----------------------------------
@@ -403,6 +404,8 @@ def process_common_commands(request, app_name):
     return False
 
 def save_last_visited(user, url, app, page):
+    if not page:
+        return
     param = get_param(user)
     if param:
         param.last_url = url
@@ -411,6 +414,8 @@ def save_last_visited(user, url, app, page):
         param.save()
 
 def get_app_name(id):
+    if (id == 'rusel'):
+        return 'rusel.by'
     if (id == 'apart'):
         return _('communal').capitalize()
     if (id == 'fuel'):

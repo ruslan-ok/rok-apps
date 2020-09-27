@@ -1,0 +1,28 @@
+{% extends "base_rok.html" %}
+{% load i18n %}
+
+{% block window %}
+  <div class="wrapper">
+    <header>
+      <div class="header-left">
+        <div class="site-label">rusel.by</div>
+      </div>
+      <div class="header-left">
+        <a href="{% url 'account:login' %}"><div class="button centered">{% trans 'log in'|capfirst %}</div></a>
+      </div>
+    </header>
+    <div id="page" class="with_header">
+      <aside class="desktop-only">
+      </aside>
+      <main class="{% if article_visible %}narrow{% else %}wide{% endif %}">
+        <div class="w3-container">
+          <p>{% trans 'It looks like you got here by accident, because it is a personal, not a public site.' %}</p>
+          <p>{% trans 'This site does not provide any useful services, so you have a small choice - either close the page or' %}</p>
+          <p><a href="https://www.google.com/">{% trans 'find something more interesting' %}</a></p>
+        </div>
+      </main>
+      <article class="desktop-only">
+      </article>
+    </div>
+  </div>
+{% endblock %}

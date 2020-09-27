@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-26 09:56+0300\n"
+"POT-Creation-Date: 2020-09-27 08:41+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -199,7 +199,7 @@ msgstr "дохранить"
 msgid "Log in"
 msgstr "Вход"
 
-#: .\hier\utils.py:42 .\hier\utils.py:447
+#: .\hier\utils.py:42 .\hier\utils.py:451
 msgid "trash"
 msgstr "корзина"
 
@@ -211,63 +211,63 @@ msgstr "Пожалуйста исправьте ошибку ниже."
 msgid "Please correct the errors below."
 msgstr "Пожалуйста исправьте ошибки ниже."
 
-#: .\hier\utils.py:415
+#: .\hier\utils.py:419
 msgid "communal"
 msgstr "коммуналка"
 
-#: .\hier\utils.py:417
+#: .\hier\utils.py:421
 msgid "fuelings"
 msgstr "заправки"
 
-#: .\hier\utils.py:419
+#: .\hier\utils.py:423
 msgid "hierarchy"
 msgstr "иерархия"
 
-#: .\hier\utils.py:421
+#: .\hier\utils.py:425
 msgid "notes"
 msgstr "заметки"
 
-#: .\hier\utils.py:423 .\hier\utils.py:445
+#: .\hier\utils.py:427 .\hier\utils.py:449
 msgid "news"
 msgstr "новости"
 
-#: .\hier\utils.py:425
+#: .\hier\utils.py:429
 msgid "problems and solutions"
 msgstr "ПиР"
 
-#: .\hier\utils.py:427
+#: .\hier\utils.py:431
 msgid "expenses"
 msgstr "затраты"
 
-#: .\hier\utils.py:429
+#: .\hier\utils.py:433
 msgid "passwords"
 msgstr "пароли"
 
-#: .\hier\utils.py:431
+#: .\hier\utils.py:435
 msgid "tasks"
 msgstr "задачи"
 
-#: .\hier\utils.py:433
+#: .\hier\utils.py:437
 msgid "trips"
 msgstr "поездки"
 
-#: .\hier\utils.py:435
+#: .\hier\utils.py:439
 msgid "work"
 msgstr "работа"
 
-#: .\hier\utils.py:443
+#: .\hier\utils.py:447
 msgid "home"
 msgstr "главная"
 
-#: .\hier\utils.py:449
+#: .\hier\utils.py:453
 msgid "admin"
 msgstr "админ"
 
-#: .\hier\utils.py:451
+#: .\hier\utils.py:455
 msgid "profile"
 msgstr "профиль"
 
-#: .\hier\utils.py:453
+#: .\hier\utils.py:457
 msgid "log out"
 msgstr "выход"
 
