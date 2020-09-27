@@ -1,51 +1,125 @@
-{% extends "base_window.html" %}
-{% load i18n %}
+{% extends "proj/proj_list.html" %}
+{% load static %}
 
-{% block win_content %}
-<div class="w3-container w3-padding">
-
-  <form method="post" class="w3-container w3-card-4 w3-light-grey">{% csrf_token %}
-
-    {% if form.errors %} <p class="errornote"> {% if form.errors.items|length == 1 %}Нужно исправить ошибку.{% else %}Нужно исправить ошибки{% endif %} </p> {% endif %}
-    {% if form.non_field_errors %} {% for error in form.non_field_errors %} <p class="errornote"> {{ error }} </p> {% endfor %} {% endif %}
-
-    <div class="w3-row">
-      <div class="w3-quarter"><div class="w3-margin rok-field">
-          {{ form.date.errors }} {{ form.date.label_tag }} {{ form.date }} {% if form.date.help_text %}<div class="help">{{ form.date.help_text|safe }}</div>{% endif %}
-      </div></div>
-      <div class="w3-quarter"><div class="w3-margin rok-field">
-          {{ form.kol.errors }} {{ form.kol.label_tag }} {{ form.kol }} {% if form.kol.help_text %}<div class="help">{{ form.kol.help_text|safe }}</div>{% endif %}
-      </div></div>
-      <div class="w3-quarter"><div class="w3-margin rok-field">
-          {{ form.price.errors }} {{ form.price.label_tag }} {{ form.price }} {% if form.price.help_text %}<div class="help">{{ form.price.help_text|safe }}</div>{% endif %}
-      </div></div>
-      <div class="w3-quarter"><div class="w3-margin rok-field">
-          {{ form.course.errors }} {{ form.course.label_tag }} {{ form.course }} {% if form.course.help_text %}<div class="help">{{ form.course.help_text|safe }}</div>{% endif %}
-      </div></div>
-    </div>
-
-    <div class="w3-row">
-      <div class="w3-quarter"><div class="w3-margin rok-field">
-          {{ form.usd.errors }} {{ form.usd.label_tag }} {{ form.usd }} {% if form.usd.help_text %}<div class="help">{{ form.usd.help_text|safe }}</div>{% endif %}
-      </div></div>
-      <div class="w3-quarter"><div class="w3-margin rok-field">
-          {{ form.kontr.errors }} {{ form.kontr.label_tag }} {{ form.kontr }} {% if form.kontr.help_text %}<div class="help">{{ form.kontr.help_text|safe }}</div>{% endif %}
-      </div></div>
-      <div class="w3-half"><div class="w3-margin rok-field">
-          {{ form.text.errors }} {{ form.text.label_tag }} {{ form.text }} {% if form.text.help_text %}<div class="help">{{ form.text.help_text|safe }}</div>{% endif %}
-      </div></div>
-    </div>
-
-    <div class="w3-row w3-padding">
-      {% if pk == 0 %}
-        <button type="submit" class="dialog default">{% trans 'add'|capfirst %}</button>
-      {% else %}
-        <button type="submit" class="dialog default">{% trans 'save'|capfirst %}</button>
-      {% endif %}
-      <p>
-    </div>
-
-  </form>
-
-</div>
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static 'proj/css/proj.css' %}">
 {% endblock %}
+
+{% block article_content %}
+  <div class="fields">
+    <form method="post">{% csrf_token %}
+      <button type="hidden" name="item-save"></button>
+      <div class="header">
+        {% if form.errors %}
+          <div class="fieldset">
+            <p class="errornote"> {% if form.errors.items|length == 1 %}{{ please_correct_one }}{% else %}{{ please_correct_all }}{% endif %} </p> 
+          </div>
+        {% endif %}
+        {% if form.non_field_errors %}
+          <div class="fieldset">
+          {% for error in form.non_field_errors %} <p class="errornote"> {{ error }} </p> {% endfor %}
+          </div>
+        {% endif %}
+
+        {% if form.date.errors %} 
+          <div class="row">
+            <div class="field-error">{{ form.date.errors }}</div>
+          </div>
+        {% endif %}
+        <div class="row">
+            <div class="section-item">
+              <div class="editable-content">
+                <div class="">{{ form.date.label_tag }}</div>
+                {{ form.date }}
+              </div>
+              <button type="submit" name="item-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
+            </div>
+        </div>
+      </div>
+
+      <div class="body">
+        <div class="section">
+          {% if form.kol.errors %}
+            <div class="field-error">{{ form.kol.errors }}</div>
+          {% endif %}
+          <div class="row">
+            <div class="label">{{ form.kol.label_tag }}</div>
+            <div class="input summ-field">{{ form.kol }}</div>
+          </div>
+
+          {% if form.price.errors %}
+            <div class="field-error">{{ form.price.errors }}</div>
+          {% endif %}
+          <div class="row">
+            <div class="label">{{ form.price.label_tag }}</div>
+            <div class="input summ-field">{{ form.price }}</div>
+          </div>
+
+          {% if form.course.errors %}
+            <div class="field-error">{{ form.course.errors }}</div>
+          {% endif %}
+          <div class="row">
+            <div class="label">{{ form.course.label_tag }}</div>
+            <div class="input summ-field">{{ form.course }}</div>
+          </div>
+
+          {% if form.usd.errors %}
+            <div class="field-error">{{ form.usd.errors }}</div>
+          {% endif %}
+          <div class="row">
+            <div class="label">{{ form.usd.label_tag }}</div>
+            <div class="input summ-field">{{ form.usd }}</div>
+          </div>
+        </div>
+
+        <div class="section">
+          {% if form.kontr.errors %}
+            <div class="field-error">{{ form.kontr.errors }}</div>
+          {% endif %}
+          <div class="row">
+            <div class="label">{{ form.kontr.label_tag }}</div>
+          </div>
+          <div class="row">
+            <div class="input full-width">{{ form.kontr }}</div>
+          </div>
+        </div>
+
+        <div class="section">
+          {% if form.text.errors %}
+            <div class="field-error">{{ form.text.errors }}</div>
+          {% endif %}
+          <div class="row">
+            <div class="label">{{ form.text.label_tag }}</div>
+          </div>
+          <div class="row">
+            <div class="input">{{ form.text }}</div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  <script>
+    AddAutoResize();
+
+    function AddAutoResize()
+    {
+      document.querySelectorAll('[data-autoresize]').forEach(function (element) {
+      element.style.boxSizing = 'border-box';
+      var offset = element.offsetHeight - element.clientHeight;
+      element.addEventListener('input', function (event) {
+        event.target.style.height = 'auto';
+        event.target.style.height = event.target.scrollHeight + offset + 'px';});
+      element.removeAttribute('data-autoresize');});
+
+      element = document.getElementById('id_text');
+      element.style.minHeight = "25px";
+      element.style.height = (element.scrollHeight + element.offsetHeight - element.clientHeight)+"px";
+    }
+  </script>
+{% endblock %}
+

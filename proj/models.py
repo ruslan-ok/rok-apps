@@ -1,11 +1,17 @@
+from datetime import datetime
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+app_name = 'proj'
+
 class Direct(models.Model):
-    user   = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
+    user   = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'))
     name   = models.CharField(_('direction'), max_length = 200, blank = False)
     active = models.BooleanField(_('active'), default = False)
+    created = models.DateTimeField(_('creation time'), auto_now_add = True)
+    last_mod = models.DateTimeField(_('last modification time'), blank = True, auto_now = True)
 
     class Meta:
         verbose_name = _('direction')
@@ -14,11 +20,8 @@ class Direct(models.Model):
     def __str__(self):
         return self.name
 
-    def s_active(self):
-        if self.active:
-            return '*'
-        else:
-            return ''
+    def get_info(self):
+        return str(self.id)
 
 def deactivate_all(user_id, dirs_id):
     for dir in Direct.objects.filter(user = user_id, active = True).exclude(id = dirs_id):
@@ -34,14 +37,16 @@ def set_active(user_id, dirs_id):
 
 
 class Proj(models.Model):
-    direct = models.ForeignKey(Direct, on_delete=models.CASCADE, verbose_name=_('direct'))
-    date   = models.DateTimeField(_('date'))
-    kol    = models.DecimalField(_('quantity'), blank=False, max_digits=15, decimal_places=3)
-    price  = models.DecimalField(_('price'), blank=False, max_digits=15, decimal_places=2)
-    course = models.DecimalField(_('rate'), blank=False, max_digits=15, decimal_places=4)
-    usd    = models.DecimalField(_('in USD'), blank=False, max_digits=15, decimal_places=2)
-    kontr  = models.CharField(_('manufacturer'), max_length=1000, blank=True)
-    text   = models.TextField(_('information'), blank=True)
+    direct = models.ForeignKey(Direct, on_delete = models.CASCADE, verbose_name = _('direct'))
+    date   = models.DateTimeField(_('date'), default = datetime.now)
+    kol    = models.DecimalField(_('quantity'), blank = False, max_digits = 15, decimal_places = 3)
+    price  = models.DecimalField(_('price'), blank = False, max_digits = 15, decimal_places = 2)
+    course = models.DecimalField(_('rate'), blank = False, max_digits = 15, decimal_places = 4)
+    usd    = models.DecimalField(_('in USD'), blank = False, max_digits = 15, decimal_places = 2)
+    kontr  = models.CharField(_('manufacturer'), max_length = 1000, blank = True)
+    text   = models.TextField(_('information'), blank = True)
+    created = models.DateTimeField(_('creation time'), auto_now_add = True)
+    last_mod = models.DateTimeField(_('last modification time'), blank = True, auto_now = True)
 
     def __str__(self):
         return self.s_date() + ' ' + self.direct.name + ' ' + str(self.summa()) #+ ' ' + self.kontr_cut() + ' ' + self.text_cut()
@@ -76,6 +81,20 @@ class Proj(models.Model):
         else:
             return round(self.usd + ((self.kol * self.price) / self.course), 2)
 
+    def get_info(self):
+        ret = []
+
+        ret.append({'text': '{}: {}'.format(_('summa').capitalize(), self.summa()) })
+
+        if self.kontr:
+            ret.append({'icon': 'separator'})
+            ret.append({'text': self.kontr })
+    
+        if self.text:
+            ret.append({'icon': 'separator'})
+            ret.append({'icon': 'notes'})
+    
+        return ret
 
 def proj_summary(_user):
     try:

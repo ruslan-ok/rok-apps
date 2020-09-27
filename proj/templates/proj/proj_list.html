@@ -1,22 +1,118 @@
-{% extends "base_list.html" %}
+{% extends "proj/proj_aside.html" %}
+{% load static i18n %}
 
-{% block win_content %}
-  <table class="w3-table-all w3-hoverable w3-card-4">
-    <thead>
-      <tr class="w3-theme-l3"><th>Дата</th> <th>Количество</th> <th>Цена</th> <th>Курс</th> <th>USD</th> <th>Контрагент</th> <th>Комментарий</th> </tr>
-    </thead>
-    <tbody>
-      {% for proj in page_obj %}
-      <tr>
-        <td><a href="{% url 'proj:proj_form' proj.id %}">{{ proj.date|date:"d.m.Y" }}</a></td>
-        <td><a href="{% url 'proj:proj_form' proj.id %}">{{ proj.kol    }}</a></td>
-        <td><a href="{% url 'proj:proj_form' proj.id %}">{{ proj.price  }}</a></td>
-        <td><a href="{% url 'proj:proj_form' proj.id %}">{{ proj.course }}</a></td>
-        <td><a href="{% url 'proj:proj_form' proj.id %}">{{ proj.usd    }}</a></td>
-        <td><a href="{% url 'proj:proj_form' proj.id %}">{{ proj.kontr  }}</a></td>
-        <td><a href="{% url 'proj:proj_form' proj.id %}">{{ proj.text   }}</a></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+{% block extrastyle %}
+  <link rel="stylesheet" type="text/css" href="{% static 'todo/css/todo.css' %}">
 {% endblock %}
+
+{% block content %}
+  <div class="top">
+    <div class="main-top-headline">
+      <div class="main-title-container">
+        {{ title }}
+      </div>
+      <div class="main-title-subline">
+        {{ search_info }}
+      </div>
+    </div>
+    <div class="dropdown">
+      <button class="list-sort dropbtn" onclick="ShowMenu('sort_menu')">
+        <img src="{% static 'todo/icon/sort.png' %}">
+        {% trans 'sort'|capfirst %}
+      </button>
+      <form method="post" class="sort-actions">{% csrf_token %}
+        <div class="dropdown-content pos-sort" id="sort_menu">
+          <div class="dropdown-content-title">{% trans 'sort order'|capfirst %}</div>
+          <button type="submit" class="dropdown-content-item" name="sort-date">    <img src="{% static 'todo/icon/important.png' %}"> {% trans 'by date'|capfirst %}                   </button>
+          <button type="submit" class="dropdown-content-item" name="sort-kontr">   <img src="{% static 'todo/icon/important.png' %}"> {% trans 'by contractor'|capfirst %}             </button>
+          <button type="submit" class="dropdown-content-item" name="sort-text">    <img src="{% static 'todo/icon/important.png' %}"> {% trans 'by description'|capfirst %}            </button>
+          <button type="submit" class="dropdown-content-item" name="sort-created"> <img src="{% static 'todo/icon/created.png' %}">   {% trans 'by creation date'|capfirst %}          </button>
+          <button type="submit" class="dropdown-content-item" name="sort-lmod">    <img src="{% static 'todo/icon/created.png' %}">   {% trans 'by last modification date'|capfirst %} </button>
+        </div>
+      </form>
+
+      <div class="sort">
+        {% if sort_mode %}
+        <form method="post" class="sort-actions sort">{% csrf_token %}
+          <button type="submit" name="sort-direction">
+            {% if sort_dir %}
+              <img class="img-20_20" src="{% static 'rok/icon/direct-down.png' %}">
+            {% else %}
+              <img class="img-20_20" src="{% static 'rok/icon/direct-up.png' %}">
+            {% endif %}
+          </button>
+          <span>{{ sort_mode }}</span>
+          <button type="submit" name="sort-delete">
+            <img class="img-20_20" src="{% static 'rok/icon/delete.png' %}">
+          </button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  
+  <form method="post" class="actions">{% csrf_token %}
+    <button type="submit" name="item-add"><img class="img-20_20" src="{% static 'rok/icon/add-gray.png' %}">{% trans 'add new expense'|capfirst %}</button>
+  </form>
+  
+  <div class="tree">
+    <ul>
+      {% for item in page_obj %}
+        <li>
+          <a href="{% url 'proj:proj_form' item.id %}?q={{ request.GET.q }}&page={{ page_obj.number }}" class="{% if item.id == item_id %}current{% endif %}">
+            <div class="tree-item">
+              <div class="info">
+                <div class="name">{{ item.date|date:'d.m.Y' }}</div>
+                <div class="descr">
+                  <div class="inline-element">
+                    {% for attr in item.get_info %}
+                      <div class="inline-element">
+                        {% if attr.icon == "notes" %}
+                          <img class="inline-icon" src="{% static 'rok/icon/inline/notes.png' %}">
+                        {% elif attr.icon == "separator" %}
+                          <img class="inline-icon" src="{% static 'rok/icon/inline/separator.png' %}">
+                        {% endif %}
+                        {% if attr.text %}
+                          <div class="inline-label {% if attr.color %}{{ attr.color }}{% endif %}"><span>{{ attr.text }}</span></div>
+                        {% endif %}
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="icon"> </div>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+    
+    {% if page_obj %}
+      <p>
+      <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a class="w3-button" href="?page=1">&laquo;</a>
+                <a class="w3-button" href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
+            {% endif %}
+    
+            <span class="current active w3-button w3-theme-l1">
+                {{ page_obj.number }}
+            </span>
+    
+            {% if page_obj.has_next %}
+                <a class="w3-button" href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>
+                <a class="w3-button" href="?page={{ page_obj.paginator.num_pages }}">&raquo;</a>
+            {% endif %}
+        </span>
+      </div>
+    {% endif %}
+
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  <script src="{% static 'rok/js/dropdown-menu.js' %}"></script>
+{% endblock %}
+

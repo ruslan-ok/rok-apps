@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-27 08:41+0300\n"
+"POT-Creation-Date: 2020-09-28 00:24+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -220,10 +220,6 @@ msgstr "актуальные"
 msgid "waste entries"
 msgstr "неактуальные"
 
-#: .\store\views.py:81
-msgid "entries with unknown restriction"
-msgstr "записи с неизвестными ограничениями"
-
 #: .\store\views.py:236
 msgid "created:"
 msgstr "создано:"
@@ -231,3 +227,4 @@ msgstr "создано:"
 #: .\store\views.py:314
 msgid "default parameters"
 msgstr "параметры по умолчанию"
+
