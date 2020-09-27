@@ -67,10 +67,10 @@ def item_list(request, app):
             return HttpResponseRedirect(reverse(get_url_form(app), args = [item.id]))
         if ('list-add' in request.POST):
             lst_id = list_add(request.user, app, request.POST['name'])
-            return HttpResponseRedirect(reverse('note:' + app + '_list_form', args = [lst_id]))
+            return HttpResponseRedirect(reverse(app + ':' + app + '_list_form', args = [lst_id]))
         if ('group-add' in request.POST):
             grp_id = group_add(request.user, app, request.POST['name'])
-            return HttpResponseRedirect(reverse('note:' + app + '_group_form', args = [grp_id]))
+            return HttpResponseRedirect(reverse(app + ':' + app + '_group_form', args = [grp_id]))
 
     if (app_param.restriction == 'all'):
         title = _('all').capitalize()
@@ -78,7 +78,10 @@ def item_list(request, app):
         lst = Lst.objects.filter(user = request.user.id, id = app_param.lst.id).get()
         title = lst.name
     else:
-        title = _('notes with unknown restriction').capitalize()
+        if (app == 'note'):
+            return HttpResponseRedirect(reverse('note:all_notes'))
+        else:
+            return HttpResponseRedirect(reverse('news:all_news'))
 
     app_param, context = get_base_context_ext(request, app, 'note', title)
 

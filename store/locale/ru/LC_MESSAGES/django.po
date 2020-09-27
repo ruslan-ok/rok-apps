@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-26 09:56+0300\n"
+"POT-Creation-Date: 2020-09-27 08:41+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -86,7 +86,7 @@ msgstr "группа"
 #: .\store\models.py:40 .\store\templates\store\entry_list.html:14
 #: .\store\templates\store\param_list.html:14
 msgid "actual"
-msgstr "актуальность"
+msgstr "актуальные"
 
 #: .\store\models.py:42
 msgid "generator parameters used"
@@ -231,4 +231,3 @@ msgstr "создано:"
 #: .\store\views.py:314
 msgid "default parameters"
 msgstr "параметры по умолчанию"
-

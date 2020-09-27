@@ -8,7 +8,7 @@
 
 {% block aside_content %}
   <ul class="nav-menu">
-    <li class="important{% if restriction == 'actual' %} selected{% endif %}"><a class="fix" href="{% url 'store:actual' %}">
+    <li{% if restriction == 'actual' %} class="selected"{% endif %}><a class="fix" href="{% url 'store:actual' %}">
         <div class="nav-menu-item-left">
           <img src="{% static 'todo/icon/myday.png' %}">
           {% trans 'actual'|capfirst %}

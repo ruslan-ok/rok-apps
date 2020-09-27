@@ -78,7 +78,7 @@ def entry_list(request):
         lst = Lst.objects.filter(user = request.user.id, id = app_param.lst.id).get()
         title = lst.name
     else:
-        title = _('entries with unknown restriction').capitalize()
+        return HttpResponseRedirect(reverse('store:all'))
 
     app_param, context = get_base_context_ext(request, app_name, 'entry', title)
 
