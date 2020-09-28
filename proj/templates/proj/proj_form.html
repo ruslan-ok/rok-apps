@@ -40,12 +40,12 @@
 
       <div class="body">
         <div class="section">
-          {% if form.kol.errors %}
-            <div class="field-error">{{ form.kol.errors }}</div>
+          {% if form.qty.errors %}
+            <div class="field-error">{{ form.qty.errors }}</div>
           {% endif %}
           <div class="row">
-            <div class="label">{{ form.kol.label_tag }}</div>
-            <div class="input summ-field">{{ form.kol }}</div>
+            <div class="label">{{ form.qty.label_tag }}</div>
+            <div class="input summ-field">{{ form.qty }}</div>
           </div>
 
           {% if form.price.errors %}
@@ -56,12 +56,12 @@
             <div class="input summ-field">{{ form.price }}</div>
           </div>
 
-          {% if form.course.errors %}
-            <div class="field-error">{{ form.course.errors }}</div>
+          {% if form.rate.errors %}
+            <div class="field-error">{{ form.rate.errors }}</div>
           {% endif %}
           <div class="row">
-            <div class="label">{{ form.course.label_tag }}</div>
-            <div class="input summ-field">{{ form.course }}</div>
+            <div class="label">{{ form.rate.label_tag }}</div>
+            <div class="input summ-field">{{ form.rate }}</div>
           </div>
 
           {% if form.usd.errors %}

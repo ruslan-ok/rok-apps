@@ -8,7 +8,7 @@ from django.core.paginator import Paginator
 
 from hier.utils import process_common_commands, get_base_context_ext, sort_data, extract_get_params
 from hier.params import set_sort_mode, toggle_sort_dir, get_search_mode, get_search_info, set_article_kind, set_article_visible
-from .models import app_name, Direct, set_active, Proj
+from .models import app_name, Projects, set_active, Expenses, s_proj_summary
 from .forms import DirectForm
 
 items_in_page = 10
@@ -34,7 +34,7 @@ def dirs_list(request):
     if (request.method == 'POST'):
         #raise Exception(request.POST)
         if ('item-add' in request.POST):
-            item = Direct.objects.create(user = request.user, name = request.POST['item_name_add'])
+            item = Projects.objects.create(user = request.user, name = request.POST['item_name_add'])
             return HttpResponseRedirect(reverse('proj:dirs_form', args = [item.id]))
         if ('item-active' in request.POST):
             pk = request.POST['item-active']
@@ -45,13 +45,16 @@ def dirs_list(request):
     app_param, context = get_base_context_ext(request, app_name, 'dirs', _('projects').capitalize())
 
     direct = None
-    if Direct.objects.filter(user = request.user.id, active = True).exists():
-        direct = Direct.objects.filter(user = request.user.id, active = True).get()
+    if Projects.objects.filter(user = request.user.id, active = True).exists():
+        direct = Projects.objects.filter(user = request.user.id, active = True).get()
+    else:
+        direct = activate_first(request.user.id)
 
     context['cur_view'] = 'dirs'
-    context['dirs_qty'] = len(Direct.objects.filter(user = request.user.id))
+    context['dirs_qty'] = len(Projects.objects.filter(user = request.user.id))
     if direct:
-        context['proj_qty'] = len(Proj.objects.filter(direct = direct))
+        context['proj_qty'] = len(Expenses.objects.filter(direct = direct))
+    context['proj_summary'] = s_proj_summary(direct.id)
 
     if app_param.sort:
         context['sort_mode'] = SORT_MODE_DESCR[app_param.sort].capitalize()
@@ -61,14 +64,13 @@ def dirs_list(request):
     
     redirect = False
     if app_param.article:
-        if (app_param.kind == 'dirs'):
-            if not Direct.objects.filter(id = app_param.art_id, user = request.user.id).exists():
-                set_article_visible(request.user, app_name, False)
-                redirect = True
-            else:
-                redirect = item_details(request, context, app_param)
-                if not redirect:
-                    template_file = 'proj/dirs_form.html'
+        if (app_param.kind != 'dirs') or (not Projects.objects.filter(id = app_param.art_id, user = request.user.id).exists()):
+            set_article_visible(request.user, app_name, False)
+            redirect = True
+        else:
+            redirect = item_details(request, context, app_param)
+            if not redirect:
+                template_file = 'proj/dirs_form.html'
 
     if redirect:
         return HttpResponseRedirect(reverse('proj:dirs_list') + extract_get_params(request))
@@ -106,7 +108,7 @@ def filtered_sorted_list(user, app_param, query):
 
 #----------------------------------
 def filtered_list(user, query):
-    data = Direct.objects.filter(user = user.id)
+    data = Projects.objects.filter(user = user.id)
 
     if not query:
         return data
@@ -140,11 +142,11 @@ def process_sort_commands(request):
 
 #----------------------------------
 def item_details(request, context, app_param):
-    if not Direct.objects.filter(user = request.user.id, id = app_param.art_id).exists():
+    if not Projects.objects.filter(user = request.user.id, id = app_param.art_id).exists():
         set_article_visible(request.user, app_name, False)
         return True
 
-    item = Direct.objects.filter(user = request.user.id, id = app_param.art_id).get()
+    item = Projects.objects.filter(user = request.user.id, id = app_param.art_id).get()
 
     form = None
 
@@ -170,10 +172,22 @@ def item_details(request, context, app_param):
 
 
 #----------------------------------
+def activate_first(user_id):
+    item = None
+    if not Projects.objects.filter(user = user_id, active = True).exists():
+        if Projects.objects.filter(user = user_id).exists():
+            item = Projects.objects.filter(user = user_id)[0]
+            item.active = True
+            item.save()
+
+#----------------------------------
 def delete_item(request, art_id):
-    item = Direct.objects.filter(user = request.user.id, id = art_id).get()
-    if Proj.objects.filter(direct = item.id).exists():
+    item = Projects.objects.filter(user = request.user.id, id = art_id).get()
+    if Expenses.objects.filter(direct = item.id).exists():
         return False
+    is_active = item.active
     item.delete()
+    if is_active:
+        activate_first(request.user.id)
     set_article_visible(request.user, app_name, False)
     return True

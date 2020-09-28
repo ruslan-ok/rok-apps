@@ -1,6 +1,6 @@
 from django.contrib import admin
-from proj.models import Direct, Proj
+from proj.models import Projects, Expenses
 
-admin.site.register(Direct)
-admin.site.register(Proj)
+admin.site.register(Projects)
+admin.site.register(Expenses)
 

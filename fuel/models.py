@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
 from datetime import datetime, date
-from proj.models import Direct, Proj
 from django.utils.translation import gettext, gettext_lazy as _
 
 app_name = 'fuel'
@@ -245,8 +244,6 @@ class Repl(models.Model): # Замена расходников
     manuf    = models.CharField(_('manufacturer'), max_length = 1000, blank = True)
     part_num = models.CharField(_('catalog number'), max_length = 100, blank = True)
     name     = models.CharField(_('name'), max_length = 1000, blank = True)
-    # deprecated
-    oper     = models.ForeignKey(Proj, on_delete=models.CASCADE, null = True, verbose_name=_('project'))
     comment  = models.TextField(_('information'), blank = True, default = None, null = True)
     created  = models.DateTimeField(_('creation time'), auto_now_add = True, null = True)
     last_mod = models.DateTimeField(_('last modification time'), blank = True, auto_now = True, null = True)

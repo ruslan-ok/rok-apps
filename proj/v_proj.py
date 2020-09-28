@@ -8,10 +8,10 @@ from django.utils.translation import gettext_lazy as _
 from django.db.models import Q
 from django.core.paginator import Paginator
 
-from hier.utils import process_common_commands, get_base_context_ext, sort_data, extract_get_params
+from hier.utils import process_common_commands, get_base_context_ext, sort_data, extract_get_params, get_rate_on_date
 from hier.params import set_sort_mode, toggle_sort_dir, get_search_mode, get_search_info, set_article_kind, set_article_visible
 from todo.utils import nice_date
-from .models import app_name, Direct, Proj
+from .models import app_name, Projects, Expenses, s_proj_summary
 from .forms import ProjForm
 
 items_in_page = 10
@@ -30,10 +30,10 @@ SORT_MODE_DESCR = {
 @login_required(login_url='account:login')
 #----------------------------------
 def proj_list(request):
-    if not Direct.objects.filter(user = request.user.id, active = True).exists():
+    if not Projects.objects.filter(user = request.user.id, active = True).exists():
         return HttpResponseRedirect(reverse('proj:dirs_list'))
 
-    direct = Direct.objects.filter(user = request.user.id, active = True).get()
+    direct = Projects.objects.filter(user = request.user.id, active = True).get()
 
     if process_common_commands(request, app_name): # aside open/close, article open/close
         return HttpResponseRedirect(reverse('proj:proj_list') + extract_get_params(request))
@@ -49,8 +49,10 @@ def proj_list(request):
 
     app_param, context = get_base_context_ext(request, app_name, 'proj', '{} [{}]'.format(_('expenses').capitalize(), direct.name))
 
-    context['dirs_qty'] = len(Direct.objects.filter(user = request.user.id))
-    context['proj_qty'] = len(Proj.objects.filter(direct = direct))
+    context['cur_view'] = 'proj'
+    context['dirs_qty'] = len(Projects.objects.filter(user = request.user.id))
+    context['proj_qty'] = len(Expenses.objects.filter(direct = direct))
+    context['proj_summary'] = s_proj_summary(direct.id)
 
     if app_param.sort:
         context['sort_mode'] = SORT_MODE_DESCR[app_param.sort].capitalize()
@@ -60,14 +62,13 @@ def proj_list(request):
     
     redirect = False
     if app_param.article:
-        if (app_param.kind == 'proj'):
-            if not Proj.objects.filter(id = app_param.art_id, direct = direct).exists():
-                set_article_visible(request.user, app_name, False)
-                redirect = True
-            else:
-                redirect = item_details(request, context, app_param, direct)
-                if not redirect:
-                    template_file = 'proj/proj_form.html'
+        if (app_param.kind != 'proj') or (not Expenses.objects.filter(id = app_param.art_id, direct = direct).exists()):
+            set_article_visible(request.user, app_name, False)
+            redirect = True
+        else:
+            redirect = item_details(request, context, app_param, direct)
+            if not redirect:
+                template_file = 'proj/proj_form.html'
 
     if redirect:
         return HttpResponseRedirect(reverse('proj:proj_list') + extract_get_params(request))
@@ -97,7 +98,7 @@ def proj_form(request, pk):
 #----------------------------------
 def item_add(request, direct):
     rate = get_rate_on_date(145, datetime.now())
-    item = Proj.objects.create(direct = direct, course = rate)
+    item = Expenses.objects.create(direct = direct, rate = rate)
     return item
 
 #----------------------------------
@@ -111,7 +112,7 @@ def filtered_sorted_list(direct, app_param, query):
 
 #----------------------------------
 def filtered_list(direct, query):
-    data = Proj.objects.filter(direct = direct)
+    data = Expenses.objects.filter(direct = direct)
 
     if not query:
         return data
@@ -151,11 +152,11 @@ def process_sort_commands(request):
 
 #----------------------------------
 def item_details(request, context, app_param, direct):
-    if not Proj.objects.filter(id = app_param.art_id, direct = direct).exists():
+    if not Expenses.objects.filter(id = app_param.art_id, direct = direct).exists():
         set_article_visible(request.user, app_name, False)
         return True
 
-    item = Proj.objects.filter(id = app_param.art_id, direct = direct).get()
+    item = Expenses.objects.filter(id = app_param.art_id, direct = direct).get()
 
     form = None
 
@@ -185,7 +186,7 @@ def item_details(request, context, app_param, direct):
 
 #----------------------------------
 def delete_item(request, art_id):
-    item = Proj.objects.filter(id = art_id).get()
+    item = Expenses.objects.filter(id = art_id).get()
     item.delete()
     set_article_visible(request.user, app_name, False)
     return True

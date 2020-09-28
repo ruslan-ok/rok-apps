@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 app_name = 'proj'
 
-class Direct(models.Model):
+class Projects(models.Model):
     user   = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'))
     name   = models.CharField(_('direction'), max_length = 200, blank = False)
     active = models.BooleanField(_('active'), default = False)
@@ -21,70 +21,64 @@ class Direct(models.Model):
         return self.name
 
     def get_info(self):
-        return str(self.id)
+        return s_proj_summary(self.id)
 
 def deactivate_all(user_id, dirs_id):
-    for dir in Direct.objects.filter(user = user_id, active = True).exclude(id = dirs_id):
+    for dir in Projects.objects.filter(user = user_id, active = True).exclude(id = dirs_id):
         dir.active = False
         dir.save()
 
 def set_active(user_id, dirs_id):
-    if Direct.objects.filter(user = user_id, id = dirs_id).exists():
-        dir = Direct.objects.filter(user = user_id, id = dirs_id).get()
+    if Projects.objects.filter(user = user_id, id = dirs_id).exists():
+        dir = Projects.objects.filter(user = user_id, id = dirs_id).get()
         deactivate_all(user_id, dir.id)
         dir.active = True
         dir.save()
 
 
-class Proj(models.Model):
-    direct = models.ForeignKey(Direct, on_delete = models.CASCADE, verbose_name = _('direct'))
-    date   = models.DateTimeField(_('date'), default = datetime.now)
-    kol    = models.DecimalField(_('quantity'), blank = False, max_digits = 15, decimal_places = 3)
-    price  = models.DecimalField(_('price'), blank = False, max_digits = 15, decimal_places = 2)
-    course = models.DecimalField(_('rate'), blank = False, max_digits = 15, decimal_places = 4)
-    usd    = models.DecimalField(_('in USD'), blank = False, max_digits = 15, decimal_places = 2)
-    kontr  = models.CharField(_('manufacturer'), max_length = 1000, blank = True)
-    text   = models.TextField(_('information'), blank = True)
+class Expenses(models.Model):
+    direct = models.ForeignKey(Projects, on_delete = models.CASCADE, verbose_name = _('direct'))
+    date = models.DateTimeField(_('date'), default = datetime.now)
+    qty = models.DecimalField(_('quantity'), blank = True, null = True, max_digits = 15, decimal_places = 3)
+    price = models.DecimalField(_('national currency price'), blank = True, null = True, max_digits = 15, decimal_places = 2)
+    rate = models.DecimalField(_('exchange rate'), blank = True, null = True, max_digits = 15, decimal_places = 4)
+    usd = models.DecimalField(_('summa in USD'), blank = True, null = True, max_digits = 15, decimal_places = 2)
+    kontr = models.CharField(_('manufacturer'), max_length = 1000, blank = True)
+    text = models.TextField(_('information'), blank = True)
     created = models.DateTimeField(_('creation time'), auto_now_add = True)
     last_mod = models.DateTimeField(_('last modification time'), blank = True, auto_now = True)
-
-    def __str__(self):
-        return self.s_date() + ' ' + self.direct.name + ' ' + str(self.summa()) #+ ' ' + self.kontr_cut() + ' ' + self.text_cut()
 
     class Meta:
         verbose_name = _('project')
         verbose_name_plural = _('projects')
 
-    def s_date(self):
-        d = str(self.date.day)
-        m = str(self.date.month)
-        y = str(self.date.year)
-        if (len(d) < 2):
-            d = '0' + d
-        if (len(m) < 2):
-            m = '0' + m
-        return d + '.' + m + '.' + y
-    
-    def kontr_cut(self):
-        if (len(self.kontr) < 11):
-            return self.kontr
-        return self.kontr[:10] + '...'
+    def __str__(self):
+        return self.date.strftime('%d.%m.%Y') + ' ' + self.direct.name + ' ' + self.s_summa()
 
-    def text_cut(self):
-        if (len(self.text) < 21):
-            return self.text
-        return self.text[:20] + '...'
-    
     def summa(self):
-        if (self.course == 0):
-            return round(self.usd, 2)
-        else:
-            return round(self.usd + ((self.kol * self.price) / self.course), 2)
+        nc_summa = 0
+        usd_summa = 0
 
+        if self.price:
+            nc_summa = self.price
+            if self.qty:
+                nc_summa = self.price * self.qty
+
+        if self.usd:
+            usd_summa = self.usd
+        elif nc_summa and self.rate:
+            usd_summa = nc_summa / self.rate
+
+        return nc_summa, usd_summa
+
+    def s_summa(self):
+        nc_summa, usd_summa = self.summa()
+        return '{:.2F} USD'.format(usd_summa)
+    
     def get_info(self):
         ret = []
 
-        ret.append({'text': '{}: {}'.format(_('summa').capitalize(), self.summa()) })
+        ret.append({'text': '{}: {}'.format(_('summa').capitalize(), self.s_summa()) })
 
         if self.kontr:
             ret.append({'icon': 'separator'})
@@ -93,17 +87,34 @@ class Proj(models.Model):
         if self.text:
             ret.append({'icon': 'separator'})
             ret.append({'icon': 'notes'})
+            ret.append({'text': self.text })
     
         return ret
 
-def proj_summary(_user):
-    try:
-        cur_dir = Direct.objects.get(user = _user, active = 1)
-        opers = Proj.objects.filter(direct = cur_dir.id)
-        tot = 0
-        for o in opers:
-            tot += o.summa()
-        return cur_dir.name + ': <span id="warning">' + str(int(tot)) + '</span>$'
-    except Direct.DoesNotExist:
-        return ''
+def proj_summary(direct_id):
+    nc_total = 0
+    usd_total = 0
+    in_usd = True
+    if not Projects.objects.filter(id = direct_id).exists():
+        return 0, False
+    direct = Projects.objects.filter(id = direct_id).get()
+    expenses = Expenses.objects.filter(direct = direct.id)
+    for exp in expenses:
+        nc_summa, usd_summa = exp.summa()
+        nc_total += nc_summa
+        usd_total += usd_summa
+        if in_usd and not usd_summa:
+            in_usd = False
+    if in_usd:
+        return usd_total, True
+    else:
+        return nc_total, False
   
+def s_proj_summary(direct_id):
+    total, in_usd = proj_summary(direct_id)
+    if not total:
+        return '-'
+    if in_usd:
+        return '{:.2F} USD'.format(total)
+    return '{:.2F} BYN'.format(total)
+

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-28 00:24+0300\n"
+"POT-Creation-Date: 2020-09-29 00:08+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: .\proj\apps.py:7 .\proj\models.py:56 .\proj\templates\proj\proj_aside.html:9
+#: .\proj\apps.py:7 .\proj\models.py:53 .\proj\templates\proj\proj_aside.html:9
 #: .\proj\v_dirs.py:45
 msgid "projects"
 msgstr "проекты"
@@ -65,16 +65,16 @@ msgid "quantity"
 msgstr "количество"
 
 #: .\proj\models.py:43
-msgid "price"
-msgstr "цена"
+msgid "national currency price"
+msgstr "цена в НДЕ"
 
 #: .\proj\models.py:44
-msgid "rate"
+msgid "exchange rate"
 msgstr "курс"
 
 #: .\proj\models.py:45
-msgid "in USD"
-msgstr "в USD"
+msgid "summa in USD"
+msgstr "сумма в USD"
 
 #: .\proj\models.py:46
 msgid "manufacturer"
@@ -84,39 +84,39 @@ msgstr "производитель"
 msgid "information"
 msgstr "дополнительная информация"
 
-#: .\proj\models.py:55
+#: .\proj\models.py:52
 msgid "project"
 msgstr "проект"
 
-#: .\proj\models.py:87
+#: .\proj\models.py:81
 msgid "summa"
 msgstr "сумма"
 
-#: .\proj\templates\proj\dirs_list.html:21
-#: .\proj\templates\proj\proj_list.html:21
+#: .\proj\templates\proj\dirs_list.html:24
+#: .\proj\templates\proj\proj_list.html:24
 msgid "sort"
 msgstr "сортировка"
 
-#: .\proj\templates\proj\dirs_list.html:25
-#: .\proj\templates\proj\proj_list.html:25
+#: .\proj\templates\proj\dirs_list.html:28
+#: .\proj\templates\proj\proj_list.html:28
 msgid "sort order"
 msgstr "порядок сортировки"
 
-#: .\proj\templates\proj\dirs_list.html:26
+#: .\proj\templates\proj\dirs_list.html:29
 msgid "by name"
 msgstr "по наименованию"
 
-#: .\proj\templates\proj\dirs_list.html:27
-#: .\proj\templates\proj\proj_list.html:29
+#: .\proj\templates\proj\dirs_list.html:30
+#: .\proj\templates\proj\proj_list.html:32
 msgid "by creation date"
 msgstr "по дате создания"
 
-#: .\proj\templates\proj\dirs_list.html:28
-#: .\proj\templates\proj\proj_list.html:30
+#: .\proj\templates\proj\dirs_list.html:31
+#: .\proj\templates\proj\proj_list.html:33
 msgid "by last modification date"
 msgstr "по дате модификации"
 
-#: .\proj\templates\proj\dirs_list.html:54
+#: .\proj\templates\proj\dirs_list.html:57
 msgid "add new project"
 msgstr "добавить новый проект"
 
@@ -124,19 +124,19 @@ msgstr "добавить новый проект"
 msgid "expenses"
 msgstr "расходы"
 
-#: .\proj\templates\proj\proj_list.html:26
+#: .\proj\templates\proj\proj_list.html:29
 msgid "by date"
 msgstr "по дате"
 
-#: .\proj\templates\proj\proj_list.html:27
+#: .\proj\templates\proj\proj_list.html:30
 msgid "by contractor"
 msgstr "по контрагенту"
 
-#: .\proj\templates\proj\proj_list.html:28
+#: .\proj\templates\proj\proj_list.html:31
 msgid "by description"
 msgstr "по описанию"
 
-#: .\proj\templates\proj\proj_list.html:55
+#: .\proj\templates\proj\proj_list.html:58
 msgid "add new expense"
 msgstr "добавить запись"
 
@@ -164,6 +164,7 @@ msgstr "сортировка по контрагенту"
 msgid "sort by description"
 msgstr "сортировка по описанию"
 
-#: .\proj\v_proj.py:180
+#: .\proj\v_proj.py:181
 msgid "created:"
 msgstr "создано:"
+
