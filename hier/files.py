@@ -26,13 +26,30 @@ FILE_DESIGN = [
     'Indigo',
     'MidnightBlue',
     'Maroon',
+    'RoyalBlue',
+    'Green',
+    'Gold',
+    'Teal',
+    'SteelBlue',
 ]
 
 def get_file_design(ext):
+    if (ext.lower() == 'docx'):
+        return 'RoyalBlue'
+    if (ext.lower() == 'xlsx'):
+        return 'Green'
+    if (ext.lower() == 'msg'):
+        return 'Gold'
+    if (ext.lower() == 'pdf'):
+        return 'Brown'
+    if (ext.lower() == 'xml'):
+        return 'Teal'
+    if (ext.lower() == 'xsd'):
+        return 'SteelBlue'
     l = 0
     for c in ext:
         l += ord(c)
-    return FILE_DESIGN[l % 21]
+    return FILE_DESIGN[l % 26]
 
 class File():
     

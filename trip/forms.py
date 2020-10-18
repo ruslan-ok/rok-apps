@@ -40,12 +40,8 @@ class TripForm(TripFormBase):
 
     def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        #self.fields['days'].hidden = True
         self.fields['driver'].queryset = Person.objects.filter(user = user).order_by('name')
         self.fields['passenger'].queryset = Person.objects.filter(user = user).order_by('name')
-        #instance = getattr(self, 'instance', None)
-        #if instance:
-        #    self.fields['summa'].widget.attrs['readonly'] = True
 
     def clean_year(self):
         data = self.cleaned_data['year']
