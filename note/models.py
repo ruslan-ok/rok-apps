@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from todo.models import Lst
 from hier.files import get_files_list
-from hier.params import get_app_params
+from hier.models import get_app_params
 from hier.categories import get_categories_list
 
 app_name = 'note'
@@ -37,7 +37,7 @@ class Note(models.Model):
             ret.append({'text': self.publ.strftime('%d.%m.%Y %H:%M')})
 
         if self.lst:
-            app_param = get_app_params(self.user, app_name)
+            app_param = get_app_params(self.user, self.kind)
             if (app_param.restriction != 'list'):
                 if ret:
                     ret.append({'icon': 'separator'})

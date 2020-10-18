@@ -1,0 +1,251 @@
+{% extends "hier/list.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+  <link rel="stylesheet" type="text/css" href="{% static 'apart/css/apart.css' %}">
+{% endblock %}
+
+{% block actions %}
+  <button type="submit" name="item-add"><img class="img-20_20" src="{% static 'rok/icon/add-gray.png' %}">{% trans 'add new bill'|capfirst %}</button>
+{% endblock %}
+
+{% block article_content %}
+  <div class="fields">
+    <form method="post" enctype="multipart/form-data">{% csrf_token %}
+      <div class="header">
+        {% if form.errors %}
+          <div class="fieldset">
+            <p class="errornote"> {% if form.errors.items|length == 1 %}{{ please_correct_one }}{% else %}{{ please_correct_all }}{% endif %} </p> 
+          </div>
+        {% endif %}
+        {% if form.non_field_errors %}
+          <div class="fieldset">
+          {% for error in form.non_field_errors %} <p class="errornote"> {{ error }} </p> {% endfor %}
+          </div>
+        {% endif %}
+
+        <div class="field-group">
+          <div class="article-name">
+            <div class="section-item">
+              <div class="editable-content main-element">
+                {{ ed_item.period|date:'M.Y' }}
+              </div>
+              <div class="editable-content auxiliary-element">
+                  {{ form.rate.label_tag }}
+                  {{ form.rate.value }}
+              </div>
+              <button type="submit" name="item-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="body">
+        <div class="section">
+          <!-- Entry.payment -->
+          {% if form.payment.errors %}
+            <div class="row">
+              <div class="field-error">{{ form.payment.errors }}</div>
+            </div>
+          {% endif %}
+          <div class="row">
+            {{ form.payment.label_tag }}
+          </div>
+          <div class="row" id="id_payment_view">
+            <div class="full-width">{{ form.payment.value|date:'d.m.Y G:i' }}</div>
+            <div class="button field-icon" id="id_edit" onclick="OpenPaymentEdit()"><img src="{% static 'rok/icon/edit.png' %}"></div>
+          </div>
+          <div class="row" id="id_payment_edit">
+            {{ form.payment }}
+          </div>
+        </div> <!-- section -->
+
+        <div class="section">
+          <table>
+            <tbody>
+              <tr>
+                <td style="width: 25%"></td>
+                <td style="width: 25%"> <b>{% trans 'old'|capfirst %}</b> </td>
+                <td style="width: 25%"> <b>{% trans 'new'|capfirst %}</b> </td>
+                <td style="width: 25%"> <b>{% trans 'volume'|capfirst %}</b> </td>
+              </tr>
+              <tr><td>{% trans 'electro'|capfirst %}</td>
+                <td>{{ ed_item.prev.el }}</td>
+                <td>{{ ed_item.curr.el }}</td>
+                <td>{{ volume.el }}</td>
+              </tr>
+              {% if ed_item.apart.has_gas %}
+              <tr><td>{% trans 'gas'|capfirst %}</td>
+                <td>{{ ed_item.prev.ga }}</td>
+                <td>{{ ed_item.curr.ga }}</td>
+                <td>{{ volume.ga }}</td>
+              </tr>
+              {% endif %}
+              <tr><td>{% trans 'cold'|capfirst %}</td>
+                <td>{{ ed_item.prev.cw }}</td>
+                <td>{{ ed_item.curr.cw }}</td>
+                <td>{{ volume.wt }}</td>
+              </tr>
+              <tr><td>{% trans 'hot'|capfirst %}</td>
+                <td>{{ ed_item.prev.hw }}</td>
+                <td>{{ ed_item.curr.hw }}</td>
+                <td></td>
+              </tr>
+              <tr><td>&nbsp;</td> <td></td> <td></td> <td></td> </tr>
+              <tr>
+                <td></td>
+                <td> <b>{% trans 'tariff'|capfirst %}</b> </td>
+                <td> <b>{% trans 'accrued'|capfirst %}</b> </td>
+                <td> <b>{% trans 'paid'|capfirst %}</b> </td>
+              </tr>
+              <tr><td>{% trans 'internet'|capfirst %}</td>
+                  <td></td>
+                  <td class="rok-field">{{ form.tv_bill.errors }} {{ form.tv_bill }}</td>
+                  <td class="rok-field">{{ form.tv_pay.errors }} {{ form.tv_pay }}</td>
+              </tr>
+              <tr><td>{% trans 'phone'|capfirst %}</td>
+                  <td></td>
+                  <td class="rok-field">{{ form.phone_bill.errors }} {{ form.phone_bill }}</td>
+                  <td class="rok-field">{{ form.phone_pay.errors }} {{ form.phone_pay }}</td>
+              </tr>
+              {% if period_num >= 201508 %}
+                <tr><td>{% trans 'HCS' %}</td>
+                    <td></td>
+                    <td class="rok-field">{{ form.zhirovka.errors }} {{ form.zhirovka }}</td>
+                    <td class="rok-field">{{ form.ZKX_pay.errors }} {{ form.ZKX_pay }}</td>
+                </tr>
+                {% if ed_item.apart.has_ppo %}
+                  <tr><td>{% trans 'PoO' %}</td>
+                      <td></td>
+                      <td class="rok-field">{{ form.PoO.errors }} {{ form.PoO }}</td>
+                      <td class="rok-field">{{ form.PoO_pay.errors }} {{ form.PoO_pay }}</td>
+                  </tr>
+                {% endif %}
+              {% else %}
+                <tr><td>{% trans 'bill'|capfirst %}</td>
+                    <td></td>
+                    <td class="rok-field">{{ form.zhirovka.errors }} {{ form.zhirovka }}</td>
+                    <td> {{ form.zhir_pay }} </td>
+                </tr>
+                <tr><td>{% trans 'heat'|capfirst %}</td>
+                    <td></td>
+                    <td></td>
+                    <td class="rok-field">{{ form.hot_pay.errors }} {{ form.hot_pay }}</td>
+                </tr>
+                <tr><td>{% trans 'overhaul'|capfirst %}</td>
+                    <td></td>
+                    <td></td>
+                    <td class="rok-field">{{ form.repair_pay.errors }} {{ form.repair_pay }}</td>
+                </tr>
+                <tr><td>{% trans 'HCS' %}</td>
+                    <td></td>
+                    <td></td>
+                    <td class="rok-field">{{ form.ZKX_pay.errors }} {{ form.ZKX_pay }}</td>
+                </tr>
+              {% endif %}
+              <tr><td>{% trans 'electro'|capfirst %}</td>
+                  <td>{{ el_tar|floatformat:3 }}</td>
+                  <td>{{ el_bill|floatformat:2 }}</td>
+                  <td class="rok-field">{{ form.el_pay.errors }} {{ form.el_pay }}</td>
+              </tr>
+              {% if ed_item.apart.has_gas %}
+                <tr><td>{% trans 'gas'|capfirst %}</td>
+                    <td>{{ gas_tar|floatformat:3 }}</td>
+                    <td>{{ gas_bill|floatformat:2 }}</td>
+                    <td class="rok-field">{{ form.gas_pay.errors }} {{ form.gas_pay }}</td>
+                </tr>
+              {% endif %}
+              <tr><td>{% trans 'water'|capfirst %}</td>
+                  <td>{{ water_tar|floatformat:3 }}</td>
+                  <td>{{ water_bill|floatformat:2 }}</td>
+                  <td class="rok-field">{{ form.water_pay.errors }} {{ form.water_pay }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section">
+          <div class="section-item section-item-note">
+            <div class="field-error">{{ form.info.errors }}</div>
+            <div class="section-inner">
+              {{ form.info }}
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <!-- Bill.url -->
+          <div class="section-item">
+            <div class="section-inner">
+              <div class="section-icon">
+                <img src="{% static 'rok/icon/click.png' %}">
+              </div>
+              {% if form.url.value %}
+                <div class="section-content">
+                  <div class="section-title">
+                    <input type="hidden" name="url" value="{{ form.url.value }}" id="id_url">
+                    <a href="{{ form.url.value }}">{{ form.url.value }}</a>
+                  </div>
+                </div>
+                <button type="submit" name="url-delete" class="field-icon"><img src="{% static 'rok/icon/delete.png' %}"></button>
+              {% else %}
+                {{ form.url }}
+              {% endif %}
+            </div>
+          </div>
+        </div>
+  
+        <div class="section">
+          <!-- file-list -->
+          <div class="file-list">
+            {% for file in files %}
+              <div class="file-item">
+                <a href="{{ file.url }}" class="clickable-item">
+                  <div class="thumbnail-wrapper" style="background-color: {{ file.design }}">
+                    <div class="thumbnail">{{ file.ext }}</div>
+                  </div>
+                  <div class="file-content">
+                    <div class="file-title">{{ file.name }}</div>
+                    <div class="file-metadata">{{ file.sizeof_fmt }}</div>
+                  </div>
+                </a>
+                <button type="submit" name="file-delete" value="{{ file.id }}" class="field-icon"><img src="{% static 'rok/icon/delete.png' %}"></button>
+              </div>
+            {% endfor %}
+          </div> <!-- file-list -->
+  
+          <!-- file-add -->
+          <div class="file-add">
+            <div class="section-item">
+              <button type="button" name="file-upload" class="section-inner-click">
+                <div class="section-inner">
+                  <div class="section-icon">
+                    <img src="{% static 'todo/icon/file.png' %}">
+                  </div>
+                  <div class="section-content">
+                    <div class="section-title">
+                      <div id="loadFile" type="button" onclick="UploadFile()">{% trans 'add file'|capfirst %}</div>
+                      <input type="file" style="display:none;" id="id_upload" name="upload" onchange="FileSelected()">
+                    </div>
+                  </div>
+                </div>
+              </button>
+              <button type="submit" id="id_submit" name="file-upload"></button>
+            </div>
+          </div> <!-- file-add -->
+        </div> <!-- section -->
+
+      </div>
+    </form>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  <script src="{% static 'rok/js/AddAutoResize.js' %}"></script>
+  <script src="{% static 'rok/js/UploadFile.js' %}"></script>
+  <script src="{% static 'apart/js/OpenPaymentEdit.js' %}"></script>
+{% endblock %}
+
+
+

@@ -1,16 +1,6 @@
 from django.utils.translation import gettext_lazy as _
-from .models import AppParam
 from todo.models import Lst
-
-#----------------------------------
-def get_app_params(user, app):
-    if not user.is_authenticated:
-        return None
-
-    if not AppParam.objects.filter(user = user.id, app = app).exists():
-        return AppParam.objects.create(user = user, app = app, aside = False, article = False, content = '', kind = '', lst = None, art_id = 0)
-
-    return AppParam.objects.filter(user = user.id, app = app).get()
+from .models import get_app_params
 
 #----------------------------------
 def set_aside_visible(user, app_name, visible):

@@ -1,0 +1,116 @@
+{% extends "hier/list.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static 'proj/css/proj.css' %}">
+{% endblock %}
+
+{% block actions %}
+  <button type="submit" name="item-add"><img class="img-20_20" src="{% static 'rok/icon/add-gray.png' %}">{% trans 'add new expense'|capfirst %}</button>
+{% endblock %}
+
+{% block article_info %}
+  {{ item_info }}
+{% endblock %}
+
+{% block article_content %}
+  <div class="fields">
+    <form method="post">{% csrf_token %}
+      <button type="hidden" name="item-save"></button>
+      <div class="header">
+        {% if form.errors %}
+          <div class="fieldset">
+            <p class="errornote"> {% if form.errors.items|length == 1 %}{{ please_correct_one }}{% else %}{{ please_correct_all }}{% endif %} </p> 
+          </div>
+        {% endif %}
+        {% if form.non_field_errors %}
+          <div class="fieldset">
+          {% for error in form.non_field_errors %} <p class="errornote"> {{ error }} </p> {% endfor %}
+          </div>
+        {% endif %}
+
+        {% if form.date.errors %} 
+          <div class="row">
+            <div class="field-error">{{ form.date.errors }}</div>
+          </div>
+        {% endif %}
+        <div class="row">
+            <div class="section-item">
+              <div class="editable-content">
+                <div class="">{{ form.date.label_tag }}</div>
+                {{ form.date }}
+              </div>
+              <button type="submit" name="item-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
+            </div>
+        </div>
+      </div>
+
+      <div class="body">
+        <div class="section">
+          {% if form.qty.errors %}
+            <div class="field-error">{{ form.qty.errors }}</div>
+          {% endif %}
+          <div class="row">
+            <div class="label">{{ form.qty.label_tag }}</div>
+            <div class="input summ-field">{{ form.qty }}</div>
+          </div>
+
+          {% if form.price.errors %}
+            <div class="field-error">{{ form.price.errors }}</div>
+          {% endif %}
+          <div class="row">
+            <div class="label">{{ form.price.label_tag }}</div>
+            <div class="input summ-field">{{ form.price }}</div>
+          </div>
+
+          {% if form.rate.errors %}
+            <div class="field-error">{{ form.rate.errors }}</div>
+          {% endif %}
+          <div class="row">
+            <div class="label">{{ form.rate.label_tag }}</div>
+            <div class="input summ-field">{{ form.rate }}</div>
+          </div>
+
+          {% if form.usd.errors %}
+            <div class="field-error">{{ form.usd.errors }}</div>
+          {% endif %}
+          <div class="row">
+            <div class="label">{{ form.usd.label_tag }}</div>
+            <div class="input summ-field">{{ form.usd }}</div>
+          </div>
+        </div>
+
+        <div class="section">
+          {% if form.kontr.errors %}
+            <div class="field-error">{{ form.kontr.errors }}</div>
+          {% endif %}
+          <div class="row">
+            <div class="label">{{ form.kontr.label_tag }}</div>
+          </div>
+          <div class="row">
+            <div class="input full-width">{{ form.kontr }}</div>
+          </div>
+        </div>
+
+        <div class="section">
+          {% if form.text.errors %}
+            <div class="field-error">{{ form.text.errors }}</div>
+          {% endif %}
+          <div class="row">
+            <div class="label">{{ form.text.label_tag }}</div>
+          </div>
+          <div class="row">
+            <div class="input">{{ form.text }}</div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  <script src="{% static 'rok/js/AddAutoResize.js' %}"></script>
+{% endblock %}
+

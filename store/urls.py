@@ -8,10 +8,10 @@ urlpatterns = [
     path('actual/',   views.actual,     name='actual'),
     path('waste/',    views.waste,      name='waste'),
     path('all/',      views.all,        name='all'),
-    path('params/',   views.param_list, name='param_list'),
+    path('params/',   views.params,     name='param_list'),
 
     path('list/<int:pk>/',         views.list_items,   name='list_items'),
-    path('list_article/<int:pk>/', views.list_form,    name='list_form'),
+    path('list_form/<int:pk>/',    views.list_form,    name='list_form'),
     path('group/<int:pk>/',        views.group_form,   name='group_form'),
     path('toggle_group/<int:pk>/', views.toggle_group, name='toggle_group'),
 ]

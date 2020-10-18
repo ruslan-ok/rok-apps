@@ -1,0 +1,217 @@
+{% extends "hier/list.html" %}
+{% load static %}
+
+{% block article_info %}
+  {{ item_info }}
+{% endblock %}
+
+{% block article_content %}
+<form method="post">{% csrf_token %}
+  <!-- Form Errors -->
+  {% if form.errors %}
+    <div class="fieldset">
+      <p class="errornote"> {% if form.errors.items|length == 1 %}{{ please_correct_one }}{% else %}{{ please_correct_all }}{% endif %} </p> 
+    </div>
+  {% endif %}
+  {% if form.non_field_errors %}
+    <div class="fieldset">
+    {% for error in form.non_field_errors %} <p class="errornote"> {{ error }} </p> {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- EDIT Entry.title -->
+  <div class="header">
+    <button type="hidden" name="item-save" id="id_item_save"></button>
+    <div class="row">
+      {{ form.title.label_tag }}
+    </div>
+    {% if form.actual.errors %}
+      <div class="row">
+        <div class="field-error">{{ form.actual.errors }} - actual</div>
+      </div>
+    {% endif %}
+    <input type="hidden" name="actual" value="{{ form.actual.value }}" required="" id="id_actual">
+    {% if form.title.errors %}
+      <div class="row field-error">{{ form.title.errors }} - title</div>
+    {% endif %}
+    <div class="row editable-content full-width main-element">
+      <button type="submit" name="set-actual" class="field-icon">
+        {% if form.actual.value == 1 %}
+          <img src="{% static 'todo/icon/uncomplete.png' %}">
+        {% else %}
+          <img src="{% static 'todo/icon/complete.png' %}">
+        {% endif %}
+      </button>
+      {{ form.title }}
+      <button type="submit" name="item-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="section">
+      <!-- Entry.username -->
+      {% if form.username.errors %}
+        <div class="row">
+          <div class="field-error">{{ form.username.errors }} - username</div>
+        </div>
+      {% endif %}
+      <div class="row">
+        <div class="editable-content full-width">
+          <div class="labeled-input">
+            <div class="label">{{ form.username.label_tag }}</div>
+            <div class="input">{{ form.username }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Entry.value -->
+      {% if form.value.errors %}
+        <div class="row">
+          <div class="field-error">{{ form.value.errors }} - value</div>
+        </div>
+      {% endif %}
+      {% if form.params.errors %}
+        <div class="row">
+          <div class="field-error">{{ form.params.errors }} - params</div>
+        </div>
+      {% endif %}
+      {% if form.uuid.errors %}
+        <div class="row">
+          <div class="field-error">{{ form.uuid.errors }} - uuid</div>
+        </div>
+      {% endif %}
+      <div class="row">
+        {{ form.value.label_tag }}
+      </div>
+      <div class="row">
+        <div class="editable-content full-width">
+          {{ form.value }}
+          <div class="button field-icon" id="id_edit" onclick="OpenParams()"><img src="{% static 'rok/icon/edit.png' %}"></div>
+          <div class="button field-icon" id="id_execute" onclick="BuildValue()"><img src="{% static 'rok/icon/execute.png' %}"></div>
+        </div>
+      </div>
+      <div class="row" id="id_options">
+        <div class="col">
+          <div class="flex-row"><div class="row"><label for="id_ln">Длина:</label> <input type="number" name="ln" value="15" min="5" max="100" required="" id="id_ln"> </div></div>
+          <div class="w3-panel"><input type="checkbox" name="uc" id="id_uc" checked="">  <label for="id_uc">Буквы в верхнем регистре</label> </div>
+          <div class="w3-panel"><input type="checkbox" name="lc" id="id_lc" checked="">  <label for="id_lc">Буквы в нижнем регистре</label>  </div>
+          <div class="w3-panel"><input type="checkbox" name="dg" id="id_dg" checked="">  <label for="id_dg">Цифры</label>                    </div>
+          <div class="w3-panel"><input type="checkbox" name="sp" id="id_sp">             <label for="id_sp">Специальные символы</label>      </div>
+          <div class="w3-panel"><input type="checkbox" name="br" id="id_br">             <label for="id_br">Скобки</label>                   </div>
+          <div class="w3-panel"><input type="checkbox" name="mi" id="id_mi">             <label for="id_mi">Минус</label>                    </div>
+          <div class="w3-panel"><input type="checkbox" name="ul" id="id_ul">             <label for="id_ul">Знак подчеркивания</label>       </div>
+          <div class="w3-panel"><input type="checkbox" name="ac" id="id_ac" checked="">  <label for="id_ac">Исключить путаницу</label>       </div>
+        </div>
+      </div>
+      <div class="row" id="id_buttons">
+          <div class="button field-icon full-width flex-row"></div>
+          <div class="button field-icon" onclick="CloseParams()"><img src="{% static 'rok/icon/close-top.png' %}"></div>
+      </div>
+      <input type="hidden" name="default_len" value="{{ default_len }}" id="id_default_len">
+      <input type="hidden" name="default_params" value="{{ default_params }}" id="id_default_params">
+      <input type="hidden" name="params" value="{{ form.params.value }}" required="" id="id_params">
+    </div> <!-- section -->
+
+    <div class="section">
+      <!-- Entry.url -->
+      <div class="row">
+        <div class="label">{{ form.url.label_tag }}</div>
+      </div>
+      {% if form.url.errors %}
+        <div class="row">
+          <div class="field-error">{{ form.url.errors }}</div>
+        </div>
+      {% endif %}
+      <div class="row">
+        {% if form.url.value %}
+              <input type="hidden" name="url" value="{{ form.url.value }}" id="id_url">
+              <a href="{{ form.url.value }}">{{ form.url.value }}</a>
+            <button type="submit" name="url-delete" class="field-icon"><img src="{% static 'rok/icon/delete.png' %}"></button>
+        {% else %}
+          <div class="editable-content full-width">
+            <div class="labeled-input">
+              <div class="input">{{ form.url }}</div>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Entry.notes -->
+      <div class="section-item">
+        <div class="section-inner">
+          <div class="field-error">{{ form.notes.errors }}</div>
+          <div class="editable-content full-width">
+            <div class="labeled-input">
+              <div class="label">{{ form.notes.label_tag }}</div>
+              <div class="input">{{ form.notes }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> <!-- section -->
+
+    <div class="section">
+      <!-- Entry.lst -->
+      <div class="section-item">
+        <div class="section-inner">
+          <div class="field-error">{{ form.lst.errors }}</div>
+          <div class="editable-content full-width">
+            <div class="labeled-input">
+              <div class="label">{{ form.lst.label_tag }}</div>
+              <div class="input">{{ form.lst }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Entry.categories -->
+      <div class="row">
+        {{ form.category.label_tag }}
+      </div>
+      <div class="row">
+        {% if categories %}
+          <button type="hidden" name="category-delete" id="id_category_delete" value="???"></button>
+            <div class="categories">
+              {% for categ in categories %}
+                <div class="category category-design-{{ categ.design }}">
+                  <div class="label">
+                    <div class="value">
+                      {{ categ.name }}
+                    </div>
+                  </div>
+                  <div class="icon" onclick="CategoryDelete('{{categ.name}}')">
+                  <div class="delete">
+                    <svg height="8" width="8" style="fill: currentcolor;">
+                      <path d="M4.46607 4L8 7.53905L7.53905 8L4 4.46607L0.460948 8L0 7.53905L3.53393 4L0 0.460948L0.460948 0L4 3.53393L7.53905 0L8 0.460948L4.46607 4Z"></path>
+                    </svg>
+                  </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+        {% endif %}
+      </div>
+      {% if form.category.errors %}
+      <div class="row">
+        <div class="field-error">{{ form.category.errors }}</div>
+      </div>
+	  {% endif %}
+      <div class="row">
+        <div class="section-icon">
+          <img src="{% static 'todo/icon/category.png' %}">
+        </div>
+        {{ form.category }}
+      </div>
+    </div> <!-- section -->
+
+  </div> <!-- body -->
+</form>
+{% endblock %}
+
+
+{% block scripts %}
+  {{ block.super }}
+  <script src="{% static 'rok/js/AddAutoResize.js' %}"></script>
+  <script src="{% static 'rok/js/CategoryDelete.js' %}"></script>
+  <script src="{% static 'store/js/EntriesParam.js' %}"></script>
+{% endblock %}
+

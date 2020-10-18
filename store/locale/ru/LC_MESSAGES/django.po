@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-28 00:24+0300\n"
+"POT-Creation-Date: 2020-10-18 19:51+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: .\store\forms.py:8 .\store\models.py:41
+#: .\store\forms.py:8 .\store\models.py:42
 msgid "categories"
 msgstr "категории"
 
@@ -31,200 +31,178 @@ msgstr "добавить категорию"
 msgid "add note"
 msgstr "добавить примечание"
 
-#: .\store\forms.py:22 .\store\models.py:67
+#: .\store\forms.py:22 .\store\models.py:100
 msgid "length"
 msgstr "длина"
 
-#: .\store\models.py:13 .\store\models.py:29 .\store\models.py:66
+#: .\store\models.py:14 .\store\models.py:30 .\store\models.py:99
 msgid "user"
 msgstr "пользователь"
 
-#: .\store\models.py:14
+#: .\store\models.py:15
 msgid "code"
 msgstr "код"
 
-#: .\store\models.py:15
+#: .\store\models.py:16
 msgid "name"
 msgstr "наименование"
 
-#: .\store\models.py:16 .\store\models.py:35
+#: .\store\models.py:17 .\store\models.py:36
 msgid "UUID"
 msgstr "идентификатор"
 
-#: .\store\models.py:17 .\store\models.py:36
+#: .\store\models.py:18 .\store\models.py:37
 msgid "creation time"
 msgstr "дата-время создания"
 
-#: .\store\models.py:18 .\store\models.py:37
+#: .\store\models.py:19 .\store\models.py:38
 msgid "last modification time"
 msgstr "дата-время модификации"
 
-#: .\store\models.py:30
+#: .\store\models.py:31
 msgid "title"
 msgstr "название"
 
-#: .\store\models.py:31
+#: .\store\models.py:32
 msgid "username"
 msgstr "имя пользователя"
 
-#: .\store\models.py:32
+#: .\store\models.py:33
 msgid "value"
 msgstr "значение"
 
-#: .\store\models.py:33
+#: .\store\models.py:34
 msgid "URL"
 msgstr "URL"
 
-#: .\store\models.py:34
+#: .\store\models.py:35
 msgid "notes"
 msgstr "примечание"
 
-#: .\store\models.py:39
+#: .\store\models.py:40
 msgid "group"
 msgstr "группа"
 
-#: .\store\models.py:40 .\store\templates\store\entry_list.html:14
-#: .\store\templates\store\param_list.html:14
+#: .\store\models.py:41 .\store\views.py:45
 msgid "actual"
 msgstr "актуальные"
 
-#: .\store\models.py:42
+#: .\store\models.py:43
 msgid "generator parameters used"
 msgstr "использовавшиеся параметры генератора"
 
-#: .\store\models.py:43
+#: .\store\models.py:44
 msgid "list"
 msgstr "список"
 
-#: .\store\models.py:57
+#: .\store\models.py:90
 msgid "node"
 msgstr "узел"
 
-#: .\store\models.py:58
+#: .\store\models.py:91
 msgid "entry"
 msgstr "запись"
 
-#: .\store\models.py:68
+#: .\store\models.py:101
 msgid "upper case"
 msgstr "буквы в верхнем регистре"
 
-#: .\store\models.py:69
+#: .\store\models.py:102
 msgid "lower case"
 msgstr "буквы в нижнем регистре"
 
-#: .\store\models.py:70
+#: .\store\models.py:103
 msgid "digits"
 msgstr "цифры"
 
-#: .\store\models.py:71
+#: .\store\models.py:104
 msgid "special symbols"
 msgstr "специальные символы"
 
-#: .\store\models.py:72
+#: .\store\models.py:105
 msgid "brackets"
 msgstr "скобки"
 
-#: .\store\models.py:73
+#: .\store\models.py:106
 msgid "minus"
 msgstr "минус"
 
-#: .\store\models.py:74
+#: .\store\models.py:107
 msgid "underline"
 msgstr "знак подчеркивания"
 
-#: .\store\models.py:75
+#: .\store\models.py:108
 msgid "avoid confusion"
 msgstr "исключить путаницу"
 
-#: .\store\models.py:78 .\store\models.py:79
+#: .\store\models.py:111 .\store\models.py:112
 msgid "user settings"
 msgstr "настройки пользователя"
 
-#: .\store\templates\store\entry_list.html:21
-#: .\store\templates\store\param_list.html:21
-msgid "waste"
-msgstr "неактуальные"
-
-#: .\store\templates\store\entry_list.html:28
-#: .\store\templates\store\param_list.html:28
-msgid "all"
-msgstr "все"
-
-#: .\store\templates\store\entry_list.html:35
-#: .\store\templates\store\param_list.html:35
-msgid "default options"
-msgstr "параметры по умолчанию"
-
-#: .\store\templates\store\entry_list.html:78
-#: .\store\templates\store\param_list.html:78
-msgid "create list or group"
-msgstr "создать список или группу"
-
-#: .\store\templates\store\entry_list.html:99
-msgid "sort"
-msgstr "сортировка"
-
-#: .\store\templates\store\entry_list.html:103
-msgid "sort order"
-msgstr "порядок сортировки"
-
-#: .\store\templates\store\entry_list.html:104
-msgid "by title"
-msgstr "по наименованию"
-
-#: .\store\templates\store\entry_list.html:105
-msgid "by user name"
-msgstr "по имени пользователя"
-
-#: .\store\templates\store\entry_list.html:106
-msgid "by URL"
-msgstr "по URL"
-
-#: .\store\templates\store\entry_list.html:107
-msgid "by creation date"
-msgstr "по дате создания"
-
-#: .\store\templates\store\entry_list.html:132
-msgid "add entry"
-msgstr "добавить запись"
-
-#: .\store\templates\store\entry_list.html:133
-msgid "add item"
-msgstr "добавить элемент"
-
-#: .\store\views.py:37
+#: .\store\views.py:34
 msgid "sort by title"
 msgstr "сортировка по наименованию"
 
-#: .\store\views.py:38
+#: .\store\views.py:35
 msgid "sort by username"
 msgstr "сортировка имени пользователя"
 
-#: .\store\views.py:39
+#: .\store\views.py:36
 msgid "sort by URL"
 msgstr "сортировка по URL"
 
-#: .\store\views.py:40
+#: .\store\views.py:37
 msgid "sort by create date"
 msgstr "сортировка по дате создания"
 
-#: .\store\views.py:72
+#: .\store\views.py:46
+msgid "waste"
+msgstr "неактуальные"
+
+#: .\store\views.py:47
+msgid "all"
+msgstr "все"
+
+#: .\store\views.py:48
+msgid "default options"
+msgstr "параметры по умолчанию"
+
+#: .\store\views.py:102
 msgid "all entries"
 msgstr "все записи"
 
-#: .\store\views.py:74
+#: .\store\views.py:104
 msgid "actual entries"
 msgstr "актуальные"
 
-#: .\store\views.py:76
+#: .\store\views.py:106
 msgid "waste entries"
 msgstr "неактуальные"
 
-#: .\store\views.py:236
-msgid "created:"
-msgstr "создано:"
-
-#: .\store\views.py:314
+#: .\store\views.py:108
 msgid "default parameters"
 msgstr "параметры по умолчанию"
 
+#: .\store\views.py:120
+msgid "by title"
+msgstr "по наименованию"
+
+#: .\store\views.py:121
+msgid "by user name"
+msgstr "по имени пользователя"
+
+#: .\store\views.py:122
+msgid "by URL"
+msgstr "по URL"
+
+#: .\store\views.py:123
+msgid "by creation date"
+msgstr "по дате создания"
+
+#: .\store\views.py:126
+msgid "add entry"
+msgstr "добавить запись"
+
+#: .\store\views.py:266
+msgid "created:"
+msgstr "создано:"

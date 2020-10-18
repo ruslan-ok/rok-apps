@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-26 09:56+0300\n"
+"POT-Creation-Date: 2020-10-18 19:51+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,117 +19,115 @@ msgstr ""
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: .\trip\apps.py:7 .\trip\models.py:63 .\trip\templates\trip\trip.html:20
-#: .\trip\v_trip.py:31
+#: .\trip\apps.py:7 .\trip\models.py:73 .\trip\views.py:25 .\trip\views.py:87
 msgid "trips"
 msgstr "поездки"
 
-#: .\trip\forms.py:16 .\trip\models.py:40 .\trip\models.py:67
-#: .\trip\models.py:134
+#: .\trip\forms.py:8 .\trip\models.py:50 .\trip\models.py:77
+#: .\trip\models.py:145
 msgid "summa"
 msgstr "сумма"
 
-#: .\trip\forms.py:40
+#: .\trip\forms.py:39
 msgid "add note"
 msgstr "добавить заметку"
 
-#: .\trip\models.py:11 .\trip\models.py:36 .\trip\models.py:50
+#: .\trip\models.py:12 .\trip\models.py:46 .\trip\models.py:60
 msgid "user"
 msgstr "пользователь"
 
-#: .\trip\models.py:12
+#: .\trip\models.py:13
 msgid "name"
 msgstr "имя"
 
-#: .\trip\models.py:13
+#: .\trip\models.py:14
 msgid "dative"
 msgstr "в дательном падеже"
 
-#: .\trip\models.py:14 .\trip\models.py:39
+#: .\trip\models.py:15 .\trip\models.py:49
 msgid "me"
 msgstr "я"
 
-#: .\trip\models.py:17
+#: .\trip\models.py:18
 msgid "person"
 msgstr "человек"
 
-#: .\trip\models.py:18 .\trip\templates\trip\trip.html:13 .\trip\v_pers.py:31
+#: .\trip\models.py:19 .\trip\views.py:24 .\trip\views.py:86
 msgid "persons"
 msgstr "люди"
 
-#: .\trip\models.py:37
+#: .\trip\models.py:47
 msgid "person 1"
 msgstr "человек 1"
 
-#: .\trip\models.py:38
+#: .\trip\models.py:48
 msgid "person 2"
 msgstr "человек 2"
 
-#: .\trip\models.py:43
+#: .\trip\models.py:53
 msgid "saldo"
 msgstr "сальдо"
 
-#: .\trip\models.py:44
+#: .\trip\models.py:54
 msgid "saldos"
 msgstr "сальдо"
 
-#: .\trip\models.py:51
+#: .\trip\models.py:61
 msgid "year"
 msgstr "год"
 
-#: .\trip\models.py:52 .\trip\models.py:66
+#: .\trip\models.py:62 .\trip\models.py:76
 msgid "week"
 msgstr "неделя"
 
-#: .\trip\models.py:53
+#: .\trip\models.py:63
 msgid "days"
 msgstr "дни"
 
-#: .\trip\models.py:54
+#: .\trip\models.py:64
 msgid "operation"
 msgstr "операция"
 
-#: .\trip\models.py:55
+#: .\trip\models.py:65
 msgid "price"
 msgstr "цена"
 
-#: .\trip\models.py:56 .\trip\models.py:67 .\trip\models.py:131
+#: .\trip\models.py:66 .\trip\models.py:77 .\trip\models.py:141
 msgid "driver"
 msgstr "водитель"
 
-#: .\trip\models.py:57 .\trip\models.py:67 .\trip\models.py:131
+#: .\trip\models.py:67 .\trip\models.py:77 .\trip\models.py:141
 msgid "passenger"
 msgstr "пассажир"
 
-#: .\trip\models.py:58
+#: .\trip\models.py:68
 msgid "information"
 msgstr "дополнительная информация"
 
-#: .\trip\models.py:59
+#: .\trip\models.py:69
 msgid "last modification"
 msgstr "время последнего изменения"
 
-#: .\trip\models.py:62
+#: .\trip\models.py:72
 msgid "trip"
 msgstr "поездка"
 
-#: .\trip\models.py:95
+#: .\trip\models.py:105
 msgid "driveway"
 msgstr "проезд"
 
-#: .\trip\models.py:97
+#: .\trip\models.py:107
 msgid "payment"
 msgstr "оплата"
 
-#: .\trip\templates\trip\pers_list.html:15
-msgid "add person"
-msgstr "Добавить человека"
-
-#: .\trip\templates\trip\trip_list.html:21
+#: .\trip\templates\trip\trip.html:10
 msgid "add new trip"
 msgstr "добавить поездку или оплату"
 
-#: .\trip\templates\trip\trip_list.html:22
+#: .\trip\templates\trip\trip.html:11
 msgid "count saldo"
 msgstr "расчет сальдо"
 
+#: .\trip\views.py:93
+msgid "add person"
+msgstr "Добавить человека"

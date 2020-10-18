@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-27 08:41+0300\n"
+"POT-Creation-Date: 2020-10-18 19:51+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,38 +19,50 @@ msgstr ""
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: .\rusel\templates\base_list.html:85 .\rusel\templates\base_window.html:65
-#: .\rusel\views.py:57
-msgid "feedback"
-msgstr "контакты"
+#: .\rusel\templates\base\content.html:22 .\rusel\templates\base\list.html:158
+msgid "sort"
+msgstr "сортировка"
 
-#: .\rusel\templates\base_sidebar.html:32
+#: .\rusel\templates\base\content.html:26 .\rusel\templates\base\list.html:162
+msgid "sort order"
+msgstr "порядок сортировки"
+
+#: .\rusel\templates\base\list.html:41
+msgid "create list or group"
+msgstr "создать список или группу"
+
+#: .\rusel\templates\base\list.html:74 .\rusel\templates\base_sidebar.html:32
 msgid "application launcher"
 msgstr "средство запуска приложений"
 
-#: .\rusel\templates\base_sidebar.html:34
+#: .\rusel\templates\base\list.html:76 .\rusel\templates\base_sidebar.html:34
 msgid "open sidebar"
 msgstr "открыть боковую панель"
 
-#: .\rusel\templates\base_sidebar.html:43
+#: .\rusel\templates\base\list.html:85 .\rusel\templates\base_sidebar.html:43
 msgid "parameters"
 msgstr "параметры"
 
-#: .\rusel\templates\base_sidebar.html:44
+#: .\rusel\templates\base\list.html:86 .\rusel\templates\base_sidebar.html:44
 msgid "user profile"
 msgstr "профиль пользователя"
 
-#: .\rusel\templates\base_sidebar.html:54
+#: .\rusel\templates\base\list.html:96 .\rusel\templates\base_sidebar.html:56
 msgid "close sidebar"
 msgstr "закрыть боковую панель"
 
-#: .\rusel\templates\base_sidebar.html:93
+#: .\rusel\templates\base\list.html:285 .\rusel\templates\base_sidebar.html:99
 msgid "close details"
 msgstr "закрыть карточку записи"
 
-#: .\rusel\templates\base_sidebar.html:95
+#: .\rusel\templates\base\list.html:287 .\rusel\templates\base_sidebar.html:101
 msgid "delete record"
 msgstr "удалить запись"
+
+#: .\rusel\templates\base_list.html:85 .\rusel\templates\base_window.html:65
+#: .\rusel\views.py:77
+msgid "feedback"
+msgstr "контакты"
 
 #: .\rusel\templates\index_anonim.html:11
 msgid "log in"
@@ -76,6 +88,6 @@ msgstr ""
 msgid "find something more interesting"
 msgstr "найти что-нибудь более интересное"
 
-#: .\rusel\views.py:34
+#: .\rusel\views.py:39
 msgid "applications"
 msgstr "приложения"

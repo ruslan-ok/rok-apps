@@ -1,0 +1,14 @@
+{% extends "hier/list.html" %}
+{% load static i18n %}
+
+{% block actions %}
+  <button type="submit" name="item-add"><img class="img-20_20" src="{% static 'rok/icon/add-gray.png' %}">{% trans 'add accrual'|capfirst %}</button>
+{% endblock %}
+
+{% block article_content %}
+  <form method="post">{% csrf_token %}
+    {{ form }}
+    <button type="submit" name="item-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
+  </form>
+{% endblock %}
+

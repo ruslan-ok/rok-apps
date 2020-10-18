@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-26 09:56+0300\n"
+"POT-Creation-Date: 2020-10-18 19:51+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,44 +23,499 @@ msgstr ""
 msgid "wage"
 msgstr "зарплата"
 
-#: .\wage\models.py:113
+#: .\wage\forms.py:44 .\wage\forms.py:52 .\wage\forms.py:61 .\wage\forms.py:68
+#: .\wage\forms.py:75 .\wage\forms.py:135
+msgid "add note"
+msgstr "добавить заметку"
+
+#: .\wage\models.py:12 .\wage\models.py:76 .\wage\models.py:122
+#: .\wage\models.py:134 .\wage\models.py:397
+msgid "user"
+msgstr "пользователь"
+
+#: .\wage\models.py:13
+msgid "month/year"
+msgstr "месяц/год"
+
+#: .\wage\models.py:14 .\wage\templates\wage\total.html:11
+msgid "plan, days"
+msgstr "план, дней"
+
+#: .\wage\models.py:15
+msgid "prepayment date"
+msgstr "дата аванса"
+
+#: .\wage\models.py:16
+msgid "payment date"
+msgstr "дата выплаты"
+
+#: .\wage\models.py:17
+msgid "prepayment rate"
+msgstr "курс аванса"
+
+#: .\wage\models.py:18
+msgid "payment rate"
+msgstr "курс выплаты"
+
+#: .\wage\models.py:19
+msgid "incoming debt rate"
+msgstr "курс входящего остатка"
+
+#: .\wage\models.py:20
+msgid "second payment date"
+msgstr "дата второй выплаты"
+
+#: .\wage\models.py:21
+msgid "second payment rate"
+msgstr "курс второй выплаты"
+
+#: .\wage\models.py:22
+msgid "current billing period"
+msgstr "текущий расчетный период"
+
+#: .\wage\models.py:25 .\wage\models.py:382 .\wage\models.py:409
+msgid "billing period"
+msgstr "расчетный период"
+
+#: .\wage\models.py:26
+msgid "billing periods"
+msgstr "расчетные периоды"
+
+#: .\wage\models.py:38 .\wage\templates\wage\period.html:67
+msgid "prepayment"
+msgstr "аванс"
+
+#: .\wage\models.py:40 .\wage\templates\wage\period.html:94
+msgid "payment"
+msgstr "выплата"
+
+#: .\wage\models.py:42 .\wage\templates\wage\period.html:121
+msgid "second payment"
+msgstr "вторая выплата"
+
+#: .\wage\models.py:77 .\wage\models.py:123 .\wage\models.py:219
+#: .\wage\models.py:398 .\wage\models.py:413
+msgid "name"
+msgstr "наименование"
+
+#: .\wage\models.py:78 .\wage\models.py:137 .\wage\models.py:218
+#: .\wage\models.py:412
+msgid "sorting"
+msgstr "сортировка"
+
+#: .\wage\models.py:79
+msgid "node is open"
+msgstr "узел иерархии открыт"
+
+#: .\wage\models.py:80
+msgid "current department"
+msgstr "текущий отдел"
+
+#: .\wage\models.py:83 .\wage\models.py:98 .\wage\models.py:246
+#: .\wage\templates\wage\total.html:9
+msgid "department"
+msgstr "отдел"
+
+#: .\wage\models.py:84 .\wage\views.py:322 .\wage\views.py:327
+#: .\wage\views.py:382
+msgid "departments"
+msgstr "отделы"
+
+#: .\wage\models.py:97
+msgid "begin date"
+msgstr "дата начала"
+
+#: .\wage\models.py:99
+msgid "superior department"
+msgstr "вышестоящий отдел"
+
+#: .\wage\models.py:102 .\wage\views.py:323 .\wage\views.py:384
+msgid "department history"
+msgstr "изменения отдела"
+
+#: .\wage\models.py:103
+msgid "departments history"
+msgstr "изменения отделов"
+
+#: .\wage\models.py:126 .\wage\models.py:247
+#: .\wage\templates\wage\total.html:10
+msgid "post"
+msgstr "должность"
+
+#: .\wage\models.py:127 .\wage\views.py:328 .\wage\views.py:378
+msgid "posts"
+msgstr "должности"
+
+#: .\wage\models.py:135
+msgid "full name"
+msgstr "ФИО"
+
+#: .\wage\models.py:136
+msgid "login"
+msgstr "логин"
+
+#: .\wage\models.py:138
+msgid "email"
+msgstr "адрес электронной почты"
+
+#: .\wage\models.py:139
+msgid "password"
+msgstr "пароль"
+
+#: .\wage\models.py:140 .\wage\models.py:217
+msgid "birthday"
+msgstr "дата рождения"
+
+#: .\wage\models.py:141
+msgid "phone"
+msgstr "телефон"
+
+#: .\wage\models.py:142
+msgid "address"
+msgstr "адрес"
+
+#: .\wage\models.py:143 .\wage\models.py:195 .\wage\models.py:220
+#: .\wage\models.py:249 .\wage\models.py:297 .\wage\models.py:417
+msgid "information"
+msgstr "примечания"
+
+#: .\wage\models.py:144
+msgid "current employee"
+msgstr "текущий сотрудник"
+
+#: .\wage\models.py:147 .\wage\models.py:192 .\wage\models.py:216
+#: .\wage\models.py:240 .\wage\models.py:286 .\wage\models.py:381
+#: .\wage\models.py:408
+msgid "employee"
+msgstr "сотрудник"
+
+#: .\wage\models.py:148 .\wage\views.py:313 .\wage\views.py:326
+#: .\wage\views.py:386
+msgid "employees"
+msgstr "сотрудники"
+
+#: .\wage\models.py:193
+msgid "use before this date"
+msgstr "использовать до этой даты"
+
+#: .\wage\models.py:194
+msgid "surname"
+msgstr "фамилия"
+
+#: .\wage\models.py:198
+msgid "surname changes"
+msgstr "изменения фамилии"
+
+#: .\wage\models.py:199
+msgid "surnames changes"
+msgstr "изменения фамилий"
+
+#: .\wage\models.py:202
 msgid "before"
 msgstr "действовало до"
 
-#: .\wage\models.py:127
+#: .\wage\models.py:223
+msgid "child"
+msgstr "ребёнок"
+
+#: .\wage\models.py:224 .\wage\views.py:320
+msgid "children"
+msgstr "дети"
+
+#: .\wage\models.py:227
 msgid "was born on"
 msgstr "дата рождения"
 
-#: .\wage\templates\wage\accrual_form.html:41
-#: .\wage\templates\wage\appoint_form.html:50
-#: .\wage\templates\wage\child_form.html:29
-#: .\wage\templates\wage\dep_hist_form.html:23
-#: .\wage\templates\wage\depart_form.html:22
-#: .\wage\templates\wage\education_form.html:59
-#: .\wage\templates\wage\empl_form.html:50
-#: .\wage\templates\wage\fio_hist_form.html:26
-#: .\wage\templates\wage\pay_title_form.html:20
-#: .\wage\templates\wage\payout_form.html:41
-#: .\wage\templates\wage\period_form.html:53
-#: .\wage\templates\wage\post_form.html:20
-msgid "add"
-msgstr "добавить"
+#: .\wage\models.py:241
+msgid "personnel number"
+msgstr "табельный номер"
 
-#: .\wage\templates\wage\accrual_form.html:43
-#: .\wage\templates\wage\appoint_form.html:52
-#: .\wage\templates\wage\child_form.html:31
-#: .\wage\templates\wage\dep_hist_form.html:25
-#: .\wage\templates\wage\depart_form.html:24
-#: .\wage\templates\wage\education_form.html:61
-#: .\wage\templates\wage\empl_form.html:52
-#: .\wage\templates\wage\fio_hist_form.html:28
-#: .\wage\templates\wage\pay_title_form.html:22
-#: .\wage\templates\wage\payout_form.html:43
-#: .\wage\templates\wage\period_form.html:55
-#: .\wage\templates\wage\post_form.html:22
-msgid "save"
-msgstr "сохранить"
+#: .\wage\models.py:242
+msgid "contract from"
+msgstr "контракт с"
 
-#: .\wage\templates\wage\depart_form.html:25
-msgid "change node"
-msgstr "изменить вышестоящее"
+#: .\wage\models.py:243
+msgid "contract until"
+msgstr "контракт по"
+
+#: .\wage\models.py:244 .\wage\templates\wage\total.html:7
+msgid "salary"
+msgstr "оклад"
+
+#: .\wage\models.py:245 .\wage\models.py:415 .\wage\templates\wage\total.html:8
+msgid "currency"
+msgstr "валюта"
+
+#: .\wage\models.py:248 .\wage\models.py:387
+msgid "income tax relief"
+msgstr "льгота по ПН"
+
+#: .\wage\models.py:252
+msgid "appointment"
+msgstr "назначение"
+
+#: .\wage\models.py:253 .\wage\views.py:317
+msgid "appointments"
+msgstr "назначения"
+
+#: .\wage\models.py:267 .\wage\models.py:287 .\wage\models.py:335
+#: .\wage\models.py:337 .\wage\models.py:365
+msgid "from"
+msgstr "с"
+
+#: .\wage\models.py:270 .\wage\models.py:288 .\wage\models.py:335
+msgid "until"
+msgstr "по"
+
+#: .\wage\models.py:289
+msgid "university"
+msgstr "ВУЗ"
+
+#: .\wage\models.py:290
+msgid "course"
+msgstr "учебный курс"
+
+#: .\wage\models.py:291
+msgid "specialty"
+msgstr "специальность"
+
+#: .\wage\models.py:292
+msgid "qualification"
+msgstr "квалификация"
+
+#: .\wage\models.py:293 .\wage\models.py:359
+msgid "document"
+msgstr "документ"
+
+#: .\wage\models.py:294
+msgid "number"
+msgstr "номер"
+
+#: .\wage\models.py:295
+msgid "city"
+msgstr "город"
+
+#: .\wage\models.py:296
+msgid "document date"
+msgstr "дата документа"
+
+#: .\wage\models.py:300
+msgid "education"
+msgstr "образование"
+
+#: .\wage\models.py:301 .\wage\views.py:318
+msgid "educations"
+msgstr "образования"
+
+#: .\wage\models.py:340
+msgid "in"
+msgstr "в"
+
+#: .\wage\models.py:383
+msgid "fact, days"
+msgstr "факт, дней"
+
+#: .\wage\models.py:384
+msgid "incoming debt, BYN"
+msgstr "входящий остаток, BYN"
+
+#: .\wage\models.py:385
+msgid "outgoing debt, BYN"
+msgstr "исходящий остаток, BYN"
+
+#: .\wage\models.py:386
+msgid "salary rate"
+msgstr "курс оклада"
+
+#: .\wage\models.py:390
+msgid "employee billing period"
+msgstr "расчетный период сотрудника"
+
+#: .\wage\models.py:391
+msgid "employee billing periods"
+msgstr "расчетные периоды сотрудников"
+
+#: .\wage\models.py:401
+msgid "name of accrual or payment"
+msgstr "наименование начисления или выплаты"
+
+#: .\wage\models.py:402
+msgid "names of accruals and payments"
+msgstr "наименования начислений и выплат"
+
+#: .\wage\models.py:410
+msgid "direction"
+msgstr "направление"
+
+#: .\wage\models.py:410
+msgid "0 - accrual, 1 - payment"
+msgstr "0 - начисление, 1 - выплата"
+
+#: .\wage\models.py:411
+msgid "payed"
+msgstr "выплачено"
+
+#: .\wage\models.py:414
+msgid "summa"
+msgstr "сумма"
+
+#: .\wage\models.py:416 .\wage\templates\wage\period.html:86
+#: .\wage\templates\wage\period.html:113 .\wage\templates\wage\period.html:140
+msgid "rate"
+msgstr "курс"
+
+#: .\wage\models.py:420
+msgid "accrual or payment"
+msgstr "начисление или выплата"
+
+#: .\wage\models.py:421
+msgid "accruals and payments"
+msgstr "начисления и выплаты"
+
+#: .\wage\templates\wage\accrual.html:5
+msgid "add accrual"
+msgstr "добавить начисление"
+
+#: .\wage\templates\wage\appoint.html:5
+msgid "add appointment"
+msgstr "добавить назначение"
+
+#: .\wage\templates\wage\dep_hist.html:5 .\wage\templates\wage\dep_info.html:5
+msgid "add department history record"
+msgstr "добавить запись истории изменений отдела"
+
+#: .\wage\templates\wage\payment.html:5
+msgid "add payment"
+msgstr "добавить выплату"
+
+#: .\wage\templates\wage\period.html:5
+msgid "add period"
+msgstr "добавить период"
+
+#: .\wage\templates\wage\period.html:75 .\wage\templates\wage\period.html:102
+#: .\wage\templates\wage\period.html:129
+msgid "date"
+msgstr "дата"
+
+#: .\wage\templates\wage\total.html:6
+msgid "appointmrnt end date"
+msgstr "дата окончания назначения"
+
+#: .\wage\templates\wage\total.html:12
+msgid "accrued, BYN"
+msgstr "начисления, BYN"
+
+#: .\wage\templates\wage\total.html:13
+msgid "paid out, BYN"
+msgstr "выплаты, BYN"
+
+#: .\wage\templates\wage\total.html:14
+msgid "incoming debt, USD"
+msgstr "входящий остаток, USD"
+
+#: .\wage\templates\wage\total.html:15
+msgid "accrued, USD"
+msgstr "начисления, USD"
+
+#: .\wage\templates\wage\total.html:16
+msgid "paid out, USD"
+msgstr "выплаты, USD"
+
+#: .\wage\templates\wage\total.html:17
+msgid "outgoing debt, USD"
+msgstr "исходящий остаток, USD"
+
+#: .\wage\views.py:40
+msgid "add employee"
+msgstr "добавить сотрудника"
+
+#: .\wage\views.py:41
+msgid "add department"
+msgstr "добавить отдел"
+
+#: .\wage\views.py:42
+msgid "add post"
+msgstr "добавить должность"
+
+#: .\wage\views.py:43
+msgid "add pay title"
+msgstr "добавить начисление или выплату"
+
+#: .\wage\views.py:44
+msgid "add education"
+msgstr "добавить образование"
+
+#: .\wage\views.py:45
+msgid "add surname"
+msgstr "добавить фамилию"
+
+#: .\wage\views.py:46
+msgid "add child"
+msgstr "добавить ребёнка"
+
+#: .\wage\views.py:312 .\wage\views.py:325 .\wage\views.py:376
+msgid "periods"
+msgstr "периоды"
+
+#: .\wage\views.py:314
+msgid "totals"
+msgstr "итоги"
+
+#: .\wage\views.py:315
+msgid "accruals"
+msgstr "начисления"
+
+#: .\wage\views.py:316
+msgid "pays"
+msgstr "выплаты"
+
+#: .\wage\views.py:319
+msgid "surnames"
+msgstr "фамилии"
+
+#: .\wage\views.py:329 .\wage\views.py:380
+msgid "pay titles"
+msgstr "виды начислений и выплат"
+
+#: .\wage\views.py:390
+msgid "accruals of the employee"
+msgstr "начисления сотрудника"
+
+#: .\wage\views.py:392
+msgid "payments to the employee"
+msgstr "выплаты сотруднику"
+
+#: .\wage\views.py:394
+msgid "appointments of the employee"
+msgstr "назначения сотрудника"
+
+#: .\wage\views.py:396
+msgid "educations of the employee"
+msgstr "образования сотрудника"
+
+#: .\wage\views.py:398
+msgid "children of employee"
+msgstr "дети сотрудника"
+
+#: .\wage\views.py:400
+msgid "change of surname of employee"
+msgstr "изменения фамилии сотрудника"
+
+#: .\wage\views.py:483
+msgid "dismissed"
+msgstr "уволенные"
+
+#~ msgid "pay_titles"
+#~ msgstr "виды начислений/оплат"
+
+#~ msgid "add"
+#~ msgstr "добавить"
+
+#~ msgid "save"
+#~ msgstr "сохранить"
+
+#~ msgid "change node"
+#~ msgstr "изменить вышестоящее"
+
+#~ msgid "accrual"
+#~ msgstr "начисление"

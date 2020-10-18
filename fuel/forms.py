@@ -32,7 +32,7 @@ class ReplForm(forms.ModelForm):
     dt_chg = forms.SplitDateTimeField(widget = AdminSplitDateTime(), label = _('date').capitalize(), required = True)
     class Meta:
         model = Repl
-        fields = ['part', 'name', 'dt_chg', 'odometr', 'name', 'manuf', 'part_num', 'comment']
+        fields = ['part', 'dt_chg', 'odometr', 'manuf', 'part_num', 'comment', 'descr']
     def __init__(self, car, *args, **kwargs):
         self.car = car
         super().__init__(*args, **kwargs)

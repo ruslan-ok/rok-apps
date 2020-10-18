@@ -2,7 +2,7 @@ import os
 from django.core.files.storage import FileSystemStorage
 
 file_storage_path = 'C:/Web/apps/docs/user_{}/'
-file_storage_url = 'docs/'
+file_storage_url = 'doc/'
     
 FILE_DESIGN = [
     'Brown',

@@ -18,11 +18,14 @@ class Car(models.Model):
     def __str__(self):
         return self.name + ' [' + self.plate + ']'
 
-    def s_active(self):
-        if self.active:
-            return '*'
-        else:
-            return ''
+    def marked_item(self):
+        return self.active
+
+    def get_info(self):
+        ret = []
+        ret.append({'text': self.plate})
+        return ret
+
 
 def deactivate_all(user_id, cars_id):
     for car in Car.objects.filter(user = user_id, active = True).exclude(id = cars_id):
@@ -57,15 +60,23 @@ class Fuel(models.Model):
     def summa(self):
         return self.price * self.volume
 
-    def s_pub_date(self):
-        d = str(self.pub_date.day)
-        m = str(self.pub_date.month)
-        y = str(self.pub_date.year)
-        if (len(d) < 2):
-            d = '0' + d
-        if (len(m) < 2):
-            m = '0' + m
-        return d + '.' + m + '.' + y
+    def name(self):
+        return self.pub_date.strftime('%d.%m.%Y %H:%M')
+
+    def get_info(self):
+        ret = []
+        ret.append({'text': _('odometr: ') + str(self.odometr)})
+        ret.append({'icon': 'separator'})
+        ret.append({'text': _('volume: ') + '{:.0f}'.format(self.volume)})
+        ret.append({'icon': 'separator'})
+        ret.append({'text': _('price: ') + '{:.2f}'.format(self.price)})
+        ret.append({'icon': 'separator'})
+        ret.append({'text': _('summa: ') + '{:.2f}'.format(self.summa())})
+        if self.comment:
+            ret.append({'icon': 'separator'})
+            ret.append({'icon': 'notes'})
+            ret.append({'text': self.comment})
+        return ret
 
 
 # средний расход
@@ -235,6 +246,29 @@ class Part(models.Model): # Список расходников
 
         return output, color
 
+    def get_info(self):
+        ret = []
+        if self.chg_km:
+            ret.append({'text': _('km: ') + str(self.chg_km)})
+    
+        if self.chg_mo:
+            if (len(ret) > 0):
+                ret.append({'icon': 'separator'})
+            ret.append({'text': _('months: ') + str(self.chg_mo)})
+    
+        rest, color = self.get_rest()
+        if rest:
+            if (len(ret) > 0):
+                ret.append({'icon': 'separator'})
+            ret.append({'text': rest, 'color': 'rest-color-' + color})
+        
+        if self.comment:
+            if (len(ret) > 0):
+                ret.append({'icon': 'separator'})
+            ret.append({'icon': 'notes'})
+
+        return ret
+
 
 class Repl(models.Model): # Замена расходников
     car      = models.ForeignKey(Car, on_delete=models.CASCADE, verbose_name=_('car'), null = True)
@@ -243,7 +277,7 @@ class Repl(models.Model): # Замена расходников
     odometr  = models.IntegerField(_('odometer, km'), blank = False)
     manuf    = models.CharField(_('manufacturer'), max_length = 1000, blank = True)
     part_num = models.CharField(_('catalog number'), max_length = 100, blank = True)
-    name     = models.CharField(_('name'), max_length = 1000, blank = True)
+    descr    = models.CharField(_('name'), max_length = 1000, blank = True)
     comment  = models.TextField(_('information'), blank = True, default = None, null = True)
     created  = models.DateTimeField(_('creation time'), auto_now_add = True, null = True)
     last_mod = models.DateTimeField(_('last modification time'), blank = True, auto_now = True, null = True)
@@ -253,7 +287,7 @@ class Repl(models.Model): # Замена расходников
         verbose_name_plural = _('replacements')
 
     def __str__(self):
-        return str(self.dt_chg) + ' / ' + str(self.odometr) + ' ' + gettext('km.') + ' / ' + self.name
+        return str(self.dt_chg) + ' / ' + str(self.odometr) + ' ' + gettext('km.') + ' / ' + self.descr
 
     def s_dt_chg(self):
         d = str(self.dt_chg.day)
@@ -264,6 +298,30 @@ class Repl(models.Model): # Замена расходников
         if (len(m) < 2):
             m = '0' + m
         return d + '.' + m + '.' + y
+
+    def name(self):
+        part = ''
+        if self.part:
+            part = ' - ' + self.part.name
+        return self.dt_chg.strftime('%d.%m%Y %H:%M') + part
+
+    def get_info(self):
+        ret = []
+        ret.append({'text': _('odometr: ') + str(self.odometr)})
+        if self.manuf:
+            ret.append({'icon': 'separator'})
+            ret.append({'text': self.manuf})
+        if self.part_num:
+            ret.append({'icon': 'separator'})
+            ret.append({'text': self.part_num})
+        if self.descr:
+            ret.append({'icon': 'separator'})
+            ret.append({'text': self.descr})
+        if self.comment:
+            ret.append({'icon': 'separator'})
+            ret.append({'icon': 'notes'})
+            ret.append({'text': self.comment})
+        return ret
 
 def init_repl_car():
     for repl in Repl.objects.filter(car__isnull = True):

@@ -30,6 +30,14 @@ class Apart(models.Model):
     def __str__(self):
         return self.name
 
+    def get_info(self):
+        ret = []
+        ret.append({'text': self.addr })
+        return ret
+
+    def marked_item(self):
+        return self.active
+
     def s_active(self):
         if self.active:
             return '*'
@@ -71,13 +79,25 @@ class Meter(models.Model):
         verbose_name_plural = _('meters data')
 
     def __str__(self):
-        return self.period.strftime('%m.%Y') + ' el: ' + str(self.el) + ', hw: ' + str(self.hw) + ', cw: ' + str(self.cw) + ', ga: ' + str(self.ga)
+        ret = self.period.strftime('%m.%Y') + ' el: ' + str(self.el) + ', hw: ' + str(self.hw) + ', cw: ' + str(self.cw)
+        if (self.apart.has_gas):
+            ret += ', ga: ' + str(self.ga)
+        return ret
 
     def name(self):
         return self.period.strftime('%m.%Y')
 
-    def descr(self):
-        return 'el: ' + str(self.el) + ', hw: ' + str(self.hw) + ', cw: ' + str(self.cw) + ', ga: ' + str(self.ga)
+    def get_info(self):
+        ret = []
+        ret.append({'text': '{} {}'.format(_('el:'), self.el)})
+        ret.append({'icon': 'separator'})
+        ret.append({'text': '{} {}'.format(_('hw:'), self.hw)})
+        ret.append({'icon': 'separator'})
+        ret.append({'text': '{} {}'.format(_('cw:'), self.cw)})
+        if (self.apart.has_gas):
+            ret.append({'icon': 'separator'})
+            ret.append({'text': '{} {}'.format(_('ga:'), self.ga)})
+        return ret
 
 
 #----------------------------------
@@ -139,12 +159,9 @@ class Bill(models.Model):
     def name(self):
         return self.period.strftime('%m.%Y')
 
-    def descr(self):
-        return '{}: {}, {}: {}'.format(_('total bill'), self.total_bill(), _('total pay'), self.total_pay())
-
     def get_info(self):
         ret = []
-        
+
         ret.append({'text': '{}: {}'.format(_('total bill'), self.total_bill()) })
         ret.append({'icon': 'separator'})
         ret.append({'text': '{}: {}'.format(_('total pay'), self.total_pay()) })
@@ -219,22 +236,30 @@ class Service(models.Model):
     def __str__(self):
         return self.name
 
+    def get_info(self):
+        ret = []
+        if (self.abbr == ELECTRICITY) or (self.abbr == GAS) or (self.abbr == WATER):
+            ret.append({'icon': 'separator'})
+        ret.append({'text': self.abbr})
+        return ret
+        
+def get_serv_id(apart_id, service_id):
+    if Service.objects.filter(apart = apart_id, abbr = service_id).exists():
+        service = Service.objects.filter(apart = apart_id, abbr = service_id).get()
+        return service.id
+    return None
+
 class Price(models.Model):
     apart = models.ForeignKey(Apart, on_delete = models.CASCADE, null = True, verbose_name = _('apartment'))
     serv = models.ForeignKey(Service, on_delete = models.CASCADE, verbose_name = _('service'), null = True)
-    #service - deprecated
-    service = models.CharField(_('resource type'), choices = SERVICE, max_length = 100)
-    #period - deprecated
-    period = models.DateField(_('period'), default = get_new_period, null = True,  blank = True)
     start = models.DateField(_('valid from'), default = datetime.now, null = True,  blank = True)
-
     tarif = models.DecimalField(_('tariff 1'), null = True, blank = False, max_digits = 15, decimal_places = 5)
     border = models.DecimalField(_('border 1'), null = True,  blank = True, max_digits = 15, decimal_places = 4)
     tarif2 = models.DecimalField(_('tariff 2'), null = True,  blank = True, max_digits = 15, decimal_places = 5)
     border2 = models.DecimalField(_('border 2'), null = True,  blank = True, max_digits = 15, decimal_places = 4)
     tarif3 = models.DecimalField(_('tariff 3'), null = True,  blank = True, max_digits = 15, decimal_places = 5)
-    
     info = models.TextField(_('information'), blank=True, default = "")
+    unit = models.CharField(_('unit'), max_length = 100, blank = True, null = True)
 
     class Meta:
         verbose_name = _('tariff')
@@ -278,13 +303,56 @@ class Price(models.Model):
     def name(self):
         return self.start.strftime('%d.%m.%Y')
 
-    def descr(self):
-        return str(self)
+    def get_info(self):
+        b1 = self.border
+        if not b1:
+            b1 = 0
+
+        t1 = self.tarif
+        if not t1:
+            t1 = 0
+
+        b2 = self.border2
+        if not b2:
+            b2 = 0
+
+        t2 = self.tarif2
+        if not t2:
+            t2 = 0
+
+        t3 = self.tarif3
+        if not t3:
+            t3 = 0
+
+        p1 = ''
+        p2 = ''
+        p3 = ''
+
+        if (b1 == 0):
+            p1 = str(t1)
+        else:
+            p1 = '{:.3f} {} {:.0f} {}'.format(t1, gettext('until'), b1, self.unit)
+            if (b2 == 0):
+                p2 = '{:.3f}'.format(t2)
+            else:
+                p2 = '{:.3f} {} {:.0f} {}'.format(t2, gettext('until'), b2, self.unit)
+                p3 = '{:.3f}'.format(t3)
+    
+        ret = []
+        if p1:
+            ret.append({'text': p1})
+        if p2:
+            ret.append({'icon': 'separator'})
+            ret.append({'text': p2})
+        if p3:
+            ret.append({'icon': 'separator'})
+            ret.append({'text': p3})
+        return ret
   
 def get_price_info(apart_id, service_id, year, month):
-    prices = Price.objects.filter(apart = apart_id,
-                                  service = service_id,
-                                  period__lte = date(year, month, 1)).order_by('-start')[:1]
+    serv_id = get_serv_id(apart_id, service_id)
+    period = date(year, month, 1)
+    prices = Price.objects.filter(apart = apart_id, serv = serv_id, start__lte = period).order_by('-start')[:1]
     if (len(prices) == 0):
         return ''
     else:
@@ -299,8 +367,8 @@ def get_per_price(apart_id, service_id, year, month):
            't3': 0}
 
     tarifs = Price.objects.filter(apart = apart_id,
-                                  service = service_id,
-                                  period__lte = date(year, month, 1)).order_by('-start')[:1]
+                                  serv = get_serv_id(apart_id, service_id),
+                                  start__lte = date(year, month, 1)).order_by('-start')[:1]
     if (len(tarifs) > 0):
       
         if tarifs[0].tarif:
@@ -352,20 +420,6 @@ def count_by_tarif(apart_id, prev, curr, service_id):
         else:
             return i_sum + (tar['b2'] - tar['b1']) * tar['t2'] + (vol - tar['b2']) * tar['t3']
 
-
-
-#----------------------------------
-def enrich_context(context, app_param, user_id):
-    context['cur_view'] = app_param.content
-    context['article_mode'] = app_param.kind
-    context['article_pk'] = app_param.art_id
-
-    context['apart_qty'] = len(Apart.objects.filter(user = user_id))
-    if Apart.objects.filter(user = user_id, active = True).exists():
-        cur_apart = Apart.objects.filter(user = user_id, active = True).get()
-        context['bill_qty']  = len(Bill.objects.filter(apart = cur_apart.id))
-        context['meter_qty'] = len(Meter.objects.filter(apart = cur_apart.id))
-        context['price_qty'] = len(Price.objects.filter(apart = cur_apart.id))
 
 
 

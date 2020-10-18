@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-28 00:24+0300\n"
+"POT-Creation-Date: 2020-10-18 19:51+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -75,82 +75,58 @@ msgstr "заметка"
 msgid "notes"
 msgstr "заметки"
 
-#: .\note\templates\note\news_form.html:176
-#: .\note\templates\note\note_form.html:176
+#: .\note\templates\note\news.html:176 .\note\templates\note\note.html:176
 msgid "add file"
 msgstr "добавить файл"
 
-#: .\note\templates\note\news_list.html:14
-#: .\note\templates\note\note_list.html:14 .\note\views.py:76
-msgid "all"
-msgstr "все"
-
-#: .\note\templates\note\news_list.html:58
-#: .\note\templates\note\note_list.html:58
-msgid "create list or group"
-msgstr "создать список или группу"
-
-#: .\note\templates\note\news_list.html:79
-#: .\note\templates\note\note_list.html:79
-msgid "sort"
-msgstr "сортировка"
-
-#: .\note\templates\note\news_list.html:83
-#: .\note\templates\note\note_list.html:83
-msgid "sort order"
-msgstr "номер для сортировки"
-
-#: .\note\templates\note\news_list.html:84
-#: .\note\templates\note\note_list.html:84
-msgid "by name"
-msgstr "по заголовку"
-
-#: .\note\templates\note\news_list.html:85
-#: .\note\templates\note\note_list.html:85
-msgid "by description"
-msgstr "по описанию"
-
-#: .\note\templates\note\news_list.html:86
-#: .\note\templates\note\note_list.html:86
-msgid "by publication date"
-msgstr "по дате публикации"
-
-#: .\note\templates\note\news_list.html:87
-#: .\note\templates\note\note_list.html:87
-msgid "by last modification date"
-msgstr "по времени модификации"
-
-#: .\note\templates\note\news_list.html:112
-#: .\note\templates\note\news_list.html:113
-msgid "add news"
-msgstr "добавить новость"
-
-#: .\note\templates\note\note_list.html:112
-#: .\note\templates\note\note_list.html:113
-msgid "add note"
-msgstr "добавить заметку"
-
-#: .\note\views.py:29
+#: .\note\views.py:30
 msgid "sort by name"
 msgstr "сортировка по заголовку"
 
-#: .\note\views.py:30
+#: .\note\views.py:31
 msgid "sort by code"
 msgstr "сортировка по коду"
 
-#: .\note\views.py:31
+#: .\note\views.py:32
 msgid "sort by description"
 msgstr "сортировка по описанию"
 
-#: .\note\views.py:32
+#: .\note\views.py:33
 msgid "sort by publication date"
 msgstr "сортировка по дате публикации"
 
-#: .\note\views.py:33
+#: .\note\views.py:34
 msgid "sort by last modification date"
 msgstr "сортировка по времени модификации"
 
-#: .\note\views.py:34
+#: .\note\views.py:35
 msgid "sort by URL"
 msgstr "сортировка по URL"
 
+#: .\note\views.py:62 .\note\views.py:83
+msgid "all"
+msgstr "все"
+
+#: .\note\views.py:87
+msgid "by name"
+msgstr "по заголовку"
+
+#: .\note\views.py:88
+msgid "by description"
+msgstr "по описанию"
+
+#: .\note\views.py:89
+msgid "by publication date"
+msgstr "по дате публикации"
+
+#: .\note\views.py:90
+msgid "by last modification date"
+msgstr "по времени модификации"
+
+#: .\note\views.py:98
+msgid "add note"
+msgstr "добавить заметку"
+
+#: .\note\views.py:101
+msgid "add news"
+msgstr "добавить новость"

@@ -1,4 +1,4 @@
-{% extends "base_rok.html" %}
+{% extends "hier/page.html" %}
 {% load i18n %}
 
 {% block window %}
@@ -14,7 +14,7 @@
     <div id="page" class="with_header">
       <aside class="desktop-only">
       </aside>
-      <main class="{% if article_visible %}narrow{% else %}wide{% endif %}">
+      <main class="{% if article_visible %}with_article{% else %}without_article{% endif %}">
         <div class="w3-container">
           <p>{% trans 'It looks like you got here by accident, because it is a personal, not a public site.' %}</p>
           <p>{% trans 'This site does not provide any useful services, so you have a small choice - either close the page or' %}</p>

@@ -5,13 +5,13 @@ from django.utils.translation import gettext_lazy as _
 
 
 #----------------------------------
-class DirectForm(forms.ModelForm):
+class ProjectForm(forms.ModelForm):
     class Meta:
         model = Projects
-        fields = ['name', 'active']
+        fields = ['name']
 
 #----------------------------------
-class ProjForm(forms.ModelForm):
+class ExpenseForm(forms.ModelForm):
     class Meta:
         model = Expenses
         fields = ['date', 'qty', 'price', 'rate', 'usd', 'kontr', 'text']

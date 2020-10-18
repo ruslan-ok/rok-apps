@@ -1,5 +1,5 @@
 .week-style {
-  width: 3rem;
+  width: 4rem;
   margin: 0 8px;
 }
 
@@ -9,13 +9,21 @@
 }
 
 .price-style {
-  width: 4rem;
+  width: 5rem;
   /*margin: 0 8px;*/
 }
 
 .summa-style {
   width: 5rem;
   /*margin: 0 8px;*/
+}
+
+.day-th {
+  padding-right: 15px;
+}
+
+.today {
+  color: red;
 }
 
 

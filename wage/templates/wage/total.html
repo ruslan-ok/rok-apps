@@ -1,0 +1,44 @@
+{% extends "hier/content_top.html" %}
+{% load static i18n %}
+
+{% block items_content %}
+  <table>
+    <tr> <th>{% trans 'appointmrnt end date'|capfirst %}</th>  <td>{{ appoint_end }}</td> </tr>
+    <tr> <th>{% trans 'salary'|capfirst %}</th>                <td>{{ salary     }}</td> </tr>
+    <tr> <th>{% trans 'currency'|capfirst %}</th>              <td>{{ currency   }}</td> </tr>
+    <tr> <th>{% trans 'department'|capfirst %}</th>            <td>{{ department }}</td> </tr>
+    <tr> <th>{% trans 'post'|capfirst %}</th>                  <td>{{ post       }}</td> </tr>
+    <tr> <th>{% trans 'plan, days'|capfirst %}</th>            <td>{{ plan_days  }}</td> </tr>
+    <tr> <th>{% trans 'accrued, BYN'|capfirst %}</th>          <td>{{ accrued    }}</td> </tr>
+    <tr> <th>{% trans 'paid out, BYN'|capfirst %}</th>         <td>{{ paid_out   }}</td> </tr>
+    <tr> <th>{% trans 'incoming debt, USD'|capfirst %}</th>    <td>{{ debt_in_v  }}</td> </tr>
+    <tr> <th>{% trans 'accrued, USD'|capfirst %}</th>          <td>{{ accrued_v  }}</td> </tr>
+    <tr> <th>{% trans 'paid out, USD'|capfirst %}</th>         <td>{{ paid_out_v }}</td> </tr>
+    <tr> <th>{% trans 'outgoing debt, USD'|capfirst %}</th>    <td>{{ debt_out_v }}</td> </tr>
+  </table>
+
+  <br><br><br>
+
+  <form method="post">{% csrf_token %}
+    <!-- Form Errors -->
+    {% if ep_form.errors %}
+      <div class="fieldset">
+        <p class="errornote"> {% if ep_form.errors.items|length == 1 %}{{ please_correct_one }}{% else %}{{ please_correct_all }}{% endif %} </p> 
+      </div>
+    {% endif %}
+    {% if ep_form.non_field_errors %}
+      <div class="fieldset">
+      {% for error in ep_form.non_field_errors %} <p class="errornote"> {{ error }} </p> {% endfor %}
+      </div>
+    {% endif %}
+    {{ ep_form }}
+    <button type="submit" name="total-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
+  </form>
+{% endblock %}
+
+{% block article_content %}
+  <form method="post">{% csrf_token %}
+    {{ form }}
+    <button type="submit" name="item-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
+  </form>
+{% endblock %}

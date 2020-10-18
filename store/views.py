@@ -13,23 +13,20 @@ from django.utils.crypto import get_random_string
 from hier.utils import get_base_context_ext, process_common_commands, sort_data, extract_get_params
 from hier.params import set_article_visible, set_restriction, set_aside_visible, get_search_mode, get_search_info
 from hier.categories import get_categories_list
-from hier.grp_lst import group_add, group_details, group_toggle, list_add, list_details
-from .models import app_name, Entry, Params
-from .forms import EntryForm, ParamsForm
-from hier.models import Folder
-from hier.params import get_app_params, set_sort_mode, toggle_sort_dir, set_article_kind
+from hier.grp_lst import group_add, group_details, group_toggle, list_add, list_details, build_tree
+from hier.models import Folder, get_app_params
+from hier.params import set_sort_mode, toggle_sort_dir, set_article_kind
+from hier.aside import Fix, Sort
 from todo.models import Grp, Lst
 from todo.utils import nice_date
-from todo.tree import build_tree
+from .models import app_name, Entry, Params
+from .forms import EntryForm, ParamsForm
 
 url_list = 'store:entry_list'
 url_form = 'store:entry_form'
 url_param = 'store:param_list'
-template_form = 'store/entry_form.html'
-template_list = 'store/entry_list.html'
-template_list_details = 'store/list_form.html'
-template_group_details = 'store/group_form.html'
-template_param = 'store/param_list.html'
+template_entry = 'store/entries.html'
+template_param = 'store/params.html'
 items_in_page = 10
 
 SORT_MODE_DESCR = {
@@ -39,6 +36,25 @@ SORT_MODE_DESCR = {
     'url': _('sort by URL'),
     'created': _('sort by create date')
 }
+
+
+def get_store_base_context(request, entity, title, article_enabled):
+    app_param, context = get_base_context_ext(request, app_name, entity, title, article_enabled = article_enabled)
+
+    fixes = []
+    fixes.append(Fix('actual', _('actual').capitalize(), 'todo/icon/myday.png', 'actual/', len(filtered_list(request.user, 'actual'))))
+    fixes.append(Fix('waste', _('waste').capitalize(), 'todo/icon/completed.png', 'waste/', len(filtered_list(request.user, 'waste'))))
+    fixes.append(Fix('all', _('all').capitalize(), 'rok/icon/all.png', 'all/', len(filtered_list(request.user, 'all'))))
+    fixes.append(Fix('default', _('default options').capitalize(), 'rok/icon/param.png', 'params/', None))
+    context['fix_list'] = fixes
+
+    tree = build_tree(request.user.id, app_name)
+    for t in tree:
+        if t.is_list:
+            t.qty = len(Entry.objects.filter(user = request.user.id, lst = t.id))
+    context['groups'] = tree
+
+    return app_param, context
 
 
 #----------------------------------
@@ -55,12 +71,21 @@ def entry_list(request):
         return HttpResponseRedirect(reverse(url_list) + extract_get_params(request))
 
     app_param = get_app_params(request.user, app_name)
+    store_params = get_store_params(request.user)
 
+    form = None
     if (request.method == 'POST'):
         #raise Exception(request.POST)
         if ('item-add' in request.POST):
             item = Entry.objects.create(user = request.user, title = request.POST['item_add-name'], value = make_random_string(request.user), lst = app_param.lst)
             return HttpResponseRedirect(reverse(url_form, args = [item.id]))
+        if ('param-save' in request.POST):
+            form = ParamsForm(request.POST, instance = store_params)
+            if form.is_valid():
+                data = form.save(commit = False)
+                data.user = request.user
+                form.save()
+                return HttpResponseRedirect(reverse(url_param))
         if ('list-add' in request.POST):
             lst_id = list_add(request.user, app_name, request.POST['name'])
             return HttpResponseRedirect(reverse('store:list_form', args = [lst_id]))
@@ -68,57 +93,65 @@ def entry_list(request):
             grp_id = group_add(request.user, app_name, request.POST['name'])
             return HttpResponseRedirect(reverse('store:group_form', args = [grp_id]))
 
+    title = '???'
+    entity = 'entry'
+    article_enabled = True
+    template_file = template_entry
+
     if (app_param.restriction == 'all'):
         title = _('all entries').capitalize()
     elif (app_param.restriction == 'actual'):
         title = _('actual entries').capitalize()
     elif (app_param.restriction == 'waste'):
         title = _('waste entries').capitalize()
-    elif (app_param.restriction == 'list') and app_param.lst:
-        lst = Lst.objects.filter(user = request.user.id, id = app_param.lst.id).get()
-        title = lst.name
-    else:
+    elif (app_param.restriction == 'default'):
+        title = _('default parameters').capitalize()
+        entity = 'param'
+        article_enabled = False
+        template_file = template_param
+        if not form:
+            form = ParamsForm(instance = store_params)
+    elif (app_param.restriction == 'list') and (not app_param.lst):
         return HttpResponseRedirect(reverse('store:all'))
 
-    app_param, context = get_base_context_ext(request, app_name, 'entry', title)
+    app_param, context = get_store_base_context(request, entity, title, article_enabled)
 
-    if app_param.lst:
-        context['list_id'] = app_param.lst.id
-    context['restriction'] = app_param.restriction
-    context['actual_qty'] = len(filtered_list(request.user, 'actual'))
-    context['waste_qty'] = len(filtered_list(request.user, 'waste'))
-    context['all_qty'] = len(filtered_list(request.user, 'all'))
+    sorts = []
+    sorts.append(Sort('title', _('by title').capitalize(), 'todo/icon/important.png'))
+    sorts.append(Sort('user', _('by user name').capitalize(), 'todo/icon/planned.png'))
+    sorts.append(Sort('url', _('by URL').capitalize(), 'todo/icon/myday.png'))
+    sorts.append(Sort('created', _('by creation date').capitalize(), 'todo/icon/created.png'))
+    context['sort_options'] = sorts
+
+    context['add_item_placeholder'] = _('add entry').capitalize()
 
     if app_param.sort:
         context['sort_mode'] = SORT_MODE_DESCR[app_param.sort].capitalize()
-    context['sort_dir'] = not app_param.reverse
 
-    tree = build_tree(request.user.id, 'store')
-    for t in tree:
-        if t.is_list:
-            t.qty = len(Entry.objects.filter(user = request.user.id, lst = t.id))
-    context['groups'] = tree
+    if (app_param.restriction == 'default'):
+        context['form_title'] = title
+        context['form'] = form
 
-    template_file = template_list
-    
     redirect = False
     if app_param.article:
-        if (app_param.kind == 'item'):
+        if (app_param.restriction == 'default'):
+            set_article_visible(request.user, app_name, False)
+            redirect = True
+        elif (app_param.kind == 'item'):
             if not Entry.objects.filter(id = app_param.art_id, user = request.user.id).exists():
                 set_article_visible(request.user, app_name, False)
                 redirect = True
             else:
-                template_file = template_form
                 redirect = get_article_item(request, context, app_param)
         elif (app_param.kind == 'list'):
             can_delete = not Entry.objects.filter(lst = app_param.art_id).exists()
             redirect = list_details(request, context, app_param.art_id, app_name, can_delete)
             if not redirect:
-                template_file = template_list_details
+                template_file = 'hier/article_list.html'
         elif (app_param.kind == 'group'):
             redirect = group_details(request, context, app_param.art_id, app_name)
             if not redirect:
-                template_file = template_group_details
+                template_file = 'hier/article_group.html'
 
     if redirect:
         return HttpResponseRedirect(reverse(url_list) + extract_get_params(request))
@@ -127,14 +160,11 @@ def entry_list(request):
     if request.method == 'GET':
         query = request.GET.get('q')
     data = filtered_sorted_list(request.user, app_param, query)
-    items = []
-    for d in data:
-        items.append([d, get_item_info(d, app_param)])
 
     page_number = 1
     if (request.method == 'GET'):
         page_number = request.GET.get('page')
-    paginator = Paginator(items, items_in_page)
+    paginator = Paginator(data, items_in_page)
     page_obj = paginator.get_page(page_number)
     context['page_obj'] = paginator.get_page(page_number)
     context['search_info'] = get_search_info(query)
@@ -283,45 +313,9 @@ def all(request):
     return HttpResponseRedirect(reverse(url_list))
 
 
-def param_list(request):
-    locale.setlocale(locale.LC_CTYPE, request.LANGUAGE_CODE)
-    locale.setlocale(locale.LC_TIME, request.LANGUAGE_CODE)
-
-    if process_common_commands(request, app_name): # aside open/close
-        return HttpResponseRedirect(reverse(url_param) + extract_get_params(request))
-
-    store_params = get_store_params(request.user)
-
-    form = None
-    if (request.method == 'POST'):
-        if ('param-save' in request.POST):
-            form = ParamsForm(request.POST, instance = store_params)
-            if form.is_valid():
-                data = form.save(commit = False)
-                data.user = request.user
-                form.save()
-                return HttpResponseRedirect(reverse(url_param))
-        if ('list-add' in request.POST):
-            lst_id = list_add(request.user, app_name, request.POST['name'])
-            return HttpResponseRedirect(reverse('store:list_form', args = [lst_id]))
-        if ('group-add' in request.POST):
-            grp_id = group_add(request.user, app_name, request.POST['name'])
-            return HttpResponseRedirect(reverse('store:group_form', args = [grp_id]))
-
-    if not form:
-        form = ParamsForm(instance = store_params)
-
-    title = _('default parameters').capitalize()
-    app_param, context = get_base_context_ext(request, app_name, 'param', title, article_enabled = False)
-    context['form_title'] = title
-    context['form'] = form
-    context['restriction'] = 'default'
-    context['actual_qty'] = len(filtered_list(request.user, 'actual'))
-    context['waste_qty'] = len(filtered_list(request.user, 'waste'))
-    context['all_qty'] = len(filtered_list(request.user, 'all'))
-    
-    template = loader.get_template(template_param)
-    return HttpResponse(template.render(context, request))
+def params(request):
+    set_restriction(request.user, app_name, 'default')
+    return HttpResponseRedirect(reverse(url_list))
 
 
 def get_store_params(user):
@@ -329,32 +323,6 @@ def get_store_params(user):
         return Params.objects.filter(user = user.id).get()
     else:
         return Params.objects.create(user = user, ln = 30, uc = True, lc = True, dg = True, sp = True, br = True, mi = True, ul = True, ac = False)
-
-
-def get_item_info(item, app_param):
-    ret = []
-    
-    if item.lst and (app_param.restriction != 'list'):
-        ret.append({'text': item.lst.name})
-
-    if item.username:
-        if (len(ret) > 0):
-            ret.append({'icon': 'separator'})
-        ret.append({'text': item.username})
-
-    if item.notes:
-        if (len(ret) > 0):
-            ret.append({'icon': 'separator'})
-        ret.append({'icon': 'notes'})
-
-    if item.categories:
-        if (len(ret) > 0):
-            ret.append({'icon': 'separator'})
-        categs = get_categories_list(item.categories)
-        for categ in categs:
-            ret.append({'icon': 'category', 'text': categ.name, 'color': 'category-design-' + categ.design})
-
-    return ret
 
 
 def process_sort_commands(request):

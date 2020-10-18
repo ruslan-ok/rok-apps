@@ -4,6 +4,8 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 
+#from hier.models import get_app_params
+from hier.categories import get_categories_list
 from .utils import nice_date, GRPS_PLANNED
 
 app_name = 'todo'
@@ -108,6 +110,9 @@ class Task(models.Model):
     def __str__(self):
         return self.name
 
+    def marked_item(self):
+        return self.completed
+
     def next_iteration(self):
         next = None
 
@@ -205,6 +210,80 @@ class Task(models.Model):
         rd = next - delta
         return datetime(rd.year, rd.month, rd.day, rmd.hour, rmd.minute, rmd.second)
 
+    def get_info(self):
+        ret = []
+        
+        #app_param = get_app_params(self.user, self.kind)
+
+        if self.lst: # and (app_param.restriction != 'list'):
+            ret.append({'text': self.lst.name})
+    
+        if self.in_my_day: # and (app_param.restriction != 'myday'):
+            if (len(ret) > 0):
+                ret.append({'icon': 'separator'})
+            ret.append({'icon': 'myday', 'color': 'black', 'text': _('My day')})
+    
+        step_total = 0
+        step_completed = 0
+        for step in Step.objects.filter(task = self.id):
+            step_total += 1
+            if step.completed:
+                step_completed += 1
+        if (step_total > 0):
+            if (len(ret) > 0):
+                ret.append({'icon': 'separator'})
+            ret.append({'text': '{} {} {}'.format(step_completed, _('out of'), step_total)})
+        
+        d = self.stop
+        if d:
+            if (len(ret) > 0):
+                ret.append({'icon': 'separator'})
+            s = self.s_termin()
+            repeat = 'repeat'
+            if self.b_expired():
+                if self.completed:
+                    icon = 'termin'
+                    color = ''
+                else:
+                    icon = 'termin-expired'
+                    color = 'expired'
+                    repeat = 'repeat-expired'
+                ret.append({'icon': icon, 'color': color, 'text': s})
+            elif (self.stop == date.today()):
+                if self.completed:
+                    icon = 'termin'
+                    color = ''
+                else:
+                    icon = 'termin-actual'
+                    color = 'actual'
+                    repeat = 'repeat-actual'
+                ret.append({'icon': icon, 'color': color, 'text': s})
+            else:
+                ret.append({'icon': 'termin', 'text': s})
+    
+            if (self.repeat != 0):
+                ret.append({'icon': repeat})
+    
+    
+        if ((self.remind != None) and (self.remind >= datetime.now())) or self.info or (len(TaskFiles.objects.filter(task = self.id)) > 0):
+            if (len(ret) > 0):
+                ret.append({'icon': 'separator'})
+            if ((self.remind != None) and (self.remind >= datetime.now())):
+                ret.append({'icon': 'remind'})
+            if self.info:
+                ret.append({'icon': 'notes'})
+            if (len(TaskFiles.objects.filter(task = self.id)) > 0):
+                ret.append({'icon': 'attach'})
+    
+        if self.categories:
+            if (len(ret) > 0):
+                ret.append({'icon': 'separator'})
+            categs = get_categories_list(self.categories)
+            for categ in categs:
+                ret.append({'icon': 'category', 'text': categ.name, 'color': 'category-design-' + categ.design})
+    
+        return ret
+
 
 
 class Param(models.Model):
@@ -261,7 +340,7 @@ class TaskFiles(models.Model):
     def __str__(self):
         return self.upload.name
 
-
+"""
 class PerGrp(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'todo_period_user')
     grp_id = models.IntegerField(_('period group id'), blank = True, null = True)
@@ -276,7 +355,7 @@ class PerGrp(models.Model):
 
     def __str__(self):
         return self.name
-
+"""
 
 class Subscription(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'todo_subscription_user')

@@ -1,0 +1,29 @@
+{% extends "hier/content_top.html" %}
+{% load static i18n %}
+
+{% block items_content %}
+  {% for group in item_groups %}
+    {% if group.name %}
+      <div class="group">
+        <div class="tumbler">
+          <a href="toggle/{{ group.id|escape }}/?q={{ request.GET.q }}&page={{ page_obj.number }}">
+            {% if group.is_open %}
+              <img class="img-20_20" src="{% static 'rok/icon/direct-down.png' %}">
+            {% else %}
+              <img class="img-20_20" src="{% static 'rok/icon/direct-right.png' %}">
+            {% endif %}
+          </a>
+        </div>
+        <div class="name">{{ group.name }}</div>
+      </div>
+    {% endif %}
+    {% if group.is_open %}
+      <ul>
+        {% for item in group.items %}
+          {% include "hier/item.html" %}
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endfor %}
+{% endblock %}
+

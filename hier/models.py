@@ -16,8 +16,6 @@ class Folder(models.Model):
     icon = models.CharField(_('icon'), max_length=50, blank = True)
     color = models.CharField(_('color'), max_length = 20, blank = True)
     model_name = models.CharField(_('application entity name'), max_length=50, blank = True)
-    # deprecated. use get_folder_enabled
-    folder_enabled = models.BooleanField(_('enable folders in items list'), default = False)
     content_id = models.IntegerField(_('content id'), default = 0)
     is_folder = models.BooleanField(_('node is folder'), default = False)
 
@@ -90,6 +88,17 @@ class AppParam(models.Model):
     def __str__(self):
         return self.user.username + ' - ' + self.app + ':' + self.kind
 
+#----------------------------------
+def get_app_params(user, app):
+    if not user.is_authenticated:
+        return None
+
+    if not AppParam.objects.filter(user = user.id, app = app).exists():
+        return AppParam.objects.create(user = user, app = app, aside = False, article = False, content = '', kind = '', lst = None, art_id = 0)
+
+    return AppParam.objects.filter(user = user.id, app = app).get()
+
+
 # Параметры приложений
 class VisitedHistory(models.Model):
     stamp = models.DateTimeField(_('visit time'), null = False)
@@ -104,3 +113,23 @@ class VisitedHistory(models.Model):
     def __str__(self):
         return self.app + ' - ' + self.page
 
+# Группы записей контента приложения
+class ContentGroup(models.Model):
+    user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'content_groups_user')
+    app = models.CharField(_('application'), max_length=200, blank = True)
+    name = models.CharField(_('name'), max_length=1000, blank = True)
+    grp_id = models.IntegerField(_('period group id'), blank = True, null = True)
+    is_open = models.BooleanField(_('period group is open'), default = False)
+
+    class Meta:
+        verbose_name = _('content records group')
+        verbose_name_plural = _('content records groups')
+
+    def __str__(self):
+        return self.app + ':' + self.name
+
+def toggle_content_group(user_id, app, grp_id):
+    if ContentGroup.objects.filter(user = user_id, app = app, grp_id = grp_id).exists():
+        grp = ContentGroup.objects.filter(user = user_id, app = app, grp_id = grp_id).get()
+        grp.is_open = not grp.is_open
+        grp.save()

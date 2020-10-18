@@ -32,7 +32,7 @@ from django.contrib.auth.models import User
 import hashlib
 from django.utils.crypto import get_random_string
  
-from hier.utils import get_base_context
+from hier.utils import get_base_context, get_base_context_ext
 from account.models import UserExt
 
 UserModel = get_user_model()
@@ -429,9 +429,11 @@ def profile(request):
     else:
         form = ProfileForm(instance = request.user)
 
-    context = get_base_context(request, 0, 0, gettext('Profile'), 'dialog', form = form)
+    app_param, context = get_base_context_ext(request, 'rusel', '', _('profile').capitalize())
+    context['form'] = form
     context['fieldset1_name'] = _('Personal info')
     context['fieldset2_name'] = _('Important dates')
+    context['aside_disabled'] = True
     return render(request, 'account/profile.html', context)
 
 

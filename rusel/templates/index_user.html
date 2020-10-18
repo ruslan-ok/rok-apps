@@ -1,31 +1,34 @@
-{% extends "base_window.html" %}
+{% extends "hier/page.html" %}
 {% load static i18n %}
 
-{% block aside_content %}
+{% block aside_conent %}
   <div class="launcher-menu">
-    <div class="launcher-button"></div>
-    <a href="/todo/" class="launcher-button"><img src="{% static 'rok/icon/application.png' %}"><span class="marked">{{ menu_item_todo }}</span></a>
-    <a href="/note/" class="launcher-button"><img src="{% static 'rok/icon/note.png' %}"><span class="marked">{{ menu_item_note }}</span></a>
-    <a href="/news/" class="launcher-button"><img src="{% static 'rok/icon/news.png' %}"><span class="marked">{{ menu_item_news }}</span></a>
-    <a href="/store/" class="launcher-button"><img src="{% static 'rok/icon/key.png' %}"><span class="marked">{{ menu_item_store }}</span></a>
-    <a href="/trip/" class="launcher-button"><img src="{% static 'rok/icon/car.png' %}"><span class="marked">{{ menu_item_trip }}</span></a>
-    <a href="/fuel/" class="launcher-button"><img src="{% static 'rok/icon/gas.png' %}"><span class="marked">{{ menu_item_fuel }}</span></a>
-    <a href="/apart/" class="launcher-button"><img src="{% static 'rok/icon/apartment.png' %}"><span class="marked">{{ menu_item_apart }}</span></a>
-    <a href="/proj/" class="launcher-button"><img src="{% static 'rok/icon/cost.png' %}"><span class="marked">{{ menu_item_proj }}</span></a>
-    <a href="/wage/" class="launcher-button"><img src="{% static 'rok/icon/work.png' %}"><span class="">{{ menu_item_wage }}</span></a>
-    <a href="/trash/" class="launcher-button"><img src="{% static 'rok/icon/trash.png' %}"><span class="">{{ menu_item_trash }}</span></a>
-    <a href="/admin/" class="launcher-button"><img src="{% static 'rok/icon/admin.png' %}"><span class="marked">{{ menu_item_admin }}</span></a>
-    <a href="/account/profile/" class="launcher-button"><img src="{% static 'rok/icon/user.png' %}"><span class="">{{ menu_item_profile }}</span></a>
-    <a href="/account/logout/" class="launcher-button"><img src="{% static 'rok/icon/exit.png' %}"><span class="marked">{{ menu_item_logout }}</span></a>
+    {% for app in apps %}
+      <a href="{{ app.href }}" class="launcher-button"><img src="{% static app.icon %}"><span class="marked">{{ app.name }}</span></a>
+    {% endfor %}
   </div>
 {% endblock %}
 
-
-{% block win_content %}
-  <div class="w3-row w3-padding">
-    <a href="{% url 'trip:trip_list' %}">{{ trip_summary|safe }}</a>
-    {% if last_visited_url %}
-      <p><a href="{{ last_visited_url }}">{{ last_visited_app }} - {{ last_visited_page }}</a></p>
-    {% endif %}
+{% block content %}
+  <div class="w3-container">
+        <h3>
+          {{ title|capfirst }}
+        </h3>
+  
+    <div class="w3-row w3-padding">
+      <a href="{% url 'trip:main' %}">{{ trip_summary|safe }}</a>
+      {% if last_visited_url %}
+        <p><a href="{{ last_visited_url }}">{{ last_visited_app }} - {{ last_visited_page }}</a></p>
+      {% endif %}
+      <br><br><br><br><br><br><br>
+      <table>
+        <tr> <th>Product</th> <th>Version</th> <th>Check new version</th></tr>
+        <tr> <td> Python </td> <td> {{ python_version }} </td> <td><a href="https://www.python.org/downloads/">python.org</a></td> </tr>
+        <tr> <td> Django </td> <td> {{ django_version }} </td> <td><a href="https://www.djangoproject.com/download/">djangoproject.com</a></td> </tr>
+        <tr> <td> Apache </td> <td> {{ apache_version }} </td> <td><a href="https://httpd.apache.org/download.cgi">apache.org</a></td> </tr>
+        <tr> <td> MySQL  </td> <td> {{ mysql_version }} </td> <td><a href="https://dev.mysql.com/downloads/mysql/">dev.mysql.com</a></td> </tr>
+        <tr> <td> SSL-certificate </td> <td> {{ cert_termin }} </td> <td><a href="https://letsencrypt.org/ru/docs/">letsencrypt.org</a></td> </tr>
+      </table>
+    </div>
   </div>
 {% endblock %}

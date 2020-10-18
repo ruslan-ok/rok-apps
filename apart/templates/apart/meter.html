@@ -1,0 +1,93 @@
+{% extends "hier/list.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+  <link rel="stylesheet" type="text/css" href="{% static 'apart/css/apart.css' %}">
+{% endblock %}
+
+{% block actions %}
+  <button type="submit" name="item-add"><img class="img-20_20" src="{% static 'rok/icon/add-gray.png' %}">{% trans 'add new meter readings'|capfirst %}</button>
+{% endblock %}
+
+{% block article_content %}
+  <div class="fields">
+    <form method="post">{% csrf_token %}
+      <div class="header">
+        {% if form.errors %}
+          <div class="fieldset">
+            <p class="errornote"> {% if form.errors.items|length == 1 %}{{ please_correct_one }}{% else %}{{ please_correct_all }}{% endif %} </p> 
+          </div>
+        {% endif %}
+        {% if form.non_field_errors %}
+          <div class="fieldset">
+          {% for error in form.non_field_errors %} <p class="errornote"> {{ error }} </p> {% endfor %}
+          </div>
+        {% endif %}
+
+        <div class="field-group">
+          <div class="article-name">
+            <div class="section-item">
+              <div class="editable-content">
+                {{ form.period.errors }} 
+                <div class="">{{ form.period.label_tag }}</div>
+                {{ form.period }}
+              </div>
+              <button type="submit" name="item-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="body">
+        <div class="section">
+          <div class="section-item">
+            {{ form.reading.errors }} 
+            <div class="section-inner-label">{{ form.reading.label_tag }}</div>
+          </div>
+          <div class="section-item">
+            <div class="editable-content">
+              {{ form.reading }}
+            </div>
+          </div>
+
+          <div class="section-item">
+            <div class="editable-content">
+              {{ form.el.errors }} 
+              <div class="half-width">{{ form.el.label_tag }}</div>
+              <div class="half-width">{{ form.el }}</div>
+            </div>
+          </div>
+
+          <div class="section-item">
+            <div class="editable-content">
+             {{ form.hw.errors }}
+              <div class="half-width">{{ form.hw.label_tag }}</div>
+              <div class="half-width">{{ form.hw }}</div>
+            </div>
+          </div>
+
+          <div class="section-item">
+            <div class="editable-content">
+             {{ form.cw.errors }}
+             <div class="half-width">{{ form.cw.label_tag }}</div>
+              <div class="half-width">{{ form.cw }}</div>
+            </div>
+          </div>
+
+          {% if ed_item.apart.has_gas %}
+          <div class="section-item">
+            <div class="editable-content">
+             {{ form.ga.errors }}
+             <div class="half-width">{{ form.ga.label_tag }}</div>
+              <div class="half-width">{{ form.ga }}</div>
+            </div>
+          </div>
+          {% endif %}
+
+        </div>
+      </div>
+    </form>
+  </div>
+{% endblock %}
+
+

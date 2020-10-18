@@ -1,14 +1,13 @@
-import requests
+import requests, json
 from datetime import datetime
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth.models import AnonymousUser
 
-from note.utils import get_ready_folder
-from .models import Folder, Param
-from .tree import build_tree
-from .params import get_app_params, set_aside_visible, set_article_visible
+from todo.models import Lst
+from .models import Folder, Param, get_app_params
+from .params import set_aside_visible, set_article_visible
 
 
 FOLDERS_COLOR = '#b9ffdc'
@@ -21,13 +20,7 @@ NAVBAR_BUTTONS = [
     ('move', {'icon': 'share-square', 'href': '/', }, ),
     ('ready', {'text': 'Готово', 'href': 'delete/', 'class': 'w3-right w3-green', }, ),
     ('delete', {'icon': 'trash-alt', 'href': 'delete/', 'class': 'w3-right w3-red', }, ),
-    ('search', {'icon': 'search', 'url': 'hier:folder_list', 'p1': 'folder.id', }, ),
     ('param', {'icon': 'cog', 'href': 'parameters/', }, ),
-
-    ('root', {'icon': 'folder-open', 'url': 'hier:folder_list', 'p1': '0', 'color': FOLDERS_COLOR, }, ),
-    ('dir', {'icon': 'list-alt', 'url': 'hier:folder_dir', 'p1': 'folder.id', 'color': FOLDERS_COLOR, }, ),
-    ('prop', {'icon': 'edit', 'url': 'hier:folder_form', 'p1': 'folder.id', 'color': FOLDERS_COLOR, }, ),
-    ('folder_add', {'icon': 'folder-plus', 'url': 'hier:folder_add', 'p1': 'folder.id', 'color': FOLDERS_COLOR, }, ),
 
     ('profile', {'text': 'firstof user.get_short_name user.get_username', 'url': 'account:service', 'class': 'w3-right rok-hide-small rok-hide-medium', }, ),
     ('login', {'text': _('Log in'), 'url': 'account:login', 'class': 'w3-right', }, ),
@@ -78,146 +71,6 @@ def rmtree(user, folder_id, to_trash = True):
 
 
 #----------------------------------
-# Buttons
-#----------------------------------
-
-# Заметку можно переместить в список "Готово"
-def note_ready(user_id, folder):
-    if not folder:
-        return False
-    ready = get_ready_folder(user_id, folder.id)
-    return ready and (ready.id != folder.node)
-
-# Форма с контентом (за исключением формы заметки, которую можно переместить в список "Готово")
-def is_content_form(mode, user_id, folder):
-    return (mode == 'content_form') and (not note_ready(user_id, folder)) and folder
-
-# Удалять можно только пустую папку
-def folder_is_empty(folder_id):
-    return True # not Folder.objects.filter(node = folder_id).exists()
-
-# Папка, которую можно удалить
-def is_folder_form(mode, folder):
-    return (mode == 'folder')  and folder and folder_is_empty(folder.id) #and (folder.content_id == 0)
-
-# Надо ли показывать кнопку
-def is_button_visible(btn_name, user, mode, folder):
-
-    if (btn_name == 'site'):
-        return (not user.is_authenticated) or (mode == 'dialog')
-    
-    if (btn_name == 'login'):
-        return (not user.is_authenticated) and (mode == 'content_list')
-    
-    if (btn_name == 'home'):
-        return user.is_authenticated and (folder or (mode == 'dir')) #and ((mode == 'dir') or (mode == 'folder'))
-
-    if (btn_name == 'search'):
-        return user.is_authenticated and (((mode == 'content_list') and folder) ) # or ((mode == 'dir') and folder and (folder.model_name != '')))
-    
-    if (btn_name == 'param'):
-        return user.is_authenticated and (mode == 'content_list') and folder 
-    
-    if (btn_name == 'add'):
-        return user.is_authenticated and (mode == 'content_list') and folder
-    
-    if (btn_name == 'move'):
-        return user.is_authenticated and folder and ((mode == 'content_form') or (mode == 'folder'))
-    
-    if (btn_name == 'delete'):
-        return user.is_authenticated and (is_content_form(mode, user.id, folder) or is_folder_form(mode, folder)) 
-
-    if (btn_name == 'ready'):
-        return user.is_authenticated and (mode == 'content_form') and note_ready(user.id, folder)
-
-    if (btn_name == 'root'):
-        return False # user.is_authenticated and (mode == 'dir') and (folder)
-    
-    if (btn_name == 'dir'):
-        return user.is_authenticated and ((mode == 'content_list') or (mode == 'folder')) #and ((not folder) or (folder.model_name != 'trip:trip'))
-    
-    if (btn_name == 'prop'):
-        return user.is_authenticated and (folder) and (mode != 'folder') and (mode != 'content_add')
-
-    if (btn_name == 'folder_add'):
-        return user.is_authenticated and ((mode == 'dir') or ((mode == 'content_list') and folder and folder.get_folder_enabled()))
-
-    return False
-
-#----------------------------------
-def make_href(url, p1, p2 = None):
-    if url and (p1 != None) and (p2 != None):
-        return reverse(url, args = [p1, p2])
-    if url and (p1 != None):
-        return reverse(url, args = [p1])
-    if url:
-        return reverse(url)
-    return None
-
-#----------------------------------
-def make_button(folder_id, btn):
-    ret = btn[1].copy()
-    href = btn[1].get('href')
-
-    if not href:
-        url = btn[1].get('url')
-        s1 = btn[1].get('p1')
-        if (s1 == 'folder.id'):
-            p1 = folder_id
-        elif s1:
-            p1 = int(s1)
-        else:
-            p1 = None
-        
-        href = make_href(url, p1)
-
-    ret['href'] = href
-
-    return ret
-
-#----------------------------------
-def get_buttons(user, folder_id, mode, folder):
-    buttons = []
-    for btn in NAVBAR_BUTTONS[0:2]:
-        if is_button_visible(btn[0], user, mode, folder):
-            buttons.append(make_button(folder_id, btn))
-
-    chain = []
-    cur_id = folder_id
-    first = (mode != 'content_add')
-    while (cur_id != 0):
-        if Folder.objects.filter(user = user.id, id = cur_id).exists():
-            node = Folder.objects.filter(user = user.id, id = cur_id)[0]
-            if not first and ((not node.content_id) or node.is_folder):
-                chain.append(node)
-            first = False
-            cur_id = node.node
-        else:
-            break
-
-    for node in reversed(chain):
-        link = {}
-        link['href'] = make_href('hier:folder_list', node.id)
-        link['text'] = node.name
-        buttons.append(link)
-
-    for btn in NAVBAR_BUTTONS[2:]:
-        if is_button_visible(btn[0], user, mode, folder):
-            buttons.append(make_button(folder_id, btn))
-
-    return buttons
-
-#----------------------------------
-def get_moves(user, mode, folder_id, tree, folder):
-    moves = []
-
-    if is_button_visible('move', user, mode, folder):
-        for node in tree:
-            moves.append({ 'href': make_href('hier:folder_move', folder_id, node.id), 'name': node.name, 'icon': node.icon, 'color': node.color })
-
-    return moves
-
-#----------------------------------
 def get_param(user, default_view = ''):
     if not user.is_authenticated:
         return None
@@ -255,15 +108,6 @@ def get_base_context(request, folder_id, pk, title = '', mode = 'content_form', 
             if Folder.objects.filter(user = request.user.id, content_id = pk).exists():
                 folder = Folder.objects.filter(user = request.user.id, content_id = pk)[0]
 
-        if make_tree:
-            tree = build_tree(request.user.id, 0)
-        else:
-            tree = []
-        context['tree'] = tree
-
-        context['buttons'] = get_buttons(request.user, folder_id, mode, folder)
-        context['moves'] = get_moves(request.user, mode, folder_id, tree, folder)
-
     if folder and not title:
         title = folder.name
 
@@ -281,7 +125,7 @@ def get_base_context(request, folder_id, pk, title = '', mode = 'content_form', 
         context['form'] = form
         context['please_correct_one'] = _('Please correct the error below.')
         context['please_correct_all'] = _('Please correct the errors below.')
-
+    """
     context['menu_item_home']    = get_main_menu_item('home')
     context['menu_item_todo']    = get_main_menu_item('todo')
     context['menu_item_note']    = get_main_menu_item('note')
@@ -292,10 +136,10 @@ def get_base_context(request, folder_id, pk, title = '', mode = 'content_form', 
     context['menu_item_apart']   = get_main_menu_item('apart')
     context['menu_item_proj']    = get_main_menu_item('proj')
     context['menu_item_wage']    = get_main_menu_item('wage')
-    context['menu_item_trash']   = get_main_menu_item('trash')
     context['menu_item_admin']   = get_main_menu_item('admin')
     context['menu_item_profile'] = get_main_menu_item('profile')
     context['menu_item_logout']  = get_main_menu_item('logout')
+    """
     set_aside_visible(request.user, app_name, False)
     return context
 
@@ -304,8 +148,8 @@ def get_base_context(request, folder_id, pk, title = '', mode = 'content_form', 
 #----------------------------------
 def get_base_context_ext(request, app_name, content_kind, title, article_enabled = True):
     context = {}
-    context['title'] = title
     context['app_name'] = get_app_name(app_name)
+    context['restriction'] = None
     app_param = None
     if request:
         app_param = get_app_params(request.user, app_name)
@@ -316,10 +160,21 @@ def get_base_context_ext(request, app_name, content_kind, title, article_enabled
             context['aside_visible'] = ((not article_enabled) or (not app_param.article)) and app_param.aside
             context['article_visible'] = app_param.article and article_enabled
             context['restriction'] = app_param.restriction
+            context['sort_dir'] = not app_param.reverse
+            context['list_id'] = 0
+            if (app_param.restriction == 'list') and app_param.lst:
+                lst = Lst.objects.filter(user = request.user.id, id = app_param.lst.id).get()
+                title = lst.name
+                context['list_id'] = lst.id
+
+    context['title'] = title
 
     context['please_correct_one'] = _('Please correct the error below.')
     context['please_correct_all'] = _('Please correct the errors below.')
-
+    
+    context['complete_icon'] = 'todo/icon/complete.png'
+    context['uncomplete_icon'] = 'todo/icon/uncomplete.png'
+    
     context['menu_item_home']    = get_main_menu_item('home')
     context['menu_item_todo']    = get_main_menu_item('todo')
     context['menu_item_note']    = get_main_menu_item('note')
@@ -330,13 +185,38 @@ def get_base_context_ext(request, app_name, content_kind, title, article_enabled
     context['menu_item_apart']   = get_main_menu_item('apart')
     context['menu_item_proj']    = get_main_menu_item('proj')
     context['menu_item_wage']    = get_main_menu_item('wage')
-    context['menu_item_trash']   = get_main_menu_item('trash')
     context['menu_item_admin']   = get_main_menu_item('admin')
     context['menu_item_profile'] = get_main_menu_item('profile')
     context['menu_item_logout']  = get_main_menu_item('logout')
+    
+    
+    APPS = [
+        ('home',    'home',        '/'),
+        ('todo',    'application', '/todo/'),
+        ('note',    'note',        '/note/'),
+        ('news',    'news',        '/news/'),
+        ('store',   'key',         '/store/'),
+        ('trip',    'car',         '/trip/'),
+        ('fuel',    'gas',         '/fuel/'),
+        ('apart',   'apartment',   '/apart/'),
+        ('proj',    'cost',        '/proj/'),
+        ('wage',    'work',        '/wage/'),
+        ('admin',   'admin',       '/admin/'),
+        ('profile', 'user',        '/account/profile/'),
+        ('logout',  'exit',        '/account/logout/'),
+    ]
+
+    apps = []
+    for app in APPS:
+        apps.append({'href': app[2], 'icon': 'rok/icon/' + app[1] + '.png', 'name': get_main_menu_item(app[0])})
+    context['apps'] = apps
+
     set_aside_visible(request.user, app_name, False)
     if content_kind:
-        save_last_visited(request.user, app_name + ':' + content_kind + '_list', app_name, title)
+        kind = content_kind
+        if (content_kind != 'main'):
+            kind = content_kind + '_list'
+        save_last_visited(request.user, app_name + ':' + kind, app_name, title)
     return app_param, context
 
 #----------------------------------
@@ -448,8 +328,6 @@ def get_main_menu_item(id):
         return _('home').capitalize()
     if (id == 'news'):
         return _('news').capitalize()
-    if (id == 'trash'):
-        return _('trash').capitalize()
     if (id == 'admin'):
         return _('admin').capitalize()
     if (id == 'profile'):
@@ -460,6 +338,9 @@ def get_main_menu_item(id):
 
 
 def sort_data(data, sort, reverse):
+    if not data:
+        return data
+
     sort_fields = sort.split()
     if reverse:
         revers_list = []
@@ -478,9 +359,13 @@ def sort_data(data, sort, reverse):
 
 
 def get_rate_on_date(currency, date):
+    # https://www.nbrb.by/api/exrates/rates/145?ondate=2020-10-10
     url = 'https://www.nbrb.by/api/exrates/rates/{}?ondate={}-{}-{}'.format(currency, date.year, date.month, date.day)
     resp = requests.get(url)
-    data = resp.json()
+    try:
+        data = resp.json()
+    except json.JSONDecodeError:
+        return None
     return data['Cur_OfficialRate']
 
 def extract_get_params(request):

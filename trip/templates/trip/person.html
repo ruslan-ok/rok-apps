@@ -1,0 +1,48 @@
+{% extends "hier/list.html" %}
+{% load static i18n %}
+
+{% block article_content %}
+  <div class="fields">
+    <form method="post">{% csrf_token %}
+      <button type="hidden" name="person-save"></button>
+
+      <div class="header">
+        <div class="section-item">
+          {% if form.errors %}
+            <div class="fieldset">
+              <p class="errornote"> {% if form.errors.items|length == 1 %}{{ please_correct_one }}{% else %}{{ please_correct_all }}{% endif %} </p> 
+            </div>
+          {% endif %}
+          {% if form.non_field_errors %}
+            <div class="fieldset">
+            {% for error in form.non_field_errors %} <p class="errornote"> {{ error }} </p> {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="section-item">
+          {{ form.name.errors }}
+        </div>
+
+        <div class="field-group">
+          <div class="section-item">
+            <div class="editable-content full-width main-element">
+              {{ form.name }}
+            </div>
+          </div>
+          <button type="submit" name="person-save" class="field-icon"><img class="img-20_20" src="{% static 'rok/icon/save.png' %}"></button>
+        </div>
+      </div>
+
+      <div class="body">
+        <div class="section">
+          <div class="section-item">
+            <div class="editable-content full-width auxiliary-element">
+              {{ form.dative }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+{% endblock %}

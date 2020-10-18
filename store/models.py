@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 
 from hier.models import Folder, Lst
+from hier.categories import get_categories_list
 
 app_name = 'store'
 
@@ -45,11 +46,43 @@ class Entry(models.Model):
     def __str__(self):
         return self.title
 
+    def name(self):
+        return self.title
+
+    def marked_item(self):
+        return (self.actual != 1)
+
     def have_notes(self):
         if (self.notes == None) or (self.notes == ''):
             return ''
         else:
             return '@'
+
+    def get_info(item):
+        ret = []
+        
+        if item.lst: # and (app_param.restriction != 'list'):
+            ret.append({'text': item.lst.name})
+    
+        if item.username:
+            if (len(ret) > 0):
+                ret.append({'icon': 'separator'})
+            ret.append({'text': item.username})
+    
+        if item.notes:
+            if (len(ret) > 0):
+                ret.append({'icon': 'separator'})
+            ret.append({'icon': 'notes'})
+    
+        if item.categories:
+            if (len(ret) > 0):
+                ret.append({'icon': 'separator'})
+            categs = get_categories_list(item.categories)
+            for categ in categs:
+                ret.append({'icon': 'category', 'text': categ.name, 'color': 'category-design-' + categ.design})
+    
+        return ret
+
 
 #----------------------------------
 # deprecated

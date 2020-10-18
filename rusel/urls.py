@@ -24,8 +24,6 @@ from . import views
 
 urlpatterns = i18n_patterns(
     path('',            views.index,      name='index'),
-    path('feedback/',   views.feedback,   name='feedback'),
-    path('trash/',      views.trash,      name='trash'),
 
     path('apart/', include('apart.urls')),
     path('fuel/',  include('fuel.urls')),

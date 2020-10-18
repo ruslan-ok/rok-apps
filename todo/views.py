@@ -4,23 +4,26 @@ from datetime import datetime, date, timedelta
 from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
-from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext_lazy as _
 from django.db.models import Q
 
-from hier.utils import get_app_params, get_base_context_ext, process_common_commands, sort_data, extract_get_params
+from hier.utils import get_base_context_ext, process_common_commands, sort_data, extract_get_params
+from hier.models import get_app_params, toggle_content_group
 from hier.params import set_restriction, set_article_kind, set_article_visible, set_sort_mode, toggle_sort_dir, get_search_mode, get_search_info
 from hier.categories import get_categories_list
-from hier.grp_lst import group_add, group_details, group_toggle, list_add, list_details
+from hier.grp_lst import group_add, group_details, group_toggle, list_add, list_details, build_tree
 from hier.files import File
-from .models import app_name, Lst, Task, Param, Step, TaskFiles, DAILY, WORKDAYS, WEEKLY, MONTHLY, ANNUALLY, PerGrp
-from .utils import get_task_status, nice_date, get_grp_planned, GRP_PLANNED_NONE, get_week_day_name
-from .tree import build_tree
+from hier.aside import Fix, Sort
+from hier.content import find_group
+from .models import app_name, Lst, Task, Param, Step, TaskFiles, DAILY, WORKDAYS, WEEKLY, MONTHLY, ANNUALLY#, PerGrp
+from .utils import get_task_status, nice_date, get_grp_planned, GRP_PLANNED_NONE, get_week_day_name, GRPS_PLANNED
 from .forms import TaskNameForm, TaskForm, StepForm, TaskFilesForm
 
+
+items_in_page = 10
 
 NONE = ''
 NAME = 'name'
@@ -56,19 +59,6 @@ SORT_MODE_DESCR = {
 TASK_DETAILS = 'task'
 LIST_DETAILS = 'list'
 GROUP_DETAILS = 'group'
-
-def get_per_grp(user, grp_id):
-    if PerGrp.objects.filter(user = user.id, grp_id = grp_id).exists():
-        return PerGrp.objects.filter(user = user.id, grp_id = grp_id).get()
-    return PerGrp.objects.create(user = user, grp_id = grp_id, is_open = True)
-
-class Term():
-    per_grp = None
-    todo = []
-
-    def __init__(self, user, grp_id):
-        self.per_grp = get_per_grp(user, grp_id)
-        self.todo = []
 
 def get_tasks(user, mode, lst_id):
     if (mode == MY_DAY):
@@ -106,27 +96,39 @@ def sorted_tasks(user, app_param, query):
 
 def todo_base_context(request):
     app_param = get_app_params(request.user, app_name)
-    if (app_param.restriction == LIST_MODE) and app_param.lst:
-        title = app_param.lst.name
-    else:
-        title = MODE_NAME[app_param.restriction].capitalize()
+    title = MODE_NAME[app_param.restriction].capitalize()
     app_param, context = get_base_context_ext(request, app_name, 'task', title)
-    context['cur_view'] = app_param.restriction
     context['list_url'] = 'todo:' + app_param.restriction
-    if app_param.lst:
-        context['list_id'] = app_param.lst.id
     if (app_param.restriction == MY_DAY):
-        context['list_info'] = datetime.today()
-    context['in_my_day_qty'] = len(get_tasks(request.user, MY_DAY, 0).exclude(completed = True))
-    context['important_qty'] = len(get_tasks(request.user, IMPORTANT, 0))
-    context['planned_qty'] = len(get_tasks(request.user, PLANNED, 0))
-    context['all_qty'] = len(get_tasks(request.user, ALL, 0))
-    context['completed_qty'] = len(get_tasks(request.user, COMPLETED, 0))
+        context['title_info'] = datetime.today().strftime('%a, %d %B')
+
+    fixes = []
+    fixes.append(Fix('myday', _('my day').capitalize(), 'todo/icon/myday.png', 'myday/', len(get_tasks(request.user, MY_DAY, 0).exclude(completed = True))))
+    fixes.append(Fix('important', _('important').capitalize(), 'todo/icon/important.png', 'important/', len(get_tasks(request.user, IMPORTANT, 0))))
+    fixes.append(Fix('planned', _('planned').capitalize(), 'todo/icon/planned.png', 'planned/', len(get_tasks(request.user, PLANNED, 0))))
+    fixes.append(Fix('all', _('all').capitalize(), 'rok/icon/all.png', 'all/', len(get_tasks(request.user, ALL, 0))))
+    fixes.append(Fix('completed', _('completed').capitalize(), 'todo/icon/completed.png', 'completed/', len(get_tasks(request.user, COMPLETED, 0))))
+    context['fix_list'] = fixes
+
+    sorts = []
+    if (app_param.restriction != MY_DAY):
+        sorts.append(Sort('myday', _('my day').capitalize(), 'todo/icon/myday.png'))
+    if (app_param.restriction != IMPORTANT):
+        sorts.append(Sort('important', _('by importance').capitalize(), 'todo/icon/important.png'))
+    sorts.append(Sort('termin', _('by date of completion').capitalize(), 'todo/icon/planned.png'))
+    sorts.append(Sort('name',  _('by name').capitalize(), 'todo/icon/sort.png'))
+    sorts.append(Sort('created',  _('by creation date').capitalize(), 'todo/icon/created.png'))
+    context['sort_options'] = sorts
+
     tree = build_tree(request.user.id, app_name)
+    for t in tree:
+        if t.is_list:
+            t.qty = len(Task.objects.filter(user = request.user.id, lst = t.id))
     context['groups'] = tree
+    
     if app_param.sort:
         context['sort_mode'] = SORT_MODE_DESCR[app_param.sort].capitalize()
-    context['sort_dir'] = app_param.reverse
+    context['add_item_placeholder'] = _('add task').capitalize()
     return app_param, context
 
 def get_remind_today():
@@ -380,7 +382,7 @@ def get_task_details(request, context, pk, lst):
     context['repeat_form_d6'] = get_week_day_name(6)
     context['repeat_form_d7'] = get_week_day_name(7)
 
-    context['task_info'] = get_task_status(ed_task)
+    context['item_info'] = get_task_status(ed_task)
     context['categories'] = get_categories_list(ed_task.categories)
     context['url_cutted'] = ed_task.url
     if (len(ed_task.url) > 50):
@@ -426,90 +428,11 @@ def get_files_list(user, task_id):
     return ret
 
 
-def get_task_info(task, cur_view):
-    ret = []
-    
-    if task.lst and (cur_view != LIST_MODE):
-        ret.append({'text': task.lst.name})
-
-    if task.in_my_day and (cur_view != MY_DAY):
-        if (len(ret) > 0):
-            ret.append({'icon': 'separator'})
-        ret.append({'icon': 'myday', 'color': 'black', 'text': _('My day')})
-
-    step_total = 0
-    step_completed = 0
-    for step in Step.objects.filter(task = task.id):
-        step_total += 1
-        if step.completed:
-            step_completed += 1
-    if (step_total > 0):
-        if (len(ret) > 0):
-            ret.append({'icon': 'separator'})
-        ret.append({'text': '{} {} {}'.format(step_completed, _('out of'), step_total)})
-    
-    d = task.stop
-    if d:
-        if (len(ret) > 0):
-            ret.append({'icon': 'separator'})
-        s = task.s_termin()
-        repeat = 'repeat'
-        if task.b_expired():
-            if task.completed:
-                icon = 'termin'
-                color = ''
-            else:
-                icon = 'termin-expired'
-                color = 'expired'
-                repeat = 'repeat-expired'
-            ret.append({'icon': icon, 'color': color, 'text': s})
-        elif (task.stop == date.today()):
-            if task.completed:
-                icon = 'termin'
-                color = ''
-            else:
-                icon = 'termin-actual'
-                color = 'actual'
-                repeat = 'repeat-actual'
-            ret.append({'icon': icon, 'color': color, 'text': s})
-        else:
-            ret.append({'icon': 'termin', 'text': s})
-
-        if (task.repeat != 0):
-            ret.append({'icon': repeat})
-
-
-    if ((task.remind != None) and (task.remind >= datetime.now())) or task.info or (len(TaskFiles.objects.filter(task = task.id)) > 0):
-        if (len(ret) > 0):
-            ret.append({'icon': 'separator'})
-        if ((task.remind != None) and (task.remind >= datetime.now())):
-            ret.append({'icon': 'remind'})
-        if task.info:
-            ret.append({'icon': 'notes'})
-        if (len(TaskFiles.objects.filter(task = task.id)) > 0):
-            ret.append({'icon': 'attach'})
-
-    if task.categories:
-        if (len(ret) > 0):
-            ret.append({'icon': 'separator'})
-        categs = get_categories_list(task.categories)
-        for categ in categs:
-            ret.append({'icon': 'category', 'text': categ.name, 'color': 'category-design-' + categ.design})
-
-    return ret
-
-def find_term(data, user, grp_id):
-    for term in data:
-        if (term.per_grp.grp_id == grp_id):
-            return term
-    term = Term(user, grp_id)
-    data.append(term)
-    return term
-
 #----------------------------------
 @login_required(login_url='account:login')
 #----------------------------------
 def task_list(request):
+    # для трансляции строкового представления дат, в частности в item_info
     locale.setlocale(locale.LC_CTYPE, request.LANGUAGE_CODE)
     locale.setlocale(locale.LC_TIME, request.LANGUAGE_CODE)
 
@@ -522,20 +445,20 @@ def task_list(request):
     app_param, context = todo_base_context(request)
 
     if (request.method == 'POST'):
-        if 'task-in-list-complete' in request.POST:
-            task = Task.objects.filter(id = request.POST['task-in-list-complete']).get()
+        if 'item-in-list-select' in request.POST:
+            task = Task.objects.filter(id = request.POST['item-in-list-select']).get()
             complete_task(task)
             return HttpResponseRedirect(reverse('todo:task_list'))
-        if 'task-in-list-important' in request.POST:
-            task = Task.objects.filter(id = request.POST['task-in-list-important']).get()
+        if 'item-in-list-important' in request.POST:
+            task = Task.objects.filter(id = request.POST['item-in-list-important']).get()
             task.important = not task.important
             task.save()
             return HttpResponseRedirect(reverse('todo:task_list'))
-        if 'task-add' in request.POST:
+        if 'item-add' in request.POST:
             lst = None
             if (app_param.restriction == 'list') and app_param.lst:
                 lst = app_param.lst
-            task = Task.objects.create(user = request.user, name = request.POST['task_add-name'], \
+            task = Task.objects.create(user = request.user, name = request.POST['item_add-name'], \
                                        lst = lst, in_my_day = (app_param.restriction == MY_DAY), important = (app_param.restriction == IMPORTANT))
             return HttpResponseRedirect(reverse('todo:task_form', args = [task.id]))
         if 'list-add' in request.POST:
@@ -553,37 +476,38 @@ def task_list(request):
                 set_article_visible(request.user, app_name, False)
                 redirect = True
             else:
-                template_file = 'todo/task_form.html'
+                template_file = 'todo/task.html'
                 redirect = get_task_details(request, context, app_param.art_id, app_param.lst)
         elif (app_param.kind == 'list'):
             can_delete = not Task.objects.filter(lst = app_param.art_id).exists()
             redirect = list_details(request, context, app_param.art_id, app_name, can_delete)
             if not redirect:
-                template_file = 'todo/list_form.html'
+                template_file = 'hier/article_list.html'
         elif (app_param.kind == 'group'):
             redirect = group_details(request, context, app_param.art_id, app_name)
             if not redirect:
-                template_file = 'todo/group_form.html'
+                template_file = 'hier/article_group.html'
 
     if redirect:
         return HttpResponseRedirect(reverse('todo:task_list') + extract_get_params(request))
 
     if (template_file == ''):
-        template_file = 'todo/task_list.html'
+        template_file = 'todo/task.html'
     
-    context['details_pk'] = app_param.art_id
-
-    data = []
+    groups = []
     query = None
     if request.method == 'GET':
         query = request.GET.get('q')
     search_mode = 0
-    for task in sorted_tasks(request.user, app_param, query):
+
+    tasks = sorted_tasks(request.user, app_param, query)
+    for task in tasks:
         grp_id = get_grp_planned(app_param.restriction, task.stop, task.completed)
-        term = find_term(data, request.user, grp_id)
-        term.todo.append([task, get_task_info(task, app_param.restriction)])
+        group = find_group(groups, request.user, app_name, grp_id, GRPS_PLANNED[grp_id].capitalize())
+        group.items.append(task)
     
-    context['object_list'] = sorted(data, key=lambda term: term.per_grp.grp_id)
+    context['page_obj'] = tasks
+    context['item_groups'] = sorted(groups, key = lambda group: group.grp.grp_id)
     context['search_info'] = get_search_info(query)
     context['task_add_form'] = TaskForm(request.user)
 
@@ -631,9 +555,7 @@ def toggle_group(request, pk):
     return HttpResponseRedirect(reverse('todo:task_list') + extract_get_params(request))
 
 def period_toggle(request, pk):
-    per_grp = get_object_or_404(PerGrp.objects.filter(user = request.user.id, grp_id = pk))
-    per_grp.is_open = not per_grp.is_open
-    per_grp.save()
+    toggle_content_group(request.user.id, app_name, pk)
     return HttpResponseRedirect(reverse('todo:task_list'))
 
 

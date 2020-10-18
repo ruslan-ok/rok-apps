@@ -5,15 +5,14 @@ from django.core.exceptions import ValidationError
 from .models import Person, Trip
 
 class TripFormBase(ModelForm):
+    summa = DecimalField(label = _('summa').capitalize(), widget=NumberInput(attrs={"step":"0.01", "class":"summa-style"}))
 
     class Meta:
         model = Trip
-        fields = ['year', 'week', 'days', 'oper', 'price', 'driver', 'passenger', 'text']
+        fields = ['year', 'week', 'days', 'oper', 'price', 'driver', 'passenger', 'text', 'summa']
 
 
 class TripForm(TripFormBase):
-
-    summa = DecimalField(label = _('summa').capitalize(), widget=NumberInput(attrs={"step":"0.01", "class":"summa-style"}))
     day_11 = BooleanField(label = 'day_11', required = False)
     day_12 = BooleanField(label = 'day_12', required = False)
     day_13 = BooleanField(label = 'day_13', required = False)
@@ -30,7 +29,7 @@ class TripForm(TripFormBase):
     day_27 = BooleanField(label = 'day_27', required = False)
 
     class Meta(TripFormBase.Meta):
-        fields = TripFormBase.Meta.fields + ['summa', 'text',
+        fields = TripFormBase.Meta.fields + ['text',
                                              'day_11', 'day_12', 'day_13', 'day_14', 'day_15', 'day_16', 'day_17',
                                              'day_21', 'day_22', 'day_23', 'day_24', 'day_25', 'day_26', 'day_27',
                                              ]
@@ -41,12 +40,12 @@ class TripForm(TripFormBase):
 
     def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['days'].hidden = True
+        #self.fields['days'].hidden = True
         self.fields['driver'].queryset = Person.objects.filter(user = user).order_by('name')
         self.fields['passenger'].queryset = Person.objects.filter(user = user).order_by('name')
-        instance = getattr(self, 'instance', None)
-        if instance:
-            self.fields['summa'].widget.attrs['readonly'] = True
+        #instance = getattr(self, 'instance', None)
+        #if instance:
+        #    self.fields['summa'].widget.attrs['readonly'] = True
 
     def clean_year(self):
         data = self.cleaned_data['year']

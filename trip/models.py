@@ -1,3 +1,4 @@
+from decimal import *
 from datetime import datetime
 from django.contrib.auth.models import User
 from django.db import models
@@ -19,6 +20,15 @@ class Person(models.Model):
 
     def __str__(self):
         return self.name
+
+    def marked_item(self):
+        return self.me
+
+    def get_info(self):
+        ret = []
+        ret.append({'text': self.dative})
+        return ret
+
 
 def deactivate_all(user_id, person_id):
     for person in Person.objects.filter(user = user_id, me = True).exclude(id = person_id):
@@ -118,23 +128,31 @@ class Trip(models.Model):
     
     def summa(self):
         if (self.oper == 1):
-            return self.price
+            return Decimal(self.price)
     
         kol = 0
         for i in range(0, 7):
             for j in range(0, 2):
                 if (int(self.days) & (1 << (i*2+j))):
                     kol = kol + 1
-        return kol * self.price
+        return Decimal(kol * self.price)
 
     def name(self):
         return str(self.week) + '-' + str(self.year) + ': ' + gettext('driver') + ': ' + self.s_driv() + ', ' + gettext('passenger') + ': ' + self.s_pass()
 
-    def descr(self):
-        ret = gettext('summa') + ': ' + str(self.summa())
+    def get_info(self):
+        ret = []
+        ret.append({'text': gettext('summa') + ': ' + str(self.summa())})
         if (self.oper == 0):
-            ret += ' ' + self.s_days()
+            ret.append({'icon': 'separator'})
+            ret.append({'text': ' ' + self.s_days()})
+        if self.text:
+            ret.append({'icon': 'separator'})
+            ret.append({'icon': 'notes'})
         return ret
+
+    def marked_item(self):
+        return (self.oper == 0)
 
 
 def NameI(p):
@@ -171,11 +189,4 @@ def trip_summary(_user, with_span = True):
 
     return '<span id="warning">' + ret + '</span>'
 
-#----------------------------------
-def enrich_context(context, app_param, user_id):
-    context['cur_view'] = app_param.content
-    context['article_mode'] = app_param.kind
-    context['article_pk'] = app_param.art_id
 
-    context['person_qty'] = len(Person.objects.filter(user = user_id))
-    context['trip_qty'] = len(Trip.objects.filter(user = user_id))

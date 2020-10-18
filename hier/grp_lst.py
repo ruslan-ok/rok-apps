@@ -79,3 +79,50 @@ def list_details(request, context, pk, app_name, can_delete):
     return False
 
 
+class TreeNode():
+    id = 0
+    name = ''
+    level = 0
+    is_list = False
+    is_open = False
+    qty = 0
+    url = 'list/' + str(id) + '/'
+
+    def __init__(self, id, name, level, is_list = False, is_open = False, qty = 0):
+        self.id = id
+        self.name = name
+        self.level = level
+        self.is_list = is_list
+        self.is_open = is_open
+        self.qty = qty
+        url = 'list/' + str(id) + '/'
+
+    def __str__(self):
+        ret = str(self.level) + '/' + str(self.id) + ' "' + self.name + '" '
+        if self.is_node:
+            if self.is_open:
+                ret = ret + '[-]'
+            else:
+                ret = ret + '[+]'
+        return ret
+
+
+def scan_level(tree, user_id, node_id, level, app_name):
+    if (node_id == 0):
+        node_id = None
+    for grp in Grp.objects.filter(user = user_id, app = app_name, node = node_id).order_by('sort', 'name'):
+        tree.append(TreeNode(grp.id, grp.name, level, False, grp.is_open))
+        if grp.is_open:
+            for lst in Lst.objects.filter(user = user_id, grp = grp.id).order_by('sort', 'name'):
+                tree.append(TreeNode(lst.id, lst.name, level + 1, True, False))
+            scan_level(tree, user_id, grp.id, level + 1, app_name)
+
+
+def build_tree(user_id, app_name):
+    tree = []
+    scan_level(tree, user_id, 0, 0, app_name)
+    for lst in Lst.objects.filter(user = user_id, grp = None, app = app_name).order_by('sort', 'name'):
+        tree.append(TreeNode(lst.id, lst.name, 0, True, False))
+    return tree
+
+

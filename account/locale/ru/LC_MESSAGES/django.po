@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-26 09:56+0300\n"
+"POT-Creation-Date: 2020-10-18 19:51+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -352,14 +352,13 @@ msgid "Profile service"
 msgstr "Действия с профилем"
 
 #: .\account\views.py:432
-msgid "Profile"
-msgstr "Профиль"
+msgid "profile"
+msgstr "профиль"
 
-#: .\account\views.py:433
+#: .\account\views.py:434
 msgid "Personal info"
 msgstr "Персональная информация"
 
-#: .\account\views.py:434
+#: .\account\views.py:435
 msgid "Important dates"
 msgstr "Важные даты"
-

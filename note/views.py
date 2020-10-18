@@ -10,14 +10,15 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 
 from hier.utils import get_base_context_ext, process_common_commands, sort_data, extract_get_params
-from hier.params import get_app_params, set_sort_mode, toggle_sort_dir, get_search_mode, get_search_info, set_restriction, set_article_kind, set_article_visible
-from hier.grp_lst import group_add, group_details, group_toggle, list_add, list_details
+from hier.models import get_app_params
+from hier.params import set_sort_mode, toggle_sort_dir, get_search_mode, get_search_info, set_restriction, set_article_kind, set_article_visible
+from hier.grp_lst import group_add, group_details, group_toggle, list_add, list_details, build_tree
 from hier.categories import get_categories_list
 from hier.files import file_storage_path, get_files_list
+from hier.aside import Fix, Sort
 
 from .models import app_name, Note
 from .forms import NoteForm, FileForm
-from todo.tree import build_tree
 
 from todo.models import Grp, Lst
 
@@ -58,7 +59,7 @@ def item_list(request, app):
     if process_sort_commands(request, app):
         return HttpResponseRedirect(reverse(get_url_list(app)) + extract_get_params(request))
 
-    app_param = get_app_params(request.user, app)
+    app_param, context = get_base_context_ext(request, app, 'note', _('all').capitalize())
 
     if (request.method == 'POST'):
         #raise Exception(request.POST)
@@ -72,32 +73,32 @@ def item_list(request, app):
             grp_id = group_add(request.user, app, request.POST['name'])
             return HttpResponseRedirect(reverse(app + ':' + app + '_group_form', args = [grp_id]))
 
-    if (app_param.restriction == 'all'):
-        title = _('all').capitalize()
-    elif (app_param.restriction == 'list') and app_param.lst:
-        lst = Lst.objects.filter(user = request.user.id, id = app_param.lst.id).get()
-        title = lst.name
-    else:
+    if (app_param.restriction == 'list') and (not app_param.lst):
         if (app == 'note'):
             return HttpResponseRedirect(reverse('note:all_notes'))
         else:
             return HttpResponseRedirect(reverse('news:all_news'))
 
-    app_param, context = get_base_context_ext(request, app, 'note', title)
+    fixes = []
+    fixes.append(Fix('all', _('all').capitalize(), 'rok/icon/all.png', 'all/', len(Note.objects.filter(user = request.user.id, kind = app))))
+    context['fix_list'] = fixes
 
-    if app_param.lst:
-        context['list_id'] = app_param.lst.id
-    context['restriction'] = app_param.restriction
-    context['all_qty'] = len(filtered_list(request.user, 'all', app))
+    sorts = []
+    sorts.append(Sort('name',  _('by name').capitalize(), 'todo/icon/sort.png'))
+    sorts.append(Sort('descr', _('by description').capitalize(), 'rok/icon/note.png'))
+    sorts.append(Sort('publ',  _('by publication date').capitalize(), 'todo/icon/created.png'))
+    sorts.append(Sort('lmod',  _('by last modification date').capitalize(), 'todo/icon/planned.png'))
+    context['sort_options'] = sorts
 
     if app_param.sort:
         context['sort_mode'] = SORT_MODE_DESCR[app_param.sort].capitalize()
-    context['sort_dir'] = not app_param.reverse
 
     if (app == 'note'):
-        template_file = 'note/note_form.html'
+        template_file = 'note/note.html'
+        context['add_item_placeholder'] = _('add note').capitalize()
     else:
-        template_file = 'note/news_form.html'
+        template_file = 'note/news.html'
+        context['add_item_placeholder'] = _('add news').capitalize()
     
     redirect = False
     if app_param.article:
@@ -111,11 +112,11 @@ def item_list(request, app):
             can_delete = not Note.objects.filter(lst = app_param.art_id).exists()
             redirect = list_details(request, context, app_param.art_id, app, can_delete)
             if not redirect:
-                template_file = 'note/' + app + '_list_form.html'
+                template_file = 'hier/article_list.html'
         elif (app_param.kind == 'group'):
             redirect = group_details(request, context, app_param.art_id, app)
             if not redirect:
-                template_file = 'note/' + app + '_group_form.html'
+                template_file = 'hier/article_group.html'
 
     if redirect:
         return HttpResponseRedirect(reverse(get_url_list(app)) + extract_get_params(request))
@@ -276,7 +277,7 @@ def item_details(request, context, app_param, app):
         form = NoteForm(request.user, app, instance = item)
 
     context['form'] = form
-    context['item_id'] = item.id
+    context['ed_item'] = item
     context['categories'] = get_categories_list(item.categories)
     context['files'] = get_files_list(request.user, app, 'note_{}'.format(item.id))
     return False

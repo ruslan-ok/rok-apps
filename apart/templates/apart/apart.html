@@ -1,35 +1,101 @@
-{% extends "base_sidebar.html" %}
+{% extends "hier/list.html" %}
 {% load static i18n %}
 
-{% block aside_content %}
-  <ul class="nav-menu">
-    <li{% if cur_view == 'apart' %} class="selected"{% endif %}><a class="fix" href="{% url 'apart:apart_list' %}">
-        <div class="nav-menu-item-left">
-          <img src="{% static 'todo/icon/myday.png' %}">
-          {% trans 'apartments'|capfirst %}
+{% block article_content %}
+  <div class="fields">
+    <form method="post" class="header">{% csrf_token %}
+      <!-- Form Errors -->
+      {% if form.errors %}
+        <div class="fieldset">
+          <p class="errornote"> {% if form.errors.items|length == 1 %}{{ please_correct_one }}{% else %}{{ please_correct_all }}{% endif %} </p> 
         </div>
-        <div class="nav-menu-qty">{{ apart_qty }}</div>
-      </a></li>
-    <li{% if cur_view == 'meter' %} class="selected"{% endif %}><a class="fix" href="{% url 'apart:meter_list' %}">
-        <div class="nav-menu-item-left">
-          <img src="{% static 'todo/icon/planned.png' %}">
-          {% trans 'meters'|capfirst %}
+      {% endif %}
+      {% if form.non_field_errors %}
+        <div class="fieldset">
+        {% for error in form.non_field_errors %} <p class="errornote"> {{ error }} </p> {% endfor %}
         </div>
-        <div class="nav-menu-qty">{{ meter_qty }}</div>
-      </a></li>
-    <li{% if cur_view == 'price' %} class="selected"{% endif %}><a class="fix" href="{% url 'apart:price_list' %}">
-        <div class="nav-menu-item-left">
-          <img src="{% static 'rok/icon/all.png' %}">
-          {% trans 'prices'|capfirst %}
+      {% endif %}
+
+      <!-- Apart.name -->
+      <div class="header">
+        <button type="hidden" name="item-save" id="id_item_save"></button>
+        <div class="row">
+          {{ form.name.label_tag }}
         </div>
-        <div class="nav-menu-qty">{{ price_qty }}</div>
-      </a></li>
-    <li{% if cur_view == 'bill' %} class="selected"{% endif %}><a class="fix" href="{% url 'apart:bill_list' %}">
-        <div class="nav-menu-item-left">
-          <img src="{% static 'todo/icon/important.png' %}">
-          {% trans 'bills'|capfirst %}
+        {% if form.name.errors %}
+          <div class="row">
+            <div class="field-error">{{ form.name.errors }}</div>
+          </div>
+        {% endif %}
+        <div class="row editable-content full-width main-element">
+          <button type="submit" name="apart-active" class="field-icon">
+            {% if item_active %}
+              <img src="{% static 'todo/icon/complete.png' %}">
+            {% else %}
+              <img src="{% static 'todo/icon/uncomplete.png' %}">
+            {% endif %}
+          </button>
+          {{ form.name }}
+          <button type="submit" name="item-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
         </div>
-        <div class="nav-menu-qty">{{ bill_qty }}</div>
-      </a></li>
-  </ul>
+      </div>
+
+      <div class="body">
+        <div class="section">
+          <!-- Apart.addr -->
+          <div class="row">
+            {{ form.addr.label_tag }}
+          </div>
+          {% if form.addr.errors %}
+            <div class="row">
+              <div class="field-error">{{ form.addr.errors }}</div>
+            </div>
+          {% endif %}
+          <div class="row editable-content full-width auxiliary-element">
+            {{ form.addr }}
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-item">
+            <button type="submit" name="apart-gas" class="section-inner-click">
+              <div class="section-inner">
+                <div class="section-icon">
+                  <img src="{% static 'todo/icon/myday.png' %}">
+                </div>
+                <div class="section-content">
+                  <div class="section-title{% if has_gas %} selected{% endif %}">
+                    {% if has_gas %}
+                      {% trans 'gas supplied'|capfirst %}
+                    {% else %}
+                      {% trans 'gas not supplied'|capfirst %}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </button>
+          </div>
+      
+          <div class="section-item">
+            <button type="submit" name="apart-ppo" class="section-inner-click">
+              <div class="section-inner">
+                <div class="section-icon">
+                  <img src="{% static 'rok/icon/cost.png' %}">
+                </div>
+                <div class="section-content">
+                  <div class="section-title{% if has_ppo %} selected{% endif %}">
+                    {% if has_ppo %}
+                      {% trans 'Payments to the PoO' %}
+                    {% else %}
+                      {% trans 'No payments to the PoO' %}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
 {% endblock %}

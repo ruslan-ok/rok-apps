@@ -1,4 +1,6 @@
 from django import forms
+from django.utils.translation import gettext_lazy as _
+from hier.forms import DateInput
 from .models import Period, Depart, DepHist, Post, Employee, FioHist, Child, Appoint, Education, EmplPer, PayTitle, Payment
 
 
@@ -12,6 +14,7 @@ class DepHistForm(forms.ModelForm):
     class Meta:
         model = DepHist
         fields = ['dBeg', 'node']
+        widgets = { 'dBeg': DateInput() }
 
     def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -30,42 +33,56 @@ class PayTitleForm(forms.ModelForm):
 class PeriodForm(forms.ModelForm):
     class Meta:
         model = Period
-        fields = ['dBeg', 'planDays', 'AvansDate', 'PaymentDate', 'AvansRate', 'PaymentRate', 'DebtInRate', 'Part2Date', 'Part2Rate', 'active']
-
+        fields = ['planDays', 'DebtInRate', 'AvansDate', 'AvansRate', 'PaymentDate', 'PaymentRate', 'Part2Date', 'Part2Rate']
+        widgets = { 'AvansDate': DateInput(), 'PaymentDate': DateInput(), 'Part2Date': DateInput() }
 
 class EmployeeForm(forms.ModelForm):
     class Meta:
         model = Employee
-        fields = ['fio', 'login', 'sort', 'email', 'passw', 'born', 'phone', 'addr', 'info']
+        exclude = ['user', 'active']
+        widgets = { 'born': DateInput(),
+                    'info': forms.Textarea(attrs={'rows':3, 'cols':25, 'placeholder': _('add note').capitalize(), 'data-autoresize':''}) }
 
 class AppointForm(forms.ModelForm):
     class Meta:
         model = Appoint
-        fields = ['tabnum', 'dBeg', 'dEnd', 'salary', 'currency', 'depart', 'post', 'taxded', 'info']
+        exclude = ['employee']
+        widgets = { 'dBeg': DateInput(),
+                    'dEnd': DateInput(),
+                    'info': forms.Textarea(attrs={'rows':3, 'cols':25, 'placeholder': _('add note').capitalize(), 'data-autoresize':''}) }
 
 class EducationForm(forms.ModelForm):
     class Meta:
         model = Education
-        fields = ['dBeg', 'dEnd', 'institution', 'course', 'specialty', 'qualification', 'document', 'number', 'city', 'docdate', 'info']
+        exclude = ['employee']
+        widgets = { 'dBeg': DateInput(),
+                    'dEnd': DateInput(),
+                    'docdate': DateInput(),
+                    'info': forms.Textarea(attrs={'rows':3, 'cols':25, 'placeholder': _('add note').capitalize(), 'data-autoresize':''}) }
 
 class FioHistForm(forms.ModelForm):
     class Meta:
         model = FioHist
-        fields = ['dEnd', 'fio', 'info']
+        exclude = ['employee']
+        widgets = { 'dEnd': DateInput(),
+                    'info': forms.Textarea(attrs={'rows':3, 'cols':25, 'placeholder': _('add note').capitalize(), 'data-autoresize':''}) }
 
 class ChildForm(forms.ModelForm):
     class Meta:
         model = Child
-        fields = ['born', 'sort', 'name', 'info']
+        exclude = ['employee']
+        widgets = { 'born': DateInput(),
+                    'info': forms.Textarea(attrs={'rows':3, 'cols':25, 'placeholder': _('add note').capitalize(), 'data-autoresize':''}) }
 
 class EmplPerForm(forms.ModelForm):
     class Meta:
         model = EmplPer
-        fields = ['employee', 'period', 'factDays', 'debtIn', 'debtOut', 'salaryRate', 'privilege', 'prevOut', 'dBeg']
+        exclude = ['employee', 'period']
+        widgets = { 'dBeg': DateInput() }
 
+"""
 class EmplInfoForm(EmplPerForm):
 
-    fio = forms.CharField(label = 'ФИО', required = False)
     appoint_beg = forms.DateField(label = 'Назначение с', required = False)
     appoint_end = forms.DateField(label = 'Контракт до', required = False)
     salary = forms.DecimalField(label = 'Оклад', required = False, max_digits = 15, decimal_places = 0)
@@ -86,12 +103,10 @@ class EmplInfoForm(EmplPerForm):
 
     def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['employee'].queryset = Employee.objects.filter(user = user).order_by('fio')
         self.fields['department'].queryset = Depart.objects.filter(user = user).order_by('name')
         self.fields['post'].queryset = Post.objects.filter(user = user).order_by('name')
         instance = getattr(self, 'instance', None)
         if instance:
-            self.fields['fio'].widget.attrs['readonly'] = True
             self.fields['appoint_beg'].widget.attrs['readonly'] = True
             self.fields['appoint_end'].widget.attrs['readonly'] = True
             self.fields['salary'].widget.attrs['readonly'] = True
@@ -100,7 +115,7 @@ class EmplInfoForm(EmplPerForm):
             self.fields['post'].widget.attrs['readonly'] = True
             self.fields['salaryRate'].widget.attrs['readonly'] = True
             self.fields['plan_days'].widget.attrs['readonly'] = True
-            self.fields['factDays'].widget.attrs['readonly'] = True
+            #self.fields['factDays'].widget.attrs['readonly'] = True
             self.fields['privilege'].widget.attrs['readonly'] = True
             self.fields['debtIn'].widget.attrs['readonly'] = True
             self.fields['accrued'].widget.attrs['readonly'] = True
@@ -110,12 +125,16 @@ class EmplInfoForm(EmplPerForm):
             self.fields['accrued_v'].widget.attrs['readonly'] = True
             self.fields['paid_out_v'].widget.attrs['readonly'] = True
             self.fields['debt_out_v'].widget.attrs['readonly'] = True
+"""
 
 class PaymentForm(forms.ModelForm):
     class Meta:
         model = Payment
-        fields = ['payed', 'sort', 'title', 'value', 'currency', 'rate', 'info']
+        exclude = ['employee', 'period', 'direct']
+        widgets = { 'payed': DateInput(),
+                    'info': forms.Textarea(attrs={'rows':3, 'cols':25, 'placeholder': _('add note').capitalize(), 'data-autoresize':''}) }
 
+"""
 class AccrualForm(PaymentForm):
     class Meta(PaymentForm.Meta):
         pass
@@ -123,4 +142,5 @@ class AccrualForm(PaymentForm):
 class PayoutForm(PaymentForm):
     class Meta(PaymentForm.Meta):
         pass
+"""
 

@@ -20,8 +20,13 @@ class Projects(models.Model):
     def __str__(self):
         return self.name
 
+    def marked_item(self):
+        return self.active
+
     def get_info(self):
-        return s_proj_summary(self.id)
+        ret = []
+        ret.append({'text': s_proj_summary(self.id) })
+        return ret
 
 def deactivate_all(user_id, dirs_id):
     for dir in Projects.objects.filter(user = user_id, active = True).exclude(id = dirs_id):
@@ -54,6 +59,9 @@ class Expenses(models.Model):
 
     def __str__(self):
         return self.date.strftime('%d.%m.%Y') + ' ' + self.direct.name + ' ' + self.s_summa()
+
+    def name(self):
+        return self.date.strftime('%d.%m.%Y')
 
     def summa(self):
         nc_summa = 0
