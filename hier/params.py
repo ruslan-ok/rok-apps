@@ -70,7 +70,7 @@ def toggle_sort_dir(user, app_name):
 def get_search_mode(query):
     if not query:
         return 0
-    if (len(query) > 1) and (query[0] == '#') and (query.find(' ') == -1):
+    if (len(query) > 1) and (query[0] == '@') and (query.find(' ') == -1):
         return 2
     else:
         return 1
