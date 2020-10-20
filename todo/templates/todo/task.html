@@ -28,20 +28,20 @@
     <!-- EDIT Task.name -->
     <div class="field-group">
       <button type="submit" name="task-completed" class="field-icon">
-        {% if completed %}
+        {% if ed_item.completed %}
           <img src="{% static 'todo/icon/complete.png' %}">
         {% else %}
           <img src="{% static 'todo/icon/uncomplete.png' %}">
         {% endif %}
       </button>
       <div class="field-error">{{ name_form.name.errors }}</div>
-      <div class="article-name{% if completed %} completed{% endif %}">
+      <div class="article-name{% if ed_item.completed %} completed{% endif %}">
         <div class="editable-content full-width main-element">
           {{ name_form.name }}
         </div>
       </div>
       <button type="submit" name="task-important" class="field-icon">
-        {% if important %}
+        {% if ed_item.important %}
           <img src="{% static 'todo/icon/important-on.png' %}">
         {% else %}
           <img src="{% static 'todo/icon/important-off.png' %}">
@@ -119,8 +119,8 @@
               <img src="{% static 'todo/icon/myday.png' %}">
             </div>
             <div class="section-content">
-              <div class="section-title{% if in_my_day %} selected{% endif %}">
-                {% if in_my_day %}
+              <div class="section-title{% if ed_item.in_my_day %} selected{% endif %}">
+                {% if ed_item.in_my_day %}
                   {% trans 'added in "My day"'|capfirst %}
                 {% else %}
                   {% trans 'add to "My day"'|capfirst %}
@@ -199,16 +199,16 @@
               <img src="{% static 'todo/icon/planned.png' %}">
             </div>
             <div class="section-content">
-              <div class="section-title{% if task_expired %} expired{% elif task_actual %} actual{% endif %}">
-                {% if task_d_termin %}
-                  {{ task_s_termin }}
+              <div class="section-title{% if ed_item.b_expired %} expired{% elif task_actual %} actual{% endif %}">
+                {% if ed_item.stop %}
+                  {{ ed_item.s_termin }}
                 {% else %}
                   {% trans 'add due date'|capfirst %}
                 {% endif %}
               </div>
             </div>
           </div>
-          {% if task_d_termin %}
+          {% if ed_item.stop %}
             <button type="submit" name="termin-delete" class="field-icon"><img src="{% static 'rok/icon/delete.png' %}"></button>
           {% endif %}
         </div>
@@ -260,16 +260,16 @@
             </div>
             <div class="section-content">
               <div class="section-title">
-                {% if task_b_repeat %}
-                  <div {% if task_b_repeat %} class="actual"{% endif %}> {{ task_s_repeat }} </div>
-                  <div class="section-description"> {{ task_repeat_days }} </div>
+                {% if ed_item.repeat != 0 %}
+                  <div {% if ed_item.repeat != 0 %} class="actual"{% endif %}> {{ ed_item.s_repeat }} </div>
+                  <div class="section-description"> {{ ed_item.repeat_s_days }} </div>
                 {% else %}
                   {% trans 'repeat'|capfirst %}
                 {% endif %}
               </div>
             </div>
           </div>
-          {% if task_d_termin %}
+          {% if ed_item.stop %}
             <button type="submit" name="repeat-delete" class="field-icon"><img src="{% static 'rok/icon/delete.png' %}"></button>
           {% endif %}
         </div>

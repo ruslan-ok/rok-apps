@@ -281,6 +281,11 @@ class Task(models.Model):
             for categ in categs:
                 ret.append({'icon': 'category', 'text': categ.name, 'color': 'category-design-' + categ.design})
     
+        if self.completed:
+            if (len(ret) > 0):
+                ret.append({'icon': 'separator'})
+            ret.append({'text': '{}: {}'.format(_('completion').capitalize(), self.completion.strftime('%d.%m.%Y'))})
+
         return ret
 
 

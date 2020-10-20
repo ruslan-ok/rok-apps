@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-18 19:51+0300\n"
+"POT-Creation-Date: 2020-10-20 22:55+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,8 +19,8 @@ msgstr ""
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: .\hier\models.py:9 .\hier\models.py:52 .\hier\models.py:74
-#: .\hier\models.py:120
+#: .\hier\models.py:9 .\hier\models.py:50 .\hier\models.py:72
+#: .\hier\models.py:118
 msgid "user"
 msgstr "пользователь"
 
@@ -28,12 +28,11 @@ msgstr "пользователь"
 msgid "node"
 msgstr "вышестоящая"
 
-#: .\hier\models.py:11 .\hier\templates\hier\old\folder_list.html:13
+#: .\hier\models.py:11
 msgid "code"
 msgstr "код"
 
-#: .\hier\models.py:12 .\hier\models.py:122
-#: .\hier\templates\hier\old\folder_list.html:12
+#: .\hier\models.py:12 .\hier\models.py:120
 msgid "name"
 msgstr "наименование"
 
@@ -49,7 +48,7 @@ msgstr "дата последней модификации"
 msgid "node is opened"
 msgstr "узел раскрыт"
 
-#: .\hier\models.py:16 .\hier\templates\hier\old\folder_list.html:11
+#: .\hier\models.py:16
 msgid "icon"
 msgstr "иконка"
 
@@ -61,139 +60,135 @@ msgstr "цвет"
 msgid "application entity name"
 msgstr "идентификатор приложения"
 
-#: .\hier\models.py:20
-msgid "enable folders in items list"
-msgstr "в списке значений могут быть папки"
-
-#: .\hier\models.py:21 .\hier\templates\hier\old\folder_list.html:14
+#: .\hier\models.py:19
 msgid "content id"
 msgstr "идентификатор записи контента"
 
-#: .\hier\models.py:22
+#: .\hier\models.py:20
 msgid "node is folder"
 msgstr "узел является папкой"
 
-#: .\hier\models.py:25 .\hier\views.py:141
+#: .\hier\models.py:23
 msgid "folder"
 msgstr "папка"
 
-#: .\hier\models.py:26 .\hier\views.py:55
+#: .\hier\models.py:24
 msgid "folders"
 msgstr "папки"
 
-#: .\hier\models.py:53
+#: .\hier\models.py:51
 msgid "folder id"
 msgstr "идентификатор папки"
 
-#: .\hier\models.py:54 .\hier\models.py:76
+#: .\hier\models.py:52 .\hier\models.py:74
 msgid "aside visible"
 msgstr "боковая панель открыта"
 
-#: .\hier\models.py:55 .\hier\models.py:77
+#: .\hier\models.py:53 .\hier\models.py:75
 msgid "article visible"
 msgstr "карточка записи открыта"
 
-#: .\hier\models.py:56
+#: .\hier\models.py:54
 msgid "current application"
 msgstr "текущее приложение"
 
-#: .\hier\models.py:57
+#: .\hier\models.py:55
 msgid "current view"
 msgstr "текущее представление"
 
-#: .\hier\models.py:58
+#: .\hier\models.py:56
 msgid "article mode"
 msgstr "режим окна редактирования"
 
-#: .\hier\models.py:59
+#: .\hier\models.py:57
 msgid "article pk"
 msgstr "идентификатор редактируемой записи"
 
-#: .\hier\models.py:60
+#: .\hier\models.py:58
 msgid "last visited url"
 msgstr "адрес последней посещенной страницы"
 
-#: .\hier\models.py:61
+#: .\hier\models.py:59
 msgid "last visited app"
 msgstr "последнее посещенное приложение"
 
-#: .\hier\models.py:62
+#: .\hier\models.py:60
 msgid "last visited page"
 msgstr "последняя посещенная страница"
 
-#: .\hier\models.py:65 .\hier\models.py:87
+#: .\hier\models.py:63 .\hier\models.py:85
 msgid "user parameters"
 msgstr "параметры пользователя"
 
-#: .\hier\models.py:66 .\hier\models.py:88
+#: .\hier\models.py:64 .\hier\models.py:86
 msgid "users parameters"
 msgstr "параметры пользователей"
 
-#: .\hier\models.py:75 .\hier\models.py:121
+#: .\hier\models.py:73 .\hier\models.py:119
 msgid "application"
 msgstr "приложение"
 
-#: .\hier\models.py:78
+#: .\hier\models.py:76
 msgid "kind of objects in page"
 msgstr "вид объектов на странице"
 
-#: .\hier\models.py:79
+#: .\hier\models.py:77
 msgid "kind of object in article"
 msgstr "вид редактируемого объекта"
 
-#: .\hier\models.py:80
+#: .\hier\models.py:78
 msgid "list"
 msgstr "список"
 
-#: .\hier\models.py:81
+#: .\hier\models.py:79
 msgid "entity id for article"
 msgstr "идентификатор редактируемого объекта"
 
-#: .\hier\models.py:82
+#: .\hier\models.py:80
 msgid "sorting mode"
 msgstr "режим сортировки"
 
-#: .\hier\models.py:83
+#: .\hier\models.py:81
 msgid "reverse sorting"
 msgstr "сортировка в обратном порядке"
 
-#: .\hier\models.py:84
+#: .\hier\models.py:82
 msgid "filter mode"
 msgstr "режим фильтрации"
 
-#: .\hier\models.py:106
+#: .\hier\models.py:104
 msgid "visit time"
 msgstr "время посещения"
 
-#: .\hier\models.py:107
+#: .\hier\models.py:105
 msgid "visited application"
 msgstr "плсещенное приложение"
 
-#: .\hier\models.py:108 .\hier\models.py:112
+#: .\hier\models.py:106 .\hier\models.py:110
 msgid "visited page"
 msgstr "последняя посещенная страница"
 
-#: .\hier\models.py:109
+#: .\hier\models.py:107
 msgid "visited url"
 msgstr "адрес последней посещенной страницы"
 
-#: .\hier\models.py:113
+#: .\hier\models.py:111
 msgid "visited pages"
 msgstr "посещенные страницы"
 
-#: .\hier\models.py:123
+#: .\hier\models.py:121
 msgid "period group id"
 msgstr "идентификатор группы периода"
 
-#: .\hier\models.py:124
+#: .\hier\models.py:122
 msgid "period group is open"
 msgstr "группа периода открыта"
 
-#: .\hier\models.py:127
+#: .\hier\models.py:125
 msgid "content records group"
 msgstr "группа записей контента"
 
-#: .\hier\models.py:128
+#: .\hier\models.py:126
 msgid "content records groups"
 msgstr "группы записей контента"
 
@@ -233,14 +228,6 @@ msgstr "параметры"
 msgid "user profile"
 msgstr "профиль пользователя"
 
-#: .\hier\templates\hier\old\folder_form.html:36
-msgid "add"
-msgstr "добавить"
-
-#: .\hier\templates\hier\old\folder_form.html:38
-msgid "save"
-msgstr "дохранить"
-
 #: .\hier\templates\hier\page.html:42
 msgid "close sidebar"
 msgstr "закрыть боковую панель"
@@ -253,82 +240,90 @@ msgstr "закрыть панель формы"
 msgid "delete record"
 msgstr "удалить запись"
 
-#: .\hier\utils.py:34
+#: .\hier\utils.py:26
 msgid "Log in"
 msgstr "Вход"
 
-#: .\hier\utils.py:43
+#: .\hier\utils.py:35
 msgid "trash"
 msgstr "корзина"
 
-#: .\hier\utils.py:283 .\hier\utils.py:329
+#: .\hier\utils.py:126 .\hier\utils.py:172
 msgid "Please correct the error below."
 msgstr "Пожалуйста исправьте ошибку ниже."
 
-#: .\hier\utils.py:284 .\hier\utils.py:330
+#: .\hier\utils.py:127 .\hier\utils.py:173
 msgid "Please correct the errors below."
 msgstr "Пожалуйста исправьте ошибки ниже."
 
-#: .\hier\utils.py:457
+#: .\hier\utils.py:300
 msgid "communal"
 msgstr "коммуналка"
 
-#: .\hier\utils.py:459
+#: .\hier\utils.py:302
 msgid "fuelings"
 msgstr "заправки"
 
-#: .\hier\utils.py:461
+#: .\hier\utils.py:304
 msgid "hierarchy"
 msgstr "иерархия"
 
-#: .\hier\utils.py:463
+#: .\hier\utils.py:306
 msgid "notes"
 msgstr "заметки"
 
-#: .\hier\utils.py:465 .\hier\utils.py:487
+#: .\hier\utils.py:308 .\hier\utils.py:330
 msgid "news"
 msgstr "новости"
 
-#: .\hier\utils.py:467
+#: .\hier\utils.py:310
 msgid "problems and solutions"
 msgstr "ПиР"
 
-#: .\hier\utils.py:469
+#: .\hier\utils.py:312
 msgid "expenses"
 msgstr "затраты"
 
-#: .\hier\utils.py:471
+#: .\hier\utils.py:314
 msgid "passwords"
 msgstr "пароли"
 
-#: .\hier\utils.py:473
+#: .\hier\utils.py:316
 msgid "tasks"
 msgstr "задачи"
 
-#: .\hier\utils.py:475
+#: .\hier\utils.py:318
 msgid "trips"
 msgstr "поездки"
 
-#: .\hier\utils.py:477
+#: .\hier\utils.py:320
 msgid "work"
 msgstr "работа"
 
-#: .\hier\utils.py:485
+#: .\hier\utils.py:328
 msgid "home"
 msgstr "главная"
 
-#: .\hier\utils.py:489
+#: .\hier\utils.py:332
 msgid "admin"
 msgstr "админ"
 
-#: .\hier\utils.py:491
+#: .\hier\utils.py:334
 msgid "profile"
 msgstr "профиль"
 
-#: .\hier\utils.py:493
+#: .\hier\utils.py:336
 msgid "log out"
 msgstr "выход"
 
-#: .\hier\views.py:132
-msgid "create a new folder"
-msgstr "создание новой папки"
+#~ msgid "enable folders in items list"
+#~ msgstr "в списке значений могут быть папки"
+
+#~ msgid "add"
+#~ msgstr "добавить"
+
+#~ msgid "save"
+#~ msgstr "дохранить"
+
+#~ msgid "create a new folder"
+#~ msgstr "создание новой папки"

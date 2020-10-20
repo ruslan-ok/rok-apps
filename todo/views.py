@@ -51,6 +51,7 @@ SORT_MODE_DESCR = {
     '': '',
     'important': _('sort by important'),
     'stop': _('sort by termin'),
+    'completion': _('sort by completion date'),
     'in_my_day': _('sort by My day'),
     'name': _('sort by name'),
     'created': _('sort by create date')
@@ -115,7 +116,9 @@ def todo_base_context(request):
         sorts.append(Sort('myday', _('my day').capitalize(), 'todo/icon/myday.png'))
     if (app_param.restriction != IMPORTANT):
         sorts.append(Sort('important', _('by importance').capitalize(), 'todo/icon/important.png'))
-    sorts.append(Sort('termin', _('by date of completion').capitalize(), 'todo/icon/planned.png'))
+    sorts.append(Sort('termin', _('by termin date').capitalize(), 'todo/icon/planned.png'))
+    if (app_param.restriction in (COMPLETED, LIST_MODE)):
+        sorts.append(Sort('completion', _('by date of completion').capitalize(), 'todo/icon/completed.png'))
     sorts.append(Sort('name',  _('by name').capitalize(), 'todo/icon/sort.png'))
     sorts.append(Sort('created',  _('by creation date').capitalize(), 'todo/icon/created.png'))
     context['sort_options'] = sorts
@@ -123,10 +126,10 @@ def todo_base_context(request):
     tree = build_tree(request.user.id, app_name)
     for t in tree:
         if t.is_list:
-            t.qty = len(Task.objects.filter(user = request.user.id, lst = t.id))
+            t.qty = len(Task.objects.filter(user = request.user.id, lst = t.id, completed = False))
     context['groups'] = tree
     
-    if app_param.sort:
+    if app_param.sort and (app_param.sort in SORT_MODE_DESCR):
         context['sort_mode'] = SORT_MODE_DESCR[app_param.sort].capitalize()
     context['add_item_placeholder'] = _('add task').capitalize()
     return app_param, context
@@ -347,14 +350,8 @@ def get_task_details(request, context, pk, lst):
     context['form'] = form
     context['file_form'] = file_form
     context['files'] = get_files_list(request.user, ed_task.id)
-    context['task_id'] = ed_task.id
-    context['important'] = ed_task.important
-    context['in_my_day'] = ed_task.in_my_day
-    context['completed'] = ed_task.completed
-    context['task_d_termin'] = ed_task.stop
-    context['task_s_termin'] = ed_task.s_termin()
+    context['ed_item'] = ed_task
     context['task_actual'] = (not ed_task.completed) and (not ed_task.b_expired()) and ed_task.stop
-    context['task_expired'] = ed_task.b_expired()
     
     context['steps'] = Step.objects.filter(task = ed_task.id)
 
@@ -369,10 +366,6 @@ def get_task_details(request, context, pk, lst):
     context['termin_today_info'] = datetime.today()
     context['termin_tomorrow_info'] = datetime.today() + timedelta(1)
     context['termin_next_week_info'] = datetime.today() + timedelta(8 - datetime.today().isoweekday())
-
-    context['task_b_repeat'] = ed_task.repeat != 0
-    context['task_s_repeat'] = ed_task.s_repeat()
-    context['task_repeat_days'] = ed_task.repeat_s_days()
 
     context['repeat_form_d1'] = get_week_day_name(1)
     context['repeat_form_d2'] = get_week_day_name(2)
@@ -398,6 +391,9 @@ def process_sort_commands(request):
         return True
     if ('sort-termin' in request.POST):
         set_sort_mode(request.user, app_name, 'stop')
+        return True
+    if ('sort-completion' in request.POST):
+        set_sort_mode(request.user, app_name, 'completion')
         return True
     if ('sort-myday' in request.POST):
         set_sort_mode(request.user, app_name, 'in_my_day')

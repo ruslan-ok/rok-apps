@@ -345,9 +345,13 @@ def sort_data(data, sort, reverse):
     if reverse:
         revers_list = []
         for sf in sort_fields:
-            revers_list.append('-' + sf)
+            if (sf[0] == '-'):
+                revers_list.append(sf[1:])
+            else:
+                revers_list.append('-' + sf)
         sort_fields = revers_list
 
+    #raise Exception(sort, reverse, sort_fields)
     if (len(sort_fields) == 1):
         data = data.order_by(sort_fields[0])
     elif (len(sort_fields) == 2):

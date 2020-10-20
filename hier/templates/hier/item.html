@@ -2,7 +2,7 @@
 
 {% block item_content %}
   <li>
-    <a href="{{ item.id|escape }}/?q={{ request.GET.q }}&page={{ page_obj.number }}" class="tree-item{% if item.id == ed_item.id %} current{% endif %}">
+    <a href="{{ item.id|escape }}/?q={{ request.GET.q|escape }}&page={{ page_obj.number|escape }}" class="tree-item{% if item.id == ed_item.id %} current{% endif %}">
       
       {% if not hide_selector %}
         <div class="icon">

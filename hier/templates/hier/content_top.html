@@ -40,9 +40,9 @@
             <form method="post" class="sort-actions sort">{% csrf_token %}
               <button type="submit" name="sort-direction">
                 {% if sort_dir %}
-                  <img class="img-20_20" src="{% static 'rok/icon/direct-down.png' %}">
+                  <img class="img-20_20" src="{% static 'rok/icon/sort-order-direct.png' %}">
                 {% else %}
-                  <img class="img-20_20" src="{% static 'rok/icon/direct-up.png' %}">
+                  <img class="img-20_20" src="{% static 'rok/icon/sort-order-reverse.png' %}">
                 {% endif %}
               </button>
               <span>{{ sort_mode }}</span>
