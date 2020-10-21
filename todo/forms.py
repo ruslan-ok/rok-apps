@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.admin.widgets import AdminSplitDateTime
 
 from hier.forms import DateInput
-from .models import app_name, Grp, Lst, Task, Step, TaskFiles
+from .models import app_name, Grp, Lst, Task, Step
 
 #----------------------------------
 class GrpForm(forms.ModelForm):
@@ -80,11 +80,8 @@ class StepForm(forms.ModelForm):
         fields = ['name', 'sort']
 
 #----------------------------------
-class TaskFilesForm(forms.ModelForm):
-
-    class Meta:
-        model = TaskFiles
-        fields = ['upload']
+class FileForm(forms.Form):
+    upload = forms.FileField()
 
 
 

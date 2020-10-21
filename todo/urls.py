@@ -17,6 +17,7 @@ urlpatterns = [
     path('group/<int:pk>/',         views.group_form,    name = 'group_form'),
     path('toggle_group/<int:pk>/',  views.toggle_group,  name = 'toggle_group'),
     path('toggle/<int:pk>/',        views.period_toggle, name = 'period_toggle'),
+    path('doc/<str:name>',          views.task_get_doc,  name = 'task_get_doc'),
 
     path('fcm/',                    fcm.fcm,             name = 'fcm'),
     path('fcm_check/',              fcm.fcm_check,       name = 'fcm_check'),

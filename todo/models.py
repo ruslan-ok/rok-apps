@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 
 from hier.categories import get_categories_list
+from hier.files import get_files_list
 from .utils import nice_date, GRPS_PLANNED
 
 app_name = 'todo'
@@ -263,15 +264,16 @@ class Task(models.Model):
             if (self.repeat != 0):
                 ret.append({'icon': repeat})
     
+        files = (len(get_files_list(self.user, app_name, 'task_{}'.format(self.id))) > 0)
     
-        if ((self.remind != None) and (self.remind >= datetime.now())) or self.info or (len(TaskFiles.objects.filter(task = self.id)) > 0):
+        if ((self.remind != None) and (self.remind >= datetime.now())) or self.info or files:
             if (len(ret) > 0):
                 ret.append({'icon': 'separator'})
             if ((self.remind != None) and (self.remind >= datetime.now())):
                 ret.append({'icon': 'remind'})
             if self.info:
                 ret.append({'icon': 'notes'})
-            if (len(TaskFiles.objects.filter(task = self.id)) > 0):
+            if files:
                 ret.append({'icon': 'attach'})
     
         if self.categories:
@@ -327,39 +329,6 @@ class Step(models.Model):
 
 def user_directory_path(instance, filename):
     return 'uploads/user_{}/{}'.format(instance.user.id, filename)
-    
-class TaskFiles(models.Model):
-    user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'todo_file_user')
-    task = models.ForeignKey(Task, on_delete = models.CASCADE, verbose_name = _('task'))
-    sort = models.CharField(_('sort code'), max_length = 50, blank = True)
-    upload = models.FileField(upload_to = user_directory_path)
-    name = models.CharField(_('file name'), max_length = 200, blank = True)
-    ext = models.CharField(_('file type'), max_length = 50, blank = True)
-    size = models.IntegerField(_('file size'), blank = True, null = True)
-
-    class Meta:
-        verbose_name = _('file')
-        verbose_name_plural = _('files')
-
-    def __str__(self):
-        return self.upload.name
-
-"""
-class PerGrp(models.Model):
-    user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'todo_period_user')
-    grp_id = models.IntegerField(_('period group id'), blank = True, null = True)
-    is_open = models.BooleanField(_('period group is open'), default = False)
-
-    class Meta:
-        verbose_name = _('period group')
-        verbose_name_plural = _('period groups')
-
-    def name(self):
-        return GRPS_PLANNED[self.grp_id].capitalize()
-
-    def __str__(self):
-        return self.name
-"""
 
 class Subscription(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'todo_subscription_user')

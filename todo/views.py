@@ -2,7 +2,7 @@ import os, locale
 from datetime import datetime, date, timedelta
 
 from django.urls import reverse
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, FileResponse
 from django.template import loader
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
@@ -15,12 +15,12 @@ from hier.models import get_app_params, toggle_content_group
 from hier.params import set_restriction, set_article_kind, set_article_visible, set_sort_mode, toggle_sort_dir, get_search_mode, get_search_info
 from hier.categories import get_categories_list
 from hier.grp_lst import group_add, group_details, group_toggle, list_add, list_details, build_tree
-from hier.files import File
+from hier.files import file_storage_path, get_files_list
 from hier.aside import Fix, Sort
 from hier.content import find_group
-from .models import app_name, Lst, Task, Param, Step, TaskFiles, DAILY, WORKDAYS, WEEKLY, MONTHLY, ANNUALLY#, PerGrp
+from .models import app_name, Lst, Task, Param, Step, DAILY, WORKDAYS, WEEKLY, MONTHLY, ANNUALLY#, PerGrp
 from .utils import get_task_status, nice_date, get_grp_planned, GRP_PLANNED_NONE, get_week_day_name, GRPS_PLANNED
-from .forms import TaskNameForm, TaskForm, StepForm, TaskFilesForm
+from .forms import TaskNameForm, TaskForm, StepForm, FileForm
 
 
 items_in_page = 10
@@ -209,21 +209,13 @@ def get_task_details(request, context, pk, lst):
                     task.categories += form.cleaned_data['category']
                 form.save()
                 return True
-        if ('task-file-upload' in request.POST):
-            file_form = TaskFilesForm(request.POST, request.FILES)
+        if ('file-upload' in request.POST):
+            file_form = FileForm(request.POST, request.FILES)
             if file_form.is_valid():
-                fl = file_form.save(commit = False)
-                fl.user = request.user
-                fl.task = ed_task
-                fl.name = fl.upload.name
-                fl.size = fl.upload.size
-                f1, f2 = os.path.splitext(fl.name)
-                fl.ext = f2[1:]
-                file_form.save()
+                handle_uploaded_file(request.FILES['upload'], request.user, ed_task)
                 return True
-        if ('task-file-delete' in request.POST):
-            tf = TaskFiles.objects.filter(user = request.user.id, id = int(request.POST['task-file-delete'])).get()
-            tf.delete()
+        if ('file-delete' in request.POST):
+            delete_file(request.user, ed_task, request.POST['file-delete'])
             return True
         if ('task-important' in request.POST):
             ed_task.important = not ed_task.important
@@ -344,12 +336,12 @@ def get_task_details(request, context, pk, lst):
         form = TaskForm(request.user, instance = ed_task)
 
     if not file_form:
-        file_form = TaskFilesForm()
+        file_form = FileForm()
 
     context['name_form'] = name_form
     context['form'] = form
     context['file_form'] = file_form
-    context['files'] = get_files_list(request.user, ed_task.id)
+    context['files'] = get_files_list(request.user, app_name, 'task_{}'.format(ed_task.id))
     context['ed_item'] = ed_task
     context['task_actual'] = (not ed_task.completed) and (not ed_task.b_expired()) and ed_task.stop
     
@@ -408,21 +400,6 @@ def process_sort_commands(request):
         toggle_sort_dir(request.user, app_name)
         return True
     return False
-
-
-def get_files_list(user, task_id):
-    ret = []
-    npp = 1
-    for f in TaskFiles.objects.filter(task = task_id):
-        name = os.path.splitext(f.name)[0]
-        ext = f.ext
-        size = f.size
-        url = f.upload.url
-        fl = File(npp, name, ext, size, url)
-        npp += 1
-        ret.append(fl)
-    return ret
-
 
 #----------------------------------
 @login_required(login_url='account:login')
@@ -554,4 +531,30 @@ def period_toggle(request, pk):
     toggle_content_group(request.user.id, app_name, pk)
     return HttpResponseRedirect(reverse('todo:task_list'))
 
+#----------------------------------
+def get_file_storage_path(user, item):
+    return file_storage_path.format(user.id) + 'todo/task_{}/'.format(item.id)
+
+def handle_uploaded_file(f, user, item):
+    path = get_file_storage_path(user, item)
+    os.makedirs(os.path.dirname(path), exist_ok = True)
+    with open(path + f.name, 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
+
+def task_get_doc(request, name):
+    app_param = get_app_params(request.user, app_name)
+    item = get_object_or_404(Task.objects.filter(id = app_param.art_id))
+    path = get_file_storage_path(request.user, item)
+    try:
+        fsock = open(path + name, 'rb')
+        return FileResponse(fsock)
+    except IOError:
+        response = HttpResponseNotFound()
+
+def delete_file(user, item, name):
+    path = get_file_storage_path(user, item)
+    os.remove(path + name[4:])
+
+#----------------------------------
 

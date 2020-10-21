@@ -429,7 +429,7 @@
                 <div class="file-metadata">{{ file.size }}</div>
               </div>
             </a>
-            <button type="submit" name="task-file-delete" value="{{ file.id }}" class="field-icon"><img src="{% static 'rok/icon/delete.png' %}"></button>
+            <button type="submit" name="file-delete" value="{{ file.url }}" class="field-icon"><img src="{% static 'rok/icon/delete.png' %}"></button>
           </div>
         {% endfor %}
       </div> <!-- file-list -->
@@ -450,7 +450,7 @@
               </div>
             </div>
           </button>
-          <button type="submit" id="id_submit" name="task-file-upload"></button>
+          <button type="submit" id="id_submit" name="file-upload"></button>
         </div>
       </div> <!-- file-add -->
     </div> <!-- section -->
