@@ -35,6 +35,7 @@ urlpatterns = i18n_patterns(
     path('store/', include('store.urls')),
     path('note/',  include('note.urls')),
     path('news/',  include('note.urls_news')),
+    path('photo/', include('photo.urls')),
 
     path('<int:folder_id>/',       include('hier.urls')),
 

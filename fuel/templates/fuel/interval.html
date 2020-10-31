@@ -1,6 +1,10 @@
 {% extends "hier/list.html" %}
 {% load static %}
 
+{% block extrastyle %}
+  <link rel="stylesheet" type="text/css" href="{% static 'fuel/css/fuel.css' %}">
+{% endblock %}
+
 {% block article_content %}
   <div class="fields">
     <form method="post">{% csrf_token %}

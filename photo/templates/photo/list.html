@@ -1,0 +1,54 @@
+{% extends "hier/content_top.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+  <link rel="stylesheet" type="text/css" href="{% static 'photo/css/photo.css' %}">
+{% endblock %}
+
+{% block actions %}
+  {% for crumb in bread_crumbs %}
+    {% if crumb.url %}
+      <a href="{{ crumb.url }}">{{ crumb.name }}</a>&nbsp;&nbsp;/&nbsp;&nbsp;
+    {% else %}
+      {{ crumb.name }}
+    {% endif %}
+  {% endfor %}
+  <button type="submit" name="item-add"><img class="img-20_20" src="{% static 'rok/icon/add-gray.png' %}">{% trans 'add photo'|capfirst %}</button>
+{% endblock %}
+
+{% block items_content %}
+  <div class="bank">
+    {% for item in page_obj %}
+      <div>
+        <div class="gallery {{ item.orient }}">
+          <a href="{{ item.edit_url }}">
+            <img src="{{ item.show_url }}" alt="{{ item.alt }}">
+          </a>
+          <div class="desc">{{ item.info }}</div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  
+  {% if page_obj %}
+    <p>
+    <div class="pagination">
+      <span class="step-links">
+          {% if page_obj.has_previous %}
+              <a class="w3-button" href="?page=1">&laquo;</a>
+              <a class="w3-button" href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
+          {% endif %}
+  
+          <span class="current active w3-button w3-theme-l1">
+              {{ page_obj.number }}
+          </span>
+  
+          {% if page_obj.has_next %}
+              <a class="w3-button" href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>
+              <a class="w3-button" href="?page={{ page_obj.paginator.num_pages }}">&raquo;</a>
+          {% endif %}
+      </span>
+    </div>
+  {% endif %}
+{% endblock %}
+

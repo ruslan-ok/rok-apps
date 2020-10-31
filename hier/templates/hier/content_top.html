@@ -10,12 +10,16 @@
           <a href="list_form/{{ list_id }}/" class="field-icon"><img class="img-20_20" src="{% static 'rok/icon/edit.png' %}"></a>
         {% endif %}
       </h3>
-      <div class="main-title-subline">
-        {{ title_info }}
-      </div>
-      <div class="main-title-subline">
-        {{ search_info }}
-      </div>
+      {% if title_info %}
+        <div class="main-title-subline">
+          {{ title_info }}
+        </div>
+      {% endif %}
+      {% if search_info %}
+        <div class="main-title-subline">
+          {{ search_info }}
+        </div>
+      {% endif %}
     </div>
     {% if sort_options %}
       <div class="dropdown">

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-18 19:51+0300\n"
+"POT-Creation-Date: 2020-10-31 10:35+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,7 +24,7 @@ msgid "wage"
 msgstr "зарплата"
 
 #: .\wage\forms.py:44 .\wage\forms.py:52 .\wage\forms.py:61 .\wage\forms.py:68
-#: .\wage\forms.py:75 .\wage\forms.py:135
+#: .\wage\forms.py:75 .\wage\forms.py:88
 msgid "add note"
 msgstr "добавить заметку"
 
@@ -505,17 +505,3 @@ msgstr "изменения фамилии сотрудника"
 msgid "dismissed"
 msgstr "уволенные"
 
-#~ msgid "pay_titles"
-#~ msgstr "виды начислений/оплат"
-
-#~ msgid "add"
-#~ msgstr "добавить"
-
-#~ msgid "save"
-#~ msgstr "сохранить"
-
-#~ msgid "change node"
-#~ msgstr "изменить вышестоящее"
-
-#~ msgid "accrual"
-#~ msgstr "начисление"

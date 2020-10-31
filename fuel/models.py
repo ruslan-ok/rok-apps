@@ -303,7 +303,7 @@ class Repl(models.Model): # Замена расходников
         part = ''
         if self.part:
             part = ' - ' + self.part.name
-        return self.dt_chg.strftime('%d.%m%Y %H:%M') + part
+        return self.dt_chg.strftime('%d.%m.%Y %H:%M') + part
 
     def get_info(self):
         ret = []

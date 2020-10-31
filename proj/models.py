@@ -81,7 +81,9 @@ class Expenses(models.Model):
 
     def s_summa(self):
         nc_summa, usd_summa = self.summa()
-        return '{:.2F} USD'.format(usd_summa)
+        if (usd_summa != 0):
+            return '{:.2F} USD'.format(usd_summa)
+        return '{:.2F} BYN'.format(nc_summa)
     
     def get_info(self):
         ret = []

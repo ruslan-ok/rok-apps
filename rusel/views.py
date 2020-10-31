@@ -1,7 +1,7 @@
 import datetime
 import django
-import OpenSSL
-import ssl, socket
+#import OpenSSL
+#import ssl, socket
 from platform import python_version
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
@@ -48,11 +48,16 @@ def index_user(request):
     #context['mysql_version'] = cursor.fetchone()
     context['mysql_version'] = '8.0.19'
 
+    context['cert_termin'] = '17.12.2020'
+    """
+    Перестало работать после обновления python 3.8.5 -> 3.9.0
+
     cert = ssl.get_server_certificate(('rusel.by', 443))
     x509 = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, cert)
     t = x509.get_notAfter()
     d = datetime.date(int(t[0:4]),int(t[4:6]),int(t[6:8]))
     context['cert_termin'] = d.strftime('%d.%m.%Y')
+    """
 
     param = get_param(request.user)
     if param and param.last_url:

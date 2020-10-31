@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth.models import AnonymousUser
+from django.core.exceptions import FieldError
 
 from todo.models import Lst
 from .models import Folder, Param, get_app_params
@@ -201,6 +202,7 @@ def get_base_context_ext(request, app_name, content_kind, title, article_enabled
         ('apart',   'apartment',   '/apart/'),
         ('proj',    'cost',        '/proj/'),
         ('wage',    'work',        '/wage/'),
+        ('photo',   'work',        '/photo/'),
         ('admin',   'admin',       '/admin/'),
         ('profile', 'user',        '/account/profile/'),
         ('logout',  'exit',        '/account/logout/'),
@@ -318,6 +320,8 @@ def get_app_name(id):
         return _('trips').capitalize()
     if (id == 'wage'):
         return _('work').capitalize()
+    if (id == 'photo'):
+        return _('photobank').capitalize()
     return None
 
 def get_main_menu_item(id):
@@ -352,12 +356,15 @@ def sort_data(data, sort, reverse):
         sort_fields = revers_list
 
     #raise Exception(sort, reverse, sort_fields)
-    if (len(sort_fields) == 1):
-        data = data.order_by(sort_fields[0])
-    elif (len(sort_fields) == 2):
-        data = data.order_by(sort_fields[0], sort_fields[1])
-    elif (len(sort_fields) == 3):
-        data = data.order_by(sort_fields[0], sort_fields[1], sort_fields[2])
+    try:
+        if (len(sort_fields) == 1):
+            data = data.order_by(sort_fields[0])
+        elif (len(sort_fields) == 2):
+            data = data.order_by(sort_fields[0], sort_fields[1])
+        elif (len(sort_fields) == 3):
+            data = data.order_by(sort_fields[0], sort_fields[1], sort_fields[2])
+    except FieldError:
+        pass
 
     return data
 

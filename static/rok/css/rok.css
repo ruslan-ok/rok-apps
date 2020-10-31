@@ -395,10 +395,15 @@ main .sort span {
 
 main .actions {
   display: flex;
-  height: 50px;
+  flex-wrap: wrap;
+  min-height: 50px;
   align-items: center;
-  margin: 0px 8px;
+  margin: 0px 8px 15px 8px;
   padding: 0px 13px;
+}
+
+main .actions a {
+  padding: 5px;
 }
 
 main .actions input[type="text"] {

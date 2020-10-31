@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-20 22:55+0300\n"
+"POT-Creation-Date: 2020-10-31 10:35+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -47,36 +47,7 @@ msgstr "найти что-нибудь более интересное"
 msgid "applications"
 msgstr "приложения"
 
-#: .\rusel\views.py:75
+#: .\rusel\views.py:80
 msgid "feedback"
 msgstr "контакты"
 
-#~ msgid "sort"
-#~ msgstr "сортировка"
-
-#~ msgid "sort order"
-#~ msgstr "порядок сортировки"
-
-#~ msgid "create list or group"
-#~ msgstr "создать список или группу"
-
-#~ msgid "application launcher"
-#~ msgstr "средство запуска приложений"
-
-#~ msgid "open sidebar"
-#~ msgstr "открыть боковую панель"
-
-#~ msgid "parameters"
-#~ msgstr "параметры"
-
-#~ msgid "user profile"
-#~ msgstr "профиль пользователя"
-
-#~ msgid "close sidebar"
-#~ msgstr "закрыть боковую панель"
-
-#~ msgid "close details"
-#~ msgstr "закрыть карточку записи"
-
-#~ msgid "delete record"
-#~ msgstr "удалить запись"
