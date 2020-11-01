@@ -29,11 +29,13 @@ class MeterForm(forms.ModelForm):
 #----------------------------------
 class BillForm(forms.ModelForm):
     url = forms.CharField(widget = forms.TextInput(attrs = {'placeholder': _('add link').capitalize()}), required = False)
-    payment = forms.SplitDateTimeField(widget = AdminSplitDateTime(), label = _('date of payment').capitalize(), required = False)
+    payment = forms.SplitDateTimeField(widget = AdminSplitDateTime(attrs = {'onchange': 'AfterCalendarChanged(0,1)'}), label = _('date of payment').capitalize(), required = False)
     class Meta:
         model = Bill
         fields = ['payment', 'el_pay', 'tv_bill', 'tv_pay', 'phone_bill', 'phone_pay', 'zhirovka', 'hot_pay', 'repair_pay', 'ZKX_pay', 'water_pay', 'gas_pay', 'rate', 'info', 'url', 'PoO', 'PoO_pay']
-        widgets = { 'info': forms.Textarea(attrs={'rows':3, 'cols':10, 'placeholder':_('add note').capitalize(), 'data-autoresize':''}) }
+        widgets = {
+            'rate': forms.TextInput(attrs = {'readonly': 'readonly'}),
+            'info': forms.Textarea(attrs={'rows':3, 'cols':10, 'placeholder':_('add note').capitalize(), 'data-autoresize':''}) }
         
 
 #----------------------------------

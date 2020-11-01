@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from django.core.paginator import Paginator
 from django.db.models import Q
 
-from hier.utils import get_base_context_ext, process_common_commands, extract_get_params, sort_data, get_rate_on_date
+from hier.utils import get_base_context_ext, process_common_commands, extract_get_params, sort_data
 from hier.params import set_sort_mode, toggle_sort_dir, get_search_mode, get_search_info, set_restriction, set_article_kind, set_article_visible
 from hier.models import get_app_params, toggle_content_group
 from hier.aside import Fix, Sort
@@ -409,11 +409,7 @@ def add_bill(request, apart):
         curr = Meter.objects.filter(apart = apart.id, period = period).get()
 
     form = BillForm(initial = { 'period': period, 'payment': datetime.now() })
-
-    rate = get_rate_on_date(145, datetime.now())
-    if not rate:
-        rate = 0
-    item = Bill.objects.create(apart = apart, period = period, payment = datetime.now(), prev = prev, curr = curr, rate = rate)
+    item = Bill.objects.create(apart = apart, period = period, payment = datetime.now(), prev = prev, curr = curr, rate = 0)
     return item.id
 
 #----------------------------------

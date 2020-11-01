@@ -197,6 +197,8 @@ def get_img_orient(file_path):
         pass
     except FileNotFoundError:
         pass
+    except AttributeError:
+        pass
     return orient
 
 #----------------------------------

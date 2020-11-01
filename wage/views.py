@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from django.core.paginator import Paginator
 from django.db.models import Q
 
-from hier.utils import get_base_context_ext, process_common_commands, extract_get_params, get_rate_on_date
+from hier.utils import get_base_context_ext, process_common_commands, extract_get_params
 from hier.params import get_search_info, set_restriction, set_article_kind, set_article_visible, get_search_mode
 from hier.models import get_app_params, toggle_content_group
 from hier.aside import Fix
@@ -527,8 +527,6 @@ def edit_item(request, context, restriction, period, employee, item, disable_del
                     data.employee = employee
                 if (restriction in (DEP_HIST, DEP_INFO)):
                     data.depart = depart
-                if (restriction == PAY):
-                    data.rate = get_rate_on_date(145, data.payed)
                 form.save()
                 return True
 
@@ -592,7 +590,6 @@ def add_period(request):
     d2 = datetime(y, m, 25).date()
     if (d2.weekday() > 4):
         d2 -= timedelta(d2.weekday() - 4)
-    r2 = get_rate(d2)
     if (m < 12):
         m += 1
     else:
@@ -601,8 +598,7 @@ def add_period(request):
     d3 = datetime(y, m, 10).date()
     if (d3.weekday() > 4):
         d3 -= timedelta(d3.weekday() - 4)
-    r3 = get_rate(d3)
-    item = Period.objects.create(user = request.user, dBeg = d1, AvansDate = d2, AvansRate = r2, PaymentDate = d3, PaymentRate = r3, planDays = pd)
+    item = Period.objects.create(user = request.user, dBeg = d1, AvansDate = d2, AvansRate = 0, PaymentDate = d3, PaymentRate = 0, planDays = pd)
     return item.id
 
 def add_post(request):
@@ -628,7 +624,7 @@ def add_employee(request):
     return item.id
 
 def add_payment(request, period, employee, direct):
-    item = Payment.objects.create(period = period, employee = employee, direct = direct, payed = datetime.today(), rate = get_rate_on_date(145, datetime.today()))
+    item = Payment.objects.create(period = period, employee = employee, direct = direct, payed = datetime.today(), rate = 0)
     return item.id
 
 def add_appoint(request, period, employee):
@@ -665,12 +661,6 @@ def add_child(request, period, employee):
 def add_surname(request, period, employee):
     item = FioHist.objects.create(employee = employee, fio = request.POST['item_add-name'])
     return item.id
-
-#----------------------------------
-def get_rate(dt):
-    if (dt > datetime.today().date()):
-        return None
-    return get_rate_on_date(145, dt)
 
 #----------------------------------
 def check_empl_per(user, context, app_param, period, employee):

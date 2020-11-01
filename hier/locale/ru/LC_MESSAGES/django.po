@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-31 10:35+0300\n"
+"POT-Creation-Date: 2020-11-01 10:54+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -224,10 +224,6 @@ msgstr "открыть боковую панель"
 msgid "parameters"
 msgstr "параметры"
 
-#: .\hier\templates\hier\header.html:17
-msgid "user profile"
-msgstr "профиль пользователя"
-
 #: .\hier\templates\hier\page.html:42
 msgid "close sidebar"
 msgstr "закрыть боковую панель"
@@ -320,3 +316,5 @@ msgstr "профиль"
 msgid "log out"
 msgstr "выход"
 
+#~ msgid "user profile"
+#~ msgstr "профиль пользователя"

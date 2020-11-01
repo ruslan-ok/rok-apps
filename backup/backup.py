@@ -13,7 +13,7 @@ class BackupError(Exception):
         self.stage = stage
         self.info = info
     def __str__(self):
-        return 'Ошибка на этапе {}. {}'.format(self.stage, self.info)
+        return 'Ошибка на этапе {0}. {1}'.format(self.stage, self.info)
 
 def sizeof_fmt(num, suffix = 'B'):
     magnitude = int(math.floor(math.log(num, 1024)))
@@ -216,22 +216,15 @@ class Backup:
                     continue
                 fsrc = src + part + '\\' + f
                 fdst = test + '\\' + f
-                sat = os.path.getatime(fsrc)
-                smt = os.path.getmtime(fsrc)
+                print(_dst + '\\' + _folder + part + '\\' + f, '...')
                 if zzz or not os.path.exists(fdst):
-                    print(_dst + '\\' + _folder + part + '\\' + f, 'copied...')
                     shutil.copyfile(fsrc, fdst)
-                    os.utime(fdst, (sat, smt))
                     self.add_info(_src + '\\' + _folder + ' -> ' + _dst + '\\' + _folder, 'Файл скопирован в ' + _dst + '\\' + _folder + part + '\\' + f)
                 else:
-                    dmt = os.path.getmtime(fdst)
-                    if (smt == dmt):
-                        pass
-                        #print(_dst + '\\' + _folder + part + '\\' + f, '[skipped]')
-                    else:
-                        print(_dst + '\\' + _folder + part + '\\' + f, 'copied...')
+                    st = int(os.path.getmtime(fsrc))
+                    dt = int(os.path.getmtime(fdst))
+                    if ((st - dt) > 5):
                         shutil.copyfile(fsrc, fdst)
-                        os.utime(fdst, (sat, smt))
                         self.add_info(_src + '\\' + _folder + ' -> ' + _dst + '\\' + _folder, 'Файл обновлен в ' + _dst + '\\' + _folder + part + '\\' + f)
     
         if (self.case == 0):
