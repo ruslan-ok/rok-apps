@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 
 app_name = 'photo'
 
+
 class Photo(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
     creation = models.DateTimeField(_('creation time'), null = True, auto_now_add = True)
@@ -12,6 +13,8 @@ class Photo(models.Model):
     path = models.CharField(_('path'), max_length=1000, blank = True)
     categories = models.CharField(_('categories'), max_length=1000, blank = True)
     info = models.TextField(_('information'), blank = True)
+    lat = models.DecimalField(_('latitude').capitalize(), max_digits = 9, decimal_places = 6, null = True)
+    lon = models.DecimalField(_('longitude').capitalize(), max_digits = 9, decimal_places = 6, null = True)
 
     def __str__(self):
         return self.name

@@ -1,7 +1,10 @@
 import os
 from django.core.files.storage import FileSystemStorage
+from .secret import storage_dvlp, storage_prod, folder_dvlp, folder_prod
 
-file_storage_path = 'C:/Web/apps/docs/user_{}/'
+folder_path  = folder_dvlp
+storage_path = storage_dvlp
+
 file_storage_url = 'doc/'
     
 FILE_DESIGN = [
@@ -74,7 +77,7 @@ class File():
 
 def get_files_list(user, app_name, path):
     ret = []
-    fss_path = file_storage_path.format(user.id) + app_name + '/' + path + '/'
+    fss_path = storage_path.format(user.id) + app_name + '/' + path + '/'
     fs = FileSystemStorage(location = fss_path, base_url = file_storage_url)
     try:
         npp = 1

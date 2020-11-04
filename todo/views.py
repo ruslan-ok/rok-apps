@@ -15,7 +15,7 @@ from hier.models import get_app_params, toggle_content_group
 from hier.params import set_restriction, set_article_kind, set_article_visible, set_sort_mode, toggle_sort_dir, get_search_mode, get_search_info
 from hier.categories import get_categories_list
 from hier.grp_lst import group_add, group_details, group_toggle, list_add, list_details, build_tree
-from hier.files import file_storage_path, get_files_list
+from hier.files import storage_path, get_files_list
 from hier.aside import Fix, Sort
 from hier.content import find_group
 from .models import app_name, Lst, Task, Param, Step, DAILY, WORKDAYS, WEEKLY, MONTHLY, ANNUALLY#, PerGrp
@@ -533,7 +533,7 @@ def period_toggle(request, pk):
 
 #----------------------------------
 def get_file_storage_path(user, item):
-    return file_storage_path.format(user.id) + 'todo/task_{}/'.format(item.id)
+    return storage_path.format(user.id) + 'todo/task_{}/'.format(item.id)
 
 def handle_uploaded_file(f, user, item):
     path = get_file_storage_path(user, item)

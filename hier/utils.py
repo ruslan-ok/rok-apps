@@ -155,7 +155,7 @@ def get_base_context_ext(request, app_name, content_kind, title, article_enabled
     if request:
         app_param = get_app_params(request.user, app_name)
         if app_param:
-            if (app_param.content != content_kind):
+            if (app_param.content != content_kind) and (app_name != 'photo'):
                 app_param.content = content_kind
                 app_param.save()
             context['aside_visible'] = ((not article_enabled) or (not app_param.article)) and app_param.aside

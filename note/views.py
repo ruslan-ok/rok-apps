@@ -14,7 +14,7 @@ from hier.models import get_app_params
 from hier.params import set_sort_mode, toggle_sort_dir, get_search_mode, get_search_info, set_restriction, set_article_kind, set_article_visible
 from hier.grp_lst import group_add, group_details, group_toggle, list_add, list_details, build_tree
 from hier.categories import get_categories_list
-from hier.files import file_storage_path, get_files_list
+from hier.files import storage_path, get_files_list
 from hier.aside import Fix, Sort
 
 from .models import app_name, Note
@@ -293,7 +293,7 @@ def delete_item(request, kind, art_id, app):
 
 #----------------------------------
 def get_file_storage_path(user, item, app):
-    return file_storage_path.format(user.id) + '{}/note_{}/'.format(app, item.id)
+    return storage_path.format(user.id) + '{}/note_{}/'.format(app, item.id)
 
 #----------------------------------
 def handle_uploaded_file(f, user, item, app):

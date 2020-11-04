@@ -2,6 +2,15 @@
 {% load static i18n %}
 
 {% block extrastyle %}
+ <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+   integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+   crossorigin=""/>
+
+   <!-- Make sure you put this AFTER Leaflet's CSS -->
+ <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+   integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+   crossorigin=""></script>
+
   <link rel="stylesheet" type="text/css" href="{% static 'photo/css/photo.css' %}">
 {% endblock %}
 
@@ -17,7 +26,8 @@
 {% endblock %}
 
 {% block items_content %}
-  <img class="photo" src="{{ item.show_url }}" alt="{{ item.alt }}">
+  <input type="hidden" value="{{ gps_data|safe }}" id="id_data">
+  <div id="mapid"></div>
 {% endblock %}
 
 {% block article_content %}
@@ -33,3 +43,8 @@
   </div>
 {% endblock %}
 
+
+{% block scripts %}
+  {{ block.super }}
+  <script src="{% static 'photo/js/photo.js' %}"></script>
+{% endblock %}

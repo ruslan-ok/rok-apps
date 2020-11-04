@@ -14,7 +14,7 @@ from hier.params import set_sort_mode, toggle_sort_dir, get_search_mode, get_sea
 from hier.models import get_app_params, toggle_content_group
 from hier.aside import Fix, Sort
 from hier.content import find_group
-from hier.files import file_storage_path, get_files_list
+from hier.files import storage_path, get_files_list
 from todo.utils import nice_date
 from .models import app_name, Apart, Service, Meter, Bill, Price, set_active, get_price_info, count_by_tarif, ELECTRICITY, GAS, WATER
 from .forms import ApartForm, ServiceForm, MeterForm, BillForm, PriceForm, FileForm
@@ -414,7 +414,7 @@ def add_bill(request, apart):
 
 #----------------------------------
 def get_file_storage_path(user, bill):
-    return file_storage_path.format(user.id) + '{}/apart_{}/{}/{}/'.format(app_name, bill.apart.id, bill.period.year, str(bill.period.month).zfill(2))
+    return storage_path.format(user.id) + '{}/apart_{}/{}/{}/'.format(app_name, bill.apart.id, bill.period.year, str(bill.period.month).zfill(2))
 
 def handle_uploaded_file(f, user, bill):
     path = get_file_storage_path(user, bill)

@@ -34,6 +34,13 @@ def set_restriction(user, app_name, restriction, lst_id = 0):
     app_param.save()
 
 #----------------------------------
+def set_content(user, app_name, content):
+    app_param = get_app_params(user, app_name)
+    if app_param:
+        app_param.content = content
+        app_param.save()
+
+#----------------------------------
 def set_article_kind(user, app_name, article_kind, article_id = 0):
     app_param = get_app_params(user, app_name)
     if not app_param:

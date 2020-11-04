@@ -17,14 +17,17 @@
 {% endblock %}
 
 {% block items_content %}
+  <input type="hidden" value="{{ gps_data|safe }}" id="id_data">
   <div class="bank">
     {% for item in page_obj %}
       <div>
-        <div class="gallery {{ item.orient }}">
-          <a href="{{ item.edit_url }}">
-            <img src="{{ item.show_url }}" alt="{{ item.alt }}">
-          </a>
-          <div class="desc">{{ item.info }}</div>
+        <div class="gallery">
+          {% if item.is_dir == 0 %}
+            <a href="goto/?file={{ item.url }}">  <img src="show/?file=dir" alt="{{ item.name }}">  </a>
+          {% else %}
+            <a href="edit/?file={{ item.url }}">  <img src="show/?file={{ item.url }}" alt="{{ item.name }}">  </a>
+          {% endif %}
+          <div class="desc">{{ item.name }}</div>
         </div>
       </div>
     {% endfor %}
@@ -50,5 +53,6 @@
       </span>
     </div>
   {% endif %}
+
 {% endblock %}
 
