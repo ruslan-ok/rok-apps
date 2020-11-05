@@ -17,7 +17,7 @@
 {% endblock %}
 
 {% block items_content %}
-  <img class="photo" src="{{ item.show_url }}" alt="{{ item.alt }}">
+  <img class="photo" src="{% url 'photo:photo' item.id %}" alt="{{ item.name }}">  </a>
 {% endblock %}
 
 {% block article_content %}
@@ -30,6 +30,12 @@
       <img src="{{ item.show_url }}" alt="{{ item.alt }}">
       <div class="preview-desc">{{ item.info }}</div>
     </div>
+  </div>
+  <div class="row">
+    {{ item.lat }}
+  </div>
+  <div class="row">
+    {{ item.lon }}
   </div>
 {% endblock %}
 

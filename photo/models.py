@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 
 app_name = 'photo'
 
-
 class Photo(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
     creation = models.DateTimeField(_('creation time'), null = True, auto_now_add = True)
@@ -23,5 +22,10 @@ class Photo(models.Model):
         if self.path:
             return self.path + '/' + self.name
         return self.name
+
+    def subdir(self):
+        if self.path:
+            return self.path + '/'
+        return ''
 
 

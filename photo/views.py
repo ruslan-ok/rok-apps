@@ -31,9 +31,12 @@ def photo_storage(user):
 def thumb_storage(user):
     return get_storage(user, 'thumbnails')
 
+def mini_storage(user):
+    return get_storage(user, 'photo_mini')
+
 #----------------------------------
 class Entry:
-    def __init__(self, is_dir, name, url, size, ctime, orient = 'h'):
+    def __init__(self, is_dir, name, url, size, ctime):
         self.is_dir = is_dir
         self.name = name
         if (is_dir == 0):
@@ -42,7 +45,6 @@ class Entry:
             self.url = url
         self.size = size
         self.ctime = ctime
-        self.orient = orient
         safe_url = urllib.parse.unquote_plus(url)
 
     def __repr__(self):
@@ -71,6 +73,12 @@ def edit(request):
     return show_or_edit(request, True)
 
 #----------------------------------
+def edit_id(request, pk):
+    item = get_object_or_404(Photo.objects.filter(id = pk, user = request.user.id))
+    set_restriction(request.user, app_name, '')
+    return HttpResponseRedirect(reverse('photo:edit') + '?file=' + item.subdir() + item.name)
+
+#----------------------------------
 def goto(request):
     set_article_kind(request.user, app_name, '')
     set_article_visible(request.user, app_name, False)
@@ -87,6 +95,7 @@ def goto(request):
 
 #----------------------------------
 def jump(request, level):
+    set_restriction(request.user, app_name, '')
     set_article_kind(request.user, app_name, '')
     set_article_visible(request.user, app_name, False)
     if not level:
@@ -108,6 +117,19 @@ def jump(request, level):
     return HttpResponseRedirect(reverse('photo:main') + extract_get_params(request))
 
 #----------------------------------
+def photo(request, pk):
+    item = get_object_or_404(Photo.objects.filter(id = pk, user = request.user.id))
+    fsock = open(photo_storage(request.user) + item.subdir() + item.name, 'rb')
+    return FileResponse(fsock)
+
+#----------------------------------
+def mini(request, pk):
+    item = get_object_or_404(Photo.objects.filter(id = pk, user = request.user.id))
+    get_mini(request.user, item)
+    fsock = open(mini_storage(request.user) + item.subdir() + item.name, 'rb')
+    return FileResponse(fsock)
+
+#----------------------------------
 @login_required(login_url='account:login')
 #----------------------------------
 def main(request):
@@ -126,7 +148,7 @@ def main(request):
             redirect = True
         else:
             item = get_object_or_404(Photo.objects.filter(id = app_param.art_id, user = request.user.id))
-            context['item'] = { 'show_url': 'show/?file=' + item.full_name(), 'edit_url': 'edit/?file=' + item.full_name(), 'alt': item.name, 'info': item.name }
+            context['item'] = item
             context['title'] = item.name
             if app_param.article:
                 redirect = edit_item(request, context, item, False)
@@ -146,7 +168,7 @@ def main(request):
     context['gps_data'] = gps_data
 
     fixes = []
-    fixes.append(Fix('', _('all').capitalize(), 'rok/icon/all.png', 'all/', len(data)))
+    fixes.append(Fix('', _('thumbnails').capitalize(), 'rok/icon/all.png', 'all/', len(data)))
     fixes.append(Fix('map', _('on the map').capitalize(), 'todo/icon/map.png', 'map/', len(data)))
     context['fix_list'] = fixes
 
@@ -192,7 +214,7 @@ def filtered_list(user, content, query = None):
     photos = Photo.objects.filter(user = user.id, path = content)
     for p in photos:
         if (p.lat and p.lon):
-            gps_data.append({'lat': str(p.lat), 'lon': str(p.lon), 'name': p.name })
+            gps_data.append({ 'id': p.id, 'lat': str(p.lat), 'lon': str(p.lon), 'name': p.name })
     
     dirname = photo_storage(user) + content
     if not os.path.exists(dirname):
@@ -210,6 +232,82 @@ def filtered_list(user, content, query = None):
             is_dir = 0 if entry.is_dir() else 1
             data.append(Entry(is_dir, entry.name, url, stat.st_size, stat.st_ctime))
     return data, gps_data
+
+#----------------------------------
+def get_exif_data(image):
+    """Returns a dictionary from the exif data of an PIL Image item. Also converts the GPS Tags"""
+    exif_data = {}
+    info = image._getexif()
+    if info:
+        for tag, value in info.items():
+            decoded = TAGS.get(tag, tag)
+            if decoded == "GPSInfo":
+                gps_data = {}
+                for t in value:
+                    sub_decoded = GPSTAGS.get(t, t)
+                    gps_data[sub_decoded] = value[t]
+
+                exif_data[decoded] = gps_data
+            else:
+                exif_data[decoded] = value
+
+    return exif_data
+
+#----------------------------------
+def get_lat_lon(exif_data, user, path, name):
+    """Returns the latitude and longitude, if available, from the provided exif_data (obtained through get_exif_data above)"""
+    lat = None
+    lon = None
+
+    if "GPSInfo" in exif_data:
+        gps_info = exif_data["GPSInfo"]
+
+        gps_latitude = _get_if_exist(gps_info, "GPSLatitude")
+        gps_latitude_ref = _get_if_exist(gps_info, 'GPSLatitudeRef')
+        gps_longitude = _get_if_exist(gps_info, 'GPSLongitude')
+        gps_longitude_ref = _get_if_exist(gps_info, 'GPSLongitudeRef')
+
+        if gps_latitude and gps_latitude_ref and gps_longitude and gps_longitude_ref:
+            lat = _convert_to_degress(gps_latitude)
+            if gps_latitude_ref != "N":                     
+                lat = 0 - lat
+
+            lon = _convert_to_degress(gps_longitude)
+            if gps_longitude_ref != "E":
+                lon = 0 - lon
+
+    return lat, lon
+
+#----------------------------------
+# Извлечение гео-координат из атрибутов изображения
+def get_photo_gps(user, path, name):
+    try:
+        subdir = ''
+        if path:
+            subdir = path + '/'
+        image = Image.open(photo_storage(user) + subdir + name)
+        exif_data = get_exif_data(image)
+        if exif_data:
+            return get_lat_lon(exif_data, user, subdir, name)
+    except UnidentifiedImageError as e:
+        pass
+    return None, None
+
+#----------------------------------
+def get_photo_id(user, path, name, lat = None, lon = None):
+    if not Photo.objects.filter(name = name, path = path, user = user.id).exists():
+        if (not lat) and (not lon):
+            lat, lon = get_photo_gps(user, path, name)
+        item = Photo.objects.create(name = name, path = path, user = user, lat = lat, lon = lon)
+    else:
+        item = Photo.objects.filter(name = name, path = path, user = user.id).get()
+        if (not lat) and (not lon):
+            lat, lon = get_photo_gps(user, path, name)
+        if (not item.lat) and (not item.lon) and lat and lon:
+            item.lat = lat
+            item.lon = lon
+            item.save()
+    return item.id
 
 #----------------------------------
 def show_or_edit(request, do_edit):
@@ -237,10 +335,7 @@ def show_or_edit(request, do_edit):
             sub_path = name[:len(name)-len(sub_name)-1]
         else:
             sub_path = ''
-        if Photo.objects.filter(name = sub_name, path = sub_path, user = request.user.id).exists():
-            pk = Photo.objects.filter(name = sub_name, path = sub_path, user = request.user.id).get().id
-        else:
-            pk = Photo.objects.create(name = sub_name, path = sub_path, user = request.user).id
+        pk = get_photo_id(request.user, sub_path, sub_name)
         set_article_kind(request.user, app_name, 'photo', pk)
         return HttpResponseRedirect(reverse('photo:main') + extract_get_params(request))
     except IOError:
@@ -266,7 +361,9 @@ def get_thumbnail(user, name):
             image = Image.open(photo_storage(user) + name)
             exif_data = get_exif_data(image)
             if exif_data:
-                get_lat_lon(exif_data, user, sub_dir, sub_name)
+                lat, lon = get_lat_lon(exif_data, user, sub_dir, sub_name)
+                if lat and lon:
+                    get_photo_id(user, sub_dir, sub_name, lat, lon)
             image.thumbnail((240, 240), Image.ANTIALIAS)
             if ('exif' in image.info):
                 exif = image.info['exif']
@@ -277,24 +374,17 @@ def get_thumbnail(user, name):
             pass
 
 #----------------------------------
-def get_exif_data(image):
-    """Returns a dictionary from the exif data of an PIL Image item. Also converts the GPS Tags"""
-    exif_data = {}
-    info = image._getexif()
-    if info:
-        for tag, value in info.items():
-            decoded = TAGS.get(tag, tag)
-            if decoded == "GPSInfo":
-                gps_data = {}
-                for t in value:
-                    sub_decoded = GPSTAGS.get(t, t)
-                    gps_data[sub_decoded] = value[t]
-
-                exif_data[decoded] = gps_data
-            else:
-                exif_data[decoded] = value
-
-    return exif_data
+def get_mini(user, item):
+    if not os.path.exists(mini_storage(user) + item.path):
+        os.makedirs(mini_storage(user) + item.path)
+    
+    if not os.path.exists(mini_storage(user) + item.subdir() + item.name):
+        try:
+            image = Image.open(photo_storage(user) + item.subdir() + item.name)
+            image.thumbnail((100, 100), Image.ANTIALIAS)
+            image.save(mini_storage(user) + item.subdir() + item.name)
+        except UnidentifiedImageError as e:
+            pass
 
 #----------------------------------
 def _get_if_exist(data, key):
@@ -311,38 +401,6 @@ def _convert_to_degress(value):
     s = float(value[2])
     return d + (m / 60.0) + (s / 3600.0)
     
-#----------------------------------
-def get_lat_lon(exif_data, user, path, name):
-    """Returns the latitude and longitude, if available, from the provided exif_data (obtained through get_exif_data above)"""
-    lat = None
-    lon = None
-
-    if "GPSInfo" in exif_data:
-        gps_info = exif_data["GPSInfo"]
-
-        gps_latitude = _get_if_exist(gps_info, "GPSLatitude")
-        gps_latitude_ref = _get_if_exist(gps_info, 'GPSLatitudeRef')
-        gps_longitude = _get_if_exist(gps_info, 'GPSLongitude')
-        gps_longitude_ref = _get_if_exist(gps_info, 'GPSLongitudeRef')
-
-        if gps_latitude and gps_latitude_ref and gps_longitude and gps_longitude_ref:
-            lat = _convert_to_degress(gps_latitude)
-            if gps_latitude_ref != "N":                     
-                lat = 0 - lat
-
-            lon = _convert_to_degress(gps_longitude)
-            if gps_longitude_ref != "E":
-                lon = 0 - lon
-
-    if lat and lon:
-        if Photo.objects.filter(user = user.id, name = name, path = path).exists():
-            photo = Photo.objects.filter(user = user.id, name = name, path = path).get()
-            photo.lat = lat
-            photo.lon = lon
-            photo.save()
-        else:
-            Photo.objects.create(user = user, name = name, path = path, lat = lat, lon = lon)
-
 #----------------------------------
 def edit_item(request, context, item, disable_delete = False):
     form = None
