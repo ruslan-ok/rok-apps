@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-01 10:54+0300\n"
+"POT-Creation-Date: 2020-11-07 11:02+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -192,11 +192,11 @@ msgstr "группа записей контента"
 msgid "content records groups"
 msgstr "группы записей контента"
 
-#: .\hier\params.py:81
+#: .\hier\params.py:88
 msgid "contained"
 msgstr "содержат"
 
-#: .\hier\params.py:83
+#: .\hier\params.py:90
 msgid "contained category"
 msgstr "содержат категорию"
 
@@ -315,6 +315,3 @@ msgstr "профиль"
 #: .\hier\utils.py:340
 msgid "log out"
 msgstr "выход"
-
-#~ msgid "user profile"
-#~ msgstr "профиль пользователя"

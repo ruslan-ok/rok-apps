@@ -14,7 +14,7 @@ from django.shortcuts import get_object_or_404
 from hier.aside import Fix
 from hier.utils import get_base_context_ext, process_common_commands, extract_get_params
 from hier.params import get_search_info, get_search_mode, set_article_kind, set_article_visible, set_restriction, set_content
-from hier.files import storage_path, folder_path
+from hier.files import storage_path, service_path, folder_path
 from hier.models import get_app_params
 
 from .models import app_name, Photo
@@ -22,17 +22,19 @@ from .forms import PhotoForm
 
 items_per_page = 12
 
-def get_storage(user, folder):
+def get_storage(user, folder, service = False):
+    if service:
+        return service_path.format(user.id) + '{}/'.format(folder)
     return storage_path.format(user.id) + '{}/'.format(folder)
 
 def photo_storage(user):
     return get_storage(user, 'photo')
 
 def thumb_storage(user):
-    return get_storage(user, 'thumbnails')
+    return get_storage(user, 'thumbnails', True)
 
 def mini_storage(user):
-    return get_storage(user, 'photo_mini')
+    return get_storage(user, 'photo_mini', True)
 
 #----------------------------------
 class Entry:
@@ -382,7 +384,11 @@ def get_mini(user, item):
         try:
             image = Image.open(photo_storage(user) + item.subdir() + item.name)
             image.thumbnail((100, 100), Image.ANTIALIAS)
-            image.save(mini_storage(user) + item.subdir() + item.name)
+            if ('exif' in image.info):
+                exif = image.info['exif']
+                image.save(mini_storage(user) + item.subdir() + item.name, exif = exif)
+            else:
+                image.save(mini_storage(user) + item.subdir() + item.name)
         except UnidentifiedImageError as e:
             pass
 

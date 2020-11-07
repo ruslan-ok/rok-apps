@@ -52,6 +52,9 @@ div.preview-desc {
   word-wrap: break-word;
 }
 
-#mapid { height: 800px; }
+#mapid {
+  height: 800px;
+  z-index: 0;
+}
 
 

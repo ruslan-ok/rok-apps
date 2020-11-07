@@ -73,7 +73,7 @@ class AppParam(models.Model):
     app = models.CharField(_('application'), max_length = 50)
     aside = models.BooleanField(_('aside visible'), default = False)
     article = models.BooleanField(_('article visible'), default = False)
-    content = models.CharField(_('kind of objects in page'), max_length = 50, blank = True)
+    content = models.CharField(_('kind of objects in page'), max_length = 1000, blank = True)
     kind = models.CharField(_('kind of object in article'), max_length = 50, blank = True)
     lst = models.ForeignKey(Lst, on_delete = models.CASCADE, verbose_name = _('list'), blank = True, null = True)
     art_id = models.IntegerField(_('entity id for article'), blank = True, null = True)

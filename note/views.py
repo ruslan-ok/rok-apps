@@ -189,7 +189,7 @@ def filtered_sorted_list(user, app_param, query, app):
 
 #----------------------------------
 def filtered_list(user, restriction, app, query = None, lst = None):
-    if (restriction == 'all'):
+    if (restriction == '') or (restriction == 'all'):
         data = Note.objects.filter(user = user.id, kind = app)
     elif (restriction == 'list') and lst:
         data = Note.objects.filter(user = user.id, kind = app, lst = lst.id)

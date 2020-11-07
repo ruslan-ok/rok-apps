@@ -421,12 +421,12 @@ def task_list(request):
         if 'item-in-list-select' in request.POST:
             task = Task.objects.filter(id = request.POST['item-in-list-select']).get()
             complete_task(task)
-            return HttpResponseRedirect(reverse('todo:task_list'))
+            return HttpResponseRedirect(reverse('todo:task_list') + extract_get_params(request))
         if 'item-in-list-important' in request.POST:
             task = Task.objects.filter(id = request.POST['item-in-list-important']).get()
             task.important = not task.important
             task.save()
-            return HttpResponseRedirect(reverse('todo:task_list'))
+            return HttpResponseRedirect(reverse('todo:task_list') + extract_get_params(request))
         if 'item-add' in request.POST:
             lst = None
             if (app_param.restriction == 'list') and app_param.lst:
