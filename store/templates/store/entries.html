@@ -7,17 +7,7 @@
 
 {% block article_content %}
 <form method="post">{% csrf_token %}
-  <!-- Form Errors -->
-  {% if form.errors %}
-    <div class="fieldset">
-      <p class="errornote"> {% if form.errors.items|length == 1 %}{{ please_correct_one }}{% else %}{{ please_correct_all }}{% endif %} </p> 
-    </div>
-  {% endif %}
-  {% if form.non_field_errors %}
-    <div class="fieldset">
-    {% for error in form.non_field_errors %} <p class="errornote"> {{ error }} </p> {% endfor %}
-    </div>
-  {% endif %}
+  {% include "hier/form_errors.html" %}
 
   <!-- EDIT Entry.title -->
   <div class="header">
@@ -163,45 +153,8 @@
           </div>
         </div>
       </div>
-      <!-- Entry.categories -->
-      <div class="row">
-        {{ form.category.label_tag }}
-      </div>
-      <div class="row">
-        {% if categories %}
-          <button type="hidden" name="category-delete" id="id_category_delete" value="???"></button>
-            <div class="categories">
-              {% for categ in categories %}
-                <div class="category category-design-{{ categ.design }}">
-                  <div class="label">
-                    <div class="value">
-                      {{ categ.name }}
-                    </div>
-                  </div>
-                  <div class="icon" onclick="CategoryDelete('{{categ.name}}')">
-                  <div class="delete">
-                    <svg height="8" width="8" style="fill: currentcolor;">
-                      <path d="M4.46607 4L8 7.53905L7.53905 8L4 4.46607L0.460948 8L0 7.53905L3.53393 4L0 0.460948L0.460948 0L4 3.53393L7.53905 0L8 0.460948L4.46607 4Z"></path>
-                    </svg>
-                  </div>
-                  </div>
-                </div>
-              {% endfor %}
-            </div>
-        {% endif %}
-      </div>
-      {% if form.category.errors %}
-      <div class="row">
-        <div class="field-error">{{ form.category.errors }}</div>
-      </div>
-	  {% endif %}
-      <div class="row">
-        <div class="section-icon">
-          <img src="{% static 'todo/icon/category.png' %}">
-        </div>
-        {{ form.category }}
-      </div>
     </div> <!-- section -->
+    {% include "hier/categories.html" %}
 
   </div> <!-- body -->
 </form>

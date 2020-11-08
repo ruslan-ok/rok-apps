@@ -5,17 +5,7 @@
   <div class="fields">
     <form method="post">{% csrf_token %}
       <div class="header">
-        {% if form.errors %}
-          <div class="fieldset">
-            <p class="errornote"> {% if form.errors.items|length == 1 %}{{ please_correct_one }}{% else %}{{ please_correct_all }}{% endif %} </p> 
-          </div>
-        {% endif %}
-        {% if form.non_field_errors %}
-          <div class="fieldset">
-          {% for error in form.non_field_errors %} <p class="errornote"> {{ error }} </p> {% endfor %}
-          </div>
-        {% endif %}
-
+        {% include "hier/form_errors.html" %}
         <div class="field-group">
           <!-- Employee.fio -->
           {% if form.fio.errors %}
