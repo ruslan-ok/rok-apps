@@ -4,10 +4,9 @@ from .models import Photo
 
 
 class PhotoForm(forms.ModelForm):
+    category = forms.CharField(label = _('categories').capitalize(), widget = forms.TextInput(attrs = {'placeholder': _('add category').capitalize()}), required = False)
     class Meta:
         model = Photo
-        fields = ['name', 'path', 'info']
-        widgets = { 'name': forms.TextInput(attrs = {'readonly': 'readonly'}),
-                    'path': forms.TextInput(attrs = {'readonly': 'readonly'}),
-                    'info': forms.Textarea(attrs = { 'rows': 10, 'cols': 30, 'placeholder': _('add note').capitalize() }) }
+        fields = ['info']
+        widgets = { 'info': forms.Textarea(attrs = { 'rows': 5, 'cols': 30, 'placeholder': _('add description').capitalize(), 'data-autoresize': '' }) }
 

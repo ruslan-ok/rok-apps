@@ -17,25 +17,25 @@
 {% endblock %}
 
 {% block items_content %}
-  <img class="photo" src="{% url 'photo:photo' item.id %}" alt="{{ item.name }}">  </a>
+  {{ item.info }}
+  <a href="{% url 'photo:form' %}"><img class="photo" src="{% url 'photo:get_photo' item.id %}" alt="{{ item.name }}"></a>
 {% endblock %}
 
 {% block article_content %}
   <form method="post">{% csrf_token %}
-    {{ form }}
+    {% include "hier/form_errors.html" %}
+    <button type="hidden" name="item-save" id="id_item_save" value="???"></button>
+    {% include "hier/categories.html" %}
+    {{ form.info.errors }}
+    {{ form.info.label_tag }}
+    {{ form.info }}
     <button type="submit" name="item-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
   </form>
-  <div>
-    <div class="preview">
-      <img src="{{ item.show_url }}" alt="{{ item.alt }}">
-      <div class="preview-desc">{{ item.info }}</div>
-    </div>
-  </div>
-  <div class="row">
-    {{ item.lat }}
-  </div>
-  <div class="row">
-    {{ item.lon }}
-  </div>
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  <script src="{% static 'rok/js/AddAutoResize.js' %}"></script>
+  <script src="{% static 'rok/js/CategoryDelete.js' %}"></script>
 {% endblock %}
 

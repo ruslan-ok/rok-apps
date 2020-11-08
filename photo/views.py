@@ -16,89 +16,53 @@ from hier.utils import get_base_context_ext, process_common_commands, extract_ge
 from hier.params import get_search_info, get_search_mode, set_article_kind, set_article_visible, set_restriction, set_content
 from hier.files import storage_path, service_path, folder_path
 from hier.models import get_app_params
+from hier.categories import get_categories_list
 
 from .models import app_name, Photo
 from .forms import PhotoForm
 
 items_per_page = 12
 
-def get_storage(user, folder, service = False):
-    if service:
-        return service_path.format(user.id) + '{}/'.format(folder)
-    return storage_path.format(user.id) + '{}/'.format(folder)
 
-def photo_storage(user):
-    return get_storage(user, 'photo')
-
-def thumb_storage(user):
-    return get_storage(user, 'thumbnails', True)
-
-def mini_storage(user):
-    return get_storage(user, 'photo_mini', True)
-
+# Режимы приложения
 #----------------------------------
-class Entry:
-    def __init__(self, is_dir, name, url, size, ctime):
-        self.is_dir = is_dir
-        self.name = name
-        if (is_dir == 0):
-            self.url = urllib.parse.quote_plus(name)
+def main(request): # Фотографии в виде миниатюр
+    return do_main(request, 'main')
+
+def map(request): # Фотографии на карте
+    return do_main(request, 'map')
+
+def one(request): # Просмотр одной фотографии, заданной именем файла
+    name = get_name_from_request(request)
+    if name:
+        dirs = name.split('/')
+        sub_name = dirs[-1:][0]
+        if (len(dirs) > 1):
+            sub_path = name[:len(name)-len(sub_name)-1]
         else:
-            self.url = url
-        self.size = size
-        self.ctime = ctime
-        safe_url = urllib.parse.unquote_plus(url)
+            sub_path = ''
+        pk = get_photo_id(request.user, sub_path, sub_name)
+        if pk:
+            set_article_kind(request.user, app_name, '', pk)
+            set_article_visible(request.user, app_name, False)
+            return HttpResponseRedirect(reverse('photo:one'))
+    app_param = get_app_params(request.user, app_name)
+    return do_main(request, 'one', app_param.art_id)
 
-    def __repr__(self):
-        return self.url
-        
+# Навигация
 #----------------------------------
-def all(request):
-    set_restriction(request.user, app_name, '')
-    set_article_kind(request.user, app_name, '')
-    set_article_visible(request.user, app_name, False)
-    return HttpResponseRedirect(reverse('photo:main') + extract_get_params(request))
-
-#----------------------------------
-def map(request):
-    set_restriction(request.user, app_name, 'map')
-    set_article_kind(request.user, app_name, '')
-    set_article_visible(request.user, app_name, False)
-    return HttpResponseRedirect(reverse('photo:main') + extract_get_params(request))
-
-#----------------------------------
-def show(request):
-    return show_or_edit(request, False)
-
-#----------------------------------
-def edit(request):
-    return show_or_edit(request, True)
-
-#----------------------------------
-def edit_id(request, pk):
-    item = get_object_or_404(Photo.objects.filter(id = pk, user = request.user.id))
-    set_restriction(request.user, app_name, '')
-    return HttpResponseRedirect(reverse('photo:edit') + '?file=' + item.subdir() + item.name)
-
-#----------------------------------
-def goto(request):
-    set_article_kind(request.user, app_name, '')
+def goto(request): # Опуститься в указанную папку
     set_article_visible(request.user, app_name, False)
     app_param = get_app_params(request.user, app_name)
-    query = ''
     prefix = ''
     if app_param.content:
         prefix = app_param.content + '/'
-    if (request.method == 'GET'):
-        query = request.GET.get('file')
+    query = get_name_from_request(request)
     if query:
         set_content(request.user, app_name, prefix + query)
     return HttpResponseRedirect(reverse('photo:main') + extract_get_params(request))
 
-#----------------------------------
-def jump(request, level):
-    set_restriction(request.user, app_name, '')
-    set_article_kind(request.user, app_name, '')
+def rise(request, level): # Подняться на указанный уровень вверх
     set_article_visible(request.user, app_name, False)
     if not level:
         set_content(request.user, app_name, '')
@@ -118,45 +82,80 @@ def jump(request, level):
 
     return HttpResponseRedirect(reverse('photo:main') + extract_get_params(request))
 
+def by_id(request, pk): # Просмотр фотографии с указанным id
+    item = get_object_or_404(Photo.objects.filter(id = pk, user = request.user.id))
+    if item:
+        set_article_kind(request.user, app_name, '', item.id)
+        set_article_visible(request.user, app_name, False)
+        return HttpResponseRedirect(reverse('photo:one'))
+    return HttpResponseRedirect(reverse('photo:main'))
+
+def form(request): # Отображение формы
+    set_article_visible(request.user, app_name, True)
+    return HttpResponseRedirect(reverse('photo:one'))
+
+
+# Служебные адреса для отображения фото
 #----------------------------------
-def photo(request, pk):
+def get_photo(request, pk): # Для отображения полноразмерного фото
     item = get_object_or_404(Photo.objects.filter(id = pk, user = request.user.id))
     fsock = open(photo_storage(request.user) + item.subdir() + item.name, 'rb')
     return FileResponse(fsock)
 
-#----------------------------------
-def mini(request, pk):
+def get_thumb(request): # Для отображения миниатюры по имени файла
+    name = get_name_from_request(request)
+    if not name:
+        return None
+    if (name == 'dir'):
+        fsock = open(folder_path, 'rb')
+    else:
+        build_thumb(request.user, name)
+        fsock = open(thumb_storage(request.user) + name, 'rb')
+    return FileResponse(fsock)
+
+def get_mini(request, pk): # Для оторажения миниатюры на метке карты
     item = get_object_or_404(Photo.objects.filter(id = pk, user = request.user.id))
-    get_mini(request.user, item)
+    build_mini(request.user, item)
     fsock = open(mini_storage(request.user) + item.subdir() + item.name, 'rb')
     return FileResponse(fsock)
+
 
 #----------------------------------
 @login_required(login_url='account:login')
 #----------------------------------
-def main(request):
+def do_main(request, restriction, pk = None, art_vis = False):
+    
     if process_common_commands(request, app_name):
-        return HttpResponseRedirect(reverse('photo:main') + extract_get_params(request))
+        return HttpResponseRedirect(reverse('photo:' + restriction) + extract_get_params(request))
 
-    app_param, context = get_base_context_ext(request, app_name, 'main', _('photos'))
+    set_restriction(request.user, app_name, restriction)
 
-    redirect = False
+    item = None
+    if (restriction == 'one') and pk:
+        item = get_object_or_404(Photo.objects.filter(id = pk, user = request.user.id))
 
-    if (app_param.kind == 'photo'):
+    app_param, context = get_base_context_ext(request, app_name, restriction, _('photos'))
+
+    if (restriction == 'one') and (not item):
+        item = get_object_or_404(Photo.objects.filter(id = app_param.art_id, user = request.user.id))
+
+
+    redirect_rest = ''
+
+    if (restriction == 'one'):
         valid_article = Photo.objects.filter(id = app_param.art_id, user = request.user.id).exists()
         if not valid_article:
-            set_article_kind(request.user, app_name, '')
             set_article_visible(request.user, app_name, False)
-            redirect = True
+            return HttpResponseRedirect(reverse('photo:main') + extract_get_params(request))
         else:
             item = get_object_or_404(Photo.objects.filter(id = app_param.art_id, user = request.user.id))
             context['item'] = item
             context['title'] = item.name
             if app_param.article:
-                redirect = edit_item(request, context, item, False)
+                redirect_rest = edit_item(request, context, item, False)
     
-    if redirect:
-        return HttpResponseRedirect(reverse('photo:main') + extract_get_params(request))
+    if redirect_rest:
+        return HttpResponseRedirect(reverse('photo:' + redirect_rest) + extract_get_params(request))
 
     query = None
     page_number = 1
@@ -165,28 +164,29 @@ def main(request):
         page_number = request.GET.get('page')
     context['search_info'] = get_search_info(query)
     context['hide_add_item_input'] = True
+    context['without_lists'] = True
 
     data, gps_data = filtered_sorted_list(request.user, app_param, query)
     context['gps_data'] = gps_data
 
     fixes = []
-    fixes.append(Fix('', _('thumbnails').capitalize(), 'rok/icon/all.png', 'all/', len(data)))
-    fixes.append(Fix('map', _('on the map').capitalize(), 'todo/icon/map.png', 'map/', len(data)))
+    fixes.append(Fix('main', _('thumbnails').capitalize(), 'rok/icon/all.png', '/photo/', len(data)))
+    fixes.append(Fix('map', _('on the map').capitalize(), 'todo/icon/map.png', '/photo/map/', len(data)))
     context['fix_list'] = fixes
 
     bread_crumbs = []
     crumbs = app_param.content.split('/')
-    if ((len(crumbs) > 0) and crumbs[0]) or (app_param.kind == 'photo'):
-        bread_crumbs.append({ 'url': 'level/0/', 'name': '[ / ]' })
+    if ((len(crumbs) > 0) and crumbs[0]) or (restriction == 'one'):
+        bread_crumbs.append({ 'url': '/photo/rise/0/', 'name': '[ / ]' })
 
     level = 1
     for crumb in crumbs:
         if not crumb:
             continue
-        if (level == len(crumbs)) and (app_param.kind == ''):
+        if (level == len(crumbs)) and (restriction != 'one'):
             context['title'] = crumb
         else:
-            url = 'level/{}/'.format(level)
+            url = '/photo/rise/{}/'.format(level)
             bread_crumbs.append({ 'url': url, 'name': crumb })
         level += 1
     context['bread_crumbs'] = bread_crumbs
@@ -195,17 +195,53 @@ def main(request):
     page_obj = paginator.get_page(page_number)
     context['page_obj'] = paginator.get_page(page_number)
 
-    if (app_param.kind == 'photo'):
-        template_name = 'photo/photo.html'
-    else:
-        if (app_param.restriction == 'map'):
-            template_name = 'photo/map.html'
-        else:
-            template_name = 'photo/list.html'
+    template_name = 'photo/' + restriction + '.html'
     template = loader.get_template(template_name)
     return HttpResponse(template.render(context, request))
 
 
+#----------------------------------
+def get_name_from_request(request):
+    query = ''
+    if (request.method == 'GET'):
+        query = request.GET.get('file')
+    if not query:
+        return None
+    return urllib.parse.unquote_plus(query)
+
+#----------------------------------
+def get_storage(user, folder, service = False):
+    if service:
+        return service_path.format(user.id) + '{}/'.format(folder)
+    return storage_path.format(user.id) + '{}/'.format(folder)
+
+def photo_storage(user):
+    return get_storage(user, 'photo')
+
+def thumb_storage(user):
+    return get_storage(user, 'thumbnails', True)
+
+def mini_storage(user):
+    return get_storage(user, 'photo_mini', True)
+
+
+#----------------------------------
+class Entry:
+    def __init__(self, is_dir, name, url, size, ctime):
+        self.is_dir = is_dir
+        self.name = name
+        if (is_dir == 0):
+            self.url = urllib.parse.quote_plus(name)
+        else:
+            self.url = url
+        self.size = size
+        self.ctime = ctime
+        safe_url = urllib.parse.unquote_plus(url)
+
+    def __repr__(self):
+        return self.url
+
+#----------------------------------
 def filtered_sorted_list(user, app_param, query):
     data, gps_data = filtered_list(user, app_param.content, query)
     return sorted(data, key = attrgetter('is_dir', 'name')), gps_data
@@ -255,6 +291,21 @@ def get_exif_data(image):
 
     return exif_data
 
+#----------------------------------
+def _get_if_exist(data, key):
+    if key in data:
+        return data[key]
+		
+    return None
+	
+#----------------------------------
+def _convert_to_degress(value):
+    """Helper function to convert the GPS coordinates stored in the EXIF to degress in float format"""
+    d = float(value[0])
+    m = float(value[1])
+    s = float(value[2])
+    return d + (m / 60.0) + (s / 3600.0)
+    
 #----------------------------------
 def get_lat_lon(exif_data, user, path, name):
     """Returns the latitude and longitude, if available, from the provided exif_data (obtained through get_exif_data above)"""
@@ -312,40 +363,7 @@ def get_photo_id(user, path, name, lat = None, lon = None):
     return item.id
 
 #----------------------------------
-def show_or_edit(request, do_edit):
-    query = ''
-    if (request.method == 'GET'):
-        query = request.GET.get('file')
-    if not query:
-        return HttpResponseRedirect(reverse('photo:main') + extract_get_params(request))
-    name = urllib.parse.unquote_plus(query)
-    image_path = ''
-    if (name == 'dir'):
-        image_path = folder_path
-        name = ''
-
-    try:
-        if not do_edit:
-            if (name != ''):
-                image_path =thumb_storage(request.user)
-                get_thumbnail(request.user, name)
-            fsock = open(image_path + name, 'rb')
-            return FileResponse(fsock)
-        dirs = name.split('/')
-        sub_name = dirs[-1:][0]
-        if (len(dirs) > 1):
-            sub_path = name[:len(name)-len(sub_name)-1]
-        else:
-            sub_path = ''
-        pk = get_photo_id(request.user, sub_path, sub_name)
-        set_article_kind(request.user, app_name, 'photo', pk)
-        return HttpResponseRedirect(reverse('photo:main') + extract_get_params(request))
-    except IOError:
-        return HttpResponseNotFound()
-
-
-#----------------------------------
-def get_thumbnail(user, name):
+def build_thumb(user, name):
     if os.path.exists(photo_storage(user) + name) and os.path.isdir(photo_storage(user) + name):
         return
 
@@ -376,7 +394,7 @@ def get_thumbnail(user, name):
             pass
 
 #----------------------------------
-def get_mini(user, item):
+def build_mini(user, item):
     if not os.path.exists(mini_storage(user) + item.path):
         os.makedirs(mini_storage(user) + item.path)
     
@@ -393,48 +411,43 @@ def get_mini(user, item):
             pass
 
 #----------------------------------
-def _get_if_exist(data, key):
-    if key in data:
-        return data[key]
-		
-    return None
-	
-#----------------------------------
-def _convert_to_degress(value):
-    """Helper function to convert the GPS coordinates stored in the EXIF to degress in float format"""
-    d = float(value[0])
-    m = float(value[1])
-    s = float(value[2])
-    return d + (m / 60.0) + (s / 3600.0)
-    
-#----------------------------------
 def edit_item(request, context, item, disable_delete = False):
     form = None
     if (request.method == 'POST'):
+        #raise Exception(request.POST)
         if ('article_delete' in request.POST):
             delete_item(request, item, disable_delete)
-            return True
+            return 'main'
         if ('item-save' in request.POST):
             form = PhotoForm(request.POST, instance = item)
             if form.is_valid():
                 data = form.save(commit = False)
                 data.user = request.user
+                if form.cleaned_data.get('category'):
+                    if data.categories:
+                        data.categories += ' '
+                    data.categories += form.cleaned_data['category']
                 form.save()
-                return True
+                return 'one'
+        if ('category-delete' in request.POST):
+            category = request.POST['category-delete']
+            item.categories = item.categories.replace(category, '')
+            item.save()
+            return 'one'
 
     if not form:
         form = PhotoForm(instance = item)
 
     context['form'] = form
     context['ed_item'] = item
-    return False
+    context['categories'] = get_categories_list(item.categories)
+    return ''
 
 #----------------------------------
 def delete_item(request, item, disable_delete = False):
     if disable_delete:
         return False
     item.delete()
-    set_article_kind(request.user, app_name, '')
     set_article_visible(request.user, app_name, False)
     return True
 

@@ -23,9 +23,9 @@
       <div>
         <div class="gallery">
           {% if item.is_dir == 0 %}
-            <a href="goto/?file={{ item.url }}">  <img src="show/?file=dir" alt="{{ item.name }}">  </a>
+            <a href="goto/?file={{ item.url }}">  <img src="get_thumb/?file=dir" alt="{{ item.name }}">  </a>
           {% else %}
-            <a href="edit/?file={{ item.url }}">  <img src="show/?file={{ item.url }}" alt="{{ item.name }}">  </a>
+            <a href="one/?file={{ item.url }}">  <img src="get_thumb/?file={{ item.url }}" alt="{{ item.name }}">  </a>
           {% endif %}
           <div class="desc">{{ item.name }}</div>
         </div>
