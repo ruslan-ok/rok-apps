@@ -432,7 +432,7 @@ class Payment(models.Model):
     def get_info(self):
         ret = []
         if self.payed:
-            ret.append({ 'text': self.payed.strftime('%m.%Y') })
+            ret.append({ 'text': self.payed.strftime('%d.%m.%Y') })
 
         if self.rate:
             add_separator(ret)
@@ -443,33 +443,4 @@ class Payment(models.Model):
             ret.append({ 'icon': 'notes', 'text': self.info })
         return ret
 
-"""
-class Params(models.Model):
-    user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'))
-    # deprecated
-    period = models.ForeignKey(Period, on_delete = models.CASCADE, verbose_name = 'Расчетный период', blank = True, null = True)
-    employee = models.ForeignKey(Employee, on_delete = models.CASCADE, verbose_name = 'Сотрудник', blank = True, null = True)
-
-    class Meta:
-        verbose_name = 'Параметры пользователя'
-        verbose_name_plural = 'Параметры пользователей'
-
-    def __str__(self):
-        if (not self.user):
-            return 'user == None'
-
-        if (not self.period):
-            return '[' + self.user.username + '], period == None '
-        
-        if (not self.employee):
-            return '[' + self.user.username + '] ' + str(self.period) + ' - employee == None'
-
-        return '[' + self.user.username + '] ' + str(self.period) + ' - ' + self.employee.fio
-
-    def d_scan(self):
-        if (self.period == None):
-            return datetime.now().date()
-        else:
-            return self.period.dBeg
-"""
 

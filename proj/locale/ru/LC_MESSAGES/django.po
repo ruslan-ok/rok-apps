@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-18 19:51+0300\n"
+"POT-Creation-Date: 2020-11-11 22:15+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: .\proj\apps.py:7 .\proj\models.py:58 .\proj\views.py:35 .\proj\views.py:114
+#: .\proj\apps.py:7 .\proj\models.py:64 .\proj\views.py:35 .\proj\views.py:114
 msgid "projects"
 msgstr "проекты"
 
@@ -31,7 +31,7 @@ msgstr "добавить описание"
 msgid "user"
 msgstr "пользователь"
 
-#: .\proj\models.py:11 .\proj\models.py:17
+#: .\proj\models.py:11 .\proj\models.py:20
 msgid "direction"
 msgstr "направление"
 
@@ -39,59 +39,84 @@ msgstr "направление"
 msgid "active"
 msgstr "активно"
 
-#: .\proj\models.py:13 .\proj\models.py:53
+#: .\proj\models.py:13 .\proj\models.py:59
 msgid "creation time"
 msgstr "время создания"
 
-#: .\proj\models.py:14 .\proj\models.py:54
+#: .\proj\models.py:14 .\proj\models.py:60
 msgid "last modification time"
 msgstr "время последней модификации"
 
-#: .\proj\models.py:18
+#: .\proj\models.py:15
+msgid "totals in BYN"
+msgstr "учет в BYN"
+
+#: .\proj\models.py:16
+msgid "totals in USD"
+msgstr "учет в USD"
+
+#: .\proj\models.py:17
+msgid "totals in EUR"
+msgstr "учет в EUR"
+
+#: .\proj\models.py:21
 msgid "directions"
 msgstr "направления"
 
-#: .\proj\models.py:45
+#: .\proj\models.py:48
 msgid "direct"
 msgstr "направление"
 
-#: .\proj\models.py:46
+#: .\proj\models.py:49
 msgid "date"
 msgstr "дата"
 
-#: .\proj\models.py:47
+#: .\proj\models.py:50
+msgid "name"
+msgstr "наименование"
+
+#: .\proj\models.py:51
 msgid "quantity"
 msgstr "количество"
 
-#: .\proj\models.py:48
+#: .\proj\models.py:52
 msgid "national currency price"
 msgstr "цена в НДЕ"
 
-#: .\proj\models.py:49
-msgid "exchange rate"
-msgstr "курс"
+#: .\proj\models.py:53
+msgid "USD exchange rate"
+msgstr "курс USD"
 
-#: .\proj\models.py:50
+#: .\proj\models.py:54
+msgid "EUR exchange rate"
+msgstr "курс EUR"
+
+#: .\proj\models.py:55
 msgid "summa in USD"
 msgstr "сумма в USD"
 
-#: .\proj\models.py:51
+#: .\proj\models.py:56
+msgid "summa in EUR"
+msgstr "сумма в EUR"
+
+#: .\proj\models.py:57
 msgid "manufacturer"
 msgstr "производитель"
 
-#: .\proj\models.py:52
+#: .\proj\models.py:58
 msgid "information"
 msgstr "дополнительная информация"
 
-#: .\proj\models.py:57
+#: .\proj\models.py:63
 msgid "project"
 msgstr "проект"
 
-#: .\proj\models.py:89
+#: .\proj\models.py:135
 msgid "summa"
 msgstr "сумма"
 
 #: .\proj\templates\proj\expense.html:10
+#: .\proj\templates\proj\expense_old.html:10
 msgid "add new expense"
 msgstr "добавить запись"
 
@@ -151,6 +176,6 @@ msgstr "по дате модификации"
 msgid "add new project"
 msgstr "добавить новый проект"
 
-#: .\proj\views.py:265
+#: .\proj\views.py:263
 msgid "created:"
 msgstr "создано:"

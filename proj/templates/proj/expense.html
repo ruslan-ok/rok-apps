@@ -18,6 +18,7 @@
   <div class="fields">
     <form method="post">{% csrf_token %}
       <button type="hidden" name="item-save"></button>
+
       <div class="header">
         {% include "hier/form_errors.html" %}
         {% if form.date.errors %} 
@@ -26,49 +27,82 @@
           </div>
         {% endif %}
         <div class="row">
-            <div class="section-item">
-              <div class="editable-content">
-                <div class="">{{ form.date.label_tag }}</div>
-                {{ form.date }}
-              </div>
-              <button type="submit" name="item-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
+          <div class="section-item">
+            <div class="editable-content">
+              <div class="">{{ form.date.label_tag }}</div>
+              {{ form.date }}
             </div>
+            <button type="submit" name="item-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
+          </div>
+        </div>
+        
+        {% if form.description.errors %}
+          <div class="field-error">{{ form.description.errors }}</div>
+        {% endif %}
+        <div class="row">
+          <div class="input full-width">{{ form.description }}</div>
         </div>
       </div>
 
       <div class="body">
         <div class="section">
-          {% if form.qty.errors %}
-            <div class="field-error">{{ form.qty.errors }}</div>
+          {% if project.tot_byn %}
+            {% if form.qty.errors %}
+              <div class="field-error">{{ form.qty.errors }}</div>
+            {% endif %}
+            <div class="row">
+              <div class="label">{{ form.qty.label_tag }}</div>
+              <div class="input summ-field">{{ form.qty }}</div>
+            </div>
+      
+            {% if form.price.errors %}
+              <div class="field-error">{{ form.price.errors }}</div>
+            {% endif %}
+            <div class="row">
+              <div class="label">{{ form.price.label_tag }}</div>
+              <div class="input summ-field">{{ form.price }}</div>
+            </div>
           {% endif %}
-          <div class="row">
-            <div class="label">{{ form.qty.label_tag }}</div>
-            <div class="input summ-field">{{ form.qty }}</div>
-          </div>
 
-          {% if form.price.errors %}
-            <div class="field-error">{{ form.price.errors }}</div>
+          {% if project.tot_byn and project.tot_usd %}
+            {% if form.rate.errors %}
+              <div class="field-error">{{ form.rate.errors }}</div>
+            {% endif %}
+            <div class="row">
+              <div class="label">{{ form.rate.label_tag }}</div>
+              <div class="input summ-field">{{ form.rate }}</div>
+            </div>
           {% endif %}
-          <div class="row">
-            <div class="label">{{ form.price.label_tag }}</div>
-            <div class="input summ-field">{{ form.price }}</div>
-          </div>
 
-          {% if form.rate.errors %}
-            <div class="field-error">{{ form.rate.errors }}</div>
+          {% if project.tot_usd %}
+            {% if form.usd.errors %}
+              <div class="field-error">{{ form.usd.errors }}</div>
+            {% endif %}
+            <div class="row">
+              <div class="label">{{ form.usd.label_tag }}</div>
+              <div class="input summ-field">{{ form.usd }}</div>
+            </div>
           {% endif %}
-          <div class="row">
-            <div class="label">{{ form.rate.label_tag }}</div>
-            <div class="input summ-field">{{ form.rate }}</div>
-          </div>
 
-          {% if form.usd.errors %}
-            <div class="field-error">{{ form.usd.errors }}</div>
+          {% if project.tot_byn and project.tot_eur %}
+            {% if form.rate_2.errors %}
+              <div class="field-error">{{ form.rate_2.errors }}</div>
+            {% endif %}
+            <div class="row">
+              <div class="label">{{ form.rate_2.label_tag }}</div>
+              <div class="input summ-field">{{ form.rate_2 }}</div>
+            </div>
           {% endif %}
-          <div class="row">
-            <div class="label">{{ form.usd.label_tag }}</div>
-            <div class="input summ-field">{{ form.usd }}</div>
-          </div>
+
+          {% if project.tot_eur %}
+            {% if form.eur.errors %}
+              <div class="field-error">{{ form.eur.errors }}</div>
+            {% endif %}
+            <div class="row">
+              <div class="label">{{ form.eur.label_tag }}</div>
+              <div class="input summ-field">{{ form.eur }}</div>
+            </div>
+          {% endif %}
         </div>
 
         <div class="section">

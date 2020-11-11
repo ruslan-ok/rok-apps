@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-07 11:02+0300\n"
+"POT-Creation-Date: 2020-11-11 22:15+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,9 +19,17 @@ msgstr ""
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: .\photo\forms.py:12
-msgid "add note"
-msgstr "добавить примечание"
+#: .\photo\forms.py:7 .\photo\models.py:13
+msgid "categories"
+msgstr "категории"
+
+#: .\photo\forms.py:7
+msgid "add category"
+msgstr "добавить категорию"
+
+#: .\photo\forms.py:11
+msgid "add description"
+msgstr "добавить описание"
 
 #: .\photo\models.py:8
 msgid "user"
@@ -43,10 +51,6 @@ msgstr "наименование"
 msgid "path"
 msgstr "путь"
 
-#: .\photo\models.py:13
-msgid "categories"
-msgstr "категории"
-
 #: .\photo\models.py:14
 msgid "information"
 msgstr "примечания"
@@ -59,12 +63,12 @@ msgstr "штрота"
 msgid "longitude"
 msgstr "долгота"
 
-#: .\photo\templates\photo\list.html:16 .\photo\templates\photo\map.html:25
-#: .\photo\templates\photo\photo.html:16
+#: .\photo\templates\photo\main.html:16 .\photo\templates\photo\map.html:25
+#: .\photo\templates\photo\one.html:16
 msgid "add photo"
 msgstr "добавить фото"
 
-#: .\photo\views.py:141
+#: .\photo\views.py:137
 msgid "photos"
 msgstr "фотографии"
 
@@ -75,3 +79,4 @@ msgstr "миниатюры"
 #: .\photo\views.py:174
 msgid "on the map"
 msgstr "на карте"
+

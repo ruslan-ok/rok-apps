@@ -137,6 +137,7 @@ def main(request):
         context['hide_add_item_input'] = True
         context['hide_selector'] = True
         context['title_info'] = s_proj_summary(project.id)
+        context['project'] = project
 
     query = None
     page_number = 1

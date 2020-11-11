@@ -1509,4 +1509,6 @@ button.dropdown-content-item:hover {
   margin-left: 2px;
 }
 
-
+.calendarbox, .clockbox {
+  z-index: 10;
+}
