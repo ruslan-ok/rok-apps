@@ -202,7 +202,7 @@ def get_base_context_ext(request, app_name, content_kind, title, article_enabled
         ('apart',   'apartment',   '/apart/'),
         ('proj',    'cost',        '/proj/'),
         ('wage',    'work',        '/wage/'),
-        ('photo',   'work',        '/photo/'),
+        ('photo',   'photo',       '/photo/'),
         ('admin',   'admin',       '/admin/'),
         ('profile', 'user',        '/account/profile/'),
         ('logout',  'exit',        '/account/logout/'),

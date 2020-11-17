@@ -13,7 +13,18 @@
       {{ crumb.name }}
     {% endif %}
   {% endfor %}
-  <button type="submit" name="item-add"><img class="img-20_20" src="{% static 'rok/icon/add-gray.png' %}">{% trans 'add photo'|capfirst %}</button>
+{% endblock %}
+
+{% block upload %}
+  <form class="body" method="post" enctype="multipart/form-data" id="photo_form">{% csrf_token %}
+    {% include "hier/form_errors.html" %}
+    {% if file_form.upload.errors %}
+      [upload: {{ file_form.upload.errors }}]
+    {% endif %}
+    <input type="file" style="display:none;" id="id_upload" name="upload" onchange="FileSelected()">
+    <div id="loadPhoto" class="button" type="button" onclick="UploadFile()"><img class="img-20_20" src="{% static 'rok/icon/upload.png' %}">{% trans 'add photo'|capfirst %}</div>
+    <button type="submit" id="id_submit" name="file-upload"></button>
+  </form>
 {% endblock %}
 
 {% block items_content %}
@@ -55,4 +66,11 @@
   {% endif %}
 
 {% endblock %}
+
+
+{% block scripts %}
+  {{ block.super }}
+  <script src="{% static 'rok/js/UploadFile.js' %}"></script>
+{% endblock %}
+
 

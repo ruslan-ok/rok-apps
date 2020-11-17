@@ -1,3 +1,4 @@
+import urllib.parse
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
@@ -14,9 +15,17 @@ class Photo(models.Model):
     info = models.TextField(_('information'), blank = True)
     lat = models.DecimalField(_('latitude').capitalize(), max_digits = 9, decimal_places = 6, null = True)
     lon = models.DecimalField(_('longitude').capitalize(), max_digits = 9, decimal_places = 6, null = True)
+    size = models.IntegerField(_('size').capitalize(), null = True)
 
     def __str__(self):
         return self.name
+
+    def __repr__(self):
+        subdir = ''
+        if self.path:
+            subdir = self.path + '/'
+        url = urllib.parse.quote_plus(subdir + self.name)
+        return '{ url: ' + url + ', sz: ' + str(self.size) + ' }'
 
     def full_name(self):
         if self.path:

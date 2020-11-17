@@ -1,4 +1,4 @@
-import os, urllib.parse
+import os, shutil, urllib.parse
 from operator import attrgetter
 from PIL import Image, UnidentifiedImageError
 from PIL.ExifTags import TAGS, GPSTAGS
@@ -19,7 +19,7 @@ from hier.models import get_app_params
 from hier.categories import get_categories_list
 
 from .models import app_name, Photo
-from .forms import PhotoForm
+from .forms import PhotoForm, FileForm
 
 items_per_page = 12
 
@@ -152,10 +152,25 @@ def do_main(request, restriction, pk = None, art_vis = False):
             context['item'] = item
             context['title'] = item.name
             if app_param.article:
-                redirect_rest = edit_item(request, context, item, False)
+                disable_delete = (app_param.content == 'Trash')
+                redirect_rest = edit_item(request, context, item, disable_delete)
     
     if redirect_rest:
         return HttpResponseRedirect(reverse('photo:' + redirect_rest) + extract_get_params(request))
+
+    file_form = None
+
+    if (request.method == 'POST'):
+        if ('file-upload' in request.POST):
+            file_form = FileForm(request.POST, request.FILES)
+            if file_form.is_valid():
+                handle_uploaded_file(request.FILES['upload'], request.user, app_param.content)
+                return HttpResponseRedirect(reverse('photo:' + restriction) + extract_get_params(request))
+
+    if not file_form:
+        file_form = FileForm()
+
+    context['file_form'] = file_form
 
     query = None
     page_number = 1
@@ -177,7 +192,7 @@ def do_main(request, restriction, pk = None, art_vis = False):
     bread_crumbs = []
     crumbs = app_param.content.split('/')
     if ((len(crumbs) > 0) and crumbs[0]) or (restriction == 'one'):
-        bread_crumbs.append({ 'url': '/photo/rise/0/', 'name': '[ / ]' })
+        bread_crumbs.append({ 'url': '/photo/rise/0/', 'name': '[{}]'.format(_('photobank').capitalize()) })
 
     level = 1
     for crumb in crumbs:
@@ -227,20 +242,29 @@ def mini_storage(user):
 
 #----------------------------------
 class Entry:
-    def __init__(self, is_dir, name, url, size, ctime):
+    def __init__(self, is_dir, path, name, size):
         self.is_dir = is_dir
+        self.path = path
         self.name = name
-        if (is_dir == 0):
+        if (is_dir == 0): # directory
             self.url = urllib.parse.quote_plus(name)
-        else:
-            self.url = url
+        else: # file
+            subdir = ''
+            if path:
+                subdir = path + '/'
+            self.url = urllib.parse.quote_plus(subdir + name)
         self.size = size
-        self.ctime = ctime
-        safe_url = urllib.parse.unquote_plus(url)
 
     def __repr__(self):
-        return self.url
+        return '{ url: ' + self.url + ', sz: ' + str(self.size) + ' }'
 
+    def __eq__(self, other): 
+        if not isinstance(other, Entry):
+            # don't attempt to compare against unrelated types
+            return NotImplemented
+
+        return self.is_dir == other.is_dir and self.path == other.path and self.name == other.name and self.size == other.size
+        
 #----------------------------------
 def filtered_sorted_list(user, app_param, query):
     data, gps_data = filtered_list(user, app_param.content, query)
@@ -249,46 +273,66 @@ def filtered_sorted_list(user, app_param, query):
 def filtered_list(user, content, query = None):
     data = []
     gps_data = []
-    photos = Photo.objects.filter(user = user.id, path = content)
-    for p in photos:
-        if (p.lat and p.lon):
-            gps_data.append({ 'id': p.id, 'lat': str(p.lat), 'lon': str(p.lon), 'name': p.name })
     
     dirname = photo_storage(user) + content
     if not os.path.exists(dirname):
         set_content(user, app_name, '')
-        return data, []
-
-    subdir = ''
-    if content:
-        subdir = content + '/'
+        return data, gps_data
 
     with os.scandir(dirname) as it:
         for entry in it:
-            url = urllib.parse.quote_plus(subdir + entry.name)
+            if (entry.name.upper() == 'Thumbs.db'.upper()):
+                continue
             stat = entry.stat()
             is_dir = 0 if entry.is_dir() else 1
-            data.append(Entry(is_dir, entry.name, url, stat.st_size, stat.st_ctime))
+            item = Entry(is_dir, content, entry.name, stat.st_size)
+            # Можно сразу актуализировать записи в БД, но возможно это скажется на быстродействии.
+            # Если не делать сразу, то актуализация произойдет в момет отрисовки миниатюры.
+            # Не будет работать, если заменить файл, изменив его содержимое или размер, так как триггер для обновления - 
+            # отсутствие файла с именем, для которого выполняется отрисовка миниатюры.
+            # check_and_update(user, item)
+            data.append(item)
+
+    for p in Photo.objects.filter(user = user.id, path = content):
+        e = Entry(1, p.path, p.name, p.size)
+        #raise Exception(e, data[0], e in data)
+        if e not in data:
+            Photo.objects.filter(id = p.id).delete()
+
+    photos = Photo.objects.filter(user = user.id, path = content)
+    for p in photos:
+        if (p.lat and p.lon):
+            gps_data.append({ 'id': p.id, 'lat': str(p.lat), 'lon': str(p.lon), 'name': p.name })
+
+    #raise Exception(len(data), len(gps_data), data, photos)
     return data, gps_data
+
+#----------------------------------
+def check_and_update(user, entry):
+    if (entry.is_dir == 0): #directory
+        return
+    get_photo_id(user, entry.path, entry.name, entry.size)
 
 #----------------------------------
 def get_exif_data(image):
     """Returns a dictionary from the exif data of an PIL Image item. Also converts the GPS Tags"""
     exif_data = {}
-    info = image._getexif()
-    if info:
-        for tag, value in info.items():
-            decoded = TAGS.get(tag, tag)
-            if decoded == "GPSInfo":
-                gps_data = {}
-                for t in value:
-                    sub_decoded = GPSTAGS.get(t, t)
-                    gps_data[sub_decoded] = value[t]
-
-                exif_data[decoded] = gps_data
-            else:
-                exif_data[decoded] = value
-
+    try:
+        info = image._getexif()
+        if info:
+            for tag, value in info.items():
+                decoded = TAGS.get(tag, tag)
+                if decoded == "GPSInfo":
+                    gps_data = {}
+                    for t in value:
+                        sub_decoded = GPSTAGS.get(t, t)
+                        gps_data[sub_decoded] = value[t]
+    
+                    exif_data[decoded] = gps_data
+                else:
+                    exif_data[decoded] = value
+    except AttributeError:
+        pass
     return exif_data
 
 #----------------------------------
@@ -333,29 +377,38 @@ def get_lat_lon(exif_data, user, path, name):
 
 #----------------------------------
 # Извлечение гео-координат из атрибутов изображения
-def get_photo_gps(user, path, name):
+def get_photo_size_and_gps(user, path, name):
     try:
+        size = 0
         subdir = ''
         if path:
             subdir = path + '/'
         image = Image.open(photo_storage(user) + subdir + name)
         exif_data = get_exif_data(image)
-        if exif_data:
-            return get_lat_lon(exif_data, user, subdir, name)
+        size = os.path.getsize(photo_storage(user) + subdir + name)
+        if size or exif_data:
+            lat = lon = None
+            if exif_data:
+                lat, lon = get_lat_lon(exif_data, user, subdir, name)
+            return size, lat, lon
     except UnidentifiedImageError as e:
         pass
-    return None, None
+    return None, None, None
 
 #----------------------------------
-def get_photo_id(user, path, name, lat = None, lon = None):
+def get_photo_id(user, path, name, size = None, lat = None, lon = None):
+    #raise Exception('get_photo_id: ', path, name, size, lat, lon)
     if not Photo.objects.filter(name = name, path = path, user = user.id).exists():
-        if (not lat) and (not lon):
-            lat, lon = get_photo_gps(user, path, name)
-        item = Photo.objects.create(name = name, path = path, user = user, lat = lat, lon = lon)
+        if (not size) or ((not lat) and (not lon)):
+            size, lat, lon = get_photo_size_and_gps(user, path, name)
+        item = Photo.objects.create(name = name, path = path, user = user, size = size, lat = lat, lon = lon)
     else:
         item = Photo.objects.filter(name = name, path = path, user = user.id).get()
-        if (not lat) and (not lon):
-            lat, lon = get_photo_gps(user, path, name)
+        if (not size) or ((not lat) and (not lon)):
+            size, lat, lon = get_photo_size_and_gps(user, path, name)
+        if (not item.size) and size:
+            item.size = size
+            item.save()
         if (not item.lat) and (not item.lon) and lat and lon:
             item.lat = lat
             item.lon = lon
@@ -383,7 +436,8 @@ def build_thumb(user, name):
             if exif_data:
                 lat, lon = get_lat_lon(exif_data, user, sub_dir, sub_name)
                 if lat and lon:
-                    get_photo_id(user, sub_dir, sub_name, lat, lon)
+                    size = os.path.getsize(photo_storage(user) + name)
+                    get_photo_id(user, sub_dir, sub_name, size, lat, lon)
             image.thumbnail((240, 240), Image.ANTIALIAS)
             if ('exif' in image.info):
                 exif = image.info['exif']
@@ -416,8 +470,8 @@ def edit_item(request, context, item, disable_delete = False):
     if (request.method == 'POST'):
         #raise Exception(request.POST)
         if ('article_delete' in request.POST):
-            delete_item(request, item, disable_delete)
-            return 'main'
+            if delete_item(request, item, disable_delete):
+                return 'main'
         if ('item-save' in request.POST):
             form = PhotoForm(request.POST, instance = item)
             if form.is_valid():
@@ -447,7 +501,25 @@ def edit_item(request, context, item, disable_delete = False):
 def delete_item(request, item, disable_delete = False):
     if disable_delete:
         return False
-    item.delete()
+    dst_path = photo_storage(request.user) + 'Trash/'
+    if not os.path.exists(dst_path):
+        os.mkdir(dst_path)
+    src = photo_storage(request.user) + item.subdir() + item.name
+    dst = dst_path + item.name
+    shutil.move(src, dst)
+    item.path = 'Trash'
+    item.save()
     set_article_visible(request.user, app_name, False)
     return True
+
+#----------------------------------
+def handle_uploaded_file(f, user, content):
+    subdir = ''
+    if content:
+        subdir = content + '/'
+    path = photo_storage(user) + subdir
+    #raise Exception(path)
+    with open(path + f.name, 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
 

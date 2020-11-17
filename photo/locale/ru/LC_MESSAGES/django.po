@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-11 22:15+0300\n"
+"POT-Creation-Date: 2020-11-17 19:23+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: .\photo\forms.py:7 .\photo\models.py:13
+#: .\photo\forms.py:7 .\photo\models.py:14
 msgid "categories"
 msgstr "категории"
 
@@ -31,39 +31,43 @@ msgstr "добавить категорию"
 msgid "add description"
 msgstr "добавить описание"
 
-#: .\photo\models.py:8
+#: .\photo\models.py:9
 msgid "user"
 msgstr "пользователь"
 
-#: .\photo\models.py:9
+#: .\photo\models.py:10
 msgid "creation time"
 msgstr "время создания"
 
-#: .\photo\models.py:10
+#: .\photo\models.py:11
 msgid "last modification time"
 msgstr "время последней модификации"
 
-#: .\photo\models.py:11
+#: .\photo\models.py:12
 msgid "name"
 msgstr "наименование"
 
-#: .\photo\models.py:12
+#: .\photo\models.py:13
 msgid "path"
 msgstr "путь"
 
-#: .\photo\models.py:14
+#: .\photo\models.py:15
 msgid "information"
 msgstr "примечания"
 
-#: .\photo\models.py:15
+#: .\photo\models.py:16
 msgid "latitude"
 msgstr "штрота"
 
-#: .\photo\models.py:16
+#: .\photo\models.py:17
 msgid "longitude"
 msgstr "долгота"
 
-#: .\photo\templates\photo\main.html:16 .\photo\templates\photo\map.html:25
+#: .\photo\models.py:18
+msgid "size"
+msgstr "размер"
+
+#: .\photo\templates\photo\main.html:25 .\photo\templates\photo\map.html:25
 #: .\photo\templates\photo\one.html:16
 msgid "add photo"
 msgstr "добавить фото"
@@ -72,11 +76,14 @@ msgstr "добавить фото"
 msgid "photos"
 msgstr "фотографии"
 
-#: .\photo\views.py:173
+#: .\photo\views.py:188
 msgid "thumbnails"
 msgstr "миниатюры"
 
-#: .\photo\views.py:174
+#: .\photo\views.py:189
 msgid "on the map"
 msgstr "на карте"
 
+#: .\photo\views.py:195
+msgid "photobank"
+msgstr "фотобанк"

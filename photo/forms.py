@@ -10,3 +10,6 @@ class PhotoForm(forms.ModelForm):
         fields = ['info']
         widgets = { 'info': forms.Textarea(attrs = { 'rows': 5, 'cols': 30, 'placeholder': _('add description').capitalize(), 'data-autoresize': '' }) }
 
+#----------------------------------
+class FileForm(forms.Form):
+    upload = forms.FileField()
