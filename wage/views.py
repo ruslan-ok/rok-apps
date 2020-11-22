@@ -155,7 +155,9 @@ def main(request):
         if (app_param.restriction != PER):
             return set_restriction_and_redirect(request, PER)
 
-    period = Period.objects.filter(user = request.user.id, active = True).get()
+    period = None
+    if Period.objects.filter(user = request.user.id, active = True).exists():
+        period = Period.objects.filter(user = request.user.id, active = True).get()
     
     if (app_param.restriction in EMPL_ASIDE):
         if not Employee.objects.filter(user = request.user.id, active = True).exists():
@@ -330,7 +332,8 @@ def main(request):
     context['fix_list'] = fixes
     context['without_lists'] = True
     context['hide_important'] = True
-    context['title_info'] = period.name()
+    if period:
+        context['title_info'] = period.name()
 
     if (app_param.restriction in HIDE_ITEM_INPUT):
         context['hide_add_item_input'] = True

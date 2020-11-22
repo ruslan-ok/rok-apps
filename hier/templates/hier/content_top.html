@@ -61,6 +61,10 @@
   </div>
   
   <form method="post" class="actions">{% csrf_token %}
+    {% if not hide_add_item_input %}
+      <button type="submit" name="item-add" class="default" placeholder="{{ add_item_placeholder }}"><img class="img-20_20" src="{% static 'rok/icon/add-gray.png' %}"></button>
+      <div><input type="text" class="add-item" placeholder="{{ add_item_placeholder }}" name="item_add-name" maxlength="200" required="" id="id_item_add-name"></div>
+    {% endif %}
     {% block actions %}{% endblock %}
   </form>
   {% block upload %}{% endblock %}

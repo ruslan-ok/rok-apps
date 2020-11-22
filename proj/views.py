@@ -55,10 +55,13 @@ def main(request):
         return HttpResponseRedirect(reverse('proj:main') + extract_get_params(request))
 
     if not Projects.objects.filter(user = request.user.id, active = True).exists():
-        set_restriction(request.user, app_name, 'project')
-        return HttpResponseRedirect(reverse('proj:main'))
+        if (app_param.restriction != 'project'):
+            set_restriction(request.user, app_name, 'project')
+            return HttpResponseRedirect(reverse('proj:main'))
 
-    project = Projects.objects.filter(user = request.user.id, active = True).get()
+    project = None
+    if Projects.objects.filter(user = request.user.id, active = True).exists():
+        project = Projects.objects.filter(user = request.user.id, active = True).get()
 
     if process_common_commands(request, app_name):
         return HttpResponseRedirect(reverse('proj:main') + extract_get_params(request))

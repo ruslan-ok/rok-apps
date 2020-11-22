@@ -46,15 +46,19 @@ def get_template_file(restriction):
 #----------------------------------
 def main(request):
     app_param = get_app_params(request.user, app_name)
+
     if (app_param.restriction != 'cars') and (app_param.restriction != 'fuel') and (app_param.restriction != 'interval') and (app_param.restriction != 'service'):
         set_restriction(request.user, app_name, 'fuel')
         return HttpResponseRedirect(reverse('fuel:main') + extract_get_params(request))
 
     if not Car.objects.filter(user = request.user.id, active = True).exists():
-        set_restriction(request.user, app_name, 'cars')
-        return HttpResponseRedirect(reverse('fuel:main'))
+        if (app_param.restriction != 'cars'):
+            set_restriction(request.user, app_name, 'cars')
+            return HttpResponseRedirect(reverse('fuel:main'))
 
-    car = Car.objects.filter(user = request.user.id, active = True).get()
+    car = None
+    if Car.objects.filter(user = request.user.id, active = True).exists():
+        car = Car.objects.filter(user = request.user.id, active = True).get()
 
     if process_common_commands(request, app_name):
         return HttpResponseRedirect(reverse('fuel:main') + extract_get_params(request))

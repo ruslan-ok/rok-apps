@@ -48,6 +48,8 @@ def index_user(request):
     #context['mysql_version'] = cursor.fetchone()
     context['mysql_version'] = '8.0.19'
 
+    context['hmail_version'] = '5.6.7 - Build 2425'
+
     context['cert_termin'] = '17.12.2020'
     """
     Перестало работать после обновления python 3.8.5 -> 3.9.0

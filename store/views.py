@@ -93,7 +93,7 @@ def entry_list(request):
             grp_id = group_add(request.user, app_name, request.POST['name'])
             return HttpResponseRedirect(reverse('store:group_form', args = [grp_id]))
 
-    title = '???'
+    title = _('passwords').capitalize()
     entity = 'entry'
     article_enabled = True
     template_file = template_entry

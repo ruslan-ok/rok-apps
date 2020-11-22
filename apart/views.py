@@ -36,7 +36,9 @@ def main(request):
             set_restriction(request.user, app_name, 'apart')
             return HttpResponseRedirect(reverse('apart:main'))
 
-    apart = Apart.objects.filter(user = request.user.id, active = True).get()
+    apart = None
+    if Apart.objects.filter(user = request.user.id, active = True).exists():
+        apart = Apart.objects.filter(user = request.user.id, active = True).get()
 
     if process_common_commands(request, app_name):
         return HttpResponseRedirect(reverse('apart:main') + extract_get_params(request))
@@ -113,10 +115,13 @@ def main(request):
 
     fixes = []
     fixes.append(Fix('apart', _('apartments').capitalize(), 'todo/icon/myday.png', 'aparts/', len(Apart.objects.filter(user = request.user.id))))
-    fixes.append(Fix('service', _('services').capitalize(), 'rok/icon/execute.png', 'services/', len(Service.objects.filter(apart = apart.id))))
-    fixes.append(Fix('meter', _('meters').capitalize(), 'todo/icon/planned.png', 'meters/', len(Meter.objects.filter(apart = apart.id))))
-    fixes.append(Fix('price', _('prices').capitalize(), 'rok/icon/all.png', 'prices/', len(Price.objects.filter(apart = apart.id))))
-    fixes.append(Fix('bill', _('bills').capitalize(), 'todo/icon/important.png', 'bills/', len(Bill.objects.filter(apart = apart.id))))
+    apart_id = 0
+    if apart:
+        apart_id = apart.id
+    fixes.append(Fix('service', _('services').capitalize(), 'rok/icon/execute.png', 'services/', len(Service.objects.filter(apart = apart_id))))
+    fixes.append(Fix('meter', _('meters').capitalize(), 'todo/icon/planned.png', 'meters/', len(Meter.objects.filter(apart = apart_id))))
+    fixes.append(Fix('price', _('prices').capitalize(), 'rok/icon/all.png', 'prices/', len(Price.objects.filter(apart = apart_id))))
+    fixes.append(Fix('bill', _('bills').capitalize(), 'todo/icon/important.png', 'bills/', len(Bill.objects.filter(apart = apart_id))))
     context['fix_list'] = fixes
 
     context['without_lists'] = True

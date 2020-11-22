@@ -295,7 +295,6 @@ def filtered_list(user, content, query = None):
 
     for p in Photo.objects.filter(user = user.id, path = content):
         e = Entry(1, p.path, p.name, p.size)
-        #raise Exception(e, data[0], e in data)
         if e not in data:
             Photo.objects.filter(id = p.id).delete()
 
@@ -304,7 +303,6 @@ def filtered_list(user, content, query = None):
         if (p.lat and p.lon):
             gps_data.append({ 'id': p.id, 'lat': str(p.lat), 'lon': str(p.lon), 'name': p.name })
 
-    #raise Exception(len(data), len(gps_data), data, photos)
     return data, gps_data
 
 #----------------------------------
@@ -397,7 +395,6 @@ def get_photo_size_and_gps(user, path, name):
 
 #----------------------------------
 def get_photo_id(user, path, name, size = None, lat = None, lon = None):
-    #raise Exception('get_photo_id: ', path, name, size, lat, lon)
     if not Photo.objects.filter(name = name, path = path, user = user.id).exists():
         if (not size) or ((not lat) and (not lon)):
             size, lat, lon = get_photo_size_and_gps(user, path, name)

@@ -123,14 +123,13 @@ class Backup:
             f.write('clear me')
 
     # Определение возраста архива в указанной папке
-    def arch_age(self, dir):
+    def arch_age(self, dir, max_duration):
         n = datetime.now()
         for file in fnmatch.filter(os.listdir(dir), device + '-????.??.??-??.??.??.zip'): # в указанной папке ищем любой подходящий под наш шаблон архив
             ss = file[len(device)+1:-4]
             mt = datetime.strptime(ss, '%Y.%m.%d-%H.%M.%S')
             return (n - mt).days # вернем количество дней от даты его модификации
-        print('arch_age = 0')
-        return 0
+        return max_duration
     
     # Ротация
     def rotate(self):
@@ -155,7 +154,7 @@ class Backup:
             self.mark_for_clear(med_dir)
             self.content.append('   Архив сохранен в ' + med_dir)
         else:
-            age = self.arch_age(med_dir)
+            age = self.arch_age(med_dir, max_duration)
             if (age >= max_duration):
                 print('Выполняется ротация')
                 shutil.rmtree(max_dir, ignore_errors = True)
