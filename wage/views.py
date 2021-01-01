@@ -17,7 +17,7 @@ from hier.content import find_group
 from .models import app_name, set_active, Period, Depart, DepHist, Post, Employee, FioHist, Child, Appoint, Education, EmplPer, PayTitle, Payment
 from .forms import PeriodForm, DepartForm, DepHistForm, PostForm, EmployeeForm, FioHistForm, ChildForm, AppointForm, EducationForm, EmplPerForm, PayTitleForm, PaymentForm
 
-items_per_page = 10
+items_per_page = 50
 
 # Представления
 PER = 'period'
@@ -34,6 +34,7 @@ APP = 'appoint'
 EDUC = 'education'
 CHLD = 'child'
 SUR = 'surname'
+REPORT = 'report'
 
 # Фразы "Добавить <сущность>"
 ADD_ENTITY = {
@@ -46,7 +47,7 @@ ADD_ENTITY = {
     CHLD: _('add child'),
     }
 
-ALL_RESTRICTIONS = (PER, POST, TITLE, DEP_LIST, DEP_HIST, DEP_INFO, EMPL_LIST, EMPL_INFO, ACC, PAY, APP, EDUC, CHLD, SUR) # Все возможные представления
+ALL_RESTRICTIONS = (PER, POST, TITLE, DEP_LIST, DEP_HIST, DEP_INFO, EMPL_LIST, EMPL_INFO, ACC, PAY, APP, EDUC, CHLD, SUR, REPORT) # Все возможные представления
 EMPL_ASIDE = (EMPL_INFO, ACC, PAY, APP, EDUC, CHLD, SUR) # Это сущности для конкретного сотрудника
 HIDE_ITEM_INPUT = (PER, DEP_HIST, EMPL_INFO, ACC, PAY, APP) # Это сущности, при создании которых не надо предварительно указывать наименование
 SHOW_SELECTOR = (PER) # Сущности, для которых в списке слева надо показывать селектор
@@ -108,6 +109,9 @@ def child(request):
 
 def surname(request):
     return set_restriction_and_redirect(request, SUR)
+
+def reports(request):
+    return set_restriction_and_redirect(request, REPORT)
 
 def toggle(request, pk):
     toggle_content_group(request.user.id, app_name, pk)
@@ -246,6 +250,8 @@ def main(request):
             valid_article = Child.objects.filter(id = app_param.art_id, employee = employee.id).exists()
         if (app_param.restriction == SUR):
             valid_article = FioHist.objects.filter(id = app_param.art_id, employee = employee.id).exists()
+        if (app_param.restriction == REPORT):
+            valid_article = True
 
         if valid_article:
             if (app_param.restriction == PER):
@@ -329,6 +335,8 @@ def main(request):
         fixes.append(Fix(DEP_LIST, _('departments').capitalize(), 'rok/icon/home.png', 'departments/', len(Depart.objects.filter(user = request.user.id))))
         fixes.append(Fix(POST, _('posts').capitalize(), 'rok/icon/work.png', 'posts/', len(Post.objects.filter(user = request.user.id))))
         fixes.append(Fix(TITLE, _('pay titles').capitalize(), 'rok/icon/edit.png', 'pay_titles/', len(PayTitle.objects.filter(user = request.user.id))))
+        fixes.append(Fix(REPORT, _('reports').capitalize(), 'rok/icon/news.png', 'reports/', 1))
+
     context['fix_list'] = fixes
     context['without_lists'] = True
     context['hide_important'] = True
@@ -401,6 +409,8 @@ def get_title(restriction, employee, depart):
         return _('children of employee').capitalize() + ' ' + employee.fio
     if (restriction == SUR):
         return _('change of surname of employee').capitalize() + ' ' + employee.fio
+    if (restriction == REPORT):
+        return _('reports').capitalize()
     return 'unknown restriction: ' + str(restriction)
 
 #----------------------------------
@@ -429,6 +439,8 @@ def filtered_list(user, restriction, period, employee, depart, query = None):
         data = Child.objects.filter(employee = employee.id)
     elif (restriction == SUR):
         data = FioHist.objects.filter(employee = employee.id)
+    elif (restriction == REPORT):
+        data = get_report_data(user, period)
     else:
         data = []
 
@@ -717,4 +729,46 @@ def total_save(request, context, period, employee):
         form.save()
     context['ep_form'] = form
 
-    
+def get_report_data(user, period):
+    data = []    
+    for employee in Employee.objects.filter(user = user.id):
+        #if not EmplPer.objects.filter(period = period.id, employee = employee.id).exists():
+        empl_date = None
+        contract_date = None
+        prev_date = None
+        prev_post = None
+        prev_salary = 0
+        post = None
+        salary = 0
+        rates = 1
+        appoints = Appoint.objects.filter(employee = employee.id, dBeg__lte = period.dBeg).order_by('-dBeg')
+        if (len(appoints) > 0):
+            appoint = appoints[0]
+            if appoint.salary:
+                salary = appoint.salary
+            contract_date = appoint.dEnd
+            if appoint.post:
+                post = appoint.post.name
+        if (len(appoints) > 1):
+            appoint = appoints[1]
+            prev_date = appoint.dBeg
+            if appoint.post:
+                prev_post = appoint.post.name
+            prev_salary = appoint.salary
+        empl_date = None
+        appoints = Appoint.objects.filter(employee = employee.id).order_by('dBeg')
+        if (len(appoints) > 0):
+            appoint = appoints[0]
+            if appoint.dBeg:
+                empl_date = appoint.dBeg
+        data.append({'employee': employee.fio,
+                     'empl_date': empl_date,
+                     'contract_date': contract_date,
+                     'prev_date': prev_date,
+                     'prev_post': prev_post,
+                     'prev_salary': prev_salary,
+                     'post': post,
+                     'salary': salary,
+                     'rates': rates,
+                     })
+    return data

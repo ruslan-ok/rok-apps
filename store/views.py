@@ -38,29 +38,49 @@ SORT_MODE_DESCR = {
 }
 
 
-def get_store_base_context(request, entity, title, article_enabled):
-    app_param, context = get_base_context_ext(request, app_name, entity, title, article_enabled = article_enabled)
+def entry_list(request):
+    return do_entry_list(request)
 
-    fixes = []
-    fixes.append(Fix('actual', _('actual').capitalize(), 'todo/icon/myday.png', 'actual/', len(filtered_list(request.user, 'actual'))))
-    fixes.append(Fix('waste', _('waste').capitalize(), 'todo/icon/completed.png', 'waste/', len(filtered_list(request.user, 'waste'))))
-    fixes.append(Fix('all', _('all').capitalize(), 'rok/icon/all.png', 'all/', len(filtered_list(request.user, 'all'))))
-    fixes.append(Fix('default', _('default options').capitalize(), 'rok/icon/param.png', 'params/', None))
-    context['fix_list'] = fixes
+def entry_form(request, pk):
+    set_article_kind(request.user, app_name, 'item', pk)
+    return HttpResponseRedirect(reverse(url_list) + extract_get_params(request))
 
-    tree = build_tree(request.user.id, app_name)
-    for t in tree:
-        if t.is_list:
-            t.qty = len(Entry.objects.filter(user = request.user.id, lst = t.id))
-    context['groups'] = tree
+def actual(request):
+    set_restriction(request.user, app_name, 'actual')
+    return HttpResponseRedirect(reverse(url_list))
 
-    return app_param, context
+def waste(request):
+    set_restriction(request.user, app_name, 'waste')
+    return HttpResponseRedirect(reverse(url_list))
 
+def all(request):
+    set_restriction(request.user, app_name, 'all')
+    return HttpResponseRedirect(reverse(url_list))
+
+def params(request):
+    set_restriction(request.user, app_name, 'default')
+    return HttpResponseRedirect(reverse(url_list))
+
+def list_items(request, pk):
+    set_restriction(request.user, app_name, 'list', pk)
+    return HttpResponseRedirect(reverse(url_list))
+
+def list_form(request, pk):
+    set_article_kind(request.user, app_name, 'list', pk)
+    return HttpResponseRedirect(reverse(url_list))
+
+def group_form(request, pk):
+    set_article_kind(request.user, app_name, 'group', pk)
+    return HttpResponseRedirect(reverse(url_list))
+
+def toggle_group(request, pk):
+    group_toggle(request.user, app_name, pk)
+    return HttpResponseRedirect(reverse(url_list) + extract_get_params(request))
 
 #----------------------------------
 @login_required(login_url='account:login')
 #----------------------------------
-def entry_list(request):
+def do_entry_list(request):
     locale.setlocale(locale.LC_CTYPE, request.LANGUAGE_CODE)
     locale.setlocale(locale.LC_TIME, request.LANGUAGE_CODE)
 
@@ -173,13 +193,26 @@ def entry_list(request):
 
 
 #----------------------------------
-@login_required(login_url='account:login')
+def get_store_base_context(request, entity, title, article_enabled):
+    app_param, context = get_base_context_ext(request, app_name, entity, title, article_enabled = article_enabled)
+
+    fixes = []
+    fixes.append(Fix('actual', _('actual').capitalize(), 'todo/icon/myday.png', 'actual/', len(filtered_list(request.user, 'actual'))))
+    fixes.append(Fix('waste', _('waste').capitalize(), 'todo/icon/completed.png', 'waste/', len(filtered_list(request.user, 'waste'))))
+    fixes.append(Fix('all', _('all').capitalize(), 'rok/icon/all.png', 'all/', len(filtered_list(request.user, 'all'))))
+    fixes.append(Fix('default', _('default options').capitalize(), 'rok/icon/param.png', 'params/', None))
+    context['fix_list'] = fixes
+
+    tree = build_tree(request.user.id, app_name)
+    for t in tree:
+        if t.is_list:
+            t.qty = len(Entry.objects.filter(user = request.user.id, lst = t.id))
+    context['groups'] = tree
+
+    return app_param, context
+
+
 #----------------------------------
-def entry_form(request, pk):
-    set_article_kind(request.user, app_name, 'item', pk)
-    return HttpResponseRedirect(reverse(url_list) + extract_get_params(request))
-
-
 def filtered_sorted_list(user, app_param, query):
     data = filtered_list(user, app_param.restriction, query, app_param.lst)
 
@@ -298,26 +331,6 @@ def article_delete(request, kind, art_id):
         set_article_visible(request.user, app_name, False)
 
 
-def actual(request):
-    set_restriction(request.user, app_name, 'actual')
-    return HttpResponseRedirect(reverse(url_list))
-
-
-def waste(request):
-    set_restriction(request.user, app_name, 'waste')
-    return HttpResponseRedirect(reverse(url_list))
-
-
-def all(request):
-    set_restriction(request.user, app_name, 'all')
-    return HttpResponseRedirect(reverse(url_list))
-
-
-def params(request):
-    set_restriction(request.user, app_name, 'default')
-    return HttpResponseRedirect(reverse(url_list))
-
-
 def get_store_params(user):
     if Params.objects.filter(user = user.id).exists():
         return Params.objects.filter(user = user.id).get()
@@ -346,23 +359,6 @@ def process_sort_commands(request):
         return True
     return False
 
-
-
-def list_items(request, pk):
-    set_restriction(request.user, app_name, 'list', pk)
-    return HttpResponseRedirect(reverse(url_list))
-
-def list_form(request, pk):
-    set_article_kind(request.user, app_name, 'list', pk)
-    return HttpResponseRedirect(reverse(url_list))
-
-def group_form(request, pk):
-    set_article_kind(request.user, app_name, 'group', pk)
-    return HttpResponseRedirect(reverse(url_list))
-
-def toggle_group(request, pk):
-    group_toggle(request.user, app_name, pk)
-    return HttpResponseRedirect(reverse(url_list) + extract_get_params(request))
 
 #----------------------------------
 # Parameters

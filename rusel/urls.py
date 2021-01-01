@@ -23,7 +23,7 @@ from django.views.i18n import JavaScriptCatalog
 from . import views
 
 urlpatterns = i18n_patterns(
-    path('',            views.index,      name='index'),
+    path('', views.index, name='index'),
 
     path('apart/', include('apart.urls')),
     path('fuel/',  include('fuel.urls')),

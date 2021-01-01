@@ -400,14 +400,13 @@ def get_per_price(apart_id, service_id, year, month):
 
 def count_by_tarif(apart_id, prev, curr, service_id):
 
+    vol = 0
     if (service_id == ELECTRICITY):
         vol = curr.el - prev.el
-    elif (service_id == GAS):
+    elif (service_id == GAS) and curr.ga and prev.ga:
         vol = curr.ga - prev.ga
     elif (service_id == WATER) or (service_id == WATER_SUPPLY) or (service_id == SEWERAGE):
         vol = (curr.hw + curr.cw) - (prev.hw + prev.cw)
-    else:
-        vol = 0
 
     tar = get_per_price(apart_id, service_id, curr.period.year, curr.period.month)
 

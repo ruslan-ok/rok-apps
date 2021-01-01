@@ -46,7 +46,6 @@ def get_template_file(restriction):
 #----------------------------------
 def main(request):
     app_param = get_app_params(request.user, app_name)
-
     if (app_param.restriction != 'cars') and (app_param.restriction != 'fuel') and (app_param.restriction != 'interval') and (app_param.restriction != 'service'):
         set_restriction(request.user, app_name, 'fuel')
         return HttpResponseRedirect(reverse('fuel:main') + extract_get_params(request))

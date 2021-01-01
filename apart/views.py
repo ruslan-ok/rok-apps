@@ -61,6 +61,8 @@ def main(request):
                 item_id = add_price(request, apart)
             if (app_param.restriction == 'bill'):
                 item_id = add_bill(request, apart)
+                if not item_id:
+                    return HttpResponseRedirect(reverse('apart:meters'))
             return HttpResponseRedirect(reverse('apart:item', args = [item_id]))
         if ('item-in-list-select' in request.POST) and (app_param.restriction == 'apart'):
             pk = request.POST['item-in-list-select']
@@ -333,9 +335,20 @@ def edit_item(request, context, restriction, apart, item, disable_delete = False
     context['form'] = form
     context['ed_item'] = item
     if (restriction == 'bill'):
-        context['volume'] = { 'el': item.curr.el - item.prev.el,
-                              'ga': item.curr.ga - item.prev.ga,
-                              'wt': (item.curr.hw + item.curr.cw) - (item.prev.hw + item.prev.cw) }
+        vel = 0
+        vga = 0
+        vwt = 0
+
+        if item.curr.el and item.prev.el:
+            vel = item.curr.el - item.prev.el
+
+        if item.curr.ga and item.prev.ga:
+            vga = item.curr.ga - item.prev.ga
+
+        if item.curr.hw and item.curr.cw and item.prev.hw and item.prev.cw:
+            vwt = (item.curr.hw + item.curr.cw) - (item.prev.hw + item.prev.cw)
+
+        context['volume'] = { 'el': vel, 'ga': vga, 'wt': vwt }
         context['el_tar'] = get_price_info(item.apart.id, ELECTRICITY, item.curr.period.year, item.curr.period.month)
         context['gas_tar'] = get_price_info(item.apart.id, GAS, item.curr.period.year, item.curr.period.month)
         context['water_tar'] = get_price_info(item.apart.id, WATER, item.curr.period.year, item.curr.period.month)
@@ -385,7 +398,8 @@ def add_meter(request, apart):
             el = last.el + round((last.el - first.el) / (qty - 1))
             hw = last.hw + round((last.hw - first.hw) / (qty - 1))
             cw = last.cw + round((last.cw - first.cw) / (qty - 1))
-            ga = last.ga + round((last.ga - first.ga) / (qty - 1))
+            if last.ga:
+                ga = last.ga + round((last.ga - first.ga) / (qty - 1))
 
     item = Meter.objects.create(apart = apart, period = period, reading = datetime.now(), el = el, hw = hw, cw = cw, ga = ga)
     return item.id

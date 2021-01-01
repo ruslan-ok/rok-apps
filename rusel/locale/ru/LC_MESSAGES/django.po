@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-31 10:35+0300\n"
+"POT-Creation-Date: 2021-01-01 13:37+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,10 +20,14 @@ msgstr ""
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 
 #: .\rusel\templates\index_anonim.html:11
+msgid "demo"
+msgstr "демо"
+
+#: .\rusel\templates\index_anonim.html:12
 msgid "log in"
 msgstr "вход"
 
-#: .\rusel\templates\index_anonim.html:19
+#: .\rusel\templates\index_anonim.html:20
 msgid ""
 "It looks like you got here by accident, because it is a personal, not a "
 "public site."
@@ -31,7 +35,7 @@ msgstr ""
 "Похоже вы попали сюда случайно, потому что это персональный, а не публичный "
 "сайт."
 
-#: .\rusel\templates\index_anonim.html:20
+#: .\rusel\templates\index_anonim.html:21
 msgid ""
 "This site does not provide any useful services, so you have a small choice - "
 "either close the page or"
@@ -39,15 +43,26 @@ msgstr ""
 "На этом сайте нет никаких полезных сервисов, поэтому у вас небольшой выбор - "
 "закрыть эту страницу или"
 
-#: .\rusel\templates\index_anonim.html:21
+#: .\rusel\templates\index_anonim.html:22
 msgid "find something more interesting"
 msgstr "найти что-нибудь более интересное"
+
+#: .\rusel\templates\index_user.html:26
+msgid "product"
+msgstr "продукт"
+
+#: .\rusel\templates\index_user.html:26
+msgid "version"
+msgstr "версия"
+
+#: .\rusel\templates\index_user.html:26
+msgid "check new version"
+msgstr "проверить наличие новой версии"
 
 #: .\rusel\views.py:38
 msgid "applications"
 msgstr "приложения"
 
-#: .\rusel\views.py:80
+#: .\rusel\views.py:82
 msgid "feedback"
 msgstr "контакты"
-

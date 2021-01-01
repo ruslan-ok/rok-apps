@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-18 19:51+0300\n"
+"POT-Creation-Date: 2021-01-01 13:37+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -83,7 +83,7 @@ msgstr "примечание"
 msgid "group"
 msgstr "группа"
 
-#: .\store\models.py:41 .\store\views.py:45
+#: .\store\models.py:41 .\store\views.py:204
 msgid "actual"
 msgstr "актуальные"
 
@@ -155,54 +155,61 @@ msgstr "сортировка по URL"
 msgid "sort by create date"
 msgstr "сортировка по дате создания"
 
-#: .\store\views.py:46
-msgid "waste"
-msgstr "неактуальные"
+#: .\store\views.py:120
+msgid "passwords"
+msgstr "пароли"
 
-#: .\store\views.py:47
-msgid "all"
-msgstr "все"
-
-#: .\store\views.py:48
-msgid "default options"
-msgstr "параметры по умолчанию"
-
-#: .\store\views.py:102
+#: .\store\views.py:126
 msgid "all entries"
 msgstr "все записи"
 
-#: .\store\views.py:104
+#: .\store\views.py:128
 msgid "actual entries"
 msgstr "актуальные"
 
-#: .\store\views.py:106
+#: .\store\views.py:130
 msgid "waste entries"
 msgstr "неактуальные"
 
-#: .\store\views.py:108
+#: .\store\views.py:132
 msgid "default parameters"
 msgstr "параметры по умолчанию"
 
-#: .\store\views.py:120
+#: .\store\views.py:144
 msgid "by title"
 msgstr "по наименованию"
 
-#: .\store\views.py:121
+#: .\store\views.py:145
 msgid "by user name"
 msgstr "по имени пользователя"
 
-#: .\store\views.py:122
+#: .\store\views.py:146
 msgid "by URL"
 msgstr "по URL"
 
-#: .\store\views.py:123
+#: .\store\views.py:147
 msgid "by creation date"
 msgstr "по дате создания"
 
-#: .\store\views.py:126
+#: .\store\views.py:150
 msgid "add entry"
 msgstr "добавить запись"
 
-#: .\store\views.py:266
+#: .\store\views.py:205
+msgid "waste"
+msgstr "неактуальные"
+
+#: .\store\views.py:206
+msgid "all"
+msgstr "все"
+
+#: .\store\views.py:207
+msgid "default options"
+msgstr "параметры по умолчанию"
+
+#: .\store\views.py:303
 msgid "created:"
 msgstr "создано:"
+
+#~ msgid "pin-code"
+#~ msgstr "пин-код"

@@ -1,4 +1,4 @@
-import os, shutil, urllib.parse
+import os, shutil, pathlib, urllib.parse
 from operator import attrgetter
 from PIL import Image, UnidentifiedImageError
 from PIL.ExifTags import TAGS, GPSTAGS
@@ -227,8 +227,11 @@ def get_name_from_request(request):
 #----------------------------------
 def get_storage(user, folder, service = False):
     if service:
-        return service_path.format(user.id) + '{}/'.format(folder)
-    return storage_path.format(user.id) + '{}/'.format(folder)
+        path = service_path.format(user.id) + '{}/'.format(folder)
+    else:
+        path = storage_path.format(user.id) + '{}/'.format(folder)
+    pathlib.Path(path).mkdir(parents=True, exist_ok=True)
+    return path
 
 def photo_storage(user):
     return get_storage(user, 'photo')
@@ -423,6 +426,7 @@ def build_thumb(user, name):
     if (len(dirs) > 1):
         sub_dir = name[:len(name)-len(sub_name)-1]
     
+    path = thumb_storage(user) + sub_dir
     if not os.path.exists(thumb_storage(user) + sub_dir):
         os.makedirs(thumb_storage(user) + sub_dir)
     
@@ -465,7 +469,6 @@ def build_mini(user, item):
 def edit_item(request, context, item, disable_delete = False):
     form = None
     if (request.method == 'POST'):
-        #raise Exception(request.POST)
         if ('article_delete' in request.POST):
             if delete_item(request, item, disable_delete):
                 return 'main'
@@ -496,11 +499,12 @@ def edit_item(request, context, item, disable_delete = False):
 
 #----------------------------------
 def delete_item(request, item, disable_delete = False):
-    if disable_delete:
-        return False
     dst_path = photo_storage(request.user) + 'Trash/'
-    if not os.path.exists(dst_path):
-        os.mkdir(dst_path)
+    if disable_delete:
+        # in Trash folder
+        os.remove(dst_path + item.name)
+        return True
+    pathlib.Path(dst_path).mkdir(parents=True, exist_ok=True)
     src = photo_storage(request.user) + item.subdir() + item.name
     dst = dst_path + item.name
     shutil.move(src, dst)
@@ -515,7 +519,6 @@ def handle_uploaded_file(f, user, content):
     if content:
         subdir = content + '/'
     path = photo_storage(user) + subdir
-    #raise Exception(path)
     with open(path + f.name, 'wb+') as destination:
         for chunk in f.chunks():
             destination.write(chunk)

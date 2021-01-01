@@ -18,6 +18,7 @@ from django.views.generic.base import TemplateView
 from django.views import generic
 
 from django.contrib import messages
+from django.contrib.auth import authenticate, login
 from django.contrib.auth import (REDIRECT_FIELD_NAME, get_user_model, login as auth_login, logout as auth_logout,)
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.tokens import default_token_generator
@@ -34,6 +35,7 @@ from django.utils.crypto import get_random_string
  
 from hier.utils import get_base_context, get_base_context_ext
 from account.models import UserExt
+from .secret import demouserpassword
 
 UserModel = get_user_model()
 
@@ -436,4 +438,11 @@ def profile(request):
     context['aside_disabled'] = True
     return render(request, 'account/profile.html', context)
 
+def demo(request):
+    if not User.objects.filter(username = 'demouser').exists():
+        User.objects.create_user('demouser', 'demouser@rusel.by', demouserpassword)
+    user = authenticate(username = 'demouser', password = demouserpassword)
+    if user is not None:
+         login(request, user)
+    return HttpResponseRedirect(reverse_lazy('index'))
 

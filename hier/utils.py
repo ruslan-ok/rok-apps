@@ -210,6 +210,18 @@ def get_base_context_ext(request, app_name, content_kind, title, article_enabled
 
     apps = []
     for app in APPS:
+        if (app[0] == 'store') and (request.user.username != 'ruslan.ok'):
+            continue
+        if (app[0] == 'trip') and (request.user.username != 'ruslan.ok'):
+            continue
+        if (app[0] == 'apart') and (request.user.username != 'ruslan.ok'):
+            continue
+        if (app[0] == 'wage') and (request.user.username != 'ruslan.ok'):
+            continue
+        if (app[0] == 'admin') and (request.user.username != 'admin'):
+            continue
+        if (app[0] == 'profile') and (request.user.username == 'demouser'):
+            continue
         apps.append({'href': app[2], 'icon': 'rok/icon/' + app[1] + '.png', 'name': get_main_menu_item(app[0])})
     context['apps'] = apps
 
