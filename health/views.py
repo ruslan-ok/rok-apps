@@ -76,6 +76,9 @@ def main(request):
     context['hide_important'] = True
     if (app_param.restriction == CHRONO):
         context['hide_add_item_input'] = True
+        points, incidents = build_diagram(request.user)
+        context['points'] = points
+        context['incidents'] = incidents
 
     redirect = False
 
@@ -225,5 +228,35 @@ def create_biomarkers(user, s_value):
     
     return Biomarker.objects.create(user = user, height = height, weight = weight, temp = temp, waist = waist, \
                                     systolic = systolic, diastolic = diastolic, pulse = pulse, info = info, publ = datetime.now())
+
+
+#----------------------------------
+def build_diagram(user):
+    points = []
+    dt_start = total_days = None
+    height = 40-35
+    for x in Biomarker.objects.filter(user = user.id).order_by('publ'):
+        if not total_days:
+            dt_start = x.publ
+            total_days = (datetime.now() - x.publ).days
+        if x.temp:
+            delta = (x.publ - dt_start).days
+            x_pos = int(delta/total_days*1000)
+            y_pos = 100 - int((x.temp - 35)/5*100)
+            if (x.temp >= 37):
+                color = "red"
+            else:
+                color = "green"
+            points.append({'x': x_pos, 'y': y_pos, 'color': color})
+    
+    incidents = []
+    for y in Incident.objects.filter(user = user.id).order_by('beg'):
+        delta = (y.beg - dt_start.date()).days
+        x_pos = int(delta/total_days*1000)
+        width = int((y.end - y.beg).days/total_days*1000)
+        incidents.append({'x': x_pos, 'width': width})
+
+    return points, incidents
+
 
 
