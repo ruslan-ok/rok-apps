@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-07 11:02+0300\n"
+"POT-Creation-Date: 2021-01-03 10:55+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -220,7 +220,7 @@ msgstr "приложение"
 msgid "open sidebar"
 msgstr "открыть боковую панель"
 
-#: .\hier\templates\hier\header.html:16
+#: .\hier\templates\hier\header.html:17
 msgid "parameters"
 msgstr "параметры"
 
@@ -244,74 +244,78 @@ msgstr "Вход"
 msgid "trash"
 msgstr "корзина"
 
-#: .\hier\utils.py:127 .\hier\utils.py:173
+#: .\hier\utils.py:127 .\hier\utils.py:159
 msgid "Please correct the error below."
 msgstr "Пожалуйста исправьте ошибку ниже."
 
-#: .\hier\utils.py:128 .\hier\utils.py:174
+#: .\hier\utils.py:128 .\hier\utils.py:160
 msgid "Please correct the errors below."
 msgstr "Пожалуйста исправьте ошибки ниже."
 
-#: .\hier\utils.py:302
+#: .\hier\utils.py:287
 msgid "communal"
 msgstr "коммуналка"
 
-#: .\hier\utils.py:304
+#: .\hier\utils.py:289
 msgid "fuelings"
 msgstr "заправки"
 
-#: .\hier\utils.py:306
+#: .\hier\utils.py:291
 msgid "hierarchy"
 msgstr "иерархия"
 
-#: .\hier\utils.py:308
+#: .\hier\utils.py:293
 msgid "notes"
 msgstr "заметки"
 
-#: .\hier\utils.py:310 .\hier\utils.py:334
+#: .\hier\utils.py:295 .\hier\utils.py:321
 msgid "news"
 msgstr "новости"
 
-#: .\hier\utils.py:312
+#: .\hier\utils.py:297
 msgid "problems and solutions"
 msgstr "ПиР"
 
-#: .\hier\utils.py:314
+#: .\hier\utils.py:299
 msgid "expenses"
 msgstr "затраты"
 
-#: .\hier\utils.py:316
+#: .\hier\utils.py:301
 msgid "passwords"
 msgstr "пароли"
 
-#: .\hier\utils.py:318
+#: .\hier\utils.py:303
 msgid "tasks"
 msgstr "задачи"
 
-#: .\hier\utils.py:320
+#: .\hier\utils.py:305
 msgid "trips"
 msgstr "поездки"
 
-#: .\hier\utils.py:322
+#: .\hier\utils.py:307
 msgid "work"
 msgstr "работа"
 
-#: .\hier\utils.py:324
+#: .\hier\utils.py:309
 msgid "photobank"
 msgstr "фотобанк"
 
-#: .\hier\utils.py:332
+#: .\hier\utils.py:311
+msgid "health"
+msgstr "здоровье"
+
+#: .\hier\utils.py:319
 msgid "home"
 msgstr "главная"
 
-#: .\hier\utils.py:336
+#: .\hier\utils.py:323
 msgid "admin"
 msgstr "админ"
 
-#: .\hier\utils.py:338
+#: .\hier\utils.py:325
 msgid "profile"
 msgstr "профиль"
 
-#: .\hier\utils.py:340
+#: .\hier\utils.py:327
 msgid "log out"
 msgstr "выход"

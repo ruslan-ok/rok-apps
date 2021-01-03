@@ -427,8 +427,8 @@ def build_thumb(user, name):
         sub_dir = name[:len(name)-len(sub_name)-1]
     
     path = thumb_storage(user) + sub_dir
-    if not os.path.exists(thumb_storage(user) + sub_dir):
-        os.makedirs(thumb_storage(user) + sub_dir)
+    if not os.path.exists(path):
+        os.makedirs(path)
     
     if not os.path.exists(thumb_storage(user) + name):
         try:

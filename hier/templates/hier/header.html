@@ -13,7 +13,9 @@
       </form>
     </div>
     <div class="desktop-only">
+      {% if user.username == 'ruslan.ok' %}
       <a href="{% url 'todo:fcm' %}" class="button" title="{% trans 'parameters'|capfirst %}"><img src="{% static 'rok/icon/param.png' %}"></a>
+      {% endif %}
     </div>
   </header>
 {% endif %}

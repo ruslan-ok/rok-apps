@@ -126,21 +126,7 @@ def get_base_context(request, folder_id, pk, title = '', mode = 'content_form', 
         context['form'] = form
         context['please_correct_one'] = _('Please correct the error below.')
         context['please_correct_all'] = _('Please correct the errors below.')
-    """
-    context['menu_item_home']    = get_main_menu_item('home')
-    context['menu_item_todo']    = get_main_menu_item('todo')
-    context['menu_item_note']    = get_main_menu_item('note')
-    context['menu_item_news']    = get_main_menu_item('news')
-    context['menu_item_store']   = get_main_menu_item('store')
-    context['menu_item_trip']    = get_main_menu_item('trip')
-    context['menu_item_fuel']    = get_main_menu_item('fuel')
-    context['menu_item_apart']   = get_main_menu_item('apart')
-    context['menu_item_proj']    = get_main_menu_item('proj')
-    context['menu_item_wage']    = get_main_menu_item('wage')
-    context['menu_item_admin']   = get_main_menu_item('admin')
-    context['menu_item_profile'] = get_main_menu_item('profile')
-    context['menu_item_logout']  = get_main_menu_item('logout')
-    """
+
     set_aside_visible(request.user, app_name, False)
     return context
 
@@ -176,20 +162,6 @@ def get_base_context_ext(request, app_name, content_kind, title, article_enabled
     context['complete_icon'] = 'todo/icon/complete.png'
     context['uncomplete_icon'] = 'todo/icon/uncomplete.png'
     
-    context['menu_item_home']    = get_main_menu_item('home')
-    context['menu_item_todo']    = get_main_menu_item('todo')
-    context['menu_item_note']    = get_main_menu_item('note')
-    context['menu_item_news']    = get_main_menu_item('news')
-    context['menu_item_store']   = get_main_menu_item('store')
-    context['menu_item_trip']    = get_main_menu_item('trip')
-    context['menu_item_fuel']    = get_main_menu_item('fuel')
-    context['menu_item_apart']   = get_main_menu_item('apart')
-    context['menu_item_proj']    = get_main_menu_item('proj')
-    context['menu_item_wage']    = get_main_menu_item('wage')
-    context['menu_item_admin']   = get_main_menu_item('admin')
-    context['menu_item_profile'] = get_main_menu_item('profile')
-    context['menu_item_logout']  = get_main_menu_item('logout')
-    
     
     APPS = [
         ('home',    'home',        '/'),
@@ -203,6 +175,7 @@ def get_base_context_ext(request, app_name, content_kind, title, article_enabled
         ('proj',    'cost',        '/proj/'),
         ('wage',    'work',        '/wage/'),
         ('photo',   'photo',       '/photo/'),
+        ('health',  'health',      '/health/'),
         ('admin',   'admin',       '/admin/'),
         ('profile', 'user',        '/account/profile/'),
         ('logout',  'exit',        '/account/logout/'),
@@ -334,6 +307,8 @@ def get_app_name(id):
         return _('work').capitalize()
     if (id == 'photo'):
         return _('photobank').capitalize()
+    if (id == 'health'):
+        return _('health').capitalize()
     return None
 
 def get_main_menu_item(id):
