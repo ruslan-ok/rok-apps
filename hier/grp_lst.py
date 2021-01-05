@@ -16,14 +16,14 @@ def group_details(request, context, pk, app_name):
     
     form = None
     if (request.method == 'POST'):
-        if ('group-save' in request.POST):
+        if ('item_save' in request.POST):
             form = GrpForm(request.user, app_name, request.POST, instance = ed_grp)
             if form.is_valid():
                 grp = form.save(commit = False)
                 grp.user = request.user
                 form.save()
                 return True
-        elif ('article_delete' in request.POST):
+        elif ('item_delete' in request.POST):
             if group_delete(ed_grp):
                 set_article_visible(request.user, app_name, False)
             return True
@@ -59,14 +59,14 @@ def list_details(request, context, pk, app_name, can_delete):
     
     form = None
     if (request.method == 'POST'):
-        if ('list-save' in request.POST):
+        if ('item_save' in request.POST):
             form = LstForm(request.user, app_name, request.POST, instance = ed_lst)
             if form.is_valid():
                 lst = form.save(commit = False)
                 lst.user = request.user
                 form.save()
                 return True
-        elif ('article_delete' in request.POST):
+        elif ('item_delete' in request.POST):
             if can_delete:
                 ed_lst.delete()
                 set_article_visible(request.user, app_name, False)

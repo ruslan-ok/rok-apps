@@ -10,104 +10,98 @@
 {% endblock %}
 
 {% block article_content %}
-  <div class="fields">
-    <form method="post">{% csrf_token %}
-      <div class="header">
-        {% include "hier/form_errors.html" %}
-        <div class="field-group">
-          <div class="article-name">
-            <div class="section-item">
-              <div class="editable-content">
-                {{ form.start.errors }} 
-                <div class="">{{ form.start.label_tag }}</div>
-                {{ form.start }}
-              </div>
-              <button type="submit" name="item-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
-            </div>
+  <div class="header">
+    <div class="field-group">
+      <div class="article-name">
+        <div class="section-item">
+          <div class="editable-content">
+            {{ form.start.errors }} 
+            <div class="">{{ form.start.label_tag }}</div>
+            {{ form.start }}
           </div>
         </div>
       </div>
-    
-      <div class="body">
+    </div>
+  </div>
+  
+  <div class="body">
 
-        <div class="section">
-          <div class="section-item">
-            {% if form.serv.errors %}
-              <div class="field-error">{{ form.serv.errors }}</div>
-            {% endif %}
-            <div class="section-inner">
-              <div class="section-icon">
-                <img src="{% static 'rok/icon/group.png' %}">
-              </div>
-              {{ form.serv }}
-            </div>
+    <div class="section">
+      <div class="section-item">
+        {% if form.serv.errors %}
+          <div class="field-error">{{ form.serv.errors }}</div>
+        {% endif %}
+        <div class="section-inner">
+          <div class="section-icon">
+            <img src="{% static 'rok/icon/group.png' %}">
           </div>
-
-          <div class="section-item">
-            {% if form.unit.errors %}
-              <div class="field-error">{{ form.unit.errors }}</div>
-            {% endif %}
-            <div class="section-inner">
-              {{ form.unit.label_tag }}
-              {{ form.unit }}
-            </div>
-          </div>
+          {{ form.serv }}
         </div>
-
-        <div class="section">
-          <div class="section-item">
-            <div class="editable-content">
-              {{ form.tarif.errors }} 
-              <div class="half-width">{{ form.tarif.label_tag }}</div>
-              {{ form.tarif }}
-            </div>
-          </div>
-
-          <div class="section-item">
-            <div class="editable-content">
-              {{ form.border.errors }} 
-              <div class="half-width">{{ form.border.label_tag }}</div>
-              {{ form.border }}
-            </div>
-          </div>
-
-          <div class="section-item">
-            <div class="editable-content">
-              {{ form.tarif2.errors }} 
-              <div class="half-width">{{ form.tarif2.label_tag }}</div>
-              {{ form.tarif2 }}
-            </div>
-          </div>
-
-          <div class="section-item">
-            <div class="editable-content">
-              {{ form.border2.errors }} 
-              <div class="half-width">{{ form.border2.label_tag }}</div>
-              {{ form.border2 }}
-            </div>
-          </div>
-
-          <div class="section-item">
-            <div class="editable-content">
-              {{ form.tarif3.errors }} 
-              <div class="half-width">{{ form.tarif3.label_tag }}</div>
-              {{ form.tarif3 }}
-            </div>
-          </div>
-
-        </div>
-      
-        <div class="section">
-            <div class="section-item section-item-note">
-              <div class="field-error">{{ form.info.errors }}</div>
-              <div class="section-inner">
-                {{ form.info }}
-              </div>
-            </div>
-        </div>
-
       </div>
-    </form>
+
+      <div class="section-item">
+        {% if form.unit.errors %}
+          <div class="field-error">{{ form.unit.errors }}</div>
+        {% endif %}
+        <div class="section-inner">
+          {{ form.unit.label_tag }}
+          {{ form.unit }}
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-item">
+        <div class="editable-content">
+          {{ form.tarif.errors }} 
+          <div class="half-width">{{ form.tarif.label_tag }}</div>
+          {{ form.tarif }}
+        </div>
+      </div>
+
+      <div class="section-item">
+        <div class="editable-content">
+          {{ form.border.errors }} 
+          <div class="half-width">{{ form.border.label_tag }}</div>
+          {{ form.border }}
+        </div>
+      </div>
+
+      <div class="section-item">
+        <div class="editable-content">
+          {{ form.tarif2.errors }} 
+          <div class="half-width">{{ form.tarif2.label_tag }}</div>
+          {{ form.tarif2 }}
+        </div>
+      </div>
+
+      <div class="section-item">
+        <div class="editable-content">
+          {{ form.border2.errors }} 
+          <div class="half-width">{{ form.border2.label_tag }}</div>
+          {{ form.border2 }}
+        </div>
+      </div>
+
+      <div class="section-item">
+        <div class="editable-content">
+          {{ form.tarif3.errors }} 
+          <div class="half-width">{{ form.tarif3.label_tag }}</div>
+          {{ form.tarif3 }}
+        </div>
+      </div>
+
+    </div>
+  
+    <div class="section">
+        <div class="section-item section-item-note">
+          <div class="field-error">{{ form.info.errors }}</div>
+          <div class="section-inner">
+            {{ form.info }}
+          </div>
+        </div>
+    </div>
+
   </div>
 {% endblock %}
 

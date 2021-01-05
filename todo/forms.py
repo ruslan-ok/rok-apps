@@ -48,20 +48,15 @@ class LstForm(forms.ModelForm):
         self.fields['grp'].queryset = Grp.objects.filter(user = user, app = app_name).order_by('name')
 
 #----------------------------------
-class TaskNameForm(forms.ModelForm):
-
-    class Meta:
-        model = Task
-        fields = ['name']
-
-#----------------------------------
 class TaskForm(forms.ModelForm):
+    add_step = forms.CharField(widget = forms.TextInput(attrs = {'placeholder': _('next step').capitalize()}), required = False)
     remind = forms.SplitDateTimeField(widget = AdminSplitDateTime(), label = _('remind').capitalize(), required = False)
     url = forms.CharField(widget = forms.TextInput(attrs = {'placeholder': _('add link').capitalize()}), required = False)
     category = forms.CharField(widget = forms.TextInput(attrs = {'placeholder': _('add category').capitalize()}), required = False)
+
     class Meta:
         model = Task
-        fields = ['lst', 'stop', 'remind', 'repeat', 'repeat_num', 'repeat_days', 'info', 'url', 'category']
+        fields = ['name', 'add_step', 'lst', 'stop', 'remind', 'repeat', 'repeat_num', 'repeat_days', 'info', 'url', 'category']
         widgets = {
             'stop': DateInput(),
             'info': forms.Textarea(attrs={'rows':3, 'cols':10, 'placeholder': _('add note').capitalize(), 'data-autoresize':''}),
@@ -71,17 +66,5 @@ class TaskForm(forms.ModelForm):
         self.user = user
         super().__init__(*args, **kwargs)
         self.fields['lst'].queryset = Lst.objects.filter(user = user, app = app_name).order_by('name')
-
-#----------------------------------
-class StepForm(forms.ModelForm):
-
-    class Meta:
-        model = Step
-        fields = ['name', 'sort']
-
-#----------------------------------
-class FileForm(forms.Form):
-    upload = forms.FileField()
-
 
 

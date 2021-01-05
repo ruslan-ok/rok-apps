@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-03 10:55+0300\n"
+"POT-Creation-Date: 2021-01-05 07:47+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -67,7 +67,7 @@ msgstr "информация"
 msgid "biomarker"
 msgstr "биомаркер"
 
-#: .\health\models.py:23 .\health\views.py:74 .\health\views.py:158
+#: .\health\models.py:23 .\health\views.py:70 .\health\views.py:157
 msgid "biomarkers"
 msgstr "биомаркеры"
 
@@ -95,7 +95,7 @@ msgstr "талия"
 msgid "pressure"
 msgstr "давление"
 
-#: .\health\models.py:62 .\health\templates\health\biomark.html:98
+#: .\health\models.py:62 .\health\templates\health\biomark.html:88
 msgid "pulse"
 msgstr "пульс"
 
@@ -119,7 +119,7 @@ msgstr "диагноз"
 msgid "incident"
 msgstr "событие"
 
-#: .\health\models.py:82 .\health\views.py:75 .\health\views.py:160
+#: .\health\models.py:82 .\health\views.py:71 .\health\views.py:159
 msgid "incidents"
 msgstr "события"
 
@@ -131,30 +131,28 @@ msgstr "дата фиксации"
 msgid "anamnesis"
 msgstr "анамнез"
 
-#: .\health\templates\health\biomark.html:9
-msgid "run converter"
-msgstr "Выполнить конвертацию"
-
-#: .\health\templates\health\biomark.html:87
+#: .\health\templates\health\biomark.html:77
 msgid "preasure"
 msgstr "давление"
 
-#: .\health\templates\health\chrono.html:125
-msgid "add file"
-msgstr "добавить файл"
-
-#: .\health\views.py:73
+#: .\health\views.py:69
 msgid "chronology"
 msgstr "хронология"
 
-#: .\health\views.py:156
+#: .\health\views.py:155
 msgid "dynamics of changes in biomarkers"
 msgstr "динамика изменения биомаркеров"
 
-#: .\health\views.py:165
+#: .\health\views.py:164
 msgid "add biomarkers"
 msgstr "добавить биомаркеры"
 
-#: .\health\views.py:167
+#: .\health\views.py:166
 msgid "add incident"
 msgstr "добавить событие"
+
+#~ msgid "run converter"
+#~ msgstr "Выполнить конвертацию"
+
+#~ msgid "add file"
+#~ msgstr "добавить файл"

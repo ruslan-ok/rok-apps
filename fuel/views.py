@@ -270,10 +270,10 @@ def add_service(request, car):
 def edit_item(request, context, restriction, car, item, disable_delete = False):
     form = None
     if (request.method == 'POST'):
-        if ('article_delete' in request.POST):
+        if ('item_delete' in request.POST):
             delete_item(request, item, disable_delete)
             return True
-        if ('item-save' in request.POST):
+        if ('item_save' in request.POST):
             if (restriction == 'cars'):
                 form = CarForm(request.POST, instance = item)
             elif (restriction == 'fuel'):

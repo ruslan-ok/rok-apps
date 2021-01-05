@@ -168,10 +168,10 @@ def get_trip_article(request, context, pk):
     form = None
     if (request.method == 'POST'):
         #raise Exception(request.POST['summa'])
-        if ('article_delete' in request.POST):
+        if ('item_delete' in request.POST):
             trip_delete(request, ed_trip)
             return True
-        if ('trip-save' in request.POST):
+        if ('item_save' in request.POST):
             old_drvr = ed_trip.driver
             old_psgr = ed_trip.passenger
             old_oper = ed_trip.oper
@@ -341,10 +341,10 @@ def get_pers_article(request, context, pk):
     ed_person = get_object_or_404(Person.objects.filter(id = pk, user = request.user.id))
     form = None
     if (request.method == 'POST'):
-        if ('article_delete' in request.POST):
+        if ('item_delete' in request.POST):
             pers_delete(request, ed_person)
             return True
-        if ('person-save' in request.POST):
+        if ('item_save' in request.POST):
             form = PersonForm(request.POST, instance = ed_person)
             if form.is_valid():
                 data = form.save(commit = False)

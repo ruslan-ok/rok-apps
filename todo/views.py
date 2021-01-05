@@ -20,7 +20,7 @@ from hier.aside import Fix, Sort
 from hier.content import find_group
 from .models import app_name, Lst, Task, Param, Step, DAILY, WORKDAYS, WEEKLY, MONTHLY, ANNUALLY#, PerGrp
 from .utils import get_task_status, nice_date, get_grp_planned, GRP_PLANNED_NONE, get_week_day_name, GRPS_PLANNED
-from .forms import TaskNameForm, TaskForm, StepForm, FileForm
+from .forms import TaskForm
 
 
 items_in_page = 10
@@ -173,34 +173,35 @@ def complete_task(task):
 def get_task_details(request, context, pk, lst):
     ed_task = get_object_or_404(Task.objects.filter(id = pk, user = request.user.id))
 
-    name_form = None
     form = None
-    file_form = None
-
     if (request.method == 'POST'):
         #raise Exception(request.POST)
-        if ('article_delete' in request.POST):
+        if ('item_delete' in request.POST):
             ed_task.delete()
             set_article_visible(request.user, app_name, False)
             return True
-        if ('category-delete' in request.POST):
-            category = request.POST['category-delete']
+        if ('category_delete' in request.POST):
+            category = request.POST['category_delete']
             ed_task.categories = ed_task.categories.replace(category, '')
             ed_task.save()
             return True
-        if ('task-name-save' in request.POST):
-            name_form = TaskNameForm(request.POST, instance = ed_task)
-            if name_form.is_valid():
-                task = name_form.save(commit = False)
-                task.user = request.user
-                task.lst = lst
-                name_form.save()
-                return True
-        if ('task-save' in request.POST):
+        if ('item_save' in request.POST):
+            if request.POST['add_step']:
+                task = Task.objects.filter(user = request.user, id = pk).get()
+                step = Step.objects.create(name = request.POST['add_step'], task = task)
             form = TaskForm(request.user, request.POST, instance = ed_task)
             if form.is_valid():
                 task = form.save(commit = False)
                 task.user = request.user
+
+                step_names = request.POST.getlist('step_edit_name')
+                num = 0
+                for x in request.POST.getlist('step_id'):
+                     step = Step.objects.filter(id = x).get()
+                     step.name = step_names[num]
+                     step.save()
+                     num += 1
+
                 if not request.POST['repeat']:
                     task.repeat = 0
                 if form.cleaned_data['category']:
@@ -209,88 +210,83 @@ def get_task_details(request, context, pk, lst):
                     task.categories += form.cleaned_data['category']
                 form.save()
                 return True
-        if ('file-upload' in request.POST):
-            file_form = FileForm(request.POST, request.FILES)
-            if file_form.is_valid():
+        if ('file_upload' in request.POST):
+            form = TaskForm(request.user, request.POST, request.FILES)
+            if form.is_valid():
                 handle_uploaded_file(request.FILES['upload'], request.user, ed_task)
                 return True
-        if ('file-delete' in request.POST):
-            delete_file(request.user, ed_task, request.POST['file-delete'])
+        if ('file_delete' in request.POST):
+            delete_file(request.user, ed_task, request.POST['file_delete'])
             return True
-        if ('task-important' in request.POST):
+        if ('task_important' in request.POST):
             ed_task.important = not ed_task.important
             ed_task.save()
             return True
-        if ('task-myday' in request.POST):
+        if ('task_myday' in request.POST):
             ed_task.in_my_day = not ed_task.in_my_day
             ed_task.save()
             return True
-        if ('task-completed' in request.POST):
+        if ('task_completed' in request.POST):
             complete_task(ed_task)
             return True
-        if ('step-add' in request.POST):
+        if ('step_add' in request.POST):
             task = Task.objects.filter(user = request.user, id = pk).get()
-            step = Step.objects.create(name = request.POST['step_add_name'], task = task)
+            step = Step.objects.create(name = request.POST['add_step'], task = task)
             return True
-        if ('step-complete' in request.POST):
-            step = Step.objects.filter(id = request.POST['step_id']).get()
+        if ('step_complete' in request.POST):
+            step = Step.objects.filter(id = request.POST['step_complete']).get()
             step.completed = not step.completed
             step.save()
             return True
-        if ('step-save' in request.POST):
-            step = Step.objects.filter(id = request.POST['step_id']).get()
-            step.name = request.POST['step_edit_name']
-            step.save()
-            return True
-        if ('step-delete' in request.POST):
-            step = Step.objects.filter(id = request.POST['step_id']).get()
+        if ('step_delete' in request.POST):
+            step = Step.objects.filter(id = request.POST['step_delete']).get()
             step.delete()
             return True
         
-        if ('remind-today' in request.POST):
+        if ('remind_today' in request.POST):
             ed_task.remind = get_remind_today()
             ed_task.save()
             return True
-        if ('remind-tomorrow' in request.POST):
+        if ('remind_tomorrow' in request.POST):
             ed_task.remind = get_remind_tomorrow()
             ed_task.save()
             return True
-        if ('remind-next-week' in request.POST):
+        if ('remind_next_week' in request.POST):
             ed_task.remind = get_remind_next_week()
             ed_task.save()
             return True
-        if ('remind-delete' in request.POST):
+        if ('remind_delete' in request.POST):
             ed_task.remind = None
             ed_task.save()
             return True
         
-        if ('termin-today' in request.POST):
+        if ('termin_today' in request.POST):
             ed_task.stop = datetime.today()
             ed_task.save()
             return True
-        if ('termin-tomorrow' in request.POST):
+        if ('termin_tomorrow' in request.POST):
             ed_task.stop = datetime.today() + timedelta(1)
             ed_task.save()
             return True
-        if ('termin-next-week' in request.POST):
+        if ('termin_next_week' in request.POST):
             ed_task.stop = datetime.today() + timedelta(8 - datetime.today().isoweekday())
             ed_task.save()
             return True
-        if ('termin-delete' in request.POST):
+        if ('termin_delete' in request.POST):
             ed_task.stop = None
             if ed_task.repeat != 0:
                 ed_task.repeat = 0
             ed_task.save()
             return True
         
-        if ('repeat-daily' in request.POST):
+        if ('repeat_daily' in request.POST):
             ed_task.repeat = DAILY
             ed_task.repeat_num = 1
             if not ed_task.stop:
                 ed_task.stop = datetime.today()
             ed_task.save()
             return True
-        if ('repeat-workdays' in request.POST):
+        if ('repeat_workdays' in request.POST):
             ed_task.repeat = WEEKLY
             ed_task.repeat_num = 1
             ed_task.repeat_days = 1+2+4+8+16
@@ -298,7 +294,7 @@ def get_task_details(request, context, pk, lst):
                 ed_task.stop = datetime.today()
             ed_task.save()
             return True
-        if ('repeat-weekly' in request.POST):
+        if ('repeat_weekly' in request.POST):
             ed_task.repeat = WEEKLY
             ed_task.repeat_num = 1
             ed_task.repeat_days = 0
@@ -306,41 +302,33 @@ def get_task_details(request, context, pk, lst):
                 ed_task.stop = datetime.today()
             ed_task.save()
             return True
-        if ('repeat-monthly' in request.POST):
+        if ('repeat_monthly' in request.POST):
             ed_task.repeat = MONTHLY
             ed_task.repeat_num = 1
             if not ed_task.stop:
                 ed_task.stop = datetime.today()
             ed_task.save()
             return True
-        if ('repeat-annually' in request.POST):
+        if ('repeat_annually' in request.POST):
             ed_task.repeat = ANNUALLY
             ed_task.repeat_num = 1
             if not ed_task.stop:
                 ed_task.stop = datetime.today()
             ed_task.save()
             return True
-        if ('repeat-delete' in request.POST):
+        if ('repeat_delete' in request.POST):
             ed_task.repeat = 0
             ed_task.save()
             return True
-        if ('url-delete' in request.POST):
+        if ('url_delete' in request.POST):
             ed_task.url = ''
             ed_task.save()
             return True
 
-    if not name_form:
-        name_form = TaskNameForm(instance = ed_task)
-
     if not form:
         form = TaskForm(request.user, instance = ed_task)
 
-    if not file_form:
-        file_form = FileForm()
-
-    context['name_form'] = name_form
     context['form'] = form
-    context['file_form'] = file_form
     context['files'] = get_files_list(request.user, app_name, 'task_{}'.format(ed_task.id))
     context['ed_item'] = ed_task
     context['task_actual'] = (not ed_task.completed) and (not ed_task.b_expired()) and ed_task.stop
@@ -375,28 +363,28 @@ def get_task_details(request, context, pk, lst):
     return False
 
 def process_sort_commands(request):
-    if ('sort-delete' in request.POST):
+    if ('sort_delete' in request.POST):
         set_sort_mode(request.user, app_name, '')
         return True
-    if ('sort-important' in request.POST):
+    if ('sort_important' in request.POST):
         set_sort_mode(request.user, app_name, 'important')
         return True
-    if ('sort-termin' in request.POST):
+    if ('sort_termin' in request.POST):
         set_sort_mode(request.user, app_name, 'stop')
         return True
-    if ('sort-completion' in request.POST):
+    if ('sort_completion' in request.POST):
         set_sort_mode(request.user, app_name, 'completion')
         return True
-    if ('sort-myday' in request.POST):
+    if ('sort_myday' in request.POST):
         set_sort_mode(request.user, app_name, 'in_my_day')
         return True
-    if ('sort-name' in request.POST):
+    if ('sort_name' in request.POST):
         set_sort_mode(request.user, app_name, 'name')
         return True
-    if ('sort-created' in request.POST):
+    if ('sort_created' in request.POST):
         set_sort_mode(request.user, app_name, 'created')
         return True
-    if ('sort-direction' in request.POST):
+    if ('sort_direction' in request.POST):
         toggle_sort_dir(request.user, app_name)
         return True
     return False

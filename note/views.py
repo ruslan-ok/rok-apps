@@ -21,6 +21,7 @@ from .models import app_name, Note
 from .forms import NoteForm, FileForm
 
 from todo.models import Grp, Lst
+from todo.utils import nice_date
 
 
 items_in_page = 10
@@ -212,22 +213,22 @@ def filtered_list(user, restriction, app, query = None, lst = None):
 
 #----------------------------------
 def process_sort_commands(request, app):
-    if ('sort-delete' in request.POST):
+    if ('sort_delete' in request.POST):
         set_sort_mode(request.user, app, '')
         return True
-    if ('sort-name' in request.POST):
+    if ('sort_name' in request.POST):
         set_sort_mode(request.user, app, 'name')
         return True
-    if ('sort-descr' in request.POST):
+    if ('sort_descr' in request.POST):
         set_sort_mode(request.user, app, 'descr')
         return True
-    if ('sort-publ' in request.POST):
+    if ('sort_publ' in request.POST):
         set_sort_mode(request.user, app, 'publ')
         return True
-    if ('sort-lmod' in request.POST):
+    if ('sort_lmod' in request.POST):
         set_sort_mode(request.user, app, 'last_mod')
         return True
-    if ('sort-direction' in request.POST):
+    if ('sort_direction' in request.POST):
         toggle_sort_dir(request.user, app)
         return True
     return False
@@ -244,10 +245,10 @@ def item_details(request, context, app_param, app):
 
     if (request.method == 'POST'):
         #raise Exception(request.POST)
-        if ('article_delete' in request.POST):
+        if ('item_delete' in request.POST):
             delete_item(request, app_param.kind, app_param.art_id, app)
             return True
-        if ('item-save' in request.POST):
+        if ('item_save' in request.POST):
             form = NoteForm(request.user, app, request.POST, instance = item)
             if form.is_valid():
                 data = form.save(commit = False)
@@ -258,20 +259,23 @@ def item_details(request, context, app_param, app):
                     data.categories += form.cleaned_data['category']
                 form.save()
                 return True
-        if ('url-delete' in request.POST):
+        if ('url_delete' in request.POST):
             item.url = ''
             item.save()
             return True
-        if ('category-delete' in request.POST):
-            category = request.POST['category-delete']
+        if ('category_delete' in request.POST):
+            category = request.POST['category_delete']
             item.categories = item.categories.replace(category, '')
             item.save()
             return True
-        if ('file-upload' in request.POST):
+        if ('file_upload' in request.POST):
             file_form = FileForm(request.POST, request.FILES)
             if file_form.is_valid():
                 handle_uploaded_file(request.FILES['upload'], request.user, item, app)
                 return True
+        if ('file_delete' in request.POST):
+            delete_file(request.user, item, request.POST['file_delete'], app)
+            return True
 
     if not form:
         form = NoteForm(request.user, app, instance = item)
@@ -280,6 +284,7 @@ def item_details(request, context, app_param, app):
     context['ed_item'] = item
     context['categories'] = get_categories_list(item.categories)
     context['files'] = get_files_list(request.user, app, 'note_{}'.format(item.id))
+    context['item_info'] = str(_('modificated:').capitalize()) + nice_date(item.last_mod.date())
     return False
 
 
@@ -314,6 +319,10 @@ def get_doc(request, name, app):
     except IOError:
         response = HttpResponseNotFound()
 
+#----------------------------------
+def delete_file(user, item, name, app):
+    path = get_file_storage_path(user, item, app)
+    os.remove(path + name[4:])
 
 #----------------------------------
 def note_list(request):

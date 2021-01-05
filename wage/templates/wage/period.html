@@ -6,136 +6,129 @@
 {% endblock %}
 
 {% block article_content %}
-  <div class="fields">
-    <form method="post">{% csrf_token %}
-      <div class="header">
-        {% include "hier/form_errors.html" %}
-        <!-- Period.dBeg -->
-        <div class="field-group">
-          <div class="article-name">
-            <div class="section-item">
-              <div class="editable-content main-element">
-                {{ ed_item.dBeg|date:'M. Y' }}
-              </div>
-              <div class="editable-content auxiliary-element">
-              </div>
-              <button type="submit" name="item-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
-            </div>
+  <div class="header">
+    <!-- Period.dBeg -->
+    <div class="field-group">
+      <div class="article-name">
+        <div class="section-item">
+          <div class="editable-content main-element">
+            {{ ed_item.dBeg|date:'M. Y' }}
+          </div>
+          <div class="editable-content auxiliary-element">
           </div>
         </div>
       </div>
-    
-      <div class="body">
-        <div class="section">
-
-          <!-- Period.planDays -->
-          {% if form.planDays.errors %}
-            <div class="row">
-              <div class="field-error">{{ form.planDays.errors }}</div>
-            </div>
-          {% endif %}
-          <div class="row">
-            {{ form.planDays.label_tag }}
-            {{ form.planDays }}
-          </div>
-
-          <!-- Period.DebtInRate -->
-          {% if form.DebtInRate.errors %}
-            <div class="row">
-              <div class="field-error">{{ form.DebtInRate.errors }}</div>
-            </div>
-          {% endif %}
-          <div class="row">
-            {{ form.DebtInRate.label_tag }}
-            {{ form.DebtInRate }}
-          </div>
-        </div>
-
-        <div class="section">
-          <!-- Period.AvansDate -->
-          <div class="row">
-            {% trans 'prepayment'|capfirst %}
-          </div>
-          {% if form.AvansDate.errors %}
-            <div class="row">
-              <div class="field-error">{{ form.AvansDate.errors }}</div>
-            </div>
-          {% endif %}
-          <div class="row">
-            <label>{% trans 'date'|capfirst %}</label>
-            {{ form.AvansDate }}
-          </div>
-
-          <!-- Period.AvansRate -->
-          {% if form.AvansRate.errors %}
-            <div class="row">
-              <div class="field-error">{{ form.AvansRate.errors }}</div>
-            </div>
-          {% endif %}
-          <div class="row">
-            <label>{% trans 'rate'|capfirst %}</label>
-            {{ form.AvansRate }}
-          </div>
-        </div>
-
-        <div class="section">
-          <!-- Period.PaymentDate -->
-          <div class="row">
-            {% trans 'payment'|capfirst %}
-          </div>
-          {% if form.PaymentDate.errors %}
-            <div class="row">
-              <div class="field-error">{{ form.PaymentDate.errors }}</div>
-            </div>
-          {% endif %}
-          <div class="row">
-            <label>{% trans 'date'|capfirst %}</label>
-            {{ form.PaymentDate }}
-          </div>
-
-          <!-- Period.PaymentRate -->
-          {% if form.PaymentRate.errors %}
-            <div class="row">
-              <div class="field-error">{{ form.PaymentRate.errors }}</div>
-            </div>
-          {% endif %}
-          <div class="row">
-            <label>{% trans 'rate'|capfirst %}</label>
-            {{ form.PaymentRate }}
-          </div>
-        </div>
-
-        <div class="section">
-          <!-- Period.Part2Date -->
-          <div class="row">
-            {% trans 'second payment'|capfirst %}
-          </div>
-          {% if form.Part2Date.errors %}
-            <div class="row">
-              <div class="field-error">{{ form.Part2Date.errors }}</div>
-            </div>
-          {% endif %}
-          <div class="row">
-            <label>{% trans 'date'|capfirst %}</label>
-            {{ form.Part2Date }}
-          </div>
-
-          <!-- Period.Part2Rate -->
-          {% if form.Part2Rate.errors %}
-            <div class="row">
-              <div class="field-error">{{ form.Part2Rate.errors }}</div>
-            </div>
-          {% endif %}
-          <div class="row">
-            <label>{% trans 'rate'|capfirst %}</label>
-            {{ form.Part2Rate }}
-          </div>
-
-        </div> <!-- section -->
-
-      </div>
-    </form>
+    </div>
   </div>
+  
+  <div class="body">
+    <div class="section">
+
+      <!-- Period.planDays -->
+      {% if form.planDays.errors %}
+        <div class="row">
+          <div class="field-error">{{ form.planDays.errors }}</div>
+        </div>
+      {% endif %}
+      <div class="row">
+        {{ form.planDays.label_tag }}
+        {{ form.planDays }}
+      </div>
+
+      <!-- Period.DebtInRate -->
+      {% if form.DebtInRate.errors %}
+        <div class="row">
+          <div class="field-error">{{ form.DebtInRate.errors }}</div>
+        </div>
+      {% endif %}
+      <div class="row">
+        {{ form.DebtInRate.label_tag }}
+        {{ form.DebtInRate }}
+      </div>
+    </div>
+
+    <div class="section">
+      <!-- Period.AvansDate -->
+      <div class="row">
+        {% trans 'prepayment'|capfirst %}
+      </div>
+      {% if form.AvansDate.errors %}
+        <div class="row">
+          <div class="field-error">{{ form.AvansDate.errors }}</div>
+        </div>
+      {% endif %}
+      <div class="row">
+        <label>{% trans 'date'|capfirst %}</label>
+        {{ form.AvansDate }}
+      </div>
+
+      <!-- Period.AvansRate -->
+      {% if form.AvansRate.errors %}
+        <div class="row">
+          <div class="field-error">{{ form.AvansRate.errors }}</div>
+        </div>
+      {% endif %}
+      <div class="row">
+        <label>{% trans 'rate'|capfirst %}</label>
+        {{ form.AvansRate }}
+      </div>
+    </div>
+
+    <div class="section">
+      <!-- Period.PaymentDate -->
+      <div class="row">
+        {% trans 'payment'|capfirst %}
+      </div>
+      {% if form.PaymentDate.errors %}
+        <div class="row">
+          <div class="field-error">{{ form.PaymentDate.errors }}</div>
+        </div>
+      {% endif %}
+      <div class="row">
+        <label>{% trans 'date'|capfirst %}</label>
+        {{ form.PaymentDate }}
+      </div>
+
+      <!-- Period.PaymentRate -->
+      {% if form.PaymentRate.errors %}
+        <div class="row">
+          <div class="field-error">{{ form.PaymentRate.errors }}</div>
+        </div>
+      {% endif %}
+      <div class="row">
+        <label>{% trans 'rate'|capfirst %}</label>
+        {{ form.PaymentRate }}
+      </div>
+    </div>
+
+    <div class="section">
+      <!-- Period.Part2Date -->
+      <div class="row">
+        {% trans 'second payment'|capfirst %}
+      </div>
+      {% if form.Part2Date.errors %}
+        <div class="row">
+          <div class="field-error">{{ form.Part2Date.errors }}</div>
+        </div>
+      {% endif %}
+      <div class="row">
+        <label>{% trans 'date'|capfirst %}</label>
+        {{ form.Part2Date }}
+      </div>
+
+      <!-- Period.Part2Rate -->
+      {% if form.Part2Rate.errors %}
+        <div class="row">
+          <div class="field-error">{{ form.Part2Rate.errors }}</div>
+        </div>
+      {% endif %}
+      <div class="row">
+        <label>{% trans 'rate'|capfirst %}</label>
+        {{ form.Part2Rate }}
+      </div>
+    </div> <!-- section -->
+
+  </div> <!-- body -->
 {% endblock %}
 
 {% block scripts %}

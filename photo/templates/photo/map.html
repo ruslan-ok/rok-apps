@@ -30,20 +30,6 @@
   <div id="mapid"></div>
 {% endblock %}
 
-{% block article_content %}
-  <form method="post">{% csrf_token %}
-    {{ form }}
-    <button type="submit" name="item-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
-  </form>
-  <div>
-    <div class="preview">
-      <img src="{{ item.show_url }}" alt="{{ item.alt }}">
-      <div class="preview-desc">{{ item.info }}</div>
-    </div>
-  </div>
-{% endblock %}
-
-
 {% block scripts %}
   {{ block.super }}
   <script src="{% static 'photo/js/photo.js' %}"></script>

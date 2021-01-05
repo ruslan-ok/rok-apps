@@ -6,9 +6,28 @@
 {% endblock %}
 
 {% block article_content %}
-  <form method="post">{% csrf_token %}
-    {{ form }}
-    <button type="submit" name="item-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
-  </form>
+  <div class="header">
+    <div class="section">
+      <div class="row field-error"> {{ form.dBeg.errors }} </div>
+      <div class="section-item">
+        <div class="section-inner">
+          {{ form.dBeg.label_tag }}
+          {{ form.dBeg }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="section">
+      <div class="section-item">
+        <div class="section-inner">
+          {{ form.node.errors }}
+          {{ form.node.label_tag }}
+          {{ form.node }}
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}
 

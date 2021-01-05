@@ -9,7 +9,7 @@ from .models import Car, Fuel, Part, Repl
 class CarForm(forms.ModelForm):
     class Meta:
         model = Car
-        fields = ['name', 'plate', 'active']
+        fields = ['name', 'plate']
 
 #----------------------------------
 class FuelForm(forms.ModelForm):

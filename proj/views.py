@@ -200,27 +200,27 @@ def filtered_sorted_list(user, app_param, project, query):
 
 #----------------------------------
 def process_sort_commands(request, app):
-    if ('sort-delete' in request.POST):
+    if ('sort_delete' in request.POST):
         set_sort_mode(request.user, app, '')
         return True
-    if ('sort-name' in request.POST):
+    if ('sort_name' in request.POST):
         set_sort_mode(request.user, app_name, 'name')
         return True
-    if ('sort-date' in request.POST):
+    if ('sort_date' in request.POST):
         set_sort_mode(request.user, app_name, 'date')
         return True
-    if ('sort-kontr' in request.POST):
+    if ('sort_kontr' in request.POST):
         set_sort_mode(request.user, app_name, 'kontr')
         return True
-    if ('sort-text' in request.POST):
+    if ('sort_text' in request.POST):
         set_sort_mode(request.user, app_name, 'text')
         return True
-    if ('sort-created' in request.POST):
+    if ('sort_created' in request.POST):
         set_sort_mode(request.user, app_name, 'created')
         return True
-    if ('sort-lmod' in request.POST):
+    if ('sort_lmod' in request.POST):
         set_sort_mode(request.user, app_name, 'last_mod')
-    if ('sort-direction' in request.POST):
+    if ('sort_direction' in request.POST):
         toggle_sort_dir(request.user, app)
         return True
     return False
@@ -238,10 +238,10 @@ def add_expense(request, project):
 def edit_item(request, context, restriction, project, item, disable_delete = False):
     form = None
     if (request.method == 'POST'):
-        if ('article_delete' in request.POST):
+        if ('item_delete' in request.POST):
             delete_item(request, item, disable_delete)
             return True
-        if ('item-save' in request.POST):
+        if ('item_save' in request.POST):
             if (restriction == 'project'):
                 form = ProjectForm(request.POST, instance = item)
             elif (restriction == 'expense'):

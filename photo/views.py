@@ -27,9 +27,11 @@ items_per_page = 12
 # Режимы приложения
 #----------------------------------
 def main(request): # Фотографии в виде миниатюр
+    set_article_visible(request.user, app_name, False)
     return do_main(request, 'main')
 
 def map(request): # Фотографии на карте
+    set_article_visible(request.user, app_name, False)
     return do_main(request, 'map')
 
 def one(request): # Просмотр одной фотографии, заданной именем файла
@@ -161,7 +163,7 @@ def do_main(request, restriction, pk = None, art_vis = False):
     file_form = None
 
     if (request.method == 'POST'):
-        if ('file-upload' in request.POST):
+        if ('file_upload' in request.POST):
             file_form = FileForm(request.POST, request.FILES)
             if file_form.is_valid():
                 handle_uploaded_file(request.FILES['upload'], request.user, app_param.content)
@@ -469,10 +471,10 @@ def build_mini(user, item):
 def edit_item(request, context, item, disable_delete = False):
     form = None
     if (request.method == 'POST'):
-        if ('article_delete' in request.POST):
+        if ('item_delete' in request.POST):
             if delete_item(request, item, disable_delete):
                 return 'main'
-        if ('item-save' in request.POST):
+        if ('item_save' in request.POST):
             form = PhotoForm(request.POST, instance = item)
             if form.is_valid():
                 data = form.save(commit = False)
@@ -483,8 +485,8 @@ def edit_item(request, context, item, disable_delete = False):
                     data.categories += form.cleaned_data['category']
                 form.save()
                 return 'one'
-        if ('category-delete' in request.POST):
-            category = request.POST['category-delete']
+        if ('category_delete' in request.POST):
+            category = request.POST['category_delete']
             item.categories = item.categories.replace(category, '')
             item.save()
             return 'one'

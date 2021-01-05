@@ -14,7 +14,7 @@ function ToggleSelectField(name)
 
 function InitDays()
 {
-  var frm = document.getElementById('task_form');
+  var frm = document.getElementById('article_form');
   var days = frm.elements['repeat_days'].value;
   for (var i = 1; i <= 7; i++)
   {
@@ -38,7 +38,7 @@ function DayClick(_num)
 {
   var day = document.getElementById('d' + _num);
   day.classList.toggle('selected');
-  var frm = document.getElementById('task_form');
+  var frm = document.getElementById('article_form');
   var days = GetDays();
   frm.elements['repeat_days'].value = days;
 }

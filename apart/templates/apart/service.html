@@ -2,41 +2,33 @@
 {% load static i18n %}
 
 {% block article_content %}
-  <div class="fields">
-    <form method="post" class="header">{% csrf_token %}
-      {% include "hier/form_errors.html" %}
+  <!-- Service.name -->
+  <div class="header">
+    <div class="row">
+      {{ form.name.label_tag }}
+    </div>
+    {% if form.name.errors %}
+      <div class="row">
+        <div class="field-error">{{ form.name.errors }}</div>
+      </div>
+    {% endif %}
+    <div class="row editable-content full-width main-element">
+      {{ form.name }}
+    </div>
+  </div>
 
-      <!-- Service.name -->
-      <div class="header">
-        <button type="hidden" name="item-save" id="id_item_save"></button>
+  <div class="body">
+    <div class="section">
+      <!-- Service.abbr -->
+      {% if form.abbr.errors %}
         <div class="row">
-          {{ form.name.label_tag }}
+          <div class="field-error">{{ form.abbr.errors }}</div>
         </div>
-        {% if form.name.errors %}
-          <div class="row">
-            <div class="field-error">{{ form.name.errors }}</div>
-          </div>
-        {% endif %}
-        <div class="row editable-content full-width main-element">
-          {{ form.name }}
-          <button type="submit" name="item-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
-        </div>
+      {% endif %}
+      <div class="row editable-content full-width auxiliary-element">
+        {{ form.abbr.label_tag }}
+        {{ form.abbr }}
       </div>
-
-      <div class="body">
-        <div class="section">
-          <!-- Service.abbr -->
-          {% if form.abbr.errors %}
-            <div class="row">
-              <div class="field-error">{{ form.abbr.errors }}</div>
-            </div>
-          {% endif %}
-          <div class="row editable-content full-width auxiliary-element">
-            {{ form.abbr.label_tag }}
-            {{ form.abbr }}
-          </div>
-        </div>
-      </div>
-    </form>
+    </div>
   </div>
 {% endblock %}

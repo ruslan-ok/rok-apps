@@ -6,10 +6,7 @@
 {% endblock %}
 
 {% block article_content %}
-  <form method="post">{% csrf_token %}
-    {{ form }}
-    <button type="submit" name="item-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
-  </form>
+  {{ form }}
 {% endblock %}
 
 {% block scripts %}

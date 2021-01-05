@@ -2,38 +2,24 @@
 {% load static %}
 
 {% block article_content %}
-  <div class="fields">
-    <form method="post">{% csrf_token %}
-      <button type="hidden" name="item-save"></button>
-
-      <div class="header">
-        <div class="section-item">
-          {% include "hier/form_errors.html" %}
-        </div>
-
-        <div class="section-item">
-          {{ form.name.errors }}
-        </div>
-
-        <div class="field-group">
-          <div class="section-item">
-            <div class="editable-content full-width main-element">
-              {{ form.name }}
-            </div>
-          </div>
-          <button type="submit" name="item-save" class="field-icon"><img class="img-20_20" src="{% static 'rok/icon/save.png' %}"></button>
+  <div class="header">
+    <div class="section-item"> {{ form.name.errors }} </div>
+    <div class="field-group">
+      <div class="section-item">
+        <div class="editable-content full-width main-element">
+          {{ form.name }}
         </div>
       </div>
+    </div>
+  </div>
 
-      <div class="body">
-        <div class="section">
-          <div class="section-item">
-            <div class="editable-content full-width auxiliary-element">
-              {{ form.plate }}
-            </div>
-          </div>
+  <div class="body">
+    <div class="section">
+      <div class="section-item">
+        <div class="editable-content full-width auxiliary-element">
+          {{ form.plate }}
         </div>
       </div>
-    </form>
+    </div>
   </div>
 {% endblock %}

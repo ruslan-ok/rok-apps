@@ -274,13 +274,13 @@ def filtered_sorted_list(user, app_param, apart, query):
 def edit_item(request, context, restriction, apart, item, disable_delete = False):
     form = None
     if (request.method == 'POST'):
-        if ('article_delete' in request.POST):
+        if ('item_delete' in request.POST):
             delete_item(request, item, disable_delete)
             return True
         if ('apart-active' in request.POST):
             set_active(request.user.id, item.id)
             return True
-        if ('item-save' in request.POST):
+        if ('item_save' in request.POST):
             if (restriction == 'apart'):
                 form = ApartForm(request.POST, instance = item)
             elif (restriction == 'service'):
@@ -307,11 +307,11 @@ def edit_item(request, context, restriction, apart, item, disable_delete = False
             item.has_ppo = not item.has_ppo
             item.save()
             return True
-        if ('url-delete' in request.POST):
+        if ('url_delete' in request.POST):
             item.url = ''
             item.save()
             return True
-        if ('file-upload' in request.POST):
+        if ('file_upload' in request.POST):
             file_form = FileForm(request.POST, request.FILES)
             if file_form.is_valid():
                 handle_uploaded_file(request.FILES['upload'], request.user, item)

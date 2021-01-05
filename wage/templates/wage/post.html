@@ -2,30 +2,6 @@
 {% load static i18n %}
 
 {% block article_content %}
-  <div class="fields">
-    <form method="post">{% csrf_token %}
-      <div class="header">
-        {% include "hier/form_errors.html" %}
-        <div class="field-group">
-          <!-- Post.name -->
-          {% if form.name.errors %}
-            <div class="row">
-              <div class="field-error">{{ form.name.errors }}</div>
-            </div>
-          {% endif %}
-          <div class="article-name">
-            <div class="section-item">
-              <div class="editable-content main-element">
-                {{ form.name }}
-              </div>
-              <div class="editable-content auxiliary-element">
-              </div>
-              <button type="submit" name="item-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </form>
-  </div>
+  {{ form }}
 {% endblock %}
 

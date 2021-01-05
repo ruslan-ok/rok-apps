@@ -55,13 +55,22 @@
           </main>
           
           <article class="{% if article_visible %}vis{% else %}hid{% endif %}">
-            <section id="article-content">
-              {% block article_content %}{% endblock %}
-            </section>
-            <form method="post" class="article-bottom">{% csrf_token %}
-              <button type="submit" name="article_close" title="{% trans 'close details'|capfirst %}"><img class="img-20_20" src="{% static 'rok/icon/close-right.png' %}"></button>
-              <div class="info">{% block article_info %}{% endblock %}</div>
-              <button type="submit" name="article_delete" title="{% trans 'delete record'|capfirst %}"><img class="img-20_20" src="{% static 'rok/icon/trash-red.png' %}"></button>
+            <form method="post" enctype="multipart/form-data"  id="article_form">{% csrf_token %}
+              <button type="hidden" name="item_save" class="field-icon"></button>
+              <div class="article-top">
+                <button type="submit" name="article_close" title="{% trans 'close details'|capfirst %}"><img class="img-20_20" src="{% static 'rok/icon/direct-right.png' %}"></button>
+                <div class="info"></div>
+                <button type="submit" name="item_save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
+              </div>
+              <section id="article-content">
+                {% include "hier/form_errors.html" %}
+                {% block article_content %}{% endblock %}
+              </section>
+              <div class="article-bottom">
+                <div></div>
+                <div class="info">{% block article_info %}{% endblock %}</div>
+                <button type="submit" name="item_delete" title="{% trans 'delete record'|capfirst %}"><img class="img-20_20" src="{% static 'rok/icon/trash-red.png' %}"></button>
+              </div>
             </form>
           </article>
         </div>

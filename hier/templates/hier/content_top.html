@@ -42,7 +42,7 @@
         <div class="sort">
           {% if sort_mode %}
             <form method="post" class="sort-actions sort">{% csrf_token %}
-              <button type="submit" name="sort-direction">
+              <button type="submit" name="sort_direction">
                 {% if sort_dir %}
                   <img class="img-20_20" src="{% static 'rok/icon/sort-order-direct.png' %}">
                 {% else %}
@@ -50,7 +50,7 @@
                 {% endif %}
               </button>
               <span>{{ sort_mode }}</span>
-              <button type="submit" name="sort-delete">
+              <button type="submit" name="sort_delete">
                 <img class="img-20_20" src="{% static 'rok/icon/delete.png' %}">
               </button>
             </form>

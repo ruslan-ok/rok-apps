@@ -259,10 +259,10 @@ def get_article_item(request, context, app_param):
 
     if (request.method == 'POST'):
         #raise Exception(request.POST)
-        if ('article_delete' in request.POST):
-            article_delete(request, app_param.kind, app_param.art_id)
+        if ('item_delete' in request.POST):
+            item_delete(request, app_param.kind, app_param.art_id)
             return True
-        if ('item-save' in request.POST):
+        if ('item_save' in request.POST):
             form = EntryForm(request.user, request.POST, instance = item)
             if form.is_valid():
                 data = form.save(commit = False)
@@ -277,12 +277,12 @@ def get_article_item(request, context, app_param):
             item.actual = not item.actual
             item.save()
             return True
-        if ('url-delete' in request.POST):
+        if ('url_delete' in request.POST):
             item.url = ''
             item.save()
             return True
-        if ('category-delete' in request.POST):
-            category = request.POST['category-delete']
+        if ('category_delete' in request.POST):
+            category = request.POST['category_delete']
             item.categories = item.categories.replace(category, '')
             item.save()
             return True
@@ -324,7 +324,7 @@ def get_article_item(request, context, app_param):
     return False
 
 
-def article_delete(request, kind, art_id):
+def item_delete(request, kind, art_id):
     if (kind == 'item'):
         data = get_object_or_404(Entry.objects.filter(user = request.user.id, id = art_id))
         data.delete()
@@ -339,22 +339,22 @@ def get_store_params(user):
 
 
 def process_sort_commands(request):
-    if ('sort-delete' in request.POST):
+    if ('sort_delete' in request.POST):
         set_sort_mode(request.user, app_name, '')
         return True
-    if ('sort-title' in request.POST):
+    if ('sort_title' in request.POST):
         set_sort_mode(request.user, app_name, 'title')
         return True
-    if ('sort-user' in request.POST):
+    if ('sort_user' in request.POST):
         set_sort_mode(request.user, app_name, 'username')
         return True
-    if ('sort-url' in request.POST):
+    if ('sort_url' in request.POST):
         set_sort_mode(request.user, app_name, 'url')
         return True
-    if ('sort-created' in request.POST):
+    if ('sort_created' in request.POST):
         set_sort_mode(request.user, app_name, 'created')
         return True
-    if ('sort-direction' in request.POST):
+    if ('sort_direction' in request.POST):
         toggle_sort_dir(request.user, app_name)
         return True
     return False

@@ -91,7 +91,7 @@ def main(request):
         if valid_article:
             if (app_param.restriction == BIOMARK):
                 item = get_object_or_404(Biomarker.objects.filter(id = app_param.art_id, user = request.user.id))
-                redirect = edit_item(request, context, app_param.restriction, item, True)
+                redirect = edit_item(request, context, app_param.restriction, item, False)
             if (app_param.restriction == INCIDENT):
                 item = get_object_or_404(Incident.objects.filter(id = app_param.art_id, user = request.user.id))
                 disable_delete = Anamnesis.objects.filter(incident = item.id).exists()
@@ -170,10 +170,10 @@ def get_placeholder(restriction):
 def edit_item(request, context, restriction, item, disable_delete = False):
     form = None
     if (request.method == 'POST'):
-        if ('article_delete' in request.POST):
+        if ('item_delete' in request.POST):
             delete_item(request, item, disable_delete)
             return True
-        if ('item-save' in request.POST):
+        if ('item_save' in request.POST):
             if (restriction == BIOMARK):
                 form = BiomarkerForm(request.POST, instance = item)
             elif (restriction == INCIDENT):

@@ -23,7 +23,7 @@
     {% endif %}
     <input type="file" style="display:none;" id="id_upload" name="upload" onchange="FileSelected()">
     <div id="loadPhoto" class="button" type="button" onclick="UploadFile()"><img class="img-20_20" src="{% static 'rok/icon/upload.png' %}">{% trans 'add photo'|capfirst %}</div>
-    <button type="submit" id="id_submit" name="file-upload"></button>
+    <button type="submit" id="id_submit" name="file_upload"></button>
   </form>
 {% endblock %}
 

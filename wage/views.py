@@ -258,24 +258,24 @@ def main(request):
                 item = get_object_or_404(Period.objects.filter(id = app_param.art_id, user = request.user.id))
                 disable_delete = item.active or EmplPer.objects.filter(period = item.id).exists() or \
                                                 Payment.objects.filter(period = item.id).exists()
-                redirect = edit_item(request, context, app_param.restriction, period, employee, item, disable_delete)
+                redirect = edit_item(request, context, app_param.restriction, period, employee, depart, item, disable_delete)
             if (app_param.restriction == POST):
                 item = get_object_or_404(Post.objects.filter(id = app_param.art_id, user = request.user.id))
                 disable_delete = Appoint.objects.filter(post = item.id).exists()
-                redirect = edit_item(request, context, app_param.restriction, period, employee, item, disable_delete)
+                redirect = edit_item(request, context, app_param.restriction, period, employee, depart, item, disable_delete)
             if (app_param.restriction == TITLE):
                 item = get_object_or_404(PayTitle.objects.filter(id = app_param.art_id, user = request.user.id))
                 disable_delete = Payment.objects.filter(title = item.id).exists()
-                redirect = edit_item(request, context, app_param.restriction, period, employee, item, disable_delete)
+                redirect = edit_item(request, context, app_param.restriction, period, employee, depart, item, disable_delete)
             if (app_param.restriction == DEP_HIST):
                 item = get_object_or_404(DepHist.objects.filter(id = app_param.art_id, depart = depart.id))
-                redirect = edit_item(request, context, app_param.restriction, period, employee, item, False)
+                redirect = edit_item(request, context, app_param.restriction, period, employee, depart, item, False)
             if (app_param.restriction == DEP_INFO):
                 item = get_object_or_404(Depart.objects.filter(id = app_param.art_id, user = request.user.id))
                 disable_delete = DepHist.objects.filter(depart = item.id).exists() or \
                                  DepHist.objects.filter(node = item.id).exists() or \
                                  Appoint.objects.filter(depart = item.id).exists()
-                redirect = edit_item(request, context, app_param.restriction, period, employee, item, disable_delete)
+                redirect = edit_item(request, context, app_param.restriction, period, employee, depart, item, disable_delete)
             if (app_param.restriction == EMPL_INFO):
                 item = get_object_or_404(Employee.objects.filter(id = app_param.art_id, user = request.user.id))
                 disable_delete = FioHist.objects.filter(employee = item.id).exists() or \
@@ -283,25 +283,25 @@ def main(request):
                                  Appoint.objects.filter(employee = item.id).exists() or \
                                  Education.objects.filter(employee = item.id).exists() or \
                                  Payment.objects.filter(employee = item.id).exists()
-                redirect = edit_item(request, context, app_param.restriction, period, employee, item, disable_delete)
+                redirect = edit_item(request, context, app_param.restriction, period, employee, depart, item, disable_delete)
             if (app_param.restriction == ACC):
                 item = get_object_or_404(Payment.objects.filter(id = app_param.art_id, employee = employee.id, period = period.id, direct = 0))
-                redirect = edit_item(request, context, app_param.restriction, period, employee, item, False)
+                redirect = edit_item(request, context, app_param.restriction, period, employee, depart, item, False)
             if (app_param.restriction == PAY):
                 item = get_object_or_404(Payment.objects.filter(id = app_param.art_id, employee = employee.id, period = period.id, direct = 1))
-                redirect = edit_item(request, context, app_param.restriction, period, employee, item, False)
+                redirect = edit_item(request, context, app_param.restriction, period, employee, depart, item, False)
             if (app_param.restriction == APP):
                 item = get_object_or_404(Appoint.objects.filter(id = app_param.art_id, employee = employee.id))
-                redirect = edit_item(request, context, app_param.restriction, period, employee, item, False)
+                redirect = edit_item(request, context, app_param.restriction, period, employee, depart, item, False)
             if (app_param.restriction == EDUC):
                 item = get_object_or_404(Education.objects.filter(id = app_param.art_id, employee = employee.id))
-                redirect = edit_item(request, context, app_param.restriction, period, employee, item, False)
+                redirect = edit_item(request, context, app_param.restriction, period, employee, depart, item, False)
             if (app_param.restriction == CHLD):
                 item = get_object_or_404(Child.objects.filter(id = app_param.art_id, employee = employee.id))
-                redirect = edit_item(request, context, app_param.restriction, period, employee, item, False)
+                redirect = edit_item(request, context, app_param.restriction, period, employee, depart, item, False)
             if (app_param.restriction == SUR):
                 item = get_object_or_404(FioHist.objects.filter(id = app_param.art_id, employee = employee.id))
-                redirect = edit_item(request, context, app_param.restriction, period, employee, item, False)
+                redirect = edit_item(request, context, app_param.restriction, period, employee, depart, item, False)
         else:
             set_article_visible(request.user, app_name, False)
             redirect = True
@@ -378,6 +378,7 @@ def main(request):
     paginator = Paginator(data, items_per_page)
     page_obj = paginator.get_page(page_number)
     context['page_obj'] = paginator.get_page(page_number)
+    #raise Exception(app_param.restriction)
     template = loader.get_template('wage/' + app_param.restriction + '.html')
     return HttpResponse(template.render(context, request))
 
@@ -504,16 +505,16 @@ def get_grp_name(item, on_date):
 
 
 #----------------------------------
-def edit_item(request, context, restriction, period, employee, item, disable_delete = False):
+def edit_item(request, context, restriction, period, employee, depart, item, disable_delete = False):
     form = None
     if (request.method == 'POST'):
-        if ('article_delete' in request.POST):
+        if ('item_delete' in request.POST):
             delete_item(request, restriction, item, disable_delete)
             return True
-        if ('period-active' in request.POST):
+        if ('item-in-list-select' in request.POST):
             set_active(request.user.id, item.id)
             return True
-        if ('item-save' in request.POST):
+        if ('item_save' in request.POST):
             if (restriction == PER):
                 form = PeriodForm(request.POST, instance = item)
             elif (restriction == POST):
@@ -540,7 +541,7 @@ def edit_item(request, context, restriction, period, employee, item, disable_del
                 data = form.save(commit = False)
                 if (restriction in EMPL_ASIDE):
                     data.employee = employee
-                if (restriction in (DEP_HIST, DEP_INFO)):
+                if (restriction in (DEP_HIST)):
                     data.depart = depart
                 form.save()
                 return True

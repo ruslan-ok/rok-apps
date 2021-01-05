@@ -22,15 +22,10 @@
 {% endblock %}
 
 {% block article_content %}
-  <form method="post">{% csrf_token %}
-    {% include "hier/form_errors.html" %}
-    <button type="hidden" name="item-save" id="id_item_save" value="???"></button>
-    {% include "hier/categories.html" %}
-    {{ form.info.errors }}
-    {{ form.info.label_tag }}
-    {{ form.info }}
-    <button type="submit" name="item-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
-  </form>
+  {% include "hier/categories.html" %}
+  {{ form.info.errors }}
+  {{ form.info.label_tag }}
+  {{ form.info }}
 {% endblock %}
 
 {% block scripts %}
