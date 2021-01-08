@@ -43,6 +43,11 @@ def item_form(request, pk):
     return HttpResponseRedirect(reverse('health:main') + extract_get_params(request))
 
 #----------------------------------
+def import_weight(request):
+    do_import_weight(request.user)
+    return HttpResponseRedirect(reverse('health:main'))
+
+#----------------------------------
 @login_required(login_url='account:login')
 def main(request):
     app_param = get_app_params(request.user, app_name)
@@ -273,7 +278,7 @@ def get_temp_points(user):
 
 #----------------------------------
 def get_weight_points(user):
-    get_y_for_weight = get_y_for_any(70, 95)
+    get_y_for_weight = get_y_for_any(70, 85)
     points = []
     dt_start = None
     for x in Biomarker.objects.filter(user = user.id).order_by('publ'):
@@ -307,5 +312,15 @@ def get_waist_points(user):
     
     return points
 
-
+#----------------------------------
+def do_import_weight(user):
+    with open('C:/Web/apps/rusel/health/weight.csv', 'r') as f:
+        while True:
+            s = f.readline()
+            if (s == ''):
+                break
+            ss = s.split(',')
+            dt = datetime.fromtimestamp(int(ss[0]))
+            vl = float(ss[1].replace('\n', ''))
+            Biomarker.objects.create(user = user, publ = dt, weight = vl, info = 'Imported from http://mifit.huami.com/t/account_mifit')
 
