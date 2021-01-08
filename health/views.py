@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect, FileResponse, HttpResponseNotFound
 from django.template import loader
@@ -76,9 +76,10 @@ def main(request):
     context['hide_important'] = True
     if (app_param.restriction == CHRONO):
         context['hide_add_item_input'] = True
-        points, incidents = build_diagram(request.user)
-        context['points'] = points
-        context['incidents'] = incidents
+        context['temperatures'], dt_start = get_temp_points(request.user)
+        context['incidents'] = get_incidents(request.user, dt_start)
+        context['weights'] = get_weight_points(request.user)
+        context['waists'] = get_waist_points(request.user)
 
     redirect = False
 
@@ -231,32 +232,80 @@ def create_biomarkers(user, s_value):
 
 
 #----------------------------------
-def build_diagram(user):
+def get_x_for_any(dt_min):
+    """lambda function to convert any date value to X coordinate in a chart"""
+    return lambda dt : int((dt - dt_min).days / (datetime.now().date() - dt_min).days * 1000)
+
+#----------------------------------
+def get_y_for_any(min_value, max_value):
+    """lambda function to convert any phisical value to Y coordinate in a chart"""
+    return lambda value : 100 - int((value - min_value) / (max_value - min_value) * 100)
+
+#----------------------------------
+def get_incidents(user, dt_start):
+    incidents = []
+    get_x_for_temp = get_x_for_any(dt_start)
+    for y in Incident.objects.filter(user = user.id).order_by('beg'):
+        x1_pos = get_x_for_temp(y.beg)
+        x2_pos = get_x_for_temp(y.end)
+        incidents.append({'x': x1_pos, 'width': x2_pos - x1_pos})
+    return incidents
+
+#----------------------------------
+def get_temp_points(user):
+    get_y_for_temp = get_y_for_any(35, 40)
     points = []
-    dt_start = total_days = None
-    height = 40-35
+    dt_start = None
     for x in Biomarker.objects.filter(user = user.id).order_by('publ'):
-        if not total_days:
-            dt_start = x.publ
-            total_days = (datetime.now() - x.publ).days
+        if not dt_start and x.temp:
+            dt_start = (x.publ - timedelta(2)).date()
+            get_x_for_temp = get_x_for_any(dt_start)
         if x.temp:
-            delta = (x.publ - dt_start).days
-            x_pos = int(delta/total_days*1000)
-            y_pos = 100 - int((x.temp - 35)/5*100)
+            x_pos = get_x_for_temp(x.publ.date())
+            y_pos = get_y_for_temp(x.temp)
             if (x.temp >= 37):
                 color = "red"
             else:
                 color = "green"
             points.append({'x': x_pos, 'y': y_pos, 'color': color})
     
-    incidents = []
-    for y in Incident.objects.filter(user = user.id).order_by('beg'):
-        delta = (y.beg - dt_start.date()).days
-        x_pos = int(delta/total_days*1000)
-        width = int((y.end - y.beg).days/total_days*1000)
-        incidents.append({'x': x_pos, 'width': width})
+    return points, dt_start
 
-    return points, incidents
+#----------------------------------
+def get_weight_points(user):
+    get_y_for_weight = get_y_for_any(70, 95)
+    points = []
+    dt_start = None
+    for x in Biomarker.objects.filter(user = user.id).order_by('publ'):
+        if not dt_start and x.weight:
+            dt_start = (x.publ - timedelta(2)).date()
+            get_x_for_weight = get_x_for_any(dt_start)
+        if x.weight:
+            x_pos = get_x_for_weight(x.publ.date())
+            y_pos = get_y_for_weight(x.weight)
+            if (x.weight >= 73):
+                color = "red"
+            else:
+                color = "green"
+            points.append({'x': x_pos, 'y': y_pos, 'color': color})
+    
+    return points
+
+#----------------------------------
+def get_waist_points(user):
+    get_y_for_waist = get_y_for_any(80, 105)
+    points = []
+    dt_start = None
+    for x in Biomarker.objects.filter(user = user.id).order_by('publ'):
+        if not dt_start and x.waist:
+            dt_start = (x.publ - timedelta(2)).date()
+            get_x_for_waist = get_x_for_any(dt_start)
+        if x.waist:
+            x_pos = get_x_for_waist(x.publ.date())
+            y_pos = get_y_for_waist(x.waist)
+            points.append({'x': x_pos, 'y': y_pos, 'color': "black"})
+    
+    return points
 
 
 

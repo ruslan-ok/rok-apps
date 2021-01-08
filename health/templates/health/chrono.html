@@ -2,15 +2,37 @@
 {% load static i18n %}
 
 {% block items_content %}
+<h2>{% trans 'temperature'|capfirst %}</h2>
 <svg width="1000" height="100">
   <rect width="1000" height="100" style="fill:rgb(250,250,250);stroke-width:1;stroke:rgb(0,0,0)" />
-  {% for x in points %}
+  {% for x in temperatures %}
   <circle cx="{{x.x}}" cy="{{x.y}}" r="1" stroke="{{x.color}}" stroke-width="1" fill="black" />
   {% endfor %}
   {% for y in incidents %}
   <rect x="{{y.x}}" y="93" width="{{y.width}}" height="5" style="fill:yellow;stroke-width:1;stroke:rgb(50,50,50)" />
   {% endfor %}
 </svg>
+
+<br>
+
+<h2>{% trans 'weight'|capfirst %}</h2>
+<svg width="1000" height="100">
+  <rect width="1000" height="100" style="fill:rgb(250,250,250);stroke-width:1;stroke:rgb(0,0,0)" />
+  {% for x in weights %}
+  <circle cx="{{x.x}}" cy="{{x.y}}" r="1" stroke="{{x.color}}" stroke-width="1" fill="black" />
+  {% endfor %}
+</svg>
+
+<br>
+
+<h2>{% trans 'waist circumference'|capfirst %}</h2>
+<svg width="1000" height="100">
+  <rect width="1000" height="100" style="fill:rgb(250,250,250);stroke-width:1;stroke:rgb(0,0,0)" />
+  {% for x in waists %}
+  <circle cx="{{x.x}}" cy="{{x.y}}" r="1" stroke="{{x.color}}" stroke-width="1" fill="black" />
+  {% endfor %}
+</svg>
+
 
 {% endblock %}
 
