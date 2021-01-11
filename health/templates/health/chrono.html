@@ -1,38 +1,40 @@
 {% extends "hier/content_top.html" %}
 {% load static i18n %}
 
-{% block items_content %}
-<h2>{% trans 'temperature'|capfirst %}</h2>
-<svg width="1000" height="100">
-  <rect width="1000" height="100" style="fill:rgb(250,250,250);stroke-width:1;stroke:rgb(0,0,0)" />
-  {% for x in temperatures %}
-  <circle cx="{{x.x}}" cy="{{x.y}}" r="1" stroke="{{x.color}}" stroke-width="1" fill="black" />
-  {% endfor %}
-  {% for y in incidents %}
-  <rect x="{{y.x}}" y="93" width="{{y.width}}" height="5" style="fill:yellow;stroke-width:1;stroke:rgb(50,50,50)" />
-  {% endfor %}
-</svg>
+{% block extrastyle %}
+  <link rel="stylesheet" type="text/css" href="{% static 'health/css/health.css' %}">
+{% endblock %}
 
-<br>
+{% block items_content %}
 
 <h2>{% trans 'weight'|capfirst %}</h2>
-<svg width="1000" height="100">
-  <rect width="1000" height="100" style="fill:rgb(250,250,250);stroke-width:1;stroke:rgb(0,0,0)" />
-  {% for x in weights %}
-  <circle cx="{{x.x}}" cy="{{x.y}}" r="1" stroke="{{x.color}}" stroke-width="1" fill="black" />
-  {% endfor %}
-</svg>
+<div class="info">
+  <div class="part">{% trans 'Max:' %}{{ weight_max_value }} {% trans 'at' %} {{ weight_max_date }}</div>
+  <div class="part">{% trans 'Min:' %}{{ weight_min_value }} {% trans 'at' %} {{ weight_min_date }}</div>
+</div>
+<img src="chart/weight/" class="chart" alt="{% trans 'weight chart'|capfirst %}">
+<br>
+{{ weight_info }}
+<br>
 
+<h2>{% trans 'temperature'|capfirst %}</h2>
+<div class="info">
+  <div class="part">{% trans 'Max:' %}{{ temp_max_value }} {% trans 'at' %} {{ temp_max_date }}</div>
+  <div class="part">{% trans 'Min:' %}{{ temp_min_value }} {% trans 'at' %} {{ temp_min_date }}</div>
+</div>
+<img src="chart/temp/" class="chart" alt="{% trans 'temperature chart'|capfirst %}">
+<br>
+{{ temp_info }}
 <br>
 
 <h2>{% trans 'waist circumference'|capfirst %}</h2>
-<svg width="1000" height="100">
-  <rect width="1000" height="100" style="fill:rgb(250,250,250);stroke-width:1;stroke:rgb(0,0,0)" />
-  {% for x in waists %}
-  <circle cx="{{x.x}}" cy="{{x.y}}" r="1" stroke="{{x.color}}" stroke-width="1" fill="black" />
-  {% endfor %}
-</svg>
-
+<div class="info">
+  <div class="part">{% trans 'Max:' %}{{ waist_max_value }} {% trans 'at' %} {{ waist_max_date }}</div>
+  <div class="part">{% trans 'Min:' %}{{ waist_min_value }} {% trans 'at' %} {{ waist_min_date }}</div>
+</div>
+<img src="chart/waist/" class="chart" alt="{% trans 'waist circumference chart'|capfirst %}">
+<br>
+{{ waist_info }}
 
 {% endblock %}
 

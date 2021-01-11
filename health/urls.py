@@ -3,10 +3,11 @@ from . import views
 
 app_name = 'health'
 urlpatterns = [
-    path('',          views.main,      name = 'main'),
-    path('chrono/',   views.chrono,    name = 'chrono'),
-    path('biomark/',  views.biomark,   name = 'biomark'),
-    path('incident/', views.incident,  name = 'incident'),
-    path('<int:pk>/', views.item_form, name = 'item_form'),
-    path('import/',   views.import_weight, name = 'import_weight'),
+    path('',            views.main,       name = 'main'),
+    path('chrono/',     views.chrono,     name = 'chrono'),
+    path('biomark/',    views.biomark,    name = 'biomark'),
+    path('incident/',   views.incident,   name = 'incident'),
+    path('<int:pk>/',   views.item_form,  name = 'item_form'),
+    path('import/',     views.imp_weight, name = 'imp_weight'),
+    path('chart/<nm>/', views.chart,      name = 'chart'),
 ]

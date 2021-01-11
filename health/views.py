@@ -1,4 +1,6 @@
-from datetime import datetime, timedelta
+import pathlib
+
+from datetime import datetime
 from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect, FileResponse, HttpResponseNotFound
 from django.template import loader
@@ -13,8 +15,11 @@ from hier.models import get_app_params
 from hier.aside import Fix
 from hier.utils import get_base_context_ext, process_common_commands, sort_data, extract_get_params
 from hier.params import get_search_mode, get_search_info, set_restriction, set_article_kind, set_article_visible
+from hier.files import service_path
 from .models import app_name, Biomarker, Incident, Anamnesis
 from .forms import BiomarkerForm, IncidentForm
+from .plot import Plot
+from .secret import imp_file
 
 items_in_page = 20
 
@@ -43,9 +48,14 @@ def item_form(request, pk):
     return HttpResponseRedirect(reverse('health:main') + extract_get_params(request))
 
 #----------------------------------
-def import_weight(request):
+def imp_weight(request):
     do_import_weight(request.user)
     return HttpResponseRedirect(reverse('health:main'))
+
+#----------------------------------
+def chart(request, nm):
+    fsock = open(chart_storage(request.user) + nm + '.png', 'rb')
+    return FileResponse(fsock)
 
 #----------------------------------
 @login_required(login_url='account:login')
@@ -81,10 +91,21 @@ def main(request):
     context['hide_important'] = True
     if (app_param.restriction == CHRONO):
         context['hide_add_item_input'] = True
-        context['temperatures'], dt_start = get_temp_points(request.user)
-        context['incidents'] = get_incidents(request.user, dt_start)
-        context['weights'] = get_weight_points(request.user)
-        context['waists'] = get_waist_points(request.user)
+        min_value, max_value, min_date, max_date = build_chart(request.user, 'weight', 73)
+        context['weight_min_value'] = min_value
+        context['weight_min_date'] = min_date
+        context['weight_max_value'] = max_value
+        context['weight_max_date'] = max_date
+        min_value, max_value, min_date, max_date = build_chart(request.user, 'temp', 37)
+        context['temp_min_value'] = min_value
+        context['temp_min_date'] = min_date
+        context['temp_max_value'] = max_value
+        context['temp_max_date'] = max_date
+        min_value, max_value, min_date, max_date = build_chart(request.user, 'waist', 90)
+        context['waist_min_value'] = min_value
+        context['waist_min_date'] = min_date
+        context['waist_max_value'] = max_value
+        context['waist_max_date'] = max_date
 
     redirect = False
 
@@ -138,22 +159,6 @@ def filtered_list(user, restriction, query = None, lst = None):
         data = Incident.objects.filter(user = user.id).order_by('-beg')
     else:
         data = []
-
-    if not query:
-        return data
-
-    """
-    search_mode = get_search_mode(query)
-    lookups = None
-    if (search_mode == 0):
-        return data
-    elif (search_mode == 1):
-        lookups = Q(name__icontains=query) | Q(code__icontains=query) | Q(descr__icontains=query) | Q(url__icontains=query)
-    elif (search_mode == 2):
-        lookups = Q(categories__icontains=query[1:])
-    
-    return data.filter(lookups).distinct()
-    """
     return data
 #----------------------------------
 def get_title(restriction):
@@ -235,86 +240,169 @@ def create_biomarkers(user, s_value):
     return Biomarker.objects.create(user = user, height = height, weight = weight, temp = temp, waist = waist, \
                                     systolic = systolic, diastolic = diastolic, pulse = pulse, info = info, publ = datetime.now())
 
+#----------------------------------
+def get_data_from_db(user, name):
+    x = []
+    y = []
+    min_value = max_value = min_date = max_date = None
+
+    if (name == 'weight'):
+        data = Biomarker.objects.filter(user = user.id).exclude(weight = None).order_by('publ')
+        if (len(data) > 0):
+            values = Biomarker.objects.filter(user = user.id).exclude(weight = None).order_by('weight')
+            min_value = values[0].weight
+            max_value = values[len(values)-1].weight
+            min_date = values[0].publ.date()
+            max_date = values[len(values)-1].publ.date()
+    elif (name == 'waist'):
+        data = Biomarker.objects.filter(user = user.id).exclude(waist = None).order_by('publ')
+        if (len(data) > 0):
+            values = Biomarker.objects.filter(user = user.id).exclude(waist = None).order_by('waist')
+            min_value = values[0].waist
+            max_value = values[len(values)-1].waist
+            min_date = values[0].publ.date()
+            max_date = values[len(values)-1].publ.date()
+    elif (name == 'temp'):
+        data = Biomarker.objects.filter(user = user.id).exclude(temp = None).order_by('publ')
+        if (len(data) > 0):
+            values = Biomarker.objects.filter(user = user.id).exclude(temp = None).order_by('temp')
+            min_value = values[0].temp
+            max_value = values[len(values)-1].temp
+            min_date = values[0].publ.date()
+            max_date = values[len(values)-1].publ.date()
+    else:
+        data = []
+    
+    cur_day = average = qty = None
+    for b in data:
+        if cur_day and (cur_day == b.publ.date()):
+            qty += 1
+            if (name == 'weight'):
+                average += b.weight
+            elif (name == 'waist'):
+                average += b.waist
+            elif (name == 'temp'):
+                average += b.temp
+        else:
+            if cur_day:
+                x.append(cur_day)
+                if (cur_day == min_date):
+                    y.append(min_value)
+                elif (cur_day == max_date):
+                    y.append(max_value)
+                else:
+                    y.append(average / qty)
+            qty = 1
+            cur_day = b.publ.date()
+            if (name == 'weight'):
+                average = b.weight
+            elif (name == 'waist'):
+                average = b.waist
+            elif (name == 'temp'):
+                average = b.temp
+    
+    return x, y, min_value, max_value, min_date, max_date
 
 #----------------------------------
-def get_x_for_any(dt_min):
-    """lambda function to convert any date value to X coordinate in a chart"""
-    return lambda dt : int((dt - dt_min).days / (datetime.now().date() - dt_min).days * 1000)
+def check_l(x, i, approx):
+    """Проверка сплайна слева"""
+    qty_l = 0
+    j = i - 1
+    while (j >= 0) and ((x[i] - x[j]).days <= approx):
+        qty_l += 1
+        j -= 1
+    return qty_l
 
 #----------------------------------
-def get_y_for_any(min_value, max_value):
-    """lambda function to convert any phisical value to Y coordinate in a chart"""
-    return lambda value : 100 - int((value - min_value) / (max_value - min_value) * 100)
+def check_r(x, i, approx):
+    """Проверка сплайна справа"""
+    qty_r = 0
+    j = i + 1
+    while (j < len(x)) and ((x[j] - x[i]).days <= approx):
+        qty_r += 1
+        j += 1
+    return qty_r
 
 #----------------------------------
-def get_incidents(user, dt_start):
-    incidents = []
-    get_x_for_temp = get_x_for_any(dt_start)
-    for y in Incident.objects.filter(user = user.id).order_by('beg'):
-        x1_pos = get_x_for_temp(y.beg)
-        x2_pos = get_x_for_temp(y.end)
-        incidents.append({'x': x1_pos, 'width': x2_pos - x1_pos})
-    return incidents
+def approximate(x, y, approx):
+    """Аппроксимация значений на графике"""
+    ret_y = []
+    prev_x = prev_y = 0
+    for i in range(len(y)):
+        # определяем сплайны слева и справа
+        qty_l = check_l(x, i, approx)
+        qty_r = check_r(x, i, approx)
+        # и усредняем значения для них
+        average = 0
+        for j in range(i - qty_l, i + qty_r + 1):
+            average += y[j]
+        average /= (1 + qty_l + qty_r)
+        ret_y.append(average)
+    return ret_y
 
 #----------------------------------
-def get_temp_points(user):
-    get_y_for_temp = get_y_for_any(35, 40)
-    points = []
-    dt_start = None
-    for x in Biomarker.objects.filter(user = user.id).order_by('publ'):
-        if not dt_start and x.temp:
-            dt_start = (x.publ - timedelta(2)).date()
-            get_x_for_temp = get_x_for_any(dt_start)
-        if x.temp:
-            x_pos = get_x_for_temp(x.publ.date())
-            y_pos = get_y_for_temp(x.temp)
-            if (x.temp >= 37):
-                color = "red"
+def build_chart(user, name, border):
+    x, y, min_value, max_value, min_date, max_date = get_data_from_db(user, name)
+
+    if (name == 'waist'):
+        min_value = 90
+
+    if (len(y) > 100):
+        y = approximate(x, y, 10)
+ 
+    plt = Plot(chart_storage(user), name, min_value, max_value, x[0], x[-1])
+
+    prev_value = prev_date = high = None
+    xx = []
+    yy = []
+    for i in range(len(y)):
+        if not prev_value:
+            prev_value = y[i]
+            prev_date = x[i]
+            high = (y[i] >= border)
+            xx.append(x[i])
+            yy.append(y[i])
+        else:
+            if (high == (y[i] >= border)):
+                xx.append(x[i])
+                yy.append(y[i])
             else:
-                color = "green"
-            points.append({'x': x_pos, 'y': y_pos, 'color': color})
-    
-    return points, dt_start
+                if high:
+                    color = 'brown'
+                else:
+                    color = 'green'
+                if (len(y) > 300):
+                    plt.plot(xx, yy, color = color)
+                else:
+                    plt.scatter(xx, yy, color = color)
+                xx = []
+                yy = []
+                xx.append(x[i])
+                yy.append(y[i])
+                high = (y[i] >= border)
+    if high:
+        color = 'brown'
+    else:
+        color = 'green'
+    if (len(y) > 300):
+        plt.plot(xx, yy, color = color)
+    else:
+        plt.scatter(xx, yy, color = color)
+    bx = [x[0], x[-1]]
+    by = [border, border]
+    plt.plot(bx, by, linestyle = 'dotted', color = 'navy')
+    plt.save()
+    return min_value, max_value, min_date, max_date
 
 #----------------------------------
-def get_weight_points(user):
-    get_y_for_weight = get_y_for_any(70, 85)
-    points = []
-    dt_start = None
-    for x in Biomarker.objects.filter(user = user.id).order_by('publ'):
-        if not dt_start and x.weight:
-            dt_start = (x.publ - timedelta(2)).date()
-            get_x_for_weight = get_x_for_any(dt_start)
-        if x.weight:
-            x_pos = get_x_for_weight(x.publ.date())
-            y_pos = get_y_for_weight(x.weight)
-            if (x.weight >= 73):
-                color = "red"
-            else:
-                color = "green"
-            points.append({'x': x_pos, 'y': y_pos, 'color': color})
-    
-    return points
-
-#----------------------------------
-def get_waist_points(user):
-    get_y_for_waist = get_y_for_any(80, 105)
-    points = []
-    dt_start = None
-    for x in Biomarker.objects.filter(user = user.id).order_by('publ'):
-        if not dt_start and x.waist:
-            dt_start = (x.publ - timedelta(2)).date()
-            get_x_for_waist = get_x_for_any(dt_start)
-        if x.waist:
-            x_pos = get_x_for_waist(x.publ.date())
-            y_pos = get_y_for_waist(x.waist)
-            points.append({'x': x_pos, 'y': y_pos, 'color': "black"})
-    
-    return points
+def chart_storage(user):
+    path = service_path.format(user.id) + app_name + '/'
+    pathlib.Path(path).mkdir(parents=True, exist_ok=True)
+    return path
 
 #----------------------------------
 def do_import_weight(user):
-    with open('C:/Web/apps/rusel/health/weight.csv', 'r') as f:
+    with open(imp_file, 'r') as f:
         while True:
             s = f.readline()
             if (s == ''):
