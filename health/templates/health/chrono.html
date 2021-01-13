@@ -11,6 +11,7 @@
 <div class="info">
   <div class="part">{% trans 'Max:' %}{{ weight_max_value }} {% trans 'at' %} {{ weight_max_date }}</div>
   <div class="part">{% trans 'Min:' %}{{ weight_min_value }} {% trans 'at' %} {{ weight_min_date }}</div>
+  <div class="part">{% trans 'Last:' %}{{ weight_last_value }}</div>
 </div>
 <img src="chart/weight/" class="chart" alt="{% trans 'weight chart'|capfirst %}">
 <br>
@@ -21,6 +22,7 @@
 <div class="info">
   <div class="part">{% trans 'Max:' %}{{ temp_max_value }} {% trans 'at' %} {{ temp_max_date }}</div>
   <div class="part">{% trans 'Min:' %}{{ temp_min_value }} {% trans 'at' %} {{ temp_min_date }}</div>
+  <div class="part">{% trans 'Last:' %}{{ temp_last_value }}</div>
 </div>
 <img src="chart/temp/" class="chart" alt="{% trans 'temperature chart'|capfirst %}">
 <br>
@@ -31,6 +33,7 @@
 <div class="info">
   <div class="part">{% trans 'Max:' %}{{ waist_max_value }} {% trans 'at' %} {{ waist_max_date }}</div>
   <div class="part">{% trans 'Min:' %}{{ waist_min_value }} {% trans 'at' %} {{ waist_min_date }}</div>
+  <div class="part">{% trans 'Last:' %}{{ waist_last_value }}</div>
 </div>
 <img src="chart/waist/" class="chart" alt="{% trans 'waist circumference chart'|capfirst %}">
 <br>

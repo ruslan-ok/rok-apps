@@ -21,7 +21,6 @@ class Plot():
         self.max_date  = max_date 
         self.im = Image.new('RGBA', (img_width, img_height), 'white')
         d = ImageDraw.Draw(self.im)
-        d.rectangle([1, 1, img_width-1, img_height-1], outline = 'gray')
         d.rectangle([ext_field, ext_field, img_width-ext_field, img_height-ext_field], fill = 'gray')
         d.rectangle([ext_field+1, ext_field+1, img_width-ext_field-1, img_height-ext_field-1], fill = 'white')
 
@@ -39,9 +38,10 @@ class Plot():
                 dt = next_month(dt)
         else:
             dt = min_date
+            delta = round((max_date - min_date).days / 10, 0)
             while (dt <= max_date):
                 self.draw_date(dt, '%d.%m.%Y')
-                dt = dt + timedelta(1)
+                dt = dt + timedelta(delta)
 
         # y-axis
         delta = (max_value - min_value) / 5

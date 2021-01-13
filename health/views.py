@@ -91,21 +91,24 @@ def main(request):
     context['hide_important'] = True
     if (app_param.restriction == CHRONO):
         context['hide_add_item_input'] = True
-        min_value, max_value, min_date, max_date = build_chart(request.user, 'weight', 73)
+        min_value, max_value, min_date, max_date, last_value = build_chart(request.user, 'weight', 73)
         context['weight_min_value'] = min_value
         context['weight_min_date'] = min_date
         context['weight_max_value'] = max_value
         context['weight_max_date'] = max_date
-        min_value, max_value, min_date, max_date = build_chart(request.user, 'temp', 37)
+        context['weight_last_value'] = last_value
+        min_value, max_value, min_date, max_date, last_value = build_chart(request.user, 'temp', 37)
         context['temp_min_value'] = min_value
         context['temp_min_date'] = min_date
         context['temp_max_value'] = max_value
         context['temp_max_date'] = max_date
-        min_value, max_value, min_date, max_date = build_chart(request.user, 'waist', 90)
+        context['temp_last_value'] = last_value
+        min_value, max_value, min_date, max_date, last_value = build_chart(request.user, 'waist', 90)
         context['waist_min_value'] = min_value
         context['waist_min_date'] = min_date
         context['waist_max_value'] = max_value
         context['waist_max_date'] = max_date
+        context['waist_last_value'] = last_value
 
     redirect = False
 
@@ -232,8 +235,10 @@ def create_biomarkers(user, s_value):
 
     if (n_value >= 35) and (n_value < 50):
         temp = n_value
-    elif (n_value >= 50) and (n_value < 150):
+    elif (n_value >= 50) and (n_value < 90):
         weight = n_value
+    elif (n_value >= 90) and (n_value < 150):
+        waist = n_value
     elif (n_value >= 150) and (n_value < 250):
         height = n_value
     
@@ -244,7 +249,7 @@ def create_biomarkers(user, s_value):
 def get_data_from_db(user, name):
     x = []
     y = []
-    min_value = max_value = min_date = max_date = None
+    min_value = max_value = min_date = max_date = last_value = None
 
     if (name == 'weight'):
         data = Biomarker.objects.filter(user = user.id).exclude(weight = None).order_by('publ')
@@ -254,6 +259,7 @@ def get_data_from_db(user, name):
             max_value = values[len(values)-1].weight
             min_date = values[0].publ.date()
             max_date = values[len(values)-1].publ.date()
+            last_value = data[len(data)-1].weight
     elif (name == 'waist'):
         data = Biomarker.objects.filter(user = user.id).exclude(waist = None).order_by('publ')
         if (len(data) > 0):
@@ -262,6 +268,7 @@ def get_data_from_db(user, name):
             max_value = values[len(values)-1].waist
             min_date = values[0].publ.date()
             max_date = values[len(values)-1].publ.date()
+            last_value = data[len(data)-1].waist
     elif (name == 'temp'):
         data = Biomarker.objects.filter(user = user.id).exclude(temp = None).order_by('publ')
         if (len(data) > 0):
@@ -270,6 +277,7 @@ def get_data_from_db(user, name):
             max_value = values[len(values)-1].temp
             min_date = values[0].publ.date()
             max_date = values[len(values)-1].publ.date()
+            last_value = data[len(data)-1].temp
     else:
         data = []
     
@@ -301,7 +309,7 @@ def get_data_from_db(user, name):
             elif (name == 'temp'):
                 average = b.temp
     
-    return x, y, min_value, max_value, min_date, max_date
+    return x, y, min_value, max_value, min_date, max_date, last_value
 
 #----------------------------------
 def check_l(x, i, approx):
@@ -342,7 +350,7 @@ def approximate(x, y, approx):
 
 #----------------------------------
 def build_chart(user, name, border):
-    x, y, min_value, max_value, min_date, max_date = get_data_from_db(user, name)
+    x, y, min_value, max_value, min_date, max_date, last_vaue = get_data_from_db(user, name)
 
     if (name == 'waist'):
         min_value = 90
@@ -392,7 +400,7 @@ def build_chart(user, name, border):
     by = [border, border]
     plt.plot(bx, by, linestyle = 'dotted', color = 'navy')
     plt.save()
-    return min_value, max_value, min_date, max_date
+    return min_value, max_value, min_date, max_date, last_vaue
 
 #----------------------------------
 def chart_storage(user):

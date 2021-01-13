@@ -378,7 +378,6 @@ def main(request):
     paginator = Paginator(data, items_per_page)
     page_obj = paginator.get_page(page_number)
     context['page_obj'] = paginator.get_page(page_number)
-    #raise Exception(app_param.restriction)
     template = loader.get_template('wage/' + app_param.restriction + '.html')
     return HttpResponse(template.render(context, request))
 
