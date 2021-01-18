@@ -25,5 +25,3 @@ This site provides the following functionality:
 * "Photobank" - photo storage. Photos can be grouped into folders that can be structured in a hierarchy (like folders in a file system). Geotagged photos can be displayed on the map as markers indicating shooting locations.
 
 * "Fueling" - for the car owner the ability to control fuel consumption, as well as the frequency of service maintenance and replacement of consumable materials.
-
-Use the "Demo" button in the top right corner to explore this functionality.
