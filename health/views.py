@@ -355,10 +355,15 @@ def build_chart(user, name, border):
     if (name == 'waist'):
         min_value = 90
 
+    min_date = max_date = None
+    if x:
+        min_date = x[0]
+        max_date = x[-1]
+
     if (len(y) > 100):
         y = approximate(x, y, 10)
  
-    plt = Plot(chart_storage(user), name, min_value, max_value, x[0], x[-1])
+    plt = Plot(chart_storage(user), name, min_value, max_value, min_date, max_date)
 
     prev_value = prev_date = high = None
     xx = []
@@ -396,7 +401,7 @@ def build_chart(user, name, border):
         plt.plot(xx, yy, color = color)
     else:
         plt.scatter(xx, yy, color = color)
-    bx = [x[0], x[-1]]
+    bx = [min_date, max_date]
     by = [border, border]
     plt.plot(bx, by, linestyle = 'dotted', color = 'navy')
     plt.save()

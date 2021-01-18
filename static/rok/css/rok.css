@@ -50,13 +50,12 @@ h1, h2, h3, h4, h5, h6 {
   color: #666;
 }
 
-p, ol, ul, dl {
+ol, ul, dl {
   margin: .2em 0 .8em 0;
 }
 
 p {
   margin-block-start: 1em;
-  margin-block-end: 1em;
   line-height: 140%;
 }
 
@@ -1530,4 +1529,16 @@ button.dropdown-content-item:hover {
 
 .calendarbox, .clockbox {
   z-index: 10;
+}
+
+main .apps-info ul {
+  padding-left: 40px;
+}
+
+main .apps-info ul li {
+  list-style-type: disc;
+}
+
+.app-icon {
+  margin-right: 10px;
 }

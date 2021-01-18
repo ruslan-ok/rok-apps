@@ -24,6 +24,9 @@ class Plot():
         d.rectangle([ext_field, ext_field, img_width-ext_field, img_height-ext_field], fill = 'gray')
         d.rectangle([ext_field+1, ext_field+1, img_width-ext_field-1, img_height-ext_field-1], fill = 'white')
 
+        if not (min_value and max_value and min_date and max_date):
+            return
+
         # x-axis
         if ((max_date - min_date).days > 730):
             for i in range(min_date.year + 1, max_date.year + 1):
@@ -79,10 +82,16 @@ class Plot():
         self.im.paste(w, (px, py, px + sx, py + sy), w)
 
     def get_x_pos(self, dt):
+        if not (self.min_date and self.max_date):
+            return 0
+
         draw_width = img_width - 2*ext_field - 2*int_field
         return int((dt - self.min_date).days / (self.max_date - self.min_date).days * draw_width + ext_field + int_field)
 
     def get_y_pos(self, value):
+        if not (self.min_value and self.max_value):
+            return 0
+
         draw_height = img_height - 2*ext_field - 2*int_field
         return int(draw_height - (value - self.min_value) / (self.max_value - self.min_value) * draw_height + ext_field + int_field)
 

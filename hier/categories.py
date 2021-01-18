@@ -1,3 +1,5 @@
+from functools import reduce
+
 CATEGORY_DESIGN = [
     'green',
     'blue',
@@ -8,10 +10,7 @@ CATEGORY_DESIGN = [
 ]
 
 def get_category_design(categ):
-    l = 0
-    for c in categ:
-        l += ord(c)
-    return CATEGORY_DESIGN[l % 6]
+    return CATEGORY_DESIGN[reduce(lambda x, y: x + ord(y), categ, 0) % 6]
 
 class Category():
     def __init__(self, name):

@@ -169,10 +169,10 @@ def get_base_context_ext(request, app_name, content_kind, title, article_enabled
         ('note',    'note',        '/note/'),
         ('news',    'news',        '/news/'),
         ('store',   'key',         '/store/'),
+        ('proj',    'cost',        '/proj/'),
         ('trip',    'car',         '/trip/'),
         ('fuel',    'gas',         '/fuel/'),
         ('apart',   'apartment',   '/apart/'),
-        ('proj',    'cost',        '/proj/'),
         ('wage',    'work',        '/wage/'),
         ('photo',   'photo',       '/photo/'),
         ('health',  'health',      '/health/'),
@@ -183,13 +183,7 @@ def get_base_context_ext(request, app_name, content_kind, title, article_enabled
 
     apps = []
     for app in APPS:
-        if (app[0] == 'store') and (request.user.username != 'ruslan.ok'):
-            continue
-        if (app[0] == 'trip') and (request.user.username != 'ruslan.ok'):
-            continue
-        if (app[0] == 'apart') and (request.user.username != 'ruslan.ok'):
-            continue
-        if (app[0] == 'wage') and (request.user.username != 'ruslan.ok'):
+        if (app[0] in ('store', 'trip', 'apart', 'wage', 'health')) and (request.user.username != 'ruslan.ok'):
             continue
         if (app[0] == 'admin') and (request.user.username != 'admin'):
             continue

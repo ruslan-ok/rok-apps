@@ -133,3 +133,32 @@ def toggle_content_group(user_id, app, grp_id):
         grp = ContentGroup.objects.filter(user = user_id, app = app, grp_id = grp_id).get()
         grp.is_open = not grp.is_open
         grp.save()
+
+
+class IPInfo(models.Model):
+    ip = models.CharField('IP', max_length=20, blank=False)
+    country = models.CharField('country', max_length=3, blank=False)
+    info = models.TextField('information', blank=True)
+
+class LogRecord(models.Model):
+    ip = models.ForeignKey(IPInfo, on_delete = models.CASCADE, verbose_name='IP address', related_name='IP_address', null=True)
+    event = models.DateTimeField('event time', null=False)
+    prot = models.CharField('protocol', max_length=100, blank=True)
+    crypt = models.CharField('crypto', max_length=200, blank=True)
+    method = models.CharField('method', max_length=10, blank=True)
+    addr = models.CharField('address', max_length=300, blank=True)
+    vers = models.CharField('HTTP version', max_length=50, blank=True)
+    size = models.IntegerField('request size', blank=True, null=True)
+    valid = models.BooleanField('valid resource', default=False, null=True)
+    log_sz = models.IntegerField('log file size', blank=True, null=True)
+
+class ActDetect(models.Model):
+    event = models.DateTimeField('event time', null=False)
+    addr = models.CharField('address', max_length=300, blank=True)
+    ip = models.CharField('IP', max_length=20, blank=False)
+    country = models.CharField('country', max_length=3, blank=False)
+    org = models.CharField('organisation', max_length=200, blank=False)
+
+    def __str__(self):
+        return self.country + ' ' + self.ip + ' ' + self.org
+

@@ -5,7 +5,6 @@ from django.db import models
 from django.utils.translation import gettext, gettext_lazy as _
 from django.urls import reverse
 
-from rusel.const import a_months
 from .utils import get_new_period
 from hier.files import get_files_list
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-05 07:47+0300\n"
+"POT-Creation-Date: 2021-01-17 19:30+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -40,10 +40,11 @@ msgid "weight, kg"
 msgstr "вес, кг"
 
 #: .\health\models.py:14 .\health\models.py:47
+#: .\health\templates\health\chrono.html:21
 msgid "temperature"
 msgstr "температура"
 
-#: .\health\models.py:15
+#: .\health\models.py:15 .\health\templates\health\chrono.html:32
 msgid "waist circumference"
 msgstr "обхват талии"
 
@@ -67,7 +68,7 @@ msgstr "информация"
 msgid "biomarker"
 msgstr "биомаркер"
 
-#: .\health\models.py:23 .\health\views.py:70 .\health\views.py:157
+#: .\health\models.py:23 .\health\views.py:85 .\health\views.py:171
 msgid "biomarkers"
 msgstr "биомаркеры"
 
@@ -79,7 +80,7 @@ msgstr "рост"
 msgid "cm"
 msgstr "см"
 
-#: .\health\models.py:42
+#: .\health\models.py:42 .\health\templates\health\chrono.html:10
 msgid "weight"
 msgstr "вес"
 
@@ -119,7 +120,7 @@ msgstr "диагноз"
 msgid "incident"
 msgstr "событие"
 
-#: .\health\models.py:82 .\health\views.py:71 .\health\views.py:159
+#: .\health\models.py:82 .\health\views.py:86 .\health\views.py:173
 msgid "incidents"
 msgstr "события"
 
@@ -135,24 +136,58 @@ msgstr "анамнез"
 msgid "preasure"
 msgstr "давление"
 
-#: .\health\views.py:69
+#: .\health\templates\health\chrono.html:12
+#: .\health\templates\health\chrono.html:23
+#: .\health\templates\health\chrono.html:34
+msgid "Max:"
+msgstr "Максимум:"
+
+#: .\health\templates\health\chrono.html:12
+#: .\health\templates\health\chrono.html:13
+#: .\health\templates\health\chrono.html:23
+#: .\health\templates\health\chrono.html:24
+#: .\health\templates\health\chrono.html:34
+#: .\health\templates\health\chrono.html:35
+msgid "at"
+msgstr ""
+
+#: .\health\templates\health\chrono.html:13
+#: .\health\templates\health\chrono.html:24
+#: .\health\templates\health\chrono.html:35
+msgid "Min:"
+msgstr "Минимум:"
+
+#: .\health\templates\health\chrono.html:14
+#: .\health\templates\health\chrono.html:25
+#: .\health\templates\health\chrono.html:36
+msgid "Last:"
+msgstr "Последнее:"
+
+#: .\health\templates\health\chrono.html:16
+msgid "weight chart"
+msgstr "диаграмма веса"
+
+#: .\health\templates\health\chrono.html:27
+msgid "temperature chart"
+msgstr "диаграмма температуры"
+
+#: .\health\templates\health\chrono.html:38
+msgid "waist circumference chart"
+msgstr "диаграмма обхвата талии"
+
+#: .\health\views.py:84
 msgid "chronology"
 msgstr "хронология"
 
-#: .\health\views.py:155
+#: .\health\views.py:169
 msgid "dynamics of changes in biomarkers"
 msgstr "динамика изменения биомаркеров"
 
-#: .\health\views.py:164
+#: .\health\views.py:178
 msgid "add biomarkers"
 msgstr "добавить биомаркеры"
 
-#: .\health\views.py:166
+#: .\health\views.py:180
 msgid "add incident"
 msgstr "добавить событие"
 
-#~ msgid "run converter"
-#~ msgstr "Выполнить конвертацию"
-
-#~ msgid "add file"
-#~ msgstr "добавить файл"

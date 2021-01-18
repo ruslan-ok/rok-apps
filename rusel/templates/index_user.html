@@ -16,6 +16,17 @@
         </h3>
   
     <div class="w3-row w3-padding">
+      {% if logs %}
+        <p>
+        {% for x in logs.0 %}
+          {{ x.0 }}: {{ x.1 }}<br>
+        {% endfor %}
+        {% for x, y in logs.1.items %}
+          {{ x }}: {{ y }}<br>
+        {% endfor %}
+        <br>
+        </p>
+      {% endif %}
       <a href="{% url 'trip:main' %}">{{ trip_summary|safe }}</a>
       {% if last_visited_url %}
         <p><a href="{{ last_visited_url }}">{{ last_visited_app }} - {{ last_visited_page }}</a></p>

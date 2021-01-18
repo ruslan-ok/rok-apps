@@ -272,10 +272,10 @@ class Entry:
         
 #----------------------------------
 def filtered_sorted_list(user, app_param, query):
-    data, gps_data = filtered_list(user, app_param.content, query)
+    data, gps_data = filtered_list(user, app_param.content, app_param.restriction, query)
     return sorted(data, key = attrgetter('is_dir', 'name')), gps_data
 
-def filtered_list(user, content, query = None):
+def filtered_list(user, content, restriction, query = None):
     data = []
     gps_data = []
     
@@ -303,10 +303,12 @@ def filtered_list(user, content, query = None):
         if e not in data:
             Photo.objects.filter(id = p.id).delete()
 
-    photos = Photo.objects.filter(user = user.id, path = content)
-    for p in photos:
-        if (p.lat and p.lon):
-            gps_data.append({ 'id': p.id, 'lat': str(p.lat), 'lon': str(p.lon), 'name': p.name })
+    if (restriction == 'map'):
+        for d, s, f in os.walk(dirname):
+            extra = d[len(dirname):].replace('\\', '/')
+            for p in Photo.objects.filter(user = user.id, path = content + extra):
+                if (p.lat and p.lon):
+                    gps_data.append({ 'id': p.id, 'lat': str(p.lat), 'lon': str(p.lon), 'name': p.name })
 
     return data, gps_data
 
