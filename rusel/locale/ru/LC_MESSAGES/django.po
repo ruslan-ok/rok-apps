@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-17 19:30+0300\n"
+"POT-Creation-Date: 2021-01-19 08:45+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -48,44 +48,44 @@ msgid ""
 "Reminder of tasks by pop-up messages of the browser on the computer and in "
 "the phone."
 msgstr ""
-"Напоминание о задачах всплывающими сообщениями браузера на компьютере и "
-"в телефоне."
+"Напоминание о задачах всплывающими сообщениями браузера на компьютере и в "
+"телефоне."
 
 #: .\rusel\templates\index_anonim.html:26
 msgid ""
 "For each task, execution stages can be set, tracking of the execution of "
 "both the task itself and its stages is available."
 msgstr ""
-"Для каждой задачи могут быть заданы этапы выполнения, доступно "
-"отслеживание выполнения как самой задачи, так и её этапов."
+"Для каждой задачи могут быть заданы этапы выполнения, доступно отслеживание "
+"выполнения как самой задачи, так и её этапов."
 
 #: .\rusel\templates\index_anonim.html:27
 msgid ""
 "For a task, a due date, frequency of repetition, date and time of reminder "
 "can be set."
 msgstr ""
-"Для задачи может быть задан срок исполнения, периоличность повторения, "
-"дата и время напоминания."
+"Для задачи может быть задан срок исполнения, периоличность повторения, дата "
+"и время напоминания."
 
 #: .\rusel\templates\index_anonim.html:28
 msgid ""
 "A task can be marked as \"important\" or as added to the \"My Day\" view."
 msgstr ""
-"Задача может быть помечена как \"важная\" или как добавленная в представление \"Мой день\"."
+"Задача может быть помечена как \"важная\" или как добавленная в "
+"представление \"Мой день\"."
 
 #: .\rusel\templates\index_anonim.html:29
 msgid ""
 "Each task can be assigned an arbitrary number of \"categories\" and filter "
 "the list of tasks by them."
 msgstr ""
-"Каждой задаче можно присвоить произвольное количество \"категорий\" "
-"и фильтровать список задач по ним."
+"Каждой задаче можно присвоить произвольное количество \"категорий\" и "
+"фильтровать список задач по ним."
 
 #: .\rusel\templates\index_anonim.html:30
 msgid ""
 "In the task, you can specify a hyperlink to an external Internet resource."
-msgstr ""
-"В задаче можно указать гиперссылку на внешний интернет-ресурс."
+msgstr "В задаче можно указать гиперссылку на внешний интернет-ресурс."
 
 #: .\rusel\templates\index_anonim.html:31
 msgid "You can attach an arbitrary number of files to the task."
@@ -99,27 +99,27 @@ msgid ""
 "tasks, are combined into lists, and lists into groups. Notes can be searched "
 "by title, description, and category."
 msgstr ""
-"\"Заметки\" - персональные заметки обо всём. Для каждой заметки кроме описания "
-"можно указать гиперссылку на внешний интернет-ресурс, произвольное количество "
-"категорий, прикрепить файлы. Заметки, как и задачи, объединются в списки, "
-"а списки - в группы. В заметках можно выполнять поиск по наименованиям, "
-"описаниям и категориям."
+"\"Заметки\" - персональные заметки обо всём. Для каждой заметки кроме "
+"описания можно указать гиперссылку на внешний интернет-ресурс, произвольное "
+"количество категорий, прикрепить файлы. Заметки, как и задачи, объединются в "
+"списки, а списки - в группы. В заметках можно выполнять поиск по "
+"наименованиям, описаниям и категориям."
 
 #: .\rusel\templates\index_anonim.html:35
 msgid ""
 "\"News\" - similar to a list of notes, but the emphasis is on the date-time "
 "of publication."
 msgstr ""
-"\"Новости\" - похожи на список заметок, но акцент делается на "
-"дату-время публикации."
+"\"Новости\" - похожи на список заметок, но акцент делается на дату-время "
+"публикации."
 
 #: .\rusel\templates\index_anonim.html:36
 msgid ""
 "\"Expenses\" - allows you to track costs for several projects. Multiple "
 "currencies can be selected for accounting and totals."
 msgstr ""
-"\"Затраты\" - позволяет отслеживать затраты по нескольким проектам. "
-"Можно выбрать несколько валют для учета и подсчета итогов."
+"\"Затраты\" - позволяет отслеживать затраты по нескольким проектам. Можно "
+"выбрать несколько валют для учета и подсчета итогов."
 
 #: .\rusel\templates\index_anonim.html:37
 msgid ""
@@ -128,8 +128,9 @@ msgid ""
 "photos can be displayed on the map as markers indicating shooting locations."
 msgstr ""
 "\"Фотобанк\" - хранилище фотографий. Фотографии можно группировать в папки, "
-"которые можно структурировать в виде иерархии (как каталоги фацловой системы). "
-"Фотографии с геометками можно отобразить на карте в виде меток, указывающих места съемки."
+"которые можно структурировать в виде иерархии (как каталоги фацловой "
+"системы). Фотографии с геометками можно отобразить на карте в виде меток, "
+"указывающих места съемки."
 
 #: .\rusel\templates\index_anonim.html:38
 msgid ""
@@ -137,35 +138,50 @@ msgid ""
 "well as the frequency of service maintenance and replacement of consumable "
 "materials."
 msgstr ""
-"\"Заправки\" - для владельца автомобиля возможность контролировать расход топлива, "
-"а также периодичность проведения сервисного технического обслуживания и замены "
-"расходных мптериалов."
+"\"Заправки\" - для владельца автомобиля возможность контролировать расход "
+"топлива, а также периодичность проведения сервисного технического "
+"обслуживания и замены расходных мптериалов."
 
 #: .\rusel\templates\index_anonim.html:41
 msgid ""
 "Use the \"Demo\" button in the top right corner to explore this "
 "functionality."
 msgstr ""
-"Используйте кнопку \"Демо\" в правом верхнем углу, чтобы "
-"ознакомиться с этой функциональностью."
+"Используйте кнопку \"Демо\" в правом верхнем углу, чтобы ознакомиться с этой "
+"функциональностью."
 
-#: .\rusel\templates\index_user.html:26
+#: .\rusel\templates\index_user.html:30
+msgid "address"
+msgstr "адрес"
+
+#: .\rusel\templates\index_user.html:30
+msgid "visitor"
+msgstr "посетитель"
+
+#: .\rusel\templates\index_user.html:48
+msgid "indictor"
+msgstr "индикатор"
+
+#: .\rusel\templates\index_user.html:48
+msgid "value"
+msgstr "значение"
+
+#: .\rusel\templates\index_user.html:58
 msgid "product"
 msgstr "продукт"
 
-#: .\rusel\templates\index_user.html:26
+#: .\rusel\templates\index_user.html:58
 msgid "version"
 msgstr "версия"
 
-#: .\rusel\templates\index_user.html:26
+#: .\rusel\templates\index_user.html:58
 msgid "check new version"
 msgstr "проверить наличие новой версии"
 
-#: .\rusel\views.py:38
+#: .\rusel\views.py:42
 msgid "applications"
 msgstr "приложения"
 
 #: .\rusel\views.py:82
 msgid "feedback"
 msgstr "контакты"
-

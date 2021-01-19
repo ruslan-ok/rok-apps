@@ -188,7 +188,7 @@ def do_main(request, restriction, pk = None, art_vis = False):
 
     fixes = []
     fixes.append(Fix('main', _('thumbnails').capitalize(), 'rok/icon/all.png', '/photo/', len(data)))
-    fixes.append(Fix('map', _('on the map').capitalize(), 'todo/icon/map.png', '/photo/map/', len(data)))
+    fixes.append(Fix('map', _('on the map').capitalize(), 'todo/icon/map.png', '/photo/map/', len(gps_data)))
     context['fix_list'] = fixes
 
     bread_crumbs = []
@@ -303,12 +303,12 @@ def filtered_list(user, content, restriction, query = None):
         if e not in data:
             Photo.objects.filter(id = p.id).delete()
 
-    if (restriction == 'map'):
-        for d, s, f in os.walk(dirname):
-            extra = d[len(dirname):].replace('\\', '/')
-            for p in Photo.objects.filter(user = user.id, path = content + extra):
-                if (p.lat and p.lon):
-                    gps_data.append({ 'id': p.id, 'lat': str(p.lat), 'lon': str(p.lon), 'name': p.name })
+    #if (restriction == 'map'):
+    for d, s, f in os.walk(dirname):
+        extra = d[len(dirname):].replace('\\', '/')
+        for p in Photo.objects.filter(user = user.id, path = content + extra):
+            if (p.lat and p.lon):
+                gps_data.append({ 'id': p.id, 'lat': str(p.lat), 'lon': str(p.lon), 'name': p.name })
 
     return data, gps_data
 

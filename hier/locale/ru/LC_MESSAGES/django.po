@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-03 10:55+0300\n"
+"POT-Creation-Date: 2021-01-19 08:45+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,6 +18,22 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
+
+#: .\hier\log_parser.py:8
+msgid "total log records"
+msgstr "всего записей в логе"
+
+#: .\hier\log_parser.py:9
+msgid "total different"
+msgstr "всего уникальных"
+
+#: .\hier\log_parser.py:10
+msgid "new log records"
+msgstr "новых записей лога"
+
+#: .\hier\log_parser.py:11
+msgid "new"
+msgstr "новые"
 
 #: .\hier\models.py:9 .\hier\models.py:50 .\hier\models.py:72
 #: .\hier\models.py:118
@@ -228,11 +244,11 @@ msgstr "параметры"
 msgid "close sidebar"
 msgstr "закрыть боковую панель"
 
-#: .\hier\templates\hier\page.html:62
+#: .\hier\templates\hier\page.html:61
 msgid "close details"
 msgstr "закрыть панель формы"
 
-#: .\hier\templates\hier\page.html:64
+#: .\hier\templates\hier\page.html:72
 msgid "delete record"
 msgstr "удалить запись"
 
@@ -252,70 +268,70 @@ msgstr "Пожалуйста исправьте ошибку ниже."
 msgid "Please correct the errors below."
 msgstr "Пожалуйста исправьте ошибки ниже."
 
-#: .\hier\utils.py:287
+#: .\hier\utils.py:281
 msgid "communal"
 msgstr "коммуналка"
 
-#: .\hier\utils.py:289
+#: .\hier\utils.py:283
 msgid "fuelings"
 msgstr "заправки"
 
-#: .\hier\utils.py:291
+#: .\hier\utils.py:285
 msgid "hierarchy"
 msgstr "иерархия"
 
-#: .\hier\utils.py:293
+#: .\hier\utils.py:287
 msgid "notes"
 msgstr "заметки"
 
-#: .\hier\utils.py:295 .\hier\utils.py:321
+#: .\hier\utils.py:289 .\hier\utils.py:315
 msgid "news"
 msgstr "новости"
 
-#: .\hier\utils.py:297
+#: .\hier\utils.py:291
 msgid "problems and solutions"
 msgstr "ПиР"
 
-#: .\hier\utils.py:299
+#: .\hier\utils.py:293
 msgid "expenses"
 msgstr "затраты"
 
-#: .\hier\utils.py:301
+#: .\hier\utils.py:295
 msgid "passwords"
 msgstr "пароли"
 
-#: .\hier\utils.py:303
+#: .\hier\utils.py:297
 msgid "tasks"
 msgstr "задачи"
 
-#: .\hier\utils.py:305
+#: .\hier\utils.py:299
 msgid "trips"
 msgstr "поездки"
 
-#: .\hier\utils.py:307
+#: .\hier\utils.py:301
 msgid "work"
 msgstr "работа"
 
-#: .\hier\utils.py:309
+#: .\hier\utils.py:303
 msgid "photobank"
 msgstr "фотобанк"
 
-#: .\hier\utils.py:311
+#: .\hier\utils.py:305
 msgid "health"
 msgstr "здоровье"
 
-#: .\hier\utils.py:319
+#: .\hier\utils.py:313
 msgid "home"
 msgstr "главная"
 
-#: .\hier\utils.py:323
+#: .\hier\utils.py:317
 msgid "admin"
 msgstr "админ"
 
-#: .\hier\utils.py:325
+#: .\hier\utils.py:319
 msgid "profile"
 msgstr "профиль"
 
-#: .\hier\utils.py:327
+#: .\hier\utils.py:321
 msgid "log out"
 msgstr "выход"

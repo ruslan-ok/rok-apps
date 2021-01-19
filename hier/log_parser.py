@@ -1,11 +1,17 @@
 import requests, json, collections
 from pathlib import Path
 from datetime import datetime, timezone
+from django.utils.translation import gettext_lazy as _
 from .secret import log_name
 from .models import IPInfo, LogRecord, ActDetect
 
 def start_log_parser():
     """Parse Apache ssl_request.log"""
+    TOTAL_LOG = _('total log records').capitalize()
+    TOTAL_IP = _('total different').capitalize() + ' IP'
+    NEW_LOG = _('new log records').capitalize()
+    NEW_IP = _('new').capitalize() + ' IP'
+ 
     last = log_sz = last_pos = None
     last_event = datetime.min
     if LogRecord.objects.exists():
@@ -72,14 +78,14 @@ def start_log_parser():
                 except json.JSONDecodeError:
                     pass
                 ip = IPInfo.objects.create(ip = sIP, country = country, info = info)
-                cnt['ip_new'] += 1
+                cnt[NEW_IP] += 1
             if addr:
                 test = addr.replace('/ru/', '/').replace('/en/', '/')
                 valid = (test[:6] == '/todo/') or (test[:6] == '/note/') or (test[:6] == '/news/') or (test[:7] == '/store/') or (test[:6] == '/proj/') or \
                         (test[:6] == '/trip/') or (test[:6] == '/fuel/') or (test[:7] == '/apart/') or (test[:6] == '/wage/') or (test[:7] == '/photo/') or \
                         (test[:8] == '/helth/') or (test[:6] == '/account/') 
             LogRecord.objects.create(ip = ip, event = event, prot = prot, crypt = crypt, method = method, addr = addr, vers = vers, size = size, valid = valid)
-            cnt['rec_new'] += 1
+            cnt[NEW_LOG] += 1
 
     recs = LogRecord.objects.filter(valid=True, event__gt=last_event).order_by('addr')
     cur_addr = ''
@@ -96,8 +102,10 @@ def start_log_parser():
             jsn = json.loads(iii)
             act = ActDetect.objects.create(event = rec.event, addr = rec.addr, ip = rec.ip.ip, country = rec.ip.country, org = jsn['org'])
             stat[cur_addr] = (str(act),)
+    #stat['/debug-1/'] = ('RU 100.200.300.400 Organization-1', 'UA 1.2.3.4 Organization-1', 'TR 111.222.333.444 Organization-3')
+    #stat['/debug-2/'] = ('BY 500.600.700.800 Organization-4', 'UK 5.6.7.8 Organization-5', 'US 555.666.777.888 Organization-6')
 
-    cnt['rec'] = len(LogRecord.objects.all())
-    cnt['ip'] = len(IPInfo.objects.all())
+    cnt[TOTAL_LOG] = len(LogRecord.objects.all())
+    cnt[TOTAL_IP] = len(IPInfo.objects.all())
 
     return cnt.most_common(), stat
