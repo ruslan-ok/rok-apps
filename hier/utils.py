@@ -27,6 +27,24 @@ NAVBAR_BUTTONS = [
     ('login', {'text': _('Log in'), 'url': 'account:login', 'class': 'w3-right', }, ),
 ]
 
+APPS = {
+    'home':    ('home',        '/'),
+    'todo':    ('application', '/todo/'),
+    'note':    ('note',        '/note/'),
+    'news':    ('news',        '/news/'),
+    'store':   ('key',         '/store/'),
+    'proj':    ('cost',        '/proj/'),
+    'trip':    ('car',         '/trip/'),
+    'fuel':    ('gas',         '/fuel/'),
+    'apart':   ('apartment',   '/apart/'),
+    'wage':    ('work',        '/wage/'),
+    'photo':   ('photo',       '/photo/'),
+    'health':  ('health',      '/health/'),
+    'admin':   ('admin',       '/admin/'),
+    'profile': ('user',        '/account/profile/'),
+    'logout':  ('exit',        '/account/logout/'),
+}
+
 #----------------------------------
 # Корзина
 #----------------------------------
@@ -163,33 +181,15 @@ def get_base_context_ext(request, app_name, content_kind, title, article_enabled
     context['uncomplete_icon'] = 'todo/icon/uncomplete.png'
     
     
-    APPS = [
-        ('home',    'home',        '/'),
-        ('todo',    'application', '/todo/'),
-        ('note',    'note',        '/note/'),
-        ('news',    'news',        '/news/'),
-        ('store',   'key',         '/store/'),
-        ('proj',    'cost',        '/proj/'),
-        ('trip',    'car',         '/trip/'),
-        ('fuel',    'gas',         '/fuel/'),
-        ('apart',   'apartment',   '/apart/'),
-        ('wage',    'work',        '/wage/'),
-        ('photo',   'photo',       '/photo/'),
-        ('health',  'health',      '/health/'),
-        ('admin',   'admin',       '/admin/'),
-        ('profile', 'user',        '/account/profile/'),
-        ('logout',  'exit',        '/account/logout/'),
-    ]
-
     apps = []
     for app in APPS:
-        if (app[0] in ('store', 'trip', 'apart', 'wage', 'health')) and (request.user.username != 'ruslan.ok'):
+        if (app in ('store', 'trip', 'apart', 'wage', 'health')) and (request.user.username != 'ruslan.ok'):
             continue
-        if (app[0] == 'admin') and (request.user.username != 'admin'):
+        if (app == 'admin') and (request.user.username != 'admin'):
             continue
-        if (app[0] == 'profile') and (request.user.username == 'demouser'):
+        if (app == 'profile') and (request.user.username == 'demouser'):
             continue
-        apps.append({'href': app[2], 'icon': 'rok/icon/' + app[1] + '.png', 'name': get_main_menu_item(app[0])})
+        apps.append({'href': APPS[app][1], 'icon': 'rok/icon/' + APPS[app][0] + '.png', 'name': get_main_menu_item(app)})
     context['apps'] = apps
 
     set_aside_visible(request.user, app_name, False)

@@ -77,6 +77,16 @@ def toggle_group(request, pk):
     group_toggle(request.user, app_name, pk)
     return HttpResponseRedirect(reverse(url_list) + extract_get_params(request))
 
+def store_entity(request, name, pk):
+    set_restriction(request.user, app_name, 'all')
+    if (name == 'group'):
+        return group_form(request, pk)
+    elif (name == 'list'):
+        return list_form(request, pk)
+    else:
+        set_article_kind(request.user, app_name, 'item', pk)
+        return HttpResponseRedirect(reverse('store:all'))
+
 #----------------------------------
 @login_required(login_url='account:login')
 #----------------------------------

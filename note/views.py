@@ -349,6 +349,15 @@ def note_toggle_group(request, pk):
 def note_get_doc(request, name):
     return get_doc(request, name, 'note')
 
+def note_entity(request, name, pk):
+    if (name == 'note'):
+        return note_form(request, pk)
+    if (name == 'group'):
+        return note_group_form(request, pk)
+    if (name == 'list'):
+        return note_list_form(request, pk)
+    return note_list(request)
+
 #----------------------------------
 def news_list(request):
     return item_list(request, 'news')
@@ -373,5 +382,14 @@ def news_toggle_group(request, pk):
 
 def news_get_doc(request, name):
     return get_doc(request, name, 'news')
+
+def news_entity(request, name, pk):
+    if (name == 'news'):
+        return news_form(request, pk)
+    if (name == 'group'):
+        return news_group_form(request, pk)
+    if (name == 'list'):
+        return news_list_form(request, pk)
+    return news_list(request)
 
 

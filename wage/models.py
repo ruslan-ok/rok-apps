@@ -224,7 +224,10 @@ class Child(models.Model):
         verbose_name_plural = _('children')
 
     def __str__(self):
-        return self.employee.fio + ': ' + self.name + ' ' + gettext('was born on') + ' ' + self.born.strftime('%d.%m.%Y')
+        bd = ''
+        if self.born:
+            bd = ' ' + gettext('was born on') + ' ' + self.born.strftime('%d.%m.%Y')
+        return self.employee.fio + ': ' + self.name + bd
 
     def get_info(self):
         ret = []

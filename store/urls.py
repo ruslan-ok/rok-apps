@@ -9,6 +9,7 @@ urlpatterns = [
     path('waste/',    views.waste,      name='waste'),
     path('all/',      views.all,        name='all'),
     path('params/',   views.params,     name='param_list'),
+    path('entity/<str:name>/<int:pk>/', views.store_entity, name = 'store_entity'),
 
     path('list/<int:pk>/',         views.list_items,   name='list_items'),
     path('list_form/<int:pk>/',    views.list_form,    name='list_form'),

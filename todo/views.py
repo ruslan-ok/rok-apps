@@ -519,6 +519,15 @@ def period_toggle(request, pk):
     toggle_content_group(request.user.id, app_name, pk)
     return HttpResponseRedirect(reverse('todo:task_list'))
 
+def todo_entity(request, name, pk):
+    if (name == 'task'):
+        return task_form(request, pk)
+    if (name == 'group'):
+        return group_form(request, pk)
+    if (name == 'list'):
+        return list_form(request, pk)
+    return task_list(request)
+
 #----------------------------------
 def get_file_storage_path(user, item):
     return storage_path.format(user.id) + 'todo/task_{}/'.format(item.id)

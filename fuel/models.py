@@ -269,6 +269,27 @@ class Part(models.Model): # Список расходников
 
         return ret
 
+    def info(self):
+        ret = ''
+        if self.chg_km:
+            if ret:
+                ret += ' / '
+            ret += _('km: ') + str(self.chg_km)
+        if self.chg_mo:
+            if ret:
+                ret += ' / '
+            ret += _('months: ') + str(self.chg_mo)
+        rest, color = self.get_rest()
+        if rest:
+            if ret:
+                ret += ' / '
+            ret += rest
+        if self.comment:
+            if ret:
+                ret += ' / '
+            ret += self.comment
+        return ret
+
 
 class Repl(models.Model): # Замена расходников
     car      = models.ForeignKey(Car, on_delete=models.CASCADE, verbose_name=_('car'), null = True)
@@ -322,7 +343,28 @@ class Repl(models.Model): # Замена расходников
             ret.append({'icon': 'notes'})
             ret.append({'text': self.comment})
         return ret
-
+    
+    def info(self):
+        ret = ''
+        if self.manuf:
+            if ret:
+                ret += ' / '
+            ret += self.manuf
+        if self.part_num:
+            if ret:
+                ret += ' / '
+            ret += self.part_num
+        if self.descr:
+            if ret:
+                ret += ' / '
+            ret += self.descr
+        if self.comment:
+            if ret:
+                ret += ' / '
+            ret += self.comment
+        return ret
+        
+        
 def init_repl_car():
     for repl in Repl.objects.filter(car__isnull = True):
         repl.car = repl.part.car

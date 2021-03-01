@@ -7,3 +7,7 @@ function launcher_close()
 {
   document.getElementById("launcher").style.display = "none";
 }
+
+var element = document.getElementById("autofocus");
+if (element)
+  element.focus();

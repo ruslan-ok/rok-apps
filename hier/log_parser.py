@@ -20,6 +20,7 @@ def start_log_parser():
         last_pos = last.log_sz
     cnt = collections.Counter()
     log_sz = Path(log_name).stat().st_size
+    stat = {}
     with open(log_name, 'r') as f:
         if last_pos:
             f.seek(last_pos)
@@ -36,7 +37,8 @@ def start_log_parser():
                 continue
             tails = s.split('] ')[1].split()
             if (tails[1] not in ('TLSv1.3', 'TLSv1.2', 'TLSv1.1', 'TLSv1', '-')):
-                raise Exception(tails[1], tails)
+                stat['error_1'] = (tails[1], tails)
+                break
             sIP = tails[0]
             prot = tails[1]
             if (tails[2] != '-'):
@@ -46,26 +48,31 @@ def start_log_parser():
                     algs = tails[2].split('_')
                 check = list(filter(lambda x: x not in ('256', 'AES', 'AES128', 'AES256', 'DHE', 'ECDHE', 'GCM', 'RSA', 'SHA', 'SHA256', 'SHA384', 'TLS'), algs))
                 if check:
-                    raise Exception(check, tails[2], tails)
+                    stat['error_2'] = (check, tails[2], tails)
+                    break
                 prot = tails[2]
-                if (tails[3] not in ('"GET', '"POST', '"HEAD', '"OPTIONS', '"\\n"', '"-"')):
-                    raise Exception(tails[3], tails)
+                if (tails[3] not in ('"GET', '"POST', '"HEAD', '"OPTIONS', '"SSTP_DUPLEX_POST', '"\\n"', '"-"')):
+                    stat['error_3'] = (tails[3], tails)
+                    break
                 method = tails[3].replace('"', '')
                 if (tails[3] in ('"\\n"', '"-"')):
                     if (tails[4] != '-'):
                         size = int(tails[4])
                         if not size:
-                            raise Exception(size, tails)
+                            stat['error_4'] = (size, tails)
+                            break
                 else:
                     addr = tails[4]
                     vers = tails[5].replace('"', '')
                     if (tails[6] != '-'):
                         size = int(tails[6])
                         if not size:
-                            raise Exception(size, tails)
+                            stat['error_5'] = (size, tails)
+                            break
                     check = tails[4].replace('/ru/', '/').replace('/en/', '/')
                     if (check[-1] != '"') and (check != '-') and (check != '/') and (len(check) < 3):
-                        raise Exception(tails[4], tails)
+                        stat['error_6'] = (tails[4], tails)
+                        break
             valid = False
             if IPInfo.objects.filter(ip = sIP).exists():
                 ip = IPInfo.objects.filter(ip = sIP).get()
@@ -89,9 +96,8 @@ def start_log_parser():
 
     recs = LogRecord.objects.filter(valid=True, event__gt=last_event).order_by('addr')
     cur_addr = ''
-    stat = {}
     for rec in recs:
-        if (rec.ip.ip in ('178.172.132.29', '86.57.135.53')) or ((rec.ip.ip[:11] >= '46.216.128.') and (rec.ip.ip[:11] <= '46.216.255.')):
+        if (rec.ip.ip in ('178.172.132.29', '86.57.135.53')): # or ((rec.ip.ip[:11] >= '46.216.128.') and (rec.ip.ip[:11] <= '46.216.255.')):
         #                 rusel.by          topsoft.by                              mts.by
             continue
         if (cur_addr == rec.addr):

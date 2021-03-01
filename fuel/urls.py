@@ -9,4 +9,5 @@ urlpatterns = [
     path('fuels/',     views.go_fuels,     name = 'go_fuels'),
     path('intervals/', views.go_intervals, name = 'go_intervals'),
     path('services/',  views.go_services,  name = 'go_services'),
+    path('entity/<str:name>/<int:pk>/', views.fuel_entity, name = 'fuel_entity'),
 ]

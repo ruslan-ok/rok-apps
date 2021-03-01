@@ -19,15 +19,15 @@ from .forms import PeriodForm, DepartForm, DepHistForm, PostForm, EmployeeForm, 
 
 items_per_page = 50
 
-# Представления
+# Views
 PER = 'period'
 POST = 'post'
 TITLE = 'pay_title'
-DEP_LIST = 'department' # Список подразделений
-DEP_HIST = 'dep_hist' # Список изменений подразделения
-DEP_INFO = 'dep_info' # Форма подразделения
-EMPL_LIST = 'employee' # Список сотрудников
-EMPL_INFO = 'total' # Форма сотрудника
+DEP_LIST = 'department' # List of Departments
+DEP_HIST = 'dep_hist' # List of Department changes
+DEP_INFO = 'dep_info' # Department form
+EMPL_LIST = 'employee' # List of Employees
+EMPL_INFO = 'total' # Employee form
 ACC = 'accrual'
 PAY = 'payment'
 APP = 'appoint'
@@ -36,7 +36,7 @@ CHLD = 'child'
 SUR = 'surname'
 REPORT = 'report'
 
-# Фразы "Добавить <сущность>"
+# Phrases "Add <Entity>"
 ADD_ENTITY = {
     EMPL_LIST: _('add employee'),
     DEP_LIST: _('add department'),
@@ -47,12 +47,12 @@ ADD_ENTITY = {
     CHLD: _('add child'),
     }
 
-ALL_RESTRICTIONS = (PER, POST, TITLE, DEP_LIST, DEP_HIST, DEP_INFO, EMPL_LIST, EMPL_INFO, ACC, PAY, APP, EDUC, CHLD, SUR, REPORT) # Все возможные представления
-EMPL_ASIDE = (EMPL_INFO, ACC, PAY, APP, EDUC, CHLD, SUR) # Это сущности для конкретного сотрудника
-HIDE_ITEM_INPUT = (PER, DEP_HIST, EMPL_INFO, ACC, PAY, APP) # Это сущности, при создании которых не надо предварительно указывать наименование
-SHOW_SELECTOR = (PER) # Сущности, для которых в списке слева надо показывать селектор
+ALL_RESTRICTIONS = (PER, POST, TITLE, DEP_LIST, DEP_HIST, DEP_INFO, EMPL_LIST, EMPL_INFO, ACC, PAY, APP, EDUC, CHLD, SUR, REPORT) # All possible views
+EMPL_ASIDE = (EMPL_INFO, ACC, PAY, APP, EDUC, CHLD, SUR) # These are Entities for concrete Employee
+HIDE_ITEM_INPUT = (PER, DEP_HIST, EMPL_INFO, ACC, PAY, APP) # These are Entities, when creating which you do not need to specify the name in advance
+SHOW_SELECTOR = (PER) # Entities for which a selector should be shown in the list on the left
 
-# Захардкодженный производственный календарь
+# Hardcoded production calendar
 # http://www.calendar.by/?year=2021
 PROD_CAL = { '2020.10': 22, '2020.11': 21, '2020.12': 22,
              '2021.01': 19, '2021.02': 20, '2021.03': 22,
@@ -145,6 +145,16 @@ def item2_form(request, pk):
         set_restriction(request.user, app_name, DEP_INFO)
     return HttpResponseRedirect(reverse('wage:main') + extract_get_params(request))
 
+def wage_entity(request, name, pk):
+    if (name == EMPL_LIST):
+        set_restriction(request.user, app_name, EMPL_INFO)
+    elif (name == DEP_LIST):
+        set_restriction(request.user, app_name, DEP_HIST)
+    else:
+        set_restriction(request.user, app_name, name)
+    set_article_kind(request.user, app_name, '', pk)
+    return HttpResponseRedirect(reverse('wage:main'))
+
 #----------------------------------
 # Index
 #----------------------------------
@@ -182,12 +192,11 @@ def main(request):
     if process_common_commands(request, app_name):
         return HttpResponseRedirect(reverse('wage:main') + extract_get_params(request))
 
-    # для трансляции строкового представления дат, в частности в item_info
+    # For converting the string representation of dates, in particular in item_info
     locale.setlocale(locale.LC_CTYPE, request.LANGUAGE_CODE)
     locale.setlocale(locale.LC_TIME, request.LANGUAGE_CODE)
 
     if (request.method == 'POST'):
-        #raise Exception(request.POST)
         if ('item-add' in request.POST):
             if (app_param.restriction == PER):
                 item_id = add_period(request)

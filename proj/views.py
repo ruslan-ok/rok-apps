@@ -168,6 +168,16 @@ def go_expenses(request):
     set_restriction(request.user, app_name, 'expense')
     return HttpResponseRedirect(reverse('proj:main'))
 
+def proj_entity(request, name, pk):
+    prj_id = pk
+    if (name == 'expense'):
+        item = get_object_or_404(Expenses.objects.filter(id = pk))
+        prj_id = item.direct.id
+    set_active(request.user.id, prj_id)
+    set_restriction(request.user, app_name, name)
+    set_article_kind(request.user, app_name, '', pk)
+    return HttpResponseRedirect(reverse('proj:main'))
+
 #----------------------------------
 def filtered_list(user, restriction, project, query = None):
     if (restriction == 'project'):
@@ -188,7 +198,7 @@ def filtered_list(user, restriction, project, query = None):
     if (restriction == 'project'):
         lookups = Q(name__icontains=query)
     elif (restriction == 'expense'):
-        lookups = Q(kontr__icontains=query) | Q(text__icontains=query)
+        lookups = Q(kontr__icontains=query) | Q(text__icontains=query) | Q(description__icontains=query)
     else:
         return data
 

@@ -31,6 +31,9 @@ class Projects(models.Model):
         ret.append({'text': s_proj_summary(self.id) })
         return ret
 
+    def get_summary(self):
+        return s_proj_summary(self.id)
+
 def deactivate_all(user_id, dirs_id):
     for dir in Projects.objects.filter(user = user_id, active = True).exclude(id = dirs_id):
         dir.active = False

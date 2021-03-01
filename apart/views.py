@@ -204,6 +204,11 @@ def doc(request, name):
     except IOError:
         response = HttpResponseNotFound()
 
+def apart_entity(request, name, pk):
+    set_restriction(request.user, app_name, name)
+    set_article_kind(request.user, app_name, '', pk)
+    return HttpResponseRedirect(reverse('apart:main'))
+
 #----------------------------------
 def get_title(restriction, apart):
     if (restriction == 'apart'):

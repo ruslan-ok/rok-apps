@@ -145,7 +145,7 @@ class LogRecord(models.Model):
     event = models.DateTimeField('event time', null=False)
     prot = models.CharField('protocol', max_length=100, blank=True)
     crypt = models.CharField('crypto', max_length=200, blank=True)
-    method = models.CharField('method', max_length=10, blank=True)
+    method = models.CharField('method', max_length=100, blank=True)
     addr = models.CharField('address', max_length=1000, blank=True)
     vers = models.CharField('HTTP version', max_length=50, blank=True)
     size = models.IntegerField('request size', blank=True, null=True)
@@ -157,7 +157,7 @@ class ActDetect(models.Model):
     addr = models.CharField('address', max_length=1000, blank=True)
     ip = models.CharField('IP', max_length=20, blank=False)
     country = models.CharField('country', max_length=3, blank=False)
-    org = models.CharField('organisation', max_length=200, blank=False)
+    org = models.CharField('organisation', max_length=200, blank=True)
 
     def __str__(self):
         return self.country + ' ' + self.ip + ' ' + self.org

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-19 08:45+0300\n"
+"POT-Creation-Date: 2021-03-01 11:49+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,19 +19,19 @@ msgstr ""
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: .\hier\log_parser.py:8
+#: .\hier\log_parser.py:10
 msgid "total log records"
 msgstr "всего записей в логе"
 
-#: .\hier\log_parser.py:9
+#: .\hier\log_parser.py:11
 msgid "total different"
 msgstr "всего уникальных"
 
-#: .\hier\log_parser.py:10
+#: .\hier\log_parser.py:12
 msgid "new log records"
 msgstr "новых записей лога"
 
-#: .\hier\log_parser.py:11
+#: .\hier\log_parser.py:13
 msgid "new"
 msgstr "новые"
 
@@ -152,7 +152,7 @@ msgstr "вид объектов на странице"
 msgid "kind of object in article"
 msgstr "вид редактируемого объекта"
 
-#: .\hier\models.py:78
+#: .\hier\models.py:78 .\hier\search.py:32
 msgid "list"
 msgstr "список"
 
@@ -216,6 +216,114 @@ msgstr "содержат"
 msgid "contained category"
 msgstr "содержат категорию"
 
+#: .\hier\search.py:5
+msgid "apart"
+msgstr "квартира"
+
+#: .\hier\search.py:6
+msgid "meters data"
+msgstr "показания счетчиков"
+
+#: .\hier\search.py:7
+msgid "bill"
+msgstr "счет"
+
+#: .\hier\search.py:8
+msgid "service"
+msgstr "услуга"
+
+#: .\hier\search.py:9
+msgid "tariff"
+msgstr "тариф"
+
+#: .\hier\search.py:10
+msgid "car"
+msgstr "автомобиль"
+
+#: .\hier\search.py:11
+msgid "fueling"
+msgstr "заправка"
+
+#: .\hier\search.py:12
+msgid "spare part"
+msgstr "расходник"
+
+#: .\hier\search.py:13
+msgid "replacement"
+msgstr "замена"
+
+#: .\hier\search.py:14
+msgid "note"
+msgstr "заметка"
+
+#: .\hier\search.py:15 .\hier\utils.py:289 .\hier\utils.py:315
+msgid "news"
+msgstr "новости"
+
+#: .\hier\search.py:16
+msgid "project"
+msgstr "проект"
+
+#: .\hier\search.py:17
+msgid "expense"
+msgstr "затраты"
+
+#: .\hier\search.py:18
+msgid "password"
+msgstr "пароль"
+
+#: .\hier\search.py:19
+msgid "person"
+msgstr "человек"
+
+#: .\hier\search.py:20
+msgid "trip"
+msgstr "поездка"
+
+#: .\hier\search.py:21
+msgid "department"
+msgstr "отдел"
+
+#: .\hier\search.py:22
+msgid "post"
+msgstr "должность"
+
+#: .\hier\search.py:23
+msgid "pay title"
+msgstr "вид начисления или выплаты"
+
+#: .\hier\search.py:24
+msgid "employee"
+msgstr "сотрудник"
+
+#: .\hier\search.py:25
+msgid "surname change history"
+msgstr "изменение фамилии"
+
+#: .\hier\search.py:26
+msgid "child"
+msgstr "ребёнок"
+
+#: .\hier\search.py:27
+msgid "appointment"
+msgstr "назначение"
+
+#: .\hier\search.py:28
+msgid "education"
+msgstr "образование"
+
+#: .\hier\search.py:29
+msgid "payment"
+msgstr "выплата"
+
+#: .\hier\search.py:30
+msgid "task"
+msgstr "задача"
+
+#: .\hier\search.py:31
+msgid "group"
+msgstr "группа"
+
 #: .\hier\templates\hier\aside.html:58
 msgid "create list or group"
 msgstr "создать список или группу"
@@ -256,15 +364,15 @@ msgstr "удалить запись"
 msgid "Log in"
 msgstr "Вход"
 
-#: .\hier\utils.py:36
+#: .\hier\utils.py:54
 msgid "trash"
 msgstr "корзина"
 
-#: .\hier\utils.py:127 .\hier\utils.py:159
+#: .\hier\utils.py:145 .\hier\utils.py:177
 msgid "Please correct the error below."
 msgstr "Пожалуйста исправьте ошибку ниже."
 
-#: .\hier\utils.py:128 .\hier\utils.py:160
+#: .\hier\utils.py:146 .\hier\utils.py:178
 msgid "Please correct the errors below."
 msgstr "Пожалуйста исправьте ошибки ниже."
 
@@ -283,10 +391,6 @@ msgstr "иерархия"
 #: .\hier\utils.py:287
 msgid "notes"
 msgstr "заметки"
-
-#: .\hier\utils.py:289 .\hier\utils.py:315
-msgid "news"
-msgstr "новости"
 
 #: .\hier\utils.py:291
 msgid "problems and solutions"

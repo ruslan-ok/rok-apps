@@ -1,7 +1,10 @@
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
+
 from todo.models import Grp, Lst
 from todo.forms import GrpForm, LstForm
 from hier.params import set_article_visible, set_aside_visible
+from hier.search import SearchResult
 
 def group_add(user, app_name, name):
     grp = Grp.objects.create(user = user, app = app_name, name = name)
@@ -124,5 +127,16 @@ def build_tree(user_id, app_name):
     for lst in Lst.objects.filter(user = user_id, grp = None, app = app_name).order_by('sort', 'name'):
         tree.append(TreeNode(lst.id, lst.name, 0, True, False))
     return tree
+
+def search(user, app_name, query):
+    result = SearchResult(query)
+    lookups = Q(name__icontains=query)
+    groups = Grp.objects.filter(user = user.id, app = app_name).filter(lookups).distinct()
+    for group in groups:
+        result.add(app_name, 'group', group.id, group.name, '', False)
+    lists = Lst.objects.filter(user = user.id, app = app_name).filter(lookups).distinct()
+    for lst in lists:
+        result.add(app_name, 'list', lst.id, lst.name, '', False)
+    return result.items
 
 

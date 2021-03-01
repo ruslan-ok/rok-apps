@@ -44,7 +44,6 @@ def main(request):
 
     form = None
     if (request.method == 'POST'):
-        #raise Exception(request.POST)
         if ('item-add' in request.POST):
             if (app_param.restriction == 'trip'):
                 item_id = trip_add(request)
@@ -83,8 +82,8 @@ def main(request):
         return HttpResponseRedirect(reverse('trip:main') + extract_get_params(request))
 
     fixes = []
-    fixes.append(Fix('pers', _('persons').capitalize(), 'rok/icon/application.png', 'persons/', len(Person.objects.filter(user = request.user.id))))
-    fixes.append(Fix('trip', _('trips').capitalize(), 'rok/icon/application.png', 'trips/', len(Trip.objects.filter(user = request.user.id))))
+    fixes.append(Fix('pers', _('persons').capitalize(), 'rok/icon/user.png', 'persons/', len(Person.objects.filter(user = request.user.id))))
+    fixes.append(Fix('trip', _('trips').capitalize(), 'rok/icon/car.png', 'trips/', len(Trip.objects.filter(user = request.user.id))))
     context['fix_list'] = fixes
     context['without_lists'] = True
     context['hide_important'] = True
@@ -123,6 +122,11 @@ def go_persons(request):
 
 def go_trips(request):
     set_restriction(request.user, app_name, 'trip')
+    return HttpResponseRedirect(reverse('trip:main'))
+
+def trip_entity(request, name, pk):
+    set_restriction(request.user, app_name, name)
+    set_article_kind(request.user, app_name, '', pk)
     return HttpResponseRedirect(reverse('trip:main'))
 
 #----------------------------------
@@ -167,7 +171,6 @@ def get_trip_article(request, context, pk):
     ed_trip = get_object_or_404(Trip, id = pk)
     form = None
     if (request.method == 'POST'):
-        #raise Exception(request.POST['summa'])
         if ('item_delete' in request.POST):
             trip_delete(request, ed_trip)
             return True
@@ -218,7 +221,7 @@ def get_trip_article(request, context, pk):
 
 #----------------------------------
 def trip_add(request):
-    # Инициализация полей новой записи
+    # Initializing the fields of a new record
     last_trip = Trip.objects.filter(user = request.user.id, oper = 0).order_by('-year', '-week', '-days')[:1]
     price_new  = 0
     drvr_new = None
@@ -226,7 +229,7 @@ def trip_add(request):
     debt_sum = 0
     week_new = int(datetime.now().strftime("%W")) + 1
     
-    if (len(last_trip) > 0): # последняя поездка
+    if (len(last_trip) > 0): # last trip
         price_new = last_trip[0].price
         drvr_new  = last_trip[0].driver
         pass_new  = last_trip[0].passenger

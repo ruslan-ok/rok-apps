@@ -171,6 +171,20 @@ def go_services(request):
     set_restriction(request.user, app_name, 'service')
     return HttpResponseRedirect(reverse('fuel:main'))
 
+def fuel_entity(request, name, pk):
+    if (name == 'fuel'):
+        item = get_object_or_404(Fuel.objects.filter(id = pk))
+        set_active(request.user.id, item.car.id)
+    if (name == 'interval'):
+        item = get_object_or_404(Part.objects.filter(id = pk))
+        set_active(request.user.id, item.car.id)
+    if (name == 'service'):
+        item = get_object_or_404(Repl.objects.filter(id = pk))
+        set_active(request.user.id, item.car.id)
+    set_restriction(request.user, app_name, name)
+    set_article_kind(request.user, app_name, '', pk)
+    return HttpResponseRedirect(reverse('fuel:main'))
+
 #----------------------------------
 def filtered_list(user, restriction, car, query = None):
     if (restriction == 'cars'):

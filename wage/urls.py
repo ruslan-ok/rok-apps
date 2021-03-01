@@ -13,6 +13,7 @@ urlpatterns = [
     path('toggle/<int:pk>/', views.toggle, name = 'toggle'),
     path('<int:pk>/', views.item_form, name = 'item_form'),
     path('list_form/<int:pk>/', views.item2_form, name = 'item2_form'),
+    path('entity/<str:name>/<int:pk>/', views.wage_entity, name = 'wage_entity'),
 
     path('total/', views.total, name = 'total'),
     path('accrual/', views.accrual, name = 'accrual'),

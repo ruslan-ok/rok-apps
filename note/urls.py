@@ -5,6 +5,7 @@ app_name = 'note'
 urlpatterns = [
     path('',                       views.note_list,         name='note_list'),
     path('<int:pk>/',              views.note_form,         name='note_form'),
+    path('entity/<str:name>/<int:pk>/', views.note_entity,  name='note_entity'),
     path('all/',                   views.all_notes,         name='all_notes'),
     path('list/<int:pk>/',         views.list_notes,        name='list_notes'),
     path('list_form/<int:pk>/',    views.note_list_form,    name='note_list_form'),

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-19 08:45+0300\n"
+"POT-Creation-Date: 2021-03-01 11:49+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -64,7 +64,7 @@ msgid ""
 "For a task, a due date, frequency of repetition, date and time of reminder "
 "can be set."
 msgstr ""
-"Для задачи может быть задан срок исполнения, периоличность повторения, дата "
+"Для задачи может быть задан срок исполнения, периодичность повторения, дата "
 "и время напоминания."
 
 #: .\rusel\templates\index_anonim.html:28
@@ -99,7 +99,7 @@ msgid ""
 "tasks, are combined into lists, and lists into groups. Notes can be searched "
 "by title, description, and category."
 msgstr ""
-"\"Заметки\" - персональные заметки обо всём. Для каждой заметки кроме "
+"\"Заметки\" - персональные заметки обо всём. Для каждой заметки, кроме "
 "описания можно указать гиперссылку на внешний интернет-ресурс, произвольное "
 "количество категорий, прикрепить файлы. Заметки, как и задачи, объединются в "
 "списки, а списки - в группы. В заметках можно выполнять поиск по "
@@ -128,7 +128,7 @@ msgid ""
 "photos can be displayed on the map as markers indicating shooting locations."
 msgstr ""
 "\"Фотобанк\" - хранилище фотографий. Фотографии можно группировать в папки, "
-"которые можно структурировать в виде иерархии (как каталоги фацловой "
+"которые можно структурировать в виде иерархии (как каталоги файловой "
 "системы). Фотографии с геометками можно отобразить на карте в виде меток, "
 "указывающих места съемки."
 
@@ -140,7 +140,7 @@ msgid ""
 msgstr ""
 "\"Заправки\" - для владельца автомобиля возможность контролировать расход "
 "топлива, а также периодичность проведения сервисного технического "
-"обслуживания и замены расходных мптериалов."
+"обслуживания и замены расходных материалов."
 
 #: .\rusel\templates\index_anonim.html:41
 msgid ""
@@ -149,6 +149,14 @@ msgid ""
 msgstr ""
 "Используйте кнопку \"Демо\" в правом верхнем углу, чтобы ознакомиться с этой "
 "функциональностью."
+
+#: .\rusel\templates\index_search.html:24
+msgid "Nothing found for"
+msgstr "Ничего не найдено для"
+
+#: .\rusel\templates\index_search.html:31
+msgid "results"
+msgstr "результаты"
 
 #: .\rusel\templates\index_user.html:30
 msgid "address"
@@ -178,10 +186,14 @@ msgstr "версия"
 msgid "check new version"
 msgstr "проверить наличие новой версии"
 
-#: .\rusel\views.py:42
+#: .\rusel\views.py:53
 msgid "applications"
 msgstr "приложения"
 
-#: .\rusel\views.py:82
+#: .\rusel\views.py:66
+msgid "search results"
+msgstr "результаты поиска"
+
+#: .\rusel\views.py:123
 msgid "feedback"
 msgstr "контакты"

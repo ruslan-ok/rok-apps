@@ -70,6 +70,15 @@
       </div>
       {% endif %}
 
+      <div class="section">
+        <div class="section-item section-item-note">
+          <div class="field-error">{{ form.info.errors }}</div>
+          <div class="section-inner">
+            {{ form.info }}
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 {% endblock %}

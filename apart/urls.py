@@ -12,4 +12,5 @@ urlpatterns = [
     path('bills/',           views.bills,    name = 'bills'),
     path('toggle/<int:pk>/', views.toggle,   name = 'toggle'),
     path('doc/<str:name>',   views.doc,      name = 'doc'),
+    path('entity/<str:name>/<int:pk>/', views.apart_entity, name = 'apart_entity'),
 ]

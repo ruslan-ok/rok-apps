@@ -5,6 +5,7 @@ app_name = 'news'
 urlpatterns = [
     path('',                       views.news_list,         name='news_list'),
     path('<int:pk>/',              views.news_form,         name='news_form'),
+    path('entity/<str:name>/<int:pk>/', views.news_entity,  name='news_entity'),
     path('all/',                   views.all_news,          name='all_news'),
     path('list/<int:pk>/',         views.list_news,         name='list_news'),
     path('list_form/<int:pk>/',    views.news_list_form,    name='news_list_form'),
