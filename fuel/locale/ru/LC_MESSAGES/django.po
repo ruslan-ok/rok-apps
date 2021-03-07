@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-31 10:35+0300\n"
+"POT-Creation-Date: 2021-03-07 19:42+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,12 +19,12 @@ msgstr ""
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: .\fuel\apps.py:7 .\fuel\models.py:55 .\fuel\views.py:25 .\fuel\views.py:119
+#: .\fuel\apps.py:7 .\fuel\models.py:56 .\fuel\views.py:25 .\fuel\views.py:122
 msgid "fuelings"
 msgstr "заправки"
 
-#: .\fuel\forms.py:16 .\fuel\forms.py:32 .\fuel\models.py:45
-#: .\fuel\models.py:276
+#: .\fuel\forms.py:16 .\fuel\forms.py:32 .\fuel\models.py:46
+#: .\fuel\models.py:319
 msgid "date"
 msgstr "дата"
 
@@ -32,140 +32,195 @@ msgstr "дата"
 msgid "add note"
 msgstr "добавить примечание"
 
-#: .\fuel\models.py:9
+#: .\fuel\models.py:10
 msgid "user"
 msgstr "пользователь"
 
-#: .\fuel\models.py:10
+#: .\fuel\models.py:11
 msgid "model"
 msgstr "модель"
 
-#: .\fuel\models.py:11
+#: .\fuel\models.py:12
 msgid "car number"
 msgstr "гос. номер"
 
-#: .\fuel\models.py:12
+#: .\fuel\models.py:13
 msgid "active"
 msgstr "активна"
 
-#: .\fuel\models.py:15 .\fuel\models.py:44 .\fuel\models.py:125
-#: .\fuel\models.py:274
+#: .\fuel\models.py:16 .\fuel\models.py:45 .\fuel\models.py:126
+#: .\fuel\models.py:317
 msgid "car"
 msgstr "автомобиль"
 
-#: .\fuel\models.py:16 .\fuel\views.py:23 .\fuel\views.py:118
+#: .\fuel\models.py:17 .\fuel\views.py:23 .\fuel\views.py:121
 msgid "cars"
 msgstr "автомобили"
 
-#: .\fuel\models.py:46
+#: .\fuel\models.py:47
 msgid "odometer"
 msgstr "одометер"
 
-#: .\fuel\models.py:47
+#: .\fuel\models.py:48
 msgid "volume"
 msgstr "объём"
 
-#: .\fuel\models.py:48
+#: .\fuel\models.py:49
 msgid "price"
 msgstr "цена"
 
-#: .\fuel\models.py:49 .\fuel\models.py:129 .\fuel\models.py:281
+#: .\fuel\models.py:50 .\fuel\models.py:130 .\fuel\models.py:324
 msgid "information"
 msgstr "дополнительная информация"
 
-#: .\fuel\models.py:50 .\fuel\models.py:282
+#: .\fuel\models.py:51 .\fuel\models.py:325
 msgid "creation time"
 msgstr "дата создания"
 
-#: .\fuel\models.py:51 .\fuel\models.py:283
+#: .\fuel\models.py:52 .\fuel\models.py:326
 msgid "last modification time"
 msgstr "время последней модификации"
 
-#: .\fuel\models.py:54
+#: .\fuel\models.py:55
 msgid "fueling"
 msgstr "заправка"
 
-#: .\fuel\models.py:58 .\fuel\models.py:290
+#: .\fuel\models.py:59 .\fuel\models.py:333
 msgid "km."
 msgstr "км."
 
-#: .\fuel\models.py:58
+#: .\fuel\models.py:59
 msgid "l."
 msgstr "л."
 
-#: .\fuel\models.py:68 .\fuel\models.py:310
+#: .\fuel\models.py:69 .\fuel\models.py:353
 msgid "odometr: "
 msgstr "одометер: "
 
-#: .\fuel\models.py:70
+#: .\fuel\models.py:71
 msgid "volume: "
 msgstr "объём: "
 
-#: .\fuel\models.py:72
+#: .\fuel\models.py:73
 msgid "price: "
 msgstr "цена: "
 
-#: .\fuel\models.py:74
+#: .\fuel\models.py:75
 msgid "summa: "
 msgstr "сумма: "
 
-#: .\fuel\models.py:117
+#: .\fuel\models.py:118
 msgid "failed to calculate average consumption"
 msgstr "не удалось вычислить средний расход"
 
-#: .\fuel\models.py:119
+#: .\fuel\models.py:120
 msgid " l. per 100 km"
 msgstr "л. на 100 км."
 
-#: .\fuel\models.py:121
+#: .\fuel\models.py:122
 msgid "no active car"
 msgstr "нет активного автомобиля"
 
-#: .\fuel\models.py:126 .\fuel\models.py:280
+#: .\fuel\models.py:127 .\fuel\models.py:323
 msgid "name"
 msgstr "наименование"
 
-#: .\fuel\models.py:127
+#: .\fuel\models.py:128
 msgid "replacement interval, km"
 msgstr "интервал замены, км"
 
-#: .\fuel\models.py:128
+#: .\fuel\models.py:129
 msgid "replacement interval, months"
 msgstr "интервал замены, месяцев"
 
-#: .\fuel\models.py:132 .\fuel\models.py:275
+#: .\fuel\models.py:133 .\fuel\models.py:318
 msgid "part"
 msgstr "запчасть"
 
-#: .\fuel\models.py:133
+#: .\fuel\models.py:134
 msgid "parts"
 msgstr "запчасти"
 
-#: .\fuel\models.py:252
-msgid "km: "
-msgstr "км: "
+#: .\fuel\models.py:188 .\fuel\models.py:198
+msgid "thsd km"
+msgstr "тыс. км"
 
-#: .\fuel\models.py:257
-msgid "months: "
-msgstr "мес.: "
+#: .\fuel\models.py:188 .\fuel\models.py:190 .\fuel\models.py:215
+msgid "overdue"
+msgstr "просрочено"
 
-#: .\fuel\models.py:277
+#: .\fuel\models.py:190 .\fuel\models.py:195 .\fuel\models.py:241
+#: .\fuel\models.py:282
+msgid "km"
+msgstr "км"
+
+#: .\fuel\models.py:234
+msgid "or"
+msgstr "или"
+
+#: .\fuel\models.py:262
+msgid "day"
+msgstr "день"
+
+#: .\fuel\models.py:262
+msgctxt "2-4"
+msgid "days"
+msgstr "дня"
+
+#: .\fuel\models.py:262
+msgctxt "5-10"
+msgid "days"
+msgstr "дней"
+
+#: .\fuel\models.py:266
+msgid "month"
+msgstr "месяц"
+
+#: .\fuel\models.py:266
+msgctxt "2-4"
+msgid "months"
+msgstr "месяца"
+
+#: .\fuel\models.py:266
+msgctxt "5-10"
+msgid "months"
+msgstr "месяцев"
+
+#: .\fuel\models.py:272
+msgid "year"
+msgstr "год"
+
+#: .\fuel\models.py:272
+msgctxt "2-4"
+msgid "years"
+msgstr "года"
+
+#: .\fuel\models.py:272
+msgctxt "5-10"
+msgid "years"
+msgstr "лет"
+
+#: .\fuel\models.py:276
+msgid "and"
+msgstr "и"
+
+#: .\fuel\models.py:320
 msgid "odometer, km"
 msgstr "показания одометра, км"
 
-#: .\fuel\models.py:278
+#: .\fuel\models.py:321
 msgid "manufacturer"
 msgstr "производитель"
 
-#: .\fuel\models.py:279
+#: .\fuel\models.py:322
 msgid "catalog number"
 msgstr "номер по каталогу"
 
-#: .\fuel\models.py:286
+#: .\fuel\models.py:329
 msgid "replacement"
 msgstr "замена"
 
-#: .\fuel\models.py:287
+#: .\fuel\models.py:330
 msgid "replacements"
 msgstr "замены"
 
@@ -177,19 +232,33 @@ msgstr "добавить заправку"
 msgid "add new service"
 msgstr "добавить ремонт или сервисное обслуживание"
 
-#: .\fuel\views.py:27 .\fuel\views.py:120
+#: .\fuel\views.py:27 .\fuel\views.py:123
 msgid "service intervals"
 msgstr "сервисные интервалы"
 
-#: .\fuel\views.py:29 .\fuel\views.py:121
+#: .\fuel\views.py:29 .\fuel\views.py:124
 msgid "repair and service"
 msgstr "ремонт и сервисное обслуживание"
 
-#: .\fuel\views.py:126
+#: .\fuel\views.py:129
 msgid "add car"
 msgstr "добавить автомобиль"
 
-#: .\fuel\views.py:132
+#: .\fuel\views.py:135
 msgid "add spare part"
 msgstr "добавить запчасть"
 
+#~ msgid "one day"
+#~ msgstr "день"
+
+#~ msgid "one month"
+#~ msgstr "месяц"
+
+#~ msgid "months"
+#~ msgstr "месяцев"
+
+#~ msgid "half a year"
+#~ msgstr "пол года"
+
+#~ msgid "one year"
+#~ msgstr "год"

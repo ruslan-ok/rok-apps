@@ -1,5 +1,9 @@
-.rest-color-warning {
+.rest-color-normal {
   color: Blue;
+}
+
+.rest-color-warning {
+  color: DarkOrange;
 }
 
 .rest-color-error {

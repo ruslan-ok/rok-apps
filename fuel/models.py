@@ -1,9 +1,11 @@
+import math
 from django.contrib.auth.models import User
 from django.db import models
 from datetime import datetime, date
-from django.utils.translation import gettext, gettext_lazy as _
+from django.utils.translation import gettext, gettext_lazy as _, to_locale, get_language, pgettext
 
 app_name = 'fuel'
+ADPM = 30.42 # average days per month
 
 class Car(models.Model):
     user   = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
@@ -79,7 +81,7 @@ class Fuel(models.Model):
         return ret
 
 
-# средний расход
+# average fuel consumption
 def consumption(_user, car = None):
   try:
     if not car:
@@ -121,7 +123,7 @@ def fuel_summary(_user):
     return gettext('no active car')
     
 
-class Part(models.Model): # Список расходников
+class Part(models.Model): # Consumable
     car      = models.ForeignKey(Car, on_delete=models.CASCADE, verbose_name=_('car'))
     name     = models.CharField(_('name'), max_length = 1000, blank = False)
     chg_km   = models.IntegerField(_('replacement interval, km'), blank = True, null = True)
@@ -159,7 +161,7 @@ class Part(models.Model): # Список расходников
     def chg_km_th(self):
         return self.chg_km // 1000
 
-    def get_rest(self):
+    def get_rest(self, debug=False):
         if ((not self.chg_km) and (not self.chg_mo)) or (not self.last_odo()):
             return '', ''
 
@@ -172,58 +174,47 @@ class Part(models.Model): # Список расходников
         p2 = ''
         m1 = False
         m2 = False
-        color = ''
+        color = 'normal'
 
-        if (self.chg_km != 0):
-            trip_km_unround = fuels[0].odometr - self.last_odo() # Проехали км от последней замены
+        if self.chg_km:
+            trip_km_unround = fuels[0].odometr - self.last_odo() # How many kilometers have traveled since the last change
           
+            if debug:
+                raise Exception(trip_km_unround)
             trip_km = trip_km_unround
             if (trip_km > 1000):
                 trip_km = round(trip_km_unround / 1000) * 1000
           
             if (trip_km_unround > self.chg_km):
-                if ((trip_km_unround - self.chg_km) > 1000):
-                    p1 = 'просрочено на ' + str(round(((trip_km_unround - self.chg_km) / 1000))) + ' тыс. км'
-                    color = 'error'
+                if ((trip_km_unround - self.chg_km) >= 1000):
+                    p1 = '{} {} {}'.format(round((trip_km_unround - self.chg_km) / 1000), _('thsd km'), _('overdue'))
                 else:
-                    p1 = 'просрочено на ' + str(trip_km_unround - self.chg_km) + ' км'
-                    color = 'error'
+                    p1 = '{} {} {}'.format(trip_km_unround - self.chg_km, _('km'), _('overdue'))
+                color = 'error'
                 m1 = True
             else:
-                if ((self.chg_km - trip_km) < 1000):
-                    p1 = str(self.chg_km - trip_km_unround) + ' км'
+                if ((self.chg_km - trip_km_unround) < 1000):
+                    p1 = '{} {}'.format(self.chg_km - trip_km_unround, _('km'))
                     color = 'warning'
                 else:
-                    p1 = str(round(((self.chg_km - trip_km) / 1000))) + ' тыс. км'
+                    p1 = '{} {}'.format(round((self.chg_km - trip_km) / 1000), _('thsd km'))
               
-        if (self.chg_mo != 0):
-            trip_days = (fuels[0].pub_date.date() - self.last_date()).days - self.chg_mo * 30.42
+        if (self.chg_mo):
+            trip_days = (fuels[0].pub_date.date() - self.last_date()).days - self.chg_mo * ADPM
             per = ''
             days = trip_days
             if (days < 0):
                 days = -1 * days
           
-            if (days < 2):
-                per = 'день'
-            elif (days < 5):
-                per = str(round(days)) + ' дня'
-            elif (days < 30):
-                per = str(round(days)) + ' дней'
-            elif (days < 45):
-                per = 'месяц'
-            elif (days < 135):
-                per = str(round(days/30)) + ' месяца'
-            elif (days < 270):
-                per = 'пол года'
-            elif (days < 540):
-                per = 'год'
-            elif (days < 1642):
-                per = str(round(days/365)) + ' года'
+            if (days >= 365):
+                per = self.year_declination(round(days/ADPM))
+            elif (days >= ADPM):
+                per = self.month_declination(round(days/ADPM))
             else:
-                per = str(round(days/365)) + ' лет'
+                per = self.day_declination(round(days))
             
             if (trip_days > 0):
-                p2 = 'просрочено на ' + per
+                p2 = '{} {}'.format(per, _('overdue'))
                 m2 = True
                 color = 'error'
             else:
@@ -242,19 +233,19 @@ class Part(models.Model): # Список расходников
         elif (p2 == ''):
             output = p1
         else:
-            output = p1 + ' или ' + p2
+            output = '{} {} {}'.format(p1, _('or'), p2)
 
         return output, color
 
     def get_info(self):
         ret = []
         if self.chg_km:
-            ret.append({'text': _('km: ') + str(self.chg_km)})
+            ret.append({'text': '{} {}'.format(self.chg_km, _('km'))})
     
         if self.chg_mo:
             if (len(ret) > 0):
                 ret.append({'icon': 'separator'})
-            ret.append({'text': _('months: ') + str(self.chg_mo)})
+            ret.append({'text': self.month_declination(self.chg_mo)})
     
         rest, color = self.get_rest()
         if rest:
@@ -269,21 +260,40 @@ class Part(models.Model): # Список расходников
 
         return ret
 
+    def day_declination(self, value):
+        s_days = declination(value, 'day', 'days', _('day'), pgettext('2-4', 'days'), pgettext('5-10', 'days'))
+        return '{} {}'.format(value, s_days)
+    
+    def month_declination(self, value):
+        s_months = declination(value, 'month', 'months', _('month'), pgettext('2-4', 'months'), pgettext('5-10', 'months'))
+        return '{} {}'.format(value, s_months)
+    
+    def year_declination(self, value):
+        years = math.floor(value / 12)
+        months = round(value % 12)
+        s_years = declination(years, 'year', 'years', _('year'), pgettext('2-4', 'years'), pgettext('5-10', 'years'))
+        s_years = '{} {}'.format(years, s_years)
+        s_months = ''
+        if months:
+            s_months = ' {} {}'.format(_('and'), self.month_declination(months))
+        return s_years + s_months
+    
     def info(self):
         ret = ''
         if self.chg_km:
-            if ret:
-                ret += ' / '
-            ret += _('km: ') + str(self.chg_km)
+            if (self.chg_km >= 1000):
+                ret = '{} {}'.format(round(self.chg_km / 1000), _('thsd km'))
+            else:    
+                ret = '{} {}'.format(self.chg_km, _('km'))
         if self.chg_mo:
             if ret:
                 ret += ' / '
-            ret += _('months: ') + str(self.chg_mo)
+            ret += self.month_declination(self.chg_mo)
         rest, color = self.get_rest()
         if rest:
             if ret:
                 ret += ' / '
-            ret += rest
+            ret += str(rest)
         if self.comment:
             if ret:
                 ret += ' / '
@@ -291,7 +301,24 @@ class Part(models.Model): # Список расходников
         return ret
 
 
-class Repl(models.Model): # Замена расходников
+def declination(num, singular, plural, tr_singular, tr_plural_2_4, tr_plural_5_10):
+    if (to_locale(get_language()) == 'en'):
+        if (num == 1):
+            return singular
+        else:
+            return plural
+    else:
+        if (num >= 11) and (num <= 14):
+            return tr_plural_5_10
+        elif ((num % 10) == 1):
+            return tr_singular
+        elif ((num % 10) >= 2) and ((num % 10) <= 4):
+            return tr_plural_2_4
+        else:
+            return tr_plural_5_10
+
+
+class Repl(models.Model): # Replacement of consumables
     car      = models.ForeignKey(Car, on_delete=models.CASCADE, verbose_name=_('car'), null = True)
     part     = models.ForeignKey(Part, on_delete=models.CASCADE, verbose_name=_('part'), null = True)
     dt_chg   = models.DateTimeField(_('date'), blank = False)
