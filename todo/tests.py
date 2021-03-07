@@ -10,89 +10,81 @@ class NextIterationTests(TestCase):
 
     def do_test_next_iteration(self, repeat, start, last_compl, expected):
         self.task.repeat = repeat
-        self.task.start = start
-        self.task.last_compl = last_compl
+        self.task.repeat_num = 1
+        if last_compl:
+            self.task.start = start
+            self.task.stop = last_compl
+        else:
+            self.task.start = None
+            self.task.stop = start
         self.task.save()
         ni = self.task.next_iteration()
-        days = (ni - date.today()).days
-        self.assertEqual(days, expected)
+        if (repeat == NONE) or (not start):
+            self.assertIsNone(ni)
+        else:
+            self.assertIsNotNone(ni)
+            days = (ni - date.today()).days
+            self.assertEqual(days, expected)
     
     def do_test_next_iteration_date(self, repeat, start, last_compl, expect):
         self.task.repeat = repeat
-        self.task.start = start
-        self.task.last_compl = last_compl
+        self.task.repeat_num = 1
+        if last_compl:
+            self.task.start = start
+            self.task.stop = last_compl
+        else:
+            self.task.start = None
+            self.task.stop = start
         self.task.save()
         ni = self.task.next_iteration()
-        self.assertEqual(ni, expect)
+        if (repeat == NONE) or (not start):
+            self.assertIsNone(ni)
+        else:
+            self.assertIsNotNone(ni)
+            self.assertEqual(ni, expect)
     
     def test_next_iteration(self):
         self.user = User.objects.create(username = 'tests.py')
         self.task = Task.objects.create(user = self.user, name = 'tests.py')
-
-        # Если дата начала не определена, то независимо от режима повторений считаем, что срок задачи - сегодня
+        # if the due date is not defined, then the task is not repeated
         self.do_test_next_iteration(NONE, None, None, 0)
         self.do_test_next_iteration(DAILY, None, None, 0)
         self.do_test_next_iteration(WEEKLY, None, None, 0)
         self.do_test_next_iteration(MONTHLY, None, None, 0)
         self.do_test_next_iteration(ANNUALLY, None, None, 0)
 
-        # Первая итерация, независимо от режима повторений, ожидается в указанную день start
+        # The next iteration, regardless of the repetition mode
         today = date.today()
         self.do_test_next_iteration(NONE, today, None, 0)
-        self.do_test_next_iteration(NONE, (today - timedelta(12)), None, -12)
-        self.do_test_next_iteration(NONE, (today + timedelta(12)), None, 12)
-        self.do_test_next_iteration(DAILY, (today - timedelta(12)), None, -12)
-        self.do_test_next_iteration(DAILY, (today + timedelta(12)), None, 12)
-        self.do_test_next_iteration(WEEKLY, (today - timedelta(12)), None, -12)
-        self.do_test_next_iteration(WEEKLY, (today + timedelta(12)), None, 12)
-        self.do_test_next_iteration(MONTHLY, (today - timedelta(12)), None, -12)
-        self.do_test_next_iteration(MONTHLY, (today + timedelta(12)), None, 12)
-        self.do_test_next_iteration(ANNUALLY, (today - timedelta(12)), None, -12)
-        self.do_test_next_iteration(ANNUALLY, (today + timedelta(12)), None, 12)
+        self.do_test_next_iteration(NONE, (today - timedelta(12)), None, 0)
+        self.do_test_next_iteration(NONE, (today + timedelta(12)), None, 0)
+        self.do_test_next_iteration(DAILY, (today - timedelta(12)), None, -11)
+        self.do_test_next_iteration(DAILY, (today + timedelta(12)), None, 13)
+        self.do_test_next_iteration(WEEKLY, (today - timedelta(12)), None, -5)
+        self.do_test_next_iteration(WEEKLY, (today + timedelta(12)), None, 19)
 
-        # Не первая итерация для повторяющихся задач
-        # Ежедневно
+        # Not the first iteration for repetitive tasks.
+        # Daily
         self.do_test_next_iteration(DAILY, (today - timedelta(12)), (today - timedelta(2)), -1)
         self.do_test_next_iteration(DAILY, (today - timedelta(12)), (today - timedelta(1)), 0)
         self.do_test_next_iteration(DAILY, (today - timedelta(12)), today, 1)
         self.do_test_next_iteration(DAILY, (today - timedelta(12)), (today + timedelta(1)), 2)
         
-        # Еженедельно
+        # Weekly
         self.do_test_next_iteration(WEEKLY, (today - timedelta(12)), (today - timedelta(10)), -3)
         self.do_test_next_iteration(WEEKLY, (today - timedelta(12)), (today - timedelta(1)), 6)
         self.do_test_next_iteration(WEEKLY, (today - timedelta(12)), today, 7)
 
-        # Ежемесячно
-        self.do_test_next_iteration(MONTHLY, None, None, 0)
-
-        # Ещё не началось
-        beg    = date(2020, 7, 18)
-        last   = None
-        expect = date(2020, 7, 18)
-        self.do_test_next_iteration_date(MONTHLY, beg, last, expect)
-        
-        # Должно было начаться в прошлом
-        beg    = date(2020, 3, 18)
-        last   = None
-        expect = date(2020, 3, 18)
-        self.do_test_next_iteration_date(MONTHLY, beg, last, expect)
-
-        # Есть последняя итерация
+        # There is a final iteration
         beg    = date(2020, 3, 25)
         last   = date(2020, 4, 25)
         expect = date(2020, 5, 25)
         self.do_test_next_iteration_date(MONTHLY, beg, last, expect)
 
-        # Если день последней итерации отличается не более чем на 5 дней от дня начала повторений, то пытаемся вернуться к дню начала повторений
+        # If the day of the last iteration differs by no more than 5 days from the day of the start of the repetitions, then we try to return to the day of the start of the repetitions.
         beg    = date(2020, 3, 25)
         expect = date(2020, 5, 25)
 
-        last   = date(2020, 4, 22)
-        self.do_test_next_iteration_date(MONTHLY, beg, last, expect)
-        last   = date(2020, 4, 22)
-        self.do_test_next_iteration_date(MONTHLY, beg, last, expect)
-        last   = date(2020, 4, 22)
-        self.do_test_next_iteration_date(MONTHLY, beg, last, expect)
         last   = date(2020, 4, 22)
         self.do_test_next_iteration_date(MONTHLY, beg, last, expect)
         last   = date(2020, 4, 23)
@@ -134,9 +126,6 @@ class NextIterationTests(TestCase):
         last   = date(2021, 12, 31)
         expect = date(2022, 1, 31)
         self.do_test_next_iteration_date(MONTHLY, beg, last, expect)
-
-        self.task.delete()
-        self.user.delete()
 
 class TermCalculationTests(TestCase):
     

@@ -124,7 +124,8 @@ class Task(models.Model):
             elif (self.repeat == MONTHLY):
                 next = add_months(self.stop, self.repeat_num)
                 if self.start and (next.day != self.start.day):
-                    # Теперь попытаемся скорректировать день, чтобы он был как у стартовой даты
+                    # For tasks that are repeated on a monthly basis, the day of the next iteration must be adjusted so that it coincides with the day of the first iteration.
+                    # Relevant for tasks with a due date at the end of the month.
                     d = next.day
                     m = next.month
                     y = next.year
