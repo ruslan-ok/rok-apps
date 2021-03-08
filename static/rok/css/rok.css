@@ -256,19 +256,30 @@ header .site-label {
 }
 
 .search-container {
-  width: 250px;
+  width: 270px;
+}
+
+.search-form {
+  display: flex;
+  align-items: center;
 }
 
 .search-form input[type="text"] {
-  float: right;
   padding: 6px;
   border: none;
   border-radius: 2px;
-  margin-top: 8px;
-  margin-right: 16px;
   font-size: 1.2rem;
   width: 220px;
   background: #d7e3eb;
+}
+
+.search-button {
+  padding: 0;
+  margin: 0;
+  background: inherit;
+  border: none;
+  width: 48px;
+  cursor: pointer;
 }
 
 .launcher-top {

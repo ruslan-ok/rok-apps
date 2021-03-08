@@ -8,6 +8,17 @@
   margin-bottom: 3rem;
 }
 
+.search_info {
+  display: flex;
+  flex-direction: row;
+}
+
+.search_info .query {
+  color: teal;
+  margin: 0 10px;
+  font-weight: 550;
+}
+
 .search .results,
 .search .results .element .link
 { 

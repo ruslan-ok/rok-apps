@@ -161,7 +161,7 @@ class Part(models.Model): # Consumable
     def chg_km_th(self):
         return self.chg_km // 1000
 
-    def get_rest(self, debug=False):
+    def get_rest(self):
         if ((not self.chg_km) and (not self.chg_mo)) or (not self.last_odo()):
             return '', ''
 
@@ -179,8 +179,6 @@ class Part(models.Model): # Consumable
         if self.chg_km:
             trip_km_unround = fuels[0].odometr - self.last_odo() # How many kilometers have traveled since the last change
           
-            if debug:
-                raise Exception(trip_km_unround)
             trip_km = trip_km_unround
             if (trip_km > 1000):
                 trip_km = round(trip_km_unround / 1000) * 1000

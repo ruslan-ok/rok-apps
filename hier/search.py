@@ -38,6 +38,15 @@ class SearchResult():
         self.items = []
         
     def add(self, app, entity, id, name, info, main_entity = True, detail1 = '', detail2 = ''):
+        prefix = ''
+        if (len(info) > 500):
+            pos = info.find(self.query)
+            if (pos > 250):
+                pos -= 250
+                prefix = '... '
+            else:
+                pos = 0
+            info = prefix + info[pos:pos+500] + ' ...'
         self.items.append(SearchItem(app, entity, id, name, info.replace(self.query, '<strong>' + self.query + '</strong>'), main_entity, detail1, detail2))
         
 class SearchItem():

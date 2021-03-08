@@ -1,10 +1,6 @@
 {% extends "hier/page.html" %}
 {% load static i18n %}
 
-{% block extrastyle %}
-  <link rel="stylesheet" type="text/css" href="{% static 'rok/css/search.css' %}">
-{% endblock %}
-
 {% block aside_conent %}
   <div class="launcher-menu">
     {% for app in apps %}
@@ -21,11 +17,22 @@
   
     <div class="w3-row w3-padding search">
       {% if not search_data %}
-        {% trans 'Nothing found for' %} "{{ request.GET.q }}".
+        <div class="search_info">
+          {% trans 'Nothing found for' %} <div class="query">{{ request.GET.q }}</div>
+          <form method="get">
+            <button type="submit" class="button" title="{% trans 'clear search'|capfirst %}"><img src="{% static 'rok/icon/clear.png' %}"></button>
+          </form>
+        </div>
       {% else %}
         <div class="statistics">
-          <div class="main-title-subline">
-            {{ search_info }}
+          <div class="">
+            <div class="search_info">
+              {% trans 'contained'|capfirst %} 
+              <div class="query">{{ search_info }}</div>
+              <form method="get">
+                <button type="submit" class="button" title="{% trans 'clear search'|capfirst %}"><img src="{% static 'rok/icon/clear.png' %}"></button>
+              </form>
+            </div>
           </div>
           <div class="main-title-subline">
             {% trans 'results'|capfirst %}: {{ search_qty }}

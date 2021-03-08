@@ -470,6 +470,8 @@ def task_list(request):
     context['page_obj'] = tasks
     context['item_groups'] = sorted(groups, key = lambda group: group.grp.grp_id)
     context['search_info'] = get_search_info(query)
+    context['search_qty'] = len(tasks)
+    context['search_data'] = (len(tasks) > 0)
     context['task_add_form'] = TaskForm(request.user)
 
     template = loader.get_template(template_file)

@@ -31,6 +31,7 @@ class Checker():
             self.qty = 0
 
         try:
+            #response = requests.get(url, verify = False)
             response = requests.get(url, verify = cacert)
             if (response.status_code != 200) or (response.content != b'ok'):
                 self.log('response: code = {}, content = {}'.format(response.status_code, response.content.decode('utf-8')))

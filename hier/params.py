@@ -85,8 +85,8 @@ def get_search_mode(query):
 def get_search_info(query):
     search_mode = get_search_mode(query)
     if (search_mode == 1):
-        return _('contained').capitalize() + ' "' + query + '"'
+        return query
     elif (search_mode == 2):
-        return _('contained category').capitalize() + ' "' + query[1:] + '"'
+        return query[1:]
     else:
         return ''
