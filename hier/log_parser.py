@@ -31,6 +31,8 @@ def start_log_parser():
             s = f.readline()
             if not s:
                 break
+            if (s == '\n'):
+                break
             sdt = s.split('] ')[0].replace('[', '')
             event = datetime.strptime(sdt, '%d/%b/%Y:%H:%M:%S %z').astimezone(tz=timezone.utc).replace(tzinfo=None)
             if last_event and (event <= last_event):
@@ -70,7 +72,7 @@ def start_log_parser():
                             stat['error_5'] = (size, tails)
                             break
                     check = tails[4].replace('/ru/', '/').replace('/en/', '/')
-                    if (check[-1] != '"') and (check != '-') and (check != '/') and (len(check) < 3):
+                    if (check[-1] != '"') and (check != '-') and (check != '/') and (check != '/?') and (len(check) < 3):
                         stat['error_6'] = (tails[4], tails)
                         break
             valid = False
