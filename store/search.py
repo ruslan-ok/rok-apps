@@ -15,6 +15,6 @@ def search(user, query):
                 info += ', '
         if item.notes:
             info += item.notes
-        result.add(app_name, 'entry', item.id, item.title, info)
+        result.add(app_name, 'entry', item.id, item.created.date(), item.title, info)
     result.items += hier_search(user, app_name, query)
     return result.items

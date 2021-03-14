@@ -16,6 +16,6 @@ def search(user, query):
     
     items = Task.objects.filter(user = user.id).filter(lookups).distinct()
     for item in items:
-        result.add(app_name, 'task', item.id, item.name, item.info)
+        result.add(app_name, 'task', item.id, item.created.date(), item.name, item.info)
     result.items += hier_search(user, app_name, query)
     return result.items

@@ -66,6 +66,12 @@
                     <div class="name">{{ item.detail2 }}</div>
                   </div>
                   {% endif %}
+                  {% if item.created %}
+                  <div class="container">
+                    <img class="icon" src="{% static 'rok/icon/inline/separator.png' %}">
+                    <div class="name">{{ item.created|date:"d.m.Y" }}</div>
+                  </div>
+                  {% endif %}
                 </div>
                 <div class="value">
                   <div class="name">{{ item.name }}</div>

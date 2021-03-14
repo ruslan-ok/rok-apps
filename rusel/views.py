@@ -104,6 +104,11 @@ def index_user(request):
         template = loader.get_template('index_user.html')
     return HttpResponse(template.render(context, request))
 
+def get_si_date(e):
+    if not e.created:
+        return datetime.datetime(2000,1,1).date()
+    return e.created
+
 def get_search_data(user, app_param, query):
     if not query:
         return []
@@ -116,6 +121,7 @@ def get_search_data(user, app_param, query):
     data += wage_search(user, query)
     data += apart_search(user, query)
     data += store_search(user, query)
+    data.sort(reverse=True, key=get_si_date)
     return data
 
 

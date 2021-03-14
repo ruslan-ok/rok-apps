@@ -133,10 +133,10 @@ def search(user, app_name, query):
     lookups = Q(name__icontains=query)
     groups = Grp.objects.filter(user = user.id, app = app_name).filter(lookups).distinct()
     for group in groups:
-        result.add(app_name, 'group', group.id, group.name, '', False)
+        result.add(app_name, 'group', group.id, group.created.date(), group.name, '', False)
     lists = Lst.objects.filter(user = user.id, app = app_name).filter(lookups).distinct()
     for lst in lists:
-        result.add(app_name, 'list', lst.id, lst.name, '', False)
+        result.add(app_name, 'list', lst.id, lst.created.date(), lst.name, '', False)
     return result.items
 
 

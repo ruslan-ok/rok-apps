@@ -8,7 +8,7 @@ def search(user, query):
     lookups = Q(name__icontains=query)
     items = Projects.objects.filter(user = user.id).filter(lookups)
     for item in items:
-        result.add(app_name, 'project', item.id, item.name, item.get_summary(), False)
+        result.add(app_name, 'project', item.id, item.created.date(), item.name, item.get_summary(), False)
 
     lookups = Q(kontr__icontains=query) | Q(text__icontains=query) | Q(description__icontains=query)
     items = Expenses.objects.filter(direct__user = user.id).filter(lookups)
@@ -17,6 +17,6 @@ def search(user, query):
         if info and item.text:
             info += ', '
         info += item.text
-        result.add(app_name, 'expense', item.id, item.name(), info, True, item.direct.name)
+        result.add(app_name, 'expense', item.id, item.date.date(), item.name(), info, True, item.direct.name)
 
     return result.items

@@ -37,8 +37,10 @@ class SearchResult():
         self.query = query
         self.items = []
         
-    def add(self, app, entity, id, name, info, main_entity = True, detail1 = '', detail2 = ''):
+    def add(self, app, entity, id, created, name, info, main_entity = True, detail1 = '', detail2 = ''):
         prefix = ''
+        if (not info):
+            info = ''
         if (len(info) > 500):
             pos = info.find(self.query)
             if (pos > 250):
@@ -47,21 +49,22 @@ class SearchResult():
             else:
                 pos = 0
             info = prefix + info[pos:pos+500] + ' ...'
-        self.items.append(SearchItem(app, entity, id, name, info.replace(self.query, '<strong>' + self.query + '</strong>'), main_entity, detail1, detail2))
+        self.items.append(SearchItem(app, entity, id, created, name, info.replace(self.query, '<strong>' + self.query + '</strong>'), main_entity, detail1, detail2))
         
 class SearchItem():
-    def __init__(self, app, entity, id, name, info, main_entity = True, detail1 = '', detail2 = ''):
+    def __init__(self, app, entity, id, created, name, info, main_entity = True, detail1 = '', detail2 = ''):
         self.app = app
         self.entity = entity
         self.main = main_entity
         self.id = id
+        self.created = created
         self.name = name
         self.info = info
         self.detail1 = detail1
         self.detail2 = detail2
         
     def __repr__(self):
-        return 'Application: "{}", Entity: "{}", Name: "{}" , Info: "{}"'.format(self.app, self.entity, self.name, self.info)
+        return 'Application: "{}", Entity: "{}", Created: "{}", Name: "{}" , Info: "{}"'.format(self.app, self.entity, self.created, self.name, self.info)
 
     def href(self):
         pass

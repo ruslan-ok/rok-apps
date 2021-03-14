@@ -92,6 +92,12 @@ class Depart(models.Model):
             item.save()
         self.active = True
         self.save()
+        
+    def created(self):
+        hist = DepHist.objects.filter(depart = self.id).order_by('dBeg')
+        if (len(hist) > 0):
+            return hist[0].dBeg
+        return None
 
 class DepHist(models.Model):
     dBeg = models.DateField(_('begin date'), default = datetime.today)
