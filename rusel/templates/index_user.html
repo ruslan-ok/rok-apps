@@ -23,7 +23,9 @@
     
       {% if user.username == 'ruslan.ok' %}
         <br><br><br>
-        
+        {% if debug %}
+          <h2 class="w3-text-red">Warning: Debug mode</h2><br><br><br>
+        {% endif %}
         {% if logs %}
           {% if logs.1 %}
             <table>

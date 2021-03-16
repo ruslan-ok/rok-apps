@@ -11,6 +11,7 @@ from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.decorators import login_required
 from django.views import View
+from django.conf import settings
 
 from hier.utils import get_base_context_ext, process_common_commands, get_param
 from hier.models import Param, Folder
@@ -52,6 +53,7 @@ def index_user(request):
     app_param, context = get_base_context_ext(request, app_name, '', _('applications').capitalize())
     context['hide_title'] = False
     context['aside_disabled'] = True
+    context['debug'] = settings.DEBUG
 
     query = None
     data = []
