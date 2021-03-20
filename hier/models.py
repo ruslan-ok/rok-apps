@@ -137,28 +137,65 @@ def toggle_content_group(user_id, app, grp_id):
 
 class IPInfo(models.Model):
     ip = models.CharField('IP', max_length=20, blank=False)
-    country = models.CharField('country', max_length=3, blank=False)
-    info = models.TextField('information', blank=True)
+    success = models.BooleanField('success', default=False, null=True)
+    ip_type = models.CharField('type', max_length=100, blank=True, null=True)
+    continent = models.CharField('continent', max_length=100, blank=True, null=True)
+    continent_code = models.CharField('continent_code', max_length=10, blank=True, null=True)
+    country = models.CharField('country name', max_length=100, blank=True, null=True)
+    country_code = models.CharField('country_code', max_length=3, blank=True, null=True)
+    country_flag = models.CharField('country_flag', max_length=1000, blank=True, null=True)
+    country_capital = models.CharField('country_capital', max_length=100, blank=True, null=True)
+    country_phone = models.CharField('country_phone', max_length=100, blank=True, null=True)
+    country_neighbours = models.CharField('country_neighbours', max_length=100, blank=True, null=True)
+    region = models.CharField('region', max_length=100, blank=True, null=True)
+    city = models.CharField('city', max_length=100, blank=True, null=True)
+    latitude = models.CharField('latitude', max_length=100, blank=True, null=True)
+    longitude = models.CharField('longitude', max_length=100, blank=True, null=True)
+    asn = models.CharField('asn', max_length=100, blank=True, null=True)
+    org = models.CharField('org', max_length=100, blank=True, null=True)
+    timezone_dstOffset = models.CharField('timezone_dstOffset', max_length=10, blank=True, null=True)
+    timezone_gmtOffset = models.CharField('timezone_gmtOffset', max_length=100, blank=True, null=True)
+    timezone_gmt = models.CharField('timezone_gmt', max_length=100, blank=True, null=True)
+    currency = models.CharField('currency', max_length=100, blank=True, null=True)
+    currency_code = models.CharField('currency_code', max_length=100, blank=True, null=True)
+    currency_symbol = models.CharField('currency_symbol', max_length=100, blank=True, null=True)
+    
+    def info(self):
+        ret = ''
+        if self.country_code:
+            ret = self.country_code
+        if self.country:
+            if ret:
+                ret += ', '
+            ret += self.country
+        if self.city:
+            if ret:
+                ret += ', '
+            ret += self.city
+        if self.org:
+            if ret:
+                ret += ' - '
+            ret += self.org
+        if self.ip:
+            if ret:
+                ret += ' - '
+            ret += self.ip
+        return ret
 
-class LogRecord(models.Model):
-    ip = models.ForeignKey(IPInfo, on_delete = models.CASCADE, verbose_name='IP address', related_name='IP_address', null=True)
+class AccessLog(models.Model):
+    host = models.ForeignKey(IPInfo, on_delete = models.CASCADE, verbose_name='IP address', related_name='Host_IP', null=True)
+    user = models.CharField('user', max_length=200, blank=True)
     event = models.DateTimeField('event time', null=False)
-    prot = models.CharField('protocol', max_length=100, blank=True)
-    crypt = models.CharField('crypto', max_length=200, blank=True)
     method = models.CharField('method', max_length=100, blank=True)
-    addr = models.CharField('address', max_length=1000, blank=True)
-    vers = models.CharField('HTTP version', max_length=50, blank=True)
+    uri = models.CharField('uri', max_length=1000, blank=True)
+    protocol = models.CharField('protocol', max_length=100, blank=True)
+    status = models.IntegerField('status', blank=True, null=True)
     size = models.IntegerField('request size', blank=True, null=True)
-    valid = models.BooleanField('valid resource', default=False, null=True)
-    log_sz = models.IntegerField('log file size', blank=True, null=True)
+    
+    def __repr__(self):
+        return str(self.id) + ' [' + str(self.event) + ']'
 
-class ActDetect(models.Model):
-    event = models.DateTimeField('event time', null=False)
-    addr = models.CharField('address', max_length=1000, blank=True)
-    ip = models.CharField('IP', max_length=20, blank=False)
-    country = models.CharField('country', max_length=3, blank=False)
-    org = models.CharField('organisation', max_length=200, blank=True)
-
-    def __str__(self):
-        return self.country + ' ' + self.ip + ' ' + self.org
+class SiteStat(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
+    record = models.ForeignKey(AccessLog, on_delete = models.RESTRICT, verbose_name='log record', related_name='LogID', null=True)
 

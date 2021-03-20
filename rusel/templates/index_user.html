@@ -26,35 +26,32 @@
         {% if debug %}
           <h2 class="w3-text-red">Warning: Debug mode</h2><br><br><br>
         {% endif %}
-        {% if logs %}
-          {% if logs.1 %}
-            <table>
-              <tr> <th>{% trans 'address'|capfirst %}</th> <th>{% trans 'visitor'|capfirst %}</th> </tr>
-              {% for x, y in logs.1.items %}
-                <tr>
-                  <td>{{ x }}</td>
-                  <td>
-                    <ul>
-                      {% for z in y %}
-                        <li>{{ z }}</li>
-                      {% endfor %}
-                    </ul> 
-                  </td> 
-                </tr>
-              {% endfor %}
-            </table>
 
-            <br><br>
-          {% endif %}
+        {% if show_stat %}
+          <table>
+            <tr> <th>{% trans 'application'|capfirst %}</th> <th>{% trans 'visitor'|capfirst %}</th> <th>{% trans 'page'|capfirst %}</th> </tr>
+            {% for app, hosts in stat.items %}
+              <tr> <td>{{ app }}</td> <td></td> <td></td> </tr>
+              {% for host, pages in hosts.items %}
+                <tr> <td></td> <td>{{ host }}</td> <td></td> </tr>
+                  {% for page in pages %}
+                    <tr> <td></td> <td></td> <td>{{ page }}</td> </tr>
+                  {% endfor %}
+              {% endfor %}
+            {% endfor %}
+          </table>
+          <br><br>
+        {% endif %}
+        
+        {% if indicators %}
           <table>
             <tr> <th>{% trans 'indictor'|capfirst %}</th> <th>{% trans 'value'|capfirst %}</th> </tr>
-            {% for x in logs.0 %}
+            {% for x in indicators %}
               <tr> <td>{{ x.0 }}</td> <td>{{ x.1 }}</td> </tr>
             {% endfor %}
           </table>
+          <br><br><br>
         {% endif %}
-
-        <br><br><br>
         
         <table>
           <tr> <th>{% trans 'product'|capfirst %}</th> <th>{% trans 'version'|capfirst %}</th> <th>{% trans 'check new version'|capfirst %}</th></tr>

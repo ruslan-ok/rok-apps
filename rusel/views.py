@@ -16,7 +16,7 @@ from django.conf import settings
 from hier.utils import get_base_context_ext, process_common_commands, get_param
 from hier.models import Param, Folder
 from trip.models import trip_summary
-from hier.log_parser import start_log_parser
+from hier.site_stat import get_site_stat
 from hier.params import get_search_info
 
 from note.search import search as note_search
@@ -67,13 +67,12 @@ def index_user(request):
             context['title'] = _('search results').capitalize()
     if not data:
         if (request.user.username == 'ruslan.ok'):
-            try:
-                context['logs'] = start_log_parser()
-            except Exception as inst:
-                context['logs'] = ((('type', str(type(inst))),
-                                    ('args', inst.args),
-                                    ('inst', inst),
-                                    ),)
+            statistics = get_site_stat(request.user)
+            indicators = statistics[0]
+            stat = statistics[1]
+            context['indicators'] = indicators
+            context['show_stat'] = (len(stat) > 0)
+            context['stat'] = stat
             context['trip_summary'] = trip_summary(request.user.id)
             context['python_version'] = python_version()
             context['django_version'] = '{}.{}.{} {}'.format(*django.VERSION)

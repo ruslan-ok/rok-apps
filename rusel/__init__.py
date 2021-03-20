@@ -1,3 +1,8 @@
+"""Non-commercial product for personal use.
+
+The main functionality is a task scheduler, notes, photo archive, and more.
+"""
+
 import sys
 import asyncio
 
