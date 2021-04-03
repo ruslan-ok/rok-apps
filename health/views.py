@@ -145,6 +145,8 @@ def main(request):
     page_obj = paginator.get_page(page_number)
     context['page_obj'] = paginator.get_page(page_number)
     context['search_info'] = get_search_info(query)
+    context['search_qty'] = len(data)
+    context['search_data'] = query and (len(data) > 0)
     template = loader.get_template('health/' + app_param.restriction + '.html')
     return HttpResponse(template.render(context, request))
 

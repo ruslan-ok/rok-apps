@@ -370,6 +370,8 @@ def main(request):
         page_number = request.GET.get('page')
     context['search_info'] = get_search_info(query)
     data = filtered_sorted_list(request.user, app_param, period, employee, depart, query)
+    context['search_qty'] = len(data)
+    context['search_data'] = query and (len(data) > 0)
 
     if (app_param.restriction == EMPL_LIST):
         context['ed_item'] = employee

@@ -149,6 +149,8 @@ def main(request):
         page_number = request.GET.get('page')
     context['search_info'] = get_search_info(query)
     data = filtered_sorted_list(request.user, app_param, project, query)
+    context['search_qty'] = len(data)
+    context['search_data'] = query and (len(data) > 0)
     paginator = Paginator(data, items_per_page)
     page_obj = paginator.get_page(page_number)
     context['page_obj'] = paginator.get_page(page_number)

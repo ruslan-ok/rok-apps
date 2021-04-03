@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-17 19:30+0300\n"
+"POT-Creation-Date: 2021-03-07 19:42+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -149,7 +149,7 @@ msgstr "Максимум:"
 #: .\health\templates\health\chrono.html:34
 #: .\health\templates\health\chrono.html:35
 msgid "at"
-msgstr ""
+msgstr " "
 
 #: .\health\templates\health\chrono.html:13
 #: .\health\templates\health\chrono.html:24
@@ -190,4 +190,3 @@ msgstr "добавить биомаркеры"
 #: .\health\views.py:180
 msgid "add incident"
 msgstr "добавить событие"
-

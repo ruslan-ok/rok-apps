@@ -3,7 +3,7 @@
 
 {% block content %}
   <div class="top">
-    <div class="main-top-headline_">
+    <div class="main-top-headline_new">
       <h3>
         {{ title|capfirst }}
         {% if list_id %}
@@ -17,6 +17,7 @@
       {% endif %}
 
       <div class="w3-row w3-padding search">
+      {% if search_info %}
         {% if not search_data %}
           <div class="search_info">
             {% trans 'Nothing found for' %} <div class="query">{{ request.GET.q }}</div>
@@ -40,6 +41,7 @@
             </div>
           </div>
         {% endif %}
+      {% endif %}
       </div>
     </div>
     {% if sort_options %}

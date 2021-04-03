@@ -13,7 +13,9 @@ todo/fcm/
 rusel/media/
 DateTimeShortcuts.js
 firebase-messaging-sw.js
-
+.project
+.pydevproject
+rusel-by-firebase-adminsdk-*.json
 
 # Windows image file caches
 Thumbs.db

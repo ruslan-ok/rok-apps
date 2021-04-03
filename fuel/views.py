@@ -141,6 +141,8 @@ def main(request):
         query = request.GET.get('q')
     context['search_info'] = get_search_info(query)
     data = filtered_sorted_list(request.user, app_param.restriction, car, query)
+    context['search_qty'] = len(data)
+    context['search_data'] = query and (len(data) > 0)
     page_number = 1
     if (request.method == 'GET'):
         page_number = request.GET.get('page')

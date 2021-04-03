@@ -184,6 +184,8 @@ def do_main(request, restriction, pk = None, art_vis = False):
     context['without_lists'] = True
 
     data, gps_data = filtered_sorted_list(request.user, app_param, query)
+    context['search_qty'] = len(data)
+    context['search_data'] = query and (len(data) > 0)
     context['gps_data'] = gps_data
 
     fixes = []
