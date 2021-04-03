@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-18 19:51+0300\n"
+"POT-Creation-Date: 2021-03-07 19:42+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -149,8 +149,8 @@ msgid "Forgotten your password or username?"
 msgstr "Забыли свой пароль или имя пользователя?"
 
 #: .\account\templates\account\login.html:56
-#: .\account\templates\account\register.html:46 .\account\views.py:176
-#: .\account\views.py:200
+#: .\account\templates\account\register.html:46 .\account\views.py:178
+#: .\account\views.py:202
 msgid "Register"
 msgstr "Регистрация"
 
@@ -190,7 +190,7 @@ msgid "Your password has been set. You may go ahead and log in now:"
 msgstr "Ваш пароль сохранен. Теперь вы можете войти:"
 
 #: .\account\templates\account\password_reset_complete.html:4
-#: .\account\views.py:63
+#: .\account\views.py:65
 msgid "Log in"
 msgstr "Вход"
 
@@ -283,7 +283,7 @@ msgstr "Сбросить мой пароль"
 msgid "Password reset on %(site_name)s"
 msgstr "Сброс пароля на %(site_name)s"
 
-#: .\account\templates\account\profile.html:111
+#: .\account\templates\account\profile.html:119
 msgid "Save"
 msgstr "Сохранить"
 
@@ -291,19 +291,19 @@ msgstr "Сохранить"
 msgid "Edit profile"
 msgstr "Редактирование профиля"
 
-#: .\account\views.py:123
+#: .\account\views.py:125
 msgid "Logged out"
 msgstr "Выход выполнен"
 
-#: .\account\views.py:184
+#: .\account\views.py:186
 msgid "Account Verification"
 msgstr "Проверка учетной записи"
 
-#: .\account\views.py:186
+#: .\account\views.py:188
 msgid "Please visit the following link to verify your account"
 msgstr "Перейдите по следующей ссылке для активации учетной записи"
 
-#: .\account\views.py:195
+#: .\account\views.py:197
 msgid ""
 "Account created. Click on the link sent to your email to activate the "
 "account."
@@ -311,54 +311,54 @@ msgstr ""
 "Учетная запись создана. Перейди по ссылке в отправленном письме для её "
 "активации."
 
-#: .\account\views.py:199
+#: .\account\views.py:201
 msgid "Unable to send email verification. Please try again."
 msgstr "Не удалось отправить письмо. Попробуйте ещё раз."
 
-#: .\account\views.py:235
+#: .\account\views.py:237
 msgid "Account activated"
 msgstr "Учетная запись активирована"
 
-#: .\account\views.py:259
+#: .\account\views.py:261
 msgid "Password reset"
 msgstr "Восстановление пароля"
 
-#: .\account\views.py:286
+#: .\account\views.py:288
 msgid "Password reset sent"
 msgstr "Письмо отправлено"
 
-#: .\account\views.py:296
+#: .\account\views.py:298
 msgid "Enter new password"
 msgstr "Новый пароль"
 
-#: .\account\views.py:356
+#: .\account\views.py:358
 msgid "Password reset unsuccessful"
 msgstr "Сброс пароля неуспешен"
 
-#: .\account\views.py:364
+#: .\account\views.py:366
 msgid "Password reset complete"
 msgstr "Установка пароля завершена"
 
-#: .\account\views.py:376
+#: .\account\views.py:378
 msgid "Password change"
 msgstr "Изменение пароля"
 
-#: .\account\views.py:399
+#: .\account\views.py:401
 msgid "Password change successful"
 msgstr "Пароль успешно изменен"
 
-#: .\account\views.py:413
+#: .\account\views.py:415
 msgid "Profile service"
 msgstr "Действия с профилем"
 
-#: .\account\views.py:432
+#: .\account\views.py:434
 msgid "profile"
 msgstr "профиль"
 
-#: .\account\views.py:434
+#: .\account\views.py:436
 msgid "Personal info"
 msgstr "Персональная информация"
 
-#: .\account\views.py:435
+#: .\account\views.py:437
 msgid "Important dates"
 msgstr "Важные даты"
