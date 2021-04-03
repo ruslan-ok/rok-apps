@@ -382,7 +382,8 @@ def add_service(request, apart):
     return item.id
 
 def add_meter(request, apart):
-    qty = len(Meter.objects.filter(apart = apart.id))
+    few = Meter.objects.filter(apart = apart.id).order_by('-period')[:3]
+    qty = len(few)
     if (qty == 0):
         period = next_period()
         el = 0
@@ -390,7 +391,7 @@ def add_meter(request, apart):
         cw = 0
         ga = 0
     else:
-        last = Meter.objects.filter(apart = apart.id).order_by('-period')[0]
+        last = few[0]
         period = next_period(last.period)
 
         el = last.el
@@ -399,7 +400,7 @@ def add_meter(request, apart):
         ga = last.ga
 
         if (qty > 1):
-            first = Meter.objects.filter(apart = apart.id).order_by('period')[0]
+            first = few[qty-1]
             el = last.el + round((last.el - first.el) / (qty - 1))
             hw = last.hw + round((last.hw - first.hw) / (qty - 1))
             cw = last.cw + round((last.cw - first.cw) / (qty - 1))
