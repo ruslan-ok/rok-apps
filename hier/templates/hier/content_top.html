@@ -52,7 +52,7 @@
           <div class="dropdown-content pos-sort" id="sort_menu">
             <div class="dropdown-content-title">{% trans 'sort order'|capfirst %}</div>
             {% for sort in sort_options %}
-              <button type="submit" class="dropdown-content-item" name="sort-{{ sort.name }}">
+              <button type="submit" class="dropdown-content-item" name="sort_{{ sort.name }}">
                 <img src="{% static sort.icon %}">
                 {{ sort.title }}
               </button>
