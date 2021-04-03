@@ -31,7 +31,6 @@ urlpatterns = i18n_patterns(
     path('trip/',   include('trip.urls')),
     path('wage/',   include('wage.urls')),
     path('todo/',   include('todo.urls')),
-    path('pir/',    include('pir.urls')),
     path('store/',  include('store.urls')),
     path('note/',   include('note.urls')),
     path('news/',   include('note.urls_news')),
