@@ -5,6 +5,7 @@ app_name = 'photo'
 urlpatterns = [
     # Режимы приложения
     path('',     views.main, name = 'main'), # Фотографии в виде миниатюр
+    path('main', views.main, name = 'main'), # Фотографии в виде миниатюр
     path('map/', views.map,  name = 'map'),  # Фотографии на карте
     path('one/', views.one,  name = 'one'),  # Просмотр одной фотографии, заданной именем файла
 

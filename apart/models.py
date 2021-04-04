@@ -11,6 +11,12 @@ from hier.files import get_files_list
 
 app_name = 'apart'
 
+APART = 'aparts'
+SERV = 'services'
+METER = 'meters'
+PRICE = 'prices'
+BILL = 'bills'
+
 #----------------------------------
 # Apartment
 

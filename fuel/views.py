@@ -12,47 +12,50 @@ from hier.utils import get_base_context_ext, process_common_commands, extract_ge
 from hier.params import set_article_visible, set_article_kind, set_restriction, get_search_mode, get_search_info
 from hier.models import get_app_params
 from hier.aside import Fix
-from .models import app_name, Car, set_active, Fuel, Part, Repl, consumption
+from .models import app_name, CARS, FUEL, INTR, SRVC
+from .models import Car, set_active, Fuel, Part, Repl, consumption
 from .forms import CarForm, FuelForm, PartForm, ReplForm
 
 items_per_page = 10
 
 #----------------------------------
+PAGES = {
+    CARS: 'cars',
+    FUEL: 'fuelings',
+    INTR: 'service intervals',
+    SRVC: 'repair and service'
+    }
+#----------------------------------
 def get_title(restriction, car):
-    if (restriction == 'cars'):
-        return _('cars').capitalize()
-    if (restriction == 'fuel'):
-        return _('fuelings').capitalize() + ' [' + car.name + ']'
-    if (restriction == 'interval'):
-        return _('service intervals').capitalize() + ' [' + car.name + ']'
-    if (restriction == 'service'):
-        return _('repair and service').capitalize() + ' [' + car.name + ']'
-    return 'unknown restriction: ' + str(restriction)
+    if (restriction ==CARS):
+        info = ''
+    else:
+        info = car.name
+    return PAGES[restriction], info
 
 #----------------------------------
+TEMPLATES = {
+    CARS: 'fuel/car.html',
+    FUEL: 'fuel/fueling.html',
+    INTR: 'fuel/interval.html',
+    SRVC: 'fuel/service.html'
+    }
+#----------------------------------
 def get_template_file(restriction):
-    if (restriction == 'cars'):
-        return 'fuel/car.html'
-    if (restriction == 'fuel'):
-        return 'fuel/fueling.html'
-    if (restriction == 'interval'):
-        return 'fuel/interval.html'
-    if (restriction == 'service'):
-        return 'fuel/service.html'
-    return 'fuel/fuel.html'
+    return TEMPLATES[restriction]
 
 #----------------------------------
 @login_required(login_url='account:login')
 #----------------------------------
 def main(request):
     app_param = get_app_params(request.user, app_name)
-    if (app_param.restriction != 'cars') and (app_param.restriction != 'fuel') and (app_param.restriction != 'interval') and (app_param.restriction != 'service'):
-        set_restriction(request.user, app_name, 'fuel')
+    if (app_param.restriction != CARS) and (app_param.restriction != FUEL) and (app_param.restriction != INTR) and (app_param.restriction != SRVC):
+        set_restriction(request.user, app_name, FUEL)
         return HttpResponseRedirect(reverse('fuel:main') + extract_get_params(request))
 
     if not Car.objects.filter(user = request.user.id, active = True).exists():
-        if (app_param.restriction != 'cars'):
-            set_restriction(request.user, app_name, 'cars')
+        if (app_param.restriction != CARS):
+            set_restriction(request.user, app_name, CARS)
             return HttpResponseRedirect(reverse('fuel:main'))
 
     car = None
@@ -66,16 +69,16 @@ def main(request):
     if (request.method == 'POST'):
         #raise Exception(request.POST)
         if ('item-add' in request.POST):
-            if (app_param.restriction == 'cars'):
+            if (app_param.restriction == CARS):
                 item_id = add_car(request)
-            if (app_param.restriction == 'fuel'):
+            if (app_param.restriction == FUEL):
                 item_id = add_fuel(request, car)
-            if (app_param.restriction == 'interval'):
+            if (app_param.restriction == INTR):
                 item_id = add_interval(request, car)
-            if (app_param.restriction == 'service'):
+            if (app_param.restriction == SRVC):
                 item_id = add_service(request, car)
             return HttpResponseRedirect(reverse('fuel:item_form', args = [item_id]))
-        if ('item-in-list-select' in request.POST) and (app_param.restriction == 'cars'):
+        if ('item-in-list-select' in request.POST) and (app_param.restriction == CARS):
             pk = request.POST['item-in-list-select']
             if pk:
                 set_active(request.user.id, pk)
@@ -87,27 +90,27 @@ def main(request):
 
     if app_param.article:
         valid_article = False
-        if (app_param.restriction == 'cars'):
+        if (app_param.restriction == CARS):
             valid_article = Car.objects.filter(id = app_param.art_id, user = request.user.id).exists()
-        if (app_param.restriction == 'fuel'):
+        if (app_param.restriction == FUEL):
             valid_article = Fuel.objects.filter(car = car.id, id = app_param.art_id).exists()
-        if (app_param.restriction == 'interval'):
+        if (app_param.restriction == INTR):
             valid_article = Part.objects.filter(car = car.id, id = app_param.art_id).exists()
-        if (app_param.restriction == 'service'):
+        if (app_param.restriction == SRVC):
             valid_article = Repl.objects.filter(car = car.id, id = app_param.art_id).exists()
         if valid_article:
-            if (app_param.restriction == 'cars'):
+            if (app_param.restriction == CARS):
                 item = get_object_or_404(Car.objects.filter(id = app_param.art_id, user = request.user.id))
                 disable_delete = item.active or Fuel.objects.filter(car = item.id).exists() or Part.objects.filter(car = item.id).exists() or Repl.objects.filter(car = item.id).exists()
                 redirect = edit_item(request, context, app_param.restriction, None, item, disable_delete)
-            if (app_param.restriction == 'fuel'):
+            if (app_param.restriction == FUEL):
                 item = get_object_or_404(Fuel.objects.filter(id = app_param.art_id))
                 redirect = edit_item(request, context, app_param.restriction, car, item)
-            if (app_param.restriction == 'interval'):
+            if (app_param.restriction == INTR):
                 item = get_object_or_404(Part.objects.filter(id = app_param.art_id))
                 disable_delete = Repl.objects.filter(part = item.id).exists()
                 redirect = edit_item(request, context, app_param.restriction, car, item, disable_delete)
-            if (app_param.restriction == 'service'):
+            if (app_param.restriction == SRVC):
                 item = get_object_or_404(Repl.objects.filter(id = app_param.art_id))
                 redirect = edit_item(request, context, app_param.restriction, car, item)
         else:
@@ -118,22 +121,22 @@ def main(request):
         return HttpResponseRedirect(reverse('fuel:main') + extract_get_params(request))
 
     fixes = []
-    fixes.append(Fix('cars', _('cars').capitalize(), 'rok/icon/car.png', 'cars/', len(Car.objects.filter(user = request.user.id))))
-    fixes.append(Fix('fuel', _('fuelings').capitalize(), 'rok/icon/gas.png', 'fuels/', len(Fuel.objects.filter(car = car))))
-    fixes.append(Fix('interval', _('service intervals').capitalize(), 'todo/icon/remind-today.png', 'intervals/', len(Part.objects.filter(car = car))))
-    fixes.append(Fix('service', _('repair and service').capitalize(), 'todo/icon/myday.png', 'services/', len(Repl.objects.filter(car = car))))
+    fixes.append(Fix(CARS, _('cars').capitalize(), 'rok/icon/car.png', 'cars/', len(Car.objects.filter(user = request.user.id))))
+    fixes.append(Fix(FUEL, _('fuelings').capitalize(), 'rok/icon/gas.png', 'fuels/', len(Fuel.objects.filter(car = car))))
+    fixes.append(Fix(INTR, _('service intervals').capitalize(), 'todo/icon/remind-today.png', 'intervals/', len(Part.objects.filter(car = car))))
+    fixes.append(Fix(SRVC, _('repair and service').capitalize(), 'todo/icon/myday.png', 'services/', len(Repl.objects.filter(car = car))))
     context['fix_list'] = fixes
     context['without_lists'] = True
     context['hide_important'] = True
-    if (app_param.restriction == 'cars'):
+    if (app_param.restriction == CARS):
         context['add_item_placeholder'] = _('add car').capitalize()
     else:
         context['hide_selector'] = True
-    if (app_param.restriction == 'fuel'):
+    if (app_param.restriction == FUEL):
         context['hide_add_item_input'] = True
-    if (app_param.restriction == 'interval'):
+    if (app_param.restriction == INTR):
         context['add_item_placeholder'] = _('add spare part').capitalize()
-    if (app_param.restriction == 'service'):
+    if (app_param.restriction == SRVC):
         context['hide_add_item_input'] = True
 
     query = None
@@ -158,29 +161,29 @@ def item_form(request, pk):
     return HttpResponseRedirect(reverse('fuel:main') + extract_get_params(request))
 
 def go_cars(request):
-    set_restriction(request.user, app_name, 'cars')
+    set_restriction(request.user, app_name, CARS)
     return HttpResponseRedirect(reverse('fuel:main'))
 
 def go_fuels(request):
-    set_restriction(request.user, app_name, 'fuel')
+    set_restriction(request.user, app_name, FUEL)
     return HttpResponseRedirect(reverse('fuel:main'))
 
 def go_intervals(request):
-    set_restriction(request.user, app_name, 'interval')
+    set_restriction(request.user, app_name, INTR)
     return HttpResponseRedirect(reverse('fuel:main'))
 
 def go_services(request):
-    set_restriction(request.user, app_name, 'service')
+    set_restriction(request.user, app_name, SRVC)
     return HttpResponseRedirect(reverse('fuel:main'))
 
 def fuel_entity(request, name, pk):
-    if (name == 'fuel'):
+    if (name == FUEL):
         item = get_object_or_404(Fuel.objects.filter(id = pk))
         set_active(request.user.id, item.car.id)
-    if (name == 'interval'):
+    if (name == INTR):
         item = get_object_or_404(Part.objects.filter(id = pk))
         set_active(request.user.id, item.car.id)
-    if (name == 'service'):
+    if (name == SRVC):
         item = get_object_or_404(Repl.objects.filter(id = pk))
         set_active(request.user.id, item.car.id)
     set_restriction(request.user, app_name, name)
@@ -189,13 +192,13 @@ def fuel_entity(request, name, pk):
 
 #----------------------------------
 def filtered_list(user, restriction, car, query = None):
-    if (restriction == 'cars'):
+    if (restriction == CARS):
         data = Car.objects.filter(user = user.id)
-    elif (restriction == 'fuel'):
+    elif (restriction == FUEL):
         data = Fuel.objects.filter(car = car.id)
-    elif (restriction == 'interval'):
+    elif (restriction == INTR):
         data = Part.objects.filter(car = car.id)
-    elif (restriction == 'service'):
+    elif (restriction == SRVC):
         data = Repl.objects.filter(car = car.id)
     else:
         data = []
@@ -208,13 +211,13 @@ def filtered_list(user, restriction, car, query = None):
     if (search_mode != 1):
         return data
 
-    if (restriction == 'cars'):
+    if (restriction == CARS):
         lookups = Q(name__icontains=query) | Q(plate__icontains=query)
-    elif (restriction == 'fuel'):
+    elif (restriction == FUEL):
         lookups = Q(comment__icontains=query)
-    elif (restriction == 'interval'):
+    elif (restriction == INTR):
         lookups = Q(name__icontains=query) | Q(comment__icontains=query)
-    elif (restriction == 'service'):
+    elif (restriction == SRVC):
         lookups = Q(manuf__icontains=query) | Q(part_num__icontains=query) | Q(name__icontains=query) | Q(comment__icontains=query)
     else:
         return data
@@ -227,16 +230,16 @@ def filtered_sorted_list(user, restriction, car, query):
     if not data:
         return data
 
-    if (restriction == 'cars'):
+    if (restriction == CARS):
         return sort_data(data, 'name', False)
 
-    if (restriction == 'fuel'):
+    if (restriction == FUEL):
         return data.order_by('-pub_date')
     
-    if (restriction == 'interval'):
+    if (restriction == INTR):
         return data.order_by('name')
     
-    if (restriction == 'service'):
+    if (restriction == SRVC):
         return data.order_by('-dt_chg')
     
     return data
@@ -290,17 +293,17 @@ def edit_item(request, context, restriction, car, item, disable_delete = False):
             delete_item(request, item, disable_delete)
             return True
         if ('item_save' in request.POST):
-            if (restriction == 'cars'):
+            if (restriction == CARS):
                 form = CarForm(request.POST, instance = item)
-            elif (restriction == 'fuel'):
+            elif (restriction == FUEL):
                 form = FuelForm(request.POST, instance = item)
-            elif (restriction == 'interval'):
+            elif (restriction == INTR):
                 form = PartForm(request.POST, instance = item)
-            elif (restriction == 'service'):
+            elif (restriction == SRVC):
                 form = ReplForm(car, request.POST, instance = item)
             if form.is_valid():
                 data = form.save(commit = False)
-                if (restriction == 'cars'):
+                if (restriction == CARS):
                     data.user = request.user
                 else:
                     data.car = car
@@ -308,13 +311,13 @@ def edit_item(request, context, restriction, car, item, disable_delete = False):
                 return True
 
     if not form:
-        if (restriction == 'cars'):
+        if (restriction == CARS):
             form = CarForm(instance = item)
-        elif (restriction == 'fuel'):
+        elif (restriction == FUEL):
             form = FuelForm(instance = item)
-        elif (restriction == 'interval'):
+        elif (restriction == INTR):
             form = PartForm(instance = item)
-        elif (restriction == 'service'):
+        elif (restriction == SRVC):
             form = ReplForm(car, instance = item)
 
     context['form'] = form

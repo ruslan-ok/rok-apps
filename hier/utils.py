@@ -7,7 +7,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import FieldError
 
 from todo.models import Lst
-from .models import Folder, Param, get_app_params
+from .models import Folder, Param, VisitedHistory, get_app_params
 from .params import set_aside_visible, set_article_visible
 
 
@@ -156,6 +156,11 @@ def get_base_context_ext(request, app_name, content_kind, title, article_enabled
     context['app_name'] = get_app_name(app_name)
     context['restriction'] = None
     app_param = None
+    title_1 = title_2 = url = ''
+    if title and (len(title) > 0):
+        title_1 = title[0]
+    if title and (len(title) > 1):
+        title_2 = title[1]
     if request:
         app_param = get_app_params(request.user, app_name)
         if app_param:
@@ -167,12 +172,22 @@ def get_base_context_ext(request, app_name, content_kind, title, article_enabled
             context['restriction'] = app_param.restriction
             context['sort_dir'] = not app_param.reverse
             context['list_id'] = 0
+            url = app_param.restriction
             if (app_param.restriction == 'list') and app_param.lst:
                 lst = Lst.objects.filter(user = request.user.id, id = app_param.lst.id).get()
-                title = lst.name
+                title_1 = ''
+                title_2 = lst.name
                 context['list_id'] = lst.id
+                url = 'list/' + str(lst.id)
 
-    context['title'] = title
+    if not title_1 and not title_2:
+        context['title'] = ''
+    if title_1 and not title_2:
+        context['title'] = _(title_1).capitalize()
+    if not title_1 and title_2:
+        context['title'] = title_2
+    if title_1 and title_2:
+        context['title'] = '{} [{}]'.format(_(title_1).capitalize(), title_2)
 
     context['please_correct_one'] = _('Please correct the error below.')
     context['please_correct_all'] = _('Please correct the errors below.')
@@ -193,11 +208,8 @@ def get_base_context_ext(request, app_name, content_kind, title, article_enabled
     context['apps'] = apps
 
     set_aside_visible(request.user, app_name, False)
-    if content_kind:
-        kind = content_kind
-        if (content_kind != 'main'):
-            kind = content_kind + '_list'
-        save_last_visited(request.user, app_name + ':' + kind, app_name, title)
+    if url:
+        save_last_visited(request.user, app_name + '/' + url, app_name, title_1, title_2)
     return app_param, context
 
 #----------------------------------
@@ -264,49 +276,67 @@ def process_common_commands(request, app_name):
             return True
     return False
 
-def save_last_visited(user, url, app, page):
-    if not page:
+def get_last_visited(user):
+    return VisitedHistory.objects.filter(user=user.id).order_by('-stamp')
+
+def save_last_visited(user, url, app, title_1, title_2):
+    if not title_1 and not title_2:
         return
-    param = get_param(user)
-    if param:
-        param.last_url = url
-        param.last_app = get_app_name(app)
-        param.last_page = page
-        param.save()
+    
+    str_app = get_app_name(app)
+    
+    pages = VisitedHistory.objects.filter(user=user.id).order_by('stamp')
+    
+    for page in pages:
+        if (page.url == url) and (page.app == str_app):
+            page.stamp = datetime.now()
+            page.page = title_1
+            page.info = title_2
+            page.save()
+            return
+
+    if (len(pages) >= 5):
+        pages[0].delete()
+
+    VisitedHistory.objects.create(user=user, stamp=datetime.now(), url=url, app=str_app, page=title_1, info=title_2)
 
 def get_app_name(id):
     if (id == 'rusel'):
         return 'rusel.by'
     if (id == 'apart'):
-        return _('communal').capitalize()
+        return 'communal'
     if (id == 'fuel'):
-        return _('fuelings').capitalize()
+        return 'fuelings'
     if (id == 'hier'):
-        return _('hierarchy').capitalize()
+        return 'hierarchy'
     if (id == 'note'):
-        return _('notes').capitalize()
+        return 'notes'
     if (id == 'news'):
-        return _('news').capitalize()
-    if (id == 'pir'):
-        return _('problems and solutions').capitalize()
+        return 'news'
     if (id == 'proj'):
-        return _('expenses').capitalize()
+        return 'expenses'
     if (id == 'store'):
-        return _('passwords').capitalize()
+        return 'passwords'
     if (id == 'todo'):
-        return _('tasks').capitalize()
+        return 'tasks'
     if (id == 'trip'):
-        return _('trips').capitalize()
+        return 'trips'
     if (id == 'wage'):
-        return _('work').capitalize()
+        return 'work'
     if (id == 'photo'):
-        return _('photobank').capitalize()
+        return 'photobank'
     if (id == 'health'):
-        return _('health').capitalize()
+        return 'health'
+    return None
+
+def _get_app_name(id):
+    name = get_app_name(id)
+    if name:
+        return _(name).capitalize()
     return None
 
 def get_main_menu_item(id):
-    name = get_app_name(id)
+    name = _get_app_name(id)
     if name:
         return name
     if (id == 'home'):

@@ -431,7 +431,7 @@ def profile(request):
     else:
         form = ProfileForm(instance = request.user)
 
-    app_param, context = get_base_context_ext(request, 'rusel', '', _('profile').capitalize())
+    app_param, context = get_base_context_ext(request, 'rusel', '', ('profile',))
     context['form'] = form
     context['fieldset1_name'] = _('Personal info')
     context['fieldset2_name'] = _('Important dates')

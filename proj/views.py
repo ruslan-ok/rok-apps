@@ -14,7 +14,7 @@ from hier.params import set_sort_mode, toggle_sort_dir, get_search_mode, get_sea
 from hier.models import get_app_params
 from hier.aside import Fix, Sort
 from todo.utils import nice_date
-from .models import app_name, Projects, set_active, Expenses, s_proj_summary
+from .models import app_name, Projects, set_active, Expenses, s_proj_summary, PROJ, EXPN
 from .forms import ProjectForm, ExpenseForm
 
 items_per_page = 10
@@ -31,32 +31,40 @@ SORT_MODE_DESCR = {
 
 #----------------------------------
 def get_title(restriction, project):
-    if (restriction == 'project'):
-        return _('projects').capitalize()
-    if (restriction == 'expense'):
-        return '{} [{}]'.format(_('expenses').capitalize(), project.name)
-    return 'unknown restriction: ' + str(restriction)
+    if (restriction == EXPN):
+        info = project.name
+    else:
+        info = ''
+    return restriction, info
+
+#----------------------------------
+def get_title_ext(restriction, project):
+    if (restriction == EXPN):
+        return project.name
+    return ''
+
+#----------------------------------
+TEMPLATES = {
+    PROJ: 'proj/project.html',
+    EXPN: 'proj/expense.html'
+    }
 
 #----------------------------------
 def get_template_file(restriction):
-    if (restriction == 'project'):
-        return 'proj/project.html'
-    if (restriction == 'expense'):
-        return 'proj/expense.html'
-    return 'proj/expense.html'
+    return TEMPLATES[restriction]
 
 #----------------------------------
 @login_required(login_url='account:login')
 #----------------------------------
 def main(request):
     app_param = get_app_params(request.user, app_name)
-    if (app_param.restriction != 'project') and (app_param.restriction != 'expense'):
-        set_restriction(request.user, app_name, 'expense')
+    if (app_param.restriction != PROJ) and (app_param.restriction != EXPN):
+        set_restriction(request.user, app_name, EXPN)
         return HttpResponseRedirect(reverse('proj:main') + extract_get_params(request))
 
     if not Projects.objects.filter(user = request.user.id, active = True).exists():
-        if (app_param.restriction != 'project'):
-            set_restriction(request.user, app_name, 'project')
+        if (app_param.restriction != PROJ):
+            set_restriction(request.user, app_name, PROJ)
             return HttpResponseRedirect(reverse('proj:main'))
 
     project = None
@@ -77,33 +85,34 @@ def main(request):
     if (request.method == 'POST'):
         #raise Exception(request.POST)
         if ('item-add' in request.POST):
-            if (app_param.restriction == 'project'):
+            if (app_param.restriction == PROJ):
                 item_id = add_project(request)
-            if (app_param.restriction == 'expense'):
+            if (app_param.restriction == EXPN):
                 item_id = add_expense(request, project)
             return HttpResponseRedirect(reverse('proj:item_form', args = [item_id]))
-        if ('item-in-list-select' in request.POST) and (app_param.restriction == 'project'):
+        if ('item-in-list-select' in request.POST) and (app_param.restriction == PROJ):
             pk = request.POST['item-in-list-select']
             if pk:
                 set_active(request.user.id, pk)
                 return HttpResponseRedirect(reverse('proj:item_form', args = [pk]))
 
     app_param, context = get_base_context_ext(request, app_name, 'main', get_title(app_param.restriction, project))
+        
 
     redirect = False
 
     if app_param.article:
         valid_article = False
-        if (app_param.restriction == 'project'):
+        if (app_param.restriction == PROJ):
             valid_article = Projects.objects.filter(id = app_param.art_id, user = request.user.id).exists()
-        if (app_param.restriction == 'expense'):
+        if (app_param.restriction == EXPN):
             valid_article = Expenses.objects.filter(id = app_param.art_id, direct = project).exists()
         if valid_article:
-            if (app_param.restriction == 'project'):
+            if (app_param.restriction == PROJ):
                 item = get_object_or_404(Projects.objects.filter(user = request.user.id, id = app_param.art_id))
                 disable_delete = item.active or Expenses.objects.filter(direct = item.id).exists()
                 redirect = edit_item(request, context, app_param.restriction, None, item, disable_delete)
-            if (app_param.restriction == 'expense'):
+            if (app_param.restriction == EXPN):
                 item = get_object_or_404(Expenses.objects.filter(id = app_param.art_id, direct = project))
                 redirect = edit_item(request, context, app_param.restriction, project, item)
         else:
@@ -114,14 +123,14 @@ def main(request):
         return HttpResponseRedirect(reverse('proj:main') + extract_get_params(request))
 
     fixes = []
-    fixes.append(Fix('project', _('projects').capitalize(), 'todo/icon/myday.png', 'projects/', len(Projects.objects.filter(user = request.user.id))))
-    fixes.append(Fix('expense', _('expenses').capitalize(), 'rok/icon/cost.png', 'expenses/', len(Expenses.objects.filter(direct = project))))
+    fixes.append(Fix(PROJ, _('projects').capitalize(), 'todo/icon/myday.png', 'projects/', len(Projects.objects.filter(user = request.user.id))))
+    fixes.append(Fix(EXPN, _('expenses').capitalize(), 'rok/icon/cost.png', 'expenses/', len(Expenses.objects.filter(direct = project))))
     context['fix_list'] = fixes
 
     sorts = []
-    if (app_param.restriction == 'project'):
+    if (app_param.restriction == PROJ):
         sorts.append(Sort('name',  _('by name').capitalize(), 'todo/icon/sort.png'))
-    if (app_param.restriction == 'expense'):
+    if (app_param.restriction == EXPN):
         sorts.append(Sort('date', _('by date').capitalize(), 'rok/icon/application.png'))
         sorts.append(Sort('kontr', _('by contractor').capitalize(), 'rok/icon/car.png'))
         sorts.append(Sort('text', _('by description').capitalize(), 'rok/icon/note.png'))
@@ -134,9 +143,9 @@ def main(request):
 
     context['without_lists'] = True
     context['hide_important'] = True
-    if (app_param.restriction == 'project'):
+    if (app_param.restriction == PROJ):
         context['add_item_placeholder'] = _('add new project').capitalize()
-    if (app_param.restriction == 'expense'):
+    if (app_param.restriction == EXPN):
         context['hide_add_item_input'] = True
         context['hide_selector'] = True
         context['title_info'] = s_proj_summary(project.id)
@@ -163,16 +172,16 @@ def item_form(request, pk):
     return HttpResponseRedirect(reverse('proj:main') + extract_get_params(request))
 
 def go_projects(request):
-    set_restriction(request.user, app_name, 'project')
+    set_restriction(request.user, app_name, PROJ)
     return HttpResponseRedirect(reverse('proj:main'))
 
 def go_expenses(request):
-    set_restriction(request.user, app_name, 'expense')
+    set_restriction(request.user, app_name, EXPN)
     return HttpResponseRedirect(reverse('proj:main'))
 
 def proj_entity(request, name, pk):
     prj_id = pk
-    if (name == 'expense'):
+    if (name == EXPN):
         item = get_object_or_404(Expenses.objects.filter(id = pk))
         prj_id = item.direct.id
     set_active(request.user.id, prj_id)
@@ -182,9 +191,9 @@ def proj_entity(request, name, pk):
 
 #----------------------------------
 def filtered_list(user, restriction, project, query = None):
-    if (restriction == 'project'):
+    if (restriction == PROJ):
         data = Projects.objects.filter(user = user.id)
-    elif (restriction == 'expense'):
+    elif (restriction == EXPN):
         data = Expenses.objects.filter(direct = project)
     else:
         data = []
@@ -197,9 +206,9 @@ def filtered_list(user, restriction, project, query = None):
     if (search_mode != 1):
         return data
 
-    if (restriction == 'project'):
+    if (restriction == PROJ):
         lookups = Q(name__icontains=query)
-    elif (restriction == 'expense'):
+    elif (restriction == EXPN):
         lookups = Q(kontr__icontains=query) | Q(text__icontains=query) | Q(description__icontains=query)
     else:
         return data
@@ -254,9 +263,9 @@ def edit_item(request, context, restriction, project, item, disable_delete = Fal
             delete_item(request, item, disable_delete)
             return True
         if ('item_save' in request.POST):
-            if (restriction == 'project'):
+            if (restriction == PROJ):
                 form = ProjectForm(request.POST, instance = item)
-            elif (restriction == 'expense'):
+            elif (restriction == EXPN):
                 form = ExpenseForm(request.POST, instance = item)
             if form.is_valid():
                 data = form.save(commit = False)
@@ -268,9 +277,9 @@ def edit_item(request, context, restriction, project, item, disable_delete = Fal
                 return True
 
     if not form:
-        if (restriction == 'project'):
+        if (restriction == PROJ):
             form = ProjectForm(instance = item)
-        elif (restriction == 'expense'):
+        elif (restriction == EXPN):
             form = ExpenseForm(instance = item)
 
     context['form'] = form

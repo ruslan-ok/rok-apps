@@ -7,6 +7,11 @@ from django.utils.translation import gettext, gettext_lazy as _, to_locale, get_
 app_name = 'fuel'
 ADPM = 30.42 # average days per month
 
+CARS = 'cars'
+FUEL = 'fuels'
+INTR = 'intervals'
+SRVC = 'services'
+
 class Car(models.Model):
     user   = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
     name   = models.CharField(_('model'), max_length = 200, blank = False)

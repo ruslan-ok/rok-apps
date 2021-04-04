@@ -60,7 +60,7 @@ def item_list(request, app):
     if process_sort_commands(request, app):
         return HttpResponseRedirect(reverse(get_url_list(app)) + extract_get_params(request))
 
-    app_param, context = get_base_context_ext(request, app, 'note', _('all').capitalize())
+    app_param, context = get_base_context_ext(request, app, 'note', ('all',))
 
     if (request.method == 'POST'):
         #raise Exception(request.POST)

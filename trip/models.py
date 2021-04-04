@@ -6,6 +6,8 @@ from django.utils.translation import gettext, gettext_lazy as _
 
 
 app_name = 'trip'
+PERS = 'persons'
+TRIP = 'trips'
 
 
 class Person(models.Model):

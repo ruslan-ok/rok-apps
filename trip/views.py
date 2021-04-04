@@ -13,20 +13,14 @@ from hier.utils import get_base_context_ext, process_common_commands, extract_ge
 from hier.params import set_article_visible, set_article_kind, set_restriction, get_search_mode, get_search_info
 from hier.models import get_app_params
 from hier.aside import Fix
-from .models import app_name, Trip, Saldo, Person, trip_summary, set_active
+from .models import app_name, Trip, Saldo, Person, trip_summary, set_active, PERS, TRIP
 from .forms import PersonForm, TripForm
 
 items_per_page = 10
 
 #----------------------------------
-def get_title(restriction):
-    if (restriction == 'pers'):
-        return _('persons').capitalize()
-    return _('trips').capitalize()
-
-#----------------------------------
 def get_template_file(restriction):
-    if (restriction == 'pers'):
+    if (restriction == PERS):
         return 'trip/person.html'
     return 'trip/trip.html'
 
@@ -35,8 +29,8 @@ def get_template_file(restriction):
 #----------------------------------
 def main(request):
     app_param = get_app_params(request.user, app_name)
-    if (app_param.restriction != 'pers') and (app_param.restriction != 'trip'):
-        set_restriction(request.user, app_name, 'trip')
+    if (app_param.restriction != PERS) and (app_param.restriction != TRIP):
+        set_restriction(request.user, app_name, TRIP)
         return HttpResponseRedirect(reverse('trip:main') + extract_get_params(request))
 
     if process_common_commands(request, app_name):
@@ -45,34 +39,34 @@ def main(request):
     form = None
     if (request.method == 'POST'):
         if ('item-add' in request.POST):
-            if (app_param.restriction == 'trip'):
+            if (app_param.restriction == TRIP):
                 item_id = trip_add(request)
-            if (app_param.restriction == 'pers'):
+            if (app_param.restriction == PERS):
                 item_id = pers_add(request)
             return HttpResponseRedirect(reverse('trip:item_form', args = [item_id]))
         if ('trip-count' in request.POST):
             do_count(request)
             return HttpResponseRedirect(reverse('trip:main'))
-        if ('item-in-list-select' in request.POST) and (app_param.restriction == 'pers'):
+        if ('item-in-list-select' in request.POST) and (app_param.restriction == PERS):
             pk = request.POST['item-in-list-select']
             if pk:
                 set_active(request.user.id, pk)
                 return HttpResponseRedirect(reverse('trip:item_form', args = [pk]))
 
-    app_param, context = get_base_context_ext(request, app_name, 'main', get_title(app_param.restriction))
+    app_param, context = get_base_context_ext(request, app_name, 'main', (app_param.restriction,))
 
     redirect = False
 
     if app_param.article:
         valid_article = False
-        if (app_param.restriction == 'trip'):
+        if (app_param.restriction == TRIP):
             valid_article = Trip.objects.filter(id = app_param.art_id, user = request.user.id).exists()
-        if (app_param.restriction == 'pers'):
+        if (app_param.restriction == PERS):
             valid_article = Person.objects.filter(id = app_param.art_id, user = request.user.id).exists()
         if valid_article:
-            if (app_param.restriction == 'trip'):
+            if (app_param.restriction == TRIP):
                 redirect = get_trip_article(request, context, app_param.art_id)
-            if (app_param.restriction == 'pers'):
+            if (app_param.restriction == PERS):
                 redirect = get_pers_article(request, context, app_param.art_id)
         else:
             set_article_visible(request.user, app_name, False)
@@ -82,15 +76,15 @@ def main(request):
         return HttpResponseRedirect(reverse('trip:main') + extract_get_params(request))
 
     fixes = []
-    fixes.append(Fix('pers', _('persons').capitalize(), 'rok/icon/user.png', 'persons/', len(Person.objects.filter(user = request.user.id))))
-    fixes.append(Fix('trip', _('trips').capitalize(), 'rok/icon/car.png', 'trips/', len(Trip.objects.filter(user = request.user.id))))
+    fixes.append(Fix(PERS, _('persons').capitalize(), 'rok/icon/user.png', 'persons/', len(Person.objects.filter(user = request.user.id))))
+    fixes.append(Fix(TRIP, _('trips').capitalize(), 'rok/icon/car.png', 'trips/', len(Trip.objects.filter(user = request.user.id))))
     context['fix_list'] = fixes
     context['without_lists'] = True
     context['hide_important'] = True
     context['title_info'] = trip_summary(request.user.id, False)
-    if (app_param.restriction == 'pers'):
+    if (app_param.restriction == PERS):
         context['add_item_placeholder'] = _('add person').capitalize()
-    if (app_param.restriction == 'trip'):
+    if (app_param.restriction == TRIP):
         context['hide_add_item_input'] = True
         context['complete_icon']   = 'rok/icon/car.png'
         context['uncomplete_icon'] = 'rok/icon/cost.png'
@@ -119,11 +113,11 @@ def item_form(request, pk):
     return HttpResponseRedirect(reverse('trip:main') + extract_get_params(request))
 
 def go_persons(request):
-    set_restriction(request.user, app_name, 'pers')
+    set_restriction(request.user, app_name, PERS)
     return HttpResponseRedirect(reverse('trip:main'))
 
 def go_trips(request):
-    set_restriction(request.user, app_name, 'trip')
+    set_restriction(request.user, app_name, TRIP)
     return HttpResponseRedirect(reverse('trip:main'))
 
 def trip_entity(request, name, pk):
@@ -133,9 +127,9 @@ def trip_entity(request, name, pk):
 
 #----------------------------------
 def filtered_list(user, restriction, query = None):
-    if (restriction == 'pers'):
+    if (restriction == PERS):
         data = Person.objects.filter(user = user.id)
-    elif (restriction == 'trip'):
+    elif (restriction == TRIP):
         data = Trip.objects.filter(user = user.id)
     else:
         data = []
@@ -148,9 +142,9 @@ def filtered_list(user, restriction, query = None):
     if (search_mode != 1):
         return data
 
-    if (restriction == 'pers'):
+    if (restriction == PERS):
         lookups = Q(name__icontains=query) | Q(dative__icontains=query)
-    elif (restriction == 'trip'):
+    elif (restriction == TRIP):
         lookups = Q(text__icontains=query)
     else:
         return data
@@ -163,7 +157,7 @@ def filtered_sorted_list(user, restriction, query):
     if not data:
         return data
 
-    if (restriction == 'pers'):
+    if (restriction == PERS):
         return sort_data(data, '-me name', False)
     
     return sort_data(data, 'year week modif', True)

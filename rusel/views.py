@@ -13,7 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.views import View
 from django.conf import settings
 
-from hier.utils import get_base_context_ext, process_common_commands, get_param
+from hier.utils import get_base_context_ext, process_common_commands, get_param, get_last_visited
 from hier.models import Param, Folder
 from trip.models import trip_summary
 from hier.site_stat import get_site_stat
@@ -39,7 +39,7 @@ def index(request):
     return index_anonim(request)
 
 def index_anonim(request):
-    app_param, context = get_base_context_ext(request, app_name, '', '')
+    app_param, context = get_base_context_ext(request, app_name, '', ('',))
     context['hide_title'] = True
     context['aside_disabled'] = True
     template = loader.get_template('index_anonim.html')
@@ -50,7 +50,7 @@ def index_anonim(request):
 #----------------------------------
 def index_user(request):
     process_common_commands(request, app_name)
-    app_param, context = get_base_context_ext(request, app_name, '', _('applications').capitalize())
+    app_param, context = get_base_context_ext(request, app_name, '', ('applications',))
     context['hide_title'] = False
     context['aside_disabled'] = True
     context['debug'] = settings.DEBUG
@@ -90,14 +90,7 @@ def index_user(request):
             d = datetime.date(int(t[0:4]),int(t[4:6]),int(t[6:8]))
             context['cert_termin'] = d.strftime('%d.%m.%Y')
 
-        param = get_param(request.user)
-        if param and param.last_url:
-            try:
-                context['last_visited_url'] = reverse(param.last_url)
-            except NoReverseMatch:
-                pass
-            context['last_visited_app'] = param.last_app
-            context['last_visited_page'] = param.last_page
+        context['last_visited'] = get_last_visited(request.user)
 
     if query:
         template = loader.get_template('index_search.html')

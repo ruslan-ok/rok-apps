@@ -36,14 +36,14 @@ PLANNED = 'planned'
 COMPLETED = 'completed'
 LIST_MODE = 'list'
 
-MODE_NAME = {
-    NONE: _('all'),
-    ALL: _('all'),
-    MY_DAY: _('my day'),
-    IMPORTANT: _('important'),
-    PLANNED: _('planned'),
-    COMPLETED: _('completed'),
-    LIST_MODE: _('tasks of the list')
+PAGES = {
+    NONE: 'all',
+    ALL: 'all',
+    MY_DAY: 'my day',
+    IMPORTANT: 'important',
+    PLANNED: 'planned',
+    COMPLETED: 'completed',
+    LIST_MODE: 'tasks of the list'
 }
 
 
@@ -97,8 +97,7 @@ def sorted_tasks(user, app_param, query):
 
 def todo_base_context(request):
     app_param = get_app_params(request.user, app_name)
-    title = MODE_NAME[app_param.restriction].capitalize()
-    app_param, context = get_base_context_ext(request, app_name, 'task', title)
+    app_param, context = get_base_context_ext(request, app_name, 'task', (PAGES[app_param.restriction],))
     context['list_url'] = 'todo:' + app_param.restriction
     if (app_param.restriction == MY_DAY):
         context['title_info'] = datetime.today().strftime('%a, %d %B')

@@ -20,13 +20,13 @@ from .forms import PeriodForm, DepartForm, DepHistForm, PostForm, EmployeeForm, 
 items_per_page = 50
 
 # Views
-PER = 'period'
-POST = 'post'
-TITLE = 'pay_title'
-DEP_LIST = 'department' # List of Departments
+PER = 'periods'
+POST = 'posts'
+TITLE = 'pay_titles'
+DEP_LIST = 'departments' # List of Departments
 DEP_HIST = 'dep_hist' # List of Department changes
 DEP_INFO = 'dep_info' # Department form
-EMPL_LIST = 'employee' # List of Employees
+EMPL_LIST = 'employees' # List of Employees
 EMPL_INFO = 'total' # Employee form
 ACC = 'accrual'
 PAY = 'payment'
@@ -34,7 +34,8 @@ APP = 'appoint'
 EDUC = 'education'
 CHLD = 'child'
 SUR = 'surname'
-REPORT = 'report'
+REPORT = 'reports'
+
 
 # Phrases "Add <Entity>"
 ADD_ENTITY = {
@@ -393,36 +394,33 @@ def main(request):
     return HttpResponse(template.render(context, request))
 
 #----------------------------------
+PAGES = {
+    PER: 'periods',
+    POST: 'posts',
+    TITLE: 'pay titles',
+    DEP_LIST: 'departments',
+    DEP_HIST: 'department history',
+    DEP_INFO: 'department history',
+    EMPL_LIST: 'employees',
+    EMPL_INFO: '',
+    ACC: 'accruals of the employee',
+    PAY: 'payments to the employee',
+    APP: 'appointments of the employee',
+    EDUC: 'educations of the employee',
+    CHLD: 'children of employee',
+    SUR: 'change of surname of employee',
+    REPORT: 'reports'
+    }
+
+#----------------------------------
 def get_title(restriction, employee, depart):
-    if (restriction == PER):
-        return _('periods').capitalize()
-    if (restriction == POST):
-        return _('posts').capitalize()
-    if (restriction == TITLE):
-        return _('pay titles').capitalize()
-    if (restriction == DEP_LIST):
-        return _('departments').capitalize()
+    info = ''
     if (restriction in (DEP_HIST, DEP_INFO)):
-        return _('department history').capitalize() + ' ' + depart.name
-    if (restriction == EMPL_LIST):
-        return _('employees').capitalize()
-    if (restriction == EMPL_INFO):
-        return employee.fio
-    if (restriction == ACC):
-        return _('accruals of the employee').capitalize() + ' ' + employee.fio
-    if (restriction == PAY):
-        return _('payments to the employee').capitalize() + ' ' + employee.fio
-    if (restriction == APP):
-        return _('appointments of the employee').capitalize() + ' ' + employee.fio
-    if (restriction == EDUC):
-        return _('educations of the employee').capitalize() + ' ' + employee.fio
-    if (restriction == CHLD):
-        return _('children of employee').capitalize() + ' ' + employee.fio
-    if (restriction == SUR):
-        return _('change of surname of employee').capitalize() + ' ' + employee.fio
-    if (restriction == REPORT):
-        return _('reports').capitalize()
-    return 'unknown restriction: ' + str(restriction)
+        info = depart.name
+    if (restriction in (EMPL_INFO, ACC, PAY, APP, EDUC, CHLD, SUR)):
+        info = employee.fio
+    return PAGES[restriction], info
+
 
 #----------------------------------
 def filtered_list(user, restriction, period, employee, depart, query = None):

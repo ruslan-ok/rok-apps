@@ -123,19 +123,11 @@ def do_entry_list(request):
             grp_id = group_add(request.user, app_name, request.POST['name'])
             return HttpResponseRedirect(reverse('store:group_form', args = [grp_id]))
 
-    title = _('passwords').capitalize()
     entity = 'entry'
     article_enabled = True
     template_file = template_entry
 
-    if (app_param.restriction == 'all'):
-        title = _('all entries').capitalize()
-    elif (app_param.restriction == 'actual'):
-        title = _('actual entries').capitalize()
-    elif (app_param.restriction == 'waste'):
-        title = _('waste entries').capitalize()
-    elif (app_param.restriction == 'default'):
-        title = _('default parameters').capitalize()
+    if (app_param.restriction == 'default'):
         entity = 'param'
         article_enabled = False
         template_file = template_param
@@ -144,7 +136,7 @@ def do_entry_list(request):
     elif (app_param.restriction == 'list') and (not app_param.lst):
         return HttpResponseRedirect(reverse('store:all'))
 
-    app_param, context = get_store_base_context(request, entity, title, article_enabled)
+    app_param, context = get_store_base_context(request, entity, get_title(app_param.restriction), article_enabled)
 
     sorts = []
     sorts.append(Sort('title', _('by title').capitalize(), 'todo/icon/important.png'))
@@ -159,7 +151,7 @@ def do_entry_list(request):
         context['sort_mode'] = SORT_MODE_DESCR[app_param.sort].capitalize()
 
     if (app_param.restriction == 'default'):
-        context['form_title'] = title
+        context['form_title'] = _(title).capitalize()
         context['form'] = form
 
     redirect = False
@@ -202,6 +194,20 @@ def do_entry_list(request):
     context['search_data'] = query and (len(data) > 0)
     template = loader.get_template(template_file)
     return HttpResponse(template.render(context, request))
+
+
+#----------------------------------
+PAGES = {
+    'all': 'all entries',
+    'actual': 'actual entries',
+    'waste': 'waste entries',
+    'default': 'default parameters'
+    }
+#----------------------------------
+def get_title(restriction):
+    if (restriction == 'list'):
+        return 'list', ''
+    return PAGES[restriction], ''
 
 
 #----------------------------------

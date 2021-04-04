@@ -5,6 +5,8 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 app_name = 'proj'
+PROJ = 'projects'
+EXPN = 'expenses'
 
 class Projects(models.Model):
     user   = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'))

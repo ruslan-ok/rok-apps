@@ -16,7 +16,8 @@ from hier.aside import Fix, Sort
 from hier.content import find_group
 from hier.files import storage_path, get_files_list
 from todo.utils import nice_date
-from .models import app_name, Apart, Service, Meter, Bill, Price, set_active, get_price_info, count_by_tarif, ELECTRICITY, GAS, WATER
+from .models import app_name, ELECTRICITY, GAS, WATER, APART, SERV, METER, PRICE, BILL
+from .models import Apart, Service, Meter, Bill, Price, set_active, get_price_info, count_by_tarif
 from .forms import ApartForm, ServiceForm, MeterForm, BillForm, PriceForm, FileForm
 from .utils import next_period
 
@@ -27,13 +28,13 @@ items_per_page = 10
 #----------------------------------
 def main(request):
     app_param = get_app_params(request.user, app_name)
-    if (app_param.restriction != 'apart') and (app_param.restriction != 'meter') and (app_param.restriction != 'price') and (app_param.restriction != 'bill') and (app_param.restriction != 'service'):
-        set_restriction(request.user, app_name, 'bill')
+    if (app_param.restriction != APART) and (app_param.restriction != METER) and (app_param.restriction != PRICE) and (app_param.restriction != BILL) and (app_param.restriction != SERV):
+        set_restriction(request.user, app_name, BILL)
         return HttpResponseRedirect(reverse('apart:main') + extract_get_params(request))
 
     if not Apart.objects.filter(user = request.user.id, active = True).exists():
-        if (app_param.restriction != 'apart'):
-            set_restriction(request.user, app_name, 'apart')
+        if (app_param.restriction != APART):
+            set_restriction(request.user, app_name, APART)
             return HttpResponseRedirect(reverse('apart:main'))
 
     apart = None
@@ -51,20 +52,20 @@ def main(request):
     if (request.method == 'POST'):
         #raise Exception(request.POST)
         if ('item-add' in request.POST):
-            if (app_param.restriction == 'apart'):
+            if (app_param.restriction == APART):
                 item_id = add_apart(request)
-            if (app_param.restriction == 'service'):
+            if (app_param.restriction == SERV):
                 item_id = add_service(request, apart)
-            if (app_param.restriction == 'meter'):
+            if (app_param.restriction == METER):
                 item_id = add_meter(request, apart)
-            if (app_param.restriction == 'price'):
+            if (app_param.restriction == PRICE):
                 item_id = add_price(request, apart)
-            if (app_param.restriction == 'bill'):
+            if (app_param.restriction == BILL):
                 item_id = add_bill(request, apart)
                 if not item_id:
                     return HttpResponseRedirect(reverse('apart:meters'))
             return HttpResponseRedirect(reverse('apart:item', args = [item_id]))
-        if ('item-in-list-select' in request.POST) and (app_param.restriction == 'apart'):
+        if ('item-in-list-select' in request.POST) and (app_param.restriction == APART):
             pk = request.POST['item-in-list-select']
             if pk:
                 set_active(request.user.id, pk)
@@ -76,35 +77,35 @@ def main(request):
 
     if app_param.article:
         valid_article = False
-        if (app_param.restriction == 'apart'):
+        if (app_param.restriction == APART):
             valid_article = Apart.objects.filter(id = app_param.art_id, user = request.user.id).exists()
-        if (app_param.restriction == 'service'):
+        if (app_param.restriction == SERV):
             valid_article = Service.objects.filter(id = app_param.art_id, apart = apart.id).exists()
-        if (app_param.restriction == 'meter'):
+        if (app_param.restriction == METER):
             valid_article = Meter.objects.filter(id = app_param.art_id, apart = apart.id).exists()
-        if (app_param.restriction == 'price'):
+        if (app_param.restriction == PRICE):
             valid_article = Price.objects.filter(id = app_param.art_id, apart = apart.id).exists()
-        if (app_param.restriction == 'bill'):
+        if (app_param.restriction == BILL):
             valid_article = Bill.objects.filter(id = app_param.art_id, apart = apart.id).exists()
         if valid_article:
-            if (app_param.restriction == 'apart'):
+            if (app_param.restriction == APART):
                 item = get_object_or_404(Apart.objects.filter(id = app_param.art_id, user = request.user.id))
                 disable_delete = item.active or Meter.objects.filter(apart = item.id).exists() or \
                                                 Price.objects.filter(apart = item.id).exists() or \
                                                 Bill.objects.filter(apart = item.id).exists()
                 redirect = edit_item(request, context, app_param.restriction, None, item, disable_delete)
-            if (app_param.restriction == 'meter'):
+            if (app_param.restriction == METER):
                 item = get_object_or_404(Meter.objects.filter(id = app_param.art_id, apart = apart.id))
                 disable_delete = Bill.objects.filter(prev = item.id).exists() or Bill.objects.filter(curr = item.id).exists()
                 redirect = edit_item(request, context, app_param.restriction, apart, item, disable_delete)
-            if (app_param.restriction == 'service'):
+            if (app_param.restriction == SERV):
                 item = get_object_or_404(Service.objects.filter(id = app_param.art_id, apart = apart.id))
                 disable_delete = Price.objects.filter(serv = item.id).exists()
                 redirect = edit_item(request, context, app_param.restriction, apart, item, disable_delete)
-            if (app_param.restriction == 'price'):
+            if (app_param.restriction == PRICE):
                 item = get_object_or_404(Price.objects.filter(id = app_param.art_id, apart = apart.id))
                 redirect = edit_item(request, context, app_param.restriction, apart, item)
-            if (app_param.restriction == 'bill'):
+            if (app_param.restriction == BILL):
                 item = get_object_or_404(Bill.objects.filter(id = app_param.art_id, apart = apart.id))
                 disable_delete = Bill.objects.filter(period__gt = item.period).exists()
                 redirect = edit_item(request, context, app_param.restriction, apart, item, disable_delete)
@@ -116,21 +117,21 @@ def main(request):
         return HttpResponseRedirect(reverse('apart:main') + extract_get_params(request))
 
     fixes = []
-    fixes.append(Fix('apart', _('apartments').capitalize(), 'todo/icon/myday.png', 'aparts/', len(Apart.objects.filter(user = request.user.id))))
+    fixes.append(Fix(APART, _('apartments').capitalize(), 'todo/icon/myday.png', 'aparts/', len(Apart.objects.filter(user = request.user.id))))
     apart_id = 0
     if apart:
         apart_id = apart.id
-    fixes.append(Fix('service', _('services').capitalize(), 'rok/icon/execute.png', 'services/', len(Service.objects.filter(apart = apart_id))))
-    fixes.append(Fix('meter', _('meters').capitalize(), 'todo/icon/planned.png', 'meters/', len(Meter.objects.filter(apart = apart_id))))
-    fixes.append(Fix('price', _('prices').capitalize(), 'rok/icon/all.png', 'prices/', len(Price.objects.filter(apart = apart_id))))
-    fixes.append(Fix('bill', _('bills').capitalize(), 'todo/icon/important.png', 'bills/', len(Bill.objects.filter(apart = apart_id))))
+    fixes.append(Fix(SERV, _('services').capitalize(), 'rok/icon/execute.png', 'services/', len(Service.objects.filter(apart = apart_id))))
+    fixes.append(Fix(METER, _('meters').capitalize(), 'todo/icon/planned.png', 'meters/', len(Meter.objects.filter(apart = apart_id))))
+    fixes.append(Fix(PRICE, _('prices').capitalize(), 'rok/icon/all.png', 'prices/', len(Price.objects.filter(apart = apart_id))))
+    fixes.append(Fix(BILL, _('bills').capitalize(), 'todo/icon/important.png', 'bills/', len(Bill.objects.filter(apart = apart_id))))
     context['fix_list'] = fixes
 
     context['without_lists'] = True
     context['hide_important'] = True
-    if (app_param.restriction == 'apart'):
+    if (app_param.restriction == APART):
         context['add_item_placeholder'] = _('add apartment').capitalize()
-    elif (app_param.restriction == 'service'):
+    elif (app_param.restriction == SERV):
         context['add_item_placeholder'] = _('add service').capitalize()
         context['hide_selector'] = True
     else:
@@ -148,7 +149,7 @@ def main(request):
     context['search_data'] = query and (len(data) > 0)
     
     
-    if (app_param.restriction == 'price'):
+    if (app_param.restriction == PRICE):
         groups = []
         for price in data:
             serv_id = 0
@@ -173,23 +174,23 @@ def item(request, pk):
     return HttpResponseRedirect(reverse('apart:main') + extract_get_params(request))
 
 def aparts(request):
-    set_restriction(request.user, app_name, 'apart')
+    set_restriction(request.user, app_name, APART)
     return HttpResponseRedirect(reverse('apart:main'))
 
 def services(request):
-    set_restriction(request.user, app_name, 'service')
+    set_restriction(request.user, app_name, SERV)
     return HttpResponseRedirect(reverse('apart:main'))
 
 def meters(request):
-    set_restriction(request.user, app_name, 'meter')
+    set_restriction(request.user, app_name, METER)
     return HttpResponseRedirect(reverse('apart:main'))
 
 def prices(request):
-    set_restriction(request.user, app_name, 'price')
+    set_restriction(request.user, app_name, PRICE)
     return HttpResponseRedirect(reverse('apart:main'))
 
 def bills(request):
-    set_restriction(request.user, app_name, 'bill')
+    set_restriction(request.user, app_name, BILL)
     return HttpResponseRedirect(reverse('apart:main'))
 
 def toggle(request, pk):
@@ -212,30 +213,33 @@ def apart_entity(request, name, pk):
     return HttpResponseRedirect(reverse('apart:main'))
 
 #----------------------------------
+PAGES = {
+    APART: 'apartments',
+    SERV: 'services', 
+    METER: 'meters', 
+    PRICE: 'prices', 
+    BILL: 'bills'
+    }
+
+#----------------------------------
 def get_title(restriction, apart):
-    if (restriction == 'apart'):
-        return _('apartments').capitalize()
-    if (restriction == 'service'):
-        return '{} [{}]'.format(_('services').capitalize(), apart.name)
-    if (restriction == 'meter'):
-        return '{} [{}]'.format(_('meters').capitalize(), apart.name)
-    if (restriction == 'price'):
-        return '{} [{}]'.format(_('prices').capitalize(), apart.name)
-    if (restriction == 'bill'):
-        return '{} [{}]'.format(_('bills').capitalize(), apart.name)
-    return 'unknown restriction: ' + str(restriction)
+    if (restriction == APART):
+        info = ''
+    else:
+        info = apart.name
+    return PAGES[restriction], info
 
 #----------------------------------
 def filtered_list(user, restriction, apart, query = None):
-    if (restriction == 'apart'):
+    if (restriction == APART):
         data = Apart.objects.filter(user = user.id)
-    elif (restriction == 'service'):
+    elif (restriction == SERV):
         data = Service.objects.filter(apart = apart.id)
-    elif (restriction == 'meter'):
+    elif (restriction == METER):
         data = Meter.objects.filter(apart = apart.id)
-    elif (restriction == 'price'):
+    elif (restriction == PRICE):
         data = Price.objects.filter(apart = apart.id)
-    elif (restriction == 'bill'):
+    elif (restriction == BILL):
         data = Bill.objects.filter(apart = apart.id)
     else:
         data = []
@@ -248,15 +252,15 @@ def filtered_list(user, restriction, apart, query = None):
     if (search_mode != 1):
         return data
 
-    if (restriction == 'apart'):
+    if (restriction == APART):
         lookups = Q(name__icontains = query) | Q(addr__icontains = query)
-    elif (restriction == 'service'):
+    elif (restriction == SERV):
         lookups = Q(abbr__icontains = query) | Q(name__icontains = query)
-    elif (restriction == 'meter'):
+    elif (restriction == METER):
         lookups = Q(info__icontains = query)
-    elif (restriction == 'price'):
+    elif (restriction == PRICE):
         lookups = Q(info__icontains = query)
-    elif (restriction == 'bill'):
+    elif (restriction == BILL):
         lookups = Q(info__icontains = query) | Q(url__icontains = query)
     else:
         return data
@@ -265,15 +269,15 @@ def filtered_list(user, restriction, apart, query = None):
 
 def filtered_sorted_list(user, app_param, apart, query):
     data = filtered_list(user, app_param.restriction, apart, query)
-    if (app_param.restriction == 'apart'):
+    if (app_param.restriction == APART):
         data = data.order_by('name')
-    elif (app_param.restriction == 'service'):
+    elif (app_param.restriction == SERV):
         data = data.order_by('name')
-    elif (app_param.restriction == 'meter'):
+    elif (app_param.restriction == METER):
         data = data.order_by('-period')
-    elif (app_param.restriction == 'price'):
+    elif (app_param.restriction == PRICE):
         data = data.order_by('-start')
-    elif (app_param.restriction == 'bill'):
+    elif (app_param.restriction == BILL):
         data = data.order_by('-period')
     return data
 
@@ -288,19 +292,19 @@ def edit_item(request, context, restriction, apart, item, disable_delete = False
             set_active(request.user.id, item.id)
             return True
         if ('item_save' in request.POST):
-            if (restriction == 'apart'):
+            if (restriction == APART):
                 form = ApartForm(request.POST, instance = item)
-            elif (restriction == 'service'):
+            elif (restriction == SERV):
                 form = ServiceForm(request.POST, instance = item)
-            elif (restriction == 'meter'):
+            elif (restriction == METER):
                 form = MeterForm(request.POST, instance = item)
-            elif (restriction == 'price'):
+            elif (restriction == PRICE):
                 form = PriceForm(apart, request.POST, instance = item)
-            elif (restriction == 'bill'):
+            elif (restriction == BILL):
                 form = BillForm(request.POST, instance = item)
             if form.is_valid():
                 data = form.save(commit = False)
-                if (restriction == 'apart'):
+                if (restriction == APART):
                     data.user = request.user
                 else:
                     data.apart = apart
@@ -325,23 +329,23 @@ def edit_item(request, context, restriction, apart, item, disable_delete = False
                 return True
 
     if not form:
-        if (restriction == 'apart'):
+        if (restriction == APART):
             form = ApartForm(instance = item)
             context['item_active'] = item.active
             context['has_gas'] = item.has_gas
             context['has_ppo'] = item.has_ppo
-        elif (restriction == 'service'):
+        elif (restriction == SERV):
             form = ServiceForm(instance = item)
-        elif (restriction == 'meter'):
+        elif (restriction == METER):
             form = MeterForm(instance = item)
-        elif (restriction == 'price'):
+        elif (restriction == PRICE):
             form = PriceForm(apart, instance = item)
-        elif (restriction == 'bill'):
+        elif (restriction == BILL):
             form = BillForm(instance = item)
 
     context['form'] = form
     context['ed_item'] = item
-    if (restriction == 'bill'):
+    if (restriction == BILL):
         vel = 0
         vga = 0
         vwt = 0

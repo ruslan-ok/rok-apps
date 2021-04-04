@@ -16,18 +16,27 @@
         </h3>
   
     <div class="w3-row w3-padding">
-      <a href="{% url 'trip:main' %}">{{ trip_summary|safe }}</a>
-      {% if last_visited_url %}
-        <p><a href="{{ last_visited_url }}">{{ last_visited_app }} - {{ last_visited_page }}</a></p>
+      {% if debug and user.username == 'ruslan.ok' %}
+        <h2 class="w3-text-red">Warning: Debug mode</h2><br><br><br>
+      {% endif %}
+
+      <a href="{% url 'trip:main' %}">{{ trip_summary|safe }}</a><br><br>
+      
+      {% if last_visited %}
+        <h4>{% trans 'last visited pages'|capfirst %}</h4>
+        <table>
+          <tr> <th>{% trans 'date'|capfirst %}</th> <th>{% trans 'time'|capfirst %}</th> <th>{% trans 'page'|capfirst %}</th> </tr>
+          {% for page in last_visited %}
+            <tr> <td>{{ page.stamp|date:'d.m.Y' }}</td> <td>{{ page.stamp|date:'G:i' }}</td>
+                 <td><a href="{{ page.reverse_url }}">{{ page.title }}</a></td> </tr>
+          {% endfor %}
+        </table>
       {% endif %}
     
       {% if user.username == 'ruslan.ok' %}
         <br><br><br>
-        {% if debug %}
-          <h2 class="w3-text-red">Warning: Debug mode</h2><br><br><br>
-        {% endif %}
-
         {% if show_stat %}
+          <h4>{% trans 'site statistics'|capfirst %}</h4>
           <table>
             <tr> <th>{% trans 'application'|capfirst %}</th> <th>{% trans 'visitor'|capfirst %}</th> <th>{% trans 'page'|capfirst %}</th> </tr>
             {% for app, hosts in stat.items %}
@@ -44,6 +53,7 @@
         {% endif %}
         
         {% if indicators %}
+          <h4>{% trans 'site statistics'|capfirst %}</h4>
           <table>
             <tr> <th>{% trans 'indictor'|capfirst %}</th> <th>{% trans 'value'|capfirst %}</th> </tr>
             {% for x in indicators %}
@@ -53,6 +63,7 @@
           <br><br><br>
         {% endif %}
         
+        <h4>{% trans 'software versions'|capfirst %}</h4>
         <table>
           <tr> <th>{% trans 'product'|capfirst %}</th> <th>{% trans 'version'|capfirst %}</th> <th>{% trans 'check new version'|capfirst %}</th></tr>
           <tr> <td> Python </td> <td> {{ python_version }} </td> <td><a href="https://www.python.org/downloads/">python.org</a></td> </tr>

@@ -166,20 +166,21 @@ def filtered_list(user, restriction, query = None, lst = None):
         data = []
     return data
 #----------------------------------
+PAGES = {
+    CHRONO: 'dynamics of changes in biomarkers',
+    BIOMARK: 'biomarkers',
+    INCIDENT: 'incidents'
+    }
+#----------------------------------
 def get_title(restriction):
-    if (restriction == CHRONO):
-        return _('dynamics of changes in biomarkers').capitalize()
-    if (restriction == BIOMARK):
-        return _('biomarkers').capitalize()
-    if (restriction == INCIDENT):
-        return _('incidents').capitalize()
+    return PAGES[restriction], ''
 
 #----------------------------------
 def get_placeholder(restriction):
     if (restriction == BIOMARK):
-        return _('add biomarkers').capitalize()
+        return 'add biomarkers'
     if (restriction == INCIDENT):
-        return _('add incident').capitalize()
+        return 'add incident'
     return None
 
 #----------------------------------
