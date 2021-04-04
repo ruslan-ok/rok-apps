@@ -121,6 +121,17 @@ def get_mini(request, pk): # Для оторажения миниатюры на
     fsock = open(mini_storage(request.user) + item.subdir() + item.name, 'rb')
     return FileResponse(fsock)
 
+PAGES = {
+    'main': 'photo archive',
+    'map': 'photos on the map',
+    'one': 'viewing a photo'
+    }
+
+def get_title(restriction, name):
+    info = ''
+    if (restriction == 'one'):
+        info = name
+    return PAGES[restriction], info
 
 #----------------------------------
 @login_required(login_url='account:login')
@@ -133,10 +144,12 @@ def do_main(request, restriction, pk = None, art_vis = False):
     set_restriction(request.user, app_name, restriction)
 
     item = None
+    name = ''
     if (restriction == 'one') and pk:
         item = get_object_or_404(Photo.objects.filter(id = pk, user = request.user.id))
-
-    app_param, context = get_base_context_ext(request, app_name, restriction, _('photos'))
+        name = item.name
+        
+    app_param, context = get_base_context_ext(request, app_name, restriction, get_title(restriction, name))
 
     if (restriction == 'one') and (not item):
         item = get_object_or_404(Photo.objects.filter(id = app_param.art_id, user = request.user.id))
