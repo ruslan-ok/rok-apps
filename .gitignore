@@ -2,7 +2,8 @@ db.sqlite3
 settings.py
 sqlite3.exe
 *.pyc
-*.mo
+django.mo
+django.po
 migrations
 migrations_zen
 manage.py
