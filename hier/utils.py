@@ -9,6 +9,7 @@ from django.core.exceptions import FieldError
 from todo.models import Lst
 from .models import Folder, Param, VisitedHistory, get_app_params
 from .params import set_aside_visible, set_article_visible
+from rusel.apps import get_beta, get_apps_list
 
 
 FOLDERS_COLOR = '#b9ffdc'
@@ -43,6 +44,7 @@ APPS = {
     'admin':   ('admin',       '/admin/'),
     'profile': ('user',        '/account/profile/'),
     'logout':  ('exit',        '/account/logout/'),
+    'move':    ('car',         '/move/'),
 }
 
 #----------------------------------
@@ -155,6 +157,8 @@ def get_base_context_ext(request, app_name, content_kind, title, article_enabled
     context = {}
     context['app_name'] = get_app_name(app_name)
     context['restriction'] = None
+    beta = get_beta(request.user)
+    context['beta'] = beta
     app_param = None
     title_1 = title_2 = url = ''
     if title and (len(title) > 0):
@@ -195,17 +199,7 @@ def get_base_context_ext(request, app_name, content_kind, title, article_enabled
     context['complete_icon'] = 'todo/icon/complete.png'
     context['uncomplete_icon'] = 'todo/icon/uncomplete.png'
     
-    
-    apps = []
-    for app in APPS:
-        if (app in ('store', 'trip', 'apart', 'wage', 'health')) and (request.user.username != 'ruslan.ok'):
-            continue
-        if (app == 'admin') and (request.user.username != 'admin'):
-            continue
-        if (app == 'profile') and (request.user.username == 'demouser'):
-            continue
-        apps.append({'href': APPS[app][1], 'icon': 'rok/icon/' + APPS[app][0] + '.png', 'name': get_main_menu_item(app)})
-    context['apps'] = apps
+    context['apps'] = get_apps_list(request.user)
 
     set_aside_visible(request.user, app_name, False)
     if url:

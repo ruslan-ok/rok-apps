@@ -1,0 +1,19 @@
+{% extends "task/base/tree.html" %}
+{% load rest_framework %}
+{% load static i18n %}
+
+{% block aside_conent %}
+  {% include "task/base/aside.html" %}
+{% endblock %}
+
+{% block content %}
+  <div class="w3-container">
+        <h3>
+          {{ title|capfirst }}
+        </h3>
+  
+    Hello TODO
+
+  </div>
+{% endblock %}
+

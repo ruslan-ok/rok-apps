@@ -102,7 +102,7 @@ class Task(models.Model):
     categories = models.TextField(_('categories'), blank = True, default = "")
     info = models.TextField(_('information'), blank = True, default = "")
     url = models.CharField(_('url'), max_length = 2000, blank = True)
-    
+
     class Meta:
         verbose_name = _('task')
         verbose_name_plural = _('tasks')

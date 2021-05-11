@@ -19,6 +19,10 @@
       {% if debug and user.username == 'ruslan.ok' %}
         <h2 class="w3-text-red">Warning: Debug mode</h2><br><br><br>
       {% endif %}
+      
+      {% for dbg in debug_info %}
+      {{ dbg }}<br>
+      {% endfor %}
 
       <a href="{% url 'trip:main' %}">{{ trip_summary|safe }}</a><br><br>
       

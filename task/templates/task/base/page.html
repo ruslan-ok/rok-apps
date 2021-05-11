@@ -1,3 +1,4 @@
+{% load rest_framework %}
 {% load static i18n %}
 <!DOCTYPE html>
 {% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
@@ -28,10 +29,10 @@
 
   <body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}" data-admin-utc-offset="{% now "Z" %}">
     {% block window %}
-      {% include "hier/nav.html" %}
+      {% include "task/base/nav.html" %}
 
       <div id="wrapper">
-        {% include "hier/header.html" %}
+        {% include "task/base/header.html" %}
     
         <div id="page" {% if user.is_authenticated %}class="with_header"{% endif %}>
           <aside class="{% if aside_visible %}vis{% else %}hid{% endif %}{% if not user.is_authenticated %} no_header{% endif %}">
@@ -42,7 +43,7 @@
               </form>
             </section>
               {% block aside_conent %}
-                {% include "hier/aside.html" %}
+                {% include "task/base/aside.html" %}
               {% endblock %}
             <div>
               {% block aside_footer %}{% endblock %}
@@ -62,7 +63,7 @@
                 <button type="submit" name="item_save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
               </div>
               <section id="article-content">
-                {% include "hier/form_errors.html" %}
+                {% include "task/base/form_errors.html" %}
                 {% block article_content %}{% endblock %}
               </section>
               <div class="article-bottom">
@@ -78,6 +79,10 @@
 
     {% block scripts %}
       <script src="{% static 'rok/js/launcher.js' %}"></script>
+      <script src="{% static 'rok/js/build-tree.js' %}"></script>
+      <script>
+        build_tree('groups-tree', '{{ app }}', {{ list_id }});
+      </script>
     {% endblock %}
 
   </body>

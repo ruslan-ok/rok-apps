@@ -143,6 +143,10 @@ ul li {
   list-style-type: none;
 }
 
+aside ul li.hide {
+  display: none;
+}
+
 #launcher {
   background: #f5f5f5;
   width: 320px;
@@ -895,6 +899,10 @@ li.grp-item:hover {
 
 .nav-menu-item-left img, .nav-menu-item-x1 img, .nav-menu-item-right img {
   padding: 8px;
+}
+
+.nav-menu-item-right {
+  cursor: pointer;
 }
 
 .level-0 { margin-left: 0px; }

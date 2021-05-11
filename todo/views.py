@@ -18,6 +18,7 @@ from hier.grp_lst import group_add, group_details, group_toggle, list_add, list_
 from hier.files import storage_path, get_files_list
 from hier.aside import Fix, Sort
 from hier.content import find_group
+from todo.const import *
 from .models import app_name, Lst, Task, Param, Step, DAILY, WORKDAYS, WEEKLY, MONTHLY, ANNUALLY#, PerGrp
 from .utils import get_task_status, nice_date, get_grp_planned, GRP_PLANNED_NONE, get_week_day_name, GRPS_PLANNED
 from .forms import TaskForm
@@ -28,13 +29,6 @@ items_in_page = 10
 NONE = ''
 NAME = 'name'
 CREATED = 'created'
-
-ALL = 'all'
-MY_DAY = 'myday'
-IMPORTANT = 'important'
-PLANNED = 'planned'
-COMPLETED = 'completed'
-LIST_MODE = 'list'
 
 PAGES = {
     NONE: 'all',
