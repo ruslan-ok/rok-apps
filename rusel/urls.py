@@ -12,7 +12,13 @@ from todo import views_drf as todo_views
 
 router = routers.DefaultRouter()
 router.register(r'groups', task_views.TaskGrpSimpleViewSet, basename='taskgrp')
-router.register(r'tasks', todo_views.TodoAllViewSet, basename='atask')
+
+router.register(r'drf/myday', todo_views.MyDayViewSet, basename='todo-myday')
+router.register(r'drf/important', todo_views.ImportantViewSet, basename='todo-important')
+router.register(r'drf/planned', todo_views.PlannedViewSet, basename='todo-planned')
+router.register(r'drf/todo', todo_views.AllViewSet, basename='atask')
+router.register(r'drf/completed', todo_views.CompletedViewSet, basename='todo-completed')
+router.register(r'drf/list/(?P<list_pk>[^/.]+)', todo_views.ByListViewSet, basename='todo-list')
 
 urlpatterns = i18n_patterns(
     path('', views.index, name='index'),
@@ -25,7 +31,6 @@ urlpatterns = i18n_patterns(
     path('trip/',   include('trip.urls')),
     path('wage/',   include('wage.urls')),
     path('todo/',   include('todo.urls')),
-    path('drf/todo/', include('todo.urls_drf')),
     path('store/',  include('store.urls')),
     path('note/',   include('note.urls')),
     path('news/',   include('note.urls_news')),
@@ -37,13 +42,6 @@ urlpatterns = i18n_patterns(
     path('account/', include('account.urls')),
     path('admin/',   admin.site.urls, name='admin'),
     path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
-
-    path('new/task/', task_views.ATaskViewSet.as_view({'get': 'list'}), name='atask-list'),
-    path('new/task/<int:pk>/', task_views.ATaskViewSet.as_view({'get': 'retrieve'}), name='atask-detail'),
-    path('new/note/', task_views.NoteViewSet.as_view({'get': 'list'}), name='note-list'),
-    path('new/note/<int:pk>/', task_views.NoteViewSet.as_view({'get': 'retrieve'}), name='note-detail'),
-    path('new/news/', task_views.NewsViewSet.as_view({'get': 'list'}), name='news-list'),
-    path('new/news/<int:pk>/', task_views.NewsViewSet.as_view({'get': 'retrieve'}), name='news-detail'),
 
     path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))

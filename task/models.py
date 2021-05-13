@@ -69,6 +69,9 @@ class ATask(models.Model):
     def get_url(self):
         return reverse('task-detail', args=[self.id])
     
+    def marked_item(self):
+        return self.completed
+
     
 class ContentGrp(models.Model):
     """

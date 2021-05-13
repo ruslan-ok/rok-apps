@@ -35,21 +35,22 @@ class TaskGrpSimpleViewSet(viewsets.ModelViewSet):
     
 class ATaskViewSet(viewsets.ModelViewSet):
     app = 'home'
+    view_as_tree = False
     serializer_class = ATaskSerializer
     permission_classes = [permissions.IsAuthenticated]
     renderer_classes = [renderers.TemplateHTMLRenderer, renderers.BrowsableAPIRenderer, renderers.JSONRenderer,]
 
     def detail_view(self):
-        return app + '-detail'
+        return self.app + '-detail'
     
     def list_view(self):
-        return app + '-list'
+        return self.app + '-list'
     
     def app_name(self):
         return 'unknown'
     
     def list_name(self):
-        return self.app_name + ' List'
+        return self.app_name() + ' List'
     
     def get_queryset(self):
         return ATask.objects.filter(user=self.request.user).order_by('-created')
@@ -66,22 +67,27 @@ class ATaskViewSet(viewsets.ModelViewSet):
     def extra_context(self, context):
         pass
 
+    def get_template_name(self):
+        if self.view_as_tree:
+            return self.app+'/'+self.app+'_tree.html'
+        return self.app+'/'+self.app+'_list.html'
+
     def list(self, request, *args, **kwargs):
         if self.native(request):
             return super(ATaskViewSet, self).list(request, *args, **kwargs)
 
         context = get_base_context(request, self.app, False, self.app_name())
         self.extra_context(context)
-        return Response(context, template_name=self.app+'/'+self.app+'.html')
+        return Response(context, template_name=self.get_template_name())
 
     def create(self, request, *args, **kwargs):
         if self.native(request):
             return super(ATaskViewSet, self).create(request, *args, **kwargs)
 
-        serializer = self.get_serializer(data={'name': request.data['task-name']})
+        serializer = self.get_serializer(data={'name': request.data['item_add-name']})
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
-        return HttpResponseRedirect(reverse(self.detail_view(), args = [serializer.instance.id]))
+        return HttpResponseRedirect(str(serializer.instance.id) + '/')
 
     def retrieve(self, request, *args, **kwargs):
         if self.native(request):
@@ -92,7 +98,7 @@ class ATaskViewSet(viewsets.ModelViewSet):
         context['serializer'] = self.get_serializer(self.get_object())
         context['list_url'] = reverse(self.list_view())
         context['list_name'] = self.list_name()
-        return Response(context, template_name=self.app+'/'+self.app+'.html')
+        return Response(context, template_name=self.get_template_name())
     
     def update(self, request, *args, **kwargs):
         if self.native(request):
@@ -109,7 +115,7 @@ class ATaskViewSet(viewsets.ModelViewSet):
         context['serializer'] = serializer
         context['list_url'] = reverse(self.list_view())
         context['list_name'] = self.list_name()
-        return Response(context, template_name=self.app+'/'+self.app+'.html')
+        return Response(context, template_name=self.get_template_name())
 
     def destroy(self, request, *args, **kwargs):
         if self.native(request):

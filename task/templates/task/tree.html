@@ -1,4 +1,4 @@
-{% extends "task/base/content_top.html" %}
+{% extends "task/content_top.html" %}
 {% load rest_framework %}
 {% load static i18n %}
 
@@ -21,7 +21,7 @@
     {% if group.is_open %}
       <ul>
         {% for item in group.items %}
-          {% include "hier/item.html" %}
+          {% include "task/item.html" %}
         {% endfor %}
       </ul>
     {% endif %}

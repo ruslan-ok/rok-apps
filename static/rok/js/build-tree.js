@@ -12,11 +12,11 @@ function build_tree(tree_id, app, current_id) {
   request.send();
   request.onload = function() {
     tree_data = request.response;
-    parse_groups(tree_id, current_id);
+    parse_groups(tree_id, app, current_id);
   }
 }
 
-function parse_groups(tree_id, current_id) {
+function parse_groups(tree_id, app, current_id) {
   var i, roots = [], node;
   for (i = 0; i < tree_data.length; i += 1) {
     map[tree_data[i].id] = i;
@@ -37,10 +37,10 @@ function parse_groups(tree_id, current_id) {
   
   var ul = document.getElementById(tree_id);
   for (i = 0; i < roots.length; i += 1)
-    add_li(ul, tree_data[map[roots[i].id]], current_id, 0, true);
+    add_li(ul, tree_data[map[roots[i].id]], current_id, app, 0, true);
 }
 
-function add_li(ul, data, current_id, level, visible) {
+function add_li(ul, data, current_id, app, level, visible) {
   var li = document.createElement('li');
   li.classList.add('grp-item');
   if (!visible)
@@ -49,7 +49,7 @@ function add_li(ul, data, current_id, level, visible) {
   if (current_id == data.id)
       li.classList.add('selected');
   var a1 = document.createElement('a');
-  a1.setAttribute('href', 'list/' + data.id + '/');
+  a1.setAttribute('href', '/drf/list/' + data.id + '/');
   var div1 = document.createElement('div');
   div1.classList.add('nav-menu-item-left');
   var img1 = document.createElement('img');
@@ -72,23 +72,19 @@ function add_li(ul, data, current_id, level, visible) {
   else {
     div3.classList.add('nav-menu-item-right');
     div3.setAttribute('onclick','toggle_group(' + data.id + ')')
-    //var a2 = document.createElement('a');
-    //a2.setAttribute('href', '#');
     var img2 = document.createElement('img');
     img2.classList.add('img-20_20');
     if (data.is_open)
       img2.setAttribute('src', '/static/rok/icon/direct-down.png');
     else
       img2.setAttribute('src', '/static/rok/icon/direct-left.png');
-    //a2.appendChild(img2);
-    //div3.appendChild(a2);
     div3.appendChild(img2);
   }
   li.appendChild(div3);
   ul.appendChild(li);
   var i;
   for (i = 0; i < data.children.length; i += 1)
-    add_li(ul, data.children[i], current_id, level + 1, visible && data.is_open);
+    add_li(ul, data.children[i], current_id, app, level + 1, visible && data.is_open);
 }
 
 function toggle_group(group_id) {

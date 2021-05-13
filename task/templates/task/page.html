@@ -29,10 +29,10 @@
 
   <body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}" data-admin-utc-offset="{% now "Z" %}">
     {% block window %}
-      {% include "task/base/nav.html" %}
+      {% include "task/nav.html" %}
 
       <div id="wrapper">
-        {% include "task/base/header.html" %}
+        {% include "task/header.html" %}
     
         <div id="page" {% if user.is_authenticated %}class="with_header"{% endif %}>
           <aside class="{% if aside_visible %}vis{% else %}hid{% endif %}{% if not user.is_authenticated %} no_header{% endif %}">
@@ -43,7 +43,7 @@
               </form>
             </section>
               {% block aside_conent %}
-                {% include "task/base/aside.html" %}
+                {% include "task/aside.html" %}
               {% endblock %}
             <div>
               {% block aside_footer %}{% endblock %}
@@ -63,7 +63,7 @@
                 <button type="submit" name="item_save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
               </div>
               <section id="article-content">
-                {% include "task/base/form_errors.html" %}
+                {% include "task/form_errors.html" %}
                 {% block article_content %}{% endblock %}
               </section>
               <div class="article-bottom">
