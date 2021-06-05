@@ -29,7 +29,6 @@ from apart.search import search as apart_search
 from store.search import search as store_search
 
 from rusel.apps import switch_beta
-from .converter import convert
 
 app_name = 'rusel'
 
@@ -49,7 +48,7 @@ def index_anonim(request):
     return HttpResponse(template.render(context, request))
 
 #----------------------------------
-@login_required(login_url='account:login')
+#@login_required(login_url='account:login')
 #----------------------------------
 def index_user(request):
     process_common_commands(request, app_name)
@@ -87,11 +86,14 @@ def index_user(request):
             #context['mysql_version'] = cursor.fetchone()
             context['mysql_version'] = '8.0.19'
         
-            cert = ssl.get_server_certificate(('rusel.by', 443))
-            x509 = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, cert)
-            t = x509.get_notAfter()
-            d = datetime.date(int(t[0:4]),int(t[4:6]),int(t[6:8]))
-            context['cert_termin'] = d.strftime('%d.%m.%Y')
+            try:
+                cert = ssl.get_server_certificate(('rusel.by', 443))
+                x509 = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, cert)
+                t = x509.get_notAfter()
+                d = datetime.date(int(t[0:4]),int(t[4:6]),int(t[6:8]))
+                context['cert_termin'] = d.strftime('%d.%m.%Y')
+            except:
+                pass
 
         context['last_visited'] = get_last_visited(request.user)
 
@@ -104,16 +106,6 @@ def index_user(request):
 #----------------------------------
 @login_required(login_url='account:login')
 #----------------------------------
-def move(request):
-    app_param, context = get_base_context_ext(request, app_name, '', ('applications',))
-    context['hide_title'] = False
-    context['aside_disabled'] = True
-    context['debug'] = settings.DEBUG
-    debug_info = convert()
-    context['debug_info'] = debug_info
-    template = loader.get_template('index_user.html')
-    return HttpResponse(template.render(context, request))
-
 def switch(request):
     switch_beta(request.user)
     return HttpResponseRedirect(reverse('index'))
@@ -138,15 +130,5 @@ def get_search_data(user, app_param, query):
     data.sort(reverse=True, key=get_si_date)
     return data
 
-
-#----------------------------------
-# Feedback
-#----------------------------------
-@login_required(login_url='account:login')
-#----------------------------------
-def feedback(request):
-    context = get_base_context(request, 0, 0, _('feedback'))
-    template = loader.get_template('feedback.html')
-    return HttpResponse(template.render(context, request))
 
 

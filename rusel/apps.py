@@ -1,5 +1,5 @@
 from django.utils.translation import gettext_lazy as _
-from task.models import TaskGrp, AAppParam
+from task.models import Task
 
 APPS = {
     'home':    ('home',        '/'),
@@ -23,27 +23,27 @@ def get_app_name(app):
     if (app == 'rusel'):
         return 'rusel.by'
     if (app == 'apart'):
-        return 'communal'
+        return _('communal')
     if (app == 'fuel'):
-        return 'fuelings'
+        return _('fuelings')
     if (app == 'note'):
-        return 'notes'
+        return _('notes')
     if (app == 'news'):
-        return 'news'
+        return _('news')
     if (app == 'proj'):
-        return 'expenses'
+        return _('expenses')
     if (app == 'store'):
-        return 'passwords'
+        return _('passwords')
     if (app == 'todo'):
-        return 'tasks'
+        return _('tasks').capitalize()
     if (app == 'trip'):
-        return 'trips'
+        return _('trips')
     if (app == 'wage'):
-        return 'work'
+        return _('work')
     if (app == 'photo'):
-        return 'photobank'
+        return _('photobank')
     if (app == 'health'):
-        return 'health'
+        return _('health')
     return None
 
 def get_apps_list(user):
@@ -58,14 +58,9 @@ def get_apps_list(user):
             continue
         href = APPS[app][1]
         if beta and (app != 'home'):
-            href = 'drf' + APPS[app][1]
+            href = 'beta' + APPS[app][1]
         apps.append({'href': href, 'icon': 'rok/icon/' + APPS[app][0] + '.png', 'name': get_main_menu_item(app)})
     return apps
-
-def get_app_params(user, app):
-    if not AAppParam.objects.filter(user=user.id, app=app).exists():
-        return AAppParam.objects.create(user=user, app=app, view=None, lst = None)
-    return AAppParam.objects.filter(user=user.id, app=app).get()
 
 def _get_app_name(app):
     name = get_app_name(app)
@@ -90,13 +85,13 @@ def get_main_menu_item(app):
     return None
 
 def switch_beta(user):
-    param = get_app_params(user, 'home')
-    param.beta = not param.beta
-    param.save()
+    if Task.objects.filter(user=user.id, name='beta-testing').exists():
+        Task.objects.filter(user=user.id, name='beta-testing').delete()
+    else:
+        Task.objects.create(user=user, name='beta-testing')
 
 def get_beta(user):
-    param = get_app_params(user, 'home')
-    return param.beta
+    return Task.objects.filter(user=user.id, name='beta-testing').exists()
 
 
 

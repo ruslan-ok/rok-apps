@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import TaskGrp, ATask
+from task.models import Group, Task
 
-admin.site.register(TaskGrp)
-admin.site.register(ATask)
+admin.site.register(Group)
+admin.site.register(Task)

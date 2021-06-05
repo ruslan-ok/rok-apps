@@ -1,6 +1,6 @@
-from todo.models import Grp, Lst, Task
+from todo.models import Grp, Lst, Task as OldTask, Step as OldStep
 from note.models import Note
-from task.models import TaskGrp, ATask, TaskUrls
+from task.models import Task, Step, Group, TaskGroup, Urls
 from task.const import *
 
 debug = []
@@ -9,25 +9,30 @@ debug = []
 def convert():
     debug = []
     debug.append('Start convert')
-    TaskGrp.objects.all().delete()
-    ATask.objects.all().delete()
-    TaskUrls.objects.all().delete()
+    TaskGroup.objects.all().delete()
+    Group.objects.all().delete()
+    Task.objects.all().delete()
+    Step.objects.all().delete()
+    Urls.objects.all().delete()
     transfer_grp(None, None, debug)
     transfer_lst(None, None, debug)
     transfer_task(None, None)
     transfer_note(None, None)
     debug.append('Records in Grp: ' + str(len(Grp.objects.all())))
     debug.append('Records in Lst: ' + str(len(Lst.objects.all())))
-    debug.append('Records in TaskGrp: ' + str(len(TaskGrp.objects.all())))
+    debug.append('Records in Group: ' + str(len(Group.objects.all())))
     debug.append('-')
-    task_qty = len(Task.objects.all())
+    task_qty = len(OldTask.objects.all())
     note_qty = len(Note.objects.all())
-    debug.append('Records in Task: ' + str(task_qty))
+    debug.append('Records in OldTask: ' + str(task_qty))
     debug.append('Records in Note: ' + str(note_qty))
     debug.append('Total: ' + str(task_qty + note_qty))
-    debug.append('Records in ATask: ' + str(len(ATask.objects.all())))
+    debug.append('Records in Task: ' + str(len(Task.objects.all())))
     debug.append('-')
-    debug.append('Records in TaskUrls: ' + str(len(TaskUrls.objects.all())))
+    debug.append('Records in OldStep: ' + str(len(OldStep.objects.all())))
+    debug.append('Records in Step: ' + str(len(Step.objects.all())))
+    debug.append('-')
+    debug.append('Records in Urls: ' + str(len(Urls.objects.all())))
     debug.append('Stop convert')
     return debug
 
@@ -36,7 +41,7 @@ def transfer_grp(grp_node, task_grp_node, debug):
     grps = Grp.objects.filter(node=grp_node)
     for grp in grps:
         is_leaf = not Lst.objects.filter(grp=grp).exists()
-        task_grp = TaskGrp.objects.create(user=grp.user, app=grp.app, node=task_grp_node, name=grp.name, sort=grp.sort, is_open=grp.is_open, created=grp.created, last_mod=grp.last_mod, is_leaf=is_leaf)
+        task_grp = Group.objects.create(user=grp.user, app=grp.app, node=task_grp_node, name=grp.name, sort=grp.sort, is_open=grp.is_open, created=grp.created, last_mod=grp.last_mod, is_leaf=is_leaf)
         transfer_grp(grp, task_grp, debug)
         transfer_lst(grp, task_grp, debug)
 
@@ -44,16 +49,15 @@ def transfer_grp(grp_node, task_grp_node, debug):
 def transfer_lst(grp, task_grp, debug):
     lsts = Lst.objects.filter(grp=grp)
     for lst in lsts:
-        task_grp_ = TaskGrp.objects.create(user=lst.user, app=lst.app, node=task_grp, name=lst.name, sort=lst.sort, created=lst.created, last_mod=lst.last_mod, is_leaf=True)
+        task_grp_ = Group.objects.create(user=lst.user, app=lst.app, node=task_grp, name=lst.name, sort=lst.sort, created=lst.created, last_mod=lst.last_mod, is_leaf=True)
         transfer_task(lst, task_grp_)
         transfer_note(lst, task_grp_)
 
 
 def transfer_task(lst, task_grp):
-    tasks = Task.objects.filter(lst=lst)
+    tasks = OldTask.objects.filter(lst=lst)
     for task in tasks:
-        atask = ATask.objects.create(user=task.user,
-                             grp=task_grp,
+        atask = Task.objects.create(user=task.user,
                              name=task.name,
                              start=task.start,
                              stop=task.stop,
@@ -83,8 +87,15 @@ def transfer_task(lst, task_grp):
                              app_photo=NONE,
                              created=task.created,
                              last_mod=task.last_mod)
+        
+        for step in OldStep.objects.filter(task=task.id):
+            Step.objects.create(task=atask, name=step.name, sort=step.sort, completed=step.completed)
+        
+        if task_grp:
+            Group.objects.filter(user=task.user.id, id=task_grp.id).get().consist.add(atask)
+        
         if task.url:
-            TaskUrls.objects.create(task=atask, num=1, href=task.url)
+            Urls.objects.create(task=atask, num=1, href=task.url)
 
 
 def transfer_note(lst, task_grp):
@@ -96,8 +107,7 @@ def transfer_note(lst, task_grp):
             note_role = NOTE
         else:
             news_role = NEWS
-        atask = ATask.objects.create(user=note.user,
-                             grp=task_grp,
+        atask = Task.objects.create(user=note.user,
                              name=note.name,
                              start=None,
                              stop=None,
@@ -127,5 +137,9 @@ def transfer_note(lst, task_grp):
                              app_photo=NONE,
                              created=note.publ,
                              last_mod=note.last_mod)
+        
+        if task_grp:
+            Group.objects.filter(user=note.user.id, id=task_grp.id).get().consist.add(atask)
+
         if note.url:
-            TaskUrls.objects.create(task=atask, num=1, href=note.url)
+            Urls.objects.create(task=atask, num=1, href=note.url)

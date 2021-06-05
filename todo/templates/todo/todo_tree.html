@@ -1,5 +1,6 @@
 {% extends "task/tree.html" %}
 {% load static i18n %}
+{% load rest_framework %}
 
 {% block extrastyle %}
   <link rel="stylesheet" type="text/css" href="{% static 'todo/css/todo.css' %}">
@@ -10,6 +11,10 @@
 {% endblock %}
 
 {% block article_content %}
+  {% csrf_token %}
+  {% if serializer %}
+    {% render_form serializer %}
+  {% endif %}
 {% endblock %}
 
 

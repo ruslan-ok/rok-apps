@@ -5,5 +5,4 @@ PLANNED = 'planned'
 COMPLETED = 'completed'
 LIST_MODE = 'list'
 
-
-
+ITEMS_PER_PAGE = 10

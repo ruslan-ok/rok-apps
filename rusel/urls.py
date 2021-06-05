@@ -7,22 +7,15 @@ from django.views.i18n import JavaScriptCatalog
 from rest_framework import routers
 
 from . import views
-from task import views as task_views
-from todo import views_drf as todo_views
+from api import views_group as api_grp
+from api import views_task as api_task
 
-router = routers.DefaultRouter()
-router.register(r'groups', task_views.TaskGrpSimpleViewSet, basename='taskgrp')
-
-router.register(r'drf/myday', todo_views.MyDayViewSet, basename='todo-myday')
-router.register(r'drf/important', todo_views.ImportantViewSet, basename='todo-important')
-router.register(r'drf/planned', todo_views.PlannedViewSet, basename='todo-planned')
-router.register(r'drf/todo', todo_views.AllViewSet, basename='atask')
-router.register(r'drf/completed', todo_views.CompletedViewSet, basename='todo-completed')
-router.register(r'drf/list/(?P<list_pk>[^/.]+)', todo_views.ByListViewSet, basename='todo-list')
+api_router = routers.DefaultRouter()
+api_router.register(r'groups', api_grp.GroupViewSet, basename='group')
+api_router.register(r'tasks', api_task.TaskViewSet, basename='task')
 
 urlpatterns = i18n_patterns(
     path('', views.index, name='index'),
-    path('move/', views.move, name='move'),
     path('switch/', views.switch, name='switch'),
 
     path('apart/',  include('apart.urls')),
@@ -37,13 +30,13 @@ urlpatterns = i18n_patterns(
     path('photo/',  include('photo.urls')),
     path('health/', include('health.urls')),
 
-    path('<int:folder_id>/',       include('hier.urls')),
+    path('beta/todo/', include('todo.beta.urls')),
 
     path('account/', include('account.urls')),
     path('admin/',   admin.site.urls, name='admin'),
     path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
 
-    path('', include(router.urls)),
+    path('api/', include(api_router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

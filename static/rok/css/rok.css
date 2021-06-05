@@ -208,20 +208,6 @@ main {
   flex-direction: column;
 }
 
-article {
-  background: #f5f5f5;
-  overflow: auto;
-  width: 340px;
-  height: calc(100vh - 48px);
-}
-
-article form {
-  flex-direction: column;
-  justify-content: space-between;
-  width: 100%;
-  height: calc(100vh - 48px);
-}
-
 header .button {
   background-color: #417690;
   color: white;
@@ -530,136 +516,9 @@ main .tree ul .tree-item .icon {
   margin-left: 10px;
 }
 
-.article-top {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 10px;
-  min-height: 38px;
-  border-bottom: 1px solid #eaeaea;
-  display: flex;
-  align-items: center;
-  background: #f5f5f5;
-}
-
-.article-bottom {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 10px;
-  min-height: 38px;
-  border-top: 1px solid #eaeaea;
-  display: flex;
-  align-items: center;
-  background: #f5f5f5;
-}
-
-.article-bottom .info {
-  font-size: 0.875rem;
-}
-
-#article-content {
-  height: calc(100vh - 48px - 38px - 38px - 20px);
-  overflow: auto;
-  padding: 0px 10px;
-  background: #f5f5f5;
-  width: 100%;
-}
-
-article .body {
-  overflow-x: hidden;
-  flex: 1;
-  background: #f5f5f5;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  width: 100%;
-}
-
-article .header {
-  min-height: 52px;
-  position: sticky;
-  top: 0;
-  display: flex;
-  flex-direction: column;
-  background: white;
-  border: 1px solid #eaeaea;
-  border-radius: 2px 2px 0 0;
-  z-index: 1;
-}
-
 p.errornote, div.field-error {
   color: red;
   font-size: 1rem;
-}
-
-article .section-inner-click {
-  background: none;
-  width: 100%;
-  height: 100%;
-  box-shadow: none;
-}
-
-article .section {
-  position: relative;
-  background: white;
-  margin: 5px 0;
-  border: 1px solid #eaeaea;
-  border-radius: 2px;
-  display: flex;
-  flex-direction: column;
-}
-
-article .section-item {
-  padding: 0 10px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-}
-
-article .labeled-input {
-  width: 100%;
-}
-
-article .labeled-input .label {
-  margin-top: 8px;
-  margin-bottom: 8px;
-}
-
-article .labeled-input .input {
-  margin-top: 8px;
-}
-
-article .section-item .section-inner-click, article .section-item .editable-content {
-  height: auto;
-  min-height: 52px;
-  width: 100%;
-}
-
-article .section-item .section-inner-label {
-  height: auto;
-  min-height: 30px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-}
-
-article .section-item .section-52 {
-  height: auto;
-  min-height: 52px;
-  display: flex;
-  flex: auto;
-}
-
-article .section-item .section-inner {
-  min-height: 52px;
-  display: flex;
-  flex: auto;
-  align-items: center;
-  padding: 4px 0;
 }
 
 .section-inner label {
@@ -668,30 +527,6 @@ article .section-item .section-inner {
 
 .section-inner textarea, .section-inner select {
     width: 95%;
-}
-
-article .section-item .section-icon {
-  fill: #767678;
-  color: #767678;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  text-align: center;
-}
-
-article .section-item .section-content {
-  margin-right: 8px;
-  margin-left: 8px;
-  overflow: hidden;
-  flex: auto;
-  display: flex;
-  align-items: center; 
-  text-align: left;
-}
-
-article .section-item .short {
-  width: 100px;
 }
 
 .quarter-width {
@@ -957,48 +792,6 @@ li.grp-item:hover {
 
 .hid {
   display: none;
-}
-
-@media (min-width:601px) {
-  aside.vis {
-    display: flex;
-    box-shadow: none;
-    position: static;
-  }
-  aside.hid { display: flex; }
-  main.with_article { width: calc(100vw - 340px - 340px); }
-  main.without_article { width: calc(100vw - 340px); }
-  article.vis {
-    box-shadow: none;
-    position: static;
-  }
-  article.hid { display: none; }
-  .desktop-only { display: block; }
-  .desktop-only.hid { display: none; }
-  .phone-only { display: none; }
-}
-
-@media (max-width:600px) {
-  aside {
-    box-shadow: 10px 0px 20px rgba(0, 0, 0, 0.15), 5px 0px 10px rgba(0, 0, 0, 0.05);
-    position: absolute;
-    top: 48px;
-    left: 0px;
-  }
-  aside.vis { display: flex; }
-  aside.hid { display: none; }
-  main { width: 100vw; }
-  article.vis {
-    display: flex;
-    position: absolute;
-    top: 48px;
-    right: 0px;
-    box-shadow: -10px 0px 20px rgba(0, 0, 0, 0.15), -5px 0px 10px rgba(0, 0, 0, 0.05);
-  }
-  article.hid { display: none; }
-  .desktop-only { display: none; }
-  .phone-only { display: block; }
-  .phone-only.hid { display: none; }
 }
 
 /* old styles */

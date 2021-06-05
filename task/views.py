@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from rusel.context import get_base_context
-from task.models import TaskGrp, ATask
+from task.models import Group, Task
 from task.serializers import TaskGrpSerializer, TaskGrpSimpleSerializer, ATaskSerializer
 from task.const import *
 
@@ -16,7 +16,7 @@ class TaskGrpViewSet(viewsets.ModelViewSet):
     pagination_class = None
 
     def get_queryset(self):
-        return TaskGrp.objects.filter(user=self.request.user).order_by('-created')
+        return Group.objects.filter(user=self.request.user).order_by('-created')
     
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -30,8 +30,8 @@ class TaskGrpSimpleViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if 'app' in self.request.query_params:
             app = self.request.query_params['app']
-            return TaskGrp.objects.filter(user=self.request.user, app=app).order_by('-created')
-        return TaskGrp.objects.filter(user=self.request.user).order_by('-created')
+            return Group.objects.filter(user=self.request.user, app=app).order_by('-created')
+        return Group.objects.filter(user=self.request.user).order_by('-created')
     
 class ATaskViewSet(viewsets.ModelViewSet):
     app = 'home'
@@ -53,7 +53,7 @@ class ATaskViewSet(viewsets.ModelViewSet):
         return self.app_name() + ' List'
     
     def get_queryset(self):
-        return ATask.objects.filter(user=self.request.user).order_by('-created')
+        return Task.objects.filter(user=self.request.user).order_by('-created')
     
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -142,7 +142,7 @@ class NoteViewSet(ATaskViewSet):
     app = 'note'
 
     def get_queryset(self):
-        return ATask.objects.filter(user=self.request.user, app_note=NOTE).order_by('-created')
+        return Task.objects.filter(user=self.request.user, app_note=NOTE).order_by('-created')
 
 #------------------------------------------------------------------------------
 
@@ -150,6 +150,6 @@ class NewsViewSet(ATaskViewSet):
     app = 'news'
 
     def get_queryset(self):
-        return ATask.objects.filter(user=self.request.user, app_note=NOTE).order_by('-created')
+        return Task.objects.filter(user=self.request.user, app_note=NOTE).order_by('-created')
 
 
