@@ -5,26 +5,28 @@
 {% block items_content %}
   {% for group in item_groups %}
     {% if group.name %}
-      <div class="group">
-        <div class="tumbler">
-          <a href="toggle/{{ group.id|escape }}/?q={{ request.GET.q }}&page={{ page_obj.number }}">
-            {% if group.is_open %}
-              <img class="img-20_20" src="{% static 'rok/icon/direct-down.png' %}">
-            {% else %}
-              <img class="img-20_20" src="{% static 'rok/icon/direct-right.png' %}">
-            {% endif %}
-          </a>
+      <div class="group" data-grp_id="{{ group.id }}" id="grp_{{ group.id }}">
+        <div class="tumbler" onclick="toggle_items_group('{{ view_id }}', {{ group.id }})">
+          <img class="img-20_20" src="{% static 'rok/icon/direct-right.png' %}">
         </div>
         <div class="name">{{ group.name }}</div>
       </div>
     {% endif %}
-    {% if group.is_open %}
-      <ul>
-        {% for item in group.items %}
-          {% include "task/item.html" %}
-        {% endfor %}
-      </ul>
-    {% endif %}
+    <ul class="{% if group.name %}hide{% endif %}" data-itm_id="{{ group.id }}" id="itm_{{ group.id }}">
+      {% for item in group.items %}
+        {% include "task/item.html" %}
+      {% endfor %}
+    </ul>
   {% endfor %}
 {% endblock %}
 
+{% block scripts %}
+  {{ block.super }}
+  <script src="{% static 'rok/js/build-items-tree.js' %}"></script>
+  <script>
+    build_items_tree('content_tree', '{{ view_id }}');
+  </script>
+{% endblock %}
+
+    
+    

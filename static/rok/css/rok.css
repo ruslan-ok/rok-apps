@@ -54,6 +54,10 @@ ol, ul, dl {
   margin: .2em 0 .8em 0;
 }
 
+ul.hide {
+  display: none;
+}
+
 p {
   margin-block-start: 1em;
   line-height: 140%;
@@ -439,6 +443,7 @@ main .tree .group {
 
 main .tree .group .tumbler {
   margin: 0px 15px;
+  cursor: pointer;
 }
 
 main .tree .group .name {

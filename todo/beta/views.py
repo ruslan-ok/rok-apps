@@ -43,7 +43,10 @@ class TaskListView(TaskAside, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update(get_base_context(self.request, self.app, False, self.title.capitalize()))
+        title = self.title
+        if (self.view_id in ['myday', 'important', 'planned', '', 'completed']):
+            title = title.capitalize()
+        context.update(get_base_context(self.request, self.app, False, title))
         context['fix_list'] = self.get_aside_context(self.request.user)
         context['sort_options'] = self.get_sorts()
         context['view_id'] = self.view_id
@@ -143,6 +146,8 @@ class ByGroupListView(TaskListView):
     cur_grp = None
     mode = LIST_MODE
     view_id = 'bygroup'
+    view_as_tree = True
+    template_name = 'todo/beta/atask_tree.html'
 
     def get_queryset(self):
         return [tg.task for tg in TaskGroup.objects.filter(group=self.cur_grp)]

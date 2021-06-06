@@ -291,7 +291,10 @@ class Group(models.Model):
     node = models.ForeignKey('self', on_delete=models.CASCADE, verbose_name=_('node'), blank=True, null=True)
     name = models.CharField(_('group name'), max_length=200, blank=False)
     sort = models.CharField(_('sort code'), max_length=50, blank=True)
+    
+    # deprecated for beta-version
     is_open = models.BooleanField(_('node is open'), default=False)
+
     is_leaf = models.BooleanField(_('node is leaf'), default=True)
     level = models.IntegerField(_('hierarchy level'), default=0, null=True)
     qty = models.IntegerField(_('number of elements in a group'), default=0, null=True)
