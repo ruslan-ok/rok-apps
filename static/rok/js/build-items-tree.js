@@ -11,7 +11,7 @@ function build_items_tree(tree_id, context) {
     if (id) {
       grp_list.push({});
       grp_list[grp_num].id = id;
-      grp_list[grp_num].is_open = get_open(context, id);
+      grp_list[grp_num].is_open = get_grp_open(context, id);
       grp_map[id] = grp_num;
       grp_num += 1;
     }
@@ -51,14 +51,14 @@ function init_itm(itm) {
 function toggle_items_group(context, group_id) {
   var grp = grp_list[grp_map[group_id]];
   grp.is_open = !grp.is_open;
-  set_open(context, group_id, grp.is_open);
+  set_grp_open(context, group_id, grp.is_open);
   init_grp(grp);
   var itm = itm_list[itm_map[group_id]];
   itm.visible = grp.is_open;
   init_itm(itm);
 }
 
-function get_open(context, group_id) {
+function get_grp_open(context, group_id) {
   var name = context + '_grp_' + group_id;
   var value = localStorage.getItem(name);
   if (value == 'true')
@@ -66,7 +66,7 @@ function get_open(context, group_id) {
   return false;
 }
 
-function set_open(context, group_id, value) {
+function set_grp_open(context, group_id, value) {
   var name = context + '_grp_' + group_id;
   localStorage.setItem(name, value);
 }

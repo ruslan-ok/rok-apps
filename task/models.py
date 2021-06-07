@@ -55,6 +55,11 @@ class Task(models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        id = self.id
+        url = reverse('todo_beta:task-detail', args = [id])
+        return url
+    
     def marked_item(self):
         return self.completed
 
@@ -312,6 +317,9 @@ class Group(models.Model):
     def qty(self):
         return len(TaskGroup.objects.filter(group=self.id))
 
+    def s_id(self):
+        return str(self.id)
+
 class TaskGroup(models.Model):
     group = models.ForeignKey(Group, on_delete=models.CASCADE, verbose_name=_('group'), blank=True, null=True)
     task = models.ForeignKey(Task, on_delete = models.CASCADE, verbose_name = _('task'))
@@ -320,6 +328,6 @@ class TaskGroup(models.Model):
 class Urls(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, verbose_name=_('task'), related_name = 'task_urlsr')
     num = models.IntegerField(_('sort number'), default=0, null=True)
-    href = models.CharField(_('URL'), max_length=2000, blank=True)
+    href = models.URLField(_('URL'), max_length=2000, null=True, blank=True)
 
     

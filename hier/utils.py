@@ -384,13 +384,22 @@ def get_rate_on_date(currency, date):
         return None
     return data['Cur_OfficialRate']
 
-def extract_get_params(request):
+def extract_get_params(request, set_view=None):
     q = request.GET.get('q')
     if not q:
         q = ''
     p = request.GET.get('page')
     if not p:
         p = ''
+    if set_view:
+        v = set_view
+    else:
+        v = request.GET.get('view')
+    if not v or (v == 'all'):
+        v = ''
+    l = request.GET.get('lst')
+    if not l:
+        l = ''
     ret = ''
     if q:
         ret += 'q={}'.format(q)
@@ -398,6 +407,14 @@ def extract_get_params(request):
         if q:
             ret += '&'
         ret += 'page={}'.format(p)
+    if v:
+        if q or p:
+            ret += '&'
+        ret += 'view={}'.format(v)
+    if l:
+        if q or p or v:
+            ret += '&'
+        ret += 'lst={}'.format(l)
     if ret:
         ret = '?' + ret
     return ret

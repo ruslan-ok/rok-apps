@@ -8,6 +8,11 @@ from hier.forms import DateInput
 from task.models import Group, Task
 from todo.models import app_name, Step
 
+class CreateTaskForm(forms.ModelForm):
+    class Meta:
+        model = Task
+        fields = ['name']
+        
 class TaskForm(forms.ModelForm):
     add_step = forms.CharField(widget = forms.TextInput(attrs = {'placeholder': _('next step').capitalize()}), required = False)
     remind = forms.SplitDateTimeField(widget = AdminSplitDateTime(), label = _('remind').capitalize(), required = False)
@@ -21,10 +26,4 @@ class TaskForm(forms.ModelForm):
             'stop': DateInput(),
             'info': forms.Textarea(attrs={'rows':3, 'cols':10, 'placeholder': _('add note').capitalize(), 'data-autoresize':''}),
         }
-    """
-    def __init__(self, user, *args, **kwargs):
-        self.user = user
-        super().__init__(*args, **kwargs)
-        #self.fields['grp'].queryset = Group.objects.filter(user=user, app=app_name).order_by('name')
-    """
 

@@ -2,8 +2,7 @@
 
 {% block item_content %}
   <li>
-    <a href="{{ item.id|escape }}/{% if request.GET.q or page_obj.number or view_id %}?{% if request.GET.q %}q={{ request.GET.q|escape }}{% endif %}{% if page_obj.number %}{% if request.GET.q %}&{% endif %}page={{ page_obj.number|escape }}{% endif %}{% if view_id %}{% if request.GET.q or page_obj.number %}&{% endif %}view={{ view_id }}{% endif %}{% endif %}
-    " class="tree-item{% if item.id == ed_item.id %} current{% endif %}">
+    <a href="{% url 'todo_beta:task-detail' item.id %}{{ params }}" class="tree-item{% if item.id == ed_item.id %} current{% endif %}">
       
       {% if not hide_selector %}
         <div class="icon">

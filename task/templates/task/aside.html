@@ -4,7 +4,7 @@
 
   <ul class="nav-menu">
     {% for fix in fix_list %}
-      <li{% if restriction == fix.name %} class="selected"{% endif %}>
+      <li{% if request.GET.view == fix.name or not request.GET.view and fix.name == 'all' %} class="selected"{% endif %}>
         <a class="fix" href="{{ fix.url }}">
           <div class="nav-menu-item-left">
             <img src="{% static fix.icon %}">
@@ -21,9 +21,9 @@
   
     <ul class="nav-menu" id="groups-tree">
       {% for node in groups %}
-        <li class="grp-item hide {% if node.is_list and restriction == 'list' and node.id == list_id %} selected{% endif %}" data-id="{{ node.id }}" data-parent="{{ node.node.id }}" id="task_group_{{ node.id }}">
+        <li class="grp-item hide{% if request.GET.lst == node.s_id %} selected{% endif %}" data-id="{{ node.id }}" data-parent="{{ node.node.id }}" id="task_group_{{ node.id }}">
           {% if node.is_leaf %}
-            <a href="/beta/todo/bygroup/{{ node.id }}/">
+            <a href="/beta/todo/?view=list&lst={{ node.id }}">
               <div class="nav-menu-item-left">
                 <img class="level-{{ node.level }}" src="{% static 'rok/icon/list.png' %}">
                 <div>{{ node.name }}</div>
@@ -33,12 +33,12 @@
               {{ node.qty }}
             </div>
           {% else %}
-            <a href="/beta/todo/bygroup/{{ node.id }}/">
+            <div class="button" onclick="toggle_group({{ node.id }})">
               <div class="nav-menu-item-x1">
                 <img class="level-{{ node.level }}" src="{% static 'rok/icon/group.png' %}">
                 <div class="nav-menu-item-x2">{{ node.name }}</div>
               </div>
-            </a>
+            </div>
             <div class="nav-menu-item-right" onclick="toggle_group({{ node.id }})">
               <img class="img-20_20" src="{% static 'rok/icon/direct-left.png' %}">
             </div>
