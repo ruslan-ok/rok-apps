@@ -1,6 +1,6 @@
 import calendar
 
-from datetime import date, datetime, timedelta
+from datetime import date, time, datetime, timedelta
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
@@ -20,7 +20,7 @@ class Task(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'), related_name = 'task_user')
     name = models.CharField(_('name'), max_length=200, blank=False)
     start = models.DateField(_('start date'), blank=True, null=True)
-    stop = models.DateField(_('termin'), blank=True, null=True)
+    stop = models.DateTimeField(_('termin'), blank=True, null=True)
     completed = models.BooleanField(_('completed'), default=False)
     completion = models.DateTimeField(_('completion time'), blank=True, null=True, default=None)
     in_my_day = models.BooleanField(_('in my day'), default=False)
@@ -63,6 +63,26 @@ class Task(models.Model):
     def marked_item(self):
         return self.completed
 
+    def toggle_completed(self):
+        next = None
+        if (not self.completed) and self.repeat:
+            if not self.start:
+                self.start = self.stop # For a repeating task, remember the deadline that is specified in the first iteration in order to use it to adjust the next steps
+            next = self.next_iteration()
+        self.completed = not self.completed
+        if self.completed:
+            if not self.stop:
+              self.stop = date.today()
+            self.completion = datetime.now()
+        else:
+            self.completion = None
+        self.save()
+        if self.completed and next: # Completed a stage of a recurring task and set a deadline for the next iteration
+            if not Task.objects.filter(user = self.user, name = self.name, completed = False).exists():
+                Task.objects.create(user = self.user, name = self.name, start = self.start, stop = next, important = self.important, \
+                                     remind = self.next_remind_time(), repeat = self.repeat, repeat_num = self.repeat_num, \
+                                     repeat_days = self.repeat_days, categories = self.categories, info = self.info)
+
     def next_iteration(self):
         next = None
 
@@ -101,9 +121,8 @@ class Task(models.Model):
         if self.completed:
             return False
 
-        d = self.stop
-        if d:
-            return (d < date.today())
+        if self.stop:
+            return (self.stop.date() < date.today())
         return False
 
     def remind_active(self):
@@ -111,7 +130,7 @@ class Task(models.Model):
     
     def remind_time(self):
         if self.remind:
-            return _('remind in').capitalize() + ' ' + self.remind.strftime('%H:%M')
+            return _('remind at').capitalize() + ' ' + self.remind.strftime('%H:%M')
         return _('to remind').capitalize()
     
     def remind_date(self):
@@ -119,18 +138,23 @@ class Task(models.Model):
             return nice_date(self.remind.date())
         return ''
     
-    def s_termin(self):
+    def termin_date(self):
         d = self.stop
-
         if not d:
             return _('set due date').capitalize()
-
         if self.b_expired():
             s = str(_('expired')).capitalize() + ', '
         else:
             s = str(_('termin')).capitalize() + ': '
-        return s + str(nice_date(d))
+        return s + str(nice_date(d.date()))
             
+    def termin_time(self):
+        if not self.stop:
+            return ''
+        if (self.stop.time() == time.min):
+            return ''
+        return self.stop.strftime('%H:%M')
+    
     def s_repeat(self):
         if (not self.repeat) or (self.repeat == NONE):
             return ''
@@ -204,7 +228,7 @@ class Task(models.Model):
         if d:
             if (len(ret) > 0):
                 ret.append({'icon': 'separator'})
-            s = self.s_termin()
+            s = self.termin_date()
             repeat = 'repeat'
             if self.b_expired():
                 if self.completed:

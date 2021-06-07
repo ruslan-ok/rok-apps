@@ -148,24 +148,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     @action(detail=True)
     def completed(self, request, pk=None):
         task = self.get_object()
-        next = None
-        if (not task.completed) and task.repeat:
-            if not task.start:
-                task.start = task.stop # For a repeating task, remember the deadline that is specified in the first iteration in order to use it to adjust the next steps
-            next = task.next_iteration()
-        task.completed = not task.completed
-        if task.completed:
-            if not task.stop:
-              task.stop = date.today()
-            task.completion = datetime.now()
-        else:
-            task.completion = None
-        task.save()
-        if task.completed and next: # Completed a stage of a recurring task and set a deadline for the next iteration
-            if not Task.objects.filter(user = task.user, name = task.name, completed = False).exists():
-                Task.objects.create(user = task.user, name = task.name, start = task.start, stop = next, important = task.important, \
-                                     remind = task.next_remind_time(), repeat = task.repeat, repeat_num = task.repeat_num, \
-                                     repeat_days = task.repeat_days, categories = task.categories, info = task.info)
+        task.toggle_completed()
         serializer = TaskSerializer(instance=task, context={'request': request})
         return Response(serializer.data)
 
@@ -256,8 +239,7 @@ class TaskViewSet(viewsets.ModelViewSet):
             remind_today += timedelta(minutes = correct_min)
         task.remind = remind_today
         task.save()
-        serializer = TaskSerializer(instance=task, context={'request': request})
-        return Response(serializer.data)
+        return Response({'date': task.remind_date(), 'time': task.remind_time()})
 
     # OK
     @action(detail=True)
@@ -265,8 +247,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         task = self.get_object()
         task.remind = datetime.now().replace(hour = 9, minute = 0, second = 0) + timedelta(1)
         task.save()
-        serializer = TaskSerializer(instance=task, context={'request': request})
-        return Response(serializer.data)
+        return Response({'date': task.remind_date(), 'time': task.remind_time()})
 
     # OK
     @action(detail=True)
@@ -274,8 +255,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         task = self.get_object()
         task.remind = datetime.now().replace(hour = 9, minute = 0, second = 0) + timedelta(8 - datetime.today().isoweekday())
         task.save()
-        serializer = TaskSerializer(instance=task, context={'request': request})
-        return Response(serializer.data)
+        return Response({'date': task.remind_date(), 'time': task.remind_time()})
 
     # OK
     @action(detail=True)
@@ -283,34 +263,39 @@ class TaskViewSet(viewsets.ModelViewSet):
         task = self.get_object()
         task.remind = None
         task.save()
-        return Response({'termin_title': task.s_termin(), 'remind_title': task.s_remind()})
+        return Response({'date': task.remind_date(), 'time': task.remind_time()})
+
+    # OK
+    @action(detail=True, url_path='remind_set/(?P<dt>\S+)/(?P<tm>\S+)')
+    def remind_set(self, request, pk=None, *args, **kwargs):
+        task = self.get_object()
+        task.remind = datetime.strptime(kwargs['dt'] + "T" + kwargs['tm'], "%d.%m.%YT%H:%M:%S")
+        task.save()
+        return Response({'date': task.remind_date(), 'time': task.remind_time()})
 
     # OK
     @action(detail=True)
     def termin_today(self, request, pk=None):
         task = self.get_object()
-        task.stop = datetime.today().date()
+        task.stop = datetime.today()
         task.save()
-        serializer = TaskSerializer(instance=task, context={'request': request})
-        return Response(serializer.data)
+        return Response({'date': task.termin_date(), 'time': task.termin_time()})
 
     # OK
     @action(detail=True)
     def termin_tomorrow(self, request, pk=None):
         task = self.get_object()
-        task.stop = (datetime.today() + timedelta(1)).date()
+        task.stop = datetime.today() + timedelta(1)
         task.save()
-        serializer = TaskSerializer(instance=task, context={'request': request})
-        return Response(serializer.data)
+        return Response({'date': task.termin_date(), 'time': task.termin_time()})
 
     # OK
     @action(detail=True)
     def termin_next_week(self, request, pk=None):
         task = self.get_object()
-        task.stop = (datetime.today() + timedelta(8 - datetime.today().isoweekday())).date()
+        task.stop = datetime.today() + timedelta(8 - datetime.today().isoweekday())
         task.save()
-        serializer = TaskSerializer(instance=task, context={'request': request})
-        return Response(serializer.data)
+        return Response({'date': task.termin_date(), 'time': task.termin_time()})
 
     # OK
     @action(detail=True)
@@ -320,8 +305,15 @@ class TaskViewSet(viewsets.ModelViewSet):
         if task.repeat != 0:
             task.repeat = 0
         task.save()
-        serializer = TaskSerializer(instance=task, context={'request': request})
-        return Response(serializer.data)
+        return Response({'date': task.termin_date(), 'time': task.termin_time()})
+
+    # OK
+    @action(detail=True, url_path='termin_set/(?P<dt>\S+)/(?P<tm>\S+)')
+    def termin_set(self, request, pk=None, *args, **kwargs):
+        task = self.get_object()
+        task.stop = datetime.strptime(kwargs['dt'] + "T" + kwargs['tm'], "%d.%m.%YT%H:%M:%S")
+        task.save()
+        return Response({'date': task.termin_date(), 'time': task.termin_time()})
 
     # OK
     @action(detail=True)

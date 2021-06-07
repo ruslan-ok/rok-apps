@@ -451,6 +451,9 @@ main .tree .group .name {
 }
 
 main .tree ul li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   min-height: 52px;
   border-width: 1px;
   border-color: #ccc;
@@ -592,6 +595,10 @@ img.img-20_20 {
 
 .field-icon {
   padding: 0 4px;
+}
+
+.field-icon.hide {
+  display: none;
 }
 
 .editable-content {

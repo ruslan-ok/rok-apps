@@ -15,7 +15,6 @@ from hier.models import get_app_params, toggle_content_group
 from hier.aside import Fix, Sort
 from hier.content import find_group
 from hier.files import storage_path, get_files_list
-from todo.utils import nice_date
 from .models import app_name, ELECTRICITY, GAS, WATER, APART, SERV, METER, PRICE, BILL
 from .models import Apart, Service, Meter, Bill, Price, set_active, get_price_info, count_by_tarif
 from .forms import ApartForm, ServiceForm, MeterForm, BillForm, PriceForm, FileForm

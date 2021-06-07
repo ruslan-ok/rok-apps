@@ -2,22 +2,18 @@
 
 {% block item_content %}
   <li>
+
+    {% if not hide_selector %}
+      <a href="{% url 'todo_beta:toggle-completed' item.id %}{{ params }}" class="tree-item-left icon">
+        {% if item.marked_item %}
+          <img class="img-20_20" src="{% static complete_icon %}">
+        {% else %}
+          <img class="img-20_20" src="{% static uncomplete_icon %}">
+        {% endif %}
+      </a>      
+    {% endif %}
+
     <a href="{% url 'todo_beta:task-detail' item.id %}{{ params }}" class="tree-item{% if item.id == ed_item.id %} current{% endif %}">
-      
-      {% if not hide_selector %}
-        <div class="icon">
-          <form method="post">{% csrf_token %}
-            <button type="submit" name="item-in-list-select" value="{{ item.id|escape }}">
-              {% if item.marked_item %}
-                <img class="img-20_20" src="{% static complete_icon %}">
-              {% else %}
-                <img class="img-20_20" src="{% static uncomplete_icon %}">
-              {% endif %}
-            </button>
-          </form>
-        </div>
-      {% endif %}
-      
       <div class="info">
         <div class="name{% if item.marked_item %} completed{% endif %}">{{ item.name }}</div>
         <div class="descr">
@@ -57,22 +53,19 @@
           {% endfor %}
         </div>
       </div>
-      
-      {% if not hide_important %}
-        <div class="icon">
-          <form method="post">{% csrf_token %}
-            <button type="submit" name="item-in-list-important" value="{{ item.id }}">
-              {% if item.important %}
-                <img class="img-20_20" src="{% static 'todo/icon/important-on.png' %}">
-              {% else %}
-                <img class="img-20_20" src="{% static 'todo/icon/important-off.png' %}">
-              {% endif %}
-            </button>
-          </form>
-        </div>
-      {% endif %}
-    
-    </a>
+    </a>      
+
+    {% if not hide_important %}
+      <a href="{% url 'todo_beta:toggle-important' item.id %}{{ params }}" class="tree-item-right icon">
+        {% if item.important %}
+          <img class="img-20_20" src="{% static 'todo/icon/important-on.png' %}">
+        {% else %}
+          <img class="img-20_20" src="{% static 'todo/icon/important-off.png' %}">
+        {% endif %}
+      </a>
+    {% endif %}
+
   </li>
+
 {% endblock %}
 

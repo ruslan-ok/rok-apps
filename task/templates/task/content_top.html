@@ -1,6 +1,10 @@
 {% extends "task/page.html" %}
 {% load static i18n %}
 
+{% block extrastyle %}
+  <link rel="stylesheet" type="text/css" href="{% static 'todo/css/todo.css' %}">
+{% endblock %}
+
 {% block content %}
   <div class="top">
     <div class="main-top-headline_new">

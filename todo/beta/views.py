@@ -1,6 +1,8 @@
 import locale
 from datetime import datetime, timedelta
 
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.edit import UpdateView, CreateView
 from django.core.paginator import Paginator
@@ -17,6 +19,17 @@ from todo.utils import get_grp_planned, GRPS_PLANNED, get_week_day_name
 from todo.beta.forms import CreateTaskForm, TaskForm
 
 list_url = '/beta/todo/'
+
+def toggle_completed(request, pk):
+    task = get_object_or_404(Task, id=pk, user=request.user.id)
+    task.toggle_completed()
+    return HttpResponseRedirect(reverse('todo_beta:task-list') + extract_get_params(request))
+
+def toggle_important(request, pk):
+    task = get_object_or_404(Task, id=pk, user=request.user.id)
+    task.important = not task.important
+    task.save()
+    return HttpResponseRedirect(reverse('todo_beta:task-list') + extract_get_params(request))
 
 class TaskAside():
 
