@@ -1,7 +1,7 @@
-AfterCalendarChanged(1, 1);
+afterCalendarChanged(1, 1);
 
-function AfterCalendarChanged(init, field)
+function afterCalendarChanged(init, field)
 {
-  GetRateOnDate(145, init, "id_payment_0", "id_rate");
+  getRateOnDate(145, init, "id_payment_0", "id_rate");
 }
 

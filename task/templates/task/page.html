@@ -3,10 +3,11 @@
 {% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
 <html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
   <head>
+    <meta charset="UTF-8">
     <title>
       {% if app_name %}{{ app_name }}{% if title %} - {% endif %}{% endif %}{% if title %}{{ title }}{% endif %}
     </title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!--link rel="stylesheet" type="text/css" href="/static/admin/css/base. css"-->
     <link rel="stylesheet" type="text/css" href="/static/admin/css/forms.css">
     <link rel="stylesheet" type="text/css" href="{% static 'rok/css/w3.css' %}">
@@ -63,7 +64,7 @@
       <script src="{% static 'rok/js/launcher.js' %}"></script>
       <script src="{% static 'rok/js/build-tree.js' %}"></script>
       <script>
-        build_tree('groups-tree', '{{ app }}', {{ list_id }});
+        buildTree('groups-tree', '{{ app }}', {{ list_id }});
       </script>
     {% endblock %}
 

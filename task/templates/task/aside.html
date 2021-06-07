@@ -33,13 +33,13 @@
               {{ node.qty }}
             </div>
           {% else %}
-            <div class="button" onclick="toggle_group({{ node.id }})">
+            <div class="button" onclick="toggleGroup({{ node.id }})">
               <div class="nav-menu-item-x1">
                 <img class="level-{{ node.level }}" src="{% static 'rok/icon/group.png' %}">
                 <div class="nav-menu-item-x2">{{ node.name }}</div>
               </div>
             </div>
-            <div class="nav-menu-item-right" onclick="toggle_group({{ node.id }})">
+            <div class="nav-menu-item-right" onclick="toggleGroup({{ node.id }})">
               <img class="img-20_20" src="{% static 'rok/icon/direct-left.png' %}">
             </div>
           {% endif %}

@@ -5,7 +5,7 @@
   {% for group in item_groups %}
     {% if group.name %}
       <div class="group" data-grp_id="{{ group.id }}" id="grp_{{ group.id }}">
-        <div class="tumbler" onclick="toggle_items_group('{{ view_id }}', {{ group.id }})">
+        <div class="tumbler" onclick="toggleItemsGroup('{{ view_id }}', {{ group.id }})">
           <img class="img-20_20" src="{% static 'rok/icon/direct-right.png' %}">
         </div>
         <div class="name">{{ group.name }}</div>
@@ -23,7 +23,7 @@
   {{ block.super }}
   <script src="{% static 'rok/js/build-items-tree.js' %}"></script>
   <script>
-    build_items_tree('content_tree', '{{ view_id }}');
+    buildItemsTree('content_tree', '{{ view_id }}');
   </script>
 {% endblock %}
 

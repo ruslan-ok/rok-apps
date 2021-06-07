@@ -1,12 +1,10 @@
-function GetRateOnDate(currency, init, id_date, id_rate)
-{
+function getRateOnDate(currency, init, id_date, id_rate) {
   var el_rate = document.getElementById(id_rate);
 
   if (!el_rate)
     return;
 
-  if (init == 1)
-  {
+  if (init == 1) {
     var old_rate = el_rate.value;
     if ((old_rate != "") && (old_rate != "0.0000"))
       return;

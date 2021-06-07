@@ -16,6 +16,6 @@ class ExpenseForm(forms.ModelForm):
         model = Expenses
         fields = ['date', 'description', 'qty', 'price', 'rate', 'usd', 'rate_2', 'eur', 'kontr', 'text']
         widgets = {
-            'date': DateInput(attrs = {'onchange': 'AfterCalendarChanged(0,1)'}),
+            'date': DateInput(attrs = {'onchange': 'afterCalendarChanged(0,1)'}),
             'text': forms.Textarea(attrs={'rows': 10, 'cols': 30, 'placeholder': _('add description').capitalize(), 'data-autoresize': ''}),
         }

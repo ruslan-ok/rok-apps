@@ -106,7 +106,7 @@
       <!-- file-add -->
       <div class="file-add">
         <div class="section-item">
-          <button type="button" name="file_upload" class="section-inner-click" onclick="UploadFile()">
+          <button type="button" name="file_upload" class="section-inner-click" onclick="uploadFile()">
             <div class="section-inner">
               <div class="section-icon">
                 <img src="{% static 'todo/icon/file.png' %}">
@@ -114,7 +114,7 @@
               <div class="section-content">
                 <div class="section-title">
                   <div id="loadFile" type="button">{% trans 'add file'|capfirst %}</div>
-                  <input type="file" style="display:none;" id="id_upload" name="upload" onchange="FileSelected()">
+                  <input type="file" style="display:none;" id="id_upload" name="upload" onchange="fileSelected()">
                 </div>
               </div>
             </div>
@@ -130,9 +130,9 @@
 
 {% block scripts %}
   {{ block.super }}
-  <script src="{% static 'rok/js/AddAutoResize.js' %}"></script>
-  <script src="{% static 'rok/js/UploadFile.js' %}"></script>
-  <script src="{% static 'rok/js/CategoryDelete.js' %}"></script>
+  <script src="{% static 'rok/js/resize.js' %}"></script>
+  <script src="{% static 'rok/js/uploads.js' %}"></script>
+  <script src="{% static 'rok/js/categories.js' %}"></script>
   <script src="{% static 'note/js/OpenPublEdit.js' %}"></script>
 {% endblock %}
 

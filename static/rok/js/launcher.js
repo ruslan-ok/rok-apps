@@ -1,10 +1,8 @@
-function launcher_open()
-{
+function launcherOpen() {
   document.getElementById("launcher").style.display = "flex";
 }
 
-function launcher_close()
-{
+function launcherClose() {
   document.getElementById("launcher").style.display = "none";
 }
 

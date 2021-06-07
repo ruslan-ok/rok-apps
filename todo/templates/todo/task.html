@@ -107,7 +107,7 @@
       <!-- Task.remind VIEW -->
       <div class="section-item" id="remind-view">
         <div class="section-inner">
-          <div class="section-inner button" onclick="ToggleSelectField('remind')">
+          <div class="section-inner button" onclick="toggleSelectField('remind')">
             <div class="section-icon">
               <img src="{% static 'todo/icon/remind.png' %}">
             </div>
@@ -163,7 +163,7 @@
       <!-- Task.stop VIEW -->
       <div class="section-item" id="termin-view">
         <div class="section-inner">
-          <div class="section-inner button" onclick="ToggleSelectField('termin')">
+          <div class="section-inner button" onclick="toggleSelectField('termin')">
             <div class="section-icon">
               <img src="{% static 'todo/icon/planned.png' %}">
             </div>
@@ -223,7 +223,7 @@
       <!-- Task.repeat VIEW -->
       <div class="section-item" id="repeat-view">
         <div class="section-inner">
-          <div class="section-inner button" onclick="ToggleSelectField('repeat')">
+          <div class="section-inner button" onclick="toggleSelectField('repeat')">
             <div class="section-icon">
               <img src="{% static 'todo/icon/repeat.png' %}">
             </div>
@@ -290,13 +290,13 @@
           </div>
           <div class="repeat-options-week">
             <input type="hidden" id="id_repeat_days" name="repeat_days" value="{{ form.repeat_days.value }}" required="">
-            <div id="d1" class="button day" onclick="DayClick(1)">{{ repeat_form_d1 }}</div>
-            <div id="d2" class="button day" onclick="DayClick(2)">{{ repeat_form_d2 }}</div>
-            <div id="d3" class="button day" onclick="DayClick(3)">{{ repeat_form_d3 }}</div>
-            <div id="d4" class="button day" onclick="DayClick(4)">{{ repeat_form_d4 }}</div>
-            <div id="d5" class="button day" onclick="DayClick(5)">{{ repeat_form_d5 }}</div>
-            <div id="d6" class="button day" onclick="DayClick(6)">{{ repeat_form_d6 }}</div>
-            <div id="d7" class="button day" onclick="DayClick(7)">{{ repeat_form_d7 }}</div>
+            <div id="d1" class="button day" onclick="dayClick(1)">{{ repeat_form_d1 }}</div>
+            <div id="d2" class="button day" onclick="dayClick(2)">{{ repeat_form_d2 }}</div>
+            <div id="d3" class="button day" onclick="dayClick(3)">{{ repeat_form_d3 }}</div>
+            <div id="d4" class="button day" onclick="dayClick(4)">{{ repeat_form_d4 }}</div>
+            <div id="d5" class="button day" onclick="dayClick(5)">{{ repeat_form_d5 }}</div>
+            <div id="d6" class="button day" onclick="dayClick(6)">{{ repeat_form_d6 }}</div>
+            <div id="d7" class="button day" onclick="dayClick(7)">{{ repeat_form_d7 }}</div>
           </div>
         </div>
         <div class="dropdown-content-separator"></div>
@@ -373,7 +373,7 @@
       <!-- ADD TaskFiles -->
       <div class="file-add">
         <div class="section-item">
-          <button type="button" name="task-file_upload" class="section-inner-click" onclick="UploadFile()">
+          <button type="button" name="task-file_upload" class="section-inner-click" onclick="uploadFile()">
             <div class="section-inner">
               <div class="section-icon">
                 <img src="{% static 'todo/icon/file.png' %}">
@@ -381,7 +381,7 @@
               <div class="section-content">
                 <div class="section-title">
                   <div id="loadFile" type="button">{% trans 'add file'|capfirst %}</div>
-                  <input type="file" style="display:none;" id="id_upload" name="upload" onchange="FileSelected()">
+                  <input type="file" style="display:none;" id="id_upload" name="upload" onchange="fileSelected()">
                 </div>
               </div>
             </div>
@@ -396,9 +396,9 @@
 
 {% block scripts %}
   {{ block.super }}
-  <script src="{% static 'rok/js/AddAutoResize.js' %}"></script>
-  <script src="{% static 'rok/js/UploadFile.js' %}"></script>
-  <script src="{% static 'rok/js/CategoryDelete.js' %}"></script>
+  <script src="{% static 'rok/js/resize.js' %}"></script>
+  <script src="{% static 'rok/js/uploads.js' %}"></script>
+  <script src="{% static 'rok/js/categories.js' %}"></script>
   <script src="{% static 'todo/js/task.js' %}"></script>
 {% endblock %}
 

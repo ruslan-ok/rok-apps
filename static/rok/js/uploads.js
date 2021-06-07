@@ -1,10 +1,8 @@
-function UploadFile()
-{
+function uploadFile() {
   document.getElementById('id_upload').click();
 }
 
-function FileSelected()
-{
+function fileSelected() {
   filename = document.getElementById('id_upload').files[0].name;
   fn_element = document.getElementById('loadFile');
   if (fn_element)

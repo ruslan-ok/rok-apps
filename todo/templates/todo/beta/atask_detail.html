@@ -40,7 +40,7 @@
           {{ form.name }}
         </div>
       </div>
-      <button type="submit" name="task_important" class="field-icon">
+      <button type="button" name="task_important" class="field-icon" onclick="toggleImportant()">
         {% if form.important %}
           <img src="{% static 'todo/icon/important-on.png' %}">
         {% else %}
@@ -56,7 +56,7 @@
     <!-- Task.my_day -->
     <div class="section">
       <div class="section-item">
-        <button type="button" name="task_myday" class="section-inner-click" onclick="ToggleMyDay()">
+        <button type="button" name="task_myday" class="section-inner-click" onclick="toggleMyDay()">
           <div class="section-inner">
             <div class="section-icon">
               <img src="{% static 'todo/icon/myday.png' %}">
@@ -77,7 +77,7 @@
       <!-- Task.remind VIEW -->
       <div class="section-item" id="remind-view">
         <div class="section-inner">
-          <div class="section-inner button" onclick="ToggleSelectField('remind')">
+          <div class="section-inner button" onclick="toggleSelectField('remind')">
             <div class="section-icon">
               <img src="{% static 'todo/icon/remind.png' %}">
             </div>
@@ -129,7 +129,7 @@
       <!-- Task.stop VIEW -->
       <div class="section-item" id="termin-view">
         <div class="section-inner">
-          <div class="section-inner button" onclick="ToggleSelectField('termin')">
+          <div class="section-inner button" onclick="toggleSelectField('termin')">
             <div class="section-icon">
               <img src="{% static 'todo/icon/planned.png' %}">
             </div>
@@ -140,7 +140,7 @@
             </div>
           </div>
           {% if ed_item.stop %}
-            <button type="button" name="termin_delete" class="field-icon" onclick="SetTermin(0)"><img src="{% static 'rok/icon/delete.png' %}"></button>
+            <button type="button" name="termin_delete" class="field-icon" onclick="setTermin(0)"><img src="{% static 'rok/icon/delete.png' %}"></button>
           {% endif %}
         </div>
       </div>
@@ -148,21 +148,21 @@
       <!-- Task.stop SELECT -->
       <div class="section-item hide-default" id="termin-select">
         <div class="dropdown-content-separator"></div>
-        <button type="submit" class="dropdown-content-item c001" name="termin_today" onclick="SetTermin(1)">
+        <button type="submit" class="dropdown-content-item c001" name="termin_today" onclick="setTermin(1)">
           <div class="c002">
             <img src="{% static 'todo/icon/termin-today.png' %}">
             <span class="c003">{% trans 'today'|capfirst %}</span>
           </div>
           <div class="c004">{{ termin_today_info|date:'D' }}</div>
         </button>
-        <button type="submit" class="dropdown-content-item c001" name="termin_tomorrow" onclick="SetTermin(2)">
+        <button type="submit" class="dropdown-content-item c001" name="termin_tomorrow" onclick="setTermin(2)">
           <div class="c002">
             <img src="{% static 'todo/icon/termin-tomorrow.png' %}">
             <span class="c003">{% trans 'tomorrow'|capfirst %}</span>
           </div>
           <div class="c004">{{ termin_tomorrow_info|date:'D' }}</div>
         </button>
-        <button type="submit" class="dropdown-content-item c001" name="termin_next_week" onclick="SetTermin(3)">
+        <button type="submit" class="dropdown-content-item c001" name="termin_next_week" onclick="setTermin(3)">
           <div class="c002">
             <img src="{% static 'todo/icon/termin-next-week.png' %}">
             <span class="c003">{% trans 'next week'|capfirst %}</span>
@@ -185,7 +185,7 @@
       <!-- Task.repeat VIEW -->
       <div class="section-item" id="repeat-view">
         <div class="section-inner">
-          <div class="section-inner button" onclick="ToggleSelectField('repeat')">
+          <div class="section-inner button" onclick="toggleSelectField('repeat')">
             <div class="section-icon">
               <img src="{% static 'todo/icon/repeat.png' %}">
             </div>
@@ -201,7 +201,7 @@
             </div>
           </div>
           {% if ed_item.repeat %}
-            <button type="submit" name="repeat_delete" class="field-icon" onclick="SetRepeat(0,false)"><img src="{% static 'rok/icon/delete.png' %}"></button>
+            <button type="submit" name="repeat_delete" class="field-icon" onclick="setRepeat(0,false)"><img src="{% static 'rok/icon/delete.png' %}"></button>
           {% endif %}
         </div>
       </div>
@@ -209,31 +209,31 @@
       <!-- Task.repeat SELECT -->
       <div class="section-item hide-default" id="repeat-select">
         <div class="dropdown-content-separator"></div>
-        <button type="submit" class="dropdown-content-item c001" name="repeat_daily" onclick="SetRepeat(1,false)">
+        <button type="submit" class="dropdown-content-item c001" name="repeat_daily" onclick="setRepeat(1,false)">
           <div class="c002">
             <img src="{% static 'todo/icon/repeat-daily.png' %}">
             <span class="c003">{% trans 'daily'|capfirst %}</span>
           </div>
         </button>
-        <button type="submit" class="dropdown-content-item c001" name="repeat_workdays" onclick="SetRepeat(3,true)">
+        <button type="submit" class="dropdown-content-item c001" name="repeat_workdays" onclick="setRepeat(3,true)">
           <div class="c002">
             <img src="{% static 'todo/icon/repeat-workdays.png' %}">
             <span class="c003">{% trans 'work days'|capfirst %}</span>
           </div>
         </button>
-        <button type="submit" class="dropdown-content-item c001" name="repeat_weekly" onclick="SetRepeat(3,false)">
+        <button type="submit" class="dropdown-content-item c001" name="repeat_weekly" onclick="setRepeat(3,false)">
           <div class="c002">
             <img src="{% static 'todo/icon/repeat-weekly.png' %}">
             <span class="c003">{% trans 'weekly'|capfirst %}</span>
           </div>
         </button>
-        <button type="submit" class="dropdown-content-item c001" name="repeat_monthly" onclick="SetRepeat(4,false)">
+        <button type="submit" class="dropdown-content-item c001" name="repeat_monthly" onclick="setRepeat(4,false)">
           <div class="c002">
             <img src="{% static 'todo/icon/repeat-monthly.png' %}">
             <span class="c003">{% trans 'monthly'|capfirst %}</span>
           </div>
         </button>
-        <button type="submit" class="dropdown-content-item c001" name="repeat_annually" onclick="SetRepeat(5,false)">
+        <button type="submit" class="dropdown-content-item c001" name="repeat_annually" onclick="setRepeat(5,false)">
           <div class="c002">
             <img src="{% static 'todo/icon/repeat-annually.png' %}">
             <span class="c003">{% trans 'annually'|capfirst %}</span>
@@ -252,13 +252,13 @@
           </div>
           <div class="repeat-options-week" id="id_repeat_options_week">
             <input type="hidden" id="id_repeat_days" name="repeat_days" value="{{ form.repeat_days.value }}" required="">
-            <div id="d1" class="button day" onclick="DayClick(1)">{{ repeat_form_d1 }}</div>
-            <div id="d2" class="button day" onclick="DayClick(2)">{{ repeat_form_d2 }}</div>
-            <div id="d3" class="button day" onclick="DayClick(3)">{{ repeat_form_d3 }}</div>
-            <div id="d4" class="button day" onclick="DayClick(4)">{{ repeat_form_d4 }}</div>
-            <div id="d5" class="button day" onclick="DayClick(5)">{{ repeat_form_d5 }}</div>
-            <div id="d6" class="button day" onclick="DayClick(6)">{{ repeat_form_d6 }}</div>
-            <div id="d7" class="button day" onclick="DayClick(7)">{{ repeat_form_d7 }}</div>
+            <div id="d1" class="button day" onclick="dayClick(1)">{{ repeat_form_d1 }}</div>
+            <div id="d2" class="button day" onclick="dayClick(2)">{{ repeat_form_d2 }}</div>
+            <div id="d3" class="button day" onclick="dayClick(3)">{{ repeat_form_d3 }}</div>
+            <div id="d4" class="button day" onclick="dayClick(4)">{{ repeat_form_d4 }}</div>
+            <div id="d5" class="button day" onclick="dayClick(5)">{{ repeat_form_d5 }}</div>
+            <div id="d6" class="button day" onclick="dayClick(6)">{{ repeat_form_d6 }}</div>
+            <div id="d7" class="button day" onclick="dayClick(7)">{{ repeat_form_d7 }}</div>
           </div>
         </div>
         <div class="dropdown-content-separator"></div>
@@ -323,8 +323,8 @@
 
 {% block scripts %}
   {{ block.super }}
-  <script src="{% static 'rok/js/AddAutoResize.js' %}"></script>
-  <script src="{% static 'rok/js/UploadFile.js' %}"></script>
-  <script src="{% static 'rok/js/CategoryDelete.js' %}"></script>
+  <script src="{% static 'rok/js/resize.js' %}"></script>
+  <script src="{% static 'rok/js/uploads.js' %}"></script>
+  <script src="{% static 'rok/js/categories.js' %}"></script>
   <script src="{% static 'todo/js/task.js' %}"></script>
 {% endblock %}

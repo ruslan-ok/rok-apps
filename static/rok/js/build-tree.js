@@ -1,7 +1,6 @@
-
 var tree_data = [], map = {};
 
-function build_tree(tree_id, app, current_id) {
+function buildTree(tree_id, app, current_id) {
   var i, roots = [], node = {};
 
   var ul = document.getElementById(tree_id);
@@ -15,7 +14,7 @@ function build_tree(tree_id, app, current_id) {
     else
       tree_data[i].parent = '0';
     tree_data[i].children = [];
-    tree_data[i].is_open = get_open(id);
+    tree_data[i].is_open = getOpen(id);
     tree_data[i].is_leaf = true;
     map[id] = i;
   }
@@ -31,10 +30,10 @@ function build_tree(tree_id, app, current_id) {
   }
 
   for (var i = 0; i < roots.length; i++)
-    init_li(roots[i], true);
+    initLi(roots[i], true);
 }
 
-function init_li(node, visible) {
+function initLi(node, visible) {
   var li = document.getElementById('task_group_' + node.id);
   if (visible)
     li.classList.remove('hide');
@@ -48,13 +47,13 @@ function init_li(node, visible) {
       li.children[1].children[0].setAttribute('src', '/static/rok/icon/direct-left.png');
 
   for (var i = 0; i < node.children.length; i++)
-    init_li(node.children[i], visible && node.is_open);
+    initLi(node.children[i], visible && node.is_open);
 }
 
-function toggle_group(group_id) {
+function toggleGroup(group_id) {
   var node = tree_data[map[group_id]];
   node.is_open = !node.is_open;
-  set_open(group_id, node.is_open);
+  setOpen(group_id, node.is_open);
   var li = document.getElementById('task_group_' + group_id);
   if (node.is_open)
     li.children[1].children[0].setAttribute('src', '/static/rok/icon/direct-down.png');
@@ -62,10 +61,10 @@ function toggle_group(group_id) {
     li.children[1].children[0].setAttribute('src', '/static/rok/icon/direct-left.png');
   var i;
   for (i = 0; i < node.children.length; i += 1)
-    toggle_li(node.children[i].id, node.is_open);
+    toggleLi(node.children[i].id, node.is_open);
 }
 
-function toggle_li(group_id, visible) {
+function toggleLi(group_id, visible) {
   var li = document.getElementById('task_group_' + group_id);
   if (visible)
     li.classList.remove('hide');
@@ -74,10 +73,10 @@ function toggle_li(group_id, visible) {
   var i, node = tree_data[map[group_id]];
   if (!node.is_leaf && node.is_open)
     for (i = 0; i < node.children.length; i += 1)
-      toggle_li(node.children[i].id, visible);
+      toggleLi(node.children[i].id, visible);
 }
 
-function get_open(group_id) {
+function getOpen(group_id) {
   var name = 'grp_' + group_id;
   var value = localStorage.getItem(name);
   if (value == 'true')
@@ -85,7 +84,7 @@ function get_open(group_id) {
   return false;
 }
 
-function set_open(group_id, value) {
+function setOpen(group_id, value) {
   var name = 'grp_' + group_id;
   localStorage.setItem(name, value);
 }
