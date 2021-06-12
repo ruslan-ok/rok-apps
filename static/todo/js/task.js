@@ -400,8 +400,40 @@ function stepAdd() {
   xhttp.send(data);
 }
 
+function stepChange(id) {
+  var task = task_api + getItemId();
+  var x = document.getElementById('step_' + id);
+  var name = x.value;
+  var completed = x.classList.contains("completed");
+  var data = "task=" + task + "/&name=" + encodeURI(name) + "&completed=" + completed;
+
+  x = document.getElementsByName("csrfmiddlewaretoken");
+  crsf = x[0].value; 
+
+  var xhttp = new XMLHttpRequest();
+  var url = step_api + id + "/?" + postfix;
+  xhttp.open("PUT", url, true);
+  xhttp.setRequestHeader('X-CSRFToken', crsf);
+  xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 201) {
+    }
+  };
+
+  xhttp.send(data);
+}
+
 function stepComplete(id) {
-  console.log('step complete ' + id);
+  var y = document.getElementById('step_field_group_' + id);
+  var x = document.getElementById('step_' + id);
+  x.classList.toggle("completed");
+  if (x.classList.contains("completed")) {
+    y.childNodes[1].childNodes[1].setAttribute('src', '/static/todo/icon/step-complete.png');
+  } else {
+    y.childNodes[1].childNodes[1].setAttribute('src', '/static/todo/icon/step-uncomplete.png');
+  }
+  stepChange(id);
 }
 
 function stepDelete(id) {
@@ -420,11 +452,6 @@ function stepDelete(id) {
   };
 
   xhttp.send();
-}
-
-function stepChange(id) {
-  x = document.getElementById('step_' + id);
-  console.log('step change ' + id + ' value: "' + x.value + '"');
 }
 
 
