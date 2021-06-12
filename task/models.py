@@ -47,6 +47,7 @@ class Task(models.Model):
     app_photo = models.IntegerField('Role in application Photo Bank', choices=PHOTO_ROLE_CHOICE, default=NONE, null=True)
     created = models.DateTimeField(_('creation time'), auto_now_add=True)
     last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now=True)
+    # lst_task = models.ManyToManyField(Group, through='TaskGroup', through_fields=('task', 'group'))
 
     class Meta:
         verbose_name = _('task')
@@ -125,19 +126,6 @@ class Task(models.Model):
             return (self.stop.date() < date.today())
         return False
 
-    def remind_active(self):
-        return self.remind and (not self.completed) and (self.remind > datetime.now())
-    
-    def remind_time(self):
-        if self.remind:
-            return _('remind at').capitalize() + ' ' + self.remind.strftime('%H:%M')
-        return _('to remind').capitalize()
-    
-    def remind_date(self):
-        if self.remind:
-            return nice_date(self.remind.date())
-        return ''
-    
     def termin_date(self):
         d = self.stop
         if not d:
@@ -155,9 +143,28 @@ class Task(models.Model):
             return ''
         return self.stop.strftime('%H:%M')
     
+    def remind_active(self):
+        return self.remind and (not self.completed) and (self.remind > datetime.now())
+    
+    def remind_date(self):
+        if self.remind:
+            return nice_date(self.remind.date())
+        return _('to remind').capitalize()
+    
+    def remind_time(self):
+        if self.remind:
+            return _('remind at').capitalize() + ' ' + self.remind.strftime('%H:%M')
+        return ''
+    
     def s_repeat(self):
+        pass
+    
+    def repeat_s_days(self):
+        pass
+    
+    def repeat_title(self):
         if (not self.repeat) or (self.repeat == NONE):
-            return ''
+            return _('repeat').capitalize()
         if (self.repeat_num == 1):
             if (self.repeat == WORKDAYS):
                 return REPEAT[WEEKLY][1].capitalize()
@@ -167,8 +174,8 @@ class Task(models.Model):
         if self.repeat:
             rn = REPEAT_NAME[self.repeat]
         return '{} {} {}'.format(_('once every').capitalize(), self.repeat_num, rn)
-
-    def repeat_s_days(self):
+    
+    def repeat_info(self):
         if (self.repeat == WEEKLY):
             if (self.repeat_days == 0):
                 return self.stop.strftime('%A')
@@ -183,7 +190,7 @@ class Task(models.Model):
                     ret += (monday +timedelta(i)).strftime('%A')
             return ret
         return ''
-
+    
     def next_remind_time(self):
         if ((not self.remind) and (not self.last_remind)) or (not self.stop):
             return None
@@ -297,10 +304,11 @@ def add_months(sourcedate, months):
 
 
 class Step(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'), related_name='task_step')
     task = models.ForeignKey(Task, on_delete = models.CASCADE, verbose_name = _('step task'))
     created = models.DateTimeField(_('creation time'), blank = True, auto_now_add = True)
     last_mod = models.DateTimeField(_('last modification time'), blank = True, auto_now = True)
-    name = models.CharField(_('list name'), max_length = 200, blank = False)
+    name = models.CharField(_('step name'), max_length = 200, blank = False)
     sort = models.CharField(_('sort code'), max_length = 50, blank = True)
     completed = models.BooleanField(_('step is completed'), default = False)
 
@@ -310,6 +318,13 @@ class Step(models.Model):
 
     def __str__(self):
         return self.name
+    
+    @classmethod
+    def next_sort(cls, task_id):
+        if not Step.objects.filter(task=task_id).exists():
+            return '0'
+        last = Step.objects.filter(task=task_id).order_by('-sort')[0]
+        return str(int(last.sort) + 1).zfill(3)
 
 class Group(models.Model):
     """
@@ -343,6 +358,24 @@ class Group(models.Model):
 
     def s_id(self):
         return str(self.id)
+    
+    def get_shifted_name(self):
+        return '.' * self.level * 2 + self.name
+    
+    @classmethod
+    def scan_node(cls, tree, group_id):
+        for x in cls.objects.filter(node=group_id).order_by('sort'):
+            tree.append((x.id, '.' * x.level * 2 + x.name))
+            cls.scan_node(tree, x.id)
+    
+    @classmethod
+    def get_tree(cls, user_id, app):
+        tree = []
+        tree.append((0, '-----------'))
+        for x in cls.objects.filter(user=user_id, app=app, node=None).order_by('sort'):
+            tree.append((x.id, x.name))
+            cls.scan_node(tree, x.id)
+        return tree
 
 class TaskGroup(models.Model):
     group = models.ForeignKey(Group, on_delete=models.CASCADE, verbose_name=_('group'), blank=True, null=True)

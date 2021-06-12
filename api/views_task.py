@@ -92,21 +92,6 @@ class TaskViewSet(viewsets.ModelViewSet):
                 return data.filter(app_photo=PHOTO)
         return data
 
-    """
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-
-        if ('page' in self.request.query_params):
-            page = self.paginate_queryset(queryset)
-            if page is not None:
-                serializer = self.get_serializer(page, many=True)
-                return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-    """
-
-    
     # OK
     @action(detail=False)
     def get_qty(self, request, pk=None):
@@ -197,30 +182,6 @@ class TaskViewSet(viewsets.ModelViewSet):
     # TODO
     @action(detail=True)
     def file_delete(self, request, pk=None):
-        task = self.get_object()
-        task.save()
-        serializer = TaskSerializer(instance=task, context={'request': request})
-        return Response(serializer.data)
-
-    # TODO
-    @action(detail=True)
-    def step_add(self, request, pk=None):
-        task = self.get_object()
-        task.save()
-        serializer = TaskSerializer(instance=task, context={'request': request})
-        return Response(serializer.data)
-
-    # TODO
-    @action(detail=True)
-    def step_complete(self, request, pk=None):
-        task = self.get_object()
-        task.save()
-        serializer = TaskSerializer(instance=task, context={'request': request})
-        return Response(serializer.data)
-
-    # TODO
-    @action(detail=True)
-    def step_delete(self, request, pk=None):
         task = self.get_object()
         task.save()
         serializer = TaskSerializer(instance=task, context={'request': request})
@@ -324,8 +285,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         if not task.stop:
             task.stop = datetime.today().date()
         task.save()
-        serializer = TaskSerializer(instance=task, context={'request': request})
-        return Response(serializer.data)
+        return Response({'title': task.repeat_title(), 'info': task.repeat_info()})
 
     # OK
     @action(detail=True)
@@ -337,8 +297,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         if not task.stop:
             task.stop = datetime.today().date()
         task.save()
-        serializer = TaskSerializer(instance=task, context={'request': request})
-        return Response(serializer.data)
+        return Response({'title': task.repeat_title(), 'info': task.repeat_info()})
 
     # OK
     @action(detail=True)
@@ -350,8 +309,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         if not task.stop:
             task.stop = datetime.today().date()
         task.save()
-        serializer = TaskSerializer(instance=task, context={'request': request})
-        return Response(serializer.data)
+        return Response({'title': task.repeat_title(), 'info': task.repeat_info()})
 
     # OK
     @action(detail=True)
@@ -362,8 +320,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         if not task.stop:
             task.stop = datetime.today().date()
         task.save()
-        serializer = TaskSerializer(instance=task, context={'request': request})
-        return Response(serializer.data)
+        return Response({'title': task.repeat_title(), 'info': task.repeat_info()})
 
     # OK
     @action(detail=True)
@@ -374,8 +331,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         if not task.stop:
             task.stop = datetime.today().date()
         task.save()
-        serializer = TaskSerializer(instance=task, context={'request': request})
-        return Response(serializer.data)
+        return Response({'title': task.repeat_title(), 'info': task.repeat_info()})
 
     # OK
     @action(detail=True)
@@ -383,8 +339,19 @@ class TaskViewSet(viewsets.ModelViewSet):
         task = self.get_object()
         task.repeat = 0
         task.save()
-        serializer = TaskSerializer(instance=task, context={'request': request})
-        return Response(serializer.data)
+        return Response({'title': task.repeat_title(), 'info': task.repeat_info()})
+
+    # OK
+    @action(detail=True, url_path='repeat_set/(?P<num>\d+)/(?P<per>\d)/(?P<days>\d+)')
+    def repeat_set(self, request, pk=None, *args, **kwargs):
+        task = self.get_object()
+        task.repeat = int(kwargs['per'])
+        task.repeat_num = int(kwargs['num'])
+        task.repeat_days = int(kwargs['days'])
+        if not task.stop:
+            task.stop = datetime.today().date()
+        task.save()
+        return Response({'title': task.repeat_title(), 'info': task.repeat_info()})
 
     # OK
     @action(detail=True)

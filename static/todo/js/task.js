@@ -1,5 +1,6 @@
-const host_api = "http://localhost:8000/api/tasks/";
-const postfix = "/?format=json";
+const task_api = "http://localhost:8000/en/api/tasks/";
+const step_api = "http://localhost:8000/en/api/steps/";
+const postfix = "format=json";
 
 document.getElementById('remind-select').style.display = "none";
 document.getElementById('termin-select').style.display = "none";
@@ -46,7 +47,7 @@ function toggleCompleted() {
     x.dataset.value = "true";
 
   var xhttp = new XMLHttpRequest();
-  xhttp.open("GET", host_api + getItemId() + "/completed" + postfix, true);
+  xhttp.open("GET", task_api + getItemId() + "/completed/?" + postfix, true);
 
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
@@ -76,7 +77,7 @@ function toggleImportant() {
     x.dataset.value = "true";
 
   var xhttp = new XMLHttpRequest();
-  xhttp.open("GET", host_api + getItemId() + "/important" + postfix, true);
+  xhttp.open("GET", task_api + getItemId() + "/important/?" + postfix, true);
 
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
@@ -100,7 +101,7 @@ function toggleMyDay() {
   x.classList.toggle("selected");
   
   var xhttp = new XMLHttpRequest();
-  xhttp.open("GET", host_api + getItemId() + "/in_my_day" + postfix, true);
+  xhttp.open("GET", task_api + getItemId() + "/in_my_day/?" + postfix, true);
 
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
@@ -112,7 +113,7 @@ function toggleMyDay() {
 }
 
 //-----------------------------------------------------------------
-// Remind and Termin common
+// Termin and Remind common
 
 function changeDateTime(mode, entity) {
   var x = document.getElementById(entity + "-view");
@@ -136,7 +137,7 @@ function changeDateTime(mode, entity) {
   }
 
   var xhttp = new XMLHttpRequest();
-  xhttp.open("GET", host_api + getItemId() + "/" + func + postfix, true);
+  xhttp.open("GET", task_api + getItemId() + "/" + func + "/?" + postfix, true);
 
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
@@ -156,7 +157,7 @@ function setDateTime(dt, tm, entity) {
   x.childNodes[1].childNodes[3].classList.remove("hide");
 
   var xhttp = new XMLHttpRequest();
-  xhttp.open("GET", host_api + getItemId() + "/" + entity + "_set/" + dt + "/" + tm + postfix, true);
+  xhttp.open("GET", task_api + getItemId() + "/" + entity + "_set/" + dt + "/" + tm + "/?" + postfix, true);
 
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
@@ -169,17 +170,6 @@ function setDateTime(dt, tm, entity) {
 }
 
 //-----------------------------------------------------------------
-// Remind
-
-function changeRemind(mode) {
-  changeDateTime(mode, "remind");
-}
-
-function setRemind(dt, tm) {
-  setDateTime(dt, tm, "remind")
-}
-
-//-----------------------------------------------------------------
 // Termin
 
 function changeTermin(mode) {
@@ -188,6 +178,17 @@ function changeTermin(mode) {
 
 function setTermin(dt, tm) {
   setDateTime(dt, tm, "termin")
+}
+
+//-----------------------------------------------------------------
+// Remind
+
+function changeRemind(mode) {
+  changeDateTime(mode, "remind");
+}
+
+function setRemind(dt, tm) {
+  setDateTime(dt, tm, "remind")
 }
 
 //-----------------------------------------------------------------
@@ -210,9 +211,70 @@ function changeRepeat(_repeat, _workdays) {
     initDays();
   }
 
-  document.getElementById("id_repeat").selectedIndex = ndx;
+  var x = document.getElementById("repeat-view");
+  var y = x.childNodes[1].childNodes[1].childNodes[3].childNodes[1];
 
+  document.getElementById("id_repeat").selectedIndex = ndx;
+  if (_repeat == 0) {
+    y.childNodes[1].classList.remove("actual");
+    x.childNodes[1].childNodes[3].classList.add("hide");
+  } else {
+    document.getElementById("id_repeat_num").value = 1;
+    y.childNodes[1].classList.add("actual");
+    x.childNodes[1].childNodes[3].classList.remove("hide");
+    checkDaysVisible();
+    toggleSelectField("repeat");
+  }
+
+  switch (_repeat) {
+    case 0: func = "repeat_delete"; break;
+    case 1: func = "repeat_daily"; break;
+    case 3:
+      if (_workdays)
+        func = "repeat_workdays";
+      else
+        func = "repeat_weekly";
+      break;
+    case 4: func = "repeat_monthly"; break;
+    case 5: func = "repeat_annually"; break;
+  }
+  
+  var xhttp = new XMLHttpRequest();
+  xhttp.open("GET", task_api + getItemId() + "/" + func + "/?" + postfix, true);
+
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      y.childNodes[1].innerHTML = JSON.parse(this.responseText).title;
+      y.childNodes[3].innerHTML = JSON.parse(this.responseText).info;
+    }
+  };
+
+  xhttp.send();
+}
+
+function setRepeat() {
+  var x = document.getElementById("repeat-view");
+  var y = x.childNodes[1].childNodes[1].childNodes[3].childNodes[1];
+
+  y.childNodes[1].classList.add("actual");
+  x.childNodes[1].childNodes[3].classList.remove("hide");
   checkDaysVisible();
+  
+  var num = document.getElementById("id_repeat_num").value;
+  var per = document.getElementById("id_repeat").selectedIndex + 1;
+  var days = getDays();
+
+  var xhttp = new XMLHttpRequest();
+  xhttp.open("GET", task_api + getItemId() + "/repeat_set/" + num + "/" + per + "/" + days + "/?" + postfix, true);
+
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      y.childNodes[1].innerHTML = JSON.parse(this.responseText).title;
+      y.childNodes[3].innerHTML = JSON.parse(this.responseText).info;
+    }
+  };
+
+  xhttp.send();
 }
 
 //-----------------------------------------------------------------
@@ -243,6 +305,7 @@ function clickDay(_num) {
   var frm = document.getElementById('article_form');
   var days = getDays();
   frm.elements['repeat_days'].value = days;
+  setRepeat();
 }
 
 function checkDaysVisible() {
@@ -251,4 +314,118 @@ function checkDaysVisible() {
   else
     document.getElementById("id_repeat_options_week").style.display = "none";
 }
+
+//-----------------------------------------------------------------
+// Apps
+
+function toggleApp(app) {
+}
+
+//-----------------------------------------------------------------
+// Steps
+
+function createStep(step_id, step_name) {
+      img1 = document.createElement('img');
+      img1.setAttribute('src', '/static/todo/icon/step-uncomplete.png');
+
+      btn1 = document.createElement('button');
+      btn1.setAttribute('type', 'button');
+      btn1.setAttribute('onclick', 'stepComplete(' + step_id + ')');
+      btn1.classList.add('field-icon');
+      btn1.appendChild(img1);
+
+      inp1 = document.createElement('input');
+      inp1.setAttribute('type', 'text');
+      inp1.setAttribute('id', 'step_' + step_id);
+      inp1.setAttribute('onchange', 'stepChange(' + step_id + ')');
+      inp1.setAttribute('value', step_name);
+      inp1.setAttribute('maxlength', '200');
+      inp1.setAttribute('required', '');
+      
+      div1 = document.createElement('div');
+      div1.classList.add('editable-content');
+      div1.classList.add('full-width');
+      div1.classList.add('auxiliary-element');
+      div1.appendChild(inp1);
+      
+      div2 = document.createElement('div');
+      div2.classList.add('step-name');
+      div2.appendChild(div1);
+
+      img2 = document.createElement('img');
+      img2.setAttribute('src', '/static/rok/icon/delete.png');
+
+      btn2 = document.createElement('button');
+      btn2.setAttribute('type', 'button');
+      btn2.setAttribute('onclick', 'stepDelete(' + step_id + ')');
+      btn2.classList.add('field-icon');
+      btn2.appendChild(img2);
+      
+      div3 = document.createElement('div');
+      div3.setAttribute('id', 'step_field_group_' + step_id);
+      div3.classList.add('step-field-group');
+      div3.appendChild(btn1);
+      div3.appendChild(div2);
+      div3.appendChild(btn2);
+
+      div4 = document.getElementById('step_list');
+      div4.appendChild(div3);
+      
+      inp1.focus();
+}
+
+function stepAdd() {
+  x = document.getElementById('id_add_step');
+  var name = x.value;
+  x.value = '';
+
+  var x = document.getElementsByName("csrfmiddlewaretoken");
+  crsf = x[0].value; 
+
+  var xhttp = new XMLHttpRequest();
+  var url = step_api + "?" + postfix;
+  xhttp.open("POST", url, true);
+  xhttp.setRequestHeader('X-CSRFToken', crsf);
+  xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 201) {
+      step_id = JSON.parse(this.responseText).id;
+      step_name = JSON.parse(this.responseText).name;
+      createStep(step_id, step_name);
+    }
+  };
+
+  var data = "task=" + task_api + getItemId() + "/&name=" + encodeURI(name);
+  xhttp.send(data);
+}
+
+function stepComplete(id) {
+  console.log('step complete ' + id);
+}
+
+function stepDelete(id) {
+  var x = document.getElementsByName("csrfmiddlewaretoken");
+  crsf = x[0].value; 
+
+  var xhttp = new XMLHttpRequest();
+  xhttp.open("DELETE", step_api + id + "/", true);
+  xhttp.setRequestHeader('X-CSRFToken', crsf);
+
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      x = document.getElementById('step_field_group_' + id);
+      x.classList.add('w3-hide');
+    }
+  };
+
+  xhttp.send();
+}
+
+function stepChange(id) {
+  x = document.getElementById('step_' + id);
+  console.log('step change ' + id + ' value: "' + x.value + '"');
+}
+
+
 

@@ -1,0 +1,19 @@
+{% load static i18n %}
+
+<!-- Task.my_day -->
+<div class="section">
+  <div class="section-item">
+    <button type="button" name="task_myday" class="section-inner-click" onclick="toggleMyDay()">
+      <div class="section-inner">
+        <div class="section-icon">
+          <img src="{% static 'todo/icon/myday.png' %}">
+        </div>
+        <div class="section-content">
+          <div class="section-title{% if ed_item.in_my_day %} selected{% endif %}" id="myday">
+            {{ ed_item.s_in_my_day }}
+          </div>
+        </div>
+      </div>
+    </button>
+  </div>
+</div>

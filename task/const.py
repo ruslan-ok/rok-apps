@@ -170,22 +170,20 @@ ALL_ROLES = (
 """
 There are Available Roles for each Application
 """
-TASK_ROLE_CHOICE = [(TASK, _('task'))]
-NOTE_ROLE_CHOICE = [(NOTE, _('note'))]
-NEWS_ROLE_CHOICE = [(NEWS, _('news'))] 
-STORE_ROLE_CHOICE = [(STORE, _('store'))]
-DOC_ROLE_CHOICE = [(DOC, _('doc'))]
-WARR_ROLE_CHOICE = [(WARR, _('warranty'))]
-EXPEN_ROLE_CHOICE = [(OPERATION, _('operation')), (SALDO, _('saldo'))]
-TRIP_ROLE_CHOICE = [(PERSON, _('person')), (TRIP, _('trip')), (SALDO, _('saldo'))]
-FUEL_ROLE_CHOICE = [(FUEL, _('fueling')), (PART, _('car part service interval')),
-                    (SERVICE, _('service'))]
-APART_ROLE_CHOICE = [(SERVICE, _('service')), (METER, _('meter')),
-                     (PRICE, _('price')), (BILL, _('bill'))]
-HEALTH_ROLE_CHOICE = [(MARKER, _('marker')), (INCIDENT, _('incident')), (ANAMNESIS, _('anamnesis'))]
-WORK_ROLE_CHOICE = [(PERIOD, _('period')), (DEPARTMENT, _('department')), (DEP_HIST, _('department history')), 
-                    (POST, _('post')), (EMPLOYEE, _('employee')), (FIO_HIST, _('surname history')), (CHILD, _('child')), 
-                    (APPOINTMENT, _('appointment')), (EDUCATION, _('education')), (EMPL_PER, _('periods for employee')),
-                    (PAY_TITLE, _('pay tytle')), (PAYMENT, _('payment'))]
-PHOTO_ROLE_CHOICE = [(PHOTO, _('photo'))]
+TASK_ROLE_CHOICE   = [(NONE, '--------'), (TASK, _('task'))]
+NOTE_ROLE_CHOICE   = [(NONE, '--------'), (NOTE, _('note'))]
+NEWS_ROLE_CHOICE   = [(NONE, '--------'), (NEWS, _('news'))] 
+STORE_ROLE_CHOICE  = [(NONE, '--------'), (STORE, _('store'))]
+DOC_ROLE_CHOICE    = [(NONE, '--------'), (DOC, _('doc'))]
+WARR_ROLE_CHOICE   = [(NONE, '--------'), (WARR, _('warranty'))]
+EXPEN_ROLE_CHOICE  = [(NONE, '--------'), (OPERATION, _('operation')), (SALDO, _('saldo'))]
+TRIP_ROLE_CHOICE   = [(NONE, '--------'), (PERSON, _('person')), (TRIP, _('trip')), (SALDO, _('saldo'))]
+FUEL_ROLE_CHOICE   = [(NONE, '--------'), (FUEL, _('fueling')), (PART, _('car part service interval')), (SERVICE, _('service'))]
+APART_ROLE_CHOICE  = [(NONE, '--------'), (NONE, '--------'), (SERVICE, _('service')), (METER, _('meter')), (PRICE, _('price')), (BILL, _('bill'))]
+HEALTH_ROLE_CHOICE = [(NONE, '--------'), (MARKER, _('marker')), (INCIDENT, _('incident')), (ANAMNESIS, _('anamnesis'))]
+WORK_ROLE_CHOICE   = [(NONE, '--------'), (PERIOD, _('period')), (DEPARTMENT, _('department')), (DEP_HIST, _('department history')), 
+                      (POST, _('post')), (EMPLOYEE, _('employee')), (FIO_HIST, _('surname history')), (CHILD, _('child')), 
+                      (APPOINTMENT, _('appointment')), (EDUCATION, _('education')), (EMPL_PER, _('periods for employee')),
+                      (PAY_TITLE, _('pay tytle')), (PAYMENT, _('payment'))]
+PHOTO_ROLE_CHOICE  = [(NONE, '--------'), (PHOTO, _('photo'))]
 

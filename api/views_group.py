@@ -17,6 +17,9 @@ class GroupViewSet(viewsets.ModelViewSet):
     renderer_classes = [renderers.BrowsableAPIRenderer, renderers.JSONRenderer,]
     pagination_class = None
 
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
     def get_queryset(self):
         if 'app' in self.request.query_params:
             app = self.request.query_params['app']

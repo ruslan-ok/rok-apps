@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from task.models import Group, Task
+from task.models import Group, Task, Step
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')
@@ -18,5 +18,9 @@ class TaskSerializer(serializers.HyperlinkedModelSerializer):
                   'app_task', 'app_note', 'app_news', 'app_store', 'app_doc', 'app_warr', 'app_expen', 
                   'app_trip', 'app_fuel', 'app_apart', 'app_health', 'app_work', 'app_photo']
 
-
+class StepSerializer(serializers.HyperlinkedModelSerializer):
+    user = serializers.ReadOnlyField(source='user.username')
+    class Meta:
+        model = Step
+        fields = ['url', 'id', 'user', 'task', 'name', 'sort', 'completed']
 

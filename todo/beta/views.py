@@ -1,4 +1,4 @@
-import locale
+import os, locale
 from datetime import datetime, timedelta
 
 from django.http import HttpResponseRedirect
@@ -12,6 +12,7 @@ from rusel.context import get_base_context
 from hier.aside import Fix, Sort
 from hier.content import find_group
 from hier.utils import extract_get_params
+from hier.files import storage_path, get_files_list
 from task.models import Task, Step, Group, TaskGroup
 from task.const import *
 from todo.const import *
@@ -183,6 +184,7 @@ class TaskDetailView(TaskAside, UpdateView):
         context['ed_item'] = self.object
         context['task_actual'] = (not self.object.completed) and (not self.object.b_expired()) and self.object.stop
         context['steps'] = Step.objects.filter(task=self.object.id)
+        context['files'] = get_files_list(self.request.user, self.app, 'task_{}'.format(self.object.id))
         
         # this is needed to translate the names of the days of the week
         locale.setlocale(locale.LC_CTYPE, self.request.LANGUAGE_CODE)
