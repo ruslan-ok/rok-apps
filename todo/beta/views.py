@@ -1,5 +1,6 @@
+import time
 import os, locale
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -14,10 +15,12 @@ from hier.content import find_group
 from hier.utils import extract_get_params
 from hier.files import storage_path, get_files_list
 from task.models import Task, Step, Group, TaskGroup
+from task.views import GroupDetailView
 from task.const import *
 from todo.const import *
 from todo.utils import get_grp_planned, GRPS_PLANNED, get_week_day_name
 from todo.beta.forms import CreateTaskForm, TaskForm
+from numpy.distutils.misc_util import gpaths
 
 list_url = '/beta/todo/'
 
@@ -59,25 +62,40 @@ class TaskListView(TaskAside, CreateView):
         if (self.view_id == MY_DAY):
             return Task.objects.filter(user=self.request.user, app_task=TASK, in_my_day=True).order_by('created')
         if (self.view_id == IMPORTANT):
-            return Task.objects.filter(user=self.request.user, app_task=TASK, important=True).exclude(completed=True).order_by('created')
+            return Task.objects.filter(user=self.request.user, app_task=TASK, important=True, completed=False).order_by('created')
         if (self.view_id == PLANNED):
-            return Task.objects.filter(user=self.request.user, app_task=TASK).exclude(stop=None).exclude(completed=True).order_by('created')
+            return Task.objects.filter(user=self.request.user, app_task=TASK, completed=False).exclude(stop=None).order_by('created')
         if (self.view_id == COMPLETED):
             return Task.objects.filter(user=self.request.user, app_task=TASK, completed=True).order_by('created')
         if (self.view_id == LIST_MODE):
             return [tg.task for tg in TaskGroup.objects.filter(group=self.cur_grp)]
         # ALL
-        return Task.objects.filter(user=self.request.user, app_task=TASK).exclude(completed=True).order_by('created')
+        return Task.objects.filter(user=self.request.user, app_task=TASK, completed=False).order_by('created')
+
+    def get_success_url(self):
+        url = super().get_success_url()
+        return url + extract_get_params(self.request)
 
     def form_valid(self, form):
         form.instance.user = self.request.user
         form.instance.app_task = TASK
-        return super(TaskListView, self).form_valid(form)
+        ret = super(TaskListView, self).form_valid(form)
+        l = self.request.GET.get('lst')
+        if l:
+            lst = Group.objects.filter(id=l).get()
+            TaskGroup.objects.create(task=form.instance, group=lst, app='todo')
+        return ret
     
     def get_context_data(self, **kwargs):
+        start = time.time()
         context = super().get_context_data(**kwargs)
         self.init_view()
-        context.update(get_base_context(self.request, self.app, False, self.get_title()))
+        title = self.get_title()
+        gp = self.get_group_path()
+        context['group_path'] = gp
+        if gp and not title:
+            title = ' / '.join([x['name'] for x in gp])
+        context.update(get_base_context(self.request, self.app, False, title))
         context['fix_list'] = self.get_aside_context(self.request.user)
         context['sort_options'] = self.get_sorts()
         context['view_id'] = self.view_id
@@ -96,7 +114,7 @@ class TaskListView(TaskAside, CreateView):
         tasks = self.get_queryset()
         if self.view_as_tree:
             for task in tasks:
-                grp_id = get_grp_planned(self.view_id, task.stop, task.completed)
+                grp_id = get_grp_planned(self.view_id, task.stop.date() if task.stop else None, task.completed)
                 group = find_group(groups, self.request.user, self.app, grp_id, GRPS_PLANNED[grp_id].capitalize())
                 group.items.append(task)
             context['item_groups'] = sorted(groups, key = lambda group: group.grp.grp_id)
@@ -104,6 +122,7 @@ class TaskListView(TaskAside, CreateView):
             paginator = Paginator(tasks, ITEMS_PER_PAGE)
             page_obj = paginator.get_page(page_number)
             context['page_obj'] = paginator.get_page(page_number)
+        context['profiling'] = "Time: %.03f s" % (time.time() - start)
         return context
 
     def init_view(self):
@@ -135,24 +154,25 @@ class TaskListView(TaskAside, CreateView):
             return _('important').capitalize()
         if (self.view_id == PLANNED):
             return _('planned').capitalize()
-        if (self.view_id == ALL):
+        if (self.view_id == ALL) or (self.view_id == ''):
             return _('all').capitalize()
         if (self.view_id == COMPLETED):
             return _('completed').capitalize()
         if (self.view_id == LIST_MODE):
-            title = ''
-            if self.cur_grp:
-                if Group.objects.filter(id=self.cur_grp).exists():
-                    grp = Group.objects.filter(id=self.cur_grp).get()
-                    title = grp.name
-                    parent = grp.node
-                    while parent:
-                        grp = Group.objects.filter(id=parent.id).get()
-                        title = grp.name + ' \\ ' + title
-                        parent = grp.node
-            return title
-
-
+            return ''
+        return '???'
+        
+    def get_group_path(self):
+        ret = []
+        if (self.view_id == LIST_MODE) and self.cur_grp:
+            grp = Group.objects.filter(id=self.cur_grp).get()
+            ret.append({'id': grp.id, 'name': grp.name, 'url': grp.url})
+            parent = grp.node
+            while parent:
+                grp = Group.objects.filter(id=parent.id).get()
+                ret.append({'id': grp.id, 'name': grp.name, 'url': grp.url})
+                parent = grp.node
+        return ret
     
     def get_sorts(self):
         sorts = []
@@ -169,7 +189,7 @@ class TaskListView(TaskAside, CreateView):
 
 class TaskDetailView(TaskAside, UpdateView):
     model = Task
-    template_name = 'todo/beta/atask_detail.html'
+    template_name = 'todo/beta/task_detail.html'
     app = 'todo'
     title = _('unknown')
     mode = ALL
@@ -204,6 +224,23 @@ class TaskDetailView(TaskAside, UpdateView):
         context['repeat_form_d5'] = get_week_day_name(5)
         context['repeat_form_d6'] = get_week_day_name(6)
         context['repeat_form_d7'] = get_week_day_name(7)
+        return context
+
+
+"""
+================================================================
+"""
+
+class TaskGroupDetailView(TaskAside, GroupDetailView):
+
+    def get_success_url(self):
+        return reverse('todo_beta:group-detail', args=[self.get_object().id])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        task = self.get_object()
+        context['fix_list'] = self.get_aside_context(self.request.user)
+        context['return_url'] = '/beta/todo/'
         return context
 
 

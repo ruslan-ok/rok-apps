@@ -341,7 +341,7 @@ class Group(models.Model):
 
     is_leaf = models.BooleanField(_('node is leaf'), default=True)
     level = models.IntegerField(_('hierarchy level'), default=0, null=True)
-    qty = models.IntegerField(_('number of elements in a group'), default=0, null=True)
+    #qty = models.IntegerField(_('number of elements in a group'), default=0, null=True)
     created = models.DateTimeField(_('creation time'), blank=True, auto_now_add=True)
     last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now=True)
     consist = models.ManyToManyField(Task, through='TaskGroup', through_fields=('group', 'task'))
@@ -362,6 +362,9 @@ class Group(models.Model):
     def get_shifted_name(self):
         return '.' * self.level * 2 + self.name
     
+    def url(self):
+        return self.app + '_beta:group-detail'
+
     @classmethod
     def scan_node(cls, tree, group_id):
         for x in cls.objects.filter(node=group_id).order_by('sort'):

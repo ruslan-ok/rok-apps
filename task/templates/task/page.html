@@ -53,6 +53,7 @@
           </aside>
 
           <main class="{% if article_visible %}with_article{% else %}without_article{% endif %}">
+            {{ profiling }}
             {% block content %}{% endblock %}
           </main>
           

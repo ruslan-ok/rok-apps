@@ -9,7 +9,13 @@
   <div class="top">
     <div class="main-top-headline_new">
       <h3>
-        {{ title }}
+      	{% if group_path %}
+      	  {% for group in group_path reversed %}
+			<a href="{% url group.url group.id %}{{ params }}">{{ group.name }}</a>{% if group != group_path|first %} / {% endif %}
+      	  {% endfor %}
+      	{% else %}
+          {{ title }}
+        {% endif %}
         {% if list_id %}
           <a href="list_form/{{ list_id }}/" class="field-icon"><img class="img-20_20" src="{% static 'rok/icon/edit.png' %}"></a>
         {% endif %}

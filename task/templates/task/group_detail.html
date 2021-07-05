@@ -1,0 +1,39 @@
+{% extends "task/page.html" %}
+{% load static i18n %}
+
+{% block content %}
+
+  <div class="top">
+    <div class="main-top-headline_new">
+      <h3>
+        {{ title }}
+      </h3>
+    </div>
+  </div>
+  
+  <article class="tree">
+    <form method="post" enctype="multipart/form-data" id="article_form" data-item_id="{{ ed_item.id|cut:" " }}">{% csrf_token %}
+      <div class="article-top">
+        <div class="info"></div>
+        <a href="{{ return_url }}{{ params }}"><img class="img-20_20" src="{% static 'rok/icon/clear.png' %}"></a>
+      </div>
+
+      <section id="article-content">
+        {% include "task/form_errors.html" %}
+
+        <div class="form">
+          {{ form }}
+        </div>
+
+      </section>
+  
+      <div class="article-bottom">
+        <button type="submit" name="item_save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
+        <div class="info">{% block article_info %}{% endblock %}</div>
+        <button type="submit" name="item_delete" title="{% trans 'delete record'|capfirst %}"><img class="img-20_20" src="{% static 'rok/icon/trash-red.png' %}"></button>
+      </div>
+  
+    </form>
+  </article>
+{% endblock %}
+

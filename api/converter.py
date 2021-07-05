@@ -89,7 +89,7 @@ def transfer_task(lst, task_grp):
                              last_mod=task.last_mod)
         
         for step in OldStep.objects.filter(task=task.id):
-            Step.objects.create(task=atask, name=step.name, sort=step.sort, completed=step.completed)
+            Step.objects.create(user=step.task.user, task=atask, name=step.name, sort=step.sort, completed=step.completed)
         
         if task_grp:
             Group.objects.filter(user=task.user.id, id=task_grp.id).get().consist.add(atask)
