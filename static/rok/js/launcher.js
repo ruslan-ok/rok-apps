@@ -6,6 +6,6 @@ function launcherClose() {
   document.getElementById("launcher").style.display = "none";
 }
 
-var element = document.getElementById("autofocus");
+let element = document.getElementById("autofocus");
 if (element)
   element.focus();

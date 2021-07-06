@@ -1,5 +1,6 @@
 const task_api = "http://localhost:8000/en/api/tasks/";
 const step_api = "http://localhost:8000/en/api/steps/";
+const group_api = "http://localhost:8000/en/api/groups/";
 const postfix = "format=json";
 
 document.getElementById('remind-select').style.display = "none";
@@ -16,7 +17,7 @@ function getItemId() {
 }
 
 function toggleSelectField(name) {
-  var sel_id = name + '-select';
+  let sel_id = name + '-select';
   if (document.getElementById(sel_id).style.display == "none")
     document.getElementById(sel_id).style.display = "block";
   else
@@ -25,13 +26,13 @@ function toggleSelectField(name) {
 
 function afterCalendarChanged(init, field) {
   if ((field == 1) || (field == 0)) {
-    var dt = document.getElementById("id_remind_0");
-    var tm = document.getElementById("id_remind_1");
+    let dt = document.getElementById("id_remind_0");
+    let tm = document.getElementById("id_remind_1");
     setRemind(dt.value, tm.value);
   }
   if ((field == 2) || (field == 0)) {
-    var dt = document.getElementById("id_stop_0");
-    var tm = document.getElementById("id_stop_1");
+    let dt = document.getElementById("id_stop_0");
+    let tm = document.getElementById("id_stop_1");
     setTermin(dt.value, tm.value);
   }
 }
@@ -40,13 +41,13 @@ function afterCalendarChanged(init, field) {
 // Completed
 
 function toggleCompleted() {
-  var x = document.getElementById("task-completed");
+  let x = document.getElementById("task-completed");
   if (x.dataset.value.toLowerCase() == "true")
     x.dataset.value = "false";
   else
     x.dataset.value = "true";
 
-  var xhttp = new XMLHttpRequest();
+  let xhttp = new XMLHttpRequest();
   xhttp.open("GET", task_api + getItemId() + "/completed/?" + postfix, true);
 
   xhttp.onreadystatechange = function() {
@@ -70,13 +71,13 @@ function toggleCompleted() {
 // Important
 
 function toggleImportant() {
-  var x = document.getElementById("task-important");
+  let x = document.getElementById("task-important");
   if (x.dataset.value.toLowerCase() == "true")
     x.dataset.value = "false";
   else
     x.dataset.value = "true";
 
-  var xhttp = new XMLHttpRequest();
+  let xhttp = new XMLHttpRequest();
   xhttp.open("GET", task_api + getItemId() + "/important/?" + postfix, true);
 
   xhttp.onreadystatechange = function() {
@@ -96,11 +97,11 @@ function toggleImportant() {
 
 // Button "My day" click handling
 function toggleMyDay() {
-  var x = document.getElementById("myday");
-  var value = x.classList.contains("selected");
+  let x = document.getElementById("myday");
+  let value = x.classList.contains("selected");
   x.classList.toggle("selected");
   
-  var xhttp = new XMLHttpRequest();
+  let xhttp = new XMLHttpRequest();
   xhttp.open("GET", task_api + getItemId() + "/in_my_day/?" + postfix, true);
 
   xhttp.onreadystatechange = function() {
@@ -116,8 +117,8 @@ function toggleMyDay() {
 // Termin and Remind common
 
 function changeDateTime(mode, entity) {
-  var x = document.getElementById(entity + "-view");
-  var y = x.childNodes[1].childNodes[1].childNodes[3].childNodes[1];
+  let x = document.getElementById(entity + "-view");
+  let y = x.childNodes[1].childNodes[1].childNodes[3].childNodes[1];
 
   switch (mode) {
     case 0: func = entity + "_delete"; break;
@@ -136,7 +137,7 @@ function changeDateTime(mode, entity) {
     toggleSelectField(entity);
   }
 
-  var xhttp = new XMLHttpRequest();
+  let xhttp = new XMLHttpRequest();
   xhttp.open("GET", task_api + getItemId() + "/" + func + "/?" + postfix, true);
 
   xhttp.onreadystatechange = function() {
@@ -150,13 +151,13 @@ function changeDateTime(mode, entity) {
 }
 
 function setDateTime(dt, tm, entity) {
-  var x = document.getElementById(entity + "-view");
-  var y = x.childNodes[1].childNodes[1].childNodes[3].childNodes[1];
+  let x = document.getElementById(entity + "-view");
+  let y = x.childNodes[1].childNodes[1].childNodes[3].childNodes[1];
 
   y.childNodes[1].classList.add("actual");
   x.childNodes[1].childNodes[3].classList.remove("hide");
 
-  var xhttp = new XMLHttpRequest();
+  let xhttp = new XMLHttpRequest();
   xhttp.open("GET", task_api + getItemId() + "/" + entity + "_set/" + dt + "/" + tm + "/?" + postfix, true);
 
   xhttp.onreadystatechange = function() {
@@ -195,7 +196,7 @@ function setRemind(dt, tm) {
 // Repeat
 
 function changeRepeat(_repeat, _workdays) {
-  var ndx;
+  let ndx;
   switch(_repeat) {
     case 0: ndx = 0; break;
     case 1: ndx = 1; break;
@@ -206,13 +207,13 @@ function changeRepeat(_repeat, _workdays) {
   }
   
   if (_workdays) {
-    var frm = document.getElementById('article_form');
+    let frm = document.getElementById('article_form');
     frm.elements['repeat_days'].value = 31;
     initDays();
   }
 
-  var x = document.getElementById("repeat-view");
-  var y = x.childNodes[1].childNodes[1].childNodes[3].childNodes[1];
+  let x = document.getElementById("repeat-view");
+  let y = x.childNodes[1].childNodes[1].childNodes[3].childNodes[1];
 
   document.getElementById("id_repeat").selectedIndex = ndx;
   if (_repeat == 0) {
@@ -239,7 +240,7 @@ function changeRepeat(_repeat, _workdays) {
     case 5: func = "repeat_annually"; break;
   }
   
-  var xhttp = new XMLHttpRequest();
+  let xhttp = new XMLHttpRequest();
   xhttp.open("GET", task_api + getItemId() + "/" + func + "/?" + postfix, true);
 
   xhttp.onreadystatechange = function() {
@@ -253,18 +254,18 @@ function changeRepeat(_repeat, _workdays) {
 }
 
 function setRepeat() {
-  var x = document.getElementById("repeat-view");
-  var y = x.childNodes[1].childNodes[1].childNodes[3].childNodes[1];
+  let x = document.getElementById("repeat-view");
+  let y = x.childNodes[1].childNodes[1].childNodes[3].childNodes[1];
 
   y.childNodes[1].classList.add("actual");
   x.childNodes[1].childNodes[3].classList.remove("hide");
   checkDaysVisible();
   
-  var num = document.getElementById("id_repeat_num").value;
-  var per = document.getElementById("id_repeat").selectedIndex + 1;
-  var days = getDays();
+  let num = document.getElementById("id_repeat_num").value;
+  let per = document.getElementById("id_repeat").selectedIndex + 1;
+  let days = getDays();
 
-  var xhttp = new XMLHttpRequest();
+  let xhttp = new XMLHttpRequest();
   xhttp.open("GET", task_api + getItemId() + "/repeat_set/" + num + "/" + per + "/" + days + "/?" + postfix, true);
 
   xhttp.onreadystatechange = function() {
@@ -281,9 +282,9 @@ function setRepeat() {
 // Repeat Days
 
 function initDays() {
-  var frm = document.getElementById('article_form');
-  var days = frm.elements['repeat_days'].value;
-  for (var i = 1; i <= 7; i++) {
+  let frm = document.getElementById('article_form');
+  let days = frm.elements['repeat_days'].value;
+  for (let i = 1; i <= 7; i++) {
     if ((days & (1 << (i-1))) != 0)
       document.getElementById('d' + i).classList.add('selected');
   }
@@ -291,8 +292,8 @@ function initDays() {
 }
 
 function getDays() {
-  var days = 0;
-  for (var i = 1; i <= 7; i++) {
+  let days = 0;
+  for (let i = 1; i <= 7; i++) {
     if (document.getElementById('d' + i).classList.contains('selected'))
       days += (1 << (i-1));
   }
@@ -300,10 +301,10 @@ function getDays() {
 }
 
 function clickDay(_num) {
-  var day = document.getElementById('d' + _num);
+  let day = document.getElementById('d' + _num);
   day.classList.toggle('selected');
-  var frm = document.getElementById('article_form');
-  var days = getDays();
+  let frm = document.getElementById('article_form');
+  let days = getDays();
   frm.elements['repeat_days'].value = days;
   setRepeat();
 }
@@ -376,14 +377,14 @@ function createStep(step_id, step_name) {
 
 function stepAdd() {
   x = document.getElementById('id_add_step');
-  var name = x.value;
+  let name = x.value;
   x.value = '';
 
-  var x = document.getElementsByName("csrfmiddlewaretoken");
+  let x = document.getElementsByName("csrfmiddlewaretoken");
   crsf = x[0].value; 
 
-  var xhttp = new XMLHttpRequest();
-  var url = step_api + "?" + postfix;
+  let xhttp = new XMLHttpRequest();
+  let url = step_api + "?" + postfix;
   xhttp.open("POST", url, true);
   xhttp.setRequestHeader('X-CSRFToken', crsf);
   xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -396,22 +397,22 @@ function stepAdd() {
     }
   };
 
-  var data = "task=" + task_api + getItemId() + "/&name=" + encodeURI(name);
+  let data = "task=" + task_api + getItemId() + "/&name=" + encodeURI(name);
   xhttp.send(data);
 }
 
 function stepChange(id) {
-  var task = task_api + getItemId();
-  var x = document.getElementById('step_' + id);
-  var name = x.value;
-  var completed = x.classList.contains("completed");
-  var data = "task=" + task + "/&name=" + encodeURI(name) + "&completed=" + completed;
+  let task = task_api + getItemId();
+  let x = document.getElementById('step_' + id);
+  let name = x.value;
+  let completed = x.classList.contains("completed");
+  let data = "task=" + task + "/&name=" + encodeURI(name) + "&completed=" + completed;
 
   x = document.getElementsByName("csrfmiddlewaretoken");
   crsf = x[0].value; 
 
-  var xhttp = new XMLHttpRequest();
-  var url = step_api + id + "/?" + postfix;
+  let xhttp = new XMLHttpRequest();
+  let url = step_api + id + "/?" + postfix;
   xhttp.open("PUT", url, true);
   xhttp.setRequestHeader('X-CSRFToken', crsf);
   xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -425,8 +426,8 @@ function stepChange(id) {
 }
 
 function stepComplete(id) {
-  var y = document.getElementById('step_field_group_' + id);
-  var x = document.getElementById('step_' + id);
+  let y = document.getElementById('step_field_group_' + id);
+  let x = document.getElementById('step_' + id);
   x.classList.toggle("completed");
   if (x.classList.contains("completed")) {
     y.childNodes[1].childNodes[1].setAttribute('src', '/static/todo/icon/step-complete.png');
@@ -437,10 +438,10 @@ function stepComplete(id) {
 }
 
 function stepDelete(id) {
-  var x = document.getElementsByName("csrfmiddlewaretoken");
+  let x = document.getElementsByName("csrfmiddlewaretoken");
   crsf = x[0].value; 
 
-  var xhttp = new XMLHttpRequest();
+  let xhttp = new XMLHttpRequest();
   xhttp.open("DELETE", step_api + id + "/", true);
   xhttp.setRequestHeader('X-CSRFToken', crsf);
 

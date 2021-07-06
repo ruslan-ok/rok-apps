@@ -1,4 +1,4 @@
-var firebaseConfig = {
+let firebaseConfig = {
   apiKey: "AIzaSyB7n1JJxN5dDjHUIJlDPRASYtQyPqrh_M4",
   authDomain: "rusel-by.firebaseapp.com",
   databaseURL: "https://rusel-by.firebaseio.com",

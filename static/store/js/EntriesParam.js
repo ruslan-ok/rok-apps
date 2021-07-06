@@ -1,10 +1,10 @@
-var protectedValue = true;
+let protectedValue = true;
 ValueEditCheck();
 
 function ValueEditCheck()
 {
   element = document.getElementById('id_value');
-  var generator = !protectedValue || (element.value == '')
+  let generator = !protectedValue || (element.value == '')
   element.readOnly = !generator;
   if (generator)
   {
@@ -13,7 +13,7 @@ function ValueEditCheck()
     else
       document.getElementById('id_ln').value = document.getElementById('id_default_len').value;
 
-    var params = document.getElementById('id_params').value;
+    let params = document.getElementById('id_params').value;
     if (params == 0)
       params = document.getElementById('id_default_params').value;
     document.getElementById('id_uc').checked = (params & 1);
@@ -53,17 +53,17 @@ function CloseParams()
 
 function BuildValue()
 {
-  var ln = document.getElementById('id_ln').value;
-  var uc = document.getElementById('id_uc').checked;
-  var lc = document.getElementById('id_lc').checked;
-  var dg = document.getElementById('id_dg').checked;
-  var sp = document.getElementById('id_sp').checked;
-  var br = document.getElementById('id_br').checked;
-  var mi = document.getElementById('id_mi').checked;
-  var ul = document.getElementById('id_ul').checked;
-  var ac = document.getElementById('id_ac').checked;
+  let ln = document.getElementById('id_ln').value;
+  let uc = document.getElementById('id_uc').checked;
+  let lc = document.getElementById('id_lc').checked;
+  let dg = document.getElementById('id_dg').checked;
+  let sp = document.getElementById('id_sp').checked;
+  let br = document.getElementById('id_br').checked;
+  let mi = document.getElementById('id_mi').checked;
+  let ul = document.getElementById('id_ul').checked;
+  let ac = document.getElementById('id_ac').checked;
 
-  var allowed_chars = '';
+  let allowed_chars = '';
 
   if (uc)
   {
@@ -101,15 +101,15 @@ function BuildValue()
   if (allowed_chars == '')
     allowed_chars = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#$%^&*(-_=+)';
 
-  var randomString = '';
-  for (var i = 0; i < ln; i++)
+  let randomString = '';
+  for (let i = 0; i < ln; i++)
   {
-    var randomPoz = Math.floor(Math.random() * allowed_chars.length);
+    let randomPoz = Math.floor(Math.random() * allowed_chars.length);
     randomString += allowed_chars.substring(randomPoz, randomPoz + 1);
   }
   document.getElementById('id_value').value = randomString;
 
-  var params = 0;
+  let params = 0;
   if (uc)
     params += 1;
   if (lc)

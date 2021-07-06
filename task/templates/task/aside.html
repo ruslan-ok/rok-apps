@@ -47,11 +47,8 @@
       {% endfor %}
     </ul>
   
-    <form method="post" class="grp-actions">{% csrf_token %}
-      <button type="submit" name="list-add" class="default lst-add" label="create list"><img class="img-20_20" src="{% static 'rok/icon/add.png' %}"></button>
-      <input type="text" class="add-grp" placeholder="{% trans 'create list or group'|capfirst %}" name="name">
-      <button type="submit" name="group-add" class="default grp-add" label="create group"><img class="img-20_20" src="{% static 'rok/icon/group-add.png' %}"></button>
-    </form>
+    <button type="button" name="list-add" class="default lst-add" label="create list" onclick="addList()"><img class="img-20_20" src="{% static 'rok/icon/add.png' %}"></button>
+    <input type="text" class="add-grp" placeholder="{% trans 'create list'|capfirst %}" name="name">
   {% endif %}
 
 </div>

@@ -2,7 +2,7 @@ OperTest();
 
 function OperTest()
 {
-  var sel = document.getElementById('id_oper');
+  let sel = document.getElementById('id_oper');
   if (sel.value == 0)
   {
     document.getElementById("days_field").style.display = "block";

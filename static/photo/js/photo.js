@@ -1,7 +1,7 @@
 
 
 
-var mymap;
+let mymap;
 
 getLocation();
 
@@ -22,9 +22,9 @@ function showMap(latitude, longitude)
 {
   mymap = L.map('mapid');
 
-  var gps_data = document.getElementById('id_data').value;
-  var gps_corr = gps_data.replace(/'/g,'"');
-  var photos = JSON.parse(gps_corr);
+  let gps_data = document.getElementById('id_data').value;
+  let gps_corr = gps_data.replace(/'/g,'"');
+  let photos = JSON.parse(gps_corr);
   
   if (photos.length == 0)
     mymap.setView([latitude, longitude], 7);
@@ -33,7 +33,7 @@ function showMap(latitude, longitude)
       mymap.setView([photos[0]["lat"], photos[0]["lon"]], 11); // Чем больше, тем ближе
     else
     {
-      var corner1 = L.latLng(photos[0]["lat"], photos[0]["lon"]),
+      let corner1 = L.latLng(photos[0]["lat"], photos[0]["lon"]),
       corner2 = L.latLng(photos[1]["lat"], photos[1]["lon"]),
       bounds = L.latLngBounds(corner1, corner2);  
       for (i = 2; i < photos.length; i++) {
@@ -52,7 +52,7 @@ function showMap(latitude, longitude)
   }).addTo(mymap);
 
   for (i = 0; i < photos.length; i++) {
-    var marker = L.marker([photos[i]["lat"], photos[i]["lon"]]).addTo(mymap);
+    let marker = L.marker([photos[i]["lat"], photos[i]["lon"]]).addTo(mymap);
     marker.bindPopup(photos[i]["name"] + "<br><a href='/photo/by_id/" + photos[i]["id"] + "/'><img src='/photo/get_mini/" + photos[i]["id"] + "/'>").openPopup();
   }
 }

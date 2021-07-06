@@ -1,12 +1,12 @@
-var tree_data = [], map = {};
+let tree_data = [], map = {};
 
 function buildTree(tree_id, app, current_id) {
-  var i, roots = [], node = {};
+  let i, roots = [], node = {};
 
-  var ul = document.getElementById(tree_id);
-  for (var i = 0; i < ul.children.length; i++) {
-    var li = ul.children[i];
-    var id = li.dataset.id;
+  let ul = document.getElementById(tree_id);
+  for (let i = 0; i < ul.children.length; i++) {
+    let li = ul.children[i];
+    let id = li.dataset.id;
     tree_data.push({});
     tree_data[i].id = id;
     if (ul.children[i].dataset.parent)
@@ -29,12 +29,12 @@ function buildTree(tree_id, app, current_id) {
     }
   }
 
-  for (var i = 0; i < roots.length; i++)
+  for (let i = 0; i < roots.length; i++)
     initLi(roots[i], true);
 }
 
 function initLi(node, visible) {
-  var li = document.getElementById('task_group_' + node.id);
+  let li = document.getElementById('task_group_' + node.id);
   if (visible)
     li.classList.remove('hide');
   else
@@ -46,46 +46,46 @@ function initLi(node, visible) {
     else
       li.children[1].children[0].setAttribute('src', '/static/rok/icon/direct-left.png');
 
-  for (var i = 0; i < node.children.length; i++)
+  for (let i = 0; i < node.children.length; i++)
     initLi(node.children[i], visible && node.is_open);
 }
 
 function toggleGroup(group_id) {
-  var node = tree_data[map[group_id]];
+  let node = tree_data[map[group_id]];
   node.is_open = !node.is_open;
   setOpen(group_id, node.is_open);
-  var li = document.getElementById('task_group_' + group_id);
+  let li = document.getElementById('task_group_' + group_id);
   if (node.is_open)
     li.children[1].children[0].setAttribute('src', '/static/rok/icon/direct-down.png');
   else
     li.children[1].children[0].setAttribute('src', '/static/rok/icon/direct-left.png');
-  var i;
+  let i;
   for (i = 0; i < node.children.length; i += 1)
     toggleLi(node.children[i].id, node.is_open);
 }
 
 function toggleLi(group_id, visible) {
-  var li = document.getElementById('task_group_' + group_id);
+  let li = document.getElementById('task_group_' + group_id);
   if (visible)
     li.classList.remove('hide');
   else
     li.classList.add('hide');
-  var i, node = tree_data[map[group_id]];
+  let i, node = tree_data[map[group_id]];
   if (!node.is_leaf && node.is_open)
     for (i = 0; i < node.children.length; i += 1)
       toggleLi(node.children[i].id, visible);
 }
 
 function getOpen(group_id) {
-  var name = 'grp_' + group_id;
-  var value = localStorage.getItem(name);
+  let name = 'grp_' + group_id;
+  let value = localStorage.getItem(name);
   if (value == 'true')
     return true;
   return false;
 }
 
 function setOpen(group_id, value) {
-  var name = 'grp_' + group_id;
+  let name = 'grp_' + group_id;
   localStorage.setItem(name, value);
 }
 
