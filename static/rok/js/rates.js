@@ -20,7 +20,7 @@ function getRateOnDate(currency, init, id_date, id_rate) {
   let dt = el_date.value;
   if (dt == "")
     return;
-  const params = "?ondate=" + dt.substring(6, 10) + "-" + dt.substring(3, 5) + "-" + dt.substring(0, 2);
+  const params = "?ondate=" + dt.substring(6, 10) + "-" + dt.substring(3, 5) + "-" + dt.substring(0, 2) + '&parammode=2';
   request.responseType = "json";
   request.open("GET", url + params, true);
   request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
