@@ -4,7 +4,7 @@
   <li>
 
     {% if not hide_selector %}
-      <a href="{% url 'todo_beta:toggle-completed' item.id %}{{ params }}" class="tree-item-left icon">
+      <a href="{% url 'todo:toggle-completed' item.id %}{{ params }}" class="tree-item-left icon">
         {% if item.marked_item %}
           <img class="img-20_20" src="{% static complete_icon %}">
         {% else %}
@@ -13,7 +13,7 @@
       </a>      
     {% endif %}
 
-    <a href="{% url 'todo_beta:task-detail' item.id %}{{ params }}" class="tree-item{% if item.id == ed_item.id %} current{% endif %}">
+    <a href="{% url 'todo:task-detail' item.id %}{{ params }}" class="tree-item{% if item.id == ed_item.id %} current{% endif %}">
       <div class="info">
         <div class="name{% if item.marked_item %} completed{% endif %}">{{ item.name }}</div>
         <div class="descr">
@@ -56,7 +56,7 @@
     </a>      
 
     {% if not hide_important %}
-      <a href="{% url 'todo_beta:toggle-important' item.id %}{{ params }}" class="tree-item-right icon">
+      <a href="{% url 'todo:toggle-important' item.id %}{{ params }}" class="tree-item-right icon">
         {% if item.important %}
           <img class="img-20_20" src="{% static 'todo/icon/important-on.png' %}">
         {% else %}

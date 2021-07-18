@@ -15,7 +15,6 @@
     </div>
     <div class="desktop-only">
       {% if user.username == 'ruslan.ok' %}
-      <a href="{% url 'switch' %}" class="button" title="{% trans 'beta version'|capfirst %}">Beta {% if beta %}on{% else %}off{% endif %}</a>
       <a href="{% url 'todo:fcm' %}" class="button" title="{% trans 'parameters'|capfirst %}"><img src="{% static 'rok/icon/param.png' %}"></a>
       {% endif %}
     </div>

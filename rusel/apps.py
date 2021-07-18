@@ -47,7 +47,6 @@ def get_app_name(app):
     return None
 
 def get_apps_list(user):
-    beta = get_beta(user)
     apps = []
     for app in APPS:
         if (app in ('store', 'trip', 'apart', 'wage', 'health')) and (user.username != 'ruslan.ok'):
@@ -57,8 +56,6 @@ def get_apps_list(user):
         if (app == 'profile') and (user.username == 'demouser'):
             continue
         href = APPS[app][1]
-        if beta and (app != 'home'):
-            href = 'beta' + APPS[app][1]
         apps.append({'href': href, 'icon': 'rok/icon/' + APPS[app][0] + '.png', 'name': get_main_menu_item(app)})
     return apps
 
@@ -83,16 +80,4 @@ def get_main_menu_item(app):
     if (app == 'logout'):
         return _('log out').capitalize()
     return None
-
-def switch_beta(user):
-    if Task.objects.filter(user=user.id, name='beta-testing').exists():
-        Task.objects.filter(user=user.id, name='beta-testing').delete()
-    else:
-        Task.objects.create(user=user, name='beta-testing')
-
-def get_beta(user):
-    return Task.objects.filter(user=user.id, name='beta-testing').exists()
-
-
-
 

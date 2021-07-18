@@ -28,8 +28,6 @@ from wage.search import search as wage_search
 from apart.search import search as apart_search
 from store.search import search as store_search
 
-from rusel.apps import switch_beta
-
 app_name = 'rusel'
 
 #----------------------------------
@@ -102,13 +100,6 @@ def index_user(request):
     else:
         template = loader.get_template('index_user.html')
     return HttpResponse(template.render(context, request))
-
-#----------------------------------
-@login_required(login_url='account:login')
-#----------------------------------
-def switch(request):
-    switch_beta(request.user)
-    return HttpResponseRedirect(reverse('index'))
 
 def get_si_date(e):
     if not e.created:
