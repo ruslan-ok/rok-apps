@@ -8,8 +8,8 @@ from django.contrib.auth.models import User
 from rest_framework.reverse import reverse
 
 from task.const import *
-from hier.categories import get_categories_list
-from hier.files import get_files_list
+from task.categories import get_categories_list
+from task.files import get_files_list
 from todo.utils import nice_date
 from todo.const import *
 

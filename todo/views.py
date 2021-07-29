@@ -10,30 +10,28 @@ from django.core.paginator import Paginator
 from django.urls import reverse
 
 from rusel.context import get_base_context
-from hier.aside import Fix, Sort
-from hier.content import find_group
-from hier.utils import extract_get_params
-from hier.files import storage_path, get_files_list
+from rusel.aside import Fix, Sort
+from rusel.content import find_group
+from rusel.utils import extract_get_params
 from task.models import Task, Step, Group, TaskGroup
 from task.views import GroupDetailView
 from task.const import *
 from todo.const import *
 from todo.utils import get_grp_planned, GRPS_PLANNED, get_week_day_name
-from todo.beta.forms import CreateTaskForm, TaskForm
-from numpy.distutils.misc_util import gpaths
+from todo.forms import CreateTaskForm, TaskForm
 
-list_url = '/beta/todo/'
+list_url = '/todo/'
 
 def toggle_completed(request, pk):
     task = get_object_or_404(Task, id=pk, user=request.user.id)
     task.toggle_completed()
-    return HttpResponseRedirect(reverse('todo_beta:task-list') + extract_get_params(request))
+    return HttpResponseRedirect(reverse('todo:task-list') + extract_get_params(request))
 
 def toggle_important(request, pk):
     task = get_object_or_404(Task, id=pk, user=request.user.id)
     task.important = not task.important
     task.save()
-    return HttpResponseRedirect(reverse('todo_beta:task-list') + extract_get_params(request))
+    return HttpResponseRedirect(reverse('todo:task-list') + extract_get_params(request))
 
 class TaskAside():
 
@@ -189,7 +187,7 @@ class TaskListView(TaskAside, CreateView):
 
 class TaskDetailView(TaskAside, UpdateView):
     model = Task
-    template_name = 'todo/beta/task_detail.html'
+    template_name = 'todo/task_detail.html'
     app = 'todo'
     title = _('unknown')
     mode = ALL
@@ -204,7 +202,6 @@ class TaskDetailView(TaskAside, UpdateView):
         context['ed_item'] = self.object
         context['task_actual'] = (not self.object.completed) and (not self.object.b_expired()) and self.object.stop
         context['steps'] = Step.objects.filter(task=self.object.id)
-        context['files'] = get_files_list(self.request.user, self.app, 'task_{}'.format(self.object.id))
         
         # this is needed to translate the names of the days of the week
         locale.setlocale(locale.LC_CTYPE, self.request.LANGUAGE_CODE)
@@ -234,13 +231,13 @@ class TaskDetailView(TaskAside, UpdateView):
 class TaskGroupDetailView(TaskAside, GroupDetailView):
 
     def get_success_url(self):
-        return reverse('todo_beta:group-detail', args=[self.get_object().id])
+        return reverse('todo:group-detail', args=[self.get_object().id])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         task = self.get_object()
         context['fix_list'] = self.get_aside_context(self.request.user)
-        context['return_url'] = '/beta/todo/'
+        context['return_url'] = '/todo/'
         return context
 
 
@@ -281,4 +278,25 @@ def get_remind_tomorrow():
 
 def get_remind_next_week():
     return datetime.now().replace(hour = 9, minute = 0, second = 0) + timedelta(8 - datetime.today().isoweekday())
+
+def complete_task(task):
+    next = None
+    if (not task.completed) and task.repeat:
+        if not task.start:
+            task.start = task.stop # Для повторяющейся задачи запоминаем срок, который был указан в первой итерации, чтобы использовать его для корректировки дат следующих этапов
+        next = task.next_iteration()
+    task.completed = not task.completed
+    if task.completed:
+        if not task.stop:
+          task.stop = date.today()
+        task.completion = datetime.now()
+    else:
+        task.completion = None
+    task.save()
+    if task.completed and next: # Завершен этап повторяющейся задачи и определен срок следующей итерации
+        if not Task.objects.filter(user = task.user, name = task.name, lst = task.lst, completed = False).exists():
+            Task.objects.create(user = task.user, lst = task.lst, name = task.name, start = task.start, stop = next, important = task.important, \
+                                remind = task.next_remind_time(), repeat = task.repeat, repeat_num = task.repeat_num, \
+                                repeat_days = task.repeat_days, categories = task.categories, info = task.info)
+
 

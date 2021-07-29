@@ -4,6 +4,9 @@ function buildTree(tree_id, app, current_id) {
   let i, roots = [], node = {};
 
   let ul = document.getElementById(tree_id);
+  if (!ul)
+    return;
+    
   for (let i = 0; i < ul.children.length; i++) {
     let li = ul.children[i];
     let id = li.dataset.id;

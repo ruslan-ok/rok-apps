@@ -1,4 +1,4 @@
-{% extends "hier/page.html" %}
+{% extends "base/page.html" %}
 {% load static i18n %}
 
 {% block aside_conent %}
@@ -24,7 +24,7 @@
       {{ dbg }}<br>
       {% endfor %}
 
-      <a href="{% url 'trip:main' %}">{{ trip_summary|safe }}</a><br><br>
+      {#<a href="{% url 'trip:main' %}">{{ trip_summary|safe }}</a><br><br>#}
       
       {% if last_visited %}
         <h4>{% trans 'last visited pages'|capfirst %}</h4>

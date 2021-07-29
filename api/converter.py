@@ -1,5 +1,5 @@
 from todo.models import Grp, Lst, Task as OldTask, Step as OldStep
-from note.models import Note
+#from note.models import Note
 from task.models import Task, Step, Group, TaskGroup, Urls
 from task.const import *
 
@@ -8,6 +8,7 @@ debug = []
 
 def convert():
     debug = []
+    """
     debug.append('Start convert')
     TaskGroup.objects.all().delete()
     Group.objects.all().delete()
@@ -34,6 +35,7 @@ def convert():
     debug.append('-')
     debug.append('Records in Urls: ' + str(len(Urls.objects.all())))
     debug.append('Stop convert')
+    """
     return debug
 
 
@@ -51,7 +53,7 @@ def transfer_lst(grp, task_grp, debug):
     for lst in lsts:
         task_grp_ = Group.objects.create(user=lst.user, app=lst.app, node=task_grp, name=lst.name, sort=lst.sort, created=lst.created, last_mod=lst.last_mod, is_leaf=True)
         transfer_task(lst, task_grp_)
-        transfer_note(lst, task_grp_)
+        #transfer_note(lst, task_grp_)
 
 
 def transfer_task(lst, task_grp):
@@ -97,7 +99,7 @@ def transfer_task(lst, task_grp):
         if task.url:
             Urls.objects.create(task=atask, num=1, href=task.url)
 
-
+"""
 def transfer_note(lst, task_grp):
     notes = Note.objects.filter(lst=lst)
     for note in notes:
@@ -143,3 +145,4 @@ def transfer_note(lst, task_grp):
 
         if note.url:
             Urls.objects.create(task=atask, num=1, href=note.url)
+"""

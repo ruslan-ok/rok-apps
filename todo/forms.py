@@ -4,7 +4,6 @@ from django.utils.translation import gettext_lazy as _
 
 from django.contrib.admin.widgets import AdminSplitDateTime
 
-from hier.forms import DateInput
 from task.models import Group, Task, TaskGroup
 from todo.models import app_name, Step
 

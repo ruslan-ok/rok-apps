@@ -1,10 +1,10 @@
-{% extends "task/content_top.html" %}
+{% extends "base/content_top.html" %}
 {% load static i18n %}
 
 {% block items_content %}
   <ul>
     {% for item in page_obj %}
-      {% include "task/item.html" %}
+      {% include "base/item.html" %}
     {% endfor %}
   </ul>
 

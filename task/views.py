@@ -1,7 +1,7 @@
 from django.views.generic.edit import UpdateView
 
 from rusel.context import get_base_context
-from hier.utils import extract_get_params
+from rusel.utils import extract_get_params
 from task.models import Group
 from task.forms import GroupForm
 

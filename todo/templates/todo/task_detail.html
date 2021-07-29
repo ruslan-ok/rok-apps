@@ -19,31 +19,31 @@
     <form method="post" enctype="multipart/form-data" id="article_form" data-item_id="{{ ed_item.id|cut:" " }}">{% csrf_token %}
       <div class="article-top">
         <div class="info"></div>
-        <a href="/beta/todo/{{ params }}"><img class="img-20_20" src="{% static 'rok/icon/clear.png' %}"></a>
+        <a href="/todo/{{ params }}"><img class="img-20_20" src="{% static 'rok/icon/clear.png' %}"></a>
       </div>
 
       <section id="article-content">
         {% include "task/form_errors.html" %}
 
         <div class="form">
-          <div class="fieldset"> {% include "todo/beta/fld/name.html" %}   </div>
+          <div class="fieldset"> {% include "todo/fld/name.html" %}   </div>
 
           <div class="w3-half">
-            <div class=""> {% include "todo/beta/fld/list.html" %}   </div>
-            <div class=""> {% include "todo/beta/fld/steps.html" %}  </div>
-            <div class=""> {% include "todo/beta/fld/urls.html" %}   </div>
+            <div class=""> {% include "todo/fld/list.html" %}   </div>
+            <div class=""> {% include "todo/fld/steps.html" %}  </div>
+            <div class=""> {% include "todo/fld/urls.html" %}   </div>
           </div>
 
           <div class="w3-half">
-            <div class="w3-half"> {% include "todo/beta/fld/termin.html" %} 
-                                  {% include "todo/beta/fld/remind.html" %}
-                                  {% include "todo/beta/fld/repeat.html" %} </div>
-            <div class="w3-half"> {% include "todo/beta/fld/myday.html" %} 
+            <div class="w3-half"> {% include "todo/fld/termin.html" %} 
+                                  {% include "todo/fld/remind.html" %}
+                                  {% include "todo/fld/repeat.html" %} </div>
+            <div class="w3-half"> {% include "todo/fld/myday.html" %} 
                                   {% include "hier/categories.html" %}     
-                                  {% include "todo/beta/fld/files.html" %}  </div>
+                                  {% include "todo/fld/files.html" %}  </div>
           </div>
 
-          <div class="fieldset"> {% include "todo/beta/fld/info.html" %}   </div>
+          <div class="fieldset"> {% include "todo/fld/info.html" %}   </div>
         </div>
 
       </section>

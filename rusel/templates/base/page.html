@@ -13,8 +13,8 @@
     <link rel="stylesheet" type="text/css" href="{% static 'rok/css/w3.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'rok/css/rok.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'rok/css/search.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'task/css/article.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'task/css/adaptive.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'rok/css/article.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'rok/css/adaptive.css' %}">
     {% block extrastyle %}{% endblock %}
     <meta name="robots" content="NONE,NOARCHIVE">
     <link rel="icon" type="image/png" href="/static/favicon.ico">
@@ -31,10 +31,10 @@
 
   <body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}" data-admin-utc-offset="{% now "Z" %}">
     {% block window %}
-      {% include "task/nav.html" %}
+      {% include "base/nav.html" %}
 
       <div id="wrapper">
-        {% include "task/header.html" %}
+        {% include "base/header.html" %}
     
         <div id="page" {% if user.is_authenticated %}class="with_header"{% endif %}>
           <aside class="{% if aside_visible %}vis{% else %}hid{% endif %}{% if not user.is_authenticated %} no_header{% endif %}">
@@ -45,7 +45,7 @@
               </form>
             </section>
               {% block aside_conent %}
-                {% include "task/aside.html" %}
+                {% include "base/aside.html" %}
               {% endblock %}
             <div>
               {% block aside_footer %}{% endblock %}

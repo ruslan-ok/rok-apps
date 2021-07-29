@@ -4,8 +4,8 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 
-from hier.categories import get_categories_list
-from hier.files import get_files_list
+from task.categories import get_categories_list
+from task.files import get_files_list
 from .utils import nice_date, GRPS_PLANNED
 
 app_name = 'todo'
@@ -292,7 +292,7 @@ class Task(models.Model):
         return ret
 
 
-
+"""
 class Param(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'todo_param_user')
     cur_view = models.IntegerField(_('current view'), blank = True)
@@ -311,7 +311,7 @@ class Param(models.Model):
     lst = models.ForeignKey(Lst, on_delete = models.CASCADE, verbose_name = _('list'), blank = True, null = True)
     details_mode = models.IntegerField(_('details mode'), blank = True, null = True)
     details_pk = models.IntegerField(_('details pk'), blank = True, null = True)
-
+"""
 
 class Step(models.Model):
     task = models.ForeignKey(Task, on_delete = models.CASCADE, verbose_name = _('task'))

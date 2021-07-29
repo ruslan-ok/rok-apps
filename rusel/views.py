@@ -13,20 +13,20 @@ from django.contrib.auth.decorators import login_required
 from django.views import View
 from django.conf import settings
 
-from hier.utils import get_base_context_ext, process_common_commands, get_param, get_last_visited
-from hier.models import Param, Folder
-from trip.models import trip_summary
-from hier.site_stat import get_site_stat
-from hier.params import get_search_info
+from rusel.context import get_base_context
+#from hier.models import Param, Folder
+#from trip.models import trip_summary
+#from rusel.site_stat import get_site_stat
+#from hier.params import get_search_info
 
-from note.search import search as note_search
+#from note.search import search as note_search
 from todo.search import search as todo_search
-from proj.search import search as proj_search
-from trip.search import search as trip_search
-from fuel.search import search as fuel_search
-from wage.search import search as wage_search
-from apart.search import search as apart_search
-from store.search import search as store_search
+#from proj.search import search as proj_search
+#from trip.search import search as trip_search
+#from fuel.search import search as fuel_search
+#from wage.search import search as wage_search
+#from apart.search import search as apart_search
+#from store.search import search as store_search
 
 app_name = 'rusel'
 
@@ -39,7 +39,7 @@ def index(request):
     return index_anonim(request)
 
 def index_anonim(request):
-    app_param, context = get_base_context_ext(request, app_name, '', ('',))
+    context = get_base_context(request, app_name, '', ('',))
     context['hide_title'] = True
     context['aside_disabled'] = True
     template = loader.get_template('index_anonim.html')
@@ -49,8 +49,7 @@ def index_anonim(request):
 #@login_required(login_url='account:login')
 #----------------------------------
 def index_user(request):
-    process_common_commands(request, app_name)
-    app_param, context = get_base_context_ext(request, app_name, '', ('applications',))
+    context = get_base_context(request, app_name, '', ('applications',))
     context['hide_title'] = False
     context['aside_disabled'] = True
     context['debug'] = settings.DEBUG
@@ -59,21 +58,21 @@ def index_user(request):
     data = []
     if (request.method == 'GET'):
         query = request.GET.get('q')
-        context['search_info'] = get_search_info(query)
-        data = get_search_data(request.user, app_param, query)
+        context['search_info'] = query #get_search_info(query)
+        data = get_search_data(request.user, query)
         context['search_qty'] = len(data)
         context['search_data'] = data
         if query:
             context['title'] = _('search results').capitalize()
     if not data:
         if (request.user.username == 'ruslan.ok'):
-            statistics = get_site_stat(request.user)
-            indicators = statistics[0]
-            stat = statistics[1]
-            context['indicators'] = indicators
-            context['show_stat'] = (len(stat) > 0)
-            context['stat'] = stat
-            context['trip_summary'] = trip_summary(request.user.id)
+            #statistics = get_site_stat(request.user)
+            #indicators = statistics[0]
+            #stat = statistics[1]
+            #context['indicators'] = indicators
+            #context['show_stat'] = (len(stat) > 0)
+            #context['stat'] = stat
+            #context['trip_summary'] = trip_summary(request.user.id)
             context['python_version'] = python_version()
             context['django_version'] = '{}.{}.{} {}'.format(*django.VERSION)
             context['apache_version'] = '2.4.41 (Win64)'
@@ -93,7 +92,7 @@ def index_user(request):
             except:
                 pass
 
-        context['last_visited'] = get_last_visited(request.user)
+        #context['last_visited'] = get_last_visited(request.user)
 
     if query:
         template = loader.get_template('index_search.html')
@@ -106,18 +105,18 @@ def get_si_date(e):
         return datetime.datetime(2000,1,1).date()
     return e.created
 
-def get_search_data(user, app_param, query):
+def get_search_data(user, query):
     if not query:
         return []
     data = []
-    data += note_search(user, query)
+    #data += note_search(user, query)
     data += todo_search(user, query)
-    data += proj_search(user, query)
-    data += trip_search(user, query)
-    data += fuel_search(user, query)
-    data += wage_search(user, query)
-    data += apart_search(user, query)
-    data += store_search(user, query)
+    #data += proj_search(user, query)
+    #data += trip_search(user, query)
+    #data += fuel_search(user, query)
+    #data += wage_search(user, query)
+    #data += apart_search(user, query)
+    #data += store_search(user, query)
     data.sort(reverse=True, key=get_si_date)
     return data
 

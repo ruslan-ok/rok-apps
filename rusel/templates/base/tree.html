@@ -1,4 +1,4 @@
-{% extends "task/content_top.html" %}
+{% extends "base/content_top.html" %}
 {% load static i18n %}
 
 {% block items_content %}
@@ -13,7 +13,7 @@
     {% endif %}
     <ul class="{% if group.name %}hide{% endif %}" data-itm_id="{{ group.id }}" id="itm_{{ group.id }}">
       {% for item in group.items %}
-        {% include "task/item.html" %}
+        {% include "base/item.html" %}
       {% endfor %}
     </ul>
   {% endfor %}
