@@ -48,7 +48,7 @@ class TaskAside():
 class TaskListView(TaskAside, CreateView):
     model = Task
     pagenate_by = 10
-    template_name = 'task/list.html'
+    template_name = 'base/list.html'
     app = 'todo'
     view_id = ALL
     title = _('unknown')
@@ -141,9 +141,9 @@ class TaskListView(TaskAside, CreateView):
         self.view_as_tree = (self.view_id == MY_DAY) or (self.view_id == PLANNED) or (self.view_id == LIST_MODE)
             
         if self.view_as_tree:
-            self.template_name = 'task/tree.html'
+            self.template_name = 'base/tree.html'
         else:
-            self.template_name = 'task/list.html'
+            self.template_name = 'base/list.html'
         
     def get_title(self):
         if (self.view_id == MY_DAY):

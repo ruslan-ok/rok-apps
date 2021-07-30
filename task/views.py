@@ -7,7 +7,7 @@ from task.forms import GroupForm
 
 class GroupDetailView(UpdateView):
     model = Group
-    template_name = 'task/group_detail.html'
+    template_name = 'base/group_detail.html'
     form_class = GroupForm
 
     def get_context_data(self, **kwargs):
