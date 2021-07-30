@@ -1,131 +1,267 @@
+import time
 import os, locale
-from datetime import datetime, date, timedelta
+from datetime import datetime, timedelta, date
 
-from django.urls import reverse
-from django.http import HttpResponse, HttpResponseRedirect, FileResponse, HttpResponseNotFound
-from django.template import loader
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext_lazy as _
-from django.db.models import Q
+from django.views.generic.edit import UpdateView, CreateView
+from django.core.paginator import Paginator
+from django.urls import reverse
 
-from hier.utils import get_base_context_ext, process_common_commands, sort_data, extract_get_params
-from hier.models import get_app_params, toggle_content_group
-from hier.params import set_restriction, set_article_kind, set_article_visible, set_sort_mode, toggle_sort_dir, get_search_mode, get_search_info
-from hier.categories import get_categories_list
-from hier.grp_lst import group_add, group_details, group_toggle, list_add, list_details, build_tree
-from hier.files import storage_path, get_files_list
-from hier.aside import Fix, Sort
-from hier.content import find_group
+from rusel.context import get_base_context
+from rusel.aside import Fix, Sort
+from rusel.content import find_group
+from rusel.utils import extract_get_params
+from task.models import Task, Step, Group, TaskGroup
+from task.views import GroupDetailView
+from task.const import *
 from todo.const import *
-from .models import app_name, Lst, Task, Param, Step, DAILY, WORKDAYS, WEEKLY, MONTHLY, ANNUALLY#, PerGrp
-from .utils import get_task_status, nice_date, get_grp_planned, GRP_PLANNED_NONE, get_week_day_name, GRPS_PLANNED
-from .forms import TaskForm
+from todo.utils import get_grp_planned, GRPS_PLANNED, get_week_day_name
+from todo.forms import CreateTaskForm, TaskForm
+
+list_url = '/todo/'
+
+def toggle_completed(request, pk):
+    task = get_object_or_404(Task, id=pk, user=request.user.id)
+    task.toggle_completed()
+    return HttpResponseRedirect(reverse('todo:task-list') + extract_get_params(request))
+
+def toggle_important(request, pk):
+    task = get_object_or_404(Task, id=pk, user=request.user.id)
+    task.important = not task.important
+    task.save()
+    return HttpResponseRedirect(reverse('todo:task-list') + extract_get_params(request))
+
+class TaskAside():
+
+    def get_aside_context(self, user):
+        fixes = []
+        fixes.append(Fix('myday', _('my day').capitalize(), 'todo/icon/myday.png', list_url+'?view='+MY_DAY, len(get_tasks(user, MY_DAY, 0).exclude(completed = True))))
+        fixes.append(Fix('important', _('important').capitalize(), 'todo/icon/important.png', list_url+'?view='+IMPORTANT, len(get_tasks(user, IMPORTANT, 0))))
+        fixes.append(Fix('planned', _('planned').capitalize(), 'todo/icon/planned.png', list_url+'?view='+PLANNED, len(get_tasks(user, PLANNED, 0))))
+        fixes.append(Fix('all', _('all').capitalize(), 'rok/icon/all.png', list_url, len(get_tasks(user, ALL, 0))))
+        fixes.append(Fix('completed', _('completed').capitalize(), 'todo/icon/completed.png', list_url+'?view='+COMPLETED, len(get_tasks(user, COMPLETED, 0))))
+        return fixes
 
 
-items_in_page = 10
+class TaskListView(TaskAside, CreateView):
+    model = Task
+    pagenate_by = 10
+    template_name = 'base/list.html'
+    app = 'todo'
+    view_id = ALL
+    title = _('unknown')
+    view_as_tree = False
+    form_class = CreateTaskForm
+    cur_grp = 0
 
-NONE = ''
-NAME = 'name'
-CREATED = 'created'
+    def get_queryset(self):
+        if (self.view_id == MY_DAY):
+            return Task.objects.filter(user=self.request.user, app_task=TASK, in_my_day=True).order_by('created')
+        if (self.view_id == IMPORTANT):
+            return Task.objects.filter(user=self.request.user, app_task=TASK, important=True, completed=False).order_by('created')
+        if (self.view_id == PLANNED):
+            return Task.objects.filter(user=self.request.user, app_task=TASK, completed=False).exclude(stop=None).order_by('created')
+        if (self.view_id == COMPLETED):
+            return Task.objects.filter(user=self.request.user, app_task=TASK, completed=True).order_by('created')
+        if (self.view_id == LIST_MODE):
+            return [tg.task for tg in TaskGroup.objects.filter(group=self.cur_grp)]
+        # ALL
+        return Task.objects.filter(user=self.request.user, app_task=TASK, completed=False).order_by('created')
 
-PAGES = {
-    NONE: 'all',
-    ALL: 'all',
-    MY_DAY: 'my day',
-    IMPORTANT: 'important',
-    PLANNED: 'planned',
-    COMPLETED: 'completed',
-    LIST_MODE: 'tasks of the list'
-}
+    def get_success_url(self):
+        url = super().get_success_url()
+        return url + extract_get_params(self.request)
 
-
-SORT_MODE_DESCR = {
-    '': '',
-    'important': _('sort by important'),
-    'stop': _('sort by termin'),
-    'completion': _('sort by completion date'),
-    'in_my_day': _('sort by My day'),
-    'name': _('sort by name'),
-    'created': _('sort by create date')
-}
-
-TASK_DETAILS = 'task'
-LIST_DETAILS = 'list'
-GROUP_DETAILS = 'group'
-
-def get_tasks(user, mode, lst_id):
-    if (mode == MY_DAY):
-        ret = Task.objects.filter(user = user.id, in_my_day = True)
-    elif (mode == IMPORTANT):
-        ret = Task.objects.filter(user = user.id, important = True).exclude(completed = True)
-    elif (mode == PLANNED):
-        ret = Task.objects.filter(user = user.id).exclude(stop = None).exclude(completed = True)
-    elif (mode == COMPLETED):
-        ret = Task.objects.filter(user = user.id, completed = True)
-    elif (mode == LIST_MODE):
-        ret = Task.objects.filter(user = user.id, lst = lst_id)
-    else: # ALL or NONE
-        ret = Task.objects.filter(user = user.id).exclude(completed = True)
-    return ret
-
-def get_filtered_tasks(user, mode, lst_id, query):
-    ret = get_tasks(user, mode, lst_id)
-    search_mode = get_search_mode(query)
-    lookups = None
-    if (search_mode == 0):
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        form.instance.app_task = TASK
+        ret = super(TaskListView, self).form_valid(form)
+        l = self.request.GET.get('lst')
+        if l:
+            lst = Group.objects.filter(id=l).get()
+            TaskGroup.objects.create(task=form.instance, group=lst, app='todo')
         return ret
-    elif (search_mode == 1):
-        lookups = Q(name__icontains=query) | Q(info__icontains=query) | Q(url__icontains=query)
-    elif (search_mode == 2):
-        lookups = Q(categories__icontains=query[1:])
-    return ret.filter(lookups)
-
-def sorted_tasks(user, app_param, query):
-    lst_id = 0
-    if app_param.lst:
-        lst_id = app_param.lst.id
-    data = get_filtered_tasks(user, app_param.restriction, lst_id, query)
-    return sort_data(data, app_param.sort + ' stop', app_param.reverse)
-
-def todo_base_context(request):
-    app_param = get_app_params(request.user, app_name)
-    app_param, context = get_base_context_ext(request, app_name, 'task', (PAGES[app_param.restriction],))
-    context['list_url'] = 'todo:' + app_param.restriction
-    if (app_param.restriction == MY_DAY):
-        context['title_info'] = datetime.today().strftime('%a, %d %B')
-
-    fixes = []
-    fixes.append(Fix('myday', _('my day').capitalize(), 'todo/icon/myday.png', 'myday/', len(get_tasks(request.user, MY_DAY, 0).exclude(completed = True))))
-    fixes.append(Fix('important', _('important').capitalize(), 'todo/icon/important.png', 'important/', len(get_tasks(request.user, IMPORTANT, 0))))
-    fixes.append(Fix('planned', _('planned').capitalize(), 'todo/icon/planned.png', 'planned/', len(get_tasks(request.user, PLANNED, 0))))
-    fixes.append(Fix('all', _('all').capitalize(), 'rok/icon/all.png', 'all/', len(get_tasks(request.user, ALL, 0))))
-    fixes.append(Fix('completed', _('completed').capitalize(), 'todo/icon/completed.png', 'completed/', len(get_tasks(request.user, COMPLETED, 0))))
-    context['fix_list'] = fixes
-
-    sorts = []
-    if (app_param.restriction != MY_DAY):
-        sorts.append(Sort('myday', _('my day').capitalize(), 'todo/icon/myday.png'))
-    if (app_param.restriction != IMPORTANT):
-        sorts.append(Sort('important', _('by importance').capitalize(), 'todo/icon/important.png'))
-    sorts.append(Sort('termin', _('by termin date').capitalize(), 'todo/icon/planned.png'))
-    if (app_param.restriction in (COMPLETED, LIST_MODE)):
-        sorts.append(Sort('completion', _('by date of completion').capitalize(), 'todo/icon/completed.png'))
-    sorts.append(Sort('name',  _('by name').capitalize(), 'todo/icon/sort.png'))
-    sorts.append(Sort('created',  _('by creation date').capitalize(), 'todo/icon/created.png'))
-    context['sort_options'] = sorts
-
-    tree = build_tree(request.user.id, app_name)
-    for t in tree:
-        if t.is_list:
-            t.qty = len(Task.objects.filter(user = request.user.id, lst = t.id, completed = False))
-    context['groups'] = tree
     
-    if app_param.sort and (app_param.sort in SORT_MODE_DESCR):
-        context['sort_mode'] = SORT_MODE_DESCR[app_param.sort].capitalize()
-    context['add_item_placeholder'] = _('add task').capitalize()
-    return app_param, context
+    def get_context_data(self, **kwargs):
+        start = time.time()
+        context = super().get_context_data(**kwargs)
+        self.init_view()
+        title = self.get_title()
+        gp = self.get_group_path()
+        context['group_path'] = gp
+        if gp and not title:
+            title = ' / '.join([x['name'] for x in gp])
+        context.update(get_base_context(self.request, self.app, False, title))
+        context['fix_list'] = self.get_aside_context(self.request.user)
+        context['sort_options'] = self.get_sorts()
+        context['view_id'] = self.view_id
+        context['params'] = extract_get_params(self.request)
+
+        groups = []
+        query = None
+        page_number = 1
+        if self.request.method == 'GET':
+            query = self.request.GET.get('q')
+            page_number = self.request.GET.get('page')
+            if not page_number:
+                page_number = 1
+        search_mode = 0
+    
+        tasks = self.get_queryset()
+        if self.view_as_tree:
+            for task in tasks:
+                grp_id = get_grp_planned(self.view_id, task.stop.date() if task.stop else None, task.completed)
+                group = find_group(groups, self.request.user, self.app, grp_id, GRPS_PLANNED[grp_id].capitalize())
+                group.items.append(task)
+            context['item_groups'] = sorted(groups, key = lambda group: group.grp.grp_id)
+        else:    
+            paginator = Paginator(tasks, ITEMS_PER_PAGE)
+            page_obj = paginator.get_page(page_number)
+            context['page_obj'] = paginator.get_page(page_number)
+        context['profiling'] = "Time: %.03f s" % (time.time() - start)
+        return context
+
+    def init_view(self):
+        self.view_id = ''
+        self.cur_grp = 0
+        if self.request.method == 'GET':
+            v = self.request.GET.get('view')
+            if v:
+                self.view_id = v
+            if (self.view_id == LIST_MODE):
+                l = self.request.GET.get('lst')
+                if l:
+                    if Group.objects.filter(id=l, user=self.request.user.id).exists():
+                        self.cur_grp = l
+                if not self.cur_grp:
+                    self.view_id = ALL
+
+        self.view_as_tree = (self.view_id == MY_DAY) or (self.view_id == PLANNED) or (self.view_id == LIST_MODE)
+            
+        if self.view_as_tree:
+            self.template_name = 'base/tree.html'
+        else:
+            self.template_name = 'base/list.html'
+        
+    def get_title(self):
+        if (self.view_id == MY_DAY):
+            return _('my day').capitalize()
+        if (self.view_id == IMPORTANT):
+            return _('important').capitalize()
+        if (self.view_id == PLANNED):
+            return _('planned').capitalize()
+        if (self.view_id == ALL) or (self.view_id == ''):
+            return _('all').capitalize()
+        if (self.view_id == COMPLETED):
+            return _('completed').capitalize()
+        if (self.view_id == LIST_MODE):
+            return ''
+        return '???'
+        
+    def get_group_path(self):
+        ret = []
+        if (self.view_id == LIST_MODE) and self.cur_grp:
+            grp = Group.objects.filter(id=self.cur_grp).get()
+            ret.append({'id': grp.id, 'name': grp.name, 'url': grp.url})
+            parent = grp.node
+            while parent:
+                grp = Group.objects.filter(id=parent.id).get()
+                ret.append({'id': grp.id, 'name': grp.name, 'url': grp.url})
+                parent = grp.node
+        return ret
+    
+    def get_sorts(self):
+        sorts = []
+        if (self.view_id == MY_DAY):
+            sorts.append(Sort('important', _('by importance').capitalize(), 'todo/icon/important.png'))
+            sorts.append(Sort('termin', _('by termin date').capitalize(), 'todo/icon/planned.png'))
+            sorts.append(Sort('name',  _('by name').capitalize(), 'todo/icon/sort.png'))
+            sorts.append(Sort('created',  _('by creation date').capitalize(), 'todo/icon/created.png'))
+        return sorts
+
+"""
+================================================================
+"""
+
+class TaskDetailView(TaskAside, UpdateView):
+    model = Task
+    template_name = 'todo/task_detail.html'
+    app = 'todo'
+    title = _('unknown')
+    mode = ALL
+    form_class = TaskForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        task = self.get_object()
+        context.update(get_base_context(self.request, self.app, True, task.name))
+        context['params'] = extract_get_params(self.request)
+        context['fix_list'] = self.get_aside_context(self.request.user)
+        context['ed_item'] = self.object
+        context['task_actual'] = (not self.object.completed) and (not self.object.b_expired()) and self.object.stop
+        context['steps'] = Step.objects.filter(task=self.object.id)
+        
+        # this is needed to translate the names of the days of the week
+        locale.setlocale(locale.LC_CTYPE, self.request.LANGUAGE_CODE)
+        locale.setlocale(locale.LC_TIME, self.request.LANGUAGE_CODE)
+        
+        context['remind_today_info'] = get_remind_today().strftime('%H:%M')
+        context['remind_tomorrow_info'] = get_remind_tomorrow().strftime('%a, %H:%M')
+        context['remind_next_week_info'] = get_remind_next_week().strftime('%a, %H:%M')
+        context['termin_today_info'] = datetime.today()
+        context['termin_tomorrow_info'] = datetime.today() + timedelta(1)
+        context['termin_next_week_info'] = datetime.today() + timedelta(8 - datetime.today().isoweekday())
+
+        context['repeat_form_d1'] = get_week_day_name(1)
+        context['repeat_form_d2'] = get_week_day_name(2)
+        context['repeat_form_d3'] = get_week_day_name(3)
+        context['repeat_form_d4'] = get_week_day_name(4)
+        context['repeat_form_d5'] = get_week_day_name(5)
+        context['repeat_form_d6'] = get_week_day_name(6)
+        context['repeat_form_d7'] = get_week_day_name(7)
+        return context
+
+
+"""
+================================================================
+"""
+
+class TaskGroupDetailView(TaskAside, GroupDetailView):
+
+    def get_success_url(self):
+        return reverse('todo:group-detail', args=[self.get_object().id])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        task = self.get_object()
+        context['fix_list'] = self.get_aside_context(self.request.user)
+        context['return_url'] = '/todo/'
+        return context
+
+
+"""
+================================================================
+"""
+
+
+def get_tasks(user, mode, grp_id):
+    ret = None
+    if (mode == MY_DAY):
+        ret = Task.objects.filter(user=user.id, app_task=TASK, in_my_day=True)
+    elif (mode == IMPORTANT):
+        ret = Task.objects.filter(user=user.id, app_task=TASK, important=True).exclude(completed=True)
+    elif (mode == PLANNED):
+        ret = Task.objects.filter(user=user.id, app_task=TASK).exclude(stop=None).exclude(completed=True)
+    elif (mode == COMPLETED):
+        ret = Task.objects.filter(user=user.id, app_task=TASK, completed=True)
+    elif (mode == LIST_MODE):
+        if Group.objects.filter(id=grp_id).exists():
+            ret = Group.objects.filter(id=grp_id).get().consist
+    else: # ALL or NONE
+        ret = Task.objects.filter(user=user.id, app_task=TASK).exclude(completed=True)
+    return ret
 
 def get_remind_today():
     remind_today = datetime.now()
@@ -163,390 +299,4 @@ def complete_task(task):
                                 remind = task.next_remind_time(), repeat = task.repeat, repeat_num = task.repeat_num, \
                                 repeat_days = task.repeat_days, categories = task.categories, info = task.info)
 
-def get_task_details(request, context, pk, lst):
-    ed_task = get_object_or_404(Task.objects.filter(id = pk, user = request.user.id))
-
-    form = None
-    if (request.method == 'POST'):
-        #raise Exception(request.POST)
-        if ('item_delete' in request.POST):
-            ed_task.delete()
-            set_article_visible(request.user, app_name, False)
-            return True
-        if ('category_delete' in request.POST):
-            category = request.POST['category_delete']
-            ed_task.categories = ed_task.categories.replace(category, '')
-            ed_task.save()
-            return True
-        if ('item_save' in request.POST):
-            if request.POST['add_step']:
-                task = Task.objects.filter(user = request.user, id = pk).get()
-                step = Step.objects.create(name = request.POST['add_step'], task = task)
-            form = TaskForm(request.user, request.POST, instance = ed_task)
-            if form.is_valid():
-                task = form.save(commit = False)
-                task.user = request.user
-
-                step_names = request.POST.getlist('step_edit_name')
-                num = 0
-                for x in request.POST.getlist('step_id'):
-                     step = Step.objects.filter(id = x).get()
-                     step.name = step_names[num]
-                     step.save()
-                     num += 1
-
-                if not request.POST['repeat']:
-                    task.repeat = 0
-                if form.cleaned_data['category']:
-                    if task.categories:
-                        task.categories += ' '
-                    task.categories += form.cleaned_data['category']
-                form.save()
-                return True
-        if ('file_upload' in request.POST):
-            form = TaskForm(request.user, request.POST, request.FILES)
-            if form.is_valid():
-                handle_uploaded_file(request.FILES['upload'], request.user, ed_task)
-                return True
-        if ('file_delete' in request.POST):
-            delete_file(request.user, ed_task, request.POST['file_delete'])
-            return True
-        if ('task_important' in request.POST):
-            ed_task.important = not ed_task.important
-            ed_task.save()
-            return True
-        if ('task_myday' in request.POST):
-            ed_task.in_my_day = not ed_task.in_my_day
-            ed_task.save()
-            return True
-        if ('task_completed' in request.POST):
-            complete_task(ed_task)
-            return True
-        if ('step_add' in request.POST):
-            task = Task.objects.filter(user = request.user, id = pk).get()
-            step = Step.objects.create(name = request.POST['add_step'], task = task)
-            return True
-        if ('step_complete' in request.POST):
-            step = Step.objects.filter(id = request.POST['step_complete']).get()
-            step.completed = not step.completed
-            step.save()
-            return True
-        if ('step_delete' in request.POST):
-            step = Step.objects.filter(id = request.POST['step_delete']).get()
-            step.delete()
-            return True
-        
-        if ('remind_today' in request.POST):
-            ed_task.remind = get_remind_today()
-            ed_task.save()
-            return True
-        if ('remind_tomorrow' in request.POST):
-            ed_task.remind = get_remind_tomorrow()
-            ed_task.save()
-            return True
-        if ('remind_next_week' in request.POST):
-            ed_task.remind = get_remind_next_week()
-            ed_task.save()
-            return True
-        if ('remind_delete' in request.POST):
-            ed_task.remind = None
-            ed_task.save()
-            return True
-        
-        if ('termin_today' in request.POST):
-            ed_task.stop = datetime.today()
-            ed_task.save()
-            return True
-        if ('termin_tomorrow' in request.POST):
-            ed_task.stop = datetime.today() + timedelta(1)
-            ed_task.save()
-            return True
-        if ('termin_next_week' in request.POST):
-            ed_task.stop = datetime.today() + timedelta(8 - datetime.today().isoweekday())
-            ed_task.save()
-            return True
-        if ('termin_delete' in request.POST):
-            ed_task.stop = None
-            if ed_task.repeat != 0:
-                ed_task.repeat = 0
-            ed_task.save()
-            return True
-        
-        if ('repeat_daily' in request.POST):
-            ed_task.repeat = DAILY
-            ed_task.repeat_num = 1
-            if not ed_task.stop:
-                ed_task.stop = datetime.today()
-            ed_task.save()
-            return True
-        if ('repeat_workdays' in request.POST):
-            ed_task.repeat = WEEKLY
-            ed_task.repeat_num = 1
-            ed_task.repeat_days = 1+2+4+8+16
-            if not ed_task.stop:
-                ed_task.stop = datetime.today()
-            ed_task.save()
-            return True
-        if ('repeat_weekly' in request.POST):
-            ed_task.repeat = WEEKLY
-            ed_task.repeat_num = 1
-            ed_task.repeat_days = 0
-            if not ed_task.stop:
-                ed_task.stop = datetime.today()
-            ed_task.save()
-            return True
-        if ('repeat_monthly' in request.POST):
-            ed_task.repeat = MONTHLY
-            ed_task.repeat_num = 1
-            if not ed_task.stop:
-                ed_task.stop = datetime.today()
-            ed_task.save()
-            return True
-        if ('repeat_annually' in request.POST):
-            ed_task.repeat = ANNUALLY
-            ed_task.repeat_num = 1
-            if not ed_task.stop:
-                ed_task.stop = datetime.today()
-            ed_task.save()
-            return True
-        if ('repeat_delete' in request.POST):
-            ed_task.repeat = 0
-            ed_task.save()
-            return True
-        if ('url_delete' in request.POST):
-            ed_task.url = ''
-            ed_task.save()
-            return True
-
-    if not form:
-        form = TaskForm(request.user, instance = ed_task)
-
-    context['form'] = form
-    context['files'] = get_files_list(request.user, app_name, 'task_{}'.format(ed_task.id))
-    context['ed_item'] = ed_task
-    context['task_actual'] = (not ed_task.completed) and (not ed_task.b_expired()) and ed_task.stop
-    
-    context['steps'] = Step.objects.filter(task = ed_task.id)
-
-    context['remind_active'] = ed_task.remind and (not ed_task.completed) and (ed_task.remind > datetime.now())
-    context['task_b_remind'] = (ed_task.remind != None)
-    if ed_task.remind:
-        context['task_remind_time'] = _('remind in').capitalize() + ' ' + ed_task.remind.strftime('%H:%M')
-        context['task_remind_date'] = nice_date(ed_task.remind.date())
-    context['remind_today_info'] = get_remind_today().strftime('%H:%M')
-    context['remind_tomorrow_info'] = get_remind_tomorrow().strftime('%a, %H:%M')
-    context['remind_next_week_info'] = get_remind_next_week().strftime('%a, %H:%M')
-    context['termin_today_info'] = datetime.today()
-    context['termin_tomorrow_info'] = datetime.today() + timedelta(1)
-    context['termin_next_week_info'] = datetime.today() + timedelta(8 - datetime.today().isoweekday())
-
-    context['repeat_form_d1'] = get_week_day_name(1)
-    context['repeat_form_d2'] = get_week_day_name(2)
-    context['repeat_form_d3'] = get_week_day_name(3)
-    context['repeat_form_d4'] = get_week_day_name(4)
-    context['repeat_form_d5'] = get_week_day_name(5)
-    context['repeat_form_d6'] = get_week_day_name(6)
-    context['repeat_form_d7'] = get_week_day_name(7)
-
-    context['item_info'] = get_task_status(ed_task)
-    context['categories'] = get_categories_list(ed_task.categories)
-    context['url_cutted'] = ed_task.url
-    if (len(ed_task.url) > 50):
-        context['url_cutted'] = ed_task.url[:50] + '...'
-    return False
-
-def process_sort_commands(request):
-    if ('sort_delete' in request.POST):
-        set_sort_mode(request.user, app_name, '')
-        return True
-    if ('sort_important' in request.POST):
-        set_sort_mode(request.user, app_name, 'important')
-        return True
-    if ('sort_termin' in request.POST):
-        set_sort_mode(request.user, app_name, 'stop')
-        return True
-    if ('sort_completion' in request.POST):
-        set_sort_mode(request.user, app_name, 'completion')
-        return True
-    if ('sort_myday' in request.POST):
-        set_sort_mode(request.user, app_name, 'in_my_day')
-        return True
-    if ('sort_name' in request.POST):
-        set_sort_mode(request.user, app_name, 'name')
-        return True
-    if ('sort_created' in request.POST):
-        set_sort_mode(request.user, app_name, 'created')
-        return True
-    if ('sort_direction' in request.POST):
-        toggle_sort_dir(request.user, app_name)
-        return True
-    return False
-
-#----------------------------------
-@login_required(login_url='account:login')
-#----------------------------------
-def task_list(request):
-    # для трансляции строкового представления дат, в частности в item_info
-    locale.setlocale(locale.LC_CTYPE, request.LANGUAGE_CODE)
-    locale.setlocale(locale.LC_TIME, request.LANGUAGE_CODE)
-
-    if process_common_commands(request, app_name):
-        return HttpResponseRedirect(reverse('todo:task_list') + extract_get_params(request))
-
-    if process_sort_commands(request):
-        return HttpResponseRedirect(reverse('todo:task_list') + extract_get_params(request))
-
-    app_param, context = todo_base_context(request)
-
-    if (request.method == 'POST'):
-        if 'item-in-list-select' in request.POST:
-            task = Task.objects.filter(id = request.POST['item-in-list-select']).get()
-            complete_task(task)
-            return HttpResponseRedirect(reverse('todo:task_list') + extract_get_params(request))
-        if 'item-in-list-important' in request.POST:
-            task = Task.objects.filter(id = request.POST['item-in-list-important']).get()
-            task.important = not task.important
-            task.save()
-            return HttpResponseRedirect(reverse('todo:task_list') + extract_get_params(request))
-        if 'item-add' in request.POST:
-            lst = None
-            if (app_param.restriction == 'list') and app_param.lst:
-                lst = app_param.lst
-            task = Task.objects.create(user = request.user, name = request.POST['item_add-name'], \
-                                       lst = lst, in_my_day = (app_param.restriction == MY_DAY), important = (app_param.restriction == IMPORTANT))
-            return HttpResponseRedirect(reverse('todo:task_form', args = [task.id]))
-        if 'list-add' in request.POST:
-            lst_id = list_add(request.user, app_name, request.POST['name'])
-            return HttpResponseRedirect(reverse('todo:list_form', args = [lst_id]))
-        if 'group-add' in request.POST:
-            grp_id = group_add(request.user, app_name, request.POST['name'])
-            return HttpResponseRedirect(reverse('todo:group_form', args = [grp_id]))
-
-    template_file = ''
-    redirect = False
-    if app_param.article:
-        if (app_param.kind == 'task'):
-            if not Task.objects.filter(id = app_param.art_id, user = request.user.id).exists():
-                set_article_visible(request.user, app_name, False)
-                redirect = True
-            else:
-                template_file = 'todo/task.html'
-                redirect = get_task_details(request, context, app_param.art_id, app_param.lst)
-        elif (app_param.kind == 'list'):
-            can_delete = not Task.objects.filter(lst = app_param.art_id).exists()
-            redirect = list_details(request, context, app_param.art_id, app_name, can_delete)
-            if not redirect:
-                template_file = 'hier/article_list.html'
-        elif (app_param.kind == 'group'):
-            redirect = group_details(request, context, app_param.art_id, app_name)
-            if not redirect:
-                template_file = 'hier/article_group.html'
-
-    if redirect:
-        return HttpResponseRedirect(reverse('todo:task_list') + extract_get_params(request))
-
-    if (template_file == ''):
-        template_file = 'todo/task.html'
-    
-    groups = []
-    query = None
-    if request.method == 'GET':
-        query = request.GET.get('q')
-    search_mode = 0
-
-    tasks = sorted_tasks(request.user, app_param, query)
-    for task in tasks:
-        grp_id = get_grp_planned(app_param.restriction, task.stop, task.completed)
-        group = find_group(groups, request.user, app_name, grp_id, GRPS_PLANNED[grp_id].capitalize())
-        group.items.append(task)
-    
-    context['page_obj'] = tasks
-    context['item_groups'] = sorted(groups, key = lambda group: group.grp.grp_id)
-    context['search_info'] = get_search_info(query)
-    context['search_qty'] = len(tasks)
-    context['search_data'] = query and (len(tasks) > 0)
-    context['task_add_form'] = TaskForm(request.user)
-
-    template = loader.get_template(template_file)
-    return HttpResponse(template.render(context, request))
-
-def all_tasks(request):
-    set_restriction(request.user, app_name, ALL)
-    return HttpResponseRedirect(reverse('todo:task_list'))
-
-def myday(request):
-    set_restriction(request.user, app_name, MY_DAY)
-    return HttpResponseRedirect(reverse('todo:task_list'))
-
-def important(request):
-    set_restriction(request.user, app_name, IMPORTANT)
-    return HttpResponseRedirect(reverse('todo:task_list'))
-
-def planned(request):
-    set_restriction(request.user, app_name, PLANNED)
-    return HttpResponseRedirect(reverse('todo:task_list'))
-
-def completed(request):
-    set_restriction(request.user, app_name, COMPLETED)
-    return HttpResponseRedirect(reverse('todo:task_list'))
-
-def list_items(request, pk):
-    set_restriction(request.user, app_name, LIST_MODE, pk)
-    return HttpResponseRedirect(reverse('todo:task_list'))
-
-def task_form(request, pk):
-    set_article_kind(request.user, app_name, TASK_DETAILS, pk)
-    return HttpResponseRedirect(reverse('todo:task_list') + extract_get_params(request))
-
-def list_form(request, pk):
-    set_article_kind(request.user, app_name, LIST_DETAILS, pk)
-    return HttpResponseRedirect(reverse('todo:task_list'))
-
-def group_form(request, pk):
-    set_article_kind(request.user, app_name, GROUP_DETAILS, pk)
-    return HttpResponseRedirect(reverse('todo:task_list'))
-
-def toggle_group(request, pk):
-    group_toggle(request.user, app_name, pk)
-    return HttpResponseRedirect(reverse('todo:task_list') + extract_get_params(request))
-
-def period_toggle(request, pk):
-    toggle_content_group(request.user.id, app_name, pk)
-    return HttpResponseRedirect(reverse('todo:task_list'))
-
-def todo_entity(request, name, pk):
-    if (name == 'task'):
-        return task_form(request, pk)
-    if (name == 'group'):
-        return group_form(request, pk)
-    if (name == 'list'):
-        return list_form(request, pk)
-    return task_list(request)
-
-#----------------------------------
-def get_file_storage_path(user, item):
-    return storage_path.format(user.id) + 'todo/task_{}/'.format(item.id)
-
-def handle_uploaded_file(f, user, item):
-    path = get_file_storage_path(user, item)
-    os.makedirs(os.path.dirname(path), exist_ok = True)
-    with open(path + f.name, 'wb+') as destination:
-        for chunk in f.chunks():
-            destination.write(chunk)
-
-def task_get_doc(request, name):
-    app_param = get_app_params(request.user, app_name)
-    item = get_object_or_404(Task.objects.filter(id = app_param.art_id))
-    path = get_file_storage_path(request.user, item)
-    try:
-        fsock = open(path + name, 'rb')
-        return FileResponse(fsock)
-    except IOError:
-        response = HttpResponseNotFound()
-
-def delete_file(user, item, name):
-    path = get_file_storage_path(user, item)
-    os.remove(path + name[4:])
-
-#----------------------------------
 

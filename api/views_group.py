@@ -9,7 +9,6 @@ from task.models import Group, Task, TaskGroup
 from rusel.apps import APPS
 from api.serializers import GroupSerializer
 from api.converter import convert
-from rusel.apps import switch_beta
 
 class GroupViewSet(viewsets.ModelViewSet):
     serializer_class = GroupSerializer
@@ -83,5 +82,4 @@ class GroupViewSet(viewsets.ModelViewSet):
         result = convert()
         for app in APPS:
             self.sort_level(self.request.user, app, None, '', 0)
-        switch_beta(request.user)
         return Response(result)

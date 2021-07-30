@@ -33,7 +33,7 @@ from django.contrib.auth.models import User
 import hashlib
 from django.utils.crypto import get_random_string
  
-from hier.utils import get_base_context, get_base_context_ext
+from rusel.context import get_base_context
 from account.models import UserExt
 from .secret import demouserpassword
 
@@ -62,7 +62,7 @@ class LoginView(SuccessURLAllowedHostsMixin, FormView):
     @method_decorator(csrf_protect)
     @method_decorator(never_cache)
     def dispatch(self, request, *args, **kwargs):
-        self.extra_context = get_base_context(request, 0, 0, gettext('Log in'), 'dialog')
+        self.extra_context = get_base_context(request, 'rusel', False, gettext('Log in'))
         if self.redirect_authenticated_user and self.request.user.is_authenticated:
             redirect_to = self.get_success_url()
             if redirect_to == self.request.path:
@@ -122,7 +122,7 @@ class LogoutView(SuccessURLAllowedHostsMixin, TemplateView):
 
     @method_decorator(never_cache)
     def dispatch(self, request, *args, **kwargs):
-        self.extra_context = get_base_context(request, 0, 0, gettext('Logged out'), 'dialog')
+        self.extra_context = get_base_context(request, '', True, gettext('Logged out'))
         auth_logout(request)
         next_page = self.get_next_page()
         if next_page:
@@ -217,7 +217,7 @@ def register(request):
     else:
         f = RegisterForm()
  
-    context = get_base_context(request, 0, 0, title, 'dialog', form = f)
+    context = get_base_context(request, 'rusel', False, title) #, 'dialog', form = f)
     context['show_form'] = show_form
     return render(request, 'account/register.html', context)
 
@@ -234,7 +234,7 @@ def activate_account(request):
     r.email_validated = True
     r.save()
  
-    context = get_base_context(request, 0, 0, gettext('Account activated'), 'dialog')
+    context = get_base_context(request, 'rusel', False, gettext('Account activated'))
     return render(request, 'account/activated.html', context)
 
 class PasswordContextMixin:
@@ -412,7 +412,7 @@ def user_data_changed(user, data, request):
 
 
 def service(request):
-    context = get_base_context(request, 0, 0, gettext('Profile service'), 'dialog')
+    context = get_base_context(request, 'rusel', False, gettext('Profile service'))
     return render(request, 'account/service.html', context)
 
 
@@ -431,7 +431,7 @@ def profile(request):
     else:
         form = ProfileForm(instance = request.user)
 
-    app_param, context = get_base_context_ext(request, 'rusel', '', ('profile',))
+    context = get_base_context(request, 'rusel', '', ('profile',))
     context['form'] = form
     context['fieldset1_name'] = _('Personal info')
     context['fieldset2_name'] = _('Important dates')

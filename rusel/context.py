@@ -1,7 +1,7 @@
 from django.utils.translation import gettext_lazy as _
 #from rest_framework.renderers import JSONRenderer
 
-from rusel.apps import get_app_name, get_beta, get_apps_list
+from rusel.apps import get_app_name, get_apps_list
 from task.models import Group
 #from task.serializers import TaskGrpSerializer
 
@@ -10,7 +10,6 @@ def get_base_context(request, app, detail, title):
     context['app'] = app
     context['app_name'] = get_app_name(app)
     context['restriction'] = None
-    context['beta'] = get_beta(request.user)
     title_1 = title_2 = url = ''
     if title:
         if type(title) is tuple:

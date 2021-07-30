@@ -18,27 +18,10 @@ api_router.register(r'steps', api_step.StepViewSet, basename='step')
 
 urlpatterns = i18n_patterns(
     path('', views.index, name='index'),
-    path('switch/', views.switch, name='switch'),
-
-    path('apart/',  include('apart.urls')),
-    path('fuel/',   include('fuel.urls')),
-    path('proj/',   include('proj.urls')),
-    path('trip/',   include('trip.urls')),
-    path('wage/',   include('wage.urls')),
     path('todo/',   include('todo.urls')),
-    path('store/',  include('store.urls')),
-    path('note/',   include('note.urls')),
-    path('news/',   include('note.urls_news')),
-    path('photo/',  include('photo.urls')),
-    path('health/', include('health.urls')),
-
-    path('beta/todo/', include('todo.beta.urls')),
-
     path('account/', include('account.urls')),
     path('admin/',   admin.site.urls, name='admin'),
     path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
-
     path('api/', include(api_router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
-
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

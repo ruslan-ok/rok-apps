@@ -8,8 +8,8 @@ from django.contrib.auth.models import User
 from rest_framework.reverse import reverse
 
 from task.const import *
-from hier.categories import get_categories_list
-from hier.files import get_files_list
+from task.categories import get_categories_list
+from task.files import get_files_list
 from todo.utils import nice_date
 from todo.const import *
 
@@ -58,7 +58,7 @@ class Task(models.Model):
 
     def get_absolute_url(self):
         id = self.id
-        url = reverse('todo_beta:task-detail', args = [id])
+        url = reverse('todo:task-detail', args = [id])
         return url
     
     def marked_item(self):
@@ -338,10 +338,10 @@ class Group(models.Model):
     
     # deprecated for beta-version
     is_open = models.BooleanField(_('node is open'), default=False)
-
     is_leaf = models.BooleanField(_('node is leaf'), default=True)
     level = models.IntegerField(_('hierarchy level'), default=0, null=True)
     #qty = models.IntegerField(_('number of elements in a group'), default=0, null=True)
+
     created = models.DateTimeField(_('creation time'), blank=True, auto_now_add=True)
     last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now=True)
     consist = models.ManyToManyField(Task, through='TaskGroup', through_fields=('group', 'task'))
@@ -363,7 +363,7 @@ class Group(models.Model):
         return '.' * self.level * 2 + self.name
     
     def url(self):
-        return self.app + '_beta:group-detail'
+        return self.app + ':group-detail'
 
     @classmethod
     def scan_node(cls, tree, group_id):

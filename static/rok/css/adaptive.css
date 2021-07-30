@@ -5,11 +5,14 @@
     position: static;
   }
   aside.hid { display: flex; }
-  main.with_article { width: calc(100vw - 340px - 340px); }
-  main.without_article { width: calc(100vw - 340px); }
+  main { width: calc(100vw - 340px); }
   article.vis {
-    box-shadow: none;
-    position: static;
+    position: absolute;
+    width: 600px;
+    min-height: 200px;
+    max-height: 800px;
+    left: calc((100vw - 600px) / 2);
+    top: 100px;
   }
   article.hid { display: none; }
   .desktop-only { display: block; }
@@ -30,9 +33,11 @@
   article.vis {
     display: flex;
     position: absolute;
+    width: calc(100vw - 10px);
+    height: calc(100vh - 52px);
     top: 48px;
-    right: 0px;
-    box-shadow: -10px 0px 20px rgba(0, 0, 0, 0.15), -5px 0px 10px rgba(0, 0, 0, 0.05);
+    right: 5px;
+    //box-shadow: -10px 0px 20px rgba(0, 0, 0, 0.15), -5px 0px 10px rgba(0, 0, 0, 0.05);
   }
   article.hid { display: none; }
   .desktop-only { display: none; }
