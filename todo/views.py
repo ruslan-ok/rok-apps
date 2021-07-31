@@ -21,6 +21,7 @@ from todo.utils import get_grp_planned, GRPS_PLANNED, get_week_day_name
 from todo.forms import CreateTaskForm, TaskForm
 
 list_url = '/todo/'
+app_name = 'todo'
 
 def toggle_completed(request, pk):
     task = get_object_or_404(Task, id=pk, user=request.user.id)
@@ -49,7 +50,6 @@ class TaskListView(TaskAside, CreateView):
     model = Task
     pagenate_by = 10
     template_name = 'base/list.html'
-    app = 'todo'
     view_id = ALL
     title = _('unknown')
     view_as_tree = False
@@ -77,11 +77,11 @@ class TaskListView(TaskAside, CreateView):
     def form_valid(self, form):
         form.instance.user = self.request.user
         form.instance.app_task = TASK
-        ret = super(TaskListView, self).form_valid(form)
+        ret = super().form_valid(form)
         l = self.request.GET.get('lst')
         if l:
             lst = Group.objects.filter(id=l).get()
-            TaskGroup.objects.create(task=form.instance, group=lst, app='todo')
+            TaskGroup.objects.create(task=form.instance, group=lst, app=app_name)
         return ret
     
     def get_context_data(self, **kwargs):
@@ -93,11 +93,12 @@ class TaskListView(TaskAside, CreateView):
         context['group_path'] = gp
         if gp and not title:
             title = ' / '.join([x['name'] for x in gp])
-        context.update(get_base_context(self.request, self.app, False, title))
+        context.update(get_base_context(self.request, app_name, False, title))
         context['fix_list'] = self.get_aside_context(self.request.user)
         context['sort_options'] = self.get_sorts()
         context['view_id'] = self.view_id
         context['params'] = extract_get_params(self.request)
+        context['item_detail_url'] = app_name + ':item-detail'
 
         groups = []
         query = None
@@ -188,15 +189,13 @@ class TaskListView(TaskAside, CreateView):
 class TaskDetailView(TaskAside, UpdateView):
     model = Task
     template_name = 'todo/task_detail.html'
-    app = 'todo'
     title = _('unknown')
-    mode = ALL
     form_class = TaskForm
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        task = self.get_object()
-        context.update(get_base_context(self.request, self.app, True, task.name))
+        item = self.get_object()
+        context.update(get_base_context(self.request, app_name, True, item.name))
         context['params'] = extract_get_params(self.request)
         context['fix_list'] = self.get_aside_context(self.request.user)
         context['ed_item'] = self.object
@@ -237,7 +236,7 @@ class TaskGroupDetailView(TaskAside, GroupDetailView):
         context = super().get_context_data(**kwargs)
         task = self.get_object()
         context['fix_list'] = self.get_aside_context(self.request.user)
-        context['return_url'] = '/todo/'
+        context['return_url'] = list_url
         return context
 
 

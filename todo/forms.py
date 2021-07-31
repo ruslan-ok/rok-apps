@@ -29,13 +29,12 @@ class TaskForm(forms.ModelForm):
         widgets = {'info': forms.Textarea(attrs={'rows':3, 'cols':10, 'placeholder': _('add note').capitalize(), 'data-autoresize':''}),}
 
     def __init__(self, * args, **kwargs):
-        super(TaskForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         instance = kwargs.pop('instance')
         self.fields['lst'].choices = Group.get_tree(instance.user.id, 'todo')
         if TaskGroup.objects.filter(task=instance.id, app='todo').exists():
             self.cur_group = TaskGroup.objects.filter(task=instance.id, app='todo').get().group.id
             self.initial['lst'] = self.cur_group
-            pass
 
     def _save_m2m(self):
         super()._save_m2m()

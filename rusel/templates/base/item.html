@@ -13,7 +13,7 @@
       </a>      
     {% endif %}
 
-    <a href="{% url 'todo:task-detail' item.id %}{{ params }}" class="tree-item{% if item.id == ed_item.id %} current{% endif %}">
+    <a href="{% url item_detail_url item.id %}{{ params }}" class="tree-item{% if item.id == ed_item.id %} current{% endif %}">
       <div class="info">
         <div class="name{% if item.marked_item %} completed{% endif %}">{{ item.name }}</div>
         <div class="descr">

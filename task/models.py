@@ -56,9 +56,16 @@ class Task(models.Model):
     def __str__(self):
         return self.name
 
+    def get_item_type(self):
+        if (self.app_task == TASK):
+            return 'todo'
+        if (self.app_note == NOTE):
+            return 'note'
+        return None
+
     def get_absolute_url(self):
         id = self.id
-        url = reverse('todo:task-detail', args = [id])
+        url = reverse(self.get_item_type + ':item-detail', args = [id])
         return url
     
     def marked_item(self):

@@ -19,6 +19,7 @@ api_router.register(r'steps', api_step.StepViewSet, basename='step')
 urlpatterns = i18n_patterns(
     path('', views.index, name='index'),
     path('todo/',   include('todo.urls')),
+    path('note/',   include('note.urls')),
     path('account/', include('account.urls')),
     path('admin/',   admin.site.urls, name='admin'),
     path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
