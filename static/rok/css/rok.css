@@ -327,7 +327,7 @@ header .site-label {
   background: #f5f5f5;
 }
 
-#aside-top>form {
+#aside-top>div {
   width: 100%;
   display: flex;
   align-items: center;

@@ -37,12 +37,12 @@
         {% include "base/header.html" %}
     
         <div id="page" {% if user.is_authenticated %}class="with_header"{% endif %}>
-          <aside class="{% if aside_visible %}vis{% else %}hid{% endif %}{% if not user.is_authenticated %} no_header{% endif %}">
+          <aside class="{% if aside_visible %}vis{% else %}hid{% endif %}{% if not user.is_authenticated %} no_header{% endif %}" id="aside">
             <section id="aside-top">
-              <form method="post">{% csrf_token %}
+              <div>
                 <div class="info">{% block aside_top_info %}{% endblock %}</div>
-                <button type="submit" name="aside_close" class="phone-only" title="{% trans 'close sidebar'|capfirst %}"><img class="img-20_20" src="{% static 'rok/icon/close-left.png' %}"></button>
-              </form>
+                <button type="button" name="aside_close" class="phone-only" title="{% trans 'close sidebar'|capfirst %}" onclick="asideClose()"><img class="img-20_20" src="{% static 'rok/icon/close-left.png' %}"></button>
+              </div>
             </section>
               {% block aside_conent %}
                 {% include "base/aside.html" %}
