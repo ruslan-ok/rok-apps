@@ -113,9 +113,9 @@ class TaskListView(TaskAside, CreateView):
         if self.view_as_tree:
             for task in tasks:
                 grp_id = get_grp_planned(self.view_id, task.stop.date() if task.stop else None, task.completed)
-                group = find_group(groups, self.request.user, self.app, grp_id, GRPS_PLANNED[grp_id].capitalize())
+                group = find_group(groups, grp_id, GRPS_PLANNED[grp_id].capitalize())
                 group.items.append(task)
-            context['item_groups'] = sorted(groups, key = lambda group: group.grp.grp_id)
+            context['item_groups'] = sorted(groups, key = lambda group: group.id)
         else:    
             paginator = Paginator(tasks, ITEMS_PER_PAGE)
             page_obj = paginator.get_page(page_number)
