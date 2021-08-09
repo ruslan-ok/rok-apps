@@ -23,7 +23,7 @@
       {% for node in groups %}
         <li class="grp-item hide{% if request.GET.lst == node.s_id %} selected{% endif %}" data-id="{{ node.id }}" data-parent="{{ node.node.id }}" id="task_group_{{ node.id }}">
           {% if node.is_leaf %}
-            <a href="/todo/?view=list&lst={{ node.id }}">
+            <a href="/{{ app }}/?view=list&lst={{ node.id }}">
               <div class="nav-menu-item-left">
                 <img class="level-{{ node.level }}" src="{% static 'rok/icon/list.png' %}">
                 <div>{{ node.name }}</div>

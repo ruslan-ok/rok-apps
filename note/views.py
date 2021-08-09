@@ -56,7 +56,6 @@ class NoteListView(NoteAside, CreateView):
         return ret
     
     def get_context_data(self, **kwargs):
-        start = time.time()
         context = super().get_context_data(**kwargs)
         self.init_view()
         title = _('notes').capitalize()
@@ -85,7 +84,6 @@ class NoteListView(NoteAside, CreateView):
         paginator = Paginator(tasks, ITEMS_PER_PAGE)
         page_obj = paginator.get_page(page_number)
         context['page_obj'] = paginator.get_page(page_number)
-        context['profiling'] = "Time: %.03f s" % (time.time() - start)
         return context
 
     def init_view(self):
