@@ -1,5 +1,3 @@
-import requests
-
 def extract_get_params(request):
     q = request.GET.get('q')
     if not q:
