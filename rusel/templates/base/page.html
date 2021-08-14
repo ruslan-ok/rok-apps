@@ -1,75 +1,32 @@
 {% load static i18n %}
-<!DOCTYPE html>
-{% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
-<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<!doctype html>
+<html lang="en" class="h-100">
   <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="rusel.by applications">
+    <meta name="author" content="Ruslan Akunevich">
+    <meta name="generator" content="Hugo 0.87.0">
+    <title>Cover Template · Bootstrap v5.1</title>
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.1/examples/cover/">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
     <title>
       {% if app_name %}{{ app_name }}{% if title %} - {% endif %}{% endif %}{% if title %}{{ title }}{% endif %}
     </title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!--link rel="stylesheet" type="text/css" href="/static/admin/css/base. css"-->
-    <link rel="stylesheet" type="text/css" href="/static/admin/css/forms.css">
-    <link rel="stylesheet" type="text/css" href="{% static 'rok/css/w3.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'rok/css/rok.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'rok/css/search.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'rok/css/article.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'rok/css/adaptive.css' %}">
-    {% block extrastyle %}{% endblock %}
-    <meta name="robots" content="NONE,NOARCHIVE">
-    <link rel="icon" type="image/png" href="/static/favicon.ico">
-    <script src="{% url 'javascript-catalog' %}"></script>
-    <script type="text/javascript" src="/static/admin/js/vendor/jquery/jquery.min.js"></script>
-    <script type="text/javascript" src="/static/admin/js/calendar.js"></script>
-    <script type="text/javascript" src="/static/admin/js/jquery.init.js"></script>
-    <script type="text/javascript" src="/static/admin/js/admin/DateTimeShortcuts.js"></script>
-    <script type="text/javascript" src="/static/admin/js/core.js"></script>
-    <script type="text/javascript" src="/static/admin/js/admin/RelatedObjectLookups.js"></script>
-    <script type="text/javascript" src="/static/admin/js/urlify.js"></script>
-    <script type="text/javascript" src="/static/admin/js/vendor/xregexp/xregexp.min.js"></script>
+    <link href="{% static 'rok/css/cover.css' %}" rel="stylesheet">
   </head>
+  <body class="d-flex text-dark bg-white">
+    {% block content %}{% endblock %}
+        
+    <!-- Optional JavaScript; choose one of the two! -->
 
-  <body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}" data-admin-utc-offset="{% now "Z" %}">
-    {% block window %}
-      {% include "base/nav.html" %}
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
 
-      <div id="wrapper">
-        {% include "base/header.html" %}
-    
-        <div id="page" {% if user.is_authenticated %}class="with_header"{% endif %}>
-          <aside class="{% if aside_visible %}vis{% else %}hid{% endif %}{% if not user.is_authenticated %} no_header{% endif %}" id="aside">
-            <section id="aside-top">
-              <div>
-                <div class="info">{% block aside_top_info %}{% endblock %}</div>
-                <button type="button" name="aside_close" class="phone-only" title="{% trans 'close sidebar'|capfirst %}" onclick="asideClose()"><img class="img-20_20" src="{% static 'rok/icon/close-left.png' %}"></button>
-              </div>
-            </section>
-              {% block aside_conent %}
-                {% include "base/aside.html" %}
-              {% endblock %}
-            <div>
-              {% block aside_footer %}{% endblock %}
-            </div>
-          </aside>
-
-          <main class="{% if article_visible %}with_article{% else %}without_article{% endif %}">
-            {% block content %}{% endblock %}
-          </main>
-          
-        </div>
-      </div>
-    {% endblock %}
-
-    {% block scripts %}
-      <script src="{% static 'rok/js/launcher.js' %}"></script>
-      <script src="{% static 'rok/js/build-tree.js' %}"></script>
-      <script src="{% static 'rok/js/manage-tree.js' %}"></script>
-      <script>
-        buildTree('groups-tree', '{{ app }}', {{ list_id }});
-      </script>
-    {% endblock %}
-
+    <!-- Option 2: Separate Popper and Bootstrap JS -->
+    <!--
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" integrity="sha384-eMNCOe7tC1doHpGoWe/6oMVemdAVTMs2xqW4mwXrXsW0L84Iytr2wi5v2QjrP/xp" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.min.js" integrity="sha384-cn7l7gDp0eyniUwwAZgrzD06kc/tftFf19TOAs2zVinnD/C7E91j9yyk5//jjpt/" crossorigin="anonymous"></script>
+    -->
   </body>
-
 </html>
-

@@ -20,7 +20,7 @@ from rusel.context import get_base_context
 #from hier.params import get_search_info
 
 #from note.search import search as note_search
-from todo.search import search as todo_search
+#from todo.search import search as todo_search
 #from proj.search import search as proj_search
 #from trip.search import search as trip_search
 #from fuel.search import search as fuel_search
