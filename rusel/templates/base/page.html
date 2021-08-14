@@ -63,6 +63,7 @@
     {% block scripts %}
       <script src="{% static 'rok/js/launcher.js' %}"></script>
       <script src="{% static 'rok/js/build-tree.js' %}"></script>
+      <script src="{% static 'rok/js/manage-tree.js' %}"></script>
       <script>
         buildTree('groups-tree', '{{ app }}', {{ list_id }});
       </script>
