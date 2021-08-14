@@ -70,8 +70,8 @@ def index_user(request):
             statistics = get_site_stat(request.user)
             indicators = statistics[0]
             stat = statistics[1]
-            context['indicators'] = indicators
-            context['show_stat'] = (len(stat) > 0)
+            context['indicators'] = None #indicators
+            context['show_stat'] = False #(len(stat) > 0)
             context['stat'] = stat
             context['trip_summary'] = trip_summary(request.user.id)
             context['python_version'] = python_version()
