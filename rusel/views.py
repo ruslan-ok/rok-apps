@@ -28,7 +28,7 @@ from rusel.context import get_base_context
 #from apart.search import search as apart_search
 #from store.search import search as store_search
 
-app_name = 'rusel'
+app_name = 'home'
 
 #----------------------------------
 # Index

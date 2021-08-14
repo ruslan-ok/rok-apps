@@ -36,7 +36,7 @@ def get_base_context(request, app, detail, title):
     context['complete_icon'] = 'todo/icon/complete.png'
     context['uncomplete_icon'] = 'todo/icon/uncomplete.png'
     
-    context['apps'] = get_apps_list(request.user)
+    context['apps'] = get_apps_list(request.user, app)
 
     #if url:
     #    save_last_visited(request.user, app + '/' + url, app, title_1, title_2)

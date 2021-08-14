@@ -46,7 +46,7 @@ def get_app_name(app):
         return _('health')
     return None
 
-def get_apps_list(user):
+def get_apps_list(user, current):
     apps = []
     for app in APPS:
         if (app in ('store', 'trip', 'apart', 'wage', 'health')) and (user.username != 'ruslan.ok'):
@@ -56,7 +56,7 @@ def get_apps_list(user):
         if (app == 'profile') and (user.username == 'demouser'):
             continue
         href = APPS[app][1]
-        apps.append({'href': href, 'icon': 'rok/icon/' + APPS[app][0] + '.png', 'name': get_main_menu_item(app)})
+        apps.append({'href': href, 'icon': 'rok/icon/' + APPS[app][0] + '.png', 'name': get_main_menu_item(app), 'active': current==app})
     return apps
 
 def _get_app_name(app):

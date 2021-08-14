@@ -1,0 +1,40 @@
+{% load static i18n %}
+
+{% block extrastyle %}
+  <link href="{% static 'rok/css/sidebar.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block sidebar %}
+  <div class="d-none d-lg-block d-flex flex-column flex-shrink-0 p-3 bg-light" style="width: 280px;">
+    <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
+      <img class="mb-4" src="{% static '/favicon.ico' %}">
+    </a>
+    <hr>
+    <ul class="nav nav-pills flex-column mb-auto">
+      {% for app in apps %}
+        <a href="{{ app.href }}" class="nav-link {% if app.active %}active{% else %}link-dark{% endif %}"{% if app.active %} aria-current="page"{% endif %}>
+          <img class="bi me-2" src="{% static app.icon %}">
+          {{ app.name }}
+        </a>
+      {% endfor %}
+    </ul>
+    <hr>
+    <div class="dropdown">
+      <a href="#" class="d-flex align-items-center link-dark text-decoration-none dropdown-toggle" id="dropdownUser2" data-bs-toggle="dropdown" aria-expanded="false">
+        <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle me-2">
+        <strong>mdo</strong>
+      </a>
+      <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser2">
+        <li><a class="dropdown-item" href="#">New project...</a></li>
+        <li><a class="dropdown-item" href="#">Settings</a></li>
+        <li><a class="dropdown-item" href="#">Profile</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="#">Sign out</a></li>
+      </ul>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extrascript %}
+  <script src="{% static 'rok/js/sidebar.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "base/dialog.html" %}
+{% load i18n static %}
+
+{% block content %}
+  {% if show_form %}
+    {% include "base/form_snippet.html" %}
+    <button class="w-100 btn btn-lg btn-primary" type="submit">{% trans 'Register' %}</button>
+  {% endif %}
+{% endblock %}

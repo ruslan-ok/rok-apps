@@ -1,0 +1,35 @@
+{% load static i18n %}
+
+{% block extrastyle %}
+  <link href="{% static 'rok/css/header.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block header %}
+  <header class="py-1 mb-3 border-bottom">
+    <div class="container-fluid d-grid gap-3 align-items-center" style="grid-template-columns: 1fr 2fr;">
+      <div class="">
+        <div class="btn{% if aside_disabled %} invisible{% endif %}" title="{% trans 'application launcher'|capfirst %}" onclick="launcherOpen()"><img src="{% static 'rok/icon/apps-white.png' %}"></div>
+        <div class="btn d-lg-none{% if aside_disabled or aside_visible %} invisible{% endif %}" title="{% trans 'open sidebar'|capfirst %}" onclick="asideToggle()"><img src="{% static 'rok/icon/hamb-white.png' %}"></div>
+      </div>
+
+      <div class="d-flex align-items-center">
+        <form method="get" class="w-100 me-3">
+          <input type="search" class="form-control" placeholder="{% trans 'search'|capfirst %}..." aria-label="{% trans 'search'|capfirst %}">
+        </form>
+
+        <div class="flex-shrink-0 dropdown">
+          <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser2" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
+          </a>
+          <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser2">
+            <li><a class="dropdown-item" href="#">New project...</a></li>
+            <li><a class="dropdown-item" href="#">Settings</a></li>
+            <li><a class="dropdown-item" href="#">Profile</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">Sign out</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </header>
+{% endblock %}

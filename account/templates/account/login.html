@@ -1,0 +1,34 @@
+{% extends "base/dialog.html" %}
+{% load i18n static %}
+
+{% block content %}
+
+  {% if user.is_authenticated %}
+  <p class="errornote">
+  {% blocktrans trimmed %}
+      You are authenticated as {{ username }}, but are not authorized to
+      access this page. Would you like to login to a different account?
+  {% endblocktrans %}
+  </p>
+  {% endif %}
+
+  {% include "base/form_snippet.html" %}
+  <button class="w-100 btn btn-lg btn-primary" type="submit">{% trans 'Login' %}</button>
+
+  {% url 'account:password_reset' as password_reset_url %}
+  {% if password_reset_url %}
+  <div class="password-reset-link">
+    <a href="{{ password_reset_url }}">{% trans 'Forgotten your password or username?' %}</a>
+  </div>
+  {% endif %}
+
+  {% url 'account:register' as register_url %}
+  {% if register_url %}
+  <div class="password-reset-link">
+    <a href="{{ register_url }}">{% trans 'Register' %}</a>
+  </div>
+  {% endif %}
+
+{% endblock %}
+
+

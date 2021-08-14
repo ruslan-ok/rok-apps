@@ -1,0 +1,46 @@
+{% load static i18n %}
+<!doctype html>
+<html lang="en" class="h-100">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="rusel.by applications">
+    <meta name="author" content="Ruslan Akunevich">
+    <meta name="generator" content="Hugo 0.87.0">
+    <title>
+      {% if app_name %}{{ app_name }}{% if title %} - {% endif %}{% endif %}{% if title %}{{ title }}{% endif %}
+    </title>
+    <link rel="icon" type="image/png" href="/static/favicon.ico">
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.1/examples/cover/">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" 
+    	integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" 
+    	crossorigin="anonymous">
+    <link href="{% static 'rok/css/dialog.css' %}" rel="stylesheet">
+    {% block extrastyle %}{% endblock %}
+  </head>
+  <body class="text-center">
+    
+<main class="dialog-form">
+  <form method="post">{% csrf_token %}
+    <img class="mb-4" src="{% static '/favicon.ico' %}">
+    <h1 class="h3 mb-3 fw-normal">{{ title|capfirst }}</h1>
+
+    {% if form.errors and not form.non_field_errors %}
+    <p class="errornote">
+    {% if form.errors.items|length == 1 %}{{ please_correct_one }}{% else %}{{ please_correct_all }}{% endif %}
+    </p>
+    {% endif %}
+    
+    {% if form.non_field_errors %}
+    {% for error in form.non_field_errors %}
+    <p class="errornote">
+        {{ error }}
+    </p>
+    {% endfor %}
+    {% endif %}
+    
+        {% block content %}{% endblock %}
+  </form>
+</main>
+  </body>
+</html>

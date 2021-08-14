@@ -1,6 +1,10 @@
 {% extends "base/page.html" %}
 {% load static i18n %}
 
+{% block extrastyle %}
+  <link href="{% static 'rok/css/cover.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
     
 <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">

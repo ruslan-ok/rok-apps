@@ -1,0 +1,10 @@
+{% extends "base/page.html" %}
+{% load static i18n %}
+
+{% block content %}
+  {% include "base/header.html" %}
+  <main>
+    {% include "base/sidebar.html" %}
+    {% block main %}{% endblock %}
+  </main>
+{% endblock %}
