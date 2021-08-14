@@ -28,7 +28,7 @@ msgpack==1.0.2
 mysql-connector==2.2.9
 mysqlclient==2.0.3
 numpy==1.19.5
-Pillow==8.1.0
+Pillow==8.2.0
 proto-plus==1.13.0
 protobuf==3.14.0
 pyasn1==0.4.8
