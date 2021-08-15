@@ -1,4 +1,20 @@
 @charset "UTF-8";
+.btn-primary, .btn-primary:active, .btn-primary:visited {
+  color: #fff !important;
+  background-color: #417690 !important;
+  border: #417690 !important;
+}
+
+.btn-primary:hover {
+  color: #fff !important;
+  background-color: #314d61 !important;
+  border: #314d61 !important;
+}
+
+.nav-link:hover {
+  background-color: #afc6d7 !important;
+}
+
 /*!
  * Bootstrap v5.1.0 (https://getbootstrap.com/)
  * Copyright 2011-2021 The Bootstrap Authors

@@ -2,21 +2,21 @@ from django.utils.translation import gettext_lazy as _
 from task.models import Task
 
 APPS = {
-    'home':    ('home',        '/'),
-    'todo':    ('application', '/todo/'),
-    'note':    ('note',        '/note/'),
-    'news':    ('news',        '/news/'),
-    'store':   ('key',         '/store/'),
-    'proj':    ('cost',        '/proj/'),
-    'trip':    ('car',         '/trip/'),
-    'fuel':    ('gas',         '/fuel/'),
-    'apart':   ('apartment',   '/apart/'),
-    'wage':    ('work',        '/wage/'),
-    'photo':   ('photo',       '/photo/'),
-    'health':  ('health',      '/health/'),
-    'admin':   ('admin',       '/admin/'),
-    'profile': ('user',        '/account/profile/'),
-    'logout':  ('exit',        '/account/logout/'),
+    'home':    ('icon/bootstrap/house-door.svg',        '/'),
+    'todo':    ('icon/bootstrap/calendar-check.svg',    '/todo/'),
+    'note':    ('icon/bootstrap/sticky.svg',            '/note/'),
+    'news':    ('icon/bootstrap/newspaper.svg',         '/news/'),
+    'store':   ('icon/bootstrap/key.svg',               '/store/'),
+    'proj':    ('icon/bootstrap/cash-coin.svg',         '/proj/'),
+    'trip':    ('icon/bootstrap/truck.svg',             '/trip/'),
+    'fuel':    ('icon/bootstrap/droplet.svg',           '/fuel/'),
+    'apart':   ('icon/bootstrap/building.svg',          '/apart/'),
+    'wage':    ('icon/bootstrap/briefcase.svg',         '/wage/'),
+    'photo':   ('icon/bootstrap/image.svg',             '/photo/'),
+    'health':  ('icon/bootstrap/heart.svg',             '/health/'),
+    'admin':   ('icon/bootstrap/people.svg',            '/admin/'),
+    'profile': ('icon/bootstrap/person.svg',            '/account/profile/'),
+    'logout':  ('icon/bootstrap/box-arrow-right.svg',   '/account/logout/'),
 }
 
 def get_app_name(app):
@@ -55,8 +55,10 @@ def get_apps_list(user, current):
             continue
         if (app == 'profile') and (user.username == 'demouser'):
             continue
+        if (app == 'profile') or (app == 'logout'):
+            continue
         href = APPS[app][1]
-        apps.append({'href': href, 'icon': 'rok/icon/' + APPS[app][0] + '.png', 'name': get_main_menu_item(app), 'active': current==app})
+        apps.append({'href': href, 'icon': APPS[app][0], 'name': get_main_menu_item(app), 'active': current==app})
     return apps
 
 def _get_app_name(app):

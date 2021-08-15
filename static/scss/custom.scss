@@ -1,3 +1,19 @@
 $primary: #447e9b;
 
+.btn-primary, .btn-primary:active, .btn-primary:visited {
+  color: #fff !important;
+  background-color: #417690 !important;
+  border: #417690 !important;
+}
+
+.btn-primary:hover {
+  color: #fff !important; 
+  background-color: #314d61 !important;
+  border: #314d61 !important;
+}
+
+.nav-link:hover {
+  background-color: #afc6d7 !important;
+}
+
 @import "C:/Users/Ruslan/AppData/Roaming/npm/node_modules/bootstrap/scss/bootstrap";
