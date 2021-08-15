@@ -3,21 +3,20 @@
 
 {% block extrastyle %}
   <link href="{% static 'rok/css/cover.css' %}" rel="stylesheet">
+  <link href="{% static 'rok/css/header.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
     
-<div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
-  <header class="mb-auto">
-    <div>
-      <h3 class="float-md-start mb-0">rusel.by</h3>
-      <nav class="nav nav-masthead justify-content-center float-md-end">
-        <a class="nav-link" href="{% url 'account:demo' %}">{% trans 'demo'|capfirst %}</a>
-        <a class="nav-link" href="{% url 'account:login' %}">{% trans 'log in'|capfirst %}</a>
-      </nav>
-    </div>
+  <header class="py-1 mb-3 border-bottom d-flex justify-content-between">
+    <h4 class="ms-3 text-warning">rusel.by</h4>
+    <nav class="nav nav-masthead">
+        <a class="btn pe-3 nav-link link-light text-info" href="{% url 'account:demo' %}"><span class="align-middle">{% trans 'demo'|capfirst %}</span></a>
+        <a class="btn pe-3 nav-link link-light text-info" href="{% url 'account:login' %}"><span class="align-middle">{% trans 'log in'|capfirst %}</span></a>
+    </nav>
   </header>
 
+<div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
   <main class="px-3">
     <!--h1>Cover your page.</h1-->
       <p class="lead">{% trans 'This site provides the following functionality:' %}</p>
@@ -43,7 +42,7 @@
       
       <p>{% trans 'Try demo-mode without registration:' %}</p>
       <p class="lead d-flex justify-content-center">
-        <a href="#" class="btn btn-lg btn-secondary fw-bold">Demo</a>
+        <a href="{% url 'account:demo' %}" class="btn btn-lg btn-primary fw-bold">Demo</a>
       </p>
   
   </main>
