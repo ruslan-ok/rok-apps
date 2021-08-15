@@ -12,10 +12,12 @@
     <hr>
     <ul class="nav nav-pills flex-column mb-auto">
       {% for app in apps %}
+      <li class="nav-item">
         <a href="{{ app.href }}" class="nav-link {% if app.active %}active{% else %}link-dark{% endif %}"{% if app.active %} aria-current="page"{% endif %}>
           <img class="bi me-2" src="{% static app.icon %}">
           {{ app.name }}
         </a>
+      </li>
       {% endfor %}
     </ul>
     <hr>

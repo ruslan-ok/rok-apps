@@ -8,7 +8,7 @@
   <header class="py-1 mb-3 border-bottom">
     <div class="container-fluid d-grid gap-3 align-items-center" style="grid-template-columns: 1fr 2fr;">
       <div class="">
-        <div class="btn{% if aside_disabled %} invisible{% endif %}" title="{% trans 'application launcher'|capfirst %}" onclick="launcherOpen()"><img src="{% static 'rok/icon/apps-white.png' %}"></div>
+        <div class="btn d-lg-none" title="{% trans 'application launcher'|capfirst %}" onclick="launcherOpen()"><img src="{% static 'rok/icon/apps-white.png' %}"></div>
         <div class="btn d-lg-none{% if aside_disabled or aside_visible %} invisible{% endif %}" title="{% trans 'open sidebar'|capfirst %}" onclick="asideToggle()"><img src="{% static 'rok/icon/hamb-white.png' %}"></div>
       </div>
 
