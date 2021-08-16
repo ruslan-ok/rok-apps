@@ -33,8 +33,8 @@ def get_base_context(request, app, detail, title):
     context['please_correct_one'] = _('Please correct the error below.')
     context['please_correct_all'] = _('Please correct the errors below.')
     
-    context['complete_icon'] = 'todo/icon/complete.png'
-    context['uncomplete_icon'] = 'todo/icon/uncomplete.png'
+    context['complete_icon'] = 'icon/main/complete.svg'
+    context['uncomplete_icon'] = 'icon/main/uncomplete.svg'
     
     context['apps'] = get_apps_list(request.user, app)
 

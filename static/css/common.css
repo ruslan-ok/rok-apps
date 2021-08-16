@@ -28,5 +28,7 @@ a:link, a:visited {
   background-color: #d7e3eb;
 }
 
-
-
+.content-title {
+  font-size: 2rem;
+  padding: 10px 20px;
+}

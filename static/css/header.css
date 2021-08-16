@@ -2,3 +2,7 @@ header {
   background-color: rgb(65, 118, 144);
   min-height: 47px;
 }
+
+.btn.header-menu-button {
+  padding: 5px;
+}

@@ -1,0 +1,29 @@
+ul.content-list {
+    padding: 0 15px;
+}
+
+.content-list li {
+    background-color: white;
+    min-height: 50px;
+    padding: 0 15px;
+    border-radius: 0.25rem;
+}
+
+.content-list li .left-icon {
+    padding: 0 10px;
+    margin-top: 10px;
+    margin-right: 5px;
+}
+
+.content-list li .item {
+    padding: 0 10px;
+    margin-right: 5px;
+    text-align: left;
+    width: 100%;
+}
+
+.content-list li .right-icon {
+    padding: 0 10px;
+    margin-top: 10px;
+}
+

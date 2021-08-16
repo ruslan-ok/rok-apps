@@ -1,0 +1,10 @@
+{% load static i18n %}
+
+{% block item_content %}
+<div class="content-title">
+    {% if content_icon %}
+    <img src="{% static content_icon %}">
+    {% endif %}
+    {{ title }}
+</div>
+{% endblock %}

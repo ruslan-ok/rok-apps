@@ -16,4 +16,13 @@ $primary: #447e9b;
   background-color: #afc6d7 !important;
 }
 
-@import "C:/Users/Ruslan/AppData/Roaming/npm/node_modules/bootstrap/scss/bootstrap";
+@import "../../../bootstrap/scss/functions";
+@import "../../../bootstrap/scss/variables";
+@import "../../../bootstrap/scss/mixins";
+@import "../../../bootstrap/scss/utilities";
+
+.main-content {
+  background-color: $green-100 !important;
+}
+
+@import "../../../bootstrap/scss/bootstrap";

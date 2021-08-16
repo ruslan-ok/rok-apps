@@ -9,7 +9,7 @@
   <div class="s-f-container">
     <div class="d-flex justify-content-between">
       <a href="/" class=""><img class="" src="{% static '/favicon.ico' %}"></a>
-      <button class="btn d-lg-none" onclick="launcherClose()"><img src="{% static 'icon/bootstrap/x.svg' %}"></button>
+      <button class="btn d-lg-none" onclick="launcherClose()"><img src="{% static 'icon/main/x.svg' %}"></button>
     </div>
     <hr>
     <ul class="nav nav-pills flex-row mb-auto">
@@ -34,12 +34,12 @@
         <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser2">
           <li><a class="dropdown-item d-flex justify-content-between" href="/account/profile/">
             <span>{% trans 'profile'|capfirst %}</span>
-            <img src="{% static 'icon/bootstrap/person.svg' %}">
+            <img src="{% static 'icon/account/profile.svg' %}">
           </a></li>
           <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item d-flex justify-content-between" href="/account/logout/">
             <span>{% trans 'sign out'|capfirst %}</span>
-            <img src="{% static 'icon/bootstrap/box-arrow-right.svg' %}">
+            <img src="{% static 'icon/account/logout.svg' %}">
           </a></li>
         </ul>
       </div>

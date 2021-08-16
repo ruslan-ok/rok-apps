@@ -2,21 +2,21 @@ from django.utils.translation import gettext_lazy as _
 from task.models import Task
 
 APPS = {
-    'home':    ('icon/bootstrap/house-door.svg',        '/'),
-    'todo':    ('icon/bootstrap/calendar-check.svg',    '/todo/'),
-    'note':    ('icon/bootstrap/sticky.svg',            '/note/'),
-    'news':    ('icon/bootstrap/newspaper.svg',         '/news/'),
-    'store':   ('icon/bootstrap/key.svg',               '/store/'),
-    'proj':    ('icon/bootstrap/cash-coin.svg',         '/proj/'),
-    'trip':    ('icon/bootstrap/truck.svg',             '/trip/'),
-    'fuel':    ('icon/bootstrap/droplet.svg',           '/fuel/'),
-    'apart':   ('icon/bootstrap/building.svg',          '/apart/'),
-    'wage':    ('icon/bootstrap/briefcase.svg',         '/wage/'),
-    'photo':   ('icon/bootstrap/image.svg',             '/photo/'),
-    'health':  ('icon/bootstrap/heart.svg',             '/health/'),
-    'admin':   ('icon/bootstrap/people.svg',            '/admin/'),
-    'profile': ('icon/bootstrap/person.svg',            '/account/profile/'),
-    'logout':  ('icon/bootstrap/box-arrow-right.svg',   '/account/logout/'),
+    'home':    ('icon/apps/home.svg',        '/'),
+    'todo':    ('icon/apps/todo.svg',        '/todo/'),
+    'note':    ('icon/apps/note.svg',        '/note/'),
+    'news':    ('icon/apps/news.svg',        '/news/'),
+    'store':   ('icon/apps/store.svg',       '/store/'),
+    'proj':    ('icon/apps/proj.svg',        '/proj/'),
+    'trip':    ('icon/apps/trip.svg',        '/trip/'),
+    'fuel':    ('icon/apps/fuel.svg',        '/fuel/'),
+    'apart':   ('icon/apps/apart.svg',       '/apart/'),
+    'wage':    ('icon/apps/wage.svg',        '/wage/'),
+    'photo':   ('icon/apps/photo.svg',       '/photo/'),
+    'health':  ('icon/apps/health.svg',      '/health/'),
+    'admin':   ('icon/account/admin.svg',    '/admin/'),
+    'profile': ('icon/account/profile.svg',  '/account/profile/'),
+    'logout':  ('icon/account/logout.svg',   '/account/logout/'),
 }
 
 def get_app_name(app):

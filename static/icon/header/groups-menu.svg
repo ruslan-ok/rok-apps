@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="26"
+   height="26"
+   viewBox="0 0 6.8791665 6.8791669"
+   version="1.1"
+   id="svg100"
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   sodipodi:docname="groups-menu-2.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview102"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="true"
+     units="px"
+     inkscape:zoom="30.62"
+     inkscape:cx="16.214892"
+     inkscape:cy="13.569562"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1">
+    <inkscape:grid
+       type="xygrid"
+       id="grid250" />
+  </sodipodi:namedview>
+  <defs
+     id="defs97" />
+  <g
+     inkscape:label="Слой 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#ffffff;fill-rule:evenodd;stroke-width:0.248529"
+       id="rect126"
+       width="5.8208332"
+       height="1.3229166"
+       x="0.52916664"
+       y="0.52916664"
+       ry="0.5291667" />
+    <rect
+       style="fill:#ffffff;fill-rule:evenodd;stroke-width:0.24853"
+       id="rect126-0"
+       width="5.8208332"
+       height="1.3229165"
+       x="0.52916664"
+       y="2.6458333"
+       ry="0.26458341" />
+    <rect
+       style="fill:#ffffff;fill-rule:evenodd;stroke:none;stroke-width:0.0264583;stroke-linejoin:round;stroke-miterlimit:4.3;stroke-dasharray:0.0264583, 0.0529167;stroke-dashoffset:0.0132292;stroke-opacity:1"
+       id="rect126-8"
+       width="5.8208332"
+       height="1.322917"
+       x="0.52916664"
+       y="4.7624998"
+       ry="0.52916688" />
+  </g>
+</svg>
