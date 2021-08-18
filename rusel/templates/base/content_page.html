@@ -4,7 +4,11 @@
 {% block content %}
   {% include "base/header.html" %}
   <main>
-    {% include "base/sidebar.html" %}
+    {% if app == 'home' %}
+      {% include "base/sidebar_launcher.html" %}
+    {% else %}
+      {% include "base/sidebar_groups.html" %}
+    {% endif %}
     {% block main %}{% endblock %}
   </main>
 {% endblock %}
