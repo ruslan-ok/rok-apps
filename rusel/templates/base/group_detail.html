@@ -2,20 +2,22 @@
 {% load static i18n %}
 
 {% block main %}
-  <form method="post">{% csrf_token %}
+  <form method="post" class="w-100 px-5">{% csrf_token %}
     {% include "base/title.html" %}
     {% include "base/form_errors.html" %}
 
     {{ form }}
 
-    <button type="submit" name="item_save" title="{% trans 'save changes'|capfirst %}">
-    	<img src="{% static 'icon/save.svg' %}">
-    	{% trans 'save'|capfirst %}
-    </button>
-    <button type="submit" name="item_delete" title="{% trans 'delete record'|capfirst %}">
-    	<img src="{% static 'icon/delete.svg' %}">
-    	{% trans 'delete'|capfirst %}
-    </button>
-  </form>
+    <div class="d-flex justify-content-between mt-3">
+      <button type="submit" name="item_save" class="btn btn-primary" title="{% trans 'save changes'|capfirst %}">
+        <img src="{% static 'icon/main/save.svg' %}">
+        {% trans 'save'|capfirst %}
+      </button>
+      <button type="submit" name="item_delete" class="btn btn-danger" title="{% trans 'delete record'|capfirst %}">
+        <img src="{% static 'icon/main/trash.svg' %}">
+        {% trans 'delete'|capfirst %}
+      </button>
+    </div>
+</form>
 {% endblock %}
 

@@ -1,5 +1,6 @@
 import time
 from django.utils.translation import gettext_lazy as _
+from django.urls import reverse
 from django.views.generic.edit import CreateView, UpdateView
 from django.core.paginator import Paginator
 

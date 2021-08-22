@@ -9,9 +9,11 @@ class CreateGroupForm(forms.ModelForm):
         fields = ['name']
 
 class GroupForm(forms.ModelForm):
-    is_leaf = forms.BooleanField(label=_('node is leaf'), disabled=True)
-    level = forms.IntegerField(label=_('hierarchy level'), disabled=True)
-
     class Meta:
         model = Group
-        fields = ['node', 'name', 'sort', 'is_leaf', 'level']
+        fields = ['node', 'name', 'sort']
+        widgets = {
+            'node': forms.Select(attrs={'class': 'form-control mb-5'}),
+            'name': forms.TextInput(attrs={'class': 'form-control mb-5'}),
+            'sort': forms.TextInput(attrs={'class': 'form-control mb-5'}),
+        }
