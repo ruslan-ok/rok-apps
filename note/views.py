@@ -9,6 +9,7 @@ from rusel.utils import extract_get_params
 from task.const import *
 from task.models import Task, Group, TaskGroup
 from task.views import GroupDetailView
+from task.forms import CreateGroupForm
 from note.const import *
 from note.forms import CreateNoteForm, NoteForm
 
@@ -57,13 +58,13 @@ class NoteListView(NoteAside, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         self.init_view()
-        title = _('notes').capitalize()
         gp = self.get_group_path()
         context['group_path'] = gp
-        if gp and not title:
-            title = ' / '.join([x['name'] for x in gp])
+        title = _('all').capitalize()
         context.update(get_base_context(self.request, app_name, False, title))
         context['fix_list'] = self.get_aside_context(self.request.user)
+        gf = CreateGroupForm()
+        context['group_form'] = gf
         context['sort_options'] = self.get_sorts()
         context['view_id'] = self.view_id
         context['params'] = extract_get_params(self.request)
@@ -105,11 +106,11 @@ class NoteListView(NoteAside, CreateView):
         ret = []
         if (self.view_id == LIST_MODE) and self.cur_grp:
             grp = Group.objects.filter(id=self.cur_grp).get()
-            ret.append({'id': grp.id, 'name': grp.name, 'url': grp.url})
+            ret.append({'id': grp.id, 'name': grp.name, 'edit_url': grp.edit_url})
             parent = grp.node
             while parent:
                 grp = Group.objects.filter(id=parent.id).get()
-                ret.append({'id': grp.id, 'name': grp.name, 'url': grp.url})
+                ret.append({'id': grp.id, 'name': grp.name, 'edit_url': grp.edit_url})
                 parent = grp.node
         return ret
     

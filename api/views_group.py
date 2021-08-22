@@ -35,14 +35,6 @@ class GroupViewSet(viewsets.ModelViewSet):
         return HttpResponseRedirect(reverse('taskgrp-list'))
     
     @action(detail=True)
-    def toggle(self, request, pk=None):
-        grp = self.get_object()
-        grp.is_open = not grp.is_open
-        grp.save()
-        serializer = GroupSerializer(instance=grp, context={'request': request})
-        return Response(serializer.data)
-    
-    @action(detail=True)
     def get_tasks(self, request, pk=None):
         return Response('')
 

@@ -1,0 +1,21 @@
+{% extends "base/content_page.html" %}
+{% load static i18n %}
+
+{% block main %}
+  <form method="post">{% csrf_token %}
+    {% include "base/title.html" %}
+    {% include "base/form_errors.html" %}
+
+    {{ form }}
+
+    <button type="submit" name="item_save" title="{% trans 'save changes'|capfirst %}">
+    	<img src="{% static 'icon/save.svg' %}">
+    	{% trans 'save'|capfirst %}
+    </button>
+    <button type="submit" name="item_delete" title="{% trans 'delete record'|capfirst %}">
+    	<img src="{% static 'icon/delete.svg' %}">
+    	{% trans 'delete'|capfirst %}
+    </button>
+  </form>
+{% endblock %}
+

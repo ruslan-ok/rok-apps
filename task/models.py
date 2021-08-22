@@ -342,13 +342,6 @@ class Group(models.Model):
     node = models.ForeignKey('self', on_delete=models.CASCADE, verbose_name=_('node'), blank=True, null=True)
     name = models.CharField(_('group name'), max_length=200, blank=False)
     sort = models.CharField(_('sort code'), max_length=50, blank=True)
-    
-    # deprecated for beta-version
-    is_open = models.BooleanField(_('node is open'), default=False)
-    is_leaf = models.BooleanField(_('node is leaf'), default=True)
-    level = models.IntegerField(_('hierarchy level'), default=0, null=True)
-    #qty = models.IntegerField(_('number of elements in a group'), default=0, null=True)
-
     created = models.DateTimeField(_('creation time'), blank=True, auto_now_add=True)
     last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now=True)
     consist = models.ManyToManyField(Task, through='TaskGroup', through_fields=('group', 'task'))
@@ -369,8 +362,11 @@ class Group(models.Model):
     def get_shifted_name(self):
         return '.' * self.level * 2 + self.name
     
-    #def url(self):
-    #    return self.app + ':group-detail'
+    def edit_url(self):
+        return self.app + ':group-detail'
+
+    def is_leaf(self):
+        return not Group.objects.filter(node=self.id).exists()
 
     @classmethod
     def scan_node(cls, tree, group_id):

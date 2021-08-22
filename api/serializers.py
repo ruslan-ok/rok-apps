@@ -4,10 +4,9 @@ from task.models import Group, Task, Step
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')
     node_id = serializers.ReadOnlyField(source='node.id')
-    app = serializers.ReadOnlyField()
     class Meta:
         model = Group
-        fields = ['url', 'id', 'node', 'node_id', 'user', 'app', 'name', 'sort', 'is_open', 'is_leaf', 'level', 'qty']
+        fields = ['url', 'id', 'node', 'node_id', 'user', 'app', 'name', 'sort', 'created', 'last_mod']
 
 class TaskSerializer(serializers.HyperlinkedModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')

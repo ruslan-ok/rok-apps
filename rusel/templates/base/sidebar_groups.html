@@ -47,8 +47,10 @@
       {% endfor %}
     </div>
   
-    <img class="btn" src="{% static 'icon/groups/plus-lg.svg' %}" onclick="addGroup()">
-    <input type="text" class="inp-300" placeholder="{% trans 'create list'|capfirst %}" name="name">
+    <img class="btn" src="{% static 'icon/groups/plus-lg.svg' %}" onclick="addGroup('{{ app }}')">
+    <input type="text" class="inp-300" placeholder="{% trans 'create list'|capfirst %}" name="name" id="new_group_id">
+    <form method="post" class="invisible">{% csrf_token %}
+    </form>
     </div>
   {% endif %}
 

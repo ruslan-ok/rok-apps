@@ -18,11 +18,6 @@ class Group():
             return self.grp.name
         return ''
 
-    def is_open(self):
-        if self.grp:
-            return self.grp.is_open
-        return False
-
 def find_group(groups, grp_id, name):
     for group in groups:
         if (group.id == grp_id):

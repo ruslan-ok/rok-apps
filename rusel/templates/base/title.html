@@ -1,10 +1,17 @@
 {% load static i18n %}
 
 {% block item_content %}
-<div class="content-title">
-    {% if content_icon %}
-    <img src="{% static content_icon %}">
-    {% endif %}
-    {{ title }}
-</div>
+    <div class="content-title">
+        {% if content_icon %}
+            <img src="{% static content_icon %}">
+        {% endif %}
+
+        {% if group_path %}
+            {% for group in group_path reversed %}
+                <a href="{% url group.edit_url group.id %}{{ params }}">{{ group.name }}</a>{% if group != group_path|first %} / {% endif %}
+            {% endfor %}
+        {% else %}
+            {{ title }}
+        {% endif %}
+    </div>
 {% endblock %}

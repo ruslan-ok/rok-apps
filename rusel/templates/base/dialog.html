@@ -22,22 +22,8 @@
   <form method="post">{% csrf_token %}
     <img class="mb-4" src="{% static '/favicon.ico' %}">
     <h1 class="h3 mb-3 fw-normal">{{ title|capfirst }}</h1>
-
-    {% if form.errors and not form.non_field_errors %}
-    <p class="errornote">
-    {% if form.errors.items|length == 1 %}{{ please_correct_one }}{% else %}{{ please_correct_all }}{% endif %}
-    </p>
-    {% endif %}
-    
-    {% if form.non_field_errors %}
-    {% for error in form.non_field_errors %}
-    <p class="errornote">
-        {{ error }}
-    </p>
-    {% endfor %}
-    {% endif %}
-    
-        {% block content %}{% endblock %}
+    {% include "base/form_errors.html" %}
+    {% block content %}{% endblock %}
   </form>
 </main>
   </body>
