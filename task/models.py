@@ -369,8 +369,8 @@ class Group(models.Model):
     def get_shifted_name(self):
         return '.' * self.level * 2 + self.name
     
-    def url(self):
-        return self.app + ':group-detail'
+    #def url(self):
+    #    return self.app + ':group-detail'
 
     @classmethod
     def scan_node(cls, tree, group_id):
