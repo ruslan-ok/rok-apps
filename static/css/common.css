@@ -20,7 +20,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 a:link, a:visited {
-  //color: #447e9b;
   text-decoration: none;
 }
 
@@ -31,4 +30,11 @@ a:link, a:visited {
 .content-title {
   font-size: 2rem;
   padding: 10px 20px;
+}
+
+.inp-300 {
+  width: 300px; 
+  border: 0; 
+  padding: 5px;
+  margin-top: 5px;
 }

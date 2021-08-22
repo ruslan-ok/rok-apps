@@ -1,9 +1,5 @@
 {% load static i18n %}
 
-{% block extrastyle %}
-  <link href="{% static 'css/sidebar.css' %}" rel="stylesheet">
-{% endblock %}
-
 {% block sidebar %}
   <div class="d-none d-lg-block d-flex flex-column flex-shrink-0 p-3 bg-light" style="width: 400px;">
     {% include "base/apps_list.html" %}

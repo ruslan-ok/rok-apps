@@ -173,7 +173,6 @@ def generate_activation_key(username):
 
 
 def register(request):
-    show_form = True
     title = _('Register')
     if request.method == 'POST':
         f = RegisterForm(request.POST)
@@ -212,12 +211,11 @@ def register(request):
                 newUser.activation_key = activation_key
                 newUser.user = u
                 newUser.save()
-                show_form = False
+                return HttpResponseRedirect(reverse_lazy('account:login'))
     else:
         f = RegisterForm()
  
-    context = get_base_context(request, 'rusel', False, title) #, 'dialog', form = f)
-    context['show_form'] = show_form
+    context = get_base_context(request, 'rusel', False, title)
     context['form'] = f
     return render(request, 'account/register.html', context)
 

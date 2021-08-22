@@ -13,7 +13,8 @@
     <link href="{% static 'scss/custom.css' %}" rel="stylesheet">
     <link href="{% static 'css/common.css' %}" rel="stylesheet">
     <link href="{% static 'css/list.css' %}" rel="stylesheet">
-    {% block extrastyle %}{% endblock %}
+    <link href="{% static 'css/sticky-footer.css' %}" rel="stylesheet">
+      {% block extrastyle %}{% endblock %}
   </head>
   <body>
     {% include "base/launcher.html" %}

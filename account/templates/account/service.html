@@ -1,0 +1,10 @@
+{% extends "base/dialog.html" %}
+{% load i18n static %}
+
+{% block content %}
+    <p><a href="{% url 'account:logout' %}">{% trans 'Log out' %}</a></p>
+    {% if user.has_usable_password %}
+        <p><a href="{% url 'account:password_change' %}">{% trans 'Change password' %}</a></p>
+    {% endif %}
+    <p><a href="{% url 'account:profile' %}">{% trans 'Edit profile' %}</a></p>
+{% endblock %}

@@ -1,6 +1,14 @@
 {% extends "base/page.html" %}
 {% load static i18n %}
 
+{% block extrastyle %}
+  <link href="{% static 'css/header.css' %}" rel="stylesheet">
+  <link href="{% static 'css/sidebar.css' %}" rel="stylesheet">
+  <link href="{% static 'css/groups.css' %}" rel="stylesheet">
+{% endblock %}
+
+
+
 {% block content %}
   {% include "base/header.html" %}
   <main>

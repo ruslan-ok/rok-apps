@@ -1,13 +1,57 @@
 {% load static i18n %}
 
-{% block extrastyle %}
-  <link href="{% static 'css/sidebar.css' %}" rel="stylesheet">
-{% endblock %}
-
 {% block sidebar %}
   <div class="d-none d-lg-block d-flex flex-column flex-shrink-0 p-3 bg-light" style="width: 400px;">
-    Hello
-  </div>
+    <div class="list-group">
+      {% for fix in fix_list %}
+        <a href="{{ fix.url }}" 
+           class="list-group-item d-flex justify-content-between align-items-start{% if request.GET.view == fix.name or not request.GET.view and fix.name == 'all' %} active{% endif %}"
+           {% if request.GET.view == fix.name or not request.GET.view and fix.name == 'all' %}aria-current="true"{% endif %}>
+          <div class="d-flex">
+            <img src="{% static fix.icon %}" class="list-group-item-icon">
+            {{ fix.title }}
+          </div>
+          <span class="badge bg-primary rounded-pill">{% if fix.qty != None %}{{ fix.qty }}{% endif %}</span>
+        </a>
+      {% endfor %}
+      </div>
+    {% if not without_lists %}
+    <div class="nav-last-static-list"></div>
+  
+    <div class="list-group" id="groups-tree">
+      {% for node in groups %}
+          {% if node.is_leaf %}
+            <a href="/{{ app }}/?view=list&lst={{ node.id }}" 
+               class="list-group-item d-flex justify-content-between align-items-start{# invisible #}{% if request.GET.lst == node.s_id %} active{% endif %}" 
+               {% if request.GET.lst == node.s_id %}aria-current="true"{% endif %}
+               data-id="{{ node.id }}" data-parent="{{ node.node.id }}" id="task_group_{{ node.id }}">
+              <div class="d-flex">
+                <img class="level-{{ node.level }} bi me-2" src="{% static 'icon/groups/journals.svg' %}">
+                <div>{{ node.name }}</div>
+              </div>
+              <span class="badge bg-primary rounded-pill">{{ node.qty }}</span>
+            </a>
+          {% else %}
+            <button type="button" class="list-group-item list-group-item-action">
+              <div class="" onclick="toggleGroup({{ node.id }})">
+                <div class="d-flex">
+                  <img class="level-{{ node.level }} bi me-2" src="{% static 'icon/groups/folder2.svg' %}">
+                  <div class="">{{ node.name }}</div>
+                </div>
+              </div>
+              <div class="" onclick="toggleGroup({{ node.id }})">
+                <img class="list-group-item-toggle-icon" src="{% static 'icon/groups/chevron-left.svg' %}">
+              </div>
+            </button>
+          {% endif %}
+      {% endfor %}
+    </div>
+  
+    <img class="btn" src="{% static 'icon/groups/plus-lg.svg' %}" onclick="addGroup()">
+    <input type="text" class="inp-300" placeholder="{% trans 'create list'|capfirst %}" name="name">
+    </div>
+  {% endif %}
+
 {% endblock %}
 
 {% block extrascript %}

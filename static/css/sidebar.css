@@ -31,6 +31,19 @@ main {
   vertical-align: -.125em;
   pointer-events: none;
   fill: currentColor;
+  width: 16px;
+  height: 16px;
+}
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link, .nav-link.active .rounded-pill {
+  color: #fff;
+  background-color: #87aac3 !important;
+}
+
+.rounded-pill {
+  background-color: inherit !important;
+  color: inherit !important;
+  font-weight: inherit;
 }
 
 .dropdown-toggle { outline: 0; }
