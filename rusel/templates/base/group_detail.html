@@ -13,7 +13,7 @@
         <img src="{% static 'icon/main/save.svg' %}">
         {% trans 'save'|capfirst %}
       </button>
-      <button type="submit" name="item_delete" class="btn btn-danger" title="{% trans 'delete record'|capfirst %}">
+      <button type="button" name="item_delete" class="btn btn-danger" onclick="delGroup()" title="{% trans 'delete record'|capfirst %}">
         <img src="{% static 'icon/main/trash.svg' %}">
         {% trans 'delete'|capfirst %}
       </button>
