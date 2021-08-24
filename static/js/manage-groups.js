@@ -1,6 +1,18 @@
 const group_api = '/ru/api/groups/';
 const postfix = 'format=json';
 
+tuneOnEnter();
+
+function tuneOnEnter() {
+  let input = document.getElementById('new_group_id');
+  input.addEventListener('keyup', function(event) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      document.getElementById('add_group_btn_id').click();
+    }
+  });
+}
+
 function addGroup(app) {
     let x = document.getElementById('new_group_id');
     let name = x.value;

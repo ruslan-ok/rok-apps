@@ -45,9 +45,9 @@ function initLi(node, visible) {
 
   if (!node.is_leaf)
     if (node.is_open)
-      li.children[1].children[0].setAttribute('src', '/static/rok/icon/direct-down.png');
+      li.children[1].children[0].setAttribute('src', '/static/icon/groups/chevron-down.svg');
     else
-      li.children[1].children[0].setAttribute('src', '/static/rok/icon/direct-left.png');
+      li.children[1].children[0].setAttribute('src', '/static/icon/groups/chevron-left.svg');
 
   for (let i = 0; i < node.children.length; i++)
     initLi(node.children[i], visible && node.is_open);
@@ -59,9 +59,9 @@ function toggleGroup(group_id) {
   setOpen(group_id, node.is_open);
   let li = document.getElementById('task_group_' + group_id);
   if (node.is_open)
-    li.children[1].children[0].setAttribute('src', '/static/rok/icon/direct-down.png');
+    li.children[1].children[0].setAttribute('src', '/static/icon/groups/chevron-down.svg');
   else
-    li.children[1].children[0].setAttribute('src', '/static/rok/icon/direct-left.png');
+    li.children[1].children[0].setAttribute('src', '/static/icon/groups/chevron-left.svg');
   let i;
   for (i = 0; i < node.children.length; i += 1)
     toggleLi(node.children[i].id, node.is_open);
