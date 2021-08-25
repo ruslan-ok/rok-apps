@@ -353,6 +353,9 @@ class Group(models.Model):
     def __str__(self):
         return self.name
 
+    def __unicode__(self):
+        return '.' * self.level() + self.name
+
     def qty(self):
         return len(TaskGroup.objects.filter(group=self.id))
 
@@ -360,10 +363,18 @@ class Group(models.Model):
         return str(self.id)
     
     def get_shifted_name(self):
-        return '.' * self.level * 2 + self.name
+        return '.'*self.level()*2 + self.name
     
     def edit_url(self):
         return self.app + ':group-detail'
+
+    def level(self):
+        ret = 0
+        node = self.node
+        while node:
+            ret += 1
+            node = node.node
+        return ret
 
     def is_leaf(self):
         return not Group.objects.filter(node=self.id).exists()

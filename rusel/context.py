@@ -41,10 +41,19 @@ def get_base_context(request, app, detail, title):
     #if url:
     #    save_last_visited(request.user, app + '/' + url, app, title_1, title_2)
 
-    groups = Group.objects.filter(user=request.user.id, app=app).order_by('sort')
-    context['groups'] = groups #JSONRenderer().render(TaskGrpSerializer(groups, many=True, context={'request': request}).data)
+    groups = []
+    get_sorted_groups(groups, request.user.id, app)
+    context['groups'] = groups
 
     context['add_item_placeholder'] = _('add task').capitalize()
     return context
 
-
+def get_sorted_groups(groups, user_id, app, node=None):
+    node_id = None
+    if node:
+        node_id = node.id
+    items = Group.objects.filter(user=user_id, app=app, node=node_id).order_by('sort')
+    for item in items:
+        groups.append(item)
+        get_sorted_groups(groups, user_id, app, item)
+    

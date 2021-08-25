@@ -22,7 +22,7 @@
       {% for node in groups %}
           {% if node.is_leaf %}
             <a href="/{{ app }}/?view=list&lst={{ node.id }}" 
-               class="list-group-item d-flex justify-content-between align-items-start{# invisible #}{% if request.GET.lst == node.s_id %} active{% endif %}" 
+               class="list-group-item d-none justify-content-between align-items-start{% if request.GET.lst == node.s_id %} active{% endif %}" 
                {% if request.GET.lst == node.s_id %}aria-current="true"{% endif %}
                data-id="{{ node.id }}" data-parent="{{ node.node.id }}" id="task_group_{{ node.id }}">
               <div class="d-flex">
@@ -32,7 +32,8 @@
               <span class="badge bg-primary rounded-pill">{{ node.qty }}</span>
             </a>
           {% else %}
-            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between" onclick="toggleGroup({{ node.id }})">
+            <button type="button" class="list-group-item list-group-item-action d-none justify-content-between" onclick="toggleGroup({{ node.id }})"
+                    data-id="{{ node.id }}" data-parent="{{ node.node.id }}" id="task_group_{{ node.id }}">
               <div class="d-flex">
                 <img class="level-{{ node.level }} bi me-2" src="{% static 'icon/groups/folder2.svg' %}">
                 <div class="w-100">{{ node.name }}</div>
