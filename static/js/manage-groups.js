@@ -5,6 +5,8 @@ tuneOnEnter();
 
 function tuneOnEnter() {
   let input = document.getElementById('new_group_id');
+  if (!input)
+    return;
   input.addEventListener('keyup', function(event) {
     if (event.key === 'Enter') {
       event.preventDefault();
@@ -15,6 +17,8 @@ function tuneOnEnter() {
 
 function addGroup(app) {
     let x = document.getElementById('new_group_id');
+    if (!x)
+      return;
     let name = x.value;
     if (!name)
       return;

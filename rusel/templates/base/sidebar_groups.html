@@ -1,7 +1,7 @@
 {% load static i18n %}
 
 {% block sidebar %}
-  <div class="d-none d-lg-block d-flex flex-column flex-shrink-0 p-3 bg-light" style="width: 400px;">
+  <div id="sidebar" class="d-none d-lg-block d-flex flex-column flex-shrink-0 p-3 bg-light" style="width: 400px;">
     <div class="list-group">
       {% for fix in fix_list %}
         <a href="{{ fix.url }}" 
@@ -44,9 +44,9 @@
       {% endfor %}
     </div>
   
-    <img class="btn" src="{% static 'icon/groups/plus-lg.svg' %}" id="add_group_btn_id" onclick="addGroup('{{ app }}')">
-    <input type="text" class="inp-300" placeholder="{% trans 'create list'|capfirst %}" name="name" id="new_group_id">
-    <form method="post" class="invisible">{% csrf_token %}
+    <form method="post" class="d-flex">{% csrf_token %}
+      <img class="btn me-2" src="{% static 'icon/groups/plus-lg.svg' %}" id="add_group_btn_id" onclick="addGroup('{{ app }}')">
+      <input type="text" class="inp-300" placeholder="{% trans 'create list'|capfirst %}" name="name" id="new_group_id">
     </form>
     </div>
   {% endif %}

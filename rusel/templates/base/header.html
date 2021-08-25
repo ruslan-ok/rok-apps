@@ -4,8 +4,8 @@
   <header class="py-1 mb-3 border-bottom">
     <div class="container-fluid d-grid gap-3 align-items-center" style="grid-template-columns: 1fr 2fr;">
       <div class="">
-        <div class="header-menu-button btn{% if app == 'home' %} d-lg-none{% endif %}" title="{% trans 'application launcher'|capfirst %}" onclick="launcherOpen()"><img src="{% static 'icon/header/launcher-menu.svg' %}"></div>
-        <div class="header-menu-button btn d-lg-none{% if aside_disabled or aside_visible %} invisible{% endif %}" title="{% trans 'open sidebar'|capfirst %}" onclick="asideToggle()"><img src="{% static 'icon/header/groups-menu.svg' %}"></div>
+        <div class="header-menu-button btn{% if app == 'home' %} d-lg-none{% endif %}" title="{% trans 'application launcher'|capfirst %}" onclick="navPanelOpen('launcher')"><img src="{% static 'icon/header/launcher-menu.svg' %}"></div>
+        <div class="header-menu-button btn d-lg-none{% if aside_disabled or aside_visible %} invisible{% endif %}" title="{% trans 'open sidebar'|capfirst %}" onclick="navPanelOpen('sidebar')"><img src="{% static 'icon/header/groups-menu.svg' %}"></div>
       </div>
 
       <div class="d-flex align-items-center">
