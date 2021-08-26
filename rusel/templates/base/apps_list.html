@@ -2,15 +2,13 @@
 
 {% block apps_list %}
 
-  <div class="s-f-container">
-    <div class="d-flex justify-content-between">
-      <img class="" style="width:40px; height:40px" src="{% static '/favicon.ico' %}">
-      <span class="fs-3">{{ app_human_name }}</span>
-      <button type="button" class="btn-close{% if app == 'home' %} invisible{% endif %}" aria-label="Close" onclick="navPanelClose('launcher')"></button>
-    </div>
+  <div class="offcanvas-header">
+    <img class="" style="width:40px; height:40px" src="{% static '/favicon.ico' %}">
+    <h5 class="offcanvas-title" id="launcherLabel">{{ app_human_name }}</h5>
+    <button type="button" class="btn-close text-reset{% if app == 'home' %} invisible{% endif %}" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
 
-    <hr>
-
+  <div class="offcanvas-body">
     <div class="s-f-container dropdown mb-3">
       <a href="#" class="d-flex align-items-center link-dark text-decoration-none dropdown-toggle" id="dropdownUser2" data-bs-toggle="dropdown" aria-expanded="false">
         <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle me-2">
