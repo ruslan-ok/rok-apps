@@ -382,7 +382,7 @@ class Group(models.Model):
     @classmethod
     def scan_node(cls, tree, group_id):
         for x in cls.objects.filter(node=group_id).order_by('sort'):
-            tree.append((x.id, '.' * x.level * 2 + x.name))
+            tree.append((x.id, '.' * x.level() * 2 + x.name))
             cls.scan_node(tree, x.id)
     
     @classmethod

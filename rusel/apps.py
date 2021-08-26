@@ -19,8 +19,8 @@ APPS = {
     'logout':  ('icon/account/logout.svg',   '/account/logout/'),
 }
 
-def get_app_name(app):
-    if (app == 'rusel'):
+def _get_app_human_name(app):
+    if (app == 'home'):
         return 'rusel.by'
     if (app == 'apart'):
         return _('communal')
@@ -46,6 +46,14 @@ def get_app_name(app):
         return _('health')
     return None
 
+def get_app_human_name(app):
+    name = _get_app_human_name(app)
+    if (app == 'home'):
+        return name
+    if name:
+        return _(name).capitalize()
+    return None
+
 def get_apps_list(user, current):
     apps = []
     for app in APPS:
@@ -61,15 +69,9 @@ def get_apps_list(user, current):
         apps.append({'href': href, 'icon': APPS[app][0], 'name': get_main_menu_item(app), 'active': current==app})
     return apps
 
-def _get_app_name(app):
-    name = get_app_name(app)
-    if name:
-        return _(name).capitalize()
-    return None
-
 def get_main_menu_item(app):
-    name = _get_app_name(app)
-    if name:
+    name = get_app_human_name(app)
+    if name and (app != 'home'):
         return name
     if (app == 'home'):
         return _('home').capitalize()

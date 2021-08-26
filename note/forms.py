@@ -4,8 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.admin.widgets import AdminSplitDateTime, AdminDateWidget
 
 from task.models import Group, Task, TaskGroup
-
-app_name = 'note'
+from note.const import app_name
 
 #----------------------------------
 class CreateNoteForm(forms.ModelForm):

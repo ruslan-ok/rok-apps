@@ -4,42 +4,41 @@
 
   <div class="s-f-container">
     <div class="d-flex justify-content-between">
-      <a href="/" class=""><img class="" src="{% static '/favicon.ico' %}"></a>
-      <button class="btn{% if app == 'home' %} invisible{% endif %}" onclick="navPanelClose('launcher')"><img src="{% static 'icon/main/x.svg' %}"></button>
+      <img class="" style="width:40px; height:40px" src="{% static '/favicon.ico' %}">
+      <span class="fs-3">{{ app_human_name }}</span>
+      <button type="button" class="btn-close{% if app == 'home' %} invisible{% endif %}" aria-label="Close" onclick="navPanelClose('launcher')"></button>
     </div>
+
     <hr>
+
+    <div class="s-f-container dropdown mb-3">
+      <a href="#" class="d-flex align-items-center link-dark text-decoration-none dropdown-toggle" id="dropdownUser2" data-bs-toggle="dropdown" aria-expanded="false">
+        <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle me-2">
+        <span>{{ user.username }}</span>
+      </a>
+      <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser2">
+        <li><a class="dropdown-item d-flex justify-content-between" href="/account/profile/">
+          <span>{% trans 'profile'|capfirst %}</span>
+          <img src="{% static 'icon/account/profile.svg' %}">
+        </a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item d-flex justify-content-between" href="/account/logout/">
+          <span>{% trans 'sign out'|capfirst %}</span>
+          <img src="{% static 'icon/account/logout.svg' %}">
+        </a></li>
+      </ul>
+    </div>
+
     <ul class="nav nav-pills flex-row mb-auto">
       {% for app in apps %}
-      <li class="nav-item" style="min-width: 180px;">
-        <a href="{{ app.href }}" class="nav-link {% if app.active %}active{% else %}link-dark{% endif %}"{% if app.active %} aria-current="page"{% endif %}>
-          <img class="bi me-2" src="{% static app.icon %}">
-          {{ app.name }}
-        </a>
+        <li class="nav-item" style="min-width: 180px;">
+          <a href="{{ app.href }}" class="nav-link {% if app.active %}active{% else %}link-dark{% endif %}"{% if app.active %} aria-current="page"{% endif %}>
+            <img class="bi me-2" src="{% static app.icon %}">
+            {{ app.name }}
+          </a>
+        </li>
       {% endfor %}
-      </li>
     </ul>
   </div>
-  <footer class="footer mt-auto py-3 bg-light">
-    <div class="s-f-container">
-      <hr>
-      <div class="dropdown">
-        <a href="#" class="d-flex align-items-center link-dark text-decoration-none dropdown-toggle" id="dropdownUser2" data-bs-toggle="dropdown" aria-expanded="false">
-          <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle me-2">
-          <strong>{{ user.username }}</strong>
-        </a>
-        <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser2">
-          <li><a class="dropdown-item d-flex justify-content-between" href="/account/profile/">
-            <span>{% trans 'profile'|capfirst %}</span>
-            <img src="{% static 'icon/account/profile.svg' %}">
-          </a></li>
-          <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item d-flex justify-content-between" href="/account/logout/">
-            <span>{% trans 'sign out'|capfirst %}</span>
-            <img src="{% static 'icon/account/logout.svg' %}">
-          </a></li>
-        </ul>
-      </div>
-    </div>
-  </footer>
 
 {% endblock %}

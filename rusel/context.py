@@ -1,14 +1,14 @@
 from django.utils.translation import gettext_lazy as _
 #from rest_framework.renderers import JSONRenderer
 
-from rusel.apps import get_app_name, get_apps_list
+from rusel.apps import get_app_human_name, get_apps_list
 from task.models import Group
 #from task.serializers import TaskGrpSerializer
 
 def get_base_context(request, app, detail, title):
     context = {}
     context['app'] = app
-    context['app_name'] = get_app_name(app)
+    context['app_human_name'] = get_app_human_name(app)
     context['restriction'] = None
     title_1 = title_2 = url = ''
     if title:

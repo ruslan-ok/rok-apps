@@ -14,7 +14,6 @@ from task.forms import CreateGroupForm
 from note.const import *
 from note.forms import CreateNoteForm, NoteForm
 
-app_name = 'note'
 list_url = '/note/'
 
 class NoteAside():

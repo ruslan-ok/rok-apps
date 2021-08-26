@@ -7,7 +7,7 @@
     <meta name="description" content="rusel.by applications">
     <meta name="author" content="Ruslan Akunevich">
     <title>
-      {% if app_name %}{{ app_name }}{% if title %} - {% endif %}{% endif %}{% if title %}{{ title }}{% endif %}
+      {% if app_human_name %}{{ app_human_name }}{% if title %} - {% endif %}{% endif %}{% if title %}{{ title }}{% endif %}
     </title>
     <link rel="icon" type="image/png" href="/static/favicon.ico">
     <link href="{% static 'scss/custom.css' %}" rel="stylesheet">
