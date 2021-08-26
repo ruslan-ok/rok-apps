@@ -429,7 +429,7 @@ def profile(request):
     else:
         form = ProfileForm(instance = request.user)
 
-    context = get_base_context(request, 'rusel', '', ('profile',))
+    context = get_base_context(request, 'home', '', ('profile',))
     context['form'] = form
     context['fieldset1_name'] = _('Personal info')
     context['fieldset2_name'] = _('Important dates')

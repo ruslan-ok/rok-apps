@@ -1,16 +1,20 @@
-{% extends "base/page.html" %}
+{% extends "base/content_page.html" %}
 {% load i18n static %}
 {#{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}">{% endblock %}#}
 
-{% block aside_conent %}
-  <div class="launcher-menu">
-    {% for app in apps %}
-      <a href="{{ app.href }}" class="launcher-button"><img src="{% static app.icon %}"><span class="marked">{{ app.name }}</span></a>
-    {% endfor %}
-  </div>
-{% endblock %}
+{% block main %}
+  <form method="post">{% csrf_token %}
+    {% include "base/form_errors.html" %}
 
-{% block content %}
-  {% include "base/form_snippet.html" %}
-  <button type="submit" class="dialog default">{% trans 'Save' %}</button>
+    {% for field in form %}
+      <div class="mb-3">
+        {{ field.label_tag }}
+        {{ field.errors }}
+        {{ field }}
+      </div>
+    {% endfor %}
+
+    {# include "base/form_snippet.html" #}
+    <button type="submit" class="dialog default">{% trans 'Save' %}</button>
+  </form>
 {% endblock %}
