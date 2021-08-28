@@ -2,142 +2,14 @@
 {% load static i18n %}
 
 {% block header_content %}
-  <nav class="container-fluid flex-wrap flex-md-nowrap" aria-label="Main navigation">
-    <img class="my-auto" src="{% static 'icon/header/rusel.png' %}">
-
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#bdNavbar" aria-controls="bdNavbar" aria-expanded="false" aria-label="Toggle navigation">
-      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" class="bi" fill="currentColor" viewBox="0 0 16 16">
-        <path fill-rule="evenodd" d="M2.5 11.5A.5.5 0 0 1 3 11h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 7h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 3h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"></path>
-      </svg>
-    </button>
-
-    <div class="collapse navbar-collapse" id="bdNavbar">
-      <ul class="navbar-nav flex-row flex-wrap bd-navbar-nav pt-2 py-md-0">
-        {% for app in apps %}
-          <li class="nav-item col-6 col-md-auto">
-            <a class="nav-link p-2{% if app.active %} active{% endif %}" href="{{ app.href }}"{% if app.active %} aria-current="true"{% endif %}>
-              <img class="app-icon" src="{% static app.icon %}">
-              {{ app.name }}
-            </a>
-          </li>
-        {% endfor %}
-      </ul>
-
-      <hr class="d-md-none text-white-50">
-      <form class="bd-search position-relative ms-md-auto me-auto">
-        <span class="algolia-autocomplete" style="position: relative; display: inline-block; direction: ltr;">
-          <input type="search" class="form-control ds-input" id="search-input" placeholder="Search..." aria-label="Search info for..." autocomplete="off" 
-                data-bd-docs-version="5.1" spellcheck="false" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-owns="algolia-autocomplete-listbox-0" 
-                dir="auto" style="position: relative; vertical-align: top;">
-          <pre aria-hidden="true" style="position: absolute; visibility: hidden; white-space: pre; font-family: system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;,
-                                        Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, 
-                                        &quot;Noto Color Emoji&quot;; font-size: 16px; font-style: normal; font-variant: normal; font-weight: 400; word-spacing: 0px; letter-spacing: normal; 
-                                        text-indent: 0px; text-rendering: auto; text-transform: none;">
-          </pre>
-          <span class="ds-dropdown-menu" role="listbox" id="algolia-autocomplete-listbox-0" style="position: absolute; top: 100%; z-index: 100; display: none; left: 0px; right: auto;">
-            <div class="ds-dataset-1"></div>
-          </span>
-        </span>
-      </form>
-
-      <hr class="d-md-none text-white-50">
-
-      <div class="s-f-container dropdown mx-4">
-        <a href="#" class="d-flex align-items-center justify-content-center link-light text-decoration-none dropdown-toggle" id="dropdownUser2" data-bs-toggle="dropdown" aria-expanded="false">
-          <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle me-2">
-          <span>{{ user.username }}</span>
-        </a>
-        <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser2">
-          <li><a class="dropdown-item d-flex justify-content-between" href="/account/profile/">
-            <span>{% trans 'profile'|capfirst %}</span>
-            <img src="{% static 'icon/account/profile.svg' %}">
-          </a></li>
-          <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item d-flex justify-content-between" href="/account/logout/">
-            <span>{% trans 'sign out'|capfirst %}</span>
-            <img src="{% static 'icon/account/logout.svg' %}">
-          </a></li>
-        </ul>
-      </div>
-
-    </div>
-  </nav>
+  {% include 'base/header.html' %}
 {% endblock %}
 
 {% block content %}
-  <nav class="bd-subnavbar py-2 d-lg-none" aria-label="Secondary navigation">
-    <div class="container-xxl d-flex align-items-md-center">
-      <div class="position-relative me-auto">
-        Hello
-      </div>
-      <button class="btn bd-sidebar-toggle d-md-none py-0 px-1 ms-3 order-3" type="button" data-bs-toggle="collapse" data-bs-target="#bd-docs-nav" aria-controls="bd-docs-nav" aria-expanded="true" aria-label="Toggle docs navigation">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="bi bi-expand" fill="currentColor" viewBox="0 0 16 16">
-          <title>Expand</title>
-          <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13A.5.5 0 0 1 1 8zM7.646.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 1.707V5.5a.5.5 0 0 1-1 0V1.707L6.354 2.854a.5.5 0 1 1-.708-.708l2-2zM8 10a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 14.293V10.5A.5.5 0 0 1 8 10z"></path>
-        </svg>
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="bi bi-collapse" fill="currentColor" viewBox="0 0 16 16">
-          <title>Collapse</title>
-          <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13A.5.5 0 0 1 1 8zm7-8a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 1 1 .708-.708L7.5 4.293V.5A.5.5 0 0 1 8 0zm-.5 11.707l-1.146 1.147a.5.5 0 0 1-.708-.708l2-2a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 11.707V15.5a.5.5 0 0 1-1 0v-3.793z"></path>
-        </svg>
-      </button>
-    </div>
-  </nav>
+  {% include 'base/sidebar_top.html' %}
 
   <div class="container-xxl my-md-4 bd-layout">
-    <aside class="bd-sidebar">
-      <nav class="bd-links collapse" id="bd-docs-nav" aria-label="Docs navigation" style="">
-        <div class="list-group">
-          {% for fix in fix_list %}
-            <a href="{{ fix.url }}" 
-               class="list-group-item d-flex justify-content-between align-items-start{% if request.GET.view == fix.name or not request.GET.view and fix.name == 'all' %} active{% endif %}"
-               {% if request.GET.view == fix.name or not request.GET.view and fix.name == 'all' %}aria-current="true"{% endif %}>
-              <div class="d-flex">
-                <img src="{% static fix.icon %}" class="list-group-item-icon">
-                {{ fix.title }}
-              </div>
-              <span class="badge bg-primary rounded-pill">{% if fix.qty != None %}{{ fix.qty }}{% endif %}</span>
-            </a>
-          {% endfor %}
-        </div>
-
-        {% if not without_lists %}
-        <hr>
-        <div class="nav-last-static-list"></div>
-  
-        <div class="list-group" id="groups-tree">
-          {% for node in groups %}
-              {% if node.is_leaf %}
-                <a href="/{{ app }}/?view=list&lst={{ node.id }}" 
-                   class="list-group-item d-none justify-content-between align-items-start{% if request.GET.lst == node.s_id %} active{% endif %}" 
-                   {% if request.GET.lst == node.s_id %}aria-current="true"{% endif %}
-                   data-id="{{ node.id }}" data-parent="{{ node.node.id }}" id="task_group_{{ node.id }}">
-                  <div class="d-flex">
-                    <img class="level-{{ node.level }} bi me-2" src="{% static 'icon/groups/journals.svg' %}">
-                    <div>{{ node.name }}</div>
-                  </div>
-                  <span class="badge bg-primary rounded-pill">{{ node.qty }}</span>
-                </a>
-              {% else %}
-                <button type="button" class="list-group-item list-group-item-action d-none justify-content-between" onclick="toggleGroup({{ node.id }})"
-                        data-id="{{ node.id }}" data-parent="{{ node.node.id }}" id="task_group_{{ node.id }}">
-                  <div class="d-flex">
-                    <img class="level-{{ node.level }} bi me-2" src="{% static 'icon/groups/folder2.svg' %}">
-                    <div class="w-100">{{ node.name }}</div>
-                  </div>
-                  <img class="list-group-item-toggle-icon" src="{% static 'icon/groups/chevron-left.svg' %}">
-                </button>
-              {% endif %}
-          {% endfor %}
-        </div>
-            <hr>
-        <form method="post" class="d-flex">{% csrf_token %}
-          <img class="btn me-2" src="{% static 'icon/groups/plus-lg.svg' %}" id="add_group_btn_id" onclick="addGroup('{{ app }}')">
-          <input type="text" class="inp-300" placeholder="{% trans 'create list'|capfirst %}" name="name" id="new_group_id">
-        </form>
-        <hr>
-        {% endif %}
-      </nav>
-    </aside>
+    {% include 'base/sidebar.html' %}
 
     <main class="bd-main order-1">
       {% block main %}{% endblock %}

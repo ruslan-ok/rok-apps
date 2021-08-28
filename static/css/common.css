@@ -1,3 +1,15 @@
+.bd-navbar {
+  background-color: #417690 !important;
+}
+
+.app-icon {
+  filter: invert(0.7);
+}
+
+.active .app-icon {
+  filter: invert(1);
+}
+
 .bd-placeholder-img {
   font-size: 1.125rem;
   text-anchor: middle;

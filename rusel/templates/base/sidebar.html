@@ -1,0 +1,54 @@
+{% load static i18n %}
+
+<aside class="bd-sidebar">
+    <nav class="bd-links collapse" id="bd-docs-nav" aria-label="Groups navigation">
+        {% for fix in fix_list %}
+            <a href="{{ fix.url }}" class="nav-link d-flex justify-content-between{% if request.GET.view == fix.name or not request.GET.view and fix.name == 'all' %} active{% endif %}">
+                <div class="d-flex">
+                    <img src="{% static fix.icon %}" class="groups-item-icon">
+                    {{ fix.title }}
+                </div>
+                <span class="badge bg-primary rounded-pill">{% if fix.qty != None %}{{ fix.qty }}{% endif %}</span>
+            </a>
+        {% endfor %}
+
+      {% if not without_lists %}
+        <hr>
+
+        <div id="groups-tree">
+            {% for node in groups %}
+                {% if node.is_leaf %}
+                    <a href="/{{ app }}/?view=list&lst={{ node.id }}" 
+                        class="nav-link d-flex justify-content-between{% if request.GET.lst == node.s_id %} active{% endif %}"
+                        {% if request.GET.lst == node.s_id %}aria-current="true"{% endif %}
+                        data-id="{{ node.id }}" data-parent="{{ node.node.id }}" id="task_group_{{ node.id }}">
+                        <div class="d-flex">
+                            <img class="level-{{ node.level }} bi me-2" src="{% static 'icon/groups/journals.svg' %}">
+                            <div>{{ node.name }}</div>
+                        </div>
+                        <span class="badge bg-primary rounded-pill">{{ node.qty }}</span>
+                    </a>
+                {% else %}
+                    <a role="button" href="#" class="nav-link d-none justify-content-between" onclick="toggleGroup({{ node.id }})"
+                            data-id="{{ node.id }}" data-parent="{{ node.node.id }}" id="task_group_{{ node.id }}">
+                        <div class="d-flex">
+                            <img class="level-{{ node.level }} bi me-2" src="{% static 'icon/groups/folder2.svg' %}">
+                            <div class="w-100">{{ node.name }}</div>
+                        </div>
+                        <img class="groups-item-toggle-icon" src="{% static 'icon/groups/chevron-left.svg' %}">
+                    </a>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <hr>
+
+        <form method="post" class="d-flex">{% csrf_token %}
+            <img class="btn me-2" src="{% static 'icon/groups/plus-lg.svg' %}" id="add_group_btn_id" onclick="addGroup('{{ app }}')">
+            <input type="text" class="inp-300" placeholder="{% trans 'create list'|capfirst %}" name="name" id="new_group_id">
+        </form>
+
+        <hr>
+      {% endif %}
+    </nav>
+  </aside>

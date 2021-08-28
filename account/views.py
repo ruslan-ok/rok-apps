@@ -433,7 +433,6 @@ def profile(request):
     context['form'] = form
     context['fieldset1_name'] = _('Personal info')
     context['fieldset2_name'] = _('Important dates')
-    context['aside_disabled'] = True
     return render(request, 'account/profile.html', context)
 
 def demo(request):
