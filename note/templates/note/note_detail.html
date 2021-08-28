@@ -1,10 +1,6 @@
 {% extends "base/page.html" %}
 {% load static i18n %}
 
-{% block extrastyle %}
-  <link rel="stylesheet" type="text/css" href="{% static 'todo/css/todo.css' %}">
-{% endblock %}
-
 {% block content %}
 
   <div class="top">
@@ -29,10 +25,3 @@
   </article>
 {% endblock %}
 
-{% block scripts %}
-  {{ block.super }}
-  <script src="{% static 'rok/js/resize.js' %}"></script>
-  <script src="{% static 'rok/js/uploads.js' %}"></script>
-  <script src="{% static 'rok/js/categories.js' %}"></script>
-  <script src="{% static 'todo/js/task.js' %}"></script>
-{% endblock %}

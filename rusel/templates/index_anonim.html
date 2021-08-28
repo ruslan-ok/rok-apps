@@ -1,53 +1,117 @@
 {% extends "base/page.html" %}
 {% load static i18n %}
 
-{% block extrastyle %}
-  <link href="{% static 'css/cover.css' %}" rel="stylesheet">
-  <link href="{% static 'css/header.css' %}" rel="stylesheet">
+{% block header_content %}
+  <nav class="container-xxl flex-wrap flex-md-nowrap" aria-label="Main navigation">
+    <div class="d-flex">
+      <img class="my-auto" src="{% static 'icon/header/rusel.png' %}">
+      <span class="ms-3 fs-3 text-warning">rusel.by</span>
+    </div>
+    <div>
+      <a class="btn btn-bd-download d-lg-inline-block my-md-0 ms-md-3" href="{% url 'account:demo' %}">{% trans 'demo'|capfirst %}</a>
+      <a class="btn btn-bd-download d-lg-inline-block my-md-0 ms-md-3" href="{% url 'account:login' %}">{% trans 'log in'|capfirst %}</a>
+    </div>
+  </nav>
 {% endblock %}
 
 {% block content %}
-    
-<header class="py-1 mb-3 border-bottom d-flex justify-content-between">
-  <div class="ms-3 fs-3 text-warning">rusel.by</div>
-  <nav class="nav nav-masthead">
-    <a class="px-2 mx-2 btn btn-primary fw-bold" href="{% url 'account:demo' %}"><span class="align-middle">{% trans 'demo'|capfirst %}</span></a>
-    <a class="px-2 mx-2 btn btn-primary fw-bold" href="{% url 'account:login' %}"><span class="align-middle">{% trans 'log in'|capfirst %}</span></a>
-  </nav>
-</header>
-
-<div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+<div class="d-flex flex-column p-3 mx-auto" style="max-width: 1200px;">
   <main class="px-3">
-      <p class="lead">{% trans 'This site provides the following functionality:' %}</p>
-      <p><img class="app-icon" src="{% static 'icon/apps/todo.svg' %}">{% trans '"Tasks" - task scheduler. Capabilities:' %}</p>
-      <ul>
-        <li>{% trans 'Combining tasks into lists, and lists into groups.' %}</li>
-        <li>{% trans 'Search by name, task description and task categories.' %}</li>
-        <li>{% trans 'Reminder of tasks by pop-up messages of the browser on the computer and in the phone.' %}</li>
-        <li>{% trans 'For each task, execution stages can be set, tracking of the execution of both the task itself and its stages is available.' %}</li>
-        <li>{% trans 'For a task, a due date, frequency of repetition, date and time of reminder can be set.' %}</li>
-        <li>{% trans 'A task can be marked as "important" or as added to the "My Day" view.' %}</li>
-        <li>{% trans 'Each task can be assigned an arbitrary number of "categories" and filter the list of tasks by them.' %}</li>
-        <li>{% trans 'In the task, you can specify a hyperlink to an external Internet resource.' %}</li>
-        <li>{% trans 'You can attach an arbitrary number of files to the task.' %}</li>
-      </ul>
-      
-      <p><img class="app-icon" src="{% static 'icon/apps/note.svg' %}">{% trans '"Notes" - personal notes about everything. For each note, in addition to the description, you can specify a hyperlink to an external Internet resource, an arbitrary number of categories, attach files. Notes, like tasks, are combined into lists, and lists into groups. Notes can be searched by title, description, and category.' %}</p>
-      <p><img class="app-icon" src="{% static 'icon/apps/news.svg' %}">{% trans '"News" - similar to a list of notes, but the emphasis is on the date-time of publication.' %}</p>
-      <p><img class="app-icon" src="{% static 'icon/apps/proj.svg' %}">{% trans '"Expenses" - allows you to track costs for several projects. Multiple currencies can be selected for accounting and totals.' %}</p>
-      <p><img class="app-icon" src="{% static 'icon/apps/photo.svg' %}">{% trans '"Photobank" - photo storage. Photos can be grouped into folders that can be structured in a hierarchy (like folders in a file system). Geotagged photos can be displayed on the map as markers indicating shooting locations.' %}</p>
-      <p><img class="app-icon" src="{% static 'icon/apps/fuel.svg' %}">{% trans '"Fueling" - for the car owner the ability to control fuel consumption, as well as the frequency of service maintenance and replacement of consumable materials.' %}</p>
-      
-      <hr>      
-      <p>{% trans 'Try demo-mode without registration:' %}</p>
-      <p class="lead d-flex justify-content-center">
-        <a href="{% url 'account:demo' %}" class="btn btn-lg btn-primary fw-bold">Demo</a>
-      </p>
+    <p class="lead">{% trans 'This site provides the following functionality:' %}</p>
+
+    <div class="accordion" id="accordeonIntro">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingTask">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTask" aria-expanded="true" aria-controls="collapseTask">
+            <img class="me-2" src="{% static 'icon/apps/todo.svg' %}">{% trans 'tasks'|capfirst %}
+          </button>
+        </h2>
+        <div id="collapseTask" class="accordion-collapse collapse show" aria-labelledby="headingTask" data-bs-parent="#accordeonIntro">
+          <div class="accordion-body">
+            <p>{% trans 'capabilities'|capfirst %}:</p>
+            <ul>
+              <li>{% trans 'Combining tasks into lists, and lists into groups.' %}</li>
+              <li>{% trans 'Search by name, task description and task categories.' %}</li>
+              <li>{% trans 'Reminder of tasks by pop-up messages of the browser on the computer and in the phone.' %}</li>
+              <li>{% trans 'For each task, execution stages can be set, tracking of the execution of both the task itself and its stages is available.' %}</li>
+              <li>{% trans 'For a task, a due date, frequency of repetition, date and time of reminder can be set.' %}</li>
+              <li>{% trans 'A task can be marked as "important" or as added to the "My Day" view.' %}</li>
+              <li>{% trans 'Each task can be assigned an arbitrary number of "categories" and filter the list of tasks by them.' %}</li>
+              <li>{% trans 'In the task, you can specify a hyperlink to an external Internet resource.' %}</li>
+              <li>{% trans 'You can attach an arbitrary number of files to the task.' %}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingNote">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNote" aria-expanded="false" aria-controls="collapseNote">
+            <img class="me-2" src="{% static 'icon/apps/note.svg' %}">{% trans 'notes'|capfirst %}
+          </button>
+        </h2>
+        <div id="collapseNote" class="accordion-collapse collapse" aria-labelledby="headingNote" data-bs-parent="#accordeonIntro">
+          <div class="accordion-body">
+            {% trans 'Personal notes about everything. For each note, in addition to the description, you can specify a hyperlink to an external Internet resource, an arbitrary number of categories, attach files. Notes, like tasks, are combined into lists, and lists into groups. Notes can be searched by title, description, and category.' %}
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingNews">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNews" aria-expanded="false" aria-controls="collapseNews">
+            <img class="me-2" src="{% static 'icon/apps/news.svg' %}">{% trans 'news'|capfirst %}
+          </button>
+        </h2>
+        <div id="collapseNews" class="accordion-collapse collapse" aria-labelledby="headingNews" data-bs-parent="#accordeonIntro">
+          <div class="accordion-body">
+            {% trans 'Similar to a list of notes, but the emphasis is on the date-time of publication.' %}
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingProj">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseProj" aria-expanded="false" aria-controls="collapseProj">
+            <img class="me-2" src="{% static 'icon/apps/proj.svg' %}">{% trans 'expenses'|capfirst %}
+          </button>
+        </h2>
+        <div id="collapseProj" class="accordion-collapse collapse" aria-labelledby="headingProj" data-bs-parent="#accordeonIntro">
+          <div class="accordion-body">
+            {% trans 'Allows you to track costs for several projects. Multiple currencies can be selected for accounting and totals.' %}
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingPhoto">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePhoto" aria-expanded="false" aria-controls="collapsePhoto">
+            <img class="me-2" src="{% static 'icon/apps/photo.svg' %}">{% trans 'photobank'|capfirst %}
+          </button>
+        </h2>
+        <div id="collapsePhoto" class="accordion-collapse collapse" aria-labelledby="headingPhoto" data-bs-parent="#accordeonIntro">
+          <div class="accordion-body">
+            {% trans 'This is a photo storage. Photos can be grouped into folders that can be structured in a hierarchy (like folders in a file system). Geotagged photos can be displayed on the map as markers indicating shooting locations.' %}
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingFuel">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFuel" aria-expanded="false" aria-controls="collapseFuel">
+            <img class="me-2" src="{% static 'icon/apps/fuel.svg' %}">{% trans 'fueling'|capfirst %}
+          </button>
+        </h2>
+        <div id="collapseFuel" class="accordion-collapse collapse" aria-labelledby="headingFuel" data-bs-parent="#accordeonIntro">
+          <div class="accordion-body">
+            {% trans 'For the car owner the ability to control fuel consumption, as well as the frequency of service maintenance and replacement of consumable materials.' %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex mt-4">
+      <div class="lead">
+        {% trans 'Try demo-mode without registration:' %}
+      </div>
+      <a href="{% url 'account:demo' %}" class="btn btn-secondary mx-3">Demo</a>
+    </div>
   
   </main>
 </div>
-
-
-    
 {% endblock %}
-
