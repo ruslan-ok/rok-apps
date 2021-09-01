@@ -33,7 +33,7 @@
                             data-id="{{ node.id }}" data-parent="{{ node.node.id }}" id="task_group_{{ node.id }}">
                         <div class="d-flex">
                             <img class="level-{{ node.level }} bi me-2" src="{% static 'icon/groups/folder2.svg' %}">
-                            <div class="w-100">{{ node.name }}</div>
+                            <div class="openable">{{ node.name }}</div>
                         </div>
                         <img class="groups-item-toggle-icon" src="{% static 'icon/groups/chevron-left.svg' %}">
                     </a>

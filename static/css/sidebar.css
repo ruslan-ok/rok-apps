@@ -31,8 +31,8 @@ main {
   vertical-align: -.125em;
   pointer-events: none;
   fill: currentColor;
-  width: 16px;
-  height: 16px;
+  /*width: 16px;
+  height: 16px;*/
 }
 
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link, .nav-link.active .rounded-pill {

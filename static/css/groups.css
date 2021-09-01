@@ -2,6 +2,10 @@
     background-color: inherit !important;
 }
 
+.nav-link .openable {
+    font-weight: 400;
+}
+
 aside .nav-link.active {
     background-color: #afc6d7 !important;
     border-radius: 0.15rem;
