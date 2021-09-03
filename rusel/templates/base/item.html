@@ -1,53 +1,53 @@
 {% load static %}
 
 {% block item_content %}
-  <li class="d-flex justify-content-between mb-1">
+  <li class="content-list__item">
 
     {% if not hide_selector %}
-      <a href="{% url 'toggle-completed' item.id %}{{ params }}" class="left-icon">
+      <a href="{% url 'toggle-completed' item.id %}{{ params }}" class="content-list__item-left-icon">
         {% if item.marked_item %}
-          <img class="img-20_20" src="{% static complete_icon %}">
+          <img class="" src="{% static complete_icon %}">
         {% else %}
-          <img class="img-20_20" src="{% static uncomplete_icon %}">
+          <img class="" src="{% static uncomplete_icon %}">
         {% endif %}
     </a>      
     {% endif %}
 
-    <a href="{% url item_detail_url item.id %}{{ params }}" class="item{% if item.id == ed_item.id %} current{% endif %}">
-      <div class="info">
-        <div class="name{% if item.marked_item %} completed{% endif %}">{{ item.name }}</div>
-        <div class="descr">
+    <a href="{% url item_detail_url item.id %}{{ params }}" class="content-list__item-container{% if item.id == ed_item.id %} current{% endif %}">
+      <div class="content-list__item-info">
+        <div class="content-list__item-name{% if item.marked_item %} completed{% endif %}">{{ item.name }}</div>
+        <div class="content-list__item-descr">
           {% for attr in item.get_info %}
-            <div class="inline-element">
+            <div class="content-list__item-inline-element">
               {% if attr.icon == "attach" %}
-                <img class="inline-icon" src="{% static 'icon/inline/paperclip.svg' %}">
+                <img class="content-list__item-inline-icon" src="{% static 'icon/inline/paperclip.svg' %}">
               {% elif attr.icon == "category" %}
-                <span class="inline-icon category-icon {{ attr.color }}"></span>
+                <span class="content-list__item-inline-icon category-icon {{ attr.color }}"></span>
               {% elif attr.icon == "termin" %}
-                <img class="inline-icon" src="{% static 'icon/inline/termin.svg' %}">
+                <img class="content-list__item-inline-icon" src="{% static 'icon/inline/termin.svg' %}">
               {% elif attr.icon == "termin-expired" %}
-                <img class="inline-icon" src="{% static 'icon/inline/termin-expired.svg' %}">
+                <img class="content-list__item-inline-icon" src="{% static 'icon/inline/termin-expired.svg' %}">
               {% elif attr.icon == "termin-actual" %}
-                <img class="inline-icon" src="{% static 'icon/inline/termin-actual.svg' %}">
+                <img class="content-list__item-inline-icon" src="{% static 'icon/inline/termin-actual.svg' %}">
               {% elif attr.icon == "myday" %}
-                <img class="inline-icon" src="{% static 'icon/inline/myday.svg' %}">
+                <img class="content-list__item-inline-icon" src="{% static 'icon/inline/myday.svg' %}">
               {% elif attr.icon == "notes" %}
-                <img class="inline-icon" src="{% static 'icon/inline/sticky.svg' %}">
+                <img class="content-list__item-inline-icon" src="{% static 'icon/inline/sticky.svg' %}">
               {% elif attr.icon == "remind" %}
-                <img class="inline-icon" src="{% static 'icon/inline/bell.svg' %}">
+                <img class="content-list__item-inline-icon" src="{% static 'icon/inline/bell.svg' %}">
               {% elif attr.icon == "repeat" %}
-                <img class="inline-icon" src="{% static 'icon/inline/repeat.svg' %}">
+                <img class="content-list__item-inline-icon" src="{% static 'icon/inline/repeat.svg' %}">
               {% elif attr.icon == "repeat-expired" %}
-                <img class="inline-icon" src="{% static 'icon/inline/repeat-expired.svg' %}">
+                <img class="content-list__item-inline-icon" src="{% static 'icon/inline/repeat-expired.svg' %}">
               {% elif attr.icon == "repeat-actual" %}
-                <img class="inline-icon" src="{% static 'icon/inline/repeat-actual.svg' %}">
+                <img class="content-list__item-inline-icon" src="{% static 'icon/inline/repeat-actual.svg' %}">
               {% elif attr.icon == "url" %}
-                <img class="inline-icon" src="{% static 'icon/inline/link.svg' %}">
+                <img class="content-list__item-inline-icon" src="{% static 'icon/inline/link.svg' %}">
               {% elif attr.icon == "separator" %}
-                <img class="inline-icon" src="{% static 'icon/inline/dot.svg' %}">
+                <img class="content-list__item-inline-icon" src="{% static 'icon/inline/dot.svg' %}">
               {% endif %}
               {% if attr.text %}
-                <div class="inline-label {% if attr.color %}{{ attr.color }}{% endif %}"><span>{{ attr.text }}</span></div>
+                <div class="content-list__item-inline-label {% if attr.color %}{{ attr.color }}{% endif %}"><span>{{ attr.text }}</span></div>
               {% endif %}
             </div>
           {% endfor %}
@@ -56,11 +56,11 @@
     </a>      
 
     {% if not hide_important %}
-      <a href="{% url 'toggle-important' item.id %}{{ params }}" class="right-icon">
+      <a href="{% url 'toggle-important' item.id %}{{ params }}" class="content-list__item-right-icon">
         {% if item.important %}
-          <img class="img-20_20" src="{% static 'icon/main/star-fill.svg' %}">
+          <img class="content-list__item-right-icon-img" src="{% static 'icon/main/star-fill.svg' %}">
         {% else %}
-          <img class="img-20_20" src="{% static 'icon/main/star.svg' %}">
+          <img class="content-list__item-right-icon-img" src="{% static 'icon/main/star.svg' %}">
         {% endif %}
       </a>
     {% endif %}

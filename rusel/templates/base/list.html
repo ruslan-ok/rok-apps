@@ -2,35 +2,22 @@
 {% load static i18n %}
 
 {% block main %}
-<div class="main-content w-100">
+<div class="list-content">
   {% include "base/title.html" %}
 
   <ul class="content-list">
-    {% for item in page_obj %}
-      {% include "base/item.html" %}
-    {% endfor %}
+      {% for item in items %}
+        {% include "base/item.html" %}
+      {% endfor %}
   </ul>
 
-  {% if page_obj %}
-    <p>
-    <div class="pagination">
-      <span class="step-links">
-          {% if page_obj.has_previous %}
-              <a class="w3-button" href="?page=1">&laquo;</a>
-              <a class="w3-button" href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
-          {% endif %}
-  
-          <span class="current active w3-button w3-theme-l1">
-              {{ page_obj.number }}
-          </span>
-  
-          {% if page_obj.has_next %}
-              <a class="w3-button" href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>
-              <a class="w3-button" href="?page={{ page_obj.paginator.num_pages }}">&raquo;</a>
-          {% endif %}
-      </span>
-    </div>
+  {% if not hide_add_item_input %}
+    <form method="post" class="add-form">{% csrf_token %}
+      <img type="submit" class="add-form__button" src="{% static 'icon/groups/plus-lg.svg' %}">
+      <input type="text" class="add-form__input" placeholder="{{ add_item_placeholder }}" name="item_add-name" maxlength="200" required="">
+    </form>
   {% endif %}
+
 </div>
 {% endblock %}
 

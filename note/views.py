@@ -2,7 +2,6 @@ import time
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 from django.views.generic.edit import CreateView, UpdateView
-from django.core.paginator import Paginator
 
 from rusel.context import get_base_context
 from rusel.aside import Fix
@@ -82,9 +81,7 @@ class NoteListView(NoteAside, CreateView):
         search_mode = 0
     
         tasks = self.get_queryset()
-        paginator = Paginator(tasks, ITEMS_PER_PAGE)
-        page_obj = paginator.get_page(page_number)
-        context['page_obj'] = paginator.get_page(page_number)
+        context['items'] = tasks
         return context
 
     def init_view(self):
