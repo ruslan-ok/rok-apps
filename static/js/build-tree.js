@@ -36,24 +36,24 @@ function buildTree(tree_id, app, current_id) {
     initLi(roots[i], true);
 }
 
+function toggleClasses(element, condition, ifTrue, ifFalse) {
+  if (condition) {
+    element.classList.add(ifTrue);
+    element.classList.remove(ifFalse);
+  } else {
+    element.classList.add(ifFalse);
+    element.classList.remove(ifTrue);
+  }
+}
+
 function initLi(node, visible) {
   let li = document.getElementById('task_group_' + node.id);
-  if (visible) {
-    li.classList.add('d-flex');
-    li.classList.remove('d-none');
-  } else {
-    li.classList.add('d-none');
-    li.classList.remove('d-flex');
-  }
+  toggleClasses(li, visible, 'sidebar__group-visible', 'sidebar__group-hidden');
 
-  if (!node.is_leaf)
-    if (node.is_open) {
-      li.children[0].children[0].setAttribute('src', '/static/icon/groups/folder2-open.svg');
-      li.children[1].setAttribute('src', '/static/icon/groups/chevron-down.svg');
-    } else {
-      li.children[0].children[0].setAttribute('src', '/static/icon/groups/folder2.svg');
-      li.children[1].setAttribute('src', '/static/icon/groups/chevron-left.svg');
-    }
+  if (!node.is_leaf) {
+    toggleClasses(li.children[0].children[0], node.is_open, 'bi-folder2-open', 'bi-folder2');
+    toggleClasses(li.children[1], node.is_open, 'bi-chevron-down', 'bi-chevron-left');
+  }
   for (let i = 0; i < node.children.length; i++)
     initLi(node.children[i], visible && node.is_open);
 }
@@ -63,13 +63,8 @@ function toggleGroup(group_id) {
   node.is_open = !node.is_open;
   setOpen(group_id, node.is_open);
   let li = document.getElementById('task_group_' + group_id);
-  if (node.is_open) {
-    li.children[0].children[0].setAttribute('src', '/static/icon/groups/folder2-open.svg');
-    li.children[1].setAttribute('src', '/static/icon/groups/chevron-down.svg');
-  } else {
-    li.children[0].children[0].setAttribute('src', '/static/icon/groups/folder2.svg');
-    li.children[1].setAttribute('src', '/static/icon/groups/chevron-left.svg');
-  }
+  toggleClasses(li.children[0].children[0], node.is_open, 'bi-folder2-open', 'bi-folder2');
+  toggleClasses(li.children[1], node.is_open, 'bi-chevron-down', 'bi-chevron-left');
   let i;
   for (i = 0; i < node.children.length; i += 1)
     toggleLi(node.children[i].id, node.is_open);
@@ -78,11 +73,11 @@ function toggleGroup(group_id) {
 function toggleLi(group_id, visible) {
   let li = document.getElementById('task_group_' + group_id);
   if (visible) {
-    li.classList.add('d-flex');
-    li.classList.remove('d-none');
+    li.classList.add('sidebar__group-visible');
+    li.classList.remove('sidebar__group-hidden');
   } else {
-    li.classList.add('d-none');
-    li.classList.remove('d-flex');
+    li.classList.add('sidebar__group-hidden');
+    li.classList.remove('sidebar__group-visible');
   }
   let i, node = tree_data[map[group_id]];
   if (!node.is_leaf && node.is_open)

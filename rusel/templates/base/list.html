@@ -5,7 +5,7 @@
 <div class="list-content">
   {% include "base/title.html" %}
 
-  <ul class="content-list">
+  <ul>
       {% for item in items %}
         {% include "base/item.html" %}
       {% endfor %}
@@ -13,7 +13,7 @@
 
   {% if not hide_add_item_input %}
     <form method="post" class="add-form">{% csrf_token %}
-      <img type="submit" class="add-form__button" src="{% static 'icon/groups/plus-lg.svg' %}">
+      <i class="bi-plus-lg add-form__button" style="font-size: 1rem; color: white;"></i>
       <input type="text" class="add-form__input" placeholder="{{ add_item_placeholder }}" name="item_add-name" maxlength="200" required="">
     </form>
   {% endif %}

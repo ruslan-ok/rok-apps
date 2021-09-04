@@ -1,0 +1,103 @@
+.list-content {
+  display: flex;
+  flex-direction: column;
+  background-color: #d1e7dd !important;
+  width: 100% !important;
+  margin: 0 auto;
+}
+.list-content ul {
+  min-height: 300px;
+  max-height: 500px;
+  list-style-type: none;
+  padding: 0 15px;
+  overflow: auto;
+}
+.list-content ul li.list-item {
+  display: flex !important;
+  justify-content: space-between !important;
+  min-height: 50px;
+  margin-bottom: 0.25rem !important;
+  border-radius: 0.25rem;
+  background-color: white;
+}
+.list-content ul li.list-item a.left-icon {
+  cursor: pointer;
+  padding: 17px;
+  font-size: 1.3rem;
+}
+.list-content ul li.list-item a.container {
+  display: flex;
+  min-height: 50px;
+  width: 100%;
+}
+.list-content ul li.list-item a.container .info .name.completed {
+  text-decoration: line-through;
+}
+.list-content ul li.list-item a.container .info .descr {
+  display: flex !important;
+}
+.list-content ul li.list-item a.container .info .descr i {
+  font-size: 0.8rem;
+}
+.list-content ul li.list-item a.container .info .descr .inline {
+  display: flex !important;
+}
+.list-content ul li.list-item a.container .info .descr .inline .actual {
+  color: #465efc !important;
+}
+.list-content ul li.list-item a.container .info .descr .inline .expired {
+  color: #af2e20 !important;
+}
+.list-content ul li.list-item a.container .info .descr .inline .category-design-green {
+  color: #257e20;
+}
+.list-content ul li.list-item a.container .info .descr .inline .category-design-blue {
+  color: #007899;
+}
+.list-content ul li.list-item a.container .info .descr .inline .category-design-red {
+  color: #d01b2a;
+}
+.list-content ul li.list-item a.container .info .descr .inline .category-design-purple {
+  color: #7d57b2;
+}
+.list-content ul li.list-item a.container .info .descr .inline .category-design-yellow {
+  color: #7a7400;
+}
+.list-content ul li.list-item a.container .info .descr .inline .category-design-orange {
+  color: #a35a00;
+}
+.list-content ul li.list-item a.right-icon {
+  cursor: pointer;
+  padding: 17px;
+}
+.list-content .add-form {
+  display: flex !important;
+  position: relative;
+}
+.list-content .add-form__button {
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  margin: 0px 15px 20px 15px;
+  padding: 13px;
+  cursor: pointer;
+}
+.list-content .add-form__button:hover {
+  background-color: rgba(30, 71, 53, 0.671);
+}
+.list-content .add-form__input {
+  height: 50px;
+  width: 100%;
+  margin: 0px 15px 20px 15px;
+  padding-left: 60px;
+  border-radius: 0.25rem;
+  border: 1px solid transparent;
+  background-color: rgba(43, 99, 75, 0.671);
+  color: white;
+}
+.list-content .add-form__input::placeholder {
+  color: white;
+  opacity: 0.5;
+}
+
+/*# sourceMappingURL=list.css.map */

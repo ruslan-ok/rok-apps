@@ -20,7 +20,7 @@ class NoteAside():
     def get_aside_context(self, user):
         fixes = []
         qty = len(Task.objects.filter(user=user.id, app_note=NOTE).exclude(completed=True))
-        fixes.append(Fix('all', _('all').capitalize(), 'icon/main/check-all.svg', list_url, qty))
+        fixes.append(Fix('all', _('all').capitalize(), 'check-all', list_url, qty))
         return fixes
 
 
@@ -68,7 +68,7 @@ class NoteListView(NoteAside, CreateView):
         context['view_id'] = self.view_id
         context['params'] = extract_get_params(self.request)
         context['item_detail_url'] = app_name + ':item-detail'
-        context['content_icon'] = 'icon/apps/note.svg'
+        context['content_icon'] = 'sticky'
 
         groups = []
         query = None

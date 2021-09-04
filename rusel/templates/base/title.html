@@ -3,15 +3,15 @@
 {% block item_content %}
     <div class="content-title">
         {% if content_icon %}
-            <img src="{% static content_icon %}">
+            <i class="bi-{{content_icon}} content-title__icon"></i>
         {% endif %}
 
         {% if group_path %}
             {% for group in group_path reversed %}
-                <a href="{% url group.edit_url group.id %}{{ params }}">{{ group.name }}</a>{% if group != group_path|first %} / {% endif %}
+                <a href="{% url group.edit_url group.id %}{{ params }}" class="content-title__href">{{ group.name }}</a>{% if group != group_path|first %} / {% endif %}
             {% endfor %}
         {% else %}
-            {{ title }}
+            <span class="content-title__text">{{ title }}</span>
         {% endif %}
     </div>
 {% endblock %}

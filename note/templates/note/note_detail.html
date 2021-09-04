@@ -3,15 +3,15 @@
 
 {% block content %}
 
-  <div class="top">
-    <div class="main-top-headline_new">
+  <div class="">
+    <div class="">
       <h3>
         {{ title }}
       </h3>
     </div>
   </div>
   
-  <article class="tree">
+  <article class="">
     <form method="post" enctype="multipart/form-data" id="article_form" data-item_id="{{ ed_item.id|cut:" " }}">{% csrf_token %}
       {{ form }}
   

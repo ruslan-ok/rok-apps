@@ -2,21 +2,21 @@ from django.utils.translation import gettext_lazy as _
 from task.models import Task
 
 APPS = {
-    'home':    ('icon/apps/home.svg',        '/'),
-    'todo':    ('icon/apps/todo.svg',        '/todo/'),
-    'note':    ('icon/apps/note.svg',        '/note/'),
-    'news':    ('icon/apps/news.svg',        '/news/'),
-    'store':   ('icon/apps/store.svg',       '/store/'),
-    'proj':    ('icon/apps/proj.svg',        '/proj/'),
-    'trip':    ('icon/apps/trip.svg',        '/trip/'),
-    'fuel':    ('icon/apps/fuel.svg',        '/fuel/'),
-    'apart':   ('icon/apps/apart.svg',       '/apart/'),
-    'wage':    ('icon/apps/wage.svg',        '/wage/'),
-    'photo':   ('icon/apps/photo.svg',       '/photo/'),
-    'health':  ('icon/apps/health.svg',      '/health/'),
-    'admin':   ('icon/account/admin.svg',    '/admin/'),
-    'profile': ('icon/account/profile.svg',  '/account/profile/'),
-    'logout':  ('icon/account/logout.svg',   '/account/logout/'),
+    'home':    ('house-door',        '/'),
+    'todo':    ('check2-square',        '/todo/'),
+    'note':    ('sticky',        '/note/'),
+    'news':    ('newspaper',        '/news/'),
+    'store':   ('key',       '/store/'),
+    'proj':    ('piggy-bank',        '/proj/'),
+    'trip':    ('truck',        '/trip/'),
+    'fuel':    ('droplet',        '/fuel/'),
+    'apart':   ('building',       '/apart/'),
+    'wage':    ('briefcase',        '/wage/'),
+    'photo':   ('image',       '/photo/'),
+    'health':  ('heart',      '/health/'),
+    'admin':   ('people',       '/admin/'),
+    'profile': ('person',  '/account/profile/'),
+    'logout':  ('box-arrow-right',   '/account/logout/'),
 }
 
 def _get_app_human_name(app):

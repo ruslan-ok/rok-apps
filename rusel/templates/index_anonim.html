@@ -4,7 +4,7 @@
 {% block header_content %}
   <nav class="container-xxl flex-wrap flex-md-nowrap" aria-label="Main navigation">
     <div class="d-flex">
-      <img class="my-auto" src="{% static 'icon/header/rusel.png' %}">
+      <img class="my-auto" src="{% static 'rusel.png' %}">
       <span class="ms-3 fs-3 text-warning">rusel.by</span>
     </div>
     <div>
@@ -23,7 +23,8 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingTask">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTask" aria-expanded="true" aria-controls="collapseTask">
-            <img class="me-2" src="{% static 'icon/apps/todo.svg' %}">{% trans 'tasks'|capfirst %}
+            <i class="bi-check2-square me-2"></i>
+            {% trans 'tasks'|capfirst %}
           </button>
         </h2>
         <div id="collapseTask" class="accordion-collapse collapse show" aria-labelledby="headingTask" data-bs-parent="#accordeonIntro">
@@ -46,7 +47,8 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingNote">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNote" aria-expanded="false" aria-controls="collapseNote">
-            <img class="me-2" src="{% static 'icon/apps/note.svg' %}">{% trans 'notes'|capfirst %}
+            <i class="bi-sticky me-2"></i>
+            {% trans 'notes'|capfirst %}
           </button>
         </h2>
         <div id="collapseNote" class="accordion-collapse collapse" aria-labelledby="headingNote" data-bs-parent="#accordeonIntro">
@@ -58,7 +60,8 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingNews">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNews" aria-expanded="false" aria-controls="collapseNews">
-            <img class="me-2" src="{% static 'icon/apps/news.svg' %}">{% trans 'news'|capfirst %}
+            <i class="bi-newspaper me-2"></i>
+            {% trans 'news'|capfirst %}
           </button>
         </h2>
         <div id="collapseNews" class="accordion-collapse collapse" aria-labelledby="headingNews" data-bs-parent="#accordeonIntro">
@@ -70,7 +73,8 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingProj">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseProj" aria-expanded="false" aria-controls="collapseProj">
-            <img class="me-2" src="{% static 'icon/apps/proj.svg' %}">{% trans 'expenses'|capfirst %}
+            <i class="bi-piggy-bank me-2"></i>
+            {% trans 'expenses'|capfirst %}
           </button>
         </h2>
         <div id="collapseProj" class="accordion-collapse collapse" aria-labelledby="headingProj" data-bs-parent="#accordeonIntro">
@@ -82,7 +86,8 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingPhoto">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePhoto" aria-expanded="false" aria-controls="collapsePhoto">
-            <img class="me-2" src="{% static 'icon/apps/photo.svg' %}">{% trans 'photobank'|capfirst %}
+            <i class="bi-image me-2"></i>
+            {% trans 'photobank'|capfirst %}
           </button>
         </h2>
         <div id="collapsePhoto" class="accordion-collapse collapse" aria-labelledby="headingPhoto" data-bs-parent="#accordeonIntro">
@@ -94,7 +99,8 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingFuel">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFuel" aria-expanded="false" aria-controls="collapseFuel">
-            <img class="me-2" src="{% static 'icon/apps/fuel.svg' %}">{% trans 'fueling'|capfirst %}
+            <i class="bi-droplet me-2"></i>
+            {% trans 'fueling'|capfirst %}
           </button>
         </h2>
         <div id="collapseFuel" class="accordion-collapse collapse" aria-labelledby="headingFuel" data-bs-parent="#accordeonIntro">

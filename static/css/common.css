@@ -2,14 +2,6 @@
   background-color: #417690 !important;
 }
 
-.app-icon {
-  filter: invert(0.7);
-}
-
-.active .app-icon {
-  filter: invert(1);
-}
-
 .bd-placeholder-img {
   font-size: 1.125rem;
   text-anchor: middle;
@@ -37,11 +29,6 @@ a:link, a:visited {
 
 .nav-link:hover {
   background-color: #d7e3eb;
-}
-
-.content-title {
-  font-size: 1.5rem;
-  padding: 10px 20px;
 }
 
 .inp-300 {
