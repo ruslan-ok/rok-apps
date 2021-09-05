@@ -2,13 +2,13 @@
 {% load static i18n %}
 
 {% block main %}
-  <form method="post" class="w-100 px-5">{% csrf_token %}
+  <form method="post" class="w-100 px-2 item-form">{% csrf_token %}
     {% include "base/title.html" %}
     {% include "base/form_errors.html" %}
 
     {{ form }}
 
-    <div class="d-flex justify-content-between mt-3">
+    <div class="d-flex justify-content-evenly mt-3 pb-5">
       <button type="submit" name="item_save" class="btn btn-primary bi-save" title="{% trans 'save changes'|capfirst %}">
         {% trans 'save'|capfirst %}
       </button>

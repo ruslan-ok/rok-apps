@@ -1,6 +1,7 @@
 .content-title {
   font-size: 1.5rem;
   margin: 10px;
+  padding-top: 10px;
 }
 .content-title__icon {
   padding: 10px 20px;
