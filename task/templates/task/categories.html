@@ -1,0 +1,8 @@
+{% if categories %}
+    <ul class="categories-list">
+        {% for categ in categories %}
+            <li><a href="{{ categ.href }}">{{ categ.name }}</a></li>
+        {% endfor %}
+    </ul>
+{% endif %}
+<input type="{{ widget.type }}" name="{{ widget.name }}"{% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}{% include "django/forms/widgets/attrs.html" %}>

@@ -6,6 +6,7 @@ from django.contrib.admin.widgets import AdminSplitDateTime, AdminDateWidget
 from task.models import Group, Task, TaskGroup
 from note.const import app_name
 from task.const import ROLE_NOTE
+from task.widgets import UrlsInput
 
 #----------------------------------
 class CreateNoteForm(forms.ModelForm):
@@ -27,9 +28,9 @@ class NoteForm(forms.ModelForm):
         required=False,
         widget=forms.Select(attrs={'class': 'form-control select mb-3'}))
     url = forms.CharField(
-        label=_('add').capitalize() + ' URL',
+        label=_('URLs'),
         required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control mb-3'}))
+        widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add link').capitalize()}))
     category = forms.CharField(
         label=_('add category').capitalize(),
         required=False,
