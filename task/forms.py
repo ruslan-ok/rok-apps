@@ -21,7 +21,7 @@ class GroupForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['node'].queryset = Group.objects.filter(user=self.instance.user.id, app=self.instance.app).order_by('sort')
+        self.fields['node'].queryset = Group.objects.filter(user=self.instance.user.id, role=self.instance.role).order_by('sort')
 
     def clean_node(self):
         node_ok = self.cleaned_data['node']

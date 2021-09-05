@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 from task.models import Group, Task, TaskGroup
+from task.const import ALL_ROLES
 from rusel.apps import APPS
 from api.serializers import GroupSerializer
 #from api.converter import convert
@@ -19,10 +20,15 @@ class GroupViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+    def perform_destroy(self, instance):
+        if not Group.objects.filter(node=instance.id).exists():
+            if not TaskGroup.objects.filter(group=instance.id).exists():
+                instance.delete()
+
     def get_queryset(self):
-        if 'app' in self.request.query_params:
-            app = self.request.query_params['app']
-            return Group.objects.filter(user=self.request.user, app=app).order_by('-created')
+        if 'role' in self.request.query_params:
+            role = self.request.query_params['role']
+            return Group.objects.filter(user=self.request.user, role=role).order_by('-created')
         return Group.objects.filter(user=self.request.user).order_by('-created')
     
     @action(detail=False)
@@ -40,34 +46,34 @@ class GroupViewSet(viewsets.ModelViewSet):
 
     @action(detail=False)
     def sort(self, request, pk=None):
-        if 'app' not in self.request.query_params:
-            for app in APPS:
-                self.sort_level(self.request.user, app, None, '', 0)
+        if 'role' not in self.request.query_params:
+            for role in ALL_ROLES:
+                self.sort_level(self.request.user, role, None, '', 0)
         else:
-            app = self.request.query_params['app']
-            if app not in APPS:
-                return Response({'Error': "The 'app' parameter must have one of the following values: " + ', '.join(APPS)},
+            role = self.request.query_params['role']
+            if role not in ALL_ROLES:
+                return Response({'Error': "The 'role' parameter must have one of the following values: " + ', '.join(ALL_ROLES)},
                                 status=status.HTTP_400_BAD_REQUEST)
-            self.sort_level(self.request.user, app, None, '', 0)
+            self.sort_level(self.request.user, role, None, '', 0)
 
         serializer = GroupSerializer(context={'request': request}, many=True)
         return Response(serializer.data)
     
-    def sort_level(self, user, app, node, parent_code, level):
+    def sort_level(self, user, role, node, parent_code, level):
         num = 1
-        groups = Group.objects.filter(user=user.id, app=app, node=node).order_by('name')
+        groups = Group.objects.filter(user=user.id, role=role, node=node).order_by('name')
         code_len = math.ceil(math.log10(len(groups)+1))
         for grp in groups:
             grp.sort = parent_code + str(num).zfill(code_len)
             grp.level = level
-            grp.is_leaf = (len(Group.objects.filter(user=user.id, app=app, node=grp.id)) == 0)
+            grp.is_leaf = (len(Group.objects.filter(user=user.id, role=role, node=grp.id)) == 0)
             if grp.is_leaf:
                 grp.qty = len(TaskGroup.objects.filter(group=grp.id))
             else:
                 grp.qty = 0
             grp.save()
             num += 1
-            self.sort_level(user, app, grp.id, grp.sort, level+1)
+            self.sort_level(user, role, grp.id, grp.sort, level+1)
 
     #@action(detail=False)
     #def move(self, request, pk=None):

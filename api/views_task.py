@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 from task.const import *
-from task.models import Task
+from task.models import Task, TaskGroup
 from api.serializers import TaskSerializer
 
 class TaskViewSet(viewsets.ModelViewSet):
@@ -501,13 +501,22 @@ class TaskViewSet(viewsets.ModelViewSet):
             task.app_health = NONE
         
         if (role in [ROLE_WORK_PERIOD, ROLE_WORK_DEPART, ROLE_WORK_DEP_HIST, ROLE_WORK_POST, ROLE_WORK_EMPL, ROLE_WORK_FIO_HIST,
-                     ROLE_WORK_CHILD, ROLE_WORK_APPOINT, ROLE_WORK_EDUCAT, ROLE_WORK_EMPL_PER, ROLE_WORK_PAY_TITLE, ROLE_WORK_PAYMENT]):
+            ROLE_WORK_CHILD, ROLE_WORK_APPOINT, ROLE_WORK_EDUCAT, ROLE_WORK_EMPL_PER, ROLE_WORK_PAY_TITLE, ROLE_WORK_PAYMENT]):
             task.app_work = NONE
         
         if (role == ROLE_PHOTO):
             task.app_photo = NONE
         
-        task.save()
+        tgs = TaskGroup.objects.filter(task=task.id, role=role)
+        if (len(tgs) > 0):
+            tgs.delete()
+
+        if ((task.app_task + task.app_note + task.app_news + task.app_store + task.app_doc + task.app_warr + task.app_expen + 
+            task.app_trip + task.app_fuel + task.app_apart + task.app_health + task.app_work + task.app_photo) == 0):
+            task.delete()
+        else:
+            task.save()
+        
         serializer = TaskSerializer(instance=task, context={'request': request})
         return Response(serializer.data)
 

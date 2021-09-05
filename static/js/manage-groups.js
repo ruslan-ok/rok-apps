@@ -15,7 +15,7 @@ function tuneOnEnter() {
   });
 }
 
-function addGroup(app) {
+function addGroup(app, role) {
     let x = document.getElementById('new_group_id');
     if (!x)
       return;
@@ -43,7 +43,7 @@ function addGroup(app) {
     };
   
     let data = {
-        'app': app,
+        'role': role,
         'node': null,
         'name': encodeURI(name),
         'sort': ''
@@ -52,7 +52,20 @@ function addGroup(app) {
     xhttp.send(JSON.stringify(data));
 }
 
-function delGroup() {
+function closeGroupForm() {
+  let redirect_url = window.location.href.split('/group/')[0] + '/';
+  const urlParams = new URLSearchParams(window.location.search);
+  const grp_id = urlParams.get('ret');
+  if (grp_id)
+    redirect_url += '?view=list&lst=' + grp_id;
+  window.location.href = redirect_url;
+}
+
+function delGroup(ban) {
+  if (ban) {
+    alert(ban);
+    return;
+  }
   if (!confirm('Are you sure?'))
     return;
   let id = window.location.pathname.match( /\d+/ )[0];

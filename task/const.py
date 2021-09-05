@@ -128,7 +128,8 @@ ROLE_WORK_EDUCAT      = 'work_educat'
 ROLE_WORK_EMPL_PER    = 'work_empl_per'   
 ROLE_WORK_PAY_TITLE   = 'work_pay_title'  
 ROLE_WORK_PAYMENT     = 'work_payment'    
-ROLE_PHOTO            = 'photo'           
+ROLE_PHOTO            = 'photo'      
+ROLE_ACCOUNT          = 'account'     
 
 ALL_ROLES = (
              ROLE_TODO,             
@@ -164,7 +165,8 @@ ALL_ROLES = (
              ROLE_WORK_EMPL_PER,    
              ROLE_WORK_PAY_TITLE,   
              ROLE_WORK_PAYMENT,     
-             ROLE_PHOTO,            
+             ROLE_PHOTO, 
+             ROLE_ACCOUNT,           
             )
 
 """
@@ -186,4 +188,78 @@ WORK_ROLE_CHOICE   = [(NONE, '--------'), (PERIOD, _('period')), (DEPARTMENT, _(
                       (APPOINTMENT, _('appointment')), (EDUCATION, _('education')), (EMPL_PER, _('periods for employee')),
                       (PAY_TITLE, _('pay tytle')), (PAYMENT, _('payment'))]
 PHOTO_ROLE_CHOICE  = [(NONE, '--------'), (PHOTO, _('photo'))]
+
+
+def get_app_by_role(role):
+    if (role == ROLE_ACCOUNT):
+        return 'home'
+    if (role == ROLE_TODO):
+        return 'todo'
+    if (role == ROLE_NOTE):
+        return 'note'
+    if (role == ROLE_NEWS):
+        return 'news'
+    if (role == ROLE_STORE):
+        return 'store'
+    if (role == ROLE_DOC):
+        return 'docs'
+    if (role == ROLE_WARR):
+        return 'warr'
+    if (role == ROLE_EXPEN):
+        return 'proj'
+    if (role == ROLE_EXPEN_SALDO):
+        return 'proj'
+    if (role == ROLE_TRIP_PERS):
+        return 'trip'
+    if (role == ROLE_TRIP):
+        return 'trip'
+    if (role == ROLE_TRIP_SALDO):
+        return 'trip'
+    if (role == ROLE_FUEL):
+        return 'fuel'
+    if (role == ROLE_FUEL_PART):
+        return 'fuel'
+    if (role == ROLE_FUEL_SERV):
+        return 'fuel'
+    if (role == ROLE_APART_SERV):
+        return 'apart'
+    if (role == ROLE_APART_METER):
+        return 'apart'
+    if (role == ROLE_APART_PRICE):
+        return 'apart'
+    if (role == ROLE_APART_BILL):
+        return 'apart'
+    if (role == ROLE_HEALTH_MARKER):
+        return 'health'
+    if (role == ROLE_HEALTH_INCIDENT):
+        return 'health'
+    if (role == ROLE_HEALTH_ANAMNESIS):
+        return 'health'
+    if (role == ROLE_WORK_PERIOD):
+        return 'work'
+    if (role == ROLE_WORK_DEPART):
+        return 'work'
+    if (role == ROLE_WORK_DEP_HIST):
+        return 'work'
+    if (role == ROLE_WORK_POST):
+        return 'work'
+    if (role == ROLE_WORK_EMPL):
+        return 'work'
+    if (role == ROLE_WORK_FIO_HIST):
+        return 'work'
+    if (role == ROLE_WORK_CHILD):
+        return 'work'
+    if (role == ROLE_WORK_APPOINT):
+        return 'work'
+    if (role == ROLE_WORK_EDUCAT):
+        return 'work'
+    if (role == ROLE_WORK_EMPL_PER):
+        return 'work'
+    if (role == ROLE_WORK_PAY_TITLE):
+        return 'work'
+    if (role == ROLE_WORK_PAYMENT):
+        return 'work'
+    if (role == ROLE_PHOTO):
+        return 'photo'
+    return ''
 

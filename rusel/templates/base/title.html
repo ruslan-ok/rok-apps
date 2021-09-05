@@ -8,7 +8,7 @@
 
         {% if group_path %}
             {% for group in group_path reversed %}
-                <a href="{% url group.edit_url group.id %}{{ params }}" class="content-title__href">{{ group.name }}</a>{% if group != group_path|first %} / {% endif %}
+                <a href="{% url group.edit_url group.id %}?ret={{ group_return }}" class="content-title__href">{{ group.name }}</a>{% if group != group_path|first %} / {% endif %}
             {% endfor %}
         {% else %}
             <span class="content-title__text">{{ title }}</span>

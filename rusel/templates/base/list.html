@@ -13,8 +13,8 @@
 
   {% if not hide_add_item_input %}
     <form method="post" class="add-form">{% csrf_token %}
-      <i class="bi-plus-lg add-form__button" style="font-size: 1rem; color: white;"></i>
-      <input type="text" class="add-form__input" placeholder="{{ add_item_placeholder }}" name="item_add-name" maxlength="200" required="">
+      <button type="submit" class="bi-plus-lg add-form__button"></button>
+      <input type="text" name="name" maxlength="200" required="" id="id_name" class="add-form__input" placeholder="{{ add_item_placeholder }}">
     </form>
   {% endif %}
 

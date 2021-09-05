@@ -1,4 +1,4 @@
-from todo.models import Grp, Lst, Task as OldTask, Step as OldStep
+#from todo.models import Grp, Lst, Task as OldTask, Step as OldStep
 #from note.models import Note
 from task.models import Task, Step, Group, TaskGroup, Urls
 from task.const import *
@@ -43,7 +43,7 @@ def transfer_grp(grp_node, task_grp_node, debug):
     grps = Grp.objects.filter(node=grp_node)
     for grp in grps:
         is_leaf = not Lst.objects.filter(grp=grp).exists()
-        task_grp = Group.objects.create(user=grp.user, app=grp.app, node=task_grp_node, name=grp.name, sort=grp.sort, is_open=grp.is_open, created=grp.created, last_mod=grp.last_mod, is_leaf=is_leaf)
+        task_grp = Group.objects.create(user=grp.user, role=grp.app, node=task_grp_node, name=grp.name, sort=grp.sort, is_open=grp.is_open, created=grp.created, last_mod=grp.last_mod, is_leaf=is_leaf)
         transfer_grp(grp, task_grp, debug)
         transfer_lst(grp, task_grp, debug)
 
@@ -51,7 +51,7 @@ def transfer_grp(grp_node, task_grp_node, debug):
 def transfer_lst(grp, task_grp, debug):
     lsts = Lst.objects.filter(grp=grp)
     for lst in lsts:
-        task_grp_ = Group.objects.create(user=lst.user, app=lst.app, node=task_grp, name=lst.name, sort=lst.sort, created=lst.created, last_mod=lst.last_mod, is_leaf=True)
+        task_grp_ = Group.objects.create(user=lst.user, role=lst.app, node=task_grp, name=lst.name, sort=lst.sort, created=lst.created, last_mod=lst.last_mod, is_leaf=True)
         transfer_task(lst, task_grp_)
         #transfer_note(lst, task_grp_)
 

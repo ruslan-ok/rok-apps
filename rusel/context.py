@@ -3,22 +3,28 @@ from django.utils.translation import gettext_lazy as _
 
 from rusel.apps import get_app_human_name, get_apps_list
 from task.models import Group
+from task.const import get_app_by_role
 #from task.serializers import TaskGrpSerializer
 
-def get_base_context(request, app, detail, title):
+def get_base_context(request, role, detail, title):
     context = {}
-    context['app'] = app
-    context['app_human_name'] = get_app_human_name(app)
+    context['app'] = get_app_by_role(role)
+    context['role'] = role
+    context['app_human_name'] = get_app_human_name(role)
     context['restriction'] = None
+    cur_grp = get_cur_grp(request)
     title_1 = title_2 = url = ''
-    if title:
-        if type(title) is tuple:
-            if (len(title) > 0):
-                title_1 = title[0]
-            if (len(title) > 1):
-                title_2 = title[1]
-        else:
-            title_1 = title
+    if cur_grp:
+        title_1 = Group.objects.filter(id=cur_grp).get().name
+    else:
+        if title:
+            if type(title) is tuple:
+                if (len(title) > 0):
+                    title_1 = title[0]
+                if (len(title) > 1):
+                    title_2 = title[1]
+            else:
+                title_1 = title
     context['article_visible'] = detail
     context['list_id'] = 0
     if not title_1 and not title_2:
@@ -36,24 +42,53 @@ def get_base_context(request, app, detail, title):
     context['complete_icon'] = 'icon/main/complete.svg'
     context['uncomplete_icon'] = 'icon/main/uncomplete.svg'
     
-    context['apps'] = get_apps_list(request.user, app)
+    context['apps'] = get_apps_list(request.user, role)
 
     #if url:
     #    save_last_visited(request.user, app + '/' + url, app, title_1, title_2)
 
     groups = []
-    get_sorted_groups(groups, request.user.id, app)
+    get_sorted_groups(groups, request.user.id, role)
     context['groups'] = groups
+    context['group_return'] = cur_grp
+    context['group_path'] = get_group_path(cur_grp)
 
     context['add_item_placeholder'] = _('add task').capitalize()
     return context
 
-def get_sorted_groups(groups, user_id, app, node=None):
+def get_sorted_groups(groups, user_id, role, node=None):
     node_id = None
     if node:
         node_id = node.id
-    items = Group.objects.filter(user=user_id, app=app, node=node_id).order_by('sort')
+    items = Group.objects.filter(user=user_id, role=role, node=node_id).order_by('sort')
     for item in items:
         groups.append(item)
-        get_sorted_groups(groups, user_id, app, item)
+        get_sorted_groups(groups, user_id, role, item)
     
+def get_cur_grp(request):
+    view_id = ''
+    cur_grp = 0
+    if request.method == 'GET':
+        v = request.GET.get('view')
+        if v:
+            view_id = v
+        if (view_id == 'list'):
+            l = request.GET.get('lst')
+            if l:
+                if Group.objects.filter(id=l, user=request.user.id).exists():
+                    cur_grp = l
+            if not cur_grp:
+                view_id = ALL
+    return cur_grp
+
+def get_group_path(cur_grp):
+    ret = []
+    if cur_grp:
+        grp = Group.objects.filter(id=cur_grp).get()
+        ret.append({'id': grp.id, 'name': grp.name, 'edit_url': grp.edit_url})
+        parent = grp.node
+        while parent:
+            grp = Group.objects.filter(id=parent.id).get()
+            ret.append({'id': grp.id, 'name': grp.name, 'edit_url': grp.edit_url})
+            parent = grp.node
+    return ret

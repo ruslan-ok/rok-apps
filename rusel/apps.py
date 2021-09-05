@@ -1,5 +1,6 @@
 from django.utils.translation import gettext_lazy as _
 from task.models import Task
+from task.const import *
 
 APPS = {
     'home':    ('house-door',        '/'),
@@ -46,7 +47,8 @@ def _get_app_human_name(app):
         return _('health')
     return None
 
-def get_app_human_name(app):
+def get_app_human_name(role):
+    app = get_app_by_role(role)
     name = _get_app_human_name(app)
     if (app == 'home'):
         return name
@@ -84,4 +86,3 @@ def get_main_menu_item(app):
     if (app == 'logout'):
         return _('log out').capitalize()
     return None
-

@@ -43,10 +43,11 @@
 
             <hr>
 
-            <form method="post" class="add-form">{% csrf_token %}
-                <i class="bi-plus-lg add-form__button" id="add_group_btn_id" onclick="addGroup('{{ app }}')"></i>
+            <div class="add-form">
+                <i class="bi-plus-lg add-form__button" id="add_group_btn_id" onclick="addGroup('{{ app }}','{{ role }}')"></i>
                 <input type="text" class="add-form__input" placeholder="{% trans 'create list'|capfirst %}" name="name" id="new_group_id">
-            </form>
+            </div>
+
         {% endif %}
     </nav>
 </aside>

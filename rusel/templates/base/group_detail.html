@@ -9,15 +9,16 @@
     {{ form }}
 
     <div class="d-flex justify-content-between mt-3">
-      <button type="submit" name="item_save" class="btn btn-primary" title="{% trans 'save changes'|capfirst %}">
-        <img src="{% static 'icon/main/save.svg' %}">
+      <button type="submit" name="item_save" class="btn btn-primary bi-save" title="{% trans 'save changes'|capfirst %}">
         {% trans 'save'|capfirst %}
       </button>
-      <button type="button" name="item_delete" class="btn btn-danger" onclick="delGroup()" title="{% trans 'delete record'|capfirst %}">
-        <img src="{% static 'icon/main/trash.svg' %}">
+      <button type="button" name="form_close" class="btn btn-secondary bi-x" onclick="closeGroupForm()" title="{% trans 'close edit form'|capfirst %}">
+        {% trans 'close'|capfirst %}
+      </button>
+      <button type="button" name="item_delete" class="btn btn-danger bi-trash" onclick="delGroup('{{ban_on_deletion}}')" title="{% trans 'delete record'|capfirst %}">
         {% trans 'delete'|capfirst %}
       </button>
     </div>
-</form>
+  </form>
 {% endblock %}
 

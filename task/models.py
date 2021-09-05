@@ -13,6 +13,68 @@ from task.files import get_files_list
 #from todo.utils import nice_date
 #from todo.const import *
 
+class Group(models.Model):
+    """
+    Task groups
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'), related_name='task_group')
+    role = models.CharField(_('role name'), max_length = 50, blank = False, default = 'todo', null = True)
+    node = models.ForeignKey('self', on_delete=models.CASCADE, verbose_name=_('node'), blank=True, null=True)
+    name = models.CharField(_('group name'), max_length=200, blank=False)
+    sort = models.CharField(_('sort code'), max_length=50, blank=True)
+    created = models.DateTimeField(_('creation time'), blank=True, auto_now_add=True)
+    last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now=True)
+
+    class Meta:
+        verbose_name=_('task group')
+        verbose_name_plural = _('task groups')
+
+    def __str__(self):
+        return self.name
+
+    def __unicode__(self):
+        return '.' * self.level() + self.name
+
+    def qty(self):
+        return len(TaskGroup.objects.filter(group=self.id))
+
+    def s_id(self):
+        return str(self.id)
+    
+    def get_shifted_name(self):
+        return '.'*self.level()*2 + self.name
+    
+    def edit_url(self):
+        return get_app_by_role(self.role) + ':group-detail'
+
+    def level(self):
+        ret = 0
+        node = self.node
+        while node:
+            ret += 1
+            node = node.node
+        return ret
+
+    def is_leaf(self):
+        return not Group.objects.filter(node=self.id).exists()
+
+    """
+    @classmethod
+    def scan_node(cls, tree, group_id):
+        for x in cls.objects.filter(node=group_id).order_by('sort'):
+            tree.append((x.id, '.' * x.level() * 2 + x.name))
+            cls.scan_node(tree, x.id)
+    
+    @classmethod
+    def get_tree(cls, user_id, app):
+        tree = []
+        tree.append((0, '-----------'))
+        for x in cls.objects.filter(user=user_id, app=app, node=None).order_by('sort'):
+            tree.append((x.id, x.name))
+            cls.scan_node(tree, x.id)
+        return tree
+    """
+
 class Task(models.Model):
     """
     An Entity that can be a Task or something else
@@ -47,7 +109,7 @@ class Task(models.Model):
     app_photo = models.IntegerField('Role in application Photo Bank', choices=PHOTO_ROLE_CHOICE, default=NONE, null=True)
     created = models.DateTimeField(_('creation time'), auto_now_add=True)
     last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now=True)
-    # lst_task = models.ManyToManyField(Group, through='TaskGroup', through_fields=('task', 'group'))
+    groups = models.ManyToManyField(Group, through='TaskGroup')
 
     class Meta:
         verbose_name = _('task')
@@ -56,7 +118,7 @@ class Task(models.Model):
     def __str__(self):
         return self.name
 
-    def get_item_type(self):
+    def get_item_app(self):
         if (self.app_task == TASK):
             return 'todo'
         if (self.app_note == NOTE):
@@ -64,8 +126,11 @@ class Task(models.Model):
         return None
 
     def get_absolute_url(self):
+        app = self.get_item_app()
+        if not app:
+            return '/'
         id = self.id
-        url = reverse(self.get_item_type + ':item-detail', args = [id])
+        url = reverse(app + ':item-detail', args = [id])
         return url
     
     def marked_item(self):
@@ -80,7 +145,7 @@ class Task(models.Model):
         self.completed = not self.completed
         if self.completed:
             if not self.stop:
-              self.stop = date.today()
+                self.stop = date.today()
             self.completion = datetime.now()
         else:
             self.completion = None
@@ -88,8 +153,8 @@ class Task(models.Model):
         if self.completed and next: # Completed a stage of a recurring task and set a deadline for the next iteration
             if not Task.objects.filter(user = self.user, name = self.name, completed = False).exists():
                 Task.objects.create(user = self.user, name = self.name, start = self.start, stop = next, important = self.important, \
-                                     remind = self.next_remind_time(), repeat = self.repeat, repeat_num = self.repeat_num, \
-                                     repeat_days = self.repeat_days, categories = self.categories, info = self.info)
+                    remind = self.next_remind_time(), repeat = self.repeat, repeat_num = self.repeat_num, \
+                    repeat_days = self.repeat_days, categories = self.categories, info = self.info)
 
     def next_iteration(self):
         next = None
@@ -299,7 +364,7 @@ class Task(models.Model):
             return _('Added in "My day"')
         else:
             return _('Add in "My day"')
-      
+
 
 def add_months(sourcedate, months):
     month = sourcedate.month - 1 + months
@@ -333,71 +398,10 @@ class Step(models.Model):
         last = Step.objects.filter(task=task_id).order_by('-sort')[0]
         return str(int(last.sort) + 1).zfill(3)
 
-class Group(models.Model):
-    """
-    Task groups
-    """
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'), related_name='task_group')
-    app = models.CharField(_('application name'), max_length = 50, blank = False, default = 'todo', null = True)
-    node = models.ForeignKey('self', on_delete=models.CASCADE, verbose_name=_('node'), blank=True, null=True)
-    name = models.CharField(_('group name'), max_length=200, blank=False)
-    sort = models.CharField(_('sort code'), max_length=50, blank=True)
-    created = models.DateTimeField(_('creation time'), blank=True, auto_now_add=True)
-    last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now=True)
-    consist = models.ManyToManyField(Task, through='TaskGroup', through_fields=('group', 'task'))
-
-    class Meta:
-        verbose_name=_('task group')
-        verbose_name_plural = _('task groups')
-
-    def __str__(self):
-        return self.name
-
-    def __unicode__(self):
-        return '.' * self.level() + self.name
-
-    def qty(self):
-        return len(TaskGroup.objects.filter(group=self.id))
-
-    def s_id(self):
-        return str(self.id)
-    
-    def get_shifted_name(self):
-        return '.'*self.level()*2 + self.name
-    
-    def edit_url(self):
-        return self.app + ':group-detail'
-
-    def level(self):
-        ret = 0
-        node = self.node
-        while node:
-            ret += 1
-            node = node.node
-        return ret
-
-    def is_leaf(self):
-        return not Group.objects.filter(node=self.id).exists()
-
-    @classmethod
-    def scan_node(cls, tree, group_id):
-        for x in cls.objects.filter(node=group_id).order_by('sort'):
-            tree.append((x.id, '.' * x.level() * 2 + x.name))
-            cls.scan_node(tree, x.id)
-    
-    @classmethod
-    def get_tree(cls, user_id, app):
-        tree = []
-        tree.append((0, '-----------'))
-        for x in cls.objects.filter(user=user_id, app=app, node=None).order_by('sort'):
-            tree.append((x.id, x.name))
-            cls.scan_node(tree, x.id)
-        return tree
-
 class TaskGroup(models.Model):
     group = models.ForeignKey(Group, on_delete=models.CASCADE, verbose_name=_('group'), blank=True, null=True)
     task = models.ForeignKey(Task, on_delete = models.CASCADE, verbose_name = _('task'))
-    app = models.CharField(_('application name'), max_length = 50, blank = False, default = 'todo', null = True)
+    role = models.CharField(_('role name'), max_length = 50, blank = False, default = 'todo', null = True)
 
 class Urls(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, verbose_name=_('task'), related_name = 'task_urlsr')

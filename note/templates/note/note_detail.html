@@ -1,27 +1,24 @@
-{% extends "base/page.html" %}
+{% extends "base/page_content.html" %}
 {% load static i18n %}
 
-{% block content %}
+{% block main %}
+  <form method="post" class="w-100 px-5" enctype="multipart/form-data" id="article_form" data-item_id="{{ ed_item.id|cut:" " }}">{% csrf_token %}
+    {% include "base/title.html" %}
+    {% include "base/form_errors.html" %}
 
-  <div class="">
-    <div class="">
-      <h3>
-        {{ title }}
-      </h3>
+    {{ form }}
+
+    <div class="d-flex justify-content-between mt-3">
+      <button type="submit" name="item_save" class="btn btn-primary bi-save" title="{% trans 'save changes'|capfirst %}">
+        {% trans 'save'|capfirst %}
+      </button>
+      <button type="button" name="form_close" class="btn btn-secondary bi-x" onclick="closeForm()" title="{% trans 'close edit form'|capfirst %}">
+        {% trans 'close'|capfirst %}
+      </button>
+      <button type="button" name="item_delete" class="btn btn-danger bi-trash" onclick="delItem('{{app}}')" title="{% trans 'delete record'|capfirst %}">
+        {% trans 'delete'|capfirst %}
+      </button>
     </div>
-  </div>
-  
-  <article class="">
-    <form method="post" enctype="multipart/form-data" id="article_form" data-item_id="{{ ed_item.id|cut:" " }}">{% csrf_token %}
-      {{ form }}
-  
-      <div class="article-bottom">
-        <button type="submit" name="item_save" class="field-icon"><img src="{% static 'icon/main/save.svg' %}"></button>
-        <div class="info">{% block article_info %}{% endblock %}</div>
-        <button type="submit" name="item_delete" title="{% trans 'delete record'|capfirst %}"><img class="img-20_20" src="{% static 'icon/main/trash.svg' %}"></button>
-      </div>
-  
-    </form>
-  </article>
+  </form>
 {% endblock %}
 

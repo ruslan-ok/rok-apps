@@ -37,3 +37,12 @@ a:link, a:visited {
   padding: 5px;
   margin-top: 5px;
 }
+
+p.errornote {
+  color: #ba2121;
+}
+
+ul.errorlist {
+  color: #ba2121;
+  list-style-type: none;
+}

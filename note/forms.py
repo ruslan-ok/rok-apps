@@ -5,6 +5,7 @@ from django.contrib.admin.widgets import AdminSplitDateTime, AdminDateWidget
 
 from task.models import Group, Task, TaskGroup
 from note.const import app_name
+from task.const import ROLE_NOTE
 
 #----------------------------------
 class CreateNoteForm(forms.ModelForm):
@@ -14,25 +15,32 @@ class CreateNoteForm(forms.ModelForm):
         
 #----------------------------------
 class NoteForm(forms.ModelForm):
-    stop = forms.SplitDateTimeField(widget = AdminSplitDateTime(), label = _('publication date').capitalize(), required = False)
-    lst = forms.ChoiceField(choices=[])
-    url = forms.CharField(widget = forms.TextInput(attrs = {'placeholder': _('add link').capitalize()}), required = False)
-    category = forms.CharField(widget = forms.TextInput(attrs = {'placeholder': _('add category').capitalize()}), required = False)
-    cur_group = 0
+    grp = forms.ModelChoiceField(
+        label=_('group').capitalize(),
+        queryset=Group.objects.filter(role=ROLE_NOTE).order_by('sort'), 
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control mb-5'}))
 
     class Meta:
         model = Task
-        fields = ['stop', 'name', 'lst', 'info', 'url', 'category']
+        fields = ['name', 'stop', 'info', 'grp']
         widgets = {
-            'created': AdminDateWidget(),
-            'info': forms.Textarea(attrs={'rows':3, 'cols':10, 'placeholder': _('add note').capitalize(), 'data-autoresize':''}),
+            'name': forms.TextInput(attrs={'class': 'form-control mb-5'}),
+            'stop': AdminDateWidget(attrs={'class': 'form-control mb-5'}),
+            'info': forms.Textarea(attrs={'class': 'form-control mb-5'}),
         }
-
-    def __init__(self, * args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        instance = kwargs.pop('instance')
-        self.fields['lst'].choices = Group.get_tree(instance.user.id, app_name)
-        if TaskGroup.objects.filter(task=instance.id, app=app_name).exists():
-            self.cur_group = TaskGroup.objects.filter(task=instance.id, app=app_name).get().group.id
-            self.initial['lst'] = self.cur_group
+        self.fields['grp'].initial = self.get_group_id()
 
+    def get_group_id(self):
+        task_id = self.instance.id
+        tgs = TaskGroup.objects.filter(task=task_id)
+        if (len(tgs) > 0):
+            tg = tgs[0]
+            grp = tg.group
+            grp_id = grp.id
+            return grp_id
+        return None
+
+# Task.objects.filter(groups__app__startswith='todo')

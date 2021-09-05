@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 from django.views.generic.edit import CreateView, UpdateView
 
-from rusel.context import get_base_context
+from rusel.context import get_cur_grp, get_base_context
 from rusel.aside import Fix
 from rusel.utils import extract_get_params
 from task.const import *
@@ -32,11 +32,11 @@ class NoteListView(NoteAside, CreateView):
     title = _('unknown')
     view_as_tree = False
     form_class = CreateNoteForm
-    cur_grp = 0
 
     def get_queryset(self):
-        if (self.view_id == LIST_MODE):
-            return [tg.task for tg in TaskGroup.objects.filter(group=self.cur_grp)]
+        cur_grp = get_cur_grp(self.request)
+        if cur_grp:
+            return [tg.task for tg in TaskGroup.objects.filter(group=cur_grp)]
         # ALL
         return Task.objects.filter(user=self.request.user, app_note=NOTE, completed=False).order_by('created')
 
@@ -51,19 +51,15 @@ class NoteListView(NoteAside, CreateView):
         l = self.request.GET.get('lst')
         if l:
             lst = Group.objects.filter(id=l).get()
-            TaskGroup.objects.create(task=form.instance, group=lst, app=app_name)
+            TaskGroup.objects.create(task=form.instance, group=lst, role=ROLE_NOTE)
         return ret
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        self.init_view()
-        gp = self.get_group_path()
-        context['group_path'] = gp
         title = _('all').capitalize()
         context.update(get_base_context(self.request, app_name, False, title))
         context['fix_list'] = self.get_aside_context(self.request.user)
-        gf = CreateGroupForm()
-        context['group_form'] = gf
+        context['group_form'] = CreateGroupForm()
         context['sort_options'] = self.get_sorts()
         context['view_id'] = self.view_id
         context['params'] = extract_get_params(self.request)
@@ -83,33 +79,6 @@ class NoteListView(NoteAside, CreateView):
         tasks = self.get_queryset()
         context['items'] = tasks
         return context
-
-    def init_view(self):
-        self.view_id = ''
-        self.cur_grp = 0
-        if self.request.method == 'GET':
-            v = self.request.GET.get('view')
-            if v:
-                self.view_id = v
-            if (self.view_id == LIST_MODE):
-                l = self.request.GET.get('lst')
-                if l:
-                    if Group.objects.filter(id=l, user=self.request.user.id).exists():
-                        self.cur_grp = l
-                if not self.cur_grp:
-                    self.view_id = ALL
-        
-    def get_group_path(self):
-        ret = []
-        if (self.view_id == LIST_MODE) and self.cur_grp:
-            grp = Group.objects.filter(id=self.cur_grp).get()
-            ret.append({'id': grp.id, 'name': grp.name, 'edit_url': grp.edit_url})
-            parent = grp.node
-            while parent:
-                grp = Group.objects.filter(id=parent.id).get()
-                ret.append({'id': grp.id, 'name': grp.name, 'edit_url': grp.edit_url})
-                parent = grp.node
-        return ret
     
     def get_sorts(self):
         sorts = []
@@ -134,6 +103,24 @@ class NoteDetailView(NoteAside, UpdateView):
         context['ed_item'] = self.object
         return context
 
+    def form_valid(self, form):
+        grp = form.cleaned_data['grp']
+        task = form.instance
+        tg = None
+        tgs = TaskGroup.objects.filter(task=task.id, role=ROLE_NOTE)
+        if (len(tgs) > 0):
+            tg = tgs[0]
+        if not tg and grp:
+            TaskGroup.objects.create(task=task, group=grp, role=ROLE_NOTE)
+        else:
+            if tg and not grp:
+                tg.delete()
+            else:
+                if tg and grp:
+                    tg.group = grp
+                    tg.save()
+        ret = super().form_valid(form)
+        return ret
 
 """
 ================================================================
@@ -143,11 +130,15 @@ class NoteDetailView(NoteAside, UpdateView):
 class NoteGroupDetailView(NoteAside, GroupDetailView):
 
     def get_success_url(self):
-        return reverse('note:group-detail', args=[self.get_object().id])
+        ret = ''
+        if ('ret' in self.request.GET):
+            ret = '?ret=' + self.request.GET['ret']
+        url = reverse('note:group-detail', args=[self.get_object().id]) + ret
+        return url
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        task = self.get_object()
+        group = self.get_object()
         context['fix_list'] = self.get_aside_context(self.request.user)
         context['return_url'] = list_url
         return context
