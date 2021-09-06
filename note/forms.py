@@ -6,7 +6,7 @@ from django.contrib.admin.widgets import AdminSplitDateTime, AdminDateWidget
 from task.models import Group, Task, TaskGroup
 from note.const import app_name
 from task.const import ROLE_NOTE
-from task.widgets import UrlsInput
+from task.widgets import UrlsInput, CategoriesInput
 
 #----------------------------------
 class CreateNoteForm(forms.ModelForm):
@@ -18,9 +18,11 @@ class CreateNoteForm(forms.ModelForm):
 class NoteForm(forms.ModelForm):
     stop = forms.DateTimeField(
         label=_('publication date').capitalize(),
+        required=False,
         widget=forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime mb-3', 'type': 'datetime-local'}))
     info = forms.CharField(
         label=_('description').capitalize(),
+        required=False,
         widget=forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}))
     grp = forms.ModelChoiceField(
         label=_('group').capitalize(),
@@ -31,14 +33,14 @@ class NoteForm(forms.ModelForm):
         label=_('URLs'),
         required=False,
         widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add link').capitalize()}))
-    category = forms.CharField(
-        label=_('add category').capitalize(),
+    categories = forms.CharField(
+        label=_('categories').capitalize(),
         required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control mb-3'}))
+        widget=CategoriesInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add category').capitalize()}))
 
     class Meta:
         model = Task
-        fields = ['name', 'stop', 'info', 'grp', 'url', 'category']
+        fields = ['name', 'stop', 'info', 'grp', 'url', 'categories']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
             'stop': AdminDateWidget(attrs={'class': 'form-control mb-3'}),
@@ -47,6 +49,13 @@ class NoteForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['grp'].initial = self.get_group_id()
+
+    def clean_categories(self):
+        categories = self.cleaned_data.get('categories')
+        if ('categories' in self.changed_data):
+            self.cleaned_data['categories'] = self.data['categories_1'] + ' ' + self.data['categories_2']
+            categories = self.cleaned_data.get('categories')
+        return categories
 
     def get_group_id(self):
         task_id = self.instance.id

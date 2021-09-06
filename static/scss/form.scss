@@ -1,0 +1,182 @@
+
+p.errornote {
+    color: #ba2121;
+}
+
+ul.errorlist {
+    color: #ba2121;
+    list-style-type: none;
+}
+
+.form-control.datetime {
+    width: 200px;
+}
+
+.form-control.select {
+    appearance: auto;
+}
+
+textarea.form-control {
+    height: 100px;
+}
+
+.item-form {
+    background-color: lavender;
+}
+
+.categories {
+    -webkit-box-align: center;
+    align-items: center;
+    display: flex;
+    flex: 1 1 0%;
+    flex-wrap: wrap;
+    padding: 2px 8px;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+
+    .category {
+        border-radius: 3px;
+        display: flex;
+        margin: 4px;
+        min-width: 0px;
+        box-sizing: border-box;
+        border: 1px solid;
+        height: 24px;
+        -webkit-box-align: center;
+        align-items: center;
+
+        .label {
+            font-size: 85%;
+            overflow: hidden;
+            padding: 0px 6px 2px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            box-sizing: border-box;
+            display: flex;
+            -webkit-box-align: center;
+            align-items: center;
+            height: 100%;
+
+            .value {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 140px;
+            }
+        }
+
+        .icon {
+            -webkit-box-align: center;
+            align-items: center;
+            display: flex;
+            box-sizing: border-box;
+            padding: 0px 7px;
+            border-radius: 0px 2px 2px 0px;
+            height: 100%;
+        
+            .delete {
+                display: flex;
+                align-items: center;
+                height: 100%;
+            }
+        }
+    }
+}
+
+/* green */
+.category-design-green {
+    border-color: rgb(233, 249, 232);
+    background-color: rgb(233, 249, 232);
+    color: rgb(37, 126, 32);
+}
+
+.category-icon.category-design-green, .category-design-green:hover {
+    border-color: rgb(37, 126, 32);
+}
+
+.category-design-green .icon:hover {
+    background-color: rgb(37, 126, 32);
+    color: rgb(233, 249, 232);
+}
+
+
+/* blue */
+.category-design-blue {
+    border-color: rgb(224, 247, 253);
+    background-color: rgb(224, 247, 253);
+    color: rgb(0, 120, 153);
+}
+
+.category-icon.category-design-blue, .category-design-blue:hover {
+    border-color: rgb(0, 120, 153);
+}
+
+.category-design-blue .icon:hover {
+    background-color: rgb(0, 120, 153);
+    color: rgb(224, 247, 253);
+}
+
+/* red */
+.category-design-red {
+    border-color: rgb(252, 233, 234);
+    background-color: rgb(252, 233, 234);
+    color: rgb(208, 27, 42);
+}
+
+.category-icon.category-design-red, .category-design-red:hover {
+    border-color: rgb(208, 27, 42);
+}
+
+.category-design-red .icon:hover {
+    background-color: rgb(208, 27, 42);
+    color: rgb(252, 233, 234);
+}
+
+/* purple */
+.category-design-purple {
+    border-color: rgb(240, 236, 246);
+    background-color: rgb(240, 236, 246);
+    color: rgb(125, 87, 178);
+}
+
+.category-icon.category-design-purple, .category-design-purple:hover {
+    border-color: rgb(125, 87, 178);
+}
+
+.category-design-purple .icon:hover {
+    background-color: rgb(125, 87, 178);
+    color: rgb(240, 236, 246);
+}
+
+/* yellow */
+.category-design-yellow {
+    border-color: rgb(255, 253, 224);
+    background-color: rgb(255, 253, 224);
+    color: rgb(122, 116, 0);
+}
+
+.category-icon.category-design-yellow, .category-design-yellow:hover {
+    border-color: rgb(122, 116, 0);
+}
+
+.category-design-yellow .icon:hover {
+    background-color: rgb(122, 116, 0);
+    color: rgb(255, 253, 224);
+}
+
+/* orange */
+.category-design-orange {
+    border-color: rgb(255, 241, 224);
+    background-color: rgb(255, 241, 224);
+    color: rgb(163, 90, 0);
+}
+
+.category-icon.category-design-orange, .category-design-orange:hover {
+    border-color: rgb(163, 90, 0);
+}
+
+.category-design-orange .icon:hover {
+    background-color: rgb(163, 90, 0);
+    color: rgb(255, 241, 224);
+}

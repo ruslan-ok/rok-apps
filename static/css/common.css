@@ -37,28 +37,3 @@ a:link, a:visited {
   padding: 5px;
   margin-top: 5px;
 }
-
-p.errornote {
-  color: #ba2121;
-}
-
-ul.errorlist {
-  color: #ba2121;
-  list-style-type: none;
-}
-
-.form-control.datetime {
-  width: 200px;
-}
-
-.form-control.select {
-  appearance: auto;
-}
-
-textarea.form-control {
-  height: 100px;
-}
-
-.item-form {
-  background-color: lavender;
-}
