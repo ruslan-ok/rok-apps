@@ -174,4 +174,68 @@ textarea.form-control {
   color: #fff1e0;
 }
 
+.url-list {
+  -webkit-box-align: center;
+  align-items: center;
+  display: flex;
+  flex: 1 1 0%;
+  flex-wrap: wrap;
+  padding: 2px 8px;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+.url-list .url-link {
+  box-sizing: border-box;
+  display: flex;
+  min-width: 0px;
+  height: 24px;
+  -webkit-box-align: center;
+  align-items: center;
+  margin: 4px;
+  border: 1px solid;
+  border-radius: 3px;
+  border-color: #f0ecf6;
+  background-color: #f0ecf6;
+  color: #7d57b2;
+  border-color: #7d57b2;
+}
+.url-list .url-link .label {
+  font-size: 85%;
+  overflow: hidden;
+  padding: 0px 6px 2px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  box-sizing: border-box;
+  display: flex;
+  -webkit-box-align: center;
+  align-items: center;
+  height: 100%;
+}
+.url-list .url-link .label .value {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 600px;
+}
+.url-list .url-link .icon {
+  -webkit-box-align: center;
+  align-items: center;
+  display: flex;
+  box-sizing: border-box;
+  padding: 0px 7px;
+  border-radius: 0px 2px 2px 0px;
+  height: 100%;
+}
+.url-list .url-link .icon .delete {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+.url-list .url-link .icon:hover {
+  border-color: #7d57b2;
+  background-color: #7d57b2;
+  color: #f0ecf6;
+}
+
 /*# sourceMappingURL=form.css.map */

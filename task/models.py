@@ -1,9 +1,13 @@
 import calendar
+from urllib.parse import urlparse
+import requests
 
 from datetime import date, time, datetime, timedelta
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
+from django.core.validators import URLValidator
+from django.core.exceptions import ValidationError
 
 from rest_framework.reverse import reverse
 
@@ -402,10 +406,56 @@ class TaskGroup(models.Model):
     group = models.ForeignKey(Group, on_delete=models.CASCADE, verbose_name=_('group'), blank=True, null=True)
     task = models.ForeignKey(Task, on_delete = models.CASCADE, verbose_name = _('task'))
     role = models.CharField(_('role name'), max_length = 50, blank = False, default = 'todo', null = True)
+    created = models.DateTimeField(_('creation time'), blank = True, auto_now_add = True)
+    last_mod = models.DateTimeField(_('last modification time'), blank = True, auto_now = True)
 
 class Urls(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, verbose_name=_('task'), related_name = 'task_urlsr')
     num = models.IntegerField(_('sort number'), default=0, null=True)
     href = models.URLField(_('URL'), max_length=2000, null=True, blank=True)
+    status = models.IntegerField(_('status'), default=0, null=True)
+    hostname = models.CharField(_('hostname'), max_length=200, blank=True, null=True)
+    title = models.CharField(_('page title'), max_length=200, blank=True, null=True)
+    created = models.DateTimeField(_('creation time'), blank = True, auto_now_add = True)
+    last_mod = models.DateTimeField(_('last modification time'), blank = True, auto_now = True)
+
+    def name(self):
+        if (self.status == 0):
+            parsed = urlparse(self.href)
+            scheme = ''
+            if (not parsed.scheme):
+                scheme = 'https://'
+            val = URLValidator()
+            try:
+                val(scheme + self.href)
+            except ValidationError:
+                self.status = -1
+            if (self.status == 0):
+                self.status = 1
+                if scheme:
+                    self.href = scheme + self.href
+                parsed = urlparse(self.href)
+                if (parsed.hostname):
+                    self.status = 2
+                    self.hostname = parsed.hostname
+                    hearders = {'headers':'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:51.0) Gecko/20100101 Firefox/51.0'}
+                    try:
+                        n = requests.get(self.href, headers=hearders)
+                    except:
+                        self.status = -2
+                    if (self.status > 0):
+                        self.status = 3
+                        al = n.text
+                        self.title = al[al.find('<title>') + 7 : al.find('</title>')]
+                        if self.title:
+                            self.ststus = 4
+            self.save()
+        if (self.hostname and self.title):
+            return self.hostname + ': ' + self.title
+        if (self.hostname):
+            return self.hostname
+        if (self.title):
+            return self.title
+        return self.href
 
     

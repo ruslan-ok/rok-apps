@@ -180,3 +180,73 @@ textarea.form-control {
     background-color: rgb(163, 90, 0);
     color: rgb(255, 241, 224);
 }
+
+.url-list {
+    -webkit-box-align: center;
+    align-items: center;
+    display: flex;
+    flex: 1 1 0%;
+    flex-wrap: wrap;
+    padding: 2px 8px;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+
+    .url-link {
+        box-sizing: border-box;
+        display: flex;
+        min-width: 0px;
+        height: 24px;
+        -webkit-box-align: center;
+        align-items: center;
+        margin: 4px;
+        border: 1px solid;
+        border-radius: 3px;
+        border-color: rgb(240, 236, 246);
+        background-color: rgb(240, 236, 246);
+        color: rgb(125, 87, 178);
+        border-color: rgb(125, 87, 178);
+    
+        .label {
+            font-size: 85%;
+            overflow: hidden;
+            padding: 0px 6px 2px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            box-sizing: border-box;
+            display: flex;
+            -webkit-box-align: center;
+            align-items: center;
+            height: 100%;
+
+            .value {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 600px;
+            }
+        }
+
+        .icon {
+            -webkit-box-align: center;
+            align-items: center;
+            display: flex;
+            box-sizing: border-box;
+            padding: 0px 7px;
+            border-radius: 0px 2px 2px 0px;
+            height: 100%;
+        
+            .delete {
+                display: flex;
+                align-items: center;
+                height: 100%;
+            }
+            &:hover {
+                border-color: rgb(125, 87, 178);
+                background-color: rgb(125, 87, 178);
+                color: rgb(240, 236, 246);
+                        }
+        }
+    }
+}
+

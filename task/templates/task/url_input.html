@@ -1,8 +1,2 @@
-{% if urls %}
-    <ul class="urls-list">
-        {% for url in urls %}
-            <li><a href="{{ url.href }}">{{ url.name }}</a></li>
-        {% endfor %}
-    </ul>
-{% endif %}
+<div class="url-list" id="url-list-dst"></div>
 <input type="{{ widget.type }}" name="{{ widget.name }}"{% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}{% include "django/forms/widgets/attrs.html" %}>

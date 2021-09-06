@@ -1,4 +1,5 @@
 import time
+
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 from django.views.generic.edit import CreateView, UpdateView
@@ -7,7 +8,7 @@ from rusel.context import get_cur_grp, get_base_context
 from rusel.aside import Fix
 from rusel.utils import extract_get_params
 from task.const import *
-from task.models import Task, Group, TaskGroup
+from task.models import Task, Group, TaskGroup, Urls
 from task.views import GroupDetailView
 from task.forms import CreateGroupForm
 from note.const import *
@@ -101,6 +102,8 @@ class NoteDetailView(NoteAside, UpdateView):
         context['params'] = extract_get_params(self.request)
         context['fix_list'] = self.get_aside_context(self.request.user)
         context['ed_item'] = self.object
+        context['urls'] = Urls.objects.filter(task=self.object.id).order_by('num')
+
         return context
 
     def form_valid(self, form):
@@ -119,6 +122,10 @@ class NoteDetailView(NoteAside, UpdateView):
                 if tg and grp:
                     tg.group = grp
                     tg.save()
+        if ('url' in form.changed_data):
+            url = form.cleaned_data['url']
+            qty = len(Urls.objects.filter(task=task.id))
+            Urls.objects.create(task=task, num=qty, href=url)
         ret = super().form_valid(form)
         return ret
 

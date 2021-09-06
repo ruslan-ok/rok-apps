@@ -10,11 +10,13 @@ from . import views
 from api import views_group as api_grp
 from api import views_task as api_task
 from api import views_step as api_step
+from api import views_urls as api_urls
 
 api_router = routers.DefaultRouter()
 api_router.register(r'groups', api_grp.GroupViewSet, basename='group')
 api_router.register(r'tasks', api_task.TaskViewSet, basename='task')
 api_router.register(r'steps', api_step.StepViewSet, basename='step')
+api_router.register(r'urls', api_urls.UrlsViewSet, basename='urls')
 
 urlpatterns = i18n_patterns(
     path('', views.index, name='index'),
