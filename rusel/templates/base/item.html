@@ -47,7 +47,7 @@
                 <i class="bi-dot"></i>
               {% endif %}
               {% if attr.text %}
-                <div class="content-list__item-inline-label {% if attr.color %}{{ attr.color }}{% endif %}"><span>{{ attr.text }}</span></div>
+                <div class="label {% if attr.color %}{{ attr.color }}{% endif %}"><span>{{ attr.text }}</span></div>
               {% endif %}
             </div>
           {% endfor %}

@@ -37,10 +37,11 @@ class NoteForm(forms.ModelForm):
         label=_('categories').capitalize(),
         required=False,
         widget=CategoriesInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add category').capitalize()}))
+    upload = forms.FileField()
 
     class Meta:
         model = Task
-        fields = ['name', 'stop', 'info', 'grp', 'url', 'categories']
+        fields = ['name', 'stop', 'info', 'grp', 'url', 'categories', 'upload']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
             'stop': AdminDateWidget(attrs={'class': 'form-control mb-3'}),
@@ -51,11 +52,8 @@ class NoteForm(forms.ModelForm):
         self.fields['grp'].initial = self.get_group_id()
 
     def clean_categories(self):
-        categories = self.cleaned_data.get('categories')
-        if ('categories' in self.changed_data):
-            self.cleaned_data['categories'] = self.data['categories_1'] + ' ' + self.data['categories_2']
-            categories = self.cleaned_data.get('categories')
-        return categories
+        self.cleaned_data['categories'] = ' '.join([self.data['categories_1'], self.data['categories_2']]).strip()
+        return self.cleaned_data['categories']
 
     def get_group_id(self):
         task_id = self.instance.id

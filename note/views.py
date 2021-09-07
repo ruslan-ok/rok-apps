@@ -1,4 +1,4 @@
-import time
+import time, os
 
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
@@ -9,10 +9,12 @@ from rusel.aside import Fix
 from rusel.utils import extract_get_params
 from task.const import *
 from task.models import Task, Group, TaskGroup, Urls
+from note.models import Note
 from task.views import GroupDetailView
 from task.forms import CreateGroupForm
 from note.const import *
 from note.forms import CreateNoteForm, NoteForm
+from task.files import storage_path, get_files_list
 
 list_url = '/note/'
 
@@ -24,9 +26,8 @@ class NoteAside():
         fixes.append(Fix('all', _('all').capitalize(), 'check-all', list_url, qty))
         return fixes
 
-
 class NoteListView(NoteAside, CreateView):
-    model = Task
+    model = Note
     pagenate_by = 10
     template_name = 'base/list.html'
     view_id = ALL
@@ -37,7 +38,7 @@ class NoteListView(NoteAside, CreateView):
     def get_queryset(self):
         cur_grp = get_cur_grp(self.request)
         if cur_grp:
-            return [tg.task for tg in TaskGroup.objects.filter(group=cur_grp)]
+            return [tg.task for tg in TaskGroup.objects.filter(group=cur_grp.id)]
         # ALL
         return Task.objects.filter(user=self.request.user, app_note=NOTE, completed=False).order_by('created')
 
@@ -77,8 +78,12 @@ class NoteListView(NoteAside, CreateView):
                 page_number = 1
         search_mode = 0
     
+        cur_grp = get_cur_grp(self.request)
         tasks = self.get_queryset()
-        context['items'] = tasks
+        notes = []
+        for t in tasks:
+            notes.append(Note.from_Task(t, cur_grp))
+        context['items'] = notes
         return context
     
     def get_sorts(self):
@@ -103,18 +108,19 @@ class NoteDetailView(NoteAside, UpdateView):
         context['fix_list'] = self.get_aside_context(self.request.user)
         context['ed_item'] = self.object
         context['urls'] = Urls.objects.filter(task=self.object.id).order_by('num')
+        context['files'] = get_files_list(self.request.user, 'note', 'note_{}'.format(item.id))
 
         return context
 
     def form_valid(self, form):
         grp = form.cleaned_data['grp']
-        task = form.instance
+        item = form.instance
         tg = None
-        tgs = TaskGroup.objects.filter(task=task.id, role=ROLE_NOTE)
+        tgs = TaskGroup.objects.filter(task=item.id, role=ROLE_NOTE)
         if (len(tgs) > 0):
             tg = tgs[0]
         if not tg and grp:
-            TaskGroup.objects.create(task=task, group=grp, role=ROLE_NOTE)
+            TaskGroup.objects.create(task=item, group=grp, role=ROLE_NOTE)
         else:
             if tg and not grp:
                 tg.delete()
@@ -124,10 +130,41 @@ class NoteDetailView(NoteAside, UpdateView):
                     tg.save()
         if ('url' in form.changed_data):
             url = form.cleaned_data['url']
-            qty = len(Urls.objects.filter(task=task.id))
-            Urls.objects.create(task=task, num=qty, href=url)
+            qty = len(Urls.objects.filter(task=item.id))
+            Urls.objects.create(task=item, num=qty, href=url)
+        handle_uploaded_file(self.request.FILES['upload'], self.request.user, item)
         ret = super().form_valid(form)
         return ret
+
+#----------------------------------
+def get_file_storage_path(user, item):
+    return storage_path.format(user.id) + 'note/note_{}/'.format(item.id)
+
+#----------------------------------
+def handle_uploaded_file(f, user, item):
+    path = get_file_storage_path(user, item)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path + f.name, 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
+
+#----------------------------------
+def get_doc(request, name, app):
+    app_param = get_app_params(request.user, app)
+    item = get_object_or_404(Note.objects.filter(id = app_param.art_id))
+    path = get_file_storage_path(request.user, item, app)
+    try:
+        fsock = open(path + name, 'rb')
+        return FileResponse(fsock)
+    except IOError:
+        response = HttpResponseNotFound()
+
+#----------------------------------
+def delete_file(user, item, name, app):
+    path = get_file_storage_path(user, item, app)
+    os.remove(path + name[4:])
+
+
 
 """
 ================================================================

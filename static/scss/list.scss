@@ -32,8 +32,13 @@
                 width: 100%;
 
                 .info {
-
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    
                     .name {
+                        color: black;
+
                         &.completed {
                             text-decoration: line-through;
                         }
@@ -41,11 +46,12 @@
 
                     .descr {
                         display: flex !important;
-                        i {
-                            font-size: 0.8rem;
-                        }
                         .inline {
                             display: flex !important;
+                            align-items: center;
+                            font-size: 0.8rem;
+                            padding: 0 3px;
+
                             .actual { color: #465efc !important; }
                             .expired { color: #af2e20 !important; }
                             .category-design-green { color: rgb(37, 126, 32); }
@@ -54,6 +60,13 @@
                             .category-design-purple { color: rgb(125, 87, 178); }
                             .category-design-yellow { color: rgb(122, 116, 0); }
                             .category-design-orange { color: rgb(163, 90, 0); }
+                            i {
+                                font-size: 0.6rem;
+                                padding: 3px;
+                            }
+                            .label {
+                                padding: 0 5px;
+                            }
                         }
                     }
                 }

@@ -15,7 +15,7 @@ def get_base_context(request, role, detail, title):
     cur_grp = get_cur_grp(request)
     title_1 = title_2 = url = ''
     if cur_grp:
-        title_1 = Group.objects.filter(id=cur_grp).get().name
+        title_1 = Group.objects.filter(id=cur_grp.id).get().name
     else:
         if title:
             if type(title) is tuple:
@@ -50,8 +50,9 @@ def get_base_context(request, role, detail, title):
     groups = []
     get_sorted_groups(groups, request.user.id, role)
     context['groups'] = groups
-    context['group_return'] = cur_grp
-    context['group_path'] = get_group_path(cur_grp)
+    if cur_grp:
+        context['group_return'] = cur_grp.id
+        context['group_path'] = get_group_path(cur_grp.id)
 
     context['add_item_placeholder'] = _('add task').capitalize()
     return context
@@ -66,25 +67,20 @@ def get_sorted_groups(groups, user_id, role, node=None):
         get_sorted_groups(groups, user_id, role, item)
     
 def get_cur_grp(request):
-    view_id = ''
-    cur_grp = 0
+    cur_grp = None
     if request.method == 'GET':
         v = request.GET.get('view')
-        if v:
-            view_id = v
-        if (view_id == 'list'):
+        if v and (v == 'list'):
             l = request.GET.get('lst')
             if l:
                 if Group.objects.filter(id=l, user=request.user.id).exists():
-                    cur_grp = l
-            if not cur_grp:
-                view_id = ALL
+                    cur_grp = Group.objects.filter(id=l, user=request.user.id).get()
     return cur_grp
 
-def get_group_path(cur_grp):
+def get_group_path(cur_grp_id):
     ret = []
-    if cur_grp:
-        grp = Group.objects.filter(id=cur_grp).get()
+    if cur_grp_id:
+        grp = Group.objects.filter(id=cur_grp_id).get()
         ret.append({'id': grp.id, 'name': grp.name, 'edit_url': grp.edit_url})
         parent = grp.node
         while parent:

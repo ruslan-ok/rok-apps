@@ -284,8 +284,6 @@ class Task(models.Model):
     def get_info(self):
         ret = []
         
-        #app_param = get_app_params(self.user, self.kind)
-
         """
         if self.grp: # and (app_param.restriction != 'list'):
             ret.append({'text': self.grp.name})
@@ -458,4 +456,14 @@ class Urls(models.Model):
             return self.title
         return self.href
 
-    
+class BaseCustomTask(Task):
+
+    @classmethod
+    def from_Task(cls, a: Task, grp):
+        custom_obj = cls()
+        for key, value in a.__dict__.items():
+            custom_obj.__dict__[key] = value
+        custom_obj.__dict__['grp'] = grp
+        return custom_obj
+
+
