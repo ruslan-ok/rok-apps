@@ -335,7 +335,7 @@ class Task(models.Model):
             if (self.repeat != 0):
                 ret.append({'icon': repeat})
     
-        files = (len(get_files_list(self.user, 'todo', 'task_{}'.format(self.id))) > 0)
+        files = (len(get_files_list(self.user, 'todo', 'task', self.id)) > 0)
     
         if ((self.remind != None) and (self.remind >= datetime.now())) or self.info or files:
             if (len(ret) > 0):

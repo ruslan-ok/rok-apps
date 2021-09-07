@@ -3,6 +3,7 @@ import time, os
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 from django.views.generic.edit import CreateView, UpdateView
+from django.http import FileResponse, HttpResponseNotFound
 
 from rusel.context import get_cur_grp, get_base_context
 from rusel.aside import Fix
@@ -108,7 +109,7 @@ class NoteDetailView(NoteAside, UpdateView):
         context['fix_list'] = self.get_aside_context(self.request.user)
         context['ed_item'] = self.object
         context['urls'] = Urls.objects.filter(task=self.object.id).order_by('num')
-        context['files'] = get_files_list(self.request.user, 'note', 'note_{}'.format(item.id))
+        context['files'] = get_files_list(self.request.user, 'note', 'note', item.id)
 
         return context
 
@@ -132,38 +133,31 @@ class NoteDetailView(NoteAside, UpdateView):
             url = form.cleaned_data['url']
             qty = len(Urls.objects.filter(task=item.id))
             Urls.objects.create(task=item, num=qty, href=url)
-        handle_uploaded_file(self.request.FILES['upload'], self.request.user, item)
+        if ('upload' in self.request.FILES):
+            handle_uploaded_file(self.request.FILES['upload'], self.request.user, item.id)
         ret = super().form_valid(form)
         return ret
 
 #----------------------------------
-def get_file_storage_path(user, item):
-    return storage_path.format(user.id) + 'note/note_{}/'.format(item.id)
+def get_file_storage_path(user, item_id):
+    return storage_path.format(user.id) + 'note/note_{}/'.format(item_id)
 
 #----------------------------------
-def handle_uploaded_file(f, user, item):
-    path = get_file_storage_path(user, item)
+def handle_uploaded_file(f, user, item_id):
+    path = get_file_storage_path(user, item_id)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path + f.name, 'wb+') as destination:
         for chunk in f.chunks():
             destination.write(chunk)
 
 #----------------------------------
-def get_doc(request, name, app):
-    app_param = get_app_params(request.user, app)
-    item = get_object_or_404(Note.objects.filter(id = app_param.art_id))
-    path = get_file_storage_path(request.user, item, app)
+def get_doc(request, pk, fname):
+    path = get_file_storage_path(request.user, pk)
     try:
-        fsock = open(path + name, 'rb')
+        fsock = open(path + fname, 'rb')
         return FileResponse(fsock)
     except IOError:
         response = HttpResponseNotFound()
-
-#----------------------------------
-def delete_file(user, item, name, app):
-    path = get_file_storage_path(user, item, app)
-    os.remove(path + name[4:])
-
 
 
 """

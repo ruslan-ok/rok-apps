@@ -76,17 +76,17 @@ class File():
             num /= 1024.0
         return "%.1f%s%s" % (num, 'Yi', suffix)
 
-def get_files_list(user, app_name, path):
+def get_files_list(user, app, role, item_id):
     ret = []
-    fss_path = storage_path.format(user.id) + app_name + '/' + path + '/'
+    fss_path = storage_path.format(user.id) + app + '/' + role + '_' + str(item_id) + '/'
     fs = FileSystemStorage(location = fss_path, base_url = file_storage_url)
     try:
         npp = 1
-        for filename in fs.listdir('')[1]:
-            name = os.path.splitext(filename)[0]
-            ext = os.path.splitext(filename)[1][1:]
-            size = os.path.getsize(fss_path + filename)
-            url = file_storage_url + filename
+        for fname in fs.listdir('')[1]:
+            name = os.path.splitext(fname)[0]
+            ext = os.path.splitext(fname)[1][1:]
+            size = os.path.getsize(fss_path + fname)
+            url = file_storage_url + fname
             fl = File(npp, name, ext, size, url)
             npp += 1
             ret.append(fl)

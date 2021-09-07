@@ -12,7 +12,7 @@ class Note(BaseCustomTask):
             if TaskGroup.objects.filter(task=self.id).exists():
                 ret.append({'text': TaskGroup.objects.filter(task=self.id).get().group.name})
 
-        files = (len(get_files_list(self.user, 'note', 'note_{}'.format(self.id))) > 0)
+        files = (len(get_files_list(self.user, 'note', 'note', self.id)) > 0)
 
         links = len(Urls.objects.filter(task=self.id)) > 0
     

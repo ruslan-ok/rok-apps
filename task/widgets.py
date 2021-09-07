@@ -15,6 +15,10 @@ class CategoriesInput(Input):
         value = ''
         return context
 
+class FileUpload(Input):
+    input_type = 'file'
+    template_name = 'task/add_file.html'
+
 
 
 

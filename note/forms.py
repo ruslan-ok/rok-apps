@@ -6,7 +6,7 @@ from django.contrib.admin.widgets import AdminSplitDateTime, AdminDateWidget
 from task.models import Group, Task, TaskGroup
 from note.const import app_name
 from task.const import ROLE_NOTE
-from task.widgets import UrlsInput, CategoriesInput
+from task.widgets import UrlsInput, CategoriesInput, FileUpload
 
 #----------------------------------
 class CreateNoteForm(forms.ModelForm):
@@ -37,7 +37,10 @@ class NoteForm(forms.ModelForm):
         label=_('categories').capitalize(),
         required=False,
         widget=CategoriesInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add category').capitalize()}))
-    upload = forms.FileField()
+    upload = forms.FileField(
+        label=_('attachments').capitalize(), 
+        required=False, 
+        widget=FileUpload())
 
     class Meta:
         model = Task

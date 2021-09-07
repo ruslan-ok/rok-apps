@@ -253,6 +253,7 @@ textarea.form-control {
 .files-area {
     -webkit-text-size-adjust: 100%;
     font-size: 15px;
+    font-family: "Arial", "sans-serif";
     line-height: normal;
     color: #333;
     box-sizing: inherit;
@@ -317,10 +318,11 @@ textarea.form-control {
                     text-overflow: ellipsis;
                     color: #333;
                     margin-left: 16px;
-                    width: 180px;
-
+                    min-width: 180px;
+                    
                     .file-title {
                         font-size: 0.9rem;
+                        width: 100%;
                     }
                     .file-metadata {
                         font-size: 0.7rem;

@@ -1,3 +1,5 @@
+import os.path
+
 from datetime import date, datetime, timedelta
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -10,6 +12,7 @@ from rest_framework.reverse import reverse
 
 from task.const import *
 from task.models import Task, TaskGroup
+from task.files import storage_path
 from api.serializers import TaskSerializer
 
 class TaskViewSet(viewsets.ModelViewSet):
@@ -182,8 +185,24 @@ class TaskViewSet(viewsets.ModelViewSet):
     # TODO
     @action(detail=True)
     def file_delete(self, request, pk=None):
+        if 'app' not in self.request.query_params:
+            return Response({'Error': "Expected parameter 'app'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if 'role' not in self.request.query_params:
+            return Response({'Error': "Expected parameter 'role'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if 'fname' not in self.request.query_params:
+            return Response({'Error': "Expected parameter 'fname'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        app = self.request.query_params['app']
+        role = self.request.query_params['role']
+        fname = self.request.query_params['fname']
         task = self.get_object()
-        task.save()
+        path = storage_path.format(self.request.user.id) + '{}/{}_{}/'.format(app, role, task.id)
+        if not os.path.isfile(path + fname[4:]):
+            return Response({'Error': "The specified file does not exist."},
+                            status=status.HTTP_400_BAD_REQUEST)
+        os.remove(path + fname[4:])
         serializer = TaskSerializer(instance=task, context={'request': request})
         return Response(serializer.data)
 

@@ -1,5 +1,5 @@
 resize();
-moveURLs();
+moveLists();
 
 function resize()
 {
@@ -16,11 +16,15 @@ function resize()
     });
 }
 
-function moveURLs() {
+function moveLists() {
     let el_src = document.getElementById('url-list-src');
     let el_dst = document.getElementById('url-list-dst');
     if (el_src && el_dst)
         el_dst.appendChild(el_src); 
+    el_src = document.getElementById('file-list-src');
+    el_dst = document.getElementById('file-list-dst');
+    if (el_src && el_dst)
+        [...el_src.children].forEach((chl) => el_dst.appendChild(chl))
 }
 
 function closeForm() {
@@ -107,14 +111,39 @@ function delURL(url_id) {
 
 function UploadFile()
 {
-  document.getElementById('id_upload').click();
+    document.getElementById('id_upload').click();
 }
 
 function FileSelected()
 {
-  filename = document.getElementById('id_upload').files[0].name;
-  fn_element = document.getElementById('loadFile');
-  if (fn_element)
-    fn_element.innerText = filename;
-  document.getElementById('id_submit').click();
+    filename = document.getElementById('id_upload').files[0].name;
+    fn_element = document.getElementById('loadFile');
+    if (fn_element)
+        fn_element.innerText = filename;
+    document.getElementById('id_submit').click();
+}
+
+function delFile(app, role, fname, file_id) {
+    let item_id = window.location.pathname.match( /\d+/ )[0];
+    const api = '/api/tasks/' + item_id + '/file_delete/?format=json&app=' + app + '&role=' + role + '&fname=' + fname;
+    let url = window.location.protocol + '//' + window.location.host + api;
+    let xhttp = new XMLHttpRequest();
+    xhttp.open('GET', url, true);
+    let y = document.getElementsByName('csrfmiddlewaretoken');
+    let crsf = y[0].value; 
+    xhttp.setRequestHeader('X-CSRFToken', crsf);
+    xhttp.setRequestHeader('Content-type', 'application/json');
+
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 204) {
+            console.log('deleted file ' + fname);
+        }
+    };
+
+    xhttp.send();
+
+    let el = document.getElementById('id_file_' + file_id);
+    if (el) {
+        el.parentElement.removeChild(el);
+    }
 }
