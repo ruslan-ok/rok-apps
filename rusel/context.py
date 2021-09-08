@@ -14,7 +14,7 @@ def get_base_context(request, role, detail, title):
     context['restriction'] = None
     cur_grp = get_cur_grp(request)
     title_1 = title_2 = url = ''
-    if cur_grp:
+    if (not detail or not title) and cur_grp:
         title_1 = Group.objects.filter(id=cur_grp.id).get().name
     else:
         if title:
@@ -25,7 +25,6 @@ def get_base_context(request, role, detail, title):
                     title_2 = title[1]
             else:
                 title_1 = title
-    context['article_visible'] = detail
     context['list_id'] = 0
     if not title_1 and not title_2:
         context['title'] = ''
@@ -52,7 +51,8 @@ def get_base_context(request, role, detail, title):
     context['groups'] = groups
     if cur_grp:
         context['group_return'] = cur_grp.id
-        context['group_path'] = get_group_path(cur_grp.id)
+        if (not detail):
+            context['group_path'] = get_group_path(cur_grp.id)
 
     context['add_item_placeholder'] = _('add task').capitalize()
     return context

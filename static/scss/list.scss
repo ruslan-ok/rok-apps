@@ -11,6 +11,7 @@
         list-style-type: none;
         padding: 0 15px;
         overflow: auto;
+        margin-top: 10px;
 
         li.list-item {
             display: flex !important;
@@ -49,6 +50,7 @@
                     .descr {
                         display: flex !important;
                         flex-wrap: wrap;
+                        margin-bottom: 5px;
                         
                         .inline {
                             display: flex !important;
