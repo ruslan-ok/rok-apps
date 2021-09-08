@@ -46,6 +46,8 @@
 
                     .descr {
                         display: flex !important;
+                        flex-wrap: wrap;
+                        
                         .inline {
                             display: flex !important;
                             align-items: center;

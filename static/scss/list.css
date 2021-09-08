@@ -43,6 +43,7 @@
 }
 .list-content ul li.list-item a.container .info .descr {
   display: flex !important;
+  flex-wrap: wrap;
 }
 .list-content ul li.list-item a.container .info .descr .inline {
   display: flex !important;
