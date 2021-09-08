@@ -20,10 +20,12 @@
   border-radius: 0.25rem;
   background-color: white;
 }
-.list-content ul li.list-item a.left-icon {
+.list-content ul li.list-item button.left-icon {
   cursor: pointer;
   padding: 17px;
   font-size: 1.3rem;
+  border: none;
+  background-color: inherit;
 }
 .list-content ul li.list-item a.container {
   display: flex;
@@ -82,9 +84,11 @@
 .list-content ul li.list-item a.container .info .descr .inline .label {
   padding: 0 5px;
 }
-.list-content ul li.list-item a.right-icon {
+.list-content ul li.list-item button.right-icon {
   cursor: pointer;
   padding: 17px;
+  border: none;
+  background-color: inherit;
 }
 .list-content .add-form {
   display: flex !important;

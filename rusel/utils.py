@@ -2,6 +2,12 @@ from datetime import datetime, date, timezone, timedelta
 from django.utils.translation import gettext_lazy as _
 
 def extract_get_params(request):
+    v = request.GET.get('view')
+    if not v:
+        v = ''
+    l = request.GET.get('lst')
+    if not l:
+        l = ''
     q = request.GET.get('q')
     if not q:
         q = ''
@@ -9,10 +15,14 @@ def extract_get_params(request):
     if not p:
         p = ''
     ret = ''
+    if v and l:
+        ret += 'view={}&lst={}'.format(v, l)
     if q:
+        if ret:
+            ret += '&'
         ret += 'q={}'.format(q)
     if p:
-        if q:
+        if ret:
             ret += '&'
         ret += 'page={}'.format(p)
     if ret:

@@ -20,10 +20,12 @@
             border-radius: 0.25rem;
             background-color: white;
         
-            a.left-icon {
+            button.left-icon {
                 cursor: pointer;
                 padding: 17px;
                 font-size: 1.3rem;
+                border: none;
+                background-color: inherit;
             }
 
             a.container {
@@ -74,9 +76,11 @@
                 }
             }
         
-            a.right-icon {
+            button.right-icon {
                 cursor: pointer;
                 padding: 17px;
+                border: none;
+                background-color: inherit;
             }
         }
     }

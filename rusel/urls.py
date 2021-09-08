@@ -27,8 +27,4 @@ urlpatterns = i18n_patterns(
     path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
     path('api/', include(api_router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-
-    path('<int:pk>/completed/', views.toggle_completed, name='toggle-completed'),
-    path('<int:pk>/important/', views.toggle_important, name='toggle-important'),
-
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -29,10 +29,7 @@ function moveLists() {
 
 function closeForm() {
     let item_id = window.location.pathname.match( /\d+/ )[0];
-    let redirect_url = window.location.href.split('/' + item_id + '/')[0] + '/';
-    let grp = document.getElementById("id_grp");
-    if (grp && grp.value)
-        redirect_url = window.location.href.split('/' + item_id + '/')[0] + '/?view=list&lst=' + grp.value;
+    let redirect_url = window.location.href.replace('/' + item_id + '/', '/');
     window.location.href = redirect_url;
 }
 

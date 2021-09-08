@@ -4,13 +4,13 @@
   <li class="list-item">
 
     {% if not hide_selector %}
-      <a href="{% url 'toggle-completed' item.id %}{{ params }}" class="left-icon">
+      <button type="button" onclick="toggleCompleted({{ item.id|escape }})" class="left-icon">
         {% if item.marked_item %}
           <i class="bi-check-circle-fill"></i>
         {% else %}
           <i class="bi-circle"></i>
         {% endif %}
-    </a>      
+    </button>      
     {% endif %}
 
     <a href="{% url item_detail_url item.id %}{{ params }}" class="container">
@@ -56,13 +56,13 @@
     </a>      
 
     {% if not hide_important %}
-      <a href="{% url 'toggle-important' item.id %}{{ params }}" class="right-icon">
+      <button type="button" onclick="toggleImportant({{ item.id|escape }})" class="right-icon">
         {% if item.important %}
           <i class="bi-star-fill"></i>
         {% else %}
           <i class="bi-star"></i>
         {% endif %}
-      </a>
+      </button>
     {% endif %}
 
   </li>

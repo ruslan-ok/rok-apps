@@ -30,12 +30,6 @@ from rusel.context import get_base_context
 
 app_name = 'home'
 
-def toggle_completed(request, pk):
-    return HttpResponse('hello')
-
-def toggle_important(request, pk):
-    return HttpResponse('hello')
-
 #----------------------------------
 # Index
 #----------------------------------

@@ -68,6 +68,8 @@ class NoteListView(NoteAside, CreateView):
         context['params'] = extract_get_params(self.request)
         context['item_detail_url'] = app_name + ':item-detail'
         context['content_icon'] = 'sticky'
+        context['hide_selector'] = True
+        context['hide_important'] = True
 
         groups = []
         query = None
