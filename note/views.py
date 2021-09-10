@@ -10,7 +10,10 @@ from rusel.aside import Fix
 from rusel.utils import extract_get_params
 from task.const import *
 from task.models import Task, Group, TaskGroup, Urls
-from note.models import Note
+#----------------------------
+# Comment if MIGRATE
+from note.note import Note
+#----------------------------
 from task.views import GroupDetailView
 from task.forms import CreateGroupForm
 from note.const import *
@@ -28,7 +31,11 @@ class NoteAside():
         return fixes
 
 class NoteListView(NoteAside, CreateView):
-    model = Note
+    #----------------------------
+    # Comment if MIGRATE
+    model = Task
+    #model = Note
+    #----------------------------
     pagenate_by = 10
     template_name = 'base/list.html'
     view_id = ALL
@@ -83,10 +90,14 @@ class NoteListView(NoteAside, CreateView):
     
         cur_grp = get_cur_grp(self.request)
         tasks = self.get_queryset()
+        context['items'] = tasks
+        #----------------------------
+        # Comment if MIGRATE
         notes = []
         for t in tasks:
             notes.append(Note.from_Task(t, cur_grp))
         context['items'] = notes
+        #----------------------------
         return context
     
     def get_sorts(self):

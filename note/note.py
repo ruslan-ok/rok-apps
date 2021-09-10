@@ -1,10 +1,15 @@
+#----------------------------
+# Comment if MIGRATE
 from task.models import BaseCustomTask
+#----------------------------
 from task.files import get_files_list
 from task.categories import get_categories_list
 from task.models import TaskGroup, Urls
 
-class Note(BaseCustomTask):
+#----------------------------
+# Comment if MIGRATE
 
+class Note(BaseCustomTask):
     def get_info(self):
         ret = []
         
@@ -35,3 +40,4 @@ class Note(BaseCustomTask):
     
         return ret
 
+#----------------------------

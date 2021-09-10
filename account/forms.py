@@ -12,6 +12,7 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib import admin
 from django.core.mail import EmailMultiAlternatives
+from django.core.files.images import get_image_dimensions
 from django.template import loader
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
@@ -21,6 +22,7 @@ from django.db import models
 from django.core.exceptions import ValidationError
 
 from account.models import UserExt
+from task.widgets import AvatarInput
 
 UserModel = get_user_model()
 
@@ -87,7 +89,7 @@ class PasswordResetForm(forms.Form):
     )
 
     def send_mail(self, subject_template_name, email_template_name,
-                  context, from_email, to_email, html_email_template_name=None):
+                context, from_email, to_email, html_email_template_name=None):
         """
         Send a django.core.mail.EmailMultiAlternatives to `to_email`.
         """
@@ -122,11 +124,11 @@ class PasswordResetForm(forms.Form):
         )
 
     def save(self, domain_override=None,
-             subject_template_name='account/password_reset_subject.txt',
-             email_template_name='account/password_reset_email.html',
-             use_https=False, token_generator=default_token_generator,
-             from_email=None, request=None, html_email_template_name=None,
-             extra_email_context=None):
+            subject_template_name='account/password_reset_subject.txt',
+            email_template_name='account/password_reset_email.html',
+            use_https=False, token_generator=default_token_generator,
+            from_email=None, request=None, html_email_template_name=None,
+            extra_email_context=None):
         """
         Generate a one-use only link for resetting password and send it to the
         user.
@@ -236,16 +238,16 @@ class ProfileForm(forms.ModelForm):
     username_validator = UnicodeUsernameValidator()
 
     username = models.CharField(
-        _('Username'),
+        _('username').capitalize(),
         max_length=150,
         unique=True,
-        help_text=_('Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.'),
+        #help_text=_('Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.'),
         validators=[username_validator],
         error_messages={},
     )
-
+    """
     password = ReadOnlyPasswordHashField(
-        label=_("Password"),
+        label=_('password').capitalize(),
         help_text=_(
             'Raw passwords are not stored, so there is no way to see this '
             'user’s password, but you can change the password using '
@@ -254,17 +256,37 @@ class ProfileForm(forms.ModelForm):
     )
 
     email_validated = forms.BooleanField(label=_('email validated'), required=False)
+    """
 
-    phone = forms.CharField(label=_('phone'), required=False)
+    phone = forms.CharField(
+        label=_('phone').capitalize(), 
+        required=False, 
+        widget=forms.TextInput(attrs={'class': 'form-control mb-3'}))
 
-    id = forms.IntegerField(label = _('id'), disabled=True)
+    avatar = forms.ImageField(
+        label=_('avatar').capitalize(),
+        required=False,
+        widget=AvatarInput()
+    )
+
+    #id = forms.IntegerField(label = _('id'), disabled=True)
 
     class Meta:
         model = User
-        fields = '__all__'
+        fields = ['username', 'first_name', 'last_name', 'email', 'phone', 'avatar'] # , 'password', 'date_joined', 'last_login'
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control mb-3'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control mb-3'}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        username = self.fields.get('username')
+        if username:
+            username.help_text = ''
+        """
         password = self.fields.get('password')
         if password:
             password.help_text = password.help_text.format('../password/')
@@ -272,9 +294,51 @@ class ProfileForm(forms.ModelForm):
         #self.last_login.disabled = True
         if user_permissions:
             user_permissions.queryset = user_permissions.queryset.select_related('content_type')
+        """
 
     def clean_password(self):
         # Regardless of what the user provides, return the initial value.
         # This is done here, rather than on the field, because the
         # field does not have access to the initial value
         return self.initial.get('password')
+
+    def clean_avatar(self):
+        avatar = self.cleaned_data['avatar']
+        if not avatar:
+            return avatar
+
+        try:
+            w, h = get_image_dimensions(avatar)
+
+            #validate dimensions
+            max_width = max_height = 1000
+            if w > max_width or h > max_height:
+                raise forms.ValidationError(
+                    'Please use an image that is '
+                    '%s x %s pixels or smaller.' % (max_width, max_height))
+
+            #validate content type
+            main, sub = avatar.content_type.split('/')
+            if not (main == 'image' and sub in ['jpeg', 'pjpeg', 'gif', 'png']):
+                raise forms.ValidationError('Please use a JPEG, GIF or PNG image.')
+
+            #validate file size
+            if len(avatar) > (200 * 1024):
+                raise forms.ValidationError(
+                    'Avatar file size may not exceed 200k.')
+
+        except AttributeError:
+            #Handles case when we are updating the user profile
+            #and do not supply a new avatar
+            pass
+
+        return avatar
+
+"""
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        #user.set_password(self.cleaned_data["password1"])
+        if commit:
+            user.save()
+        return user
+"""

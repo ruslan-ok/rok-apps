@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from task.models import Group, Task, Step, Urls
+from account.models import UserExt
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')
@@ -27,3 +28,9 @@ class UrlsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Urls
         fields = ['url', 'id', 'task', 'num', 'href', 'status', 'hostname', 'title', 'created', 'last_mod']
+
+class ProfileSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source='user.username')
+    class Meta:
+        model = UserExt
+        fields = ['user', 'avatar', 'avatar_mini']

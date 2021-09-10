@@ -407,3 +407,32 @@ textarea.form-control {
         }
     }
 }
+
+.avatar {
+    display: flex;
+    flex-direction: column;
+    img {
+        position: relative;
+        top: -30px;
+        width: 300px;
+        cursor: pointer;
+    }
+    button {
+        position: relative;
+        top: 0px;
+        left: 270px;
+        width: 30px;
+        height: 30px;
+        padding: 0;
+        margin: 0;
+        text-transform: none;
+        background: none;
+        border: none;
+        font-size: 1.3rem;
+        z-index: 1;
+
+        &:hover {
+            background-color: rgb(201, 201, 201);
+        }
+    }
+}

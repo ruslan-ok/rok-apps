@@ -106,12 +106,12 @@ function delURL(url_id) {
     }
 }
 
-function UploadFile()
+function uploadFile()
 {
     document.getElementById('id_upload').click();
 }
 
-function FileSelected()
+function fileSelected()
 {
     filename = document.getElementById('id_upload').files[0].name;
     fn_element = document.getElementById('loadFile');
@@ -143,4 +143,35 @@ function delFile(app, role, fname, file_id) {
     if (el) {
         el.parentElement.removeChild(el);
     }
+}
+
+function getAvatar() {
+    document.getElementById('id_avatar').click();
+}
+
+function avatarSelected()
+{
+    filename = document.getElementById('id_avatar').files[0].name;
+    document.getElementById('id_submit').click();
+}
+
+function delAvatar() {
+    let redirect_url = window.location.href;
+    const api = '/api/profile/delete_avatar/?format=json';
+    let url = window.location.protocol + '//' + window.location.host + api;
+    let xhttp = new XMLHttpRequest();
+    xhttp.open('GET', url, true);
+    let y = document.getElementsByName('csrfmiddlewaretoken');
+    let crsf = y[0].value; 
+    xhttp.setRequestHeader('X-CSRFToken', crsf);
+    xhttp.setRequestHeader('Content-type', 'application/json');
+
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            console.log('deleted profile avatar');
+            window.location.href = redirect_url;
+        }
+    };
+
+    xhttp.send();
 }
