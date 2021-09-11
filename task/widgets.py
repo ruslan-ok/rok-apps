@@ -1,4 +1,5 @@
-from django.forms.widgets import Input, ClearableFileInput
+from django.forms.widgets import Input
+from django.forms import FileInput
 from task.categories import get_categories_list
 
 class UrlsInput(Input):
@@ -19,7 +20,7 @@ class FileUpload(Input):
     input_type = 'file'
     template_name = 'task/add_file.html'
 
-class AvatarInput(ClearableFileInput):
+class AvatarInput(FileInput):
     input_type = 'file'
     template_name = 'task/avatar.html'
 
@@ -29,6 +30,19 @@ class AvatarInput(ClearableFileInput):
         #value = ''
         return context
 
+    def render(self, name, value, attrs=None):
 
+        config.height = self.attrs['height']
+        config.width = self.attrs['width']
+
+        context = {}
+        context['name'] = name
+        context['config'] = config
+
+        context['avatar_url'] = value.url if value else '/static/Default-avatar.jpg'
+        context['id'] = attrs.get('id', 'id_' + name)
+        # todo fix HACK
+        #context['STATIC_URL'] = settings.STATIC_URL
+        return render_to_string('task/avatar.html', context)
 
 
