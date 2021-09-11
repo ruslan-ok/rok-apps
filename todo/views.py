@@ -10,38 +10,37 @@ from rusel.aside import Fix
 from rusel.utils import extract_get_params
 from task.const import *
 from task.models import Task, Group, TaskGroup, Urls
-from note.models import Note
+from todo.models import Todo
 from task.views import GroupDetailView
 from task.forms import CreateGroupForm
-from note.const import *
-from note.forms import CreateNoteForm, NoteForm
+from todo.const import *
+from todo.forms import CreateTodoForm, TodoForm
 from task.files import storage_path, get_files_list
-from task.const import ROLE_NOTE
 
-list_url = '/note/'
+list_url = '/todo/'
 
-class NoteAside():
+class TodoAside():
 
     def get_aside_context(self, user):
         fixes = []
-        qty = len(Task.objects.filter(user=user.id, app_note=NUM_ROLE_NOTE).exclude(completed=True))
+        qty = len(Task.objects.filter(user=user.id, app_task=NUM_ROLE_TODO).exclude(completed=True))
         fixes.append(Fix('all', _('all').capitalize(), 'check-all', list_url, qty))
         return fixes
 
-class NoteListView(NoteAside, CreateView):
-    model = Note
+class TodoListView(TodoAside, CreateView):
+    model = Todo
     pagenate_by = 10
     template_name = 'base/list.html'
     title = _('unknown')
     view_as_tree = False
-    form_class = CreateNoteForm
+    form_class = CreateTodoForm
 
     def get_queryset(self):
         cur_grp = get_cur_grp(self.request)
         if cur_grp:
             return [tg.task for tg in TaskGroup.objects.filter(group=cur_grp.id)]
         # ALL
-        return Task.objects.filter(user=self.request.user, app_note=NUM_ROLE_NOTE, completed=False).order_by('created')
+        return Task.objects.filter(user=self.request.user, app_task=NUM_ROLE_TODO, completed=False).order_by('created')
 
     def get_success_url(self):
         url = super().get_success_url()
@@ -49,12 +48,12 @@ class NoteListView(NoteAside, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        form.instance.app_note = NUM_ROLE_NOTE
+        form.instance.app_task = NUM_ROLE_TODO
         ret = super().form_valid(form)
         l = self.request.GET.get('lst')
         if l:
             lst = Group.objects.filter(id=l).get()
-            TaskGroup.objects.create(task=form.instance, group=lst, role=ROLE_NOTE)
+            TaskGroup.objects.create(task=form.instance, group=lst, role=ROLE_TODO)
         return ret
     
     def get_context_data(self, **kwargs):
@@ -82,10 +81,10 @@ class NoteListView(NoteAside, CreateView):
     
         cur_grp = get_cur_grp(self.request)
         tasks = self.get_queryset()
-        notes = []
+        items = []
         for t in tasks:
-            notes.append(Note.from_Task(t, cur_grp))
-        context['items'] = notes
+            items.append(Todo.from_Task(t, cur_grp))
+        context['items'] = items
         return context
     
     def get_sorts(self):
@@ -96,11 +95,11 @@ class NoteListView(NoteAside, CreateView):
 ================================================================
 """
 
-class NoteDetailView(NoteAside, UpdateView):
+class TodoDetailView(TodoAside, UpdateView):
     model = Task
-    template_name = 'note/note_detail.html'
+    template_name = 'todo/todo_detail.html'
     title = _('unknown')
-    form_class = NoteForm
+    form_class = TodoForm
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -110,7 +109,7 @@ class NoteDetailView(NoteAside, UpdateView):
         context['fix_list'] = self.get_aside_context(self.request.user)
         context['ed_item'] = self.object
         context['urls'] = Urls.objects.filter(task=self.object.id).order_by('num')
-        context['files'] = get_files_list(self.request.user, app_name, ROLE_NOTE, item.id)
+        context['files'] = get_files_list(self.request.user, app_name, 'todo', item.id)
 
         return context
 
@@ -118,11 +117,11 @@ class NoteDetailView(NoteAside, UpdateView):
         grp = form.cleaned_data['grp']
         item = form.instance
         tg = None
-        tgs = TaskGroup.objects.filter(task=item.id, role=ROLE_NOTE)
+        tgs = TaskGroup.objects.filter(task=item.id, role=ROLE_TODO)
         if (len(tgs) > 0):
             tg = tgs[0]
         if not tg and grp:
-            TaskGroup.objects.create(task=item, group=grp, role=ROLE_NOTE)
+            TaskGroup.objects.create(task=item, group=grp, role=ROLE_TODO)
         else:
             if tg and not grp:
                 tg.delete()
@@ -141,7 +140,7 @@ class NoteDetailView(NoteAside, UpdateView):
 
 #----------------------------------
 def get_file_storage_path(user, item_id):
-    return storage_path.format(user.id) + 'note/note_{}/'.format(item_id)
+    return storage_path.format(user.id) + 'todo/todo_{}/'.format(item_id)
 
 #----------------------------------
 def handle_uploaded_file(f, user, item_id):
@@ -166,13 +165,13 @@ def get_doc(request, pk, fname):
 """
 
 
-class NoteGroupDetailView(NoteAside, GroupDetailView):
+class TodoGroupDetailView(TodoAside, GroupDetailView):
 
     def get_success_url(self):
         ret = ''
         if ('ret' in self.request.GET):
             ret = '?ret=' + self.request.GET['ret']
-        url = reverse('note:group-detail', args=[self.get_object().id]) + ret
+        url = reverse('todo:group-detail', args=[self.get_object().id]) + ret
         return url
 
     def get_context_data(self, **kwargs):

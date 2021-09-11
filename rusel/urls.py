@@ -20,7 +20,7 @@ api_router.register(r'urls', api_urls.UrlsViewSet, basename='urls')
 
 urlpatterns = i18n_patterns(
     path('', views.index, name='index'),
-    #path('todo/',   include('todo.urls')),
+    path('todo/',   include('todo.urls')),
     path('note/',   include('note.urls')),
     path('account/', include('account.urls')),
     #path('admin/',   admin.site.urls, name='admin'),

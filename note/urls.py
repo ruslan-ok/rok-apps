@@ -1,7 +1,8 @@
 from django.urls import path
+from note.const import app_name
 from . import views
 
-app_name = 'note'
+app_name = app_name
 urlpatterns = [
     path('', views.NoteListView.as_view(), name='note-list'),
     path('group/<int:pk>/', views.NoteGroupDetailView.as_view(), name='group-detail'),

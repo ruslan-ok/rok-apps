@@ -62,38 +62,38 @@ REPEAT_NAME = {
 """
 There are Roles in different Applications
 """
-TASK = 1
-NOTE = 2
-NEWS = 3
-STORE = 4
-DOC = 5
-WARR = 6
-OPERATION = 7
-SALDO = 8
-PERSON = 9
-TRIP = 10
-FUEL = 12
-PART = 13
-SERVICE = 14
-METER = 16
-PRICE = 17 
-BILL = 18
-MARKER = 19 
-INCIDENT = 20 
-ANAMNESIS = 21
-PERIOD = 22 
-DEPARTMENT = 23
-DEP_HIST = 24 
-POST = 25 
-EMPLOYEE = 26
-FIO_HIST = 27 
-CHILD = 28 
-APPOINTMENT = 29
-EDUCATION = 30
-EMPL_PER = 31 
-PAY_TITLE = 32 
-PAYMENT = 33 
-PHOTO = 34
+NUM_ROLE_TODO = 1
+NUM_ROLE_NOTE = 2
+NUM_ROLE_NEWS = 3
+NUM_ROLE_STORE = 4
+NUM_ROLE_DOC = 5
+NUM_ROLE_WARR = 6
+NUM_ROLE_OPERATION = 7
+NUM_ROLE_SALDO = 8
+NUM_ROLE_PERSON = 9
+NUM_ROLE_TRIP = 10
+NUM_ROLE_FUEL = 12
+NUM_ROLE_PART = 13
+NUM_ROLE_SERVICE = 14
+NUM_ROLE_METER = 16
+NUM_ROLE_PRICE = 17 
+NUM_ROLE_BILL = 18
+NUM_ROLE_MARKER = 19 
+NUM_ROLE_INCIDENT = 20 
+NUM_ROLE_ANAMNESIS = 21
+NUM_ROLE_PERIOD = 22 
+NUM_ROLE_DEPARTMENT = 23
+NUM_ROLE_DEP_HIST = 24 
+NUM_ROLE_POST = 25 
+NUM_ROLE_EMPLOYEE = 26
+NUM_ROLE_FIO_HIST = 27 
+NUM_ROLE_CHILD = 28 
+NUM_ROLE_APPOINTMENT = 29
+NUM_ROLE_EDUCATION = 30
+NUM_ROLE_EMPL_PER = 31 
+NUM_ROLE_PAY_TITLE = 32 
+NUM_ROLE_PAYMENT = 33 
+NUM_ROLE_PHOTO = 34
 
 ROLE_TODO             = 'todo'            
 ROLE_NOTE             = 'note'            
@@ -172,22 +172,22 @@ ALL_ROLES = (
 """
 There are Available Roles for each Application
 """
-TASK_ROLE_CHOICE   = [(NONE, '--------'), (TASK, _('task'))]
-NOTE_ROLE_CHOICE   = [(NONE, '--------'), (NOTE, _('note'))]
-NEWS_ROLE_CHOICE   = [(NONE, '--------'), (NEWS, _('news'))] 
-STORE_ROLE_CHOICE  = [(NONE, '--------'), (STORE, _('store'))]
-DOC_ROLE_CHOICE    = [(NONE, '--------'), (DOC, _('doc'))]
-WARR_ROLE_CHOICE   = [(NONE, '--------'), (WARR, _('warranty'))]
-EXPEN_ROLE_CHOICE  = [(NONE, '--------'), (OPERATION, _('operation')), (SALDO, _('saldo'))]
-TRIP_ROLE_CHOICE   = [(NONE, '--------'), (PERSON, _('person')), (TRIP, _('trip')), (SALDO, _('saldo'))]
-FUEL_ROLE_CHOICE   = [(NONE, '--------'), (FUEL, _('fueling')), (PART, _('car part service interval')), (SERVICE, _('service'))]
-APART_ROLE_CHOICE  = [(NONE, '--------'), (NONE, '--------'), (SERVICE, _('service')), (METER, _('meter')), (PRICE, _('price')), (BILL, _('bill'))]
-HEALTH_ROLE_CHOICE = [(NONE, '--------'), (MARKER, _('marker')), (INCIDENT, _('incident')), (ANAMNESIS, _('anamnesis'))]
-WORK_ROLE_CHOICE   = [(NONE, '--------'), (PERIOD, _('period')), (DEPARTMENT, _('department')), (DEP_HIST, _('department history')), 
-                      (POST, _('post')), (EMPLOYEE, _('employee')), (FIO_HIST, _('surname history')), (CHILD, _('child')), 
-                      (APPOINTMENT, _('appointment')), (EDUCATION, _('education')), (EMPL_PER, _('periods for employee')),
-                      (PAY_TITLE, _('pay tytle')), (PAYMENT, _('payment'))]
-PHOTO_ROLE_CHOICE  = [(NONE, '--------'), (PHOTO, _('photo'))]
+TASK_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_TODO, _('task'))]
+NOTE_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_NOTE, _('note'))]
+NEWS_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_NEWS, _('news'))] 
+STORE_ROLE_CHOICE  = [(NONE, '--------'), (NUM_ROLE_STORE, _('store'))]
+DOC_ROLE_CHOICE    = [(NONE, '--------'), (NUM_ROLE_DOC, _('doc'))]
+WARR_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_WARR, _('warranty'))]
+EXPEN_ROLE_CHOICE  = [(NONE, '--------'), (NUM_ROLE_OPERATION, _('operation')), (NUM_ROLE_SALDO, _('saldo'))]
+TRIP_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_PERSON, _('person')), (NUM_ROLE_TRIP, _('trip')), (NUM_ROLE_SALDO, _('saldo'))]
+FUEL_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_FUEL, _('fueling')), (NUM_ROLE_PART, _('car part service interval')), (NUM_ROLE_SERVICE, _('service'))]
+APART_ROLE_CHOICE  = [(NONE, '--------'), (NUM_ROLE_SERVICE, _('service')), (NUM_ROLE_METER, _('meter')), (NUM_ROLE_PRICE, _('price')), (NUM_ROLE_BILL, _('bill'))]
+HEALTH_ROLE_CHOICE = [(NONE, '--------'), (NUM_ROLE_MARKER, _('marker')), (NUM_ROLE_INCIDENT, _('incident')), (NUM_ROLE_ANAMNESIS, _('anamnesis'))]
+WORK_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_PERIOD, _('period')), (NUM_ROLE_DEPARTMENT, _('department')), (NUM_ROLE_DEP_HIST, _('department history')), 
+                      (NUM_ROLE_POST, _('post')), (NUM_ROLE_EMPLOYEE, _('employee')), (NUM_ROLE_FIO_HIST, _('surname history')), (NUM_ROLE_CHILD, _('child')), 
+                      (NUM_ROLE_APPOINTMENT, _('appointment')), (NUM_ROLE_EDUCATION, _('education')), (NUM_ROLE_EMPL_PER, _('periods for employee')),
+                      (NUM_ROLE_PAY_TITLE, _('pay tytle')), (NUM_ROLE_PAYMENT, _('payment'))]
+PHOTO_ROLE_CHOICE  = [(NONE, '--------'), (NUM_ROLE_PHOTO, _('photo'))]
 
 
 def get_app_by_role(role):

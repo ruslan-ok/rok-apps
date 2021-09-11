@@ -2,10 +2,10 @@ from task.models import BaseCustomTask
 from task.files import get_files_list
 from task.categories import get_categories_list
 from task.models import TaskGroup, Urls
-from note.const import app_name
-from task.const import ROLE_NOTE
+from task.const import ROLE_TODO
+from todo.const import app_name
 
-class Note(BaseCustomTask):
+class Todo(BaseCustomTask):
 
     def get_info(self):
         ret = []
@@ -14,7 +14,7 @@ class Note(BaseCustomTask):
             if TaskGroup.objects.filter(task=self.id).exists():
                 ret.append({'text': TaskGroup.objects.filter(task=self.id).get().group.name})
 
-        files = (len(get_files_list(self.user, app_name, ROLE_NOTE, self.id)) > 0)
+        files = (len(get_files_list(self.user, app_name, ROLE_TODO, self.id)) > 0)
 
         links = len(Urls.objects.filter(task=self.id)) > 0
     

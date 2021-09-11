@@ -123,9 +123,9 @@ class Task(models.Model):
         return self.name
 
     def get_item_app(self):
-        if (self.app_task == TASK):
+        if (self.app_task == NUM_ROLE_TODO):
             return 'todo'
-        if (self.app_note == NOTE):
+        if (self.app_note == NUM_ROLE_NOTE):
             return 'note'
         return None
 

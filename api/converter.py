@@ -74,7 +74,7 @@ def transfer_task(lst, task_grp):
                              repeat_days=task.repeat_days,
                              categories=task.categories,
                              info=task.info,
-                             app_task=TASK,
+                             app_task=NUM_ROLE_TODO,
                              app_note=NONE,
                              app_news=NONE,
                              app_store=NONE,
@@ -106,9 +106,9 @@ def transfer_note(lst, task_grp):
         note_role = NONE
         news_role = NONE
         if note.kind == 'note':
-            note_role = NOTE
+            note_role = NUM_ROLE_NOTE
         else:
-            news_role = NEWS
+            news_role = NUM_ROLE_NEWS
         atask = Task.objects.create(user=note.user,
                              name=note.name,
                              start=None,

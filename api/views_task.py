@@ -26,73 +26,73 @@ class TaskViewSet(viewsets.ModelViewSet):
         if 'role' in self.request.query_params:
             role = self.request.query_params['role']
             if (role == ROLE_TODO):
-                return data.filter(app_task=TASK)
+                return data.filter(app_task=NUM_ROLE_TODO)
             if (role == ROLE_NOTE):
-                return data.filter(app_note=NOTE)
+                return data.filter(app_note=NUM_ROLE_NOTE)
             if (role == ROLE_NEWS):
-                return data.filter(app_news=NEWS)
+                return data.filter(app_news=NUM_ROLE_NEWS)
             if (role == ROLE_STORE):
-                return data.filter(app_store=STORE)
+                return data.filter(app_store=NUM_ROLE_STORE)
             if (role == ROLE_DOC):
-                return data.filter(app_doc=DOC)
+                return data.filter(app_doc=NUM_ROLE_DOC)
             if (role == ROLE_WARR):
-                return data.filter(app_warr=WARR)
+                return data.filter(app_warr=NUM_ROLE_WARR)
             if (role == ROLE_EXPEN):
-                return data.filter(app_expen=OPERATION)
+                return data.filter(app_expen=NUM_ROLE_OPERATION)
             if (role == ROLE_EXPEN_SALDO):
-                return data.filter(app_expen=SALDO)
+                return data.filter(app_expen=NUM_ROLE_SALDO)
             if (role == ROLE_TRIP_PERS):
-                return data.filter(app_trip=PERSON)
+                return data.filter(app_trip=NUM_ROLE_PERSON)
             if (role == ROLE_TRIP):
-                return data.filter(app_trip=TRIP)
+                return data.filter(app_trip=NUM_ROLE_TRIP)
             if (role == ROLE_TRIP_SALDO):
-                return data.filter(app_trip=SALDO)
+                return data.filter(app_trip=NUM_ROLE_SALDO)
             if (role == ROLE_FUEL):
-                return data.filter(app_fuel=FUEL)
+                return data.filter(app_fuel=NUM_ROLE_FUEL)
             if (role == ROLE_FUEL_PART):
-                return data.filter(app_fuel=PART)
+                return data.filter(app_fuel=NUM_ROLE_PART)
             if (role == ROLE_FUEL_SERV):
-                return data.filter(app_fuel=SERVICE)
+                return data.filter(app_fuel=NUM_ROLE_SERVICE)
             if (role == ROLE_APART_SERV):
-                return data.filter(app_apart=SERVICE)
+                return data.filter(app_apart=NUM_ROLE_SERVICE)
             if (role == ROLE_APART_METER):
-                return data.filter(app_apart=METER)
+                return data.filter(app_apart=NUM_ROLE_METER)
             if (role == ROLE_APART_PRICE):
-                return data.filter(app_apart=PRICE)
+                return data.filter(app_apart=NUM_ROLE_PRICE)
             if (role == ROLE_APART_BILL):
-                return data.filter(app_apart=BILL)
+                return data.filter(app_apart=NUM_ROLE_BILL)
             if (role == ROLE_HEALTH_MARKER):
-                return data.filter(app_health=MARKER)
+                return data.filter(app_health=NUM_ROLE_MARKER)
             if (role == ROLE_HEALTH_INCIDENT):
-                return data.filter(app_health=INCIDENT)
+                return data.filter(app_health=NUM_ROLE_INCIDENT)
             if (role == ROLE_HEALTH_ANAMNESIS):
-                return data.filter(app_health=ANAMNESIS)
+                return data.filter(app_health=NUM_ROLE_ANAMNESIS)
             if (role == ROLE_WORK_PERIOD):
-                return data.filter(app_work=PERIOD)
+                return data.filter(app_work=NUM_ROLE_PERIOD)
             if (role == ROLE_WORK_DEPART):
-                return data.filter(app_work=DEPARTMENT)
+                return data.filter(app_work=NUM_ROLE_DEPARTMENT)
             if (role == ROLE_WORK_DEP_HIST):
-                return data.filter(app_work=DEP_HIST)
+                return data.filter(app_work=NUM_ROLE_DEP_HIST)
             if (role == ROLE_WORK_POST):
-                return data.filter(app_work=POST)
+                return data.filter(app_work=NUM_ROLE_POST)
             if (role == ROLE_WORK_EMPL):
-                return data.filter(app_work=EMPLOYEE)
+                return data.filter(app_work=NUM_ROLE_EMPLOYEE)
             if (role == ROLE_WORK_FIO_HIST):
-                return data.filter(app_work=FIO_HIST)
+                return data.filter(app_work=NUM_ROLE_FIO_HIST)
             if (role == ROLE_WORK_CHILD):
-                return data.filter(app_work=CHILD)
+                return data.filter(app_work=NUM_ROLE_CHILD)
             if (role == ROLE_WORK_APPOINT):
-                return data.filter(app_work=APPOINTMENT)
+                return data.filter(app_work=NUM_ROLE_APPOINTMENT)
             if (role == ROLE_WORK_EDUCAT):
-                return data.filter(app_work=EDUCATION)
+                return data.filter(app_work=NUM_ROLE_EDUCATION)
             if (role == ROLE_WORK_EMPL_PER):
-                return data.filter(app_work=EMPL_PER)
+                return data.filter(app_work=NUM_ROLE_EMPL_PER)
             if (role == ROLE_WORK_PAY_TITLE):
-                return data.filter(app_work=PAY_TITLE)
+                return data.filter(app_work=NUM_ROLE_PAY_TITLE)
             if (role == ROLE_WORK_PAYMENT):
-                return data.filter(app_work=PAYMENT)
+                return data.filter(app_work=NUM_ROLE_PAYMENT)
             if (role == ROLE_PHOTO):
-                return data.filter(app_photo=PHOTO)
+                return data.filter(app_photo=NUM_ROLE_PHOTO)
         return data
 
     # OK
@@ -401,73 +401,73 @@ class TaskViewSet(viewsets.ModelViewSet):
         queryset = Task.objects.filter(user=request.user)
         task = get_object_or_404(queryset, pk=pk)
         if (role == ROLE_TODO):
-            task.app_task = TASK
+            task.app_task = NUM_ROLE_TODO
         if (role == ROLE_NOTE):
-            task.app_note = NOTE
+            task.app_note = NUM_ROLE_NOTE
         if (role == ROLE_NEWS):
-            task.app_news = NEWS
+            task.app_news = NUM_ROLE_NEWS
         if (role == ROLE_STORE):
-            task.app_store = STORE
+            task.app_store = NUM_ROLE_STORE
         if (role == ROLE_DOC):
-            task.app_doc = DOC
+            task.app_doc = NUM_ROLE_DOC
         if (role == ROLE_WARR):
-            task.app_warr = WARR
+            task.app_warr = NUM_ROLE_WARR
         if (role == ROLE_EXPEN):
-            task.app_expen = OPERATION
+            task.app_expen = NUM_ROLE_OPERATION
         if (role == ROLE_EXPEN_SALDO):
-            task.app_expen = SALDO
+            task.app_expen = NUM_ROLE_SALDO
         if (role == ROLE_TRIP_PERS):
-            task.app_trip = PERSON
+            task.app_trip = NUM_ROLE_PERSON
         if (role == ROLE_TRIP):
-            task.app_trip = TRIP
+            task.app_trip = NUM_ROLE_TRIP
         if (role == ROLE_TRIP_SALDO):
-            task.app_trip = SALDO
+            task.app_trip = NUM_ROLE_SALDO
         if (role == ROLE_FUEL):
-            task.app_fuel = FUEL
+            task.app_fuel = NUM_ROLE_FUEL
         if (role == ROLE_FUEL_PART):
-            task.app_fuel = PART
+            task.app_fuel = NUM_ROLE_PART
         if (role == ROLE_FUEL_SERV):
-            task.app_fuel = SERVICE
+            task.app_fuel = NUM_ROLE_SERVICE
         if (role == ROLE_APART_SERV):
-            task.app_apart = SERVICE
+            task.app_apart = NUM_ROLE_SERVICE
         if (role == ROLE_APART_METER):
-            task.app_apart = METER
+            task.app_apart = NUM_ROLE_METER
         if (role == ROLE_APART_PRICE):
-            task.app_apart = PRICE
+            task.app_apart = NUM_ROLE_PRICE
         if (role == ROLE_APART_BILL):
-            task.app_apart = BILL
+            task.app_apart = NUM_ROLE_BILL
         if (role == ROLE_HEALTH_MARKER):
-            task.app_health = MARKER
+            task.app_health = NUM_ROLE_MARKER
         if (role == ROLE_HEALTH_INCIDENT):
-            task.app_health = INCIDENT
+            task.app_health = NUM_ROLE_INCIDENT
         if (role == ROLE_HEALTH_ANAMNESIS):
-            task.app_health = ANAMNESIS
+            task.app_health = NUM_ROLE_ANAMNESIS
         if (role == ROLE_WORK_PERIOD):
-            task.app_work = PERIOD
+            task.app_work = NUM_ROLE_PERIOD
         if (role == ROLE_WORK_DEPART):
-            task.app_work = DEPARTMENT
+            task.app_work = NUM_ROLE_DEPARTMENT
         if (role == ROLE_WORK_DEP_HIST):
-            task.app_work = DEP_HIST
+            task.app_work = NUM_ROLE_DEP_HIST
         if (role == ROLE_WORK_POST):
-            task.app_work = POST
+            task.app_work = NUM_ROLE_POST
         if (role == ROLE_WORK_EMPL):
-            task.app_work = EMPLOYEE
+            task.app_work = NUM_ROLE_EMPLOYEE
         if (role == ROLE_WORK_FIO_HIST):
-            task.app_work = FIO_HIST
+            task.app_work = NUM_ROLE_FIO_HIST
         if (role == ROLE_WORK_CHILD):
-            task.app_work = CHILD
+            task.app_work = NUM_ROLE_CHILD
         if (role == ROLE_WORK_APPOINT):
-            task.app_work = APPOINTMENT
+            task.app_work = NUM_ROLE_APPOINTMENT
         if (role == ROLE_WORK_EDUCAT):
-            task.app_work = EDUCATION
+            task.app_work = NUM_ROLE_EDUCATION
         if (role == ROLE_WORK_EMPL_PER):
-            task.app_work = EMPL_PER
+            task.app_work = NUM_ROLE_EMPL_PER
         if (role == ROLE_WORK_PAY_TITLE):
-            task.app_work = PAY_TITLE
+            task.app_work = NUM_ROLE_PAY_TITLE
         if (role == ROLE_WORK_PAYMENT):
-            task.app_work = PAYMENT
+            task.app_work = NUM_ROLE_PAYMENT
         if (role == ROLE_PHOTO):
-            task.app_photo = PHOTO
+            task.app_photo = NUM_ROLE_PHOTO
         task.save()
         serializer = TaskSerializer(instance=task, context={'request': request})
         return Response(serializer.data)
