@@ -2,18 +2,22 @@
 {% load i18n static %}
 
 {% block main %}
-  <form method="post">{% csrf_token %}
-    {% include "base/form_errors.html" %}
+<form method="post" class="w-100 px-2 item-form" enctype="multipart/form-data" id="article_form">{% csrf_token %}
+  {% include "base/title.html" %}
+  {% include "base/form_errors.html" %}
 
-    {% for field in form %}
-      <div class="mb-3">
-        {{ field.label_tag }}
-        {{ field.errors }}
-        {{ field }}
-      </div>
-    {% endfor %}
+  {{ form }}
 
-    {# include "base/form_snippet.html" #}
-    <button type="submit" class="dialog default">{% trans 'Save' %}</button>
-  </form>
+  <div class="d-flex justify-content-evenly mt-3 pb-5">
+    <button type="submit" name="item_save" id="id_submit" class="btn btn-primary bi-save" title="{% trans 'save changes'|capfirst %}">
+      {% trans 'save'|capfirst %}
+    </button>
+    <button type="button" name="form_close" class="btn btn-secondary bi-x" onclick="closeForm()" title="{% trans 'close edit form'|capfirst %}">
+      {% trans 'close'|capfirst %}
+    </button>
+    <button type="button" name="item_delete" class="btn btn-warning bi-key" onclick="changePassword()" title="{% trans 'change password'|capfirst %}">
+      {% trans 'change password'|capfirst %}
+    </button>
+  </div>
+</form>
 {% endblock %}

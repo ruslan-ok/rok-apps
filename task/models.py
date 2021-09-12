@@ -456,6 +456,9 @@ class Urls(models.Model):
             return self.title
         return self.href
 
+#----------------------------
+# Comment if MIGRATE
+
 class BaseCustomTask(Task):
 
     @classmethod
@@ -466,4 +469,5 @@ class BaseCustomTask(Task):
         custom_obj.__dict__['grp'] = grp
         return custom_obj
 
+#----------------------------
 

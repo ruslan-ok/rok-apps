@@ -1,0 +1,8 @@
+{% load static %}
+
+<div class="avatar">
+    <input type="file" name="avatar" accept="image/*" id="id_avatar" onchange="avatarSelected()" class="d-none">
+    <button type="button" class="bi-x" onclick="delAvatar()"></button>
+    <img onclick="getAvatar()" src="{% if form.avatar %}{{ form.avatar.url }}{% else %}{% static 'Default-avatar.jpg' %}{% endif %}">
+</div>
+

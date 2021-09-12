@@ -1,4 +1,5 @@
 import sys
+from PIL import Image
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.shortcuts import resolve_url
@@ -23,7 +24,7 @@ from django.contrib.auth import (REDIRECT_FIELD_NAME, get_user_model, login as a
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.decorators import login_required
 
-from account.forms import (LoginForm, RegisterForm, PasswordResetForm, SetPasswordForm, PasswordChangeForm, ProfileForm, )
+from account.forms import (LoginForm, RegisterForm, PasswordResetForm, SetPasswordForm, PasswordChangeForm, ProfileForm,)
 
 from django.core.mail import send_mail
 from django.core.exceptions import ValidationError
@@ -404,7 +405,7 @@ class PasswordChangeDoneView(PasswordContextMixin, TemplateView):
         return super().dispatch(*args, **kwargs)
 
 def user_data_changed(user, data, request):
-    if user.username == data['username'] and user.first_name == data['first_name'] and user.last_name == data['last_name'] and user.email == data['email']:
+    if user.username == data['username'] and user.first_name == data['first_name'] and user.last_name == data['last_name'] and user.email == data['email'] and user.userext.avatar == data['avatar']:
         messages.add_message(request, messages.INFO, 'User information is not changed.')
         return False
     return True
@@ -418,7 +419,7 @@ def service(request):
 def profile(request):
     if request.method == 'POST':
         usr = User.objects.get(id=request.user.id)
-        form = ProfileForm(request.POST, instance = request.user)
+        form = ProfileForm(request.POST, request.FILES, instance = request.user)
         if form.is_valid() and user_data_changed(usr, form.cleaned_data, request):
             usr.username = form.cleaned_data['username']
             usr.first_name = form.cleaned_data['first_name']
@@ -426,14 +427,24 @@ def profile(request):
             usr.email = form.cleaned_data['email']
             usr.is_active = True
             usr.save()
+            if ('avatar' in form.cleaned_data):
+                avatar = form.cleaned_data['avatar']
+                ue = UserExt.objects.filter(user=usr.id).get()
+                ue.avatar = avatar
+                #transform = Image.open(avatar.file)
+                #ue.avatar_mini = transform.resize((50,50))
+                ue.save()
+
             messages.add_message(request, messages.SUCCESS, 'The user `%s` was changed successfully.' % (usr.username))
     else:
         form = ProfileForm(instance = request.user)
 
-    context = get_base_context(request, ROLE_ACCOUNT, '', ('profile',))
+    context = get_base_context(request, ROLE_ACCOUNT, '', (_('profile').capitalize(),))
     context['form'] = form
     context['fieldset1_name'] = _('Personal info')
     context['fieldset2_name'] = _('Important dates')
+    context['without_lists'] = True
+    context['avatar'] = request.user.userext.avatar
     return render(request, 'account/profile.html', context)
 
 def demo(request):
@@ -441,6 +452,6 @@ def demo(request):
         User.objects.create_user('demouser', 'demouser@rusel.by', demouserpassword)
     user = authenticate(username = 'demouser', password = demouserpassword)
     if user is not None:
-         login(request, user)
+        login(request, user)
     return HttpResponseRedirect(reverse_lazy('index'))
 
