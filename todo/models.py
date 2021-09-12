@@ -1,3 +1,5 @@
+#----------------------------
+# Comment if MIGRATE
 from task.models import BaseCustomTask
 from task.files import get_files_list
 from task.categories import get_categories_list
@@ -36,4 +38,4 @@ class Todo(BaseCustomTask):
                 ret.append({'icon': 'category', 'text': categ.name, 'color': 'category-design-' + categ.design})
     
         return ret
-
+#----------------------------

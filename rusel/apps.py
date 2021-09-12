@@ -86,3 +86,6 @@ def get_main_menu_item(app):
     if (app == 'logout'):
         return _('log out').capitalize()
     return None
+
+def get_app_icon(app):
+    return APPS[app][0]

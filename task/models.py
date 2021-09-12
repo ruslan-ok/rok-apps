@@ -85,6 +85,7 @@ class Task(models.Model):
     """
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'), related_name = 'task_user')
     name = models.CharField(_('name'), max_length=200, blank=False)
+    event = models.DateTimeField(_('event date'), blank=True, null=True)
     start = models.DateField(_('start date'), blank=True, null=True)
     stop = models.DateTimeField(_('termin'), blank=True, null=True)
     completed = models.BooleanField(_('completed'), default=False)
@@ -456,9 +457,19 @@ class Urls(models.Model):
             return self.title
         return self.href
 
+class Subscription(models.Model):
+    user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'todo_subscription_user')
+    token = models.CharField(_('user device token'), max_length = 200, blank = False)
+
+    class Meta:
+        verbose_name = _('subscription')
+        verbose_name_plural = _('subscriptions')
+
+    def __str__(self):
+        return self.user.username + ': ' + self.token
+
 #----------------------------
 # Comment if MIGRATE
-
 class BaseCustomTask(Task):
 
     @classmethod
@@ -468,6 +479,5 @@ class BaseCustomTask(Task):
             custom_obj.__dict__[key] = value
         custom_obj.__dict__['grp'] = grp
         return custom_obj
-
 #----------------------------
 

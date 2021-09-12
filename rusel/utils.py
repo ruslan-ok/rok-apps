@@ -5,9 +5,9 @@ def extract_get_params(request):
     v = request.GET.get('view')
     if not v:
         v = ''
-    l = request.GET.get('lst')
-    if not l:
-        l = ''
+    g = request.GET.get('group_id')
+    if not g:
+        g = ''
     q = request.GET.get('q')
     if not q:
         q = ''
@@ -15,16 +15,18 @@ def extract_get_params(request):
     if not p:
         p = ''
     ret = ''
-    if v and l:
-        ret += 'view={}&lst={}'.format(v, l)
+    if v:
+        ret += 'view=' + v
+    if (v == 'group') and g:
+        ret += '&group_id=' + g
     if q:
         if ret:
             ret += '&'
-        ret += 'q={}'.format(q)
+        ret += 'q=' + q
     if p:
         if ret:
             ret += '&'
-        ret += 'page={}'.format(p)
+        ret += 'page=' + p
     if ret:
         ret = '?' + ret
     return ret
@@ -137,3 +139,37 @@ def nice_date(d):
         return d.strftime('%a, %d %B %Y')
 
 
+def sort_data(data, sort, reverse):
+    if not data:
+        return data
+
+    sort_fields = sort.split()
+    if reverse:
+        revers_list = []
+        for sf in sort_fields:
+            if (sf[0] == '-'):
+                revers_list.append(sf[1:])
+            else:
+                revers_list.append('-' + sf)
+        sort_fields = revers_list
+
+    #raise Exception(sort, reverse, sort_fields)
+    try:
+        if (len(sort_fields) == 1):
+            data = data.order_by(sort_fields[0])
+        elif (len(sort_fields) == 2):
+            data = data.order_by(sort_fields[0], sort_fields[1])
+        elif (len(sort_fields) == 3):
+            data = data.order_by(sort_fields[0], sort_fields[1], sort_fields[2])
+    except FieldError:
+        pass
+
+    return data
+
+def get_search_mode(query):
+    if not query:
+        return 0
+    if (len(query) > 1) and (query[0] == '@') and (query.find(' ') == -1):
+        return 2
+    else:
+        return 1

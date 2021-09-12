@@ -8,7 +8,6 @@ debug = []
 
 def convert():
     debug = []
-    """
     debug.append('Start convert')
     TaskGroup.objects.all().delete()
     Group.objects.all().delete()
@@ -35,15 +34,13 @@ def convert():
     debug.append('-')
     debug.append('Records in Urls: ' + str(len(Urls.objects.all())))
     debug.append('Stop convert')
-    """
     return debug
 
 
 def transfer_grp(grp_node, task_grp_node, debug):
     grps = Grp.objects.filter(node=grp_node)
     for grp in grps:
-        is_leaf = not Lst.objects.filter(grp=grp).exists()
-        task_grp = Group.objects.create(user=grp.user, role=grp.app, node=task_grp_node, name=grp.name, sort=grp.sort, is_open=grp.is_open, created=grp.created, last_mod=grp.last_mod, is_leaf=is_leaf)
+        task_grp = Group.objects.create(user=grp.user, role=grp.app, node=task_grp_node, name=grp.name, sort=grp.sort, created=grp.created, last_mod=grp.last_mod)
         transfer_grp(grp, task_grp, debug)
         transfer_lst(grp, task_grp, debug)
 
@@ -51,44 +48,44 @@ def transfer_grp(grp_node, task_grp_node, debug):
 def transfer_lst(grp, task_grp, debug):
     lsts = Lst.objects.filter(grp=grp)
     for lst in lsts:
-        task_grp_ = Group.objects.create(user=lst.user, role=lst.app, node=task_grp, name=lst.name, sort=lst.sort, created=lst.created, last_mod=lst.last_mod, is_leaf=True)
+        task_grp_ = Group.objects.create(user=lst.user, role=lst.app, node=task_grp, name=lst.name, sort=lst.sort, created=lst.created, last_mod=lst.last_mod)
         transfer_task(lst, task_grp_)
-        #transfer_note(lst, task_grp_)
+        transfer_note(lst, task_grp_)
 
 
 def transfer_task(lst, task_grp):
     tasks = OldTask.objects.filter(lst=lst)
     for task in tasks:
         atask = Task.objects.create(user=task.user,
-                             name=task.name,
-                             start=task.start,
-                             stop=task.stop,
-                             completed=task.completed,
-                             completion=task.completion,
-                             in_my_day=task.in_my_day,
-                             important=task.important,
-                             remind=task.remind,
-                             last_remind=task.last_remind,
-                             repeat=task.repeat,
-                             repeat_num=task.repeat_num,
-                             repeat_days=task.repeat_days,
-                             categories=task.categories,
-                             info=task.info,
-                             app_task=NUM_ROLE_TODO,
-                             app_note=NONE,
-                             app_news=NONE,
-                             app_store=NONE,
-                             app_doc=NONE,
-                             app_warr=NONE,
-                             app_expen=NONE,
-                             app_trip=NONE,
-                             app_fuel=NONE,
-                             app_apart=NONE,
-                             app_health=NONE,
-                             app_work=NONE,
-                             app_photo=NONE,
-                             created=task.created,
-                             last_mod=task.last_mod)
+                                    name=task.name,
+                                    start=task.start,
+                                    stop=task.stop,
+                                    completed=task.completed,
+                                    completion=task.completion,
+                                    in_my_day=task.in_my_day,
+                                    important=task.important,
+                                    remind=task.remind,
+                                    last_remind=task.last_remind,
+                                    repeat=task.repeat,
+                                    repeat_num=task.repeat_num,
+                                    repeat_days=task.repeat_days,
+                                    categories=task.categories,
+                                    info=task.info,
+                                    app_task=NUM_ROLE_TODO,
+                                    app_note=NONE,
+                                    app_news=NONE,
+                                    app_store=NONE,
+                                    app_doc=NONE,
+                                    app_warr=NONE,
+                                    app_expen=NONE,
+                                    app_trip=NONE,
+                                    app_fuel=NONE,
+                                    app_apart=NONE,
+                                    app_health=NONE,
+                                    app_work=NONE,
+                                    app_photo=NONE,
+                                    created=task.created,
+                                    last_mod=task.last_mod)
         
         for step in OldStep.objects.filter(task=task.id):
             Step.objects.create(user=step.task.user, task=atask, name=step.name, sort=step.sort, completed=step.completed)
@@ -99,7 +96,6 @@ def transfer_task(lst, task_grp):
         if task.url:
             Urls.objects.create(task=atask, num=1, href=task.url)
 
-"""
 def transfer_note(lst, task_grp):
     notes = Note.objects.filter(lst=lst)
     for note in notes:
@@ -110,39 +106,38 @@ def transfer_note(lst, task_grp):
         else:
             news_role = NUM_ROLE_NEWS
         atask = Task.objects.create(user=note.user,
-                             name=note.name,
-                             start=None,
-                             stop=None,
-                             completed=False,
-                             completion=None,
-                             in_my_day=False,
-                             important=False,
-                             remind=None,
-                             last_remind=None,
-                             repeat=0,
-                             repeat_num=0,
-                             repeat_days=0,
-                             categories=note.categories,
-                             info=note.descr,
-                             app_task=NONE,
-                             app_note=note_role,
-                             app_news=news_role,
-                             app_store=NONE,
-                             app_doc=NONE,
-                             app_warr=NONE,
-                             app_expen=NONE,
-                             app_trip=NONE,
-                             app_fuel=NONE,
-                             app_apart=NONE,
-                             app_health=NONE,
-                             app_work=NONE,
-                             app_photo=NONE,
-                             created=note.publ,
-                             last_mod=note.last_mod)
+                                    name=note.name,
+                                    start=None,
+                                    stop=None,
+                                    completed=False,
+                                    completion=None,
+                                    in_my_day=False,
+                                    important=False,
+                                    remind=None,
+                                    last_remind=None,
+                                    repeat=0,
+                                    repeat_num=0,
+                                    repeat_days=0,
+                                    categories=note.categories,
+                                    info=note.descr,
+                                    app_task=NONE,
+                                    app_note=note_role,
+                                    app_news=news_role,
+                                    app_store=NONE,
+                                    app_doc=NONE,
+                                    app_warr=NONE,
+                                    app_expen=NONE,
+                                    app_trip=NONE,
+                                    app_fuel=NONE,
+                                    app_apart=NONE,
+                                    app_health=NONE,
+                                    app_work=NONE,
+                                    app_photo=NONE,
+                                    created=note.publ,
+                                    last_mod=note.last_mod)
         
         if task_grp:
             Group.objects.filter(user=note.user.id, id=task_grp.id).get().consist.add(atask)
 
         if note.url:
             Urls.objects.create(task=atask, num=1, href=note.url)
-"""

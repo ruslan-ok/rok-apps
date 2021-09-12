@@ -12,7 +12,7 @@ from task.const import *
 from task.models import Task, Group, TaskGroup, Urls
 #----------------------------
 # Comment if MIGRATE
-from note.note import Note
+from note.models import Note
 #----------------------------
 from task.views import GroupDetailView
 from task.forms import CreateGroupForm
@@ -34,8 +34,8 @@ class NoteAside():
 class NoteListView(NoteAside, CreateView):
     #----------------------------
     # Comment if MIGRATE
-    model = Task
-    #model = Note
+    #model = Task
+    model = Note
     #----------------------------
     pagenate_by = 10
     template_name = 'base/list.html'
@@ -58,10 +58,10 @@ class NoteListView(NoteAside, CreateView):
         form.instance.user = self.request.user
         form.instance.app_note = NUM_ROLE_NOTE
         ret = super().form_valid(form)
-        l = self.request.GET.get('lst')
-        if l:
-            lst = Group.objects.filter(id=l).get()
-            TaskGroup.objects.create(task=form.instance, group=lst, role=ROLE_NOTE)
+        group_id = self.request.GET.get('group_id')
+        if group_id:
+            group = Group.objects.filter(id=group_id).get()
+            TaskGroup.objects.create(task=form.instance, group=group, role=ROLE_NOTE)
         return ret
     
     def get_context_data(self, **kwargs):
@@ -73,7 +73,6 @@ class NoteListView(NoteAside, CreateView):
         context['sort_options'] = self.get_sorts()
         context['params'] = extract_get_params(self.request)
         context['item_detail_url'] = app_name + ':item-detail'
-        context['content_icon'] = 'sticky'
         context['hide_selector'] = True
         context['hide_important'] = True
 
@@ -89,13 +88,13 @@ class NoteListView(NoteAside, CreateView):
     
         cur_grp = get_cur_grp(self.request)
         tasks = self.get_queryset()
-        context['items'] = tasks
+        #context['items'] = tasks
         #----------------------------
         # Comment if MIGRATE
-        notes = []
+        items = []
         for t in tasks:
-            notes.append(Note.from_Task(t, cur_grp))
-        context['items'] = notes
+            items.append(Note.from_Task(t, cur_grp))
+        context['items'] = items
         #----------------------------
         return context
     
@@ -152,7 +151,7 @@ class NoteDetailView(NoteAside, UpdateView):
 
 #----------------------------------
 def get_file_storage_path(user, item_id):
-    return storage_path.format(user.id) + 'note/note_{}/'.format(item_id)
+    return storage_path.format(user.id) + app_name + '/note_{}/'.format(item_id)
 
 #----------------------------------
 def handle_uploaded_file(f, user, item_id):
@@ -183,7 +182,7 @@ class NoteGroupDetailView(NoteAside, GroupDetailView):
         ret = ''
         if ('ret' in self.request.GET):
             ret = '?ret=' + self.request.GET['ret']
-        url = reverse('note:group-detail', args=[self.get_object().id]) + ret
+        url = reverse(app_name + ':group-detail', args=[self.get_object().id]) + ret
         return url
 
     def get_context_data(self, **kwargs):

@@ -7,10 +7,13 @@ from django.http import FileResponse, HttpResponseNotFound
 
 from rusel.context import get_cur_grp, get_base_context
 from rusel.aside import Fix
-from rusel.utils import extract_get_params
+from rusel.utils import extract_get_params, sort_data, get_search_mode
 from task.const import *
 from task.models import Task, Group, TaskGroup, Urls
+#----------------------------
+# Comment if MIGRATE
 from todo.models import Todo
+#----------------------------
 from task.views import GroupDetailView
 from task.forms import CreateGroupForm
 from todo.const import *
@@ -19,16 +22,71 @@ from task.files import storage_path, get_files_list
 
 list_url = '/todo/'
 
+def get_tasks(user_id, mode, group_id):
+    if (mode == MY_DAY):
+        ret = Task.objects.filter(user=user_id, app_task=NUM_ROLE_TODO, in_my_day=True)
+    elif (mode == IMPORTANT):
+        ret = Task.objects.filter(user=user_id, app_task=NUM_ROLE_TODO, important=True).exclude(completed=True)
+    elif (mode == PLANNED):
+        ret = Task.objects.filter(user=user_id, app_task=NUM_ROLE_TODO).exclude(stop=None).exclude(completed=True)
+    elif (mode == COMPLETED):
+        ret = Task.objects.filter(user=user_id, app_task=NUM_ROLE_TODO, completed=True)
+    elif (mode == BY_GROUP) and group_id:
+        ret = []
+        for tg in TaskGroup.objects.filter(group=group_id):
+            if (tg.task.user.id == user_id) and (tg.task.app_task == NUM_ROLE_TODO):
+                ret.append(tg.task)
+    else: # ALL or NONE
+        ret = Task.objects.filter(user=user_id, app_task=NUM_ROLE_TODO).exclude(completed=True)
+    return ret
+
+def get_filtered_tasks(user_id, mode, group_id, query):
+    ret = get_tasks(user_id, mode, group_id)
+    search_mode = get_search_mode(query)
+    lookups = None
+    if (search_mode == 0):
+        return ret
+    elif (search_mode == 1):
+        lookups = Q(name__icontains=query) | Q(info__icontains=query) | Q(url__icontains=query)
+    elif (search_mode == 2):
+        lookups = Q(categories__icontains=query[1:])
+    return ret.filter(lookups)
+
+def sorted_tasks(user_id, mode, group_id, sort, sort_reverse, query):
+    data = get_filtered_tasks(user_id, mode, group_id, query)
+    return sort_data(data, sort + ' stop', sort_reverse)
+
 class TodoAside():
 
     def get_aside_context(self, user):
         fixes = []
-        qty = len(Task.objects.filter(user=user.id, app_task=NUM_ROLE_TODO).exclude(completed=True))
-        fixes.append(Fix('all', _('all').capitalize(), 'check-all', list_url, qty))
+        list_url = reverse(app_name + ':todo-list')
+        fixes.append(Fix('myday', _('my day').capitalize(), 'sun', list_url + '?view=myday', len(get_tasks(user, MY_DAY, 0).exclude(completed=True))))
+        fixes.append(Fix('important', _('important').capitalize(), 'star', list_url + '?view=important', len(get_tasks(user, IMPORTANT, 0))))
+        fixes.append(Fix('planned', _('planned').capitalize(), 'check2-square', list_url + '?view=planned', len(get_tasks(user, PLANNED, 0))))
+        fixes.append(Fix('all', _('all').capitalize(), 'check-all', list_url, len(get_tasks(user, ALL, 0))))
+        fixes.append(Fix('completed', _('completed').capitalize(), 'check2-circle', list_url + '?view=completed', len(get_tasks(user, COMPLETED, 0))))
         return fixes
 
+    def get_fix_icon(self, mode):
+        if (mode == MY_DAY):
+            return 'sun'
+        if (mode == IMPORTANT):
+            return 'star'
+        if (mode == PLANNED):
+            return 'check2-square'
+        if (mode == ALL):
+            return 'check-all'
+        if (mode == COMPLETED):
+            return 'check2-circle'
+        return 'check2-square'
+
 class TodoListView(TodoAside, CreateView):
+    #----------------------------
+    # Comment if MIGRATE
+    #model = Task
     model = Todo
+    #----------------------------
     pagenate_by = 10
     template_name = 'base/list.html'
     title = _('unknown')
@@ -36,11 +94,18 @@ class TodoListView(TodoAside, CreateView):
     form_class = CreateTodoForm
 
     def get_queryset(self):
-        cur_grp = get_cur_grp(self.request)
-        if cur_grp:
-            return [tg.task for tg in TaskGroup.objects.filter(group=cur_grp.id)]
-        # ALL
-        return Task.objects.filter(user=self.request.user, app_task=NUM_ROLE_TODO, completed=False).order_by('created')
+        mode = ALL
+        query = None
+        if self.request.method == 'GET':
+            mode = self.request.GET.get('view')
+            query = self.request.GET.get('q')
+        group = get_cur_grp(self.request)
+        group_id = 0
+        if group:
+            group_id = group.id
+        sort = 'created'
+        sort_reverse = True
+        return sorted_tasks(self.request.user.id, mode, group_id, sort, sort_reverse, query)
 
     def get_success_url(self):
         url = super().get_success_url()
@@ -50,22 +115,29 @@ class TodoListView(TodoAside, CreateView):
         form.instance.user = self.request.user
         form.instance.app_task = NUM_ROLE_TODO
         ret = super().form_valid(form)
-        l = self.request.GET.get('lst')
-        if l:
-            lst = Group.objects.filter(id=l).get()
-            TaskGroup.objects.create(task=form.instance, group=lst, role=ROLE_TODO)
+        group_id = self.request.GET.get('group_id')
+        if group_id:
+            group = Group.objects.filter(id=group_id).get()
+            TaskGroup.objects.create(task=form.instance, group=group, role=ROLE_TODO)
         return ret
     
     def get_context_data(self, **kwargs):
+        mode = ALL
+        query = None
+        if self.request.method == 'GET':
+            if ('view' in self.request.GET):
+                mode = self.request.GET.get('view')
         context = super().get_context_data(**kwargs)
         title = _('all').capitalize()
         context.update(get_base_context(self.request, app_name, False, title))
+        if (mode != BY_GROUP):
+            context['title'] = _(PAGES[mode]).capitalize()
+            context['content_icon'] = self.get_fix_icon(mode)
         context['fix_list'] = self.get_aside_context(self.request.user)
         context['group_form'] = CreateGroupForm()
         context['sort_options'] = self.get_sorts()
         context['params'] = extract_get_params(self.request)
         context['item_detail_url'] = app_name + ':item-detail'
-        context['content_icon'] = 'sticky'
         context['hide_selector'] = True
         context['hide_important'] = True
 
@@ -81,10 +153,14 @@ class TodoListView(TodoAside, CreateView):
     
         cur_grp = get_cur_grp(self.request)
         tasks = self.get_queryset()
+        #context['items'] = tasks
+        #----------------------------
+        # Comment if MIGRATE
         items = []
         for t in tasks:
             items.append(Todo.from_Task(t, cur_grp))
         context['items'] = items
+        #----------------------------
         return context
     
     def get_sorts(self):
@@ -171,7 +247,7 @@ class TodoGroupDetailView(TodoAside, GroupDetailView):
         ret = ''
         if ('ret' in self.request.GET):
             ret = '?ret=' + self.request.GET['ret']
-        url = reverse('todo:group-detail', args=[self.get_object().id]) + ret
+        url = reverse(app_name + ':group-detail', args=[self.get_object().id]) + ret
         return url
 
     def get_context_data(self, **kwargs):

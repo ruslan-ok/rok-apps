@@ -35,10 +35,10 @@ function addGroup(app, role) {
     
     xhttp.onreadystatechange = function() {
       if (this.readyState == 4 && this.status == 201) {
-        list_id = JSON.parse(this.responseText).id;
-        list_name = JSON.parse(this.responseText).name;
-        list_url = `${window.location.protocol}//${window.location.host}/${app}/?view=list&lst=${list_id}`;
-        window.location.href = list_url;
+        group_id = JSON.parse(this.responseText).id;
+        group_name = JSON.parse(this.responseText).name;
+        group_url = `${window.location.protocol}//${window.location.host}/${app}/?view=by_group&group_id=${group_id}`;
+        window.location.href = group_url;
       }
     };
   
@@ -55,9 +55,9 @@ function addGroup(app, role) {
 function closeGroupForm() {
   let redirect_url = window.location.href.split('/group/')[0] + '/';
   const urlParams = new URLSearchParams(window.location.search);
-  const grp_id = urlParams.get('ret');
-  if (grp_id)
-    redirect_url += '?view=list&lst=' + grp_id;
+  const group_id = urlParams.get('ret');
+  if (group_id)
+    redirect_url += '?view=by_group&group_id=' + group_id;
   window.location.href = redirect_url;
 }
 

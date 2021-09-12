@@ -1,14 +1,16 @@
 from django.utils.translation import gettext_lazy as _
 #from rest_framework.renderers import JSONRenderer
 
-from rusel.apps import get_app_human_name, get_apps_list
+from rusel.apps import get_app_human_name, get_apps_list, get_app_icon
 from task.models import Group
 from task.const import get_app_by_role
 #from task.serializers import TaskGrpSerializer
 
 def get_base_context(request, role, detail, title):
     context = {}
-    context['app'] = get_app_by_role(role)
+    app = get_app_by_role(role)
+    context['app'] = app
+    context['content_icon'] = get_app_icon(app)
     context['role'] = role
     context['app_human_name'] = get_app_human_name(role)
     context['restriction'] = None
@@ -70,11 +72,11 @@ def get_cur_grp(request):
     cur_grp = None
     if request.method == 'GET':
         v = request.GET.get('view')
-        if v and (v == 'list'):
-            l = request.GET.get('lst')
-            if l:
-                if Group.objects.filter(id=l, user=request.user.id).exists():
-                    cur_grp = Group.objects.filter(id=l, user=request.user.id).get()
+        if v and (v == 'by_group'):
+            g = request.GET.get('group_id')
+            if g:
+                if Group.objects.filter(id=g, user=request.user.id).exists():
+                    cur_grp = Group.objects.filter(id=g, user=request.user.id).get()
     return cur_grp
 
 def get_group_path(cur_grp_id):

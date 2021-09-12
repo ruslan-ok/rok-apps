@@ -16,7 +16,7 @@ class CreateNoteForm(forms.ModelForm):
         
 #----------------------------------
 class NoteForm(forms.ModelForm):
-    stop = forms.DateTimeField(
+    event = forms.DateTimeField(
         label=_('publication date').capitalize(),
         required=False,
         widget=forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime mb-3', 'type': 'datetime-local'}))
@@ -44,7 +44,7 @@ class NoteForm(forms.ModelForm):
 
     class Meta:
         model = Task
-        fields = ['name', 'stop', 'info', 'grp', 'url', 'categories', 'upload']
+        fields = ['name', 'event', 'info', 'grp', 'url', 'categories', 'upload']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
             'stop': AdminDateWidget(attrs={'class': 'form-control mb-3'}),

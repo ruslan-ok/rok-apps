@@ -41,7 +41,7 @@ function delItem(app_name) {
     let redirect_url = window.location.href.split('/' + item_id + '/')[0] + '/';
     let grp = document.getElementById("id_grp");
     if (grp && grp.value)
-        redirect_url = window.location.href.split('/' + item_id + '/')[0] + '/?view=list&lst=' + grp.value;
+        redirect_url = window.location.href.split('/' + item_id + '/')[0] + '/?view=by_group&group_id=' + grp.value;
 
     const api = '/api/tasks/' + item_id + '/role_delete/?format=json&role=' + app_name;
     let url = window.location.protocol + '//' + window.location.host + api;

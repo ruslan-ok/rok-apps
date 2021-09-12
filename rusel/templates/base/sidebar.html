@@ -18,9 +18,9 @@
             <div id="groups-tree" class="sidebar__groups">
                 {% for node in groups %}
                     {% if node.is_leaf %}
-                        <a href="/{{ app }}/?view=list&lst={{ node.id }}" 
-                            class="{% if request.GET.lst == node.s_id %}active{% endif %}"
-                            {% if request.GET.lst == node.s_id %}aria-current="true"{% endif %}
+                        <a href="/{{ app }}/?view=by_group&group_id={{ node.id }}" 
+                            class="{% if request.GET.group_id == node.s_id %}active{% endif %}"
+                            {% if request.GET.group_id == node.s_id %}aria-current="true"{% endif %}
                             data-id="{{ node.id }}" data-parent="{{ node.node.id }}" id="task_group_{{ node.id }}">
                             <div>
                                 <i class="bi-journals level-{{ node.level }}"></i>
@@ -45,7 +45,7 @@
 
             <div class="add-form">
                 <i class="bi-plus-lg add-form__button" id="add_group_btn_id" onclick="addGroup('{{ app }}','{{ role }}')"></i>
-                <input type="text" class="add-form__input" placeholder="{% trans 'create list'|capfirst %}" name="name" id="new_group_id">
+                <input type="text" class="add-form__input" placeholder="{% trans 'create group'|capfirst %}" name="name" id="new_group_id">
             </div>
 
         {% endif %}

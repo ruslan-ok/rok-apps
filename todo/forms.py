@@ -16,6 +16,7 @@ class CreateTodoForm(forms.ModelForm):
         
 #----------------------------------
 class TodoForm(forms.ModelForm):
+    add_step = forms.CharField(widget = forms.TextInput(attrs = {'placeholder': _('next step').capitalize()}), required = False)
     stop = forms.DateTimeField(
         label=_('publication date').capitalize(),
         required=False,
@@ -44,7 +45,8 @@ class TodoForm(forms.ModelForm):
 
     class Meta:
         model = Task
-        fields = ['name', 'stop', 'info', 'grp', 'url', 'categories', 'upload']
+        fields = ['completed', 'name', 'important', 'add_step', 'in_my_day', 'remind', 'stop', 'repeat', 'repeat_num', 'repeat_days', 
+                'categories', 'url', 'info', 'grp', 'upload']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
             'stop': AdminDateWidget(attrs={'class': 'form-control mb-3'}),

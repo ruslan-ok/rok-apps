@@ -1,15 +1,11 @@
 #----------------------------
 # Comment if MIGRATE
 from task.models import BaseCustomTask
-#----------------------------
 from task.files import get_files_list
 from task.categories import get_categories_list
 from task.models import TaskGroup, Urls
 from note.const import app_name
 from task.const import ROLE_NOTE
-
-#----------------------------
-# Comment if MIGRATE
 
 class Note(BaseCustomTask):
     def get_info(self):
@@ -41,5 +37,4 @@ class Note(BaseCustomTask):
                 ret.append({'icon': 'category', 'text': categ.name, 'color': 'category-design-' + categ.design})
     
         return ret
-
 #----------------------------
