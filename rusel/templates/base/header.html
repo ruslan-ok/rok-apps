@@ -46,11 +46,13 @@
         <span>{{ user.username }}</span>
       </a>
       <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser2">
-        <li><a class="dropdown-item d-flex justify-content-between" href="/account/profile/">
-          <span>{% trans 'profile'|capfirst %}</span>
-          <i class="bi-person"></i>
-        </a></li>
-        <li><hr class="dropdown-divider"></li>
+        {% if user.username != 'demouser' %}
+          <li><a class="dropdown-item d-flex justify-content-between" href="/account/profile/">
+            <span>{% trans 'profile'|capfirst %}</span>
+            <i class="bi-person"></i>
+          </a></li>
+          <li><hr class="dropdown-divider"></li>
+        {% endif %}
         <li><a class="dropdown-item d-flex justify-content-between" href="/account/logout/">
           <span>{% trans 'sign out'|capfirst %}</span>
           <i class="bi-box-arrow-right"></i>

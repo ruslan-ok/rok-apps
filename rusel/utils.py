@@ -1,3 +1,4 @@
+from django.core.exceptions import FieldError
 from datetime import datetime, date, timezone, timedelta
 from django.utils.translation import gettext_lazy as _
 
@@ -163,7 +164,7 @@ def sort_data(data, sort, reverse):
             data = data.order_by(sort_fields[0], sort_fields[1], sort_fields[2])
     except FieldError:
         pass
-
+    
     return data
 
 def get_search_mode(query):

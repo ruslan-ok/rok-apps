@@ -9,7 +9,7 @@ from task.models import Group, Task, TaskGroup
 from task.const import ALL_ROLES
 from rusel.apps import APPS
 from api.serializers import GroupSerializer
-#from api.converter import convert
+from api.converter_v3 import convert_v3
 
 class GroupViewSet(viewsets.ModelViewSet):
     serializer_class = GroupSerializer
@@ -75,9 +75,10 @@ class GroupViewSet(viewsets.ModelViewSet):
             num += 1
             self.sort_level(user, role, grp.id, grp.sort, level+1)
 
-    #@action(detail=False)
-    #def move(self, request, pk=None):
-    #    result = convert()
-    #    for app in APPS:
-    #        self.sort_level(self.request.user, app, None, '', 0)
-    #    return Response(result)
+    @action(detail=False)
+    def convert_v2_to_v3(self, request, pk=None):
+        result = convert_v3()
+        for app in APPS:
+            self.sort_level(self.request.user, app, None, '', 0)
+        return Response(result)
+    

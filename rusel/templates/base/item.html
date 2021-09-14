@@ -3,9 +3,9 @@
 {% block item_content %}
   <li class="list-item">
 
-    {% if not hide_selector %}
+    {% if use_selector %}
       <button type="button" onclick="toggleCompleted({{ item.id|escape }})" class="left-icon">
-        {% if item.marked_item %}
+        {% if item.completed %}
           <i class="bi-check-circle-fill"></i>
         {% else %}
           <i class="bi-circle"></i>
@@ -15,9 +15,9 @@
 
     <a href="{% url item_detail_url item.id %}{{ params }}" class="container">
       <div class="info">
-        <span class="name{% if item.marked_item %} completed{% endif %}">{{ item.name }}</span>
+        <span class="name{% if item.completed %} completed{% endif %}">{{ item.name }}</span>
         <div class="descr">
-          {% for attr in item.get_info %}
+          {% for attr in item.attrs %}
             <div class="inline">
               {% if attr.icon == "attach" %}
                 <i class="bi-paperclip"></i>
@@ -55,7 +55,7 @@
       </div>
     </a>      
 
-    {% if not hide_important %}
+    {% if use_important %}
       <button type="button" onclick="toggleImportant({{ item.id|escape }})" class="right-icon">
         {% if item.important %}
           <i class="bi-star-fill"></i>

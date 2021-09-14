@@ -1,18 +1,17 @@
 from django.utils.translation import gettext_lazy as _
 #from rest_framework.renderers import JSONRenderer
 
-from rusel.apps import get_app_human_name, get_apps_list, get_app_icon
+from rusel.apps import get_app_human_name, get_apps_list, get_app_icon, get_app_by_role
 from task.models import Group
-from task.const import get_app_by_role
 #from task.serializers import TaskGrpSerializer
 
 def get_base_context(request, role, detail, title):
     context = {}
     app = get_app_by_role(role)
     context['app'] = app
+    context['app_human_name'] = get_app_human_name(app)
     context['content_icon'] = get_app_icon(app)
     context['role'] = role
-    context['app_human_name'] = get_app_human_name(role)
     context['restriction'] = None
     cur_grp = get_cur_grp(request)
     title_1 = title_2 = url = ''
@@ -43,7 +42,7 @@ def get_base_context(request, role, detail, title):
     context['complete_icon'] = 'icon/main/complete.svg'
     context['uncomplete_icon'] = 'icon/main/uncomplete.svg'
     
-    context['apps'] = get_apps_list(request.user, role)
+    context['apps'] = get_apps_list(request.user, app)
 
     #if url:
     #    save_last_visited(request.user, app + '/' + url, app, title_1, title_2)

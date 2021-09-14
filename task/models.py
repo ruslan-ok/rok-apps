@@ -15,7 +15,7 @@ from task.const import *
 from task.categories import get_categories_list
 from task.files import get_files_list
 from rusel.utils import nice_date
-#from todo.const import *
+from rusel.apps import get_app_by_role
 
 class Group(models.Model):
     """
@@ -49,7 +49,7 @@ class Group(models.Model):
         return '.'*self.level()*2 + self.name
     
     def edit_url(self):
-        return get_app_by_role(self.role) + ':group-detail'
+        return get_app_by_role(self.role) + ':group'
 
     def level(self):
         ret = 0
@@ -138,9 +138,6 @@ class Task(models.Model):
         url = reverse(app + ':item-detail', args = [id])
         return url
     
-    def marked_item(self):
-        return self.completed
-
     def toggle_completed(self):
         next = None
         if (not self.completed) and self.repeat:
@@ -282,86 +279,6 @@ class Task(models.Model):
         rd = next - delta
         return datetime(rd.year, rd.month, rd.day, rmd.hour, rmd.minute, rmd.second)
 
-    def get_info(self):
-        ret = []
-        
-        """
-        if self.grp: # and (app_param.restriction != 'list'):
-            ret.append({'text': self.grp.name})
-        """
-
-        if self.in_my_day: # and (app_param.restriction != 'myday'):
-            if (len(ret) > 0):
-                ret.append({'icon': 'separator'})
-            ret.append({'icon': 'myday', 'color': 'black', 'text': _('My day')})
-
-        step_total = 0
-        step_completed = 0
-        for step in Step.objects.filter(task=self.id):
-            step_total += 1
-            if step.completed:
-                step_completed += 1
-        if (step_total > 0):
-            if (len(ret) > 0):
-                ret.append({'icon': 'separator'})
-            ret.append({'text': '{} {} {}'.format(step_completed, _('out of'), step_total)})
-
-        d = self.stop
-        if d:
-            if (len(ret) > 0):
-                ret.append({'icon': 'separator'})
-            s = self.termin_date()
-            repeat = 'repeat'
-            if self.b_expired():
-                if self.completed:
-                    icon = 'termin'
-                    color = ''
-                else:
-                    icon = 'termin-expired'
-                    color = 'expired'
-                    repeat = 'repeat-expired'
-                ret.append({'icon': icon, 'color': color, 'text': s})
-            elif (self.stop == date.today()):
-                if self.completed:
-                    icon = 'termin'
-                    color = ''
-                else:
-                    icon = 'termin-actual'
-                    color = 'actual'
-                    repeat = 'repeat-actual'
-                ret.append({'icon': icon, 'color': color, 'text': s})
-            else:
-                ret.append({'icon': 'termin', 'text': s})
-    
-            if (self.repeat != 0):
-                ret.append({'icon': repeat})
-    
-        files = (len(get_files_list(self.user, 'todo', 'task', self.id)) > 0)
-    
-        if ((self.remind != None) and (self.remind >= datetime.now())) or self.info or files:
-            if (len(ret) > 0):
-                ret.append({'icon': 'separator'})
-            if ((self.remind != None) and (self.remind >= datetime.now())):
-                ret.append({'icon': 'remind'})
-            if self.info:
-                ret.append({'icon': 'notes'})
-            if files:
-                ret.append({'icon': 'attach'})
-    
-        if self.categories:
-            if (len(ret) > 0):
-                ret.append({'icon': 'separator'})
-            categs = get_categories_list(self.categories)
-            for categ in categs:
-                ret.append({'icon': 'category', 'text': categ.name, 'color': 'category-design-' + categ.design})
-    
-        if self.completed:
-            if (len(ret) > 0):
-                ret.append({'icon': 'separator'})
-            ret.append({'text': '{}: {}'.format(_('completion').capitalize(), self.completion.strftime('%d.%m.%Y'))})
-
-        return ret
-
     def s_in_my_day(self):
         if self.in_my_day:
             return _('Added in "My day"')
@@ -467,17 +384,3 @@ class Subscription(models.Model):
 
     def __str__(self):
         return self.user.username + ': ' + self.token
-
-#----------------------------
-# Comment if MIGRATE
-class BaseCustomTask(Task):
-
-    @classmethod
-    def from_Task(cls, a: Task, grp):
-        custom_obj = cls()
-        for key, value in a.__dict__.items():
-            custom_obj.__dict__[key] = value
-        custom_obj.__dict__['grp'] = grp
-        return custom_obj
-#----------------------------
-

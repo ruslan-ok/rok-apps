@@ -1,14 +1,14 @@
 from django.urls import path
-from todo.const import app_name
+from todo.config import app_config
 from . import views
 from . import fcm
 
-app_name = app_name
+app_name = app_config['name']
 urlpatterns = [
-    path('', views.TodoListView.as_view(), name='todo-list'),
-    path('group/<int:pk>/', views.TodoGroupDetailView.as_view(), name='group-detail'),
-    path('<int:pk>/', views.TodoDetailView.as_view(), name='item-detail'),
-    path('<int:pk>/doc/<str:fname>', views.get_doc, name='get_doc'),
+    path('', views.ListView.as_view(), name='list'),
+    path('group/<int:pk>/', views.GroupView.as_view(), name='group'),
+    path('<int:pk>/', views.DetailView.as_view(), name='item'),
+    path('<int:pk>/doc/<str:fname>', views.DetailView.get_doc, name='doc'),
 
     path('fcm/',                    fcm.fcm,             name = 'fcm'),
     path('fcm_add/',                fcm.fcm_add,         name = 'fcm_add'),

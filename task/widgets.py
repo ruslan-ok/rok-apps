@@ -29,7 +29,7 @@ class AvatarInput(FileInput):
         #context['categories'] = get_categories_list(value)
         #value = ''
         return context
-
+    """
     def render(self, name, value, attrs=None):
 
         config.height = self.attrs['height']
@@ -44,5 +44,5 @@ class AvatarInput(FileInput):
         # todo fix HACK
         #context['STATIC_URL'] = settings.STATIC_URL
         return render_to_string('task/avatar.html', context)
-
+    """
 

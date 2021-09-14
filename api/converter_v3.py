@@ -1,12 +1,12 @@
-#from todo.models import Grp, Lst, Task as OldTask, Step as OldStep
-#from note.models import Note
+from todo.models import Grp, Lst, Task as OldTask, Step as OldStep
+from note.models import Note
 from task.models import Task, Step, Group, TaskGroup, Urls
 from task.const import *
 
 debug = []
 
 
-def convert():
+def convert_v3():
     debug = []
     debug.append('Start convert')
     TaskGroup.objects.all().delete()
@@ -58,6 +58,7 @@ def transfer_task(lst, task_grp):
     for task in tasks:
         atask = Task.objects.create(user=task.user,
                                     name=task.name,
+                                    event=None,
                                     start=task.start,
                                     stop=task.stop,
                                     completed=task.completed,
@@ -91,7 +92,7 @@ def transfer_task(lst, task_grp):
             Step.objects.create(user=step.task.user, task=atask, name=step.name, sort=step.sort, completed=step.completed)
         
         if task_grp:
-            Group.objects.filter(user=task.user.id, id=task_grp.id).get().consist.add(atask)
+            TaskGroup.objects.create(task=atask, group=task_grp, role=task_grp.role)
         
         if task.url:
             Urls.objects.create(task=atask, num=1, href=task.url)
@@ -107,6 +108,7 @@ def transfer_note(lst, task_grp):
             news_role = NUM_ROLE_NEWS
         atask = Task.objects.create(user=note.user,
                                     name=note.name,
+                                    event=note.publ,
                                     start=None,
                                     stop=None,
                                     completed=False,
@@ -137,7 +139,7 @@ def transfer_note(lst, task_grp):
                                     last_mod=note.last_mod)
         
         if task_grp:
-            Group.objects.filter(user=note.user.id, id=task_grp.id).get().consist.add(atask)
+            TaskGroup.objects.create(task=atask, group=task_grp, role=task_grp.role)
 
         if note.url:
             Urls.objects.create(task=atask, num=1, href=note.url)

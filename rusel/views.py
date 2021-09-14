@@ -14,6 +14,7 @@ from django.views import View
 from django.conf import settings
 
 from rusel.context import get_base_context
+from task.const import ROLE_ACCOUNT
 #from hier.models import Param, Folder
 #from trip.models import trip_summary
 #from rusel.site_stat import get_site_stat
@@ -39,7 +40,7 @@ def index(request):
     return index_anonim(request)
 
 def index_anonim(request):
-    context = get_base_context(request, app_name, '', ('',))
+    context = get_base_context(request, ROLE_ACCOUNT, '', ('',))
     context['hide_title'] = True
     context['without_lists'] = True
     template = loader.get_template('index_anonim.html')
@@ -49,7 +50,7 @@ def index_anonim(request):
 #@login_required(login_url='account:login')
 #----------------------------------
 def index_user(request):
-    context = get_base_context(request, app_name, '', ('applications',))
+    context = get_base_context(request, ROLE_ACCOUNT, '', ('applications',))
     context['hide_title'] = False
     context['without_lists'] = True
     context['debug'] = settings.DEBUG

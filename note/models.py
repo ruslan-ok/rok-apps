@@ -1,40 +1,17 @@
-#----------------------------
-# Comment if MIGRATE
-from task.models import BaseCustomTask
-from task.files import get_files_list
-from task.categories import get_categories_list
-from task.models import TaskGroup, Urls
-from note.const import app_name
-from task.const import ROLE_NOTE
+from datetime import datetime
+from django.db import models
+from django.contrib.auth.models import User
+from django.utils.translation import gettext_lazy as _
+from todo.models import Lst
 
-class Note(BaseCustomTask):
-    def get_info(self):
-        ret = []
-        
-        if not self.grp:
-            if TaskGroup.objects.filter(task=self.id).exists():
-                ret.append({'text': TaskGroup.objects.filter(task=self.id).get().group.name})
-
-        files = (len(get_files_list(self.user, app_name, ROLE_NOTE, self.id)) > 0)
-
-        links = len(Urls.objects.filter(task=self.id)) > 0
-    
-        if self.info or links or files:
-            if (len(ret) > 0):
-                ret.append({'icon': 'separator'})
-            if self.info:
-                ret.append({'icon': 'notes'})
-            if links:
-                ret.append({'icon': 'url'})
-            if files:
-                ret.append({'icon': 'attach'})
-    
-        if self.categories:
-            if (len(ret) > 0):
-                ret.append({'icon': 'separator'})
-            categs = get_categories_list(self.categories)
-            for categ in categs:
-                ret.append({'icon': 'category', 'text': categ.name, 'color': 'category-design-' + categ.design})
-    
-        return ret
-#----------------------------
+class Note(models.Model):
+    user  = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
+    name  = models.CharField(_('name'), max_length = 200, blank = False)
+    code  = models.CharField(_('code'), max_length = 200, blank = True)
+    descr = models.TextField(_('description'), blank = True)
+    publ  = models.DateTimeField(_('publication date'), blank=True, default = datetime.now)
+    lst = models.ForeignKey(Lst, on_delete = models.CASCADE, verbose_name = _('list'), blank = True, null = True)
+    last_mod = models.DateTimeField(_('last modification time'), blank = True, auto_now = True)
+    url = models.CharField(_('URL'), max_length=2000, blank = True)
+    categories = models.CharField(_('categories'), max_length = 2000, blank = True, default = '', null = True)
+    kind  = models.CharField(_('kind of note'), max_length = 200, blank = True, default = 'note')
