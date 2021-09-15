@@ -416,4 +416,9 @@ textarea.form-control {
   background-color: #c9c9c9;
 }
 
+.avatar-preview {
+  width: 200px;
+  height: 200px;
+}
+
 /*# sourceMappingURL=form.css.map */

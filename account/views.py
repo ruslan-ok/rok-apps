@@ -6,6 +6,7 @@ from django.shortcuts import resolve_url
 from django.shortcuts import get_object_or_404, Http404
 from django.conf import settings
 from django.urls import reverse_lazy
+from django.db.models.fields.files import ImageFieldFile
 
 from django.utils.decorators import method_decorator
 from django.utils.http import (url_has_allowed_host_and_scheme, urlsafe_base64_decode,)
@@ -24,7 +25,7 @@ from django.contrib.auth import (REDIRECT_FIELD_NAME, get_user_model, login as a
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.decorators import login_required
 
-from account.forms import (LoginForm, RegisterForm, PasswordResetForm, SetPasswordForm, PasswordChangeForm, ProfileForm,)
+from account.forms import (LoginForm, RegisterForm, PasswordResetForm, SetPasswordForm, PasswordChangeForm, ProfileForm, AvatarForm,)
 
 from django.core.mail import send_mail
 from django.core.exceptions import ValidationError
@@ -181,26 +182,26 @@ def register(request):
         if f.is_valid():
             # send email verification now
             activation_key = generate_activation_key(username=request.POST['username'])
- 
- 
+
+
             title = subject = _('Account Verification')
- 
+
             message = '\n' + gettext('Please visit the following link to verify your account') + ' \n\n' + \
-                      '{}://{}/account/activate/?key={}'.format(request.scheme, request.get_host(), activation_key)            
- 
+                    '{}://{}/account/activate/?key={}'.format(request.scheme, request.get_host(), activation_key)            
+
             error = False
- 
+
             try:
                 send_mail(subject, message, settings.SERVER_EMAIL, [request.POST['email']])
                 send_mail('Регистрация нового пользователя', 'Зарегистрировался новый пользователь "' + request.POST['username'] + '" ' + \
-                          'с электронной почтой ' + str(request.POST['email']) + '.', 'admin@rusel.by', ['ok@rusel.by'])
+                        'с электронной почтой ' + str(request.POST['email']) + '.', 'admin@rusel.by', ['ok@rusel.by'])
                 messages.add_message(request, messages.INFO, _('Account created. Click on the link sent to your email to activate the account.'))
- 
+
             except:
                 error = True
                 messages.add_message(request, messages.WARNING, _('Unable to send email verification. Please try again.') + ' ' + str(sys.exc_info()[0]))
                 title = _('Register')
- 
+
             if not error:
                 u = User.objects.create_user(
                         request.POST['username'],
@@ -208,7 +209,7 @@ def register(request):
                         request.POST['password1'],
                         is_active = 0
                 )
- 
+
                 newUser = UserExt()
                 newUser.activation_key = activation_key
                 newUser.user = u
@@ -216,24 +217,24 @@ def register(request):
                 return HttpResponseRedirect(reverse_lazy('account:login'))
     else:
         f = RegisterForm()
- 
+
     context = get_base_context(request, ROLE_ACCOUNT, False, title)
     context['form'] = f
     return render(request, 'account/register.html', context)
 
 
- 
+
 def activate_account(request):
     key = request.GET.get('key')
     if not key:
         raise Http404()
- 
+
     r = get_object_or_404(UserExt, activation_key=key, email_validated=False)
     r.user.is_active = True
     r.user.save()
     r.email_validated = True
     r.save()
- 
+
     context = get_base_context(request, ROLE_ACCOUNT, False, gettext('Account activated'))
     return render(request, 'account/activated.html', context)
 
@@ -441,11 +442,34 @@ def profile(request):
 
     context = get_base_context(request, ROLE_ACCOUNT, '', (_('profile').capitalize(),))
     context['form'] = form
-    context['fieldset1_name'] = _('Personal info')
-    context['fieldset2_name'] = _('Important dates')
     context['without_lists'] = True
-    context['avatar'] = request.user.userext.avatar
+    avatar = request.user.userext.avatar
+    context['avatar_url'] = avatar.url if avatar and type(avatar) == ImageFieldFile else '/static/Default-avatar.jpg'
     return render(request, 'account/profile.html', context)
+
+def avatar(request):
+    if request.method == 'POST':
+        #usr = UserExt.objects.get(id=request.user.id)
+        form = AvatarForm(request.POST, request.FILES, instance=request.user.userext)
+        if form.is_valid():
+            form.save()
+            """
+            if ('avatar' in form.cleaned_data):
+                avatar = form.cleaned_data['avatar']
+                ue = UserExt.objects.filter(user=usr.id).get()
+                ue.avatar = avatar
+                #transform = Image.open(avatar.file)
+                #ue.avatar_mini = transform.resize((50,50))
+                ue.save()
+            """
+            #messages.add_message(request, messages.SUCCESS, 'The user `%s` was changed successfully.' % (usr.username))
+    else:
+        form = AvatarForm(instance = request.user.userext)
+
+    context = get_base_context(request, ROLE_ACCOUNT, '', (_('avatar').capitalize(),))
+    context['form'] = form
+    context['without_lists'] = True
+    return render(request, 'account/avatar.html', context)
 
 def demo(request):
     if not User.objects.filter(username = 'demouser').exists():

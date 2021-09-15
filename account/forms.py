@@ -263,17 +263,9 @@ class ProfileForm(forms.ModelForm):
         required=False, 
         widget=forms.TextInput(attrs={'class': 'form-control mb-3'}))
 
-    avatar = forms.ImageField(
-        label=_('avatar').capitalize(),
-        required=False,
-        widget=AvatarInput()
-    )
-
-    #id = forms.IntegerField(label = _('id'), disabled=True)
-
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email', 'phone', 'avatar'] # , 'password', 'date_joined', 'last_login'
+        fields = ['username', 'first_name', 'last_name', 'email', 'phone']
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control mb-3'}),
             'first_name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
@@ -301,6 +293,27 @@ class ProfileForm(forms.ModelForm):
         # This is done here, rather than on the field, because the
         # field does not have access to the initial value
         return self.initial.get('password')
+
+"""
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        #user.set_password(self.cleaned_data["password1"])
+        if commit:
+            user.save()
+        return user
+"""
+
+class AvatarForm(forms.ModelForm):
+
+    avatar = forms.ImageField(
+        label=_('avatar').capitalize(),
+        required=False,
+        widget=AvatarInput()
+    )
+
+    class Meta:
+        model = UserExt
+        fields = ['avatar']
 
     def clean_avatar(self):
         avatar = self.cleaned_data['avatar']
@@ -333,12 +346,3 @@ class ProfileForm(forms.ModelForm):
             pass
 
         return avatar
-
-"""
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        #user.set_password(self.cleaned_data["password1"])
-        if commit:
-            user.save()
-        return user
-"""
