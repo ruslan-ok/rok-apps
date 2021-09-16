@@ -13,6 +13,11 @@ def get_base_context(request, role, detail, title):
     context['content_icon'] = get_app_icon(app)
     context['role'] = role
     context['restriction'] = None
+    if hasattr(request.user, 'userext') and request.user.userext.avatar_mini:
+        context['avatar'] = request.user.userext.avatar_mini.url
+    else:
+        context['avatar'] = '/static/Default-avatar.jpg'
+
     cur_grp = get_cur_grp(request)
     title_1 = title_2 = url = ''
     if (not detail or not title) and cur_grp:

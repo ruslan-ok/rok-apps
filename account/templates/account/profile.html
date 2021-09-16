@@ -20,9 +20,9 @@
         <button type="submit" name="item_save" id="id_submit" class="btn btn-primary bi-save m-1" title="{% trans 'save changes'|capfirst %}">
           {% trans 'save'|capfirst %}
         </button>
-        <button type="button" name="form_close" class="btn btn-secondary bi-x m-1" onclick="closeForm()" title="{% trans 'close edit form'|capfirst %}">
+        <a name="form_close" class="btn btn-secondary bi-x my-1" href="{% url 'index' %}" title="{% trans 'close profile form'|capfirst %}">
           {% trans 'close'|capfirst %}
-        </button>
+        </a>
       </div>
     </div>
   </form>

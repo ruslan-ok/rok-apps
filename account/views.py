@@ -1,5 +1,4 @@
 import sys
-from PIL import Image
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.shortcuts import resolve_url
@@ -445,29 +444,25 @@ def profile(request):
     context['without_lists'] = True
     avatar = request.user.userext.avatar
     context['avatar_url'] = avatar.url if avatar and type(avatar) == ImageFieldFile else '/static/Default-avatar.jpg'
+    if request.user.userext.avatar_mini and type(request.user.userext.avatar_mini) == ImageFieldFile:
+        context['avatar_mini_url'] = request.user.userext.avatar_mini.url
+    else:
+        context['avatar_mini_url'] = '/static/Default-avatar.jpg'
+
     return render(request, 'account/profile.html', context)
 
 def avatar(request):
-    if request.method == 'POST':
-        #usr = UserExt.objects.get(id=request.user.id)
+    if request.method != 'POST':
+        form = AvatarForm(instance=request.user.userext)
+    else:
         form = AvatarForm(request.POST, request.FILES, instance=request.user.userext)
         if form.is_valid():
             form.save()
-            """
-            if ('avatar' in form.cleaned_data):
-                avatar = form.cleaned_data['avatar']
-                ue = UserExt.objects.filter(user=usr.id).get()
-                ue.avatar = avatar
-                #transform = Image.open(avatar.file)
-                #ue.avatar_mini = transform.resize((50,50))
-                ue.save()
-            """
-            #messages.add_message(request, messages.SUCCESS, 'The user `%s` was changed successfully.' % (usr.username))
-    else:
-        form = AvatarForm(instance = request.user.userext)
+            return HttpResponseRedirect(reverse_lazy('account:avatar'))
 
     context = get_base_context(request, ROLE_ACCOUNT, '', (_('avatar').capitalize(),))
     context['form'] = form
+    context['avatar_url'] = request.user.userext.avatar.url if request.user.userext.avatar and type(request.user.userext.avatar) == ImageFieldFile else '/static/Default-avatar.jpg'
     context['without_lists'] = True
     return render(request, 'account/avatar.html', context)
 

@@ -11,9 +11,7 @@
             {{ form }}
 
             <div class="d-flex flex-wrap justify-content-evenly mt-3 pb-5">
-                <button type="submit" name="item_save" id="id_submit" class="btn btn-primary bi-save m-1" title="{% trans 'save changes'|capfirst %}">
-                    {% trans 'save'|capfirst %}
-                </button>
+                <button type="submit" name="item_save" id="id_submit" class="d-none"></button>
                 <a name="form_close" class="btn btn-secondary bi-x my-1" href="{% url 'account:profile' %}" title="{% trans 'close edit form'|capfirst %}">
                     {% trans 'close'|capfirst %}
                 </a>

@@ -421,4 +421,9 @@ textarea.form-control {
   height: 200px;
 }
 
+.avatar-mini-preview {
+  width: 32px;
+  height: 32px;
+}
+
 /*# sourceMappingURL=form.css.map */

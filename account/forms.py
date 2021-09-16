@@ -1,9 +1,8 @@
-import unicodedata
+import unicodedata, io
+from PIL import Image
 
 from django import forms
-from django.contrib.auth import (
-    get_user_model, password_validation,
-)
+from django.contrib.auth import (get_user_model, password_validation,)
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.forms import ReadOnlyPasswordHashField, UsernameField
@@ -12,6 +11,7 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib import admin
 from django.core.mail import EmailMultiAlternatives
+from django.core.files import File
 from django.core.files.images import get_image_dimensions
 from django.template import loader
 from django.utils.encoding import force_bytes
@@ -346,3 +346,16 @@ class AvatarForm(forms.ModelForm):
             pass
 
         return avatar
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        if commit:
+            user.save()
+            blob = io.BytesIO()
+            transform = Image.open(user.avatar.file)
+            mini = transform.resize((32,32))
+            mini.save(blob, 'PNG')
+            fname = user.avatar.file.name.split('\\avatars\\')[1]
+            user.avatar_mini.save(fname, File(blob))
+            user.save()
+        return user

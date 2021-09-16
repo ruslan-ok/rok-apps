@@ -19,6 +19,7 @@ class ProfileViewSet(mixins.RetrieveModelMixin,
     def delete_avatar(self, request, pk=None):
         userext = UserExt.objects.filter(user=request.user.id).get()
         userext.avatar = None
+        userext.avatar_mini = None
         userext.save()
         serializer = ProfileSerializer(instance=userext, context={'request': request})
         return Response({})
