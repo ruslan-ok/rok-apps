@@ -19,13 +19,13 @@ class ListView(BaseListView, TuneData):
     def get_info(self, item):
         ret = []
         
-        if (self.view_mode != 'by_group'):
-            if TaskGroup.objects.filter(task=item.id, role=self.role).exists():
-                ret.append({'text': TaskGroup.objects.filter(task=item.id, role=self.role).get().group.name})
+        if (self.config.cur_view != 'by_group'):
+            if TaskGroup.objects.filter(task=item.id, role=self.config.role).exists():
+                ret.append({'text': TaskGroup.objects.filter(task=item.id, role=self.config.role).get().group.name})
 
         links = len(Urls.objects.filter(task=item.id)) > 0
     
-        files = (len(get_files_list(item.user, self.app, self.role, item.id)) > 0)
+        files = (len(get_files_list(item.user, self.config.app, self.config.role, item.id)) > 0)
 
         if item.info or links or files:
             if (len(ret) > 0):

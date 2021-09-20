@@ -67,9 +67,9 @@ def get_app_by_role(role):
         return 'docs'
     if (role == ROLE_WARR):
         return 'warr'
-    if (role == ROLE_EXPEN):
+    if (role == ROLE_EXPEN_PROJ):
         return 'expen'
-    if (role == ROLE_EXPEN_SALDO):
+    if (role == ROLE_EXPENSES):
         return 'expen'
     if (role == ROLE_TRIP_PERS):
         return 'trip'
@@ -83,6 +83,8 @@ def get_app_by_role(role):
         return 'fuel'
     if (role == ROLE_FUEL_SERV):
         return 'fuel'
+    if (role == ROLE_APART):
+        return 'apart'
     if (role == ROLE_APART_SERV):
         return 'apart'
     if (role == ROLE_APART_METER):

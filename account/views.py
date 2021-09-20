@@ -441,7 +441,6 @@ def profile(request):
 
     context = get_base_context(request, ROLE_ACCOUNT, '', (_('profile').capitalize(),))
     context['form'] = form
-    context['without_lists'] = True
     avatar = request.user.userext.avatar
     context['avatar_url'] = avatar.url if avatar and type(avatar) == ImageFieldFile else '/static/Default-avatar.jpg'
     if request.user.userext.avatar_mini and type(request.user.userext.avatar_mini) == ImageFieldFile:
@@ -463,7 +462,6 @@ def avatar(request):
     context = get_base_context(request, ROLE_ACCOUNT, '', (_('avatar').capitalize(),))
     context['form'] = form
     context['avatar_url'] = request.user.userext.avatar.url if request.user.userext.avatar and type(request.user.userext.avatar) == ImageFieldFile else '/static/Default-avatar.jpg'
-    context['without_lists'] = True
     return render(request, 'account/avatar.html', context)
 
 def demo(request):

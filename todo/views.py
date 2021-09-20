@@ -9,7 +9,7 @@ from todo.config import app_config
 
 class TuneData:
     def tune_dataset(self, data, view_mode):
-        if (view_mode == 'myday'):
+        if (view_mode == 'todo'):
             return data.filter(in_my_day=True).exclude(completed=True)
         if (view_mode == 'important'):
             return data.filter(important=True).exclude(completed=True)
@@ -29,11 +29,11 @@ class ListView(BaseListView, TuneData):
     def get_info(self, item):
         ret = []
         
-        if (self.view_mode != 'by_group'):
-            if TaskGroup.objects.filter(task=item.id, role=self.role).exists():
-                ret.append({'text': TaskGroup.objects.filter(task=item.id, role=self.role).get().group.name})
+        if (self.config.cur_view != 'by_group'):
+            if TaskGroup.objects.filter(task=item.id, role=self.config.role).exists():
+                ret.append({'text': TaskGroup.objects.filter(task=item.id, role=self.config.role).get().group.name})
 
-        if item.in_my_day: # and (app_param.restriction != 'myday'):
+        if item.in_my_day and (self.config.cur_view != 'todo'):
             if (len(ret) > 0):
                 ret.append({'icon': 'separator'})
             ret.append({'icon': 'myday', 'color': 'black', 'text': _('My day')})
@@ -81,7 +81,7 @@ class ListView(BaseListView, TuneData):
     
         links = len(Urls.objects.filter(task=item.id)) > 0
     
-        files = (len(get_files_list(item.user, self.app, self.role, item.id)) > 0)
+        files = (len(get_files_list(item.user, self.config.app, self.config.role, item.id)) > 0)
 
         if ((item.remind != None) and (item.remind >= datetime.now())) or item.info or links or files:
             if (len(ret) > 0):

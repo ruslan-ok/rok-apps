@@ -72,9 +72,11 @@ NUM_ROLE_OPERATION = 7
 NUM_ROLE_SALDO = 8
 NUM_ROLE_PERSON = 9
 NUM_ROLE_TRIP = 10
+NUM_ROLE_CAR = 11
 NUM_ROLE_FUEL = 12
 NUM_ROLE_PART = 13
 NUM_ROLE_SERVICE = 14
+NUM_ROLE_APART = 15
 NUM_ROLE_METER = 16
 NUM_ROLE_PRICE = 17 
 NUM_ROLE_BILL = 18
@@ -102,14 +104,16 @@ ROLE_NEWS             = 'news'
 ROLE_STORE            = 'store'           
 ROLE_DOC              = 'doc'             
 ROLE_WARR             = 'warr'            
-ROLE_EXPEN            = 'expen'           
-ROLE_EXPEN_SALDO      = 'expen_saldo'     
+ROLE_EXPEN_PROJ       = 'expen_proj'     
+ROLE_EXPENSES         = 'expenses'           
 ROLE_TRIP_PERS        = 'trip_pers'       
 ROLE_TRIP             = 'trip'            
 ROLE_TRIP_SALDO       = 'trip_saldo'      
+ROLE_CAR              = 'car'            
 ROLE_FUEL             = 'fuel'            
 ROLE_FUEL_PART        = 'fuel_part'       
 ROLE_FUEL_SERV        = 'fuel_serv'       
+ROLE_APART            = 'apart'      
 ROLE_APART_SERV       = 'apart_serv'      
 ROLE_APART_METER      = 'apart_meter'     
 ROLE_APART_PRICE      = 'apart_price'     
@@ -139,15 +143,16 @@ ALL_ROLES = (
             ROLE_STORE,            
             ROLE_DOC,              
             ROLE_WARR,             
-            ROLE_EXPEN,            
-            ROLE_EXPEN_SALDO,
+            ROLE_EXPEN_PROJ,
+            ROLE_EXPENSES,            
             ROLE_TRIP_PERS,        
             ROLE_TRIP,             
             ROLE_TRIP_SALDO,       
             ROLE_FUEL,             
             ROLE_FUEL_PART,
             ROLE_FUEL_SERV,        
-            ROLE_APART_SERV,       
+            ROLE_APART,       
+            ROLE_APART_SERV,
             ROLE_APART_METER,      
             ROLE_APART_PRICE,      
             ROLE_APART_BILL,       
@@ -177,14 +182,16 @@ ROLES_IDS = {
             ROLE_STORE            : NUM_ROLE_STORE       ,
             ROLE_DOC              : NUM_ROLE_DOC         ,
             ROLE_WARR             : NUM_ROLE_WARR        ,
-            ROLE_EXPEN            : NUM_ROLE_OPERATION   ,
-            ROLE_EXPEN_SALDO      : NUM_ROLE_SALDO       ,
+            ROLE_EXPEN_PROJ       : NUM_ROLE_SALDO       ,
+            ROLE_EXPENSES         : NUM_ROLE_OPERATION   ,
             ROLE_TRIP_PERS        : NUM_ROLE_PERSON      ,
             ROLE_TRIP             : NUM_ROLE_TRIP        ,
             ROLE_TRIP_SALDO       : NUM_ROLE_SALDO       ,
+            ROLE_CAR              : NUM_ROLE_CAR         ,
             ROLE_FUEL             : NUM_ROLE_FUEL        ,
             ROLE_FUEL_PART        : NUM_ROLE_PART        ,
             ROLE_FUEL_SERV        : NUM_ROLE_SERVICE     ,
+            ROLE_APART            : NUM_ROLE_APART       ,
             ROLE_APART_SERV       : NUM_ROLE_SERVICE     ,
             ROLE_APART_METER      : NUM_ROLE_METER       ,
             ROLE_APART_PRICE      : NUM_ROLE_PRICE       ,
@@ -219,8 +226,8 @@ DOC_ROLE_CHOICE    = [(NONE, '--------'), (NUM_ROLE_DOC, _('doc'))]
 WARR_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_WARR, _('warranty'))]
 EXPEN_ROLE_CHOICE  = [(NONE, '--------'), (NUM_ROLE_OPERATION, _('operation')), (NUM_ROLE_SALDO, _('saldo'))]
 TRIP_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_PERSON, _('person')), (NUM_ROLE_TRIP, _('trip')), (NUM_ROLE_SALDO, _('saldo'))]
-FUEL_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_FUEL, _('fueling')), (NUM_ROLE_PART, _('car part service interval')), (NUM_ROLE_SERVICE, _('service'))]
-APART_ROLE_CHOICE  = [(NONE, '--------'), (NUM_ROLE_SERVICE, _('service')), (NUM_ROLE_METER, _('meter')), (NUM_ROLE_PRICE, _('price')), (NUM_ROLE_BILL, _('bill'))]
+FUEL_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_CAR, _('cars')), (NUM_ROLE_FUEL, _('fueling')), (NUM_ROLE_PART, _('car part service interval')), (NUM_ROLE_SERVICE, _('service'))]
+APART_ROLE_CHOICE  = [(NONE, '--------'), (NUM_ROLE_APART, _('apartment')), (NUM_ROLE_SERVICE, _('service')), (NUM_ROLE_METER, _('meter')), (NUM_ROLE_PRICE, _('price')), (NUM_ROLE_BILL, _('bill'))]
 HEALTH_ROLE_CHOICE = [(NONE, '--------'), (NUM_ROLE_MARKER, _('marker')), (NUM_ROLE_INCIDENT, _('incident')), (NUM_ROLE_ANAMNESIS, _('anamnesis'))]
 WORK_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_PERIOD, _('period')), (NUM_ROLE_DEPARTMENT, _('department')), (NUM_ROLE_DEP_HIST, _('department history')), 
                         (NUM_ROLE_POST, _('post')), (NUM_ROLE_EMPLOYEE, _('employee')), (NUM_ROLE_FIO_HIST, _('surname history')), (NUM_ROLE_CHILD, _('child')), 

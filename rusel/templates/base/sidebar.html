@@ -12,13 +12,13 @@
             </a>
         {% endfor %}
 
-        {% if not without_lists %}
+        {% if config.groups %}
             <hr>
 
             <div id="groups-tree" class="sidebar__groups">
                 {% for node in groups %}
                     {% if node.is_leaf %}
-                        <a href="/{{ app }}/?view=by_group&group_id={{ node.id }}" 
+                        <a href="/{{ config.app }}/?view=by_group&group_id={{ node.id }}" 
                             class="{% if request.GET.group_id == node.s_id %}active{% endif %}"
                             {% if request.GET.group_id == node.s_id %}aria-current="true"{% endif %}
                             data-id="{{ node.id }}" data-parent="{{ node.node.id }}" id="task_group_{{ node.id }}">

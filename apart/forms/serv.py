@@ -2,9 +2,9 @@ from django import forms
 
 from task.base.forms import BaseCreateForm, BaseEditForm
 from task.models import Task
-from note.config import app_config
+from apart.config import app_config
 
-role = 'note'
+role = 'serv'
 
 #----------------------------------
 class CreateForm(BaseCreateForm):
@@ -21,10 +21,9 @@ class EditForm(BaseEditForm):
 
     class Meta:
         model = Task
-        fields = ['name', 'event', 'info', 'grp', 'url', 'categories', 'upload']
+        fields = ['name', 'info']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
-            'event': forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime mb-3', 'type': 'datetime-local'}),
             'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),
         }
 

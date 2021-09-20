@@ -2,8 +2,8 @@
 
 {% block item_content %}
     <div class="content-title d-none d-md-block">
-        {% if content_icon %}
-            <i class="bi-{{content_icon}} content-title__icon"></i>
+        {% if config.icon %}
+            <i class="bi-{{config.icon}} content-title__icon"></i>
         {% endif %}
 
         {% if group_path %}

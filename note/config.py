@@ -1,18 +1,15 @@
+from task.const import *
+
 app_config = {
     'name': 'note',
-    'title': 'notes',
+    'app_title': 'notes',
     'icon': 'sticky',
-    'roles': {
-        'note': { 
-            'icon': 'sticky', 
-            'groups': True,
-            'views': {
-                'all': {
-                    'url': '',
-                    'icon': 'check-all',
-                    'title': 'all',
-                },
-            },
+    'role': ROLE_NOTE,
+    'groups': True,
+    'views': {
+        'note': {
+            'icon': 'check-all',
+            'title': 'all',
         },
     }
 }

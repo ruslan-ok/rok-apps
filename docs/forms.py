@@ -1,15 +1,15 @@
 from django import forms
-from django.core.exceptions import ValidationError
-from django.utils.translation import gettext_lazy as _
 
 from task.base.forms import BaseCreateForm, BaseEditForm
 from docs.config import app_config
+
+role = 'docs'
 
 #----------------------------------
 class CreateForm(BaseCreateForm):
         
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, 'docs', *args, **kwargs)
+        super().__init__(app_config, role, *args, **kwargs)
         
 #----------------------------------
 class EditForm(BaseEditForm):
@@ -21,4 +21,4 @@ class EditForm(BaseEditForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, 'docs', *args, **kwargs)
+        super().__init__(app_config, role, *args, **kwargs)

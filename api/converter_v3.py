@@ -18,6 +18,7 @@ def convert_v3():
     transfer_lst(None, None, debug)
     transfer_task(None, None)
     transfer_note(None, None)
+    transfer_apart()
     debug.append('Records in Grp: ' + str(len(Grp.objects.all())))
     debug.append('Records in Lst: ' + str(len(Lst.objects.all())))
     debug.append('Records in Group: ' + str(len(Group.objects.all())))
@@ -143,3 +144,43 @@ def transfer_note(lst, task_grp):
 
         if note.url:
             Urls.objects.create(task=atask, num=1, href=note.url)
+
+def transfer_apart():
+    aparts = Apart.objects.all()
+    for apart in aparts:
+        param = 0
+        if apart.has_gas:
+            param += 1
+        if apart.has_ppo:
+            param += 2
+        atask = Task.objects.create(user=apart.user,
+                                    name=apart.name,
+                                    event=None,
+                                    start=None,
+                                    stop=None,
+                                    completed=False,
+                                    completion=None,
+                                    in_my_day=False,
+                                    important=apart.active,
+                                    remind=None,
+                                    last_remind=None,
+                                    repeat=param,
+                                    repeat_num=0,
+                                    repeat_days=0,
+                                    categories='',
+                                    info=apart.addr,
+                                    app_task=NONE,
+                                    app_note=NONE,
+                                    app_news=NONE,
+                                    app_store=NONE,
+                                    app_doc=NONE,
+                                    app_warr=NONE,
+                                    app_expen=NONE,
+                                    app_trip=NONE,
+                                    app_fuel=NONE,
+                                    app_apart=NUM_ROLE_APART,
+                                    app_health=NONE,
+                                    app_work=NONE,
+                                    app_photo=NONE
+                                    )
+

@@ -1,18 +1,10 @@
 from django.utils.translation import gettext_lazy as _
-#from rest_framework.renderers import JSONRenderer
-
 from rusel.apps import get_app_human_name, get_apps_list, get_app_icon, get_app_by_role
 from task.models import Group
-#from task.serializers import TaskGrpSerializer
 
 def get_base_context(request, role, detail, title):
     context = {}
     app = get_app_by_role(role)
-    context['app'] = app
-    context['app_human_name'] = get_app_human_name(app)
-    context['content_icon'] = get_app_icon(app)
-    context['role'] = role
-    context['restriction'] = None
     if hasattr(request.user, 'userext') and request.user.userext.avatar_mini:
         context['avatar'] = request.user.userext.avatar_mini.url
     else:

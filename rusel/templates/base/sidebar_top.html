@@ -3,8 +3,8 @@
 <nav class="bd-subnavbar py-2 d-md-none" aria-label="Secondary navigation">
     <div class="container-xxl d-flex align-items-md-center">
       <div class="position-relative me-auto">
-        {% if content_icon %}
-          <i class="bi-{{content_icon}} content-title__icon"></i>
+        {% if config.icon %}
+          <i class="bi-{{config.icon}} content-title__icon"></i>
         {% endif %}
         {{title}}
       </div>

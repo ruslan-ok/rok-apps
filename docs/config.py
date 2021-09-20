@@ -1,19 +1,11 @@
+from task.const import *
+
 app_config = {
     'name': 'docs',
     'title': 'documents',
     'icon': 'star',
-    'roles': {
-        'docs': { 
-            'icon': 'star', 
-            'groups': False,
-            'views': {
-                'all': {
-                    'url': '',
-                    'icon': 'check-all',
-                    'title': 'all',
-                },
-            },
-        },
-    }
+    'folders': True,
+    'use_important': True,
+    'role': ROLE_DOC,
 }
 

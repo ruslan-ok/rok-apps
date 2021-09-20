@@ -1,7 +1,6 @@
 from django.urls import path
 from todo.config import app_config
-from . import views
-from . import fcm
+from todo import views, fcm
 
 app_name = app_config['name']
 urlpatterns = [
