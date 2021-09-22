@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from task.models import Group, Task, TaskGroup
-from task.widgets import UrlsInput, CategoriesInput, FileUpload
+from rusel.widgets import UrlsInput, CategoriesInput, FileUpload
 
 #----------------------------------
 class BaseCreateForm(forms.ModelForm):

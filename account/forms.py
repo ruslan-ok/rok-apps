@@ -22,7 +22,7 @@ from django.db import models
 from django.core.exceptions import ValidationError
 
 from account.models import UserExt
-from task.widgets import AvatarInput
+from rusel.widgets import AvatarInput
 
 UserModel = get_user_model()
 

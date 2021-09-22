@@ -40,8 +40,7 @@ def index(request):
     return index_anonim(request)
 
 def index_anonim(request):
-    context = get_base_context(request, 'home', ROLE_ACCOUNT, '', ('',))
-    context['hide_title'] = True
+    context = get_base_context(request, 'home', ROLE_ACCOUNT, '', ('rusel.by',))
     template = loader.get_template('index_anonim.html')
     return HttpResponse(template.render(context, request))
 
@@ -49,9 +48,10 @@ def index_anonim(request):
 #@login_required(login_url='account:login')
 #----------------------------------
 def index_user(request):
-    context = get_base_context(request, 'home', ROLE_ACCOUNT, '', ('applications',))
-    context['hide_title'] = False
+    context = get_base_context(request, 'home', ROLE_ACCOUNT, '', (_('applications').capitalize(),))
     context['debug'] = settings.DEBUG
+    config = {'app_title': 'rusel.by'}
+    context['config'] = config
 
     query = None
     data = []

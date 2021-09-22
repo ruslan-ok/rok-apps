@@ -24,6 +24,7 @@ class EditForm(BaseEditForm):
         fields = ['completed', 'name', 'important', 'add_step', 'in_my_day', 'remind', 'stop', 'repeat', 'repeat_num', 'repeat_days', 
                 'categories', 'url', 'info', 'grp', 'upload']
         widgets = {
+            'completed': forms.CheckboxInput(attrs={'class': 'form-check-input mb-3'}),
             'name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
             'stop': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control date mb-3', 'type': 'date-local'}),
             'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),

@@ -135,7 +135,7 @@ class Task(models.Model):
         if not app:
             return '/'
         id = self.id
-        url = reverse(app + ':item-detail', args = [id])
+        url = reverse(app + ':item', args = [id])
         return url
     
     def toggle_completed(self):
