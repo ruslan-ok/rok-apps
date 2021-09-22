@@ -1,5 +1,5 @@
 from task.models import Task
-from task.base.views import BaseListView, BaseDetailView, BaseGroupView
+from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView
 from docs.forms import CreateForm, EditForm
 from docs.config import app_config
 

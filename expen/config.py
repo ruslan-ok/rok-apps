@@ -6,7 +6,7 @@ app_config = {
     'icon': 'star',
     'views': {
         'projects': {
-            'role': ROLE_EXPEN_PROJ,
+            'role': ROLE_PROJECT,
             'icon': 'star', 
             'title': 'projects',
             'url': 'projects',

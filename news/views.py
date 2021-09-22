@@ -2,10 +2,10 @@ from task.models import Task, TaskGroup, Urls
 from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView
 from task.files import get_files_list
 from task.categories import get_categories_list
-from note.forms import CreateForm, EditForm
-from note.config import app_config
+from news.forms import CreateForm, EditForm
+from news.config import app_config
 
-role = 'note'
+role = 'news'
 
 class TuneData:
     def tune_dataset(self, data, view_mode):
@@ -33,7 +33,7 @@ class ListView(BaseListView, TuneData):
             if (len(ret) > 0):
                 ret.append({'icon': 'separator'})
             if item.info:
-                ret.append({'icon': 'notes'})
+                ret.append({'icon': 'newspaper'})
             if links:
                 ret.append({'icon': 'url'})
             if files:

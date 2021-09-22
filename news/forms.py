@@ -2,9 +2,9 @@ from django import forms
 
 from rusel.base.forms import BaseCreateForm, BaseEditForm
 from task.models import Task
-from todo.config import app_config
+from news.config import app_config
 
-role = 'todo'
+role = 'news'
 
 #----------------------------------
 class CreateForm(BaseCreateForm):
@@ -21,11 +21,10 @@ class EditForm(BaseEditForm):
 
     class Meta:
         model = Task
-        fields = ['completed', 'name', 'important', 'add_step', 'in_my_day', 'remind', 'stop', 'repeat', 'repeat_num', 'repeat_days', 
-                'categories', 'url', 'info', 'grp', 'upload']
+        fields = ['name', 'event', 'info', 'grp', 'url', 'categories', 'upload']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
-            'stop': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control date mb-3', 'type': 'date-local'}),
+            'event': forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime mb-3', 'type': 'datetime-local'}),
             'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),
         }
 

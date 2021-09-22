@@ -40,7 +40,7 @@ def index(request):
     return index_anonim(request)
 
 def index_anonim(request):
-    context = get_base_context(request, ROLE_ACCOUNT, '', ('',))
+    context = get_base_context(request, 'home', ROLE_ACCOUNT, '', ('',))
     context['hide_title'] = True
     template = loader.get_template('index_anonim.html')
     return HttpResponse(template.render(context, request))
@@ -49,7 +49,7 @@ def index_anonim(request):
 #@login_required(login_url='account:login')
 #----------------------------------
 def index_user(request):
-    context = get_base_context(request, ROLE_ACCOUNT, '', ('applications',))
+    context = get_base_context(request, 'home', ROLE_ACCOUNT, '', ('applications',))
     context['hide_title'] = False
     context['debug'] = settings.DEBUG
 

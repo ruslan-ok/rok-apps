@@ -1,6 +1,6 @@
 from django import forms
 
-from task.base.forms import BaseCreateForm, BaseEditForm
+from rusel.base.forms import BaseCreateForm, BaseEditForm
 from docs.config import app_config
 
 role = 'docs'

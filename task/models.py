@@ -15,13 +15,13 @@ from task.const import *
 from task.categories import get_categories_list
 from task.files import get_files_list
 from rusel.utils import nice_date
-from rusel.apps import get_app_by_role
 
 class Group(models.Model):
     """
     Task groups
     """
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'), related_name='task_group')
+    app = models.CharField(_('app name'), max_length = 50, blank = False, default = 'todo', null = True)
     role = models.CharField(_('role name'), max_length = 50, blank = False, default = 'todo', null = True)
     node = models.ForeignKey('self', on_delete=models.CASCADE, verbose_name=_('node'), blank=True, null=True)
     name = models.CharField(_('group name'), max_length=200, blank=False)
@@ -49,7 +49,7 @@ class Group(models.Model):
         return '.'*self.level()*2 + self.name
     
     def edit_url(self):
-        return get_app_by_role(self.role) + ':group'
+        return self.app + ':group'
 
     def level(self):
         ret = 0

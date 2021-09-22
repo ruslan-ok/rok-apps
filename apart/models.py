@@ -7,6 +7,7 @@ from django.urls import reverse
 
 from .utils import get_new_period
 from task.files import get_files_list
+from task.models import Task
 
 
 app_name = 'apart'
@@ -27,6 +28,8 @@ class Apart(models.Model):
     active = models.BooleanField(_('active'), default = False)
     has_gas = models.BooleanField(_('has gas'), default = True)
     has_ppo = models.BooleanField(_('payments to the partnership of owners'), default = False)
+    task = models.ForeignKey(Task, on_delete=models.SET_NULL, verbose_name=_('task'), related_name = 'task_apart', null=True)
+    info = models.CharField(_('information'), max_length = 1000, blank = True, null=True)
 
     class Meta:
         verbose_name = _('apartment')
@@ -78,6 +81,7 @@ class Meter(models.Model):
     ga = models.IntegerField(_('gas'), null = True)
     zhirovka = models.DecimalField('account amount', null = True, blank = True, max_digits = 15, decimal_places = 2)
     info = models.CharField(_('information'), max_length = 1000, blank = True)
+    task = models.ForeignKey(Task, on_delete=models.SET_NULL, verbose_name=_('task'), related_name = 'task_meter', null=True)
 
     class Meta:
         verbose_name = _('meters data')
@@ -130,6 +134,7 @@ class Bill(models.Model):
     url = models.CharField(_('url'), max_length = 2000, blank = True)
     PoO = models.DecimalField('pay to the Partnersheep of Owners - accrued', null = True, blank = True, max_digits = 15, decimal_places = 2)
     PoO_pay = models.DecimalField('pay to the Partnersheep of Owners - payment', null = True, blank = True, max_digits = 15, decimal_places = 2)
+    task = models.ForeignKey(Task, on_delete=models.SET_NULL, verbose_name=_('task'), related_name = 'task_bill', null=True)
 
     def total_usd(self):
         if (self.rate == 0) or (not self.rate):
@@ -139,20 +144,20 @@ class Bill(models.Model):
 
     def el_vol(self):
         return self.curr.el - self.prev.el
-  
+
     def gs_vol(self):
         return self.curr.ga - self.prev.ga
-  
+
     def wt_vol(self):
         return (self.curr.hw + self.curr.cw) - (self.prev.hw + self.prev.cw)
-  
+
     def total_bill(self):
         bill = count_by_tarif(self.apart.id, self.prev, self.curr, ELECTRICITY) + \
-               count_by_tarif(self.apart.id, self.prev, self.curr, GAS) + \
-               count_by_tarif(self.apart.id, self.prev, self.curr, WATER) + \
-               count_by_tarif(self.apart.id, self.prev, self.curr, WATER_SUPPLY) + \
-               count_by_tarif(self.apart.id, self.prev, self.curr, SEWERAGE) + \
-               zero(self.tv_bill) + zero(self.phone_bill) + zero(self.zhirovka) + zero(self.PoO)
+            count_by_tarif(self.apart.id, self.prev, self.curr, GAS) + \
+            count_by_tarif(self.apart.id, self.prev, self.curr, WATER) + \
+            count_by_tarif(self.apart.id, self.prev, self.curr, WATER_SUPPLY) + \
+            count_by_tarif(self.apart.id, self.prev, self.curr, SEWERAGE) + \
+            zero(self.tv_bill) + zero(self.phone_bill) + zero(self.zhirovka) + zero(self.PoO)
         return round(bill, 2)
 
     def total_pay(self):
@@ -233,6 +238,7 @@ class Service(models.Model):
     abbr = models.CharField(_('abbreviation'), max_length = 2)
     name = models.CharField(_('name'), max_length = 100)
     is_open = models.BooleanField(_('node is opened'), default = False)
+    task = models.ForeignKey(Task, on_delete=models.SET_NULL, verbose_name=_('task'), related_name = 'task_serv', null=True)
 
     class Meta:
         verbose_name = _('service')
@@ -265,6 +271,7 @@ class Price(models.Model):
     tarif3 = models.DecimalField(_('tariff 3'), null = True,  blank = True, max_digits = 15, decimal_places = 5)
     info = models.TextField(_('information'), blank=True, default = "")
     unit = models.CharField(_('unit'), max_length = 100, blank = True, null = True)
+    task = models.ForeignKey(Task, on_delete=models.SET_NULL, verbose_name=_('task'), related_name = 'task_price', null=True)
 
     class Meta:
         verbose_name = _('tariff')
@@ -295,7 +302,7 @@ class Price(models.Model):
             ret = str(t1)
         else:
             ret = str(t1) + ' ' + gettext('until') + ' ' + str(b1) + ' / ' + str(t2)
-      
+
         if (b2 != 0):
             ret += ' ' + gettext('until') + ' ' + str(b2) + ' / ' + str(t3)
         return ret
@@ -353,7 +360,7 @@ class Price(models.Model):
             ret.append({'icon': 'separator'})
             ret.append({'text': p3})
         return ret
-  
+
 def get_price_info(apart_id, service_id, year, month):
     serv_id = get_serv_id(apart_id, service_id)
     period = date(year, month, 1)
@@ -366,41 +373,40 @@ def get_price_info(apart_id, service_id, year, month):
 #----------------------------------
 def get_per_price(apart_id, service_id, year, month):
     ret = {'t1': 0,
-           'b1': 0,
-           't2': 0,
-           'b2': 0,
-           't3': 0}
+            'b1': 0,
+            't2': 0,
+            'b2': 0,
+            't3': 0}
 
     tarifs = Price.objects.filter(apart = apart_id,
-                                  serv = get_serv_id(apart_id, service_id),
-                                  start__lte = date(year, month, 1)).order_by('-start')[:1]
+                                    serv = get_serv_id(apart_id, service_id),
+                                    start__lte = date(year, month, 1)).order_by('-start')[:1]
     if (len(tarifs) > 0):
-      
         if tarifs[0].tarif:
             ret['t1'] = tarifs[0].tarif
         else:
             ret['t1'] = 0
-      
+
         if tarifs[0].border:
             ret['b1'] = tarifs[0].border
         else:
             ret['b1'] = 0
-      
+
         if tarifs[0].tarif2:
             ret['t2'] = tarifs[0].tarif2
         else:
             ret['t2'] = 0
-      
+
         if tarifs[0].border2:
             ret['b2'] = tarifs[0].border2
         else:
             ret['b2'] = 0
-      
+
         if tarifs[0].tarif3:
             ret['t3'] = tarifs[0].tarif3
         else:
             ret['t3'] = 0
-  
+
     return ret
 
 def count_by_tarif(apart_id, prev, curr, service_id):

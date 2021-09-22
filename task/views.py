@@ -14,7 +14,7 @@ class GroupDetailView(UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         group = self.get_object()
-        context.update(get_base_context(self.request, group.role, True, group.name))
+        context.update(get_base_context(self.request, self.config.app, group.role, True, group.name))
         context['params'] = extract_get_params(self.request)
         context['ed_item'] = self.object
         if Group.objects.filter(node=self.object.id).exists():

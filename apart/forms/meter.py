@@ -1,6 +1,6 @@
 from django import forms
 
-from task.base.forms import BaseCreateForm, BaseEditForm
+from rusel.base.forms import BaseCreateForm, BaseEditForm
 from task.models import Task
 from apart.config import app_config
 

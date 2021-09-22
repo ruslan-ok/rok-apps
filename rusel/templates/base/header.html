@@ -14,7 +14,7 @@
       {% for app in apps %}
         <li class="nav-item col-6 col-md-auto">
           <a class="nav-link p-2{% if app.active %} active{% endif %}" href="{{ app.href }}"{% if app.active %} aria-current="true"{% endif %}>
-            <i class="bi-{{app.icon}}" style="font-size: 1rem; color: white;"></i>
+            <i class="bi-{{app.icon}}"></i>
             {{ app.name }}
           </a>
         </li>

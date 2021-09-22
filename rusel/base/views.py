@@ -2,7 +2,6 @@ from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 from django.views.generic.edit import CreateView, UpdateView
 from rusel.context import get_base_context
-from rusel.apps import get_app_by_role
 from task.forms import GroupForm, CreateGroupForm
 from task.const import ROLES_IDS
 from task.models import Task, Group, TaskGroup
@@ -20,15 +19,19 @@ class Config:
         self.groups = self.check_property(config, 'groups', False)
         self.use_selector = self.check_property(config, 'use_selector', False)
         self.use_important = self.check_property(config, 'use_important', False)
+        self.cur_view = '???'
 
         if (cur_role in self.views):
             self.cur_view = cur_role
             self.title = self.check_property(self.views[cur_role], 'title', self.title)
             self.icon = self.check_property(self.views[cur_role], 'icon', self.icon)
+            self.use_selector = self.check_property(self.views[cur_role], 'use_selector', self.use_selector)
+            self.use_important = self.check_property(self.views[cur_role], 'use_important', self.use_important)
 
     def set_view(self, request):
         self.group_id = 0
-        view_mode = ''
+        common_url = reverse(self.app + ':list')
+        view_mode = request.path.split(common_url)[1].split('?')[0].split('/')[0]
         if request.method == 'GET':
             if ('view' in request.GET):
                 view_mode = request.GET.get('view')
@@ -54,25 +57,28 @@ class Context:
     def get_app_context(self, **kwargs):
         context = {}
         title = _(self.config.title).capitalize()
-        context.update(get_base_context(self.request, self.config.role, False, title))
+        context.update(get_base_context(self.request, self.config.app, self.config.role, False, title))
         context['fix_list'] = self.get_fixes(self.config.views)
         context['group_form'] = CreateGroupForm()
         #context['sort_options'] = self.get_sorts()
         context['item_detail_url'] = self.config.app + ':item'
         context['config'] = self.config
 
-        tasks = self.get_queryset()
-        items = []
-        for t in tasks:
-            item = {
-                'id': t.id,
-                'name': t.name,
-                'important': t.important,
-                'completed': t.completed,
-                'attrs': self.get_info(t)
-            }
-            items.append(item)
-        context['items'] = items
+        items = self.get_queryset()
+        if (len(items) == 0) or (type(items[0]) != Task):
+            context['items'] = items
+        else:
+            tasks = []
+            for t in items:
+                item = {
+                    'id': t.id,
+                    'name': t.name,
+                    'important': t.important,
+                    'completed': t.completed,
+                    'attrs': self.get_info(t)
+                }
+                tasks.append(item)
+            context['items'] = tasks
         return context
 
     def get_fixes(self, views):
@@ -104,7 +110,7 @@ class Context:
             return data
         data = Task.objects.filter(user=self.request.user.id)
 
-        role_id = ROLES_IDS[self.config.role]
+        role_id = ROLES_IDS[self.config.app][self.config.role]
 
         if (self.config.app == 'todo'):
             data = data.filter(app_task=role_id)

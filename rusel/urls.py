@@ -24,6 +24,7 @@ urlpatterns = i18n_patterns(
     path('', views.index, name='index'),
     path('todo/',   include('todo.urls')),
     path('note/',   include('note.urls')),
+    path('news/',   include('news.urls')),
     path('apart/',   include('apart.urls')),
     path('account/', include('account.urls')),
     #path('admin/',   admin.site.urls, name='admin'),

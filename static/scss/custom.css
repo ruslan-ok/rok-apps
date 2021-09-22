@@ -15,6 +15,15 @@
   background-color: #afc6d7 !important;
 }
 
+.bd-navbar .navbar-nav .nav-link.active {
+  font-weight: 600;
+  color: #def176;
+}
+.bd-navbar .navbar-nav .nav-link.active i {
+  font-size: 1rem;
+  color: #def176;
+}
+
 .main-content {
   background-color: #d1e7dd !important;
 }

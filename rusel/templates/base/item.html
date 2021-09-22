@@ -3,7 +3,7 @@
 {% block item_content %}
   <li class="list-item">
 
-    {% if use_selector %}
+    {% if config.use_selector %}
       <button type="button" onclick="toggleCompleted({{ item.id|escape }})" class="left-icon">
         {% if item.completed %}
           <i class="bi-check-circle-fill"></i>
@@ -55,7 +55,7 @@
       </div>
     </a>      
 
-    {% if use_important %}
+    {% if config.use_important %}
       <button type="button" onclick="toggleImportant({{ item.id|escape }})" class="right-icon">
         {% if item.important %}
           <i class="bi-star-fill"></i>

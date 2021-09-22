@@ -1,10 +1,9 @@
 from django.utils.translation import gettext_lazy as _
-from rusel.apps import get_app_human_name, get_apps_list, get_app_icon, get_app_by_role
+from rusel.apps import get_app_human_name, get_apps_list, get_app_icon
 from task.models import Group
 
-def get_base_context(request, role, detail, title):
+def get_base_context(request, app, role, detail, title):
     context = {}
-    app = get_app_by_role(role)
     if hasattr(request.user, 'userext') and request.user.userext.avatar_mini:
         context['avatar'] = request.user.userext.avatar_mini.url
     else:

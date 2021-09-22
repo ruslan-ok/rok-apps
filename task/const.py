@@ -98,43 +98,42 @@ NUM_ROLE_PAYMENT = 33
 NUM_ROLE_PHOTO = 34
 NUM_ROLE_ACCOUNT = 35
 
-ROLE_TODO             = 'todo'            
-ROLE_NOTE             = 'note'            
-ROLE_NEWS             = 'news'            
-ROLE_STORE            = 'store'           
-ROLE_DOC              = 'doc'             
-ROLE_WARR             = 'warr'            
-ROLE_EXPEN_PROJ       = 'expen_proj'     
-ROLE_EXPENSES         = 'expenses'           
-ROLE_TRIP_PERS        = 'trip_pers'       
-ROLE_TRIP             = 'trip'            
-ROLE_TRIP_SALDO       = 'trip_saldo'      
-ROLE_CAR              = 'car'            
-ROLE_FUEL             = 'fuel'            
-ROLE_FUEL_PART        = 'fuel_part'       
-ROLE_FUEL_SERV        = 'fuel_serv'       
-ROLE_APART            = 'apart'      
-ROLE_APART_SERV       = 'apart_serv'      
-ROLE_APART_METER      = 'apart_meter'     
-ROLE_APART_PRICE      = 'apart_price'     
-ROLE_APART_BILL       = 'apart_bill'      
-ROLE_HEALTH_MARKER    = 'health_marker'   
-ROLE_HEALTH_INCIDENT  = 'health_incident' 
-ROLE_HEALTH_ANAMNESIS = 'health_anamnesis'
-ROLE_WORK_PERIOD      = 'work_period'     
-ROLE_WORK_DEPART      = 'work_depart'     
-ROLE_WORK_DEP_HIST    = 'work_dep_hist'   
-ROLE_WORK_POST        = 'work_post'       
-ROLE_WORK_EMPL        = 'work_empl'       
-ROLE_WORK_FIO_HIST    = 'work_fio_hist'   
-ROLE_WORK_CHILD       = 'work_child'      
-ROLE_WORK_APPOINT     = 'work_appoint'    
-ROLE_WORK_EDUCAT      = 'work_educat'     
-ROLE_WORK_EMPL_PER    = 'work_empl_per'   
-ROLE_WORK_PAY_TITLE   = 'work_pay_title'  
-ROLE_WORK_PAYMENT     = 'work_payment'    
-ROLE_PHOTO            = 'photo'      
-ROLE_ACCOUNT          = 'account'     
+ROLE_TODO        = 'todo'            
+ROLE_NOTE        = 'note'            
+ROLE_NEWS        = 'news'            
+ROLE_STORE       = 'store'           
+ROLE_DOC         = 'doc'             
+ROLE_WARR        = 'warr'            
+ROLE_PROJECT     = 'expen_proj'     
+ROLE_EXPENSES    = 'expenses'           
+ROLE_PERSON      = 'person'       
+ROLE_TRIP        = 'trip'            
+ROLE_SALDO       = 'saldo'      
+ROLE_CAR         = 'car'            
+ROLE_FUEL        = 'fuel'            
+ROLE_PART        = 'part'       
+ROLE_APART       = 'apart'      
+ROLE_SERVICE     = 'service'      
+ROLE_METER       = 'meter'     
+ROLE_PRICE       = 'price'     
+ROLE_BILL        = 'bill'      
+ROLE_MARKER      = 'marker'   
+ROLE_INCIDENT    = 'incident' 
+ROLE_ANAMNESIS   = 'anamnesis'
+ROLE_PERIOD      = 'period'     
+ROLE_DEPARTMENT  = 'department'     
+ROLE_DEP_HIST    = 'dep_hist'   
+ROLE_POST        = 'post'       
+ROLE_EMPLOYEE    = 'employee'       
+ROLE_FIO_HIST    = 'fio_hist'   
+ROLE_CHILDREN    = 'child'      
+ROLE_APPOINTMENT = 'appointment'    
+ROLE_EDUCATION   = 'education'     
+ROLE_EMPLOYEE_PERIOD = 'empl_per'   
+ROLE_PAY_TITLE   = 'pay_title'  
+ROLE_PAYMENT     = 'payment'    
+ROLE_PHOTO       = 'photo'      
+ROLE_ACCOUNT     = 'account'     
 
 ALL_ROLES = (
             ROLE_TODO,             
@@ -143,76 +142,57 @@ ALL_ROLES = (
             ROLE_STORE,            
             ROLE_DOC,              
             ROLE_WARR,             
-            ROLE_EXPEN_PROJ,
+            ROLE_PROJECT,
             ROLE_EXPENSES,            
-            ROLE_TRIP_PERS,        
+            ROLE_PERSON,        
             ROLE_TRIP,             
-            ROLE_TRIP_SALDO,       
+            ROLE_SALDO,       
             ROLE_FUEL,             
-            ROLE_FUEL_PART,
-            ROLE_FUEL_SERV,        
+            ROLE_PART,
+            ROLE_SERVICE,        
             ROLE_APART,       
-            ROLE_APART_SERV,
-            ROLE_APART_METER,      
-            ROLE_APART_PRICE,      
-            ROLE_APART_BILL,       
-            ROLE_HEALTH_MARKER,    
-            ROLE_HEALTH_INCIDENT,  
-            ROLE_HEALTH_ANAMNESIS, 
-            ROLE_WORK_PERIOD,      
-            ROLE_WORK_DEPART,      
-            ROLE_WORK_DEP_HIST,    
-            ROLE_WORK_POST,        
-            ROLE_WORK_EMPL,        
-            ROLE_WORK_FIO_HIST,    
-            ROLE_WORK_CHILD,       
-            ROLE_WORK_APPOINT,     
-            ROLE_WORK_EDUCAT,      
-            ROLE_WORK_EMPL_PER,    
-            ROLE_WORK_PAY_TITLE,   
-            ROLE_WORK_PAYMENT,     
+            ROLE_SERVICE,
+            ROLE_METER,      
+            ROLE_PRICE,      
+            ROLE_BILL,       
+            ROLE_MARKER,    
+            ROLE_INCIDENT,  
+            ROLE_ANAMNESIS, 
+            ROLE_PERIOD,      
+            ROLE_DEPARTMENT,      
+            ROLE_DEP_HIST,    
+            ROLE_POST,        
+            ROLE_EMPLOYEE,        
+            ROLE_FIO_HIST,    
+            ROLE_CHILDREN,       
+            ROLE_APPOINTMENT,     
+            ROLE_EDUCATION,      
+            ROLE_EMPLOYEE_PERIOD,    
+            ROLE_PAY_TITLE,   
+            ROLE_PAYMENT,     
             ROLE_PHOTO, 
             ROLE_ACCOUNT,           
             )
 
 ROLES_IDS = {
-            ROLE_TODO             : NUM_ROLE_TODO        ,
-            ROLE_NOTE             : NUM_ROLE_NOTE        ,
-            ROLE_NEWS             : NUM_ROLE_NEWS        ,
-            ROLE_STORE            : NUM_ROLE_STORE       ,
-            ROLE_DOC              : NUM_ROLE_DOC         ,
-            ROLE_WARR             : NUM_ROLE_WARR        ,
-            ROLE_EXPEN_PROJ       : NUM_ROLE_SALDO       ,
-            ROLE_EXPENSES         : NUM_ROLE_OPERATION   ,
-            ROLE_TRIP_PERS        : NUM_ROLE_PERSON      ,
-            ROLE_TRIP             : NUM_ROLE_TRIP        ,
-            ROLE_TRIP_SALDO       : NUM_ROLE_SALDO       ,
-            ROLE_CAR              : NUM_ROLE_CAR         ,
-            ROLE_FUEL             : NUM_ROLE_FUEL        ,
-            ROLE_FUEL_PART        : NUM_ROLE_PART        ,
-            ROLE_FUEL_SERV        : NUM_ROLE_SERVICE     ,
-            ROLE_APART            : NUM_ROLE_APART       ,
-            ROLE_APART_SERV       : NUM_ROLE_SERVICE     ,
-            ROLE_APART_METER      : NUM_ROLE_METER       ,
-            ROLE_APART_PRICE      : NUM_ROLE_PRICE       ,
-            ROLE_APART_BILL       : NUM_ROLE_BILL        ,
-            ROLE_HEALTH_MARKER    : NUM_ROLE_MARKER      ,
-            ROLE_HEALTH_INCIDENT  : NUM_ROLE_INCIDENT    ,
-            ROLE_HEALTH_ANAMNESIS : NUM_ROLE_ANAMNESIS   ,
-            ROLE_WORK_PERIOD      : NUM_ROLE_PERIOD      ,
-            ROLE_WORK_DEPART      : NUM_ROLE_DEPARTMENT  ,
-            ROLE_WORK_DEP_HIST    : NUM_ROLE_DEP_HIST    ,
-            ROLE_WORK_POST        : NUM_ROLE_POST        ,
-            ROLE_WORK_EMPL        : NUM_ROLE_EMPLOYEE    ,
-            ROLE_WORK_FIO_HIST    : NUM_ROLE_FIO_HIST    ,
-            ROLE_WORK_CHILD       : NUM_ROLE_CHILD       ,
-            ROLE_WORK_APPOINT     : NUM_ROLE_APPOINTMENT ,
-            ROLE_WORK_EDUCAT      : NUM_ROLE_EDUCATION   ,
-            ROLE_WORK_EMPL_PER    : NUM_ROLE_EMPL_PER    ,
-            ROLE_WORK_PAY_TITLE   : NUM_ROLE_PAY_TITLE   ,
-            ROLE_WORK_PAYMENT     : NUM_ROLE_PAYMENT     ,
-            ROLE_PHOTO            : NUM_ROLE_PHOTO       ,
-            ROLE_ACCOUNT          : NUM_ROLE_ACCOUNT     ,
+
+    'work': { ROLE_ACCOUNT: NUM_ROLE_ACCOUNT },
+    'todo': { ROLE_TODO: NUM_ROLE_TODO },
+    'note': { ROLE_NOTE: NUM_ROLE_NOTE },
+    'news': { ROLE_NEWS: NUM_ROLE_NEWS },
+    'store': { ROLE_STORE: NUM_ROLE_STORE },
+    'docs': { ROLE_DOC: NUM_ROLE_DOC },
+    'warr': { ROLE_WARR: NUM_ROLE_WARR },
+    'expen': { ROLE_PROJECT: NUM_ROLE_SALDO, ROLE_EXPENSES: NUM_ROLE_OPERATION },
+    'trip': { ROLE_PERSON: NUM_ROLE_PERSON, ROLE_TRIP: NUM_ROLE_TRIP, ROLE_SALDO: NUM_ROLE_SALDO },
+    'fuel': { ROLE_CAR: NUM_ROLE_CAR, ROLE_FUEL: NUM_ROLE_FUEL, ROLE_PART: NUM_ROLE_PART, ROLE_SERVICE: NUM_ROLE_SERVICE },
+    'apart': { ROLE_APART: NUM_ROLE_APART, ROLE_SERVICE: NUM_ROLE_SERVICE, ROLE_METER: NUM_ROLE_METER, ROLE_PRICE: NUM_ROLE_PRICE, ROLE_BILL: NUM_ROLE_BILL },
+    'health': { ROLE_MARKER: NUM_ROLE_MARKER, ROLE_INCIDENT: NUM_ROLE_INCIDENT, ROLE_ANAMNESIS: NUM_ROLE_ANAMNESIS },
+    'work': { ROLE_PERIOD: NUM_ROLE_PERIOD, ROLE_DEPARTMENT: NUM_ROLE_DEPARTMENT, ROLE_DEP_HIST: NUM_ROLE_DEP_HIST, 
+                ROLE_POST: NUM_ROLE_POST, ROLE_EMPLOYEE: NUM_ROLE_EMPLOYEE, ROLE_FIO_HIST: NUM_ROLE_FIO_HIST, 
+                ROLE_CHILDREN: NUM_ROLE_CHILD, ROLE_APPOINTMENT: NUM_ROLE_APPOINTMENT, ROLE_EDUCATION: NUM_ROLE_EDUCATION, 
+                ROLE_EMPLOYEE_PERIOD: NUM_ROLE_EMPL_PER, ROLE_PAY_TITLE: NUM_ROLE_PAY_TITLE, ROLE_PAYMENT: NUM_ROLE_PAYMENT },
+    'photo': { ROLE_PHOTO: NUM_ROLE_PHOTO },
 }
 
 """

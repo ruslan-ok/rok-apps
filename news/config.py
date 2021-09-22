@@ -1,18 +1,15 @@
+from task.const import *
+
 app_config = {
     'name': 'news',
-    'title': 'news',
-    'icon': 'star',
-    'roles': {
-        'news': { 
-            'icon': 'star', 
-            'groups': True,
-            'views': {
-                'all': {
-                    'url': '',
-                    'icon': 'check-all',
-                    'title': 'all',
-                },
-            },
+    'app_title': 'news',
+    'icon': 'newspaper',
+    'role': ROLE_NEWS,
+    'groups': True,
+    'views': {
+        'news': {
+            'icon': 'check-all',
+            'title': 'all',
         },
     }
 }

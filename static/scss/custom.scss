@@ -16,6 +16,15 @@ $primary: #447e9b;
   background-color: #afc6d7 !important;
 }
 
+.bd-navbar .navbar-nav .nav-link.active {
+  font-weight: 600;
+  color: #def176;
+  i {
+    font-size: 1rem;
+    color: #def176;
+  }
+}
+
 @import "../../../bootstrap/scss/functions";
 @import "../../../bootstrap/scss/variables";
 @import "../../../bootstrap/scss/mixins";

@@ -11,23 +11,23 @@ app_config = {
             'title': 'apartments',
             'use_selector': True,
         },
-        'services': {
-            'role': ROLE_APART_SERV,
+        'service': {
+            'role': ROLE_SERVICE,
             'icon': 'star', 
             'title': 'services',
         },
-        'meters': {
-            'role': ROLE_APART_METER,
+        'meter': {
+            'role': ROLE_METER,
             'icon': 'star', 
             'title': 'meters data',
         },
-        'prices': {
-            'role': ROLE_APART_PRICE,
+        'price': {
+            'role': ROLE_PRICE,
             'icon': 'star', 
             'title': 'prices',
         },
-        'bills': {
-            'role': ROLE_APART_BILL,
+        'bill': {
+            'role': ROLE_BILL,
             'icon': 'star', 
             'title': 'bills',
         },

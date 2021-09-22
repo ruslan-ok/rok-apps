@@ -63,7 +63,7 @@ class LoginView(SuccessURLAllowedHostsMixin, FormView):
     @method_decorator(csrf_protect)
     @method_decorator(never_cache)
     def dispatch(self, request, *args, **kwargs):
-        self.extra_context = get_base_context(request, ROLE_ACCOUNT, False, gettext('Log in'))
+        self.extra_context = get_base_context(request, 'home', ROLE_ACCOUNT, False, gettext('Log in'))
         if self.redirect_authenticated_user and self.request.user.is_authenticated:
             redirect_to = self.get_success_url()
             if redirect_to == self.request.path:
@@ -123,7 +123,7 @@ class LogoutView(SuccessURLAllowedHostsMixin, TemplateView):
 
     @method_decorator(never_cache)
     def dispatch(self, request, *args, **kwargs):
-        self.extra_context = get_base_context(request, ROLE_ACCOUNT, True, gettext('Logged out'))
+        self.extra_context = get_base_context(request, 'home', ROLE_ACCOUNT, True, gettext('Logged out'))
         auth_logout(request)
         next_page = self.get_next_page()
         if next_page:
@@ -217,7 +217,7 @@ def register(request):
     else:
         f = RegisterForm()
 
-    context = get_base_context(request, ROLE_ACCOUNT, False, title)
+    context = get_base_context(request, 'home', ROLE_ACCOUNT, False, title)
     context['form'] = f
     return render(request, 'account/register.html', context)
 
@@ -234,7 +234,7 @@ def activate_account(request):
     r.email_validated = True
     r.save()
 
-    context = get_base_context(request, ROLE_ACCOUNT, False, gettext('Account activated'))
+    context = get_base_context(request, 'home', ROLE_ACCOUNT, False, gettext('Account activated'))
     return render(request, 'account/activated.html', context)
 
 class PasswordContextMixin:
@@ -412,7 +412,7 @@ def user_data_changed(user, data, request):
 
 
 def service(request):
-    context = get_base_context(request, ROLE_ACCOUNT, False, gettext('Profile service'))
+    context = get_base_context(request, 'home', ROLE_ACCOUNT, False, gettext('Profile service'))
     return render(request, 'account/service.html', context)
 
 
@@ -439,7 +439,7 @@ def profile(request):
     else:
         form = ProfileForm(instance = request.user)
 
-    context = get_base_context(request, ROLE_ACCOUNT, '', (_('profile').capitalize(),))
+    context = get_base_context(request, 'home', ROLE_ACCOUNT, '', (_('profile').capitalize(),))
     context['form'] = form
     avatar = request.user.userext.avatar
     context['avatar_url'] = avatar.url if avatar and type(avatar) == ImageFieldFile else '/static/Default-avatar.jpg'
@@ -459,7 +459,7 @@ def avatar(request):
             form.save()
             return HttpResponseRedirect(reverse_lazy('account:avatar'))
 
-    context = get_base_context(request, ROLE_ACCOUNT, '', (_('avatar').capitalize(),))
+    context = get_base_context(request, 'home', ROLE_ACCOUNT, '', (_('avatar').capitalize(),))
     context['form'] = form
     context['avatar_url'] = request.user.userext.avatar.url if request.user.userext.avatar and type(request.user.userext.avatar) == ImageFieldFile else '/static/Default-avatar.jpg'
     return render(request, 'account/avatar.html', context)
