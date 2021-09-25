@@ -23,17 +23,6 @@ class BaseDetailView(UpdateView):
         self.config = config
         self.template_name = config['detail_template']
 
-    def get_doc(request, pk, fname):
-        pass
-        """
-        path = get_file_storage_path(request.user, pk)
-        try:
-            fsock = open(path + fname, 'rb')
-            return FileResponse(fsock)
-        except IOError:
-            response = HttpResponseNotFound()
-        """
-
 class BaseGroupView(UpdateView):
     model = Group
     template_name = 'base/group_detail.html'

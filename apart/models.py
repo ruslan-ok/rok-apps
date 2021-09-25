@@ -6,7 +6,7 @@ from django.utils.translation import gettext, gettext_lazy as _
 from django.urls import reverse
 
 from .utils import get_new_period
-from task.files import get_files_list
+from rusel.files import get_files_list
 from task.models import Task
 
 

@@ -1,7 +1,10 @@
+import os
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
+from django.http import FileResponse, HttpResponseNotFound
 from django.views.generic.edit import CreateView, UpdateView
 from rusel.context import get_base_context
+from rusel.files import storage_path, get_files_list
 from task.forms import GroupForm, CreateGroupForm
 from task.const import ROLES_IDS
 from task.models import Task, Group, TaskGroup
@@ -160,6 +163,10 @@ class BaseListView(CreateView, Context):
         context.update(self.get_app_context())
         return context
 
+    def post(self, request, *args, **kwargs):
+        self.object = None
+        return super().post(request, *args, **kwargs)
+
 class BaseDetailView(UpdateView, Context):
 
     def __init__(self, config, cur_role, *args, **kwargs):
@@ -172,18 +179,26 @@ class BaseDetailView(UpdateView, Context):
         context = super().get_context_data(**kwargs)
         context.update(self.get_app_context())
         context['title'] = self.object.name
+        context['files'] = get_files_list(self.request.user, self.config.app, self.config.role, self.object.id)
         return context
 
-    def get_doc(request, pk, fname):
-        pass
-        """
-        path = get_file_storage_path(request.user, pk)
-        try:
-            fsock = open(path + fname, 'rb')
-            return FileResponse(fsock)
-        except IOError:
-            response = HttpResponseNotFound()
-        """
+    def form_valid(self, form):
+        item = form.instance
+        if ('url' in form.changed_data):
+            url = form.cleaned_data['url']
+            qty = len(Urls.objects.filter(task=item.id))
+            Urls.objects.create(task=item, num=qty, href=url)
+        if ('upload' in self.request.FILES):
+            self.handle_uploaded_file(self.request.FILES['upload'], self.request.user, item.id)
+        ret = super().form_valid(form)
+        return ret
+
+    def handle_uploaded_file(self, f, user, item_id):
+        path = storage_path.format(user.id) + self.config.app + '/' + self.config.role + '_{}/'.format(item_id)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path + f.name, 'wb+') as destination:
+            for chunk in f.chunks():
+                destination.write(chunk)
 
 class BaseGroupView(UpdateView, Context):
     model = Group
@@ -199,3 +214,12 @@ class BaseGroupView(UpdateView, Context):
         context = super().get_context_data(**kwargs)
         context.update(self.get_app_context())
         return context
+
+def get_app_doc(app, role, request, pk, fname):
+    path = storage_path.format(request.user.id) + app + '/' + role + '_{}/'.format(pk)
+    try:
+        fsock = open(path + fname, 'rb')
+        return FileResponse(fsock)
+    except IOError:
+        response = HttpResponseNotFound()
+

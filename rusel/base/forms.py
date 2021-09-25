@@ -10,15 +10,30 @@ class BaseCreateForm(forms.ModelForm):
     class Meta:
         model = Task
         fields = ['name']
+
+    def __init__(self, config, role, *args, **kwargs):
+        kwargs.update({'user_id': 10})
+        super().__init__(*args, **kwargs)
+        self.config = config
+        self.role = role
+        #self.fields['grp'].initial = self.get_group_id()
+        #self.fields['grp'].queryset = Group.objects.filter(role=role).order_by('sort')
         
+    def save(self, commit=True):
+        ret = super().save(commit=False)
+        ret.save()
+        return ret
+
 #----------------------------------
 class BaseEditForm(forms.ModelForm):
     role = None
 
+    """
     event = forms.DateTimeField(
         label=_('publication date').capitalize(),
         required=False,
         widget=forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime mb-3', 'type': 'datetime-local'}))
+    """
     info = forms.CharField(
         label=_('description').capitalize(),
         required=False,
@@ -40,13 +55,12 @@ class BaseEditForm(forms.ModelForm):
         label=_('attachments').capitalize(), 
         required=False, 
         widget=FileUpload())
-
-    add_step = forms.CharField(widget = forms.TextInput(attrs = {'placeholder': _('next step').capitalize()}), required = False)
-
+    """
     stop = forms.DateTimeField(
         label=_('publication date').capitalize(),
         required=False,
         widget=forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime mb-3', 'type': 'datetime-local'}))
+    """
 
     class Meta:
         model = Task

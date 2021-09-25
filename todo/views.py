@@ -1,11 +1,14 @@
 from datetime import date, datetime
 from django.utils.translation import gettext_lazy as _
+from task.const import ROLE_TODO
 from task.models import Task, TaskGroup, Urls, Step
-from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView
-from task.files import get_files_list
-from task.categories import get_categories_list
+from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView, get_app_doc
+from rusel.files import get_files_list
+from rusel.categories import get_categories_list
 from todo.forms import CreateForm, EditForm
 from todo.config import app_config
+
+role = ROLE_TODO
 
 class TuneData:
     def tune_dataset(self, data, view_mode):
@@ -24,7 +27,7 @@ class ListView(BaseListView, TuneData):
     form_class = CreateForm
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, 'todo', *args, **kwargs)
+        super().__init__(app_config, role, *args, **kwargs)
 
     def get_info(self, item):
         ret = []
@@ -114,8 +117,11 @@ class DetailView(BaseDetailView, TuneData):
     form_class = EditForm
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, 'todo', *args, **kwargs)
+        super().__init__(app_config, role, *args, **kwargs)
 
 class GroupView(BaseGroupView, TuneData):
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, 'todo', *args, **kwargs)
+        super().__init__(app_config, role, *args, **kwargs)
+
+def get_doc(request, pk, fname):
+    return get_app_doc(app_config['name'], role, request, pk, fname)

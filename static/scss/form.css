@@ -7,6 +7,14 @@ ul.errorlist {
   list-style-type: none;
 }
 
+.form-control.date {
+  width: 150px;
+}
+
+input[type=number].form-control {
+  width: 150px;
+}
+
 .form-control.datetime {
   width: 200px;
 }
@@ -21,6 +29,11 @@ textarea.form-control {
 
 .item-form {
   background-color: lavender;
+  padding-top: 0.5rem !important;
+}
+
+.item-form label {
+  margin-right: 10px;
 }
 
 .categories {

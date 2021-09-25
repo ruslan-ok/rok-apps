@@ -39,7 +39,7 @@
     <script src="{% static 'js/manage-groups.js' %}"></script>
     <script src="{% static 'js/form.js' %}"></script>
     <script>
-        buildTree('groups-tree', '{{ app }}', {{ list_id }});
+        buildTree('groups-tree', '{{ config.app }}', {{ list_id }});
       </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" 
       integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" 

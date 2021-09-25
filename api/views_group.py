@@ -1,4 +1,5 @@
 import math
+import urllib.parse
 from django.http import HttpResponseRedirect
 from rest_framework import viewsets, permissions, status, renderers
 from rest_framework.decorators import action
@@ -18,6 +19,7 @@ class GroupViewSet(viewsets.ModelViewSet):
     pagination_class = None
 
     def perform_create(self, serializer):
+        serializer.validated_data['name'] = urllib.parse.unquote(serializer.initial_data['name'])
         serializer.save(user=self.request.user)
 
     def perform_destroy(self, instance):

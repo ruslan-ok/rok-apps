@@ -12,8 +12,6 @@ from django.core.exceptions import ValidationError
 from rest_framework.reverse import reverse
 
 from task.const import *
-from task.categories import get_categories_list
-from task.files import get_files_list
 from rusel.utils import nice_date
 
 class Group(models.Model):

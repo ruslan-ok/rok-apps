@@ -12,7 +12,7 @@
                     <div class="file-metadata">{{ file.size }}</div>
                 </div>
             </a>
-            <button type="button" name="file_delete" value="{{ file.url }}" class="bi-x" onclick="delFile('{{ app }}', '{{ role }}', '{{ file.url }}', '{{ file.id }}')"></button>
+            <button type="button" name="file_delete" value="{{ file.url }}" class="bi-x" onclick="delFile('{{ config.app }}', '{{ config.role }}', '{{ file.url }}', '{{ file.id }}')"></button>
         </div>
     {% endfor %}
 </div>

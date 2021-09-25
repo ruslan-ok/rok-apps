@@ -44,7 +44,7 @@
             <hr>
 
             <div class="add-form">
-                <i class="bi-plus-lg add-form__button" id="add_group_btn_id" onclick="addGroup('{{ app }}','{{ role }}')"></i>
+                <i class="bi-plus-lg add-form__button" id="add_group_btn_id" onclick="addGroup('{{ config.app }}','{{ config.role }}')"></i>
                 <input type="text" class="add-form__input" placeholder="{% trans 'create group'|capfirst %}" name="name" id="new_group_id">
             </div>
 

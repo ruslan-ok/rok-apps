@@ -12,7 +12,7 @@ from rest_framework.reverse import reverse
 
 from task.const import *
 from task.models import Task, TaskGroup
-from task.files import storage_path
+from rusel.files import storage_path
 from api.serializers import TaskSerializer
 
 class TaskViewSet(viewsets.ModelViewSet):

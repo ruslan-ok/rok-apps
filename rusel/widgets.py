@@ -1,7 +1,7 @@
-from django.forms.widgets import Input
+from django.forms.widgets import Input, CheckboxInput
 from django.forms import FileInput
 from django.db.models.fields.files import ImageFieldFile
-from task.categories import get_categories_list
+from rusel.categories import get_categories_list
 
 class UrlsInput(Input):
     input_type = 'text'
@@ -30,3 +30,13 @@ class AvatarInput(FileInput):
         context['avatar_url'] = value.url if value and type(value) == ImageFieldFile else '/static/Default-avatar.jpg'
         return context
 
+class BsCheckboxInput(CheckboxInput):
+    input_type = 'checkbox'
+    template_name = 'widgets/bs-checkbox.html'
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        context['widget'].update({'wrap_label': False})
+        if ('label' not in context['widget']['attrs']):
+            context['widget']['attrs'].update({'label': name})
+        return context

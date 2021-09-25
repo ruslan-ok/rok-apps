@@ -1,8 +1,10 @@
 from django import forms
+from django.utils.translation import gettext_lazy as _
 
 from rusel.base.forms import BaseCreateForm, BaseEditForm
 from task.models import Task
 from todo.config import app_config
+from rusel.widgets import BsCheckboxInput
 
 role = 'todo'
 
@@ -18,17 +20,32 @@ class CreateForm(BaseCreateForm):
         
 #----------------------------------
 class EditForm(BaseEditForm):
+    completed = forms.BooleanField(label=False, required=False, widget=BsCheckboxInput(attrs={'class': 'ms-1 mb-3', 'label': _('completed').capitalize()}))
+    important = forms.BooleanField(label=False, required=False, widget=BsCheckboxInput(attrs={'class': 'ms-1 mb-3', 'label': _('important').capitalize()}))
+    in_my_day = forms.BooleanField(label=False, required=False, widget=BsCheckboxInput(attrs={'class': 'ms-1 mb-3 me-3', 'label': _('in my day').capitalize()}))
+    add_step = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control mb-3', 'placeholder': _('next step').capitalize()}), required=False)
+    stop = forms.DateTimeField(
+        label=_('termin').capitalize(),
+        required=False,
+        widget=forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime d-inline-block mb-3 me-3', 'type': 'datetime-local'}))
 
+    
     class Meta:
         model = Task
         fields = ['completed', 'name', 'important', 'add_step', 'in_my_day', 'remind', 'stop', 'repeat', 'repeat_num', 'repeat_days', 
                 'categories', 'url', 'info', 'grp', 'upload']
         widgets = {
-            'completed': forms.CheckboxInput(attrs={'class': 'form-check-input mb-3'}),
             'name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
-            'stop': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control date mb-3', 'type': 'date-local'}),
+            'remind': forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime d-inline-block mb-3 me-3', 'type': 'datetime-local'}),
+            'repeat': forms.Select(attrs={'class': 'form-control mb-3'}),
+            'repeat_num': forms.NumberInput(attrs={'class': 'form-control d-inline-block mb-3'}),
+            'repeat_days': forms.NumberInput(attrs={'class': 'form-control d-inline-block mb-3'}),
             'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
+
+    def is_valid(self):
+        """Return True if the form has no errors, or False otherwise."""
+        return self.is_bound and not self.errors
