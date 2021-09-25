@@ -8,7 +8,7 @@ from rusel.files import storage_path, get_files_list
 from rusel.utils import extract_get_params
 from task.forms import GroupForm, CreateGroupForm
 from task.const import ROLES_IDS
-from task.models import Task, Group, TaskGroup
+from task.models import Task, Group, TaskGroup, Urls
 
 class Config:
     def __init__(self, config, cur_role, *args, **kwargs):
@@ -196,6 +196,7 @@ class BaseDetailView(UpdateView, Context):
         context = super().get_context_data(**kwargs)
         context.update(self.get_app_context())
         context['title'] = self.object.name
+        context['urls'] = Urls.objects.filter(task=self.object.id)
         context['files'] = get_files_list(self.request.user, self.config.app, self.config.role, self.object.id)
         return context
 
