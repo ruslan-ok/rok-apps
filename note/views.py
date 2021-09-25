@@ -1,4 +1,4 @@
-from task.const import ROLE_NOTE
+from task.const import ROLE_NOTE, NUM_ROLE_NOTE
 from task.models import Task, TaskGroup, Urls
 from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView, get_app_doc
 from rusel.files import get_files_list
@@ -18,6 +18,11 @@ class ListView(BaseListView, TuneData):
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.instance.app_note = NUM_ROLE_NOTE
+        response = super().form_valid(form)
+        return response
 
     def get_info(self, item):
         ret = []

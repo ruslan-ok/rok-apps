@@ -15,10 +15,14 @@ def extract_get_params(request):
     p = request.GET.get('page')
     if not p:
         p = ''
+    rt = request.GET.get('ret')
+    if not rt:
+        rt = ''
+
     ret = ''
     if v:
         ret += 'view=' + v
-    if (v == 'group') and g:
+    if (v == 'by_group') and g:
         ret += '&group_id=' + g
     if q:
         if ret:
@@ -28,6 +32,11 @@ def extract_get_params(request):
         if ret:
             ret += '&'
         ret += 'page=' + p
+    if rt:
+        if ret:
+            ret += '&'
+        ret += 'ret=' + rt
+    
     if ret:
         ret = '?' + ret
     return ret

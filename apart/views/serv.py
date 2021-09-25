@@ -1,6 +1,6 @@
 from datetime import date, datetime
 from django.utils.translation import gettext_lazy as _
-from task.const import ROLE_SERVICE
+from task.const import ROLE_SERVICE, NUM_ROLE_SERVICE
 from task.models import Task, TaskGroup, Urls, Step
 from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView, get_app_doc
 from apart.forms.serv import CreateForm, EditForm
@@ -18,6 +18,11 @@ class ListView(BaseListView, TuneData):
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.instance.app_apart = NUM_ROLE_SERVICE
+        response = super().form_valid(form)
+        return response
 
     def get_info(self, item):
         ret = []

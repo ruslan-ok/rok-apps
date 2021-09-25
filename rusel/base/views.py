@@ -5,6 +5,7 @@ from django.http import FileResponse, HttpResponseNotFound
 from django.views.generic.edit import CreateView, UpdateView
 from rusel.context import get_base_context
 from rusel.files import storage_path, get_files_list
+from rusel.utils import extract_get_params
 from task.forms import GroupForm, CreateGroupForm
 from task.const import ROLES_IDS
 from task.models import Task, Group, TaskGroup
@@ -66,6 +67,7 @@ class Context:
         #context['sort_options'] = self.get_sorts()
         context['item_detail_url'] = self.config.app + ':item'
         context['config'] = self.config
+        context['params'] = extract_get_params(self.request)
 
         items = self.get_queryset()
         if (len(items) == 0) or (type(items[0]) != Task):
@@ -157,22 +159,37 @@ class BaseListView(CreateView, Context):
     def get_queryset(self):
         return self.get_dataset(self.config.cur_view, self.config.group_id)
 
+    def get_success_url(self):
+        return reverse(self.config.app + ':item', args=(self.object.id,)) + extract_get_params(self.request)
+
     def get_context_data(self, **kwargs):
         self.config.set_view(self.request)
         context = super().get_context_data(**kwargs)
         context.update(self.get_app_context())
         return context
 
-    def post(self, request, *args, **kwargs):
-        self.object = None
-        return super().post(request, *args, **kwargs)
-
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        response = super().form_valid(form)
+        common_url = reverse(self.config.app + ':list')
+        view_mode = self.request.path.split(common_url)[1].split('?')[0].split('/')[0]
+        if ('view' in self.request.GET):
+            view_mode = self.request.GET.get('view')
+        if (view_mode == 'by_group') and ('group_id' in self.request.GET):
+            group_id = int(self.request.GET.get('group_id'))
+            group = Group.objects.filter(id=group_id).get()
+            TaskGroup.objects.create(task=self.object, group=group, role=group.app)
+        return response
+    
 class BaseDetailView(UpdateView, Context):
 
     def __init__(self, config, cur_role, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.set_config(config, cur_role)
         self.template_name = config['name'] + '/' + self.config.role + '.html'
+
+    def get_success_url(self):
+        return reverse(self.config.app + ':item', args=(self.object.id,)) + extract_get_params(self.request)
 
     def get_context_data(self, **kwargs):
         self.config.set_view(self.request)
@@ -191,6 +208,18 @@ class BaseDetailView(UpdateView, Context):
         if ('upload' in self.request.FILES):
             self.handle_uploaded_file(self.request.FILES['upload'], self.request.user, item.id)
         ret = super().form_valid(form)
+        if ('grp' in form.changed_data):
+            grp = form.cleaned_data['grp']
+            if not grp and TaskGroup.objects.filter(task=item.id, role=self.config.role).exists():
+                TaskGroup.objects.filter(task=item.id, role=self.config.role).delete()
+            if grp:
+                if not TaskGroup.objects.filter(task=item.id, role=self.config.role).exists():
+                    TaskGroup.objects.create(task=item, group=grp, role=grp.role)
+                else:
+                    tg = TaskGroup.objects.filter(task=item.id, role=self.config.role).get()
+                    if (tg.group != grp):
+                        tg.group = grp
+                        tg.save()
         return ret
 
     def handle_uploaded_file(self, f, user, item_id):
@@ -208,6 +237,9 @@ class BaseGroupView(UpdateView, Context):
     def __init__(self, config, cur_role, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.set_config(config, cur_role)
+
+    def get_success_url(self):
+        return reverse(self.config.app + ':group', args=(self.object.id,)) + extract_get_params(self.request)
 
     def get_context_data(self, **kwargs):
         self.config.set_view(self.request)

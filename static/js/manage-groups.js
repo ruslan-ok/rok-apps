@@ -43,10 +43,11 @@ function addGroup(app, role) {
     };
   
     let data = {
-        'role': role,
-        'node': null,
-        'name': encodeURI(name),
-        'sort': ''
+      'app': app,
+      'role': role,
+      'node': null,
+      'name': encodeURI(name),
+      'sort': ''
     };
 
     xhttp.send(JSON.stringify(data));

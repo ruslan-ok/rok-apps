@@ -1,4 +1,4 @@
-from task.const import ROLE_DOC
+from task.const import ROLE_DOC, NUM_ROLE_DOC
 from task.models import Task
 from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView, get_app_doc
 from docs.forms import CreateForm, EditForm
@@ -12,6 +12,11 @@ class ListView(BaseListView):
 
     def __init__(self, role, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.instance.app_doc = NUM_ROLE_DOC
+        response = super().form_valid(form)
+        return response
 
 
 class DetailView(BaseDetailView):

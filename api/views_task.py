@@ -37,59 +37,59 @@ class TaskViewSet(viewsets.ModelViewSet):
                 return data.filter(app_doc=NUM_ROLE_DOC)
             if (role == ROLE_WARR):
                 return data.filter(app_warr=NUM_ROLE_WARR)
-            if (role == ROLE_EXPEN):
+            if (role == ROLE_EXPENSES):
                 return data.filter(app_expen=NUM_ROLE_OPERATION)
-            if (role == ROLE_EXPEN_SALDO):
+            if (role == ROLE_SALDO):
                 return data.filter(app_expen=NUM_ROLE_SALDO)
-            if (role == ROLE_TRIP_PERS):
+            if (role == ROLE_PERSON):
                 return data.filter(app_trip=NUM_ROLE_PERSON)
             if (role == ROLE_TRIP):
                 return data.filter(app_trip=NUM_ROLE_TRIP)
-            if (role == ROLE_TRIP_SALDO):
+            if (role == ROLE_SALDO):
                 return data.filter(app_trip=NUM_ROLE_SALDO)
             if (role == ROLE_FUEL):
                 return data.filter(app_fuel=NUM_ROLE_FUEL)
-            if (role == ROLE_FUEL_PART):
+            if (role == ROLE_PART):
                 return data.filter(app_fuel=NUM_ROLE_PART)
-            if (role == ROLE_FUEL_SERV):
+            if (role == ROLE_SERVICE):
                 return data.filter(app_fuel=NUM_ROLE_SERVICE)
-            if (role == ROLE_APART_SERV):
+            if (role == ROLE_SERVICE):
                 return data.filter(app_apart=NUM_ROLE_SERVICE)
-            if (role == ROLE_APART_METER):
+            if (role == ROLE_METER):
                 return data.filter(app_apart=NUM_ROLE_METER)
-            if (role == ROLE_APART_PRICE):
+            if (role == ROLE_PRICE):
                 return data.filter(app_apart=NUM_ROLE_PRICE)
-            if (role == ROLE_APART_BILL):
+            if (role == ROLE_BILL):
                 return data.filter(app_apart=NUM_ROLE_BILL)
-            if (role == ROLE_HEALTH_MARKER):
+            if (role == ROLE_MARKER):
                 return data.filter(app_health=NUM_ROLE_MARKER)
-            if (role == ROLE_HEALTH_INCIDENT):
+            if (role == ROLE_INCIDENT):
                 return data.filter(app_health=NUM_ROLE_INCIDENT)
-            if (role == ROLE_HEALTH_ANAMNESIS):
+            if (role == ROLE_ANAMNESIS):
                 return data.filter(app_health=NUM_ROLE_ANAMNESIS)
-            if (role == ROLE_WORK_PERIOD):
+            if (role == ROLE_PERIOD):
                 return data.filter(app_work=NUM_ROLE_PERIOD)
-            if (role == ROLE_WORK_DEPART):
+            if (role == ROLE_DEPARTMENT):
                 return data.filter(app_work=NUM_ROLE_DEPARTMENT)
-            if (role == ROLE_WORK_DEP_HIST):
+            if (role == ROLE_DEP_HIST):
                 return data.filter(app_work=NUM_ROLE_DEP_HIST)
-            if (role == ROLE_WORK_POST):
+            if (role == ROLE_POST):
                 return data.filter(app_work=NUM_ROLE_POST)
-            if (role == ROLE_WORK_EMPL):
+            if (role == ROLE_EMPLOYEE):
                 return data.filter(app_work=NUM_ROLE_EMPLOYEE)
-            if (role == ROLE_WORK_FIO_HIST):
+            if (role == ROLE_FIO_HIST):
                 return data.filter(app_work=NUM_ROLE_FIO_HIST)
-            if (role == ROLE_WORK_CHILD):
+            if (role == ROLE_CHILDREN):
                 return data.filter(app_work=NUM_ROLE_CHILD)
-            if (role == ROLE_WORK_APPOINT):
+            if (role == ROLE_APPOINTMENT):
                 return data.filter(app_work=NUM_ROLE_APPOINTMENT)
-            if (role == ROLE_WORK_EDUCAT):
+            if (role == ROLE_EDUCATION):
                 return data.filter(app_work=NUM_ROLE_EDUCATION)
-            if (role == ROLE_WORK_EMPL_PER):
+            if (role == ROLE_EMPLOYEE_PERIOD):
                 return data.filter(app_work=NUM_ROLE_EMPL_PER)
-            if (role == ROLE_WORK_PAY_TITLE):
+            if (role == ROLE_PAY_TITLE):
                 return data.filter(app_work=NUM_ROLE_PAY_TITLE)
-            if (role == ROLE_WORK_PAYMENT):
+            if (role == ROLE_PAYMENT):
                 return data.filter(app_work=NUM_ROLE_PAYMENT)
             if (role == ROLE_PHOTO):
                 return data.filter(app_photo=NUM_ROLE_PHOTO)
@@ -412,59 +412,59 @@ class TaskViewSet(viewsets.ModelViewSet):
             task.app_doc = NUM_ROLE_DOC
         if (role == ROLE_WARR):
             task.app_warr = NUM_ROLE_WARR
-        if (role == ROLE_EXPEN):
+        if (role == ROLE_EXPENSES):
             task.app_expen = NUM_ROLE_OPERATION
-        if (role == ROLE_EXPEN_SALDO):
+        if (role == ROLE_SALDO):
             task.app_expen = NUM_ROLE_SALDO
-        if (role == ROLE_TRIP_PERS):
+        if (role == ROLE_PERSON):
             task.app_trip = NUM_ROLE_PERSON
         if (role == ROLE_TRIP):
             task.app_trip = NUM_ROLE_TRIP
-        if (role == ROLE_TRIP_SALDO):
+        if (role == ROLE_SALDO):
             task.app_trip = NUM_ROLE_SALDO
         if (role == ROLE_FUEL):
             task.app_fuel = NUM_ROLE_FUEL
-        if (role == ROLE_FUEL_PART):
+        if (role == ROLE_PART):
             task.app_fuel = NUM_ROLE_PART
-        if (role == ROLE_FUEL_SERV):
+        if (role == ROLE_SERVICE):
             task.app_fuel = NUM_ROLE_SERVICE
-        if (role == ROLE_APART_SERV):
+        if (role == ROLE_SERVICE):
             task.app_apart = NUM_ROLE_SERVICE
-        if (role == ROLE_APART_METER):
+        if (role == ROLE_METER):
             task.app_apart = NUM_ROLE_METER
-        if (role == ROLE_APART_PRICE):
+        if (role == ROLE_PRICE):
             task.app_apart = NUM_ROLE_PRICE
-        if (role == ROLE_APART_BILL):
+        if (role == ROLE_BILL):
             task.app_apart = NUM_ROLE_BILL
-        if (role == ROLE_HEALTH_MARKER):
+        if (role == ROLE_MARKER):
             task.app_health = NUM_ROLE_MARKER
-        if (role == ROLE_HEALTH_INCIDENT):
+        if (role == ROLE_INCIDENT):
             task.app_health = NUM_ROLE_INCIDENT
-        if (role == ROLE_HEALTH_ANAMNESIS):
+        if (role == ROLE_ANAMNESIS):
             task.app_health = NUM_ROLE_ANAMNESIS
-        if (role == ROLE_WORK_PERIOD):
+        if (role == ROLE_PERIOD):
             task.app_work = NUM_ROLE_PERIOD
-        if (role == ROLE_WORK_DEPART):
+        if (role == ROLE_DEPARTMENT):
             task.app_work = NUM_ROLE_DEPARTMENT
-        if (role == ROLE_WORK_DEP_HIST):
+        if (role == ROLE_DEP_HIST):
             task.app_work = NUM_ROLE_DEP_HIST
-        if (role == ROLE_WORK_POST):
+        if (role == ROLE_POST):
             task.app_work = NUM_ROLE_POST
-        if (role == ROLE_WORK_EMPL):
+        if (role == ROLE_EMPLOYEE):
             task.app_work = NUM_ROLE_EMPLOYEE
-        if (role == ROLE_WORK_FIO_HIST):
+        if (role == ROLE_FIO_HIST):
             task.app_work = NUM_ROLE_FIO_HIST
-        if (role == ROLE_WORK_CHILD):
+        if (role == ROLE_CHILDREN):
             task.app_work = NUM_ROLE_CHILD
-        if (role == ROLE_WORK_APPOINT):
+        if (role == ROLE_APPOINTMENT):
             task.app_work = NUM_ROLE_APPOINTMENT
-        if (role == ROLE_WORK_EDUCAT):
+        if (role == ROLE_EDUCATION):
             task.app_work = NUM_ROLE_EDUCATION
-        if (role == ROLE_WORK_EMPL_PER):
+        if (role == ROLE_EMPLOYEE_PERIOD):
             task.app_work = NUM_ROLE_EMPL_PER
-        if (role == ROLE_WORK_PAY_TITLE):
+        if (role == ROLE_PAY_TITLE):
             task.app_work = NUM_ROLE_PAY_TITLE
-        if (role == ROLE_WORK_PAYMENT):
+        if (role == ROLE_PAYMENT):
             task.app_work = NUM_ROLE_PAYMENT
         if (role == ROLE_PHOTO):
             task.app_photo = NUM_ROLE_PHOTO
@@ -504,23 +504,23 @@ class TaskViewSet(viewsets.ModelViewSet):
         if (role == ROLE_WARR):
             task.app_warr = NONE
         
-        if (role in [ROLE_EXPEN, ROLE_EXPEN_SALDO]):
+        if (role in [ROLE_EXPENSES, ROLE_SALDO]):
             task.app_expen = NONE
         
-        if (role in [ROLE_TRIP_PERS, ROLE_TRIP, ROLE_TRIP_SALDO]):
+        if (role in [ROLE_PERSON, ROLE_TRIP, ROLE_SALDO]):
             task.app_trip = NONE
 
-        if (role in [ROLE_FUEL, ROLE_FUEL_PART, ROLE_FUEL_SERV]):
+        if (role in [ROLE_FUEL, ROLE_PART, ROLE_SERVICE]):
             task.app_fuel = NONE
 
-        if (role in [ROLE_APART_SERV, ROLE_APART_METER, ROLE_APART_PRICE, ROLE_APART_BILL]):
+        if (role in [ROLE_APART, ROLE_SERVICE, ROLE_METER, ROLE_PRICE, ROLE_BILL]):
             task.app_apart = NONE
         
-        if (role in [ROLE_HEALTH_MARKER, ROLE_HEALTH_INCIDENT, ROLE_HEALTH_ANAMNESIS]):
+        if (role in [ROLE_MARKER, ROLE_INCIDENT, ROLE_ANAMNESIS]):
             task.app_health = NONE
         
-        if (role in [ROLE_WORK_PERIOD, ROLE_WORK_DEPART, ROLE_WORK_DEP_HIST, ROLE_WORK_POST, ROLE_WORK_EMPL, ROLE_WORK_FIO_HIST,
-            ROLE_WORK_CHILD, ROLE_WORK_APPOINT, ROLE_WORK_EDUCAT, ROLE_WORK_EMPL_PER, ROLE_WORK_PAY_TITLE, ROLE_WORK_PAYMENT]):
+        if (role in [ROLE_PERIOD, ROLE_DEPARTMENT, ROLE_DEP_HIST, ROLE_POST, ROLE_EMPLOYEE, ROLE_FIO_HIST,
+            ROLE_CHILDREN, ROLE_APPOINTMENT, ROLE_EDUCATION, ROLE_EMPLOYEE_PERIOD, ROLE_PAY_TITLE, ROLE_PAYMENT]):
             task.app_work = NONE
         
         if (role == ROLE_PHOTO):

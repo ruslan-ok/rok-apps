@@ -12,7 +12,6 @@ class BaseCreateForm(forms.ModelForm):
         fields = ['name']
 
     def __init__(self, config, role, *args, **kwargs):
-        kwargs.update({'user_id': 10})
         super().__init__(*args, **kwargs)
         self.config = config
         self.role = role
