@@ -148,6 +148,7 @@ def transfer_meter():
     for meter in meters:
         atask = Task.objects.create(user=meter.apart.user,
                                     event=meter.reading,
+                                    name=meter.period.strftime('%Y.%m'),
                                     start=meter.period,
                                     info=meter.info,
                                     app_apart=NUM_ROLE_METER,
@@ -171,6 +172,7 @@ def transfer_price():
     for price in prices:
         atask = Task.objects.create(user=price.apart.user,
                                     start=price.start,
+                                    name=price.start.strftime('%Y.%m.%d'),
                                     info=price.info,
                                     app_apart=NUM_ROLE_PRICE,
                                     )
@@ -182,6 +184,7 @@ def transfer_bill():
     for bill in bills:
         atask = Task.objects.create(user=bill.apart.user,
                                     event=bill.payment,
+                                    name=bill.period.strftime('%Y.%m'),
                                     start=bill.period,
                                     info=bill.info,
                                     app_apart=NUM_ROLE_BILL,

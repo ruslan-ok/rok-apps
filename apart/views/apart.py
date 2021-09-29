@@ -5,6 +5,7 @@ from task.models import Task, TaskGroup, Urls, Step
 from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView, get_app_doc
 from apart.forms.apart import CreateForm, EditForm
 from apart.config import app_config
+from apart.models import Apart
 
 role = ROLE_APART
 
@@ -22,6 +23,10 @@ class ListView(BaseListView, TuneData):
     def form_valid(self, form):
         form.instance.app_apart = NUM_ROLE_APART
         response = super().form_valid(form)
+        if Apart.objects.filter(task=form.instance.id).exists():
+            apart = Apart.objects.filter(task=form.instance.id).get()
+            apart.has_gas = form.data['has_gas']
+            apart.has_ppo = form.data['has_ppo']
         return response
 
     def get_info(self, item):
@@ -34,6 +39,16 @@ class DetailView(BaseDetailView, TuneData):
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        if Apart.objects.filter(task=form.instance.id).exists():
+            apart = Apart.objects.filter(task=form.instance.id).get()
+            apart.has_gas = form.cleaned_data['has_gas']
+            apart.has_ppo = form.cleaned_data['has_ppo']
+            apart.save()
+        return response
+
 
 def get_doc(request, pk, fname):
     return get_app_doc(app_config['name'], role, request, pk, fname)

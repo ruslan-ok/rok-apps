@@ -439,4 +439,11 @@ textarea.form-control {
   height: 32px;
 }
 
+.select-form {
+  padding: 0 15px;
+}
+.select-form select {
+  width: 150px;
+}
+
 /*# sourceMappingURL=form.css.map */

@@ -175,3 +175,48 @@ function delAvatar() {
 
     xhttp.send();
 }
+
+function toggleCompleted(item_id) {
+    let redirect_url = window.location.href;
+    const api = '/api/tasks/' + item_id + '/completed/?format=json';
+    let url = window.location.protocol + '//' + window.location.host + api;
+    let xhttp = new XMLHttpRequest();
+    xhttp.open('GET', url, true);
+    let y = document.getElementsByName('csrfmiddlewaretoken');
+    let crsf = y[0].value; 
+    xhttp.setRequestHeader('X-CSRFToken', crsf);
+    xhttp.setRequestHeader('Content-type', 'application/json');
+
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            window.location.href = redirect_url;
+        }
+    };
+
+    xhttp.send();
+}
+
+function toggleImportant(item_id) {
+    let redirect_url = window.location.href;
+    const api = '/api/tasks/' + item_id + '/important/?format=json';
+    let url = window.location.protocol + '//' + window.location.host + api;
+    let xhttp = new XMLHttpRequest();
+    xhttp.open('GET', url, true);
+    let y = document.getElementsByName('csrfmiddlewaretoken');
+    let crsf = y[0].value; 
+    xhttp.setRequestHeader('X-CSRFToken', crsf);
+    xhttp.setRequestHeader('Content-type', 'application/json');
+
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            window.location.href = redirect_url;
+        }
+    };
+
+    xhttp.send();
+}
+
+function apartChange(selectObject) {
+    var value = selectObject.value;
+}
+

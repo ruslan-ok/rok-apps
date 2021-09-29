@@ -9,7 +9,6 @@ app_config = {
         'apart': {
             'icon': 'building', 
             'title': 'apartments',
-            'use_selector': True,
         },
         'service': {
             'role': ROLE_SERVICE,

@@ -459,3 +459,10 @@ textarea.form-control {
     width: 32px;
     height: 32px;
 }
+
+.select-form {
+    padding: 0 15px;
+    select {
+        width: 150px;
+    }
+}
