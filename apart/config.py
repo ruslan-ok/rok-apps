@@ -9,6 +9,7 @@ app_config = {
         'apart': {
             'icon': 'building', 
             'title': 'apartments',
+            'item_name': 'apartment',
         },
         'service': {
             'role': ROLE_SERVICE,
@@ -19,6 +20,8 @@ app_config = {
             'role': ROLE_METER,
             'icon': 'star', 
             'title': 'meters data',
+            'item_name': 'meters data',
+            'add_button': True,
         },
         'price': {
             'role': ROLE_PRICE,

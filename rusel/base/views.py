@@ -24,8 +24,9 @@ class Config:
         self.groups = self.check_property(config, 'groups', False)
         self.use_selector = self.check_property(config, 'use_selector', False)
         self.use_important = self.check_property(config, 'use_important', False)
+        self.add_button = self.check_property(config, 'add_button', False)
+        self.item_name = self.check_property(config, 'item_name', '')
         self.cur_view = ''
-
         if (cur_view in self.views):
             if ('role' in config['views'][cur_view]):
                 self.role = config['views'][cur_view]['role']
@@ -35,6 +36,8 @@ class Config:
             self.icon = self.check_property(self.views[cur_view], 'icon', self.icon)
             self.use_selector = self.check_property(self.views[cur_view], 'use_selector', self.use_selector)
             self.use_important = self.check_property(self.views[cur_view], 'use_important', self.use_important)
+            self.add_button = self.check_property(self.views[cur_view], 'add_button', self.add_button)
+            self.item_name = self.check_property(self.views[cur_view], 'item_name', self.item_name)
 
     def set_view(self, request):
         self.group_id = 0
@@ -49,6 +52,8 @@ class Config:
             self.cur_view = view_mode
             self.title = self.check_property(self.views[view_mode], 'title', self.title)
             self.icon = self.check_property(self.views[view_mode], 'icon', self.icon)
+            self.add_button = self.check_property(self.views[view_mode], 'add_button', self.add_button)
+            self.item_name = self.check_property(self.views[view_mode], 'item_name', self.item_name)
         elif (view_mode == 'by_group') :           
             self.cur_view = view_mode
 
@@ -157,13 +162,17 @@ class BaseListView(CreateView, Context):
         return self.get_dataset(self.config.role, self.config.cur_view, self.config.group_id)
 
     def get_success_url(self):
-        return reverse(self.config.app + ':item', args=(self.object.id,)) + extract_get_params(self.request)
+        if (self.config.role == self.config.base_role):
+            return reverse(self.config.app + ':item', args=(self.object.id,)) + extract_get_params(self.request)
+        return reverse(self.config.app + ':' + self.config.role + '-item', args=(self.object.id,)) + extract_get_params(self.request)
 
     def get_context_data(self, **kwargs):
         self.config.set_view(self.request)
         context = super().get_context_data(**kwargs)
         context.update(self.get_app_context())
         context['items'] = self.transform_datalist(self.get_queryset())
+        context['add_item_placeholder'] = '{} {}'.format(_('add').capitalize(), self.config.item_name if self.config.item_name else self.config.role)
+        context['add_button'] = self.config.add_button
         return context
 
     def transform_datalist(self, items):

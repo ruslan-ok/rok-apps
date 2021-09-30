@@ -22,9 +22,10 @@ class ListView(BaseApartListView, TuneData):
         apart = Apart.objects.filter(user=self.request.user, active=True).get()
         tasks = []
         for t in items.order_by('-name'):
-            serv = Service.objects.filter(task=t.id).get()
-            if (serv.apart.id != apart.id):
-                continue
+            if Service.objects.filter(task=t.id).exists():
+                serv = Service.objects.filter(task=t.id).get()
+                if (serv.apart.id != apart.id):
+                    continue
             item = {
                 'id': t.id,
                 'name': self.get_task_name(t),
@@ -39,12 +40,13 @@ class ListView(BaseApartListView, TuneData):
     def form_valid(self, form):
         form.instance.app_apart = NUM_ROLE_SERVICE
         response = super().form_valid(form)
+        apart = Apart.objects.filter(user=form.instance.user, active=True).get()
+        Service.objects.create(apart=apart, task=form.instance, name=form.instance.name);
         return response
 
     def get_info(self, item):
         ret = []
-        serv = Service.objects.filter(task=item.id).get()
-        ret.append({'text': serv.abbr})
+        ret.append({'text': item.info})
         return ret
 
 class DetailView(BaseDetailView, TuneData):

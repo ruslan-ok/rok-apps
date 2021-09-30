@@ -23,10 +23,7 @@ class ListView(BaseListView, TuneData):
     def form_valid(self, form):
         form.instance.app_apart = NUM_ROLE_APART
         response = super().form_valid(form)
-        if Apart.objects.filter(task=form.instance.id).exists():
-            apart = Apart.objects.filter(task=form.instance.id).get()
-            apart.has_gas = form.data['has_gas']
-            apart.has_ppo = form.data['has_ppo']
+        Apart.objects.create(user=form.instance.user, task=form.instance, name=form.instance.name);
         return response
 
     def get_info(self, item):

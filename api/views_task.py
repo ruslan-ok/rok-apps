@@ -14,6 +14,8 @@ from task.const import *
 from task.models import Task, TaskGroup
 from rusel.files import storage_path
 from api.serializers import TaskSerializer
+from apart.models import Apart, Service, Price, Meter, Bill
+from apart.views.meter import add_meter
 
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
@@ -100,6 +102,26 @@ class TaskViewSet(viewsets.ModelViewSet):
     def get_qty(self, request, pk=None):
         qty = len(self.get_queryset())
         return Response({'qty': qty})
+    
+    @action(detail=False)
+    def add_item(self, request, pk=None):
+        if 'app' not in self.request.query_params:
+            return Response({'Error': "Expected parameter 'app'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if 'role' not in self.request.query_params:
+            return Response({'Error': "Expected parameter 'role'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        app = self.request.query_params['app']
+        role = self.request.query_params['role']
+        if (app == 'apart' and role == 'meter'):
+            task = Task.objects.create(user=request.user, app_apart=NUM_ROLE_METER)
+            meter = add_meter(request, task)
+            task.event = meter.reading
+            task.name = meter.period.strftime('%Y.%m')
+            task.start = meter.period
+            task.save()
+            return Response({'task_id': task.id})
+        return Response({'Warning': 'Application {} and role {} does not support creation of elements by button'.format(app, role)})
     
     # OK
     @action(detail=False)
@@ -514,6 +536,16 @@ class TaskViewSet(viewsets.ModelViewSet):
             task.app_fuel = NONE
 
         if (role in [ROLE_APART, ROLE_SERVICE, ROLE_METER, ROLE_PRICE, ROLE_BILL]):
+            if (task.app_apart == NUM_ROLE_APART):
+                Apart.objects.filter(task=task.id).delete()
+            if (task.app_apart == NUM_ROLE_SERVICE):
+                Service.objects.filter(task=task.id).delete()
+            if (task.app_apart == NUM_ROLE_METER):
+                Meter.objects.filter(task=task.id).delete()
+            if (task.app_apart == NUM_ROLE_PRICE):
+                Price.objects.filter(task=task.id).delete()
+            if (task.app_apart == NUM_ROLE_BILL):
+                Bill.objects.filter(task=task.id).delete()
             task.app_apart = NONE
         
         if (role in [ROLE_MARKER, ROLE_INCIDENT, ROLE_ANAMNESIS]):

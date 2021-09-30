@@ -21,6 +21,14 @@ class CreateForm(BaseCreateForm):
         
 #----------------------------------
 class EditForm(BaseEditForm):
+    name = forms.CharField(
+        label=_('title').capitalize(),
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control mb-3'}))
+    info = forms.CharField(
+        label=_('address').capitalize(),
+        required=False,
+        widget=forms.Textarea(attrs={'class': 'form-control mb-3'}))
     has_gas = forms.BooleanField(
         label=False, 
         required=False, 

@@ -25,9 +25,10 @@ class ListView(BaseApartListView, TuneData):
         apart = Apart.objects.filter(user=self.request.user, active=True).get()
         tasks = []
         for t in items.order_by('-name'):
-            meter = Meter.objects.filter(task=t.id).get()
-            if (meter.apart.id != apart.id):
-                continue
+            if Meter.objects.filter(task=t.id).exists():
+                meter = Meter.objects.filter(task=t.id).get()
+                if (meter.apart.id != apart.id):
+                    continue
             item = {
                 'id': t.id,
                 'name': self.get_task_name(t),
@@ -41,21 +42,22 @@ class ListView(BaseApartListView, TuneData):
         response = super().form_valid(form)
         return response
 
-    def get_task_name(self, task):
-        meter = Meter.objects.filter(task=task.id).get()
-        return meter.period.strftime('%m.%Y')
+    #def get_task_name(self, task):
+    #    meter = Meter.objects.filter(task=task.id).get()
+    #    return meter.period.strftime('%m.%Y')
 
     def get_info(self, item):
-        meter = Meter.objects.filter(task=item.id).get()
         ret = []
-        ret.append({'text': '{} {}'.format(_('el:'), meter.el)})
-        ret.append({'icon': 'separator'})
-        ret.append({'text': '{} {}'.format(_('hw:'), meter.hw)})
-        ret.append({'icon': 'separator'})
-        ret.append({'text': '{} {}'.format(_('cw:'), meter.cw)})
-        if (meter.apart.has_gas):
+        if Meter.objects.filter(task=item.id).exists():
+            meter = Meter.objects.filter(task=item.id).get()
+            ret.append({'text': '{} {}'.format(_('el:'), meter.el)})
             ret.append({'icon': 'separator'})
-            ret.append({'text': '{} {}'.format(_('ga:'), meter.ga)})
+            ret.append({'text': '{} {}'.format(_('hw:'), meter.hw)})
+            ret.append({'icon': 'separator'})
+            ret.append({'text': '{} {}'.format(_('cw:'), meter.cw)})
+            if (meter.apart.has_gas):
+                ret.append({'icon': 'separator'})
+                ret.append({'text': '{} {}'.format(_('ga:'), meter.ga)})
         return ret
 
 class DetailView(BaseDetailView, TuneData):
@@ -67,3 +69,56 @@ class DetailView(BaseDetailView, TuneData):
 
 def get_doc(request, pk, fname):
     return get_app_doc(app_config['name'], role, request, pk, fname)
+
+#----------------------------------
+def next_period(last = None):
+    if not last:
+        y = datetime.now().year
+        m = datetime.now().month
+        if (m == 1):
+            m = 12
+            y = y - 1
+        else:
+            m = m - 1
+    else:
+        y = last.year
+        m = last.month
+        
+        if (m == 12):
+            y = y + 1
+            m = 1
+        else:
+            m = m + 1
+
+    return date(y, m, 1)
+
+def add_meter(request, task):
+    apart = Apart.objects.filter(user=request.user.id, active=True).get()
+    few = Meter.objects.filter(apart=apart.id).order_by('-period')[:3]
+    qty = len(few)
+    if (qty == 0):
+        period = next_period()
+        el = 0
+        hw = 0
+        cw = 0
+        ga = 0
+    else:
+        last = few[0]
+        period = next_period(last.period)
+
+        el = last.el
+        hw = last.hw
+        cw = last.cw
+        ga = last.ga
+
+        if (qty > 1):
+            first = few[qty-1]
+            el = last.el + round((last.el - first.el) / (qty - 1))
+            hw = last.hw + round((last.hw - first.hw) / (qty - 1))
+            cw = last.cw + round((last.cw - first.cw) / (qty - 1))
+            if last.ga:
+                ga = last.ga + round((last.ga - first.ga) / (qty - 1))
+
+    item = Meter.objects.create(apart=apart, period=period, task=task, reading=datetime.now(), el=el, hw=hw, cw=cw, ga=ga)
+    return item
+
