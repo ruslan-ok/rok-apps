@@ -1,0 +1,27 @@
+{% extends "base/page_content.html" %}
+{% load static i18n %}
+
+{% block main %}
+<div class="list-content">
+    {% include "apart/title.html" %}
+
+    <ul>
+        {% for item in items %}
+            {% include "base/item.html" %}
+        {% endfor %}
+    </ul>
+
+    {% if not hide_add_item_input %}
+        <form method="post" class="add-form">{% csrf_token %}
+          {% if add_button %}
+            <button type="button" class="btn bi-plus-lg add-form__button" onclick="addItem('{{ config.app }}', '{{ config.role }}')">{{ add_item_placeholder }}</button>
+          {% else %}
+            <button type="submit" class="bi-plus-lg add-form__button"></button>
+            <input type="text" name="name" maxlength="200" required="" id="id_name" class="add-form__input" placeholder="{{ add_item_placeholder }}">
+          {% endif %}
+        </form>
+    {% endif %}
+
+</div>
+{% endblock %}
+

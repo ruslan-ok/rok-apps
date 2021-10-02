@@ -9,7 +9,7 @@ ul.errorlist {
 }
 
 .form-control.date {
-    width: 150px;
+    width: 170px;
 }
 
 input[type="number"].form-control {
@@ -459,3 +459,18 @@ textarea.form-control {
     width: 32px;
     height: 32px;
 }
+
+.select-form {
+    padding: 0 15px;
+    select {
+        width: 150px;
+    }
+}
+
+.col.title {
+    font-weight: 600;
+}
+
+.col.value {
+}
+

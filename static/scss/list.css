@@ -1,10 +1,16 @@
 .list-content {
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
-  flex-direction: column;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
   background-color: #d1e7dd !important;
   width: 100% !important;
   margin: 0 auto;
 }
+
 .list-content ul {
   min-height: 500px;
   max-height: 500px;
@@ -13,14 +19,20 @@
   overflow: auto;
   margin-top: 10px;
 }
+
 .list-content ul li.list-item {
+  display: -webkit-box !important;
+  display: -ms-flexbox !important;
   display: flex !important;
-  justify-content: space-between !important;
+  -webkit-box-pack: justify !important;
+      -ms-flex-pack: justify !important;
+          justify-content: space-between !important;
   min-height: 50px;
   margin-bottom: 0.25rem !important;
   border-radius: 0.25rem;
   background-color: white;
 }
+
 .list-content ul li.list-item button.left-icon {
   cursor: pointer;
   padding: 17px;
@@ -28,74 +40,111 @@
   border: none;
   background-color: inherit;
 }
+
 .list-content ul li.list-item a.container {
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
   min-height: 50px;
   width: 100%;
 }
+
 .list-content ul li.list-item a.container .info {
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
 }
+
 .list-content ul li.list-item a.container .info .name {
   color: black;
 }
+
 .list-content ul li.list-item a.container .info .name.completed {
   text-decoration: line-through;
 }
+
 .list-content ul li.list-item a.container .info .descr {
+  display: -webkit-box !important;
+  display: -ms-flexbox !important;
   display: flex !important;
-  flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
   margin-bottom: 5px;
 }
+
 .list-content ul li.list-item a.container .info .descr .inline {
+  display: -webkit-box !important;
+  display: -ms-flexbox !important;
   display: flex !important;
-  align-items: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
   font-size: 0.8rem;
   padding: 0 3px;
 }
+
 .list-content ul li.list-item a.container .info .descr .inline .actual {
   color: #465efc !important;
 }
+
 .list-content ul li.list-item a.container .info .descr .inline .expired {
   color: #af2e20 !important;
 }
+
 .list-content ul li.list-item a.container .info .descr .inline .category-design-green {
   color: #257e20;
 }
+
 .list-content ul li.list-item a.container .info .descr .inline .category-design-blue {
   color: #007899;
 }
+
 .list-content ul li.list-item a.container .info .descr .inline .category-design-red {
   color: #d01b2a;
 }
+
 .list-content ul li.list-item a.container .info .descr .inline .category-design-purple {
   color: #7d57b2;
 }
+
 .list-content ul li.list-item a.container .info .descr .inline .category-design-yellow {
   color: #7a7400;
 }
+
 .list-content ul li.list-item a.container .info .descr .inline .category-design-orange {
   color: #a35a00;
 }
+
 .list-content ul li.list-item a.container .info .descr .inline i {
   font-size: 0.6rem;
   padding: 3px;
 }
+
 .list-content ul li.list-item a.container .info .descr .inline .label {
   padding: 0 5px;
 }
+
 .list-content ul li.list-item button.right-icon {
   cursor: pointer;
   padding: 17px;
   border: none;
   background-color: inherit;
 }
+
 .list-content .add-form {
+  display: -webkit-box !important;
+  display: -ms-flexbox !important;
   display: flex !important;
   position: relative;
 }
+
 .list-content .add-form__button {
   display: inline-block;
   position: absolute;
@@ -108,9 +157,11 @@
   font-size: 1rem;
   color: white;
 }
+
 .list-content .add-form__button:hover {
   background-color: rgba(30, 71, 53, 0.671);
 }
+
 .list-content .add-form__input {
   height: 50px;
   width: 100%;
@@ -121,9 +172,24 @@
   background-color: rgba(43, 99, 75, 0.671);
   color: white;
 }
-.list-content .add-form__input::placeholder {
+
+.list-content .add-form__input::-webkit-input-placeholder {
   color: white;
   opacity: 0.5;
 }
 
+.list-content .add-form__input:-ms-input-placeholder {
+  color: white;
+  opacity: 0.5;
+}
+
+.list-content .add-form__input::-ms-input-placeholder {
+  color: white;
+  opacity: 0.5;
+}
+
+.list-content .add-form__input::placeholder {
+  color: white;
+  opacity: 0.5;
+}
 /*# sourceMappingURL=list.css.map */

@@ -51,7 +51,6 @@ def get_base_context(request, app, role, detail, title):
         if (not detail):
             context['group_path'] = get_group_path(cur_grp.id)
 
-    context['add_item_placeholder'] = _('add task').capitalize()
     return context
 
 def get_sorted_groups(groups, user_id, role, node=None):

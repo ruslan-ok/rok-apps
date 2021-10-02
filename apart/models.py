@@ -26,6 +26,9 @@ class Apart(models.Model):
     name = models.CharField(_('name'), max_length = 1000)
     addr = models.CharField(_('address'), max_length = 5000, blank = True)
     active = models.BooleanField(_('active'), default = False)
+    has_el = models.BooleanField(_('has electricity'), default = True)
+    has_hw = models.BooleanField(_('has hot water'), default = True)
+    has_cw = models.BooleanField(_('has cold water'), default = True)
     has_gas = models.BooleanField(_('has gas'), default = True)
     has_ppo = models.BooleanField(_('payments to the partnership of owners'), default = False)
     task = models.ForeignKey(Task, on_delete=models.SET_NULL, verbose_name=_('task'), related_name = 'task_apart', null=True)
@@ -88,9 +91,15 @@ class Meter(models.Model):
         verbose_name_plural = _('meters data')
 
     def __str__(self):
-        ret = self.period.strftime('%m.%Y') + ' el: ' + str(self.el) + ', hw: ' + str(self.hw) + ', cw: ' + str(self.cw)
+        ret = self.period.strftime('%m.%Y')
+        if (self.apart.has_el):
+            ret += ' el: ' + str(self.el)
+        if (self.apart.has_hw):
+            ret += ' hw: ' + str(self.hw)
+        if (self.apart.has_cw):
+            ret += ' cw: ' + str(self.cw)
         if (self.apart.has_gas):
-            ret += ', ga: ' + str(self.ga)
+            ret += ' ga: ' + str(self.ga)
         return ret
 
     def name(self):

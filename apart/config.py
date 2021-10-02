@@ -9,7 +9,7 @@ app_config = {
         'apart': {
             'icon': 'building', 
             'title': 'apartments',
-            'use_selector': True,
+            'item_name': 'apartment',
         },
         'service': {
             'role': ROLE_SERVICE,
@@ -20,16 +20,20 @@ app_config = {
             'role': ROLE_METER,
             'icon': 'star', 
             'title': 'meters data',
+            'item_name': 'meters data',
+            'add_button': True,
         },
         'price': {
             'role': ROLE_PRICE,
             'icon': 'star', 
             'title': 'prices',
+            'add_button': True,
         },
         'bill': {
             'role': ROLE_BILL,
             'icon': 'star', 
             'title': 'bills',
+            'add_button': True,
         },
     }
 }

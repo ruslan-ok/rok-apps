@@ -8,9 +8,9 @@ urlpatterns = [
     path('<int:pk>/', apart.DetailView.as_view(), name='item'),
     path('<int:pk>/doc/<str:fname>', apart.get_doc, name='doc'),
 
-    path('service/', serv.ListView.as_view(), name='serv-list'),
-    path('service/<int:pk>/', serv.DetailView.as_view(), name='serv-item'),
-    path('service/<int:pk>/doc/<str:fname>', serv.get_doc, name='serv-doc'),
+    path('service/', serv.ListView.as_view(), name='service-list'),
+    path('service/<int:pk>/', serv.DetailView.as_view(), name='service-item'),
+    path('service/<int:pk>/doc/<str:fname>', serv.get_doc, name='service-doc'),
 
     path('meter/', meter.ListView.as_view(), name='meter-list'),
     path('meter/<int:pk>/', meter.DetailView.as_view(), name='meter-item'),

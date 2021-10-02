@@ -33,6 +33,30 @@ function closeForm() {
     window.location.href = redirect_url;
 }
 
+function addItem(app, role) {
+    const api = '/api/tasks/add_item/?format=json&app=' + app + '&role=' + role;
+    let url = window.location.protocol + '//' + window.location.host + api;
+    let xhttp = new XMLHttpRequest();
+    xhttp.open('GET', url, true);
+    let y = document.getElementsByName('csrfmiddlewaretoken');
+    let crsf = y[0].value; 
+    xhttp.setRequestHeader('X-CSRFToken', crsf);
+    xhttp.setRequestHeader('Content-type', 'application/json');
+
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            let url_parts = window.location.href.split('?');
+            let resp = JSON.parse(this.responseText);
+            let redirect_url = url_parts[0] + resp.task_id + '/';
+            if (url_parts.length > 1)
+                redirect_url += '?' + url_parts[1];
+            window.location.href = redirect_url;
+        }
+    };
+
+    xhttp.send();
+}
+
 function delItem(app_name) {
     if (!confirm('Are you sure?'))
         return;
@@ -169,6 +193,67 @@ function delAvatar() {
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             console.log('deleted profile avatar');
+            window.location.href = redirect_url;
+        }
+    };
+
+    xhttp.send();
+}
+
+function toggleCompleted(item_id) {
+    let redirect_url = window.location.href;
+    const api = '/api/tasks/' + item_id + '/completed/?format=json';
+    let url = window.location.protocol + '//' + window.location.host + api;
+    let xhttp = new XMLHttpRequest();
+    xhttp.open('GET', url, true);
+    let y = document.getElementsByName('csrfmiddlewaretoken');
+    let crsf = y[0].value; 
+    xhttp.setRequestHeader('X-CSRFToken', crsf);
+    xhttp.setRequestHeader('Content-type', 'application/json');
+
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            window.location.href = redirect_url;
+        }
+    };
+
+    xhttp.send();
+}
+
+function toggleImportant(item_id) {
+    let redirect_url = window.location.href;
+    const api = '/api/tasks/' + item_id + '/important/?format=json';
+    let url = window.location.protocol + '//' + window.location.host + api;
+    let xhttp = new XMLHttpRequest();
+    xhttp.open('GET', url, true);
+    let y = document.getElementsByName('csrfmiddlewaretoken');
+    let crsf = y[0].value; 
+    xhttp.setRequestHeader('X-CSRFToken', crsf);
+    xhttp.setRequestHeader('Content-type', 'application/json');
+
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            window.location.href = redirect_url;
+        }
+    };
+
+    xhttp.send();
+}
+
+function apartChange(selectObject) {
+    var value = selectObject.value;
+    let redirect_url = window.location.href;
+    const api = '/api/apart/' + value + '/set_active/?format=json';
+    let url = window.location.protocol + '//' + window.location.host + api;
+    let xhttp = new XMLHttpRequest();
+    xhttp.open('GET', url, true);
+    let y = document.getElementsByName('csrfmiddlewaretoken');
+    let crsf = y[0].value; 
+    xhttp.setRequestHeader('X-CSRFToken', crsf);
+    xhttp.setRequestHeader('Content-type', 'application/json');
+
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
             window.location.href = redirect_url;
         }
     };

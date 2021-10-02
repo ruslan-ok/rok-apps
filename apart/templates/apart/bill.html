@@ -6,7 +6,64 @@
     {% include "base/title.html" %}
     {% include "base/form_errors.html" %}
 
-    {{ form }}
+    {{ form.period }}
+    {{ form.payment }}
+    {{ form.rate }}
+
+    <div class="container">
+      <div class="row">
+        <div class="col title"></div>
+        <div class="col title">{% trans 'old'|capfirst %}</div>
+        <div class="col title">{% trans 'new'|capfirst %}</div>
+        <div class="col title">{% trans 'volume'|capfirst %}</div>
+      </div>
+      {% if ed_item.apart.has_el %}
+      <div class="row">
+        <div class="col title">{% trans 'electro'|capfirst %}</div>
+        <div class="col value">{{ ed_item.prev.el }}</div>
+        <div class="col value">{{ ed_item.curr.el }}</div>
+        <div class="col value">{{ volume.el }}</div>
+      </div>
+      {% endif %}
+      {% if ed_item.apart.has_gas %}
+      <div class="row">
+        <div class="col title">{% trans 'gas'|capfirst %}</div>
+        <div class="col value">{{ ed_item.prev.ga }}</div>
+        <div class="col value">{{ ed_item.curr.ga }}</div>
+        <div class="col value">{{ volume.ga }}</div>
+      </div>
+      {% endif %}
+      {% if ed_item.apart.has_cw %}
+      <div class="row">
+        <div class="col title">{% trans 'cold'|capfirst %}</div>
+        <div class="col value">{{ ed_item.prev.cw }}</div>
+        <div class="col value">{{ ed_item.curr.cw }}</div>
+        <div class="col value">{{ volume.wt }}</div>
+      </div>
+      {% endif %}
+      {% if ed_item.apart.has_hw %}
+      <div class="row">
+        <div class="col title">{% trans 'hot'|capfirst %}</div>
+        <div class="col value">{{ ed_item.prev.hw }}</div>
+        <div class="col value">{{ ed_item.curr.hw }}</div>
+        <div class="col value"></div>
+      </div>
+      {% endif %}
+    </div>
+
+    <hr>
+
+    <div class="row gx-3">
+      {% if not ed_item.apart.has_communal %}
+      {{ form.tv_bill }}
+      {{ form.tv_pay }}
+      {{ form.phone_bill }}
+      {{ form.phone_pay }}
+      {{ form.zhirovka }}
+      {% endif %}
+    </div>
+
+    {{ form.info }}
 
     <div class="d-flex justify-content-evenly mt-3 pb-5">
       <button type="submit" name="item_save" class="btn btn-primary bi-save" title="{% trans 'save changes'|capfirst %}">

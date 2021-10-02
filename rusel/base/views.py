@@ -11,7 +11,7 @@ from task.const import ROLES_IDS
 from task.models import Task, Group, TaskGroup, Urls
 
 class Config:
-    def __init__(self, config, cur_role, *args, **kwargs):
+    def __init__(self, config, cur_view, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.app = config['name']
@@ -19,18 +19,25 @@ class Config:
         self.title = config['app_title']
         self.icon = config['icon']
         self.views = config['views']
-        self.role = config['role']
+        self.base_role = config['role']
+        self.role = self.base_role
         self.groups = self.check_property(config, 'groups', False)
         self.use_selector = self.check_property(config, 'use_selector', False)
         self.use_important = self.check_property(config, 'use_important', False)
-        self.cur_view = '???'
-
-        if (cur_role in self.views):
-            self.cur_view = cur_role
-            self.title = self.check_property(self.views[cur_role], 'title', self.title)
-            self.icon = self.check_property(self.views[cur_role], 'icon', self.icon)
-            self.use_selector = self.check_property(self.views[cur_role], 'use_selector', self.use_selector)
-            self.use_important = self.check_property(self.views[cur_role], 'use_important', self.use_important)
+        self.add_button = self.check_property(config, 'add_button', False)
+        self.item_name = self.check_property(config, 'item_name', '')
+        self.cur_view = ''
+        if (cur_view in self.views):
+            if ('role' in config['views'][cur_view]):
+                self.role = config['views'][cur_view]['role']
+            else:
+                self.cur_view = cur_view
+            self.title = self.check_property(self.views[cur_view], 'title', self.title)
+            self.icon = self.check_property(self.views[cur_view], 'icon', self.icon)
+            self.use_selector = self.check_property(self.views[cur_view], 'use_selector', self.use_selector)
+            self.use_important = self.check_property(self.views[cur_view], 'use_important', self.use_important)
+            self.add_button = self.check_property(self.views[cur_view], 'add_button', self.add_button)
+            self.item_name = self.check_property(self.views[cur_view], 'item_name', self.item_name)
 
     def set_view(self, request):
         self.group_id = 0
@@ -45,6 +52,8 @@ class Config:
             self.cur_view = view_mode
             self.title = self.check_property(self.views[view_mode], 'title', self.title)
             self.icon = self.check_property(self.views[view_mode], 'icon', self.icon)
+            self.add_button = self.check_property(self.views[view_mode], 'add_button', self.add_button)
+            self.item_name = self.check_property(self.views[view_mode], 'item_name', self.item_name)
         elif (view_mode == 'by_group') :           
             self.cur_view = view_mode
 
@@ -55,8 +64,8 @@ class Config:
         return ret
 
 class Context:
-    def set_config(self, config, cur_role):
-        self.config = Config(config, cur_role)
+    def set_config(self, config, cur_view):
+        self.config = Config(config, cur_view)
 
     def get_app_context(self, **kwargs):
         context = {}
@@ -65,57 +74,50 @@ class Context:
         context['fix_list'] = self.get_fixes(self.config.views)
         context['group_form'] = CreateGroupForm()
         #context['sort_options'] = self.get_sorts()
-        context['item_detail_url'] = self.config.app + ':item'
+        if (self.config.role == self.config.base_role):
+            context['item_detail_url'] = self.config.app + ':item'
+        else:
+            context['item_detail_url'] = self.config.app + ':' + self.config.role + '-item'
         context['config'] = self.config
         context['params'] = extract_get_params(self.request)
-
-        items = self.get_queryset()
-        if (len(items) == 0) or (type(items[0]) != Task):
-            context['items'] = items
-        else:
-            tasks = []
-            for t in items:
-                item = {
-                    'id': t.id,
-                    'name': t.name,
-                    'important': t.important,
-                    'completed': t.completed,
-                    'attrs': self.get_info(t)
-                }
-                tasks.append(item)
-            context['items'] = tasks
         return context
+
+    def get_task_name(self, task):
+        return task.name
 
     def get_fixes(self, views):
         fixes = []
         common_url = reverse(self.config.app + ':list')
         for key, value in views.items():
             url = common_url
-            view_role = self.config.role
-            if (self.config.role != key):
+            view_role = self.config.base_role
+            view_mode = ''
+            if (view_role != key):
                 if ('role' in value):
                     view_role = value['role']
                     url += view_role + '/'
-            if (key != view_role):
-                url += '?view=' + key
-            qty = self.get_qty(key, 0)
+                else:
+                    view_mode = key
+            if (view_mode):
+                url += '?view=' + view_mode
+            qty = self.get_qty(view_role, key, 0)
             fixes.append({'name': key, 'url': url, 'icon': value['icon'], 'title': _(value['title']).capitalize(), 'qty': qty})
         return fixes
 
     def get_info(self, item):
         return []
 
-    def get_qty(self, view_mode, group_id):
-        data = self.get_dataset(view_mode, group_id)
+    def get_qty(self, view_role, view_mode, group_id):
+        data = self.get_dataset(view_role, view_mode, group_id)
         return len(data)    
 
-    def get_dataset(self, view_mode, group_id):
+    def get_dataset(self, view_role, view_mode, group_id):
         data = None
-        if (not self.config.app) or (not self.config.role):
+        if (not self.config.app) or (not view_role):
             return data
         data = Task.objects.filter(user=self.request.user.id)
 
-        role_id = ROLES_IDS[self.config.app][self.config.role]
+        role_id = ROLES_IDS[self.config.app][view_role]
 
         if (self.config.app == 'todo'):
             data = data.filter(app_task=role_id)
@@ -157,16 +159,37 @@ class BaseListView(CreateView, Context):
         self.template_name = 'base/list.html'
 
     def get_queryset(self):
-        return self.get_dataset(self.config.cur_view, self.config.group_id)
+        return self.get_dataset(self.config.role, self.config.cur_view, self.config.group_id)
 
     def get_success_url(self):
-        return reverse(self.config.app + ':item', args=(self.object.id,)) + extract_get_params(self.request)
+        if (self.config.role == self.config.base_role):
+            return reverse(self.config.app + ':item', args=(self.object.id,)) + extract_get_params(self.request)
+        return reverse(self.config.app + ':' + self.config.role + '-item', args=(self.object.id,)) + extract_get_params(self.request)
 
     def get_context_data(self, **kwargs):
         self.config.set_view(self.request)
         context = super().get_context_data(**kwargs)
         context.update(self.get_app_context())
+        context['items'] = self.transform_datalist(self.get_queryset())
+        context['add_item_placeholder'] = '{} {}'.format(_('add').capitalize(), self.config.item_name if self.config.item_name else self.config.role)
+        context['add_button'] = self.config.add_button
         return context
+
+    def transform_datalist(self, items):
+        if (len(items) == 0) or (type(items[0]) != Task):
+            return items
+        else:
+            tasks = []
+            for t in items:
+                item = {
+                    'id': t.id,
+                    'name': self.get_task_name(t), #t.name,
+                    'important': t.important,
+                    'completed': t.completed,
+                    'attrs': self.get_info(t)
+                }
+                tasks.append(item)
+            return tasks
 
     def form_valid(self, form):
         form.instance.user = self.request.user
@@ -189,7 +212,9 @@ class BaseDetailView(UpdateView, Context):
         self.template_name = config['name'] + '/' + self.config.role + '.html'
 
     def get_success_url(self):
-        return reverse(self.config.app + ':item', args=(self.object.id,)) + extract_get_params(self.request)
+        if (self.config.role == self.config.base_role):
+            return reverse(self.config.app + ':item', args=(self.object.id,)) + extract_get_params(self.request)
+        return reverse(self.config.app + ':' + self.config.role + '-item', args=(self.object.id,)) + extract_get_params(self.request)
 
     def get_context_data(self, **kwargs):
         self.config.set_view(self.request)
