@@ -17,7 +17,7 @@ class TaskSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['url', 'user', 'name', 'created', 'in_my_day', 'important', 'completed', 'completion', 
                 'start', 'stop', 'remind', 'last_remind', 'repeat', 'repeat_num', 'repeat_days', 'categories',
                 'app_task', 'app_note', 'app_news', 'app_store', 'app_doc', 'app_warr', 'app_expen', 
-                'app_trip', 'app_fuel', 'app_apart', 'app_health', 'app_work', 'app_photo']
+                'app_trip', 'app_fuel', 'app_apart', 'app_health', 'app_work', 'app_photo', 'item_attr']
 
 class StepSerializer(serializers.HyperlinkedModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')

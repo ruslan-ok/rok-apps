@@ -170,11 +170,11 @@ class BaseListView(CreateView, Context):
         self.config.set_view(self.request)
         context = super().get_context_data(**kwargs)
         context.update(self.get_app_context())
-        context['items'] = self.transform_datalist(self.get_queryset())
+        context['items'] = self.get_queryset()
         context['add_item_placeholder'] = '{} {}'.format(_('add').capitalize(), self.config.item_name if self.config.item_name else self.config.role)
         context['add_button'] = self.config.add_button
         return context
-
+    """
     def transform_datalist(self, items):
         if (len(items) == 0) or (type(items[0]) != Task):
             return items
@@ -190,6 +190,7 @@ class BaseListView(CreateView, Context):
                 }
                 tasks.append(item)
             return tasks
+    """
 
     def form_valid(self, form):
         form.instance.user = self.request.user

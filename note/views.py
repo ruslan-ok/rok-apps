@@ -5,7 +5,9 @@ from rusel.files import get_files_list
 from rusel.categories import get_categories_list
 from note.forms import CreateForm, EditForm
 from note.config import app_config
+from note.get_info import get_info
 
+app = 'note'
 role = ROLE_NOTE
 
 class TuneData:
@@ -60,6 +62,12 @@ class DetailView(BaseDetailView, TuneData):
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        form.instance.set_item_attr(app, get_info(form.instance))
+        return response
+
 
 class GroupView(BaseGroupView, TuneData):
     def __init__(self, *args, **kwargs):

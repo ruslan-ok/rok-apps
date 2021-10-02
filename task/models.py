@@ -1,4 +1,4 @@
-import calendar
+import calendar, json
 from urllib.parse import urlparse
 import requests
 
@@ -113,6 +113,7 @@ class Task(models.Model):
     created = models.DateTimeField(_('creation time'), auto_now_add=True)
     last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now=True)
     groups = models.ManyToManyField(Group, through='TaskGroup')
+    item_attr = models.CharField(_('item attributes'), max_length=2000, blank=True, null=True)
 
     class Meta:
         verbose_name = _('task')
@@ -120,6 +121,20 @@ class Task(models.Model):
 
     def __str__(self):
         return self.name
+
+    def set_item_attr(self, app, attr):
+        if not self.item_attr:
+            value = {}
+        else:
+            value = json.loads(self.item_attr)
+        value[app] = attr
+        self.item_attr = json.dumps(value)
+        self.save()
+
+    def get_item_attr(self):
+        if self.item_attr:
+            return json.loads(self.item_attr)
+        return {}
 
     def get_item_app(self):
         if (self.app_task == NUM_ROLE_TODO):

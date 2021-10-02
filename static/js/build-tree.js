@@ -1,6 +1,6 @@
 let tree_data = [], map = {};
 
-function buildTree(tree_id, app, current_id) {
+function buildTree(tree_id) {
   let i, roots = [], node = {};
 
   let ul = document.getElementById(tree_id);

@@ -17,6 +17,8 @@ from api.serializers import TaskSerializer
 from apart.models import Apart, Service, Price, Meter, Bill
 from apart.views.meter import add_meter
 
+from note.get_info import get_info as note_get_info
+
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -97,11 +99,17 @@ class TaskViewSet(viewsets.ModelViewSet):
                 return data.filter(app_photo=NUM_ROLE_PHOTO)
         return data
 
-    # OK
     @action(detail=False)
     def get_qty(self, request, pk=None):
         qty = len(self.get_queryset())
         return Response({'qty': qty})
+    
+    @action(detail=False)
+    def get_info(self, request, pk=None):
+        for task in Task.objects.filter(user=request.user.id).exclude(app_note=NONE):
+            task.set_item_attr('note', note_get_info(task))
+        serializer = self.get_serializer(self.get_queryset(), many=True)
+        return Response(serializer.data)
     
     @action(detail=False)
     def add_item(self, request, pk=None):

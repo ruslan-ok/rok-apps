@@ -21,7 +21,7 @@ class ListView(BaseApartListView, TuneData):
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
-
+    """
     def transform_datalist(self, items):
         apart = Apart.objects.filter(user=self.request.user, active=True).get()
         tasks = []
@@ -36,12 +36,14 @@ class ListView(BaseApartListView, TuneData):
             }
             tasks.append(item)
         return tasks
+    """
 
     def form_valid(self, form):
         form.instance.app_apart = NUM_ROLE_BILL
         response = super().form_valid(form)
         return response
 
+    """
     def get_task_name(self, task):
         bill = Bill.objects.filter(task=task.id).get()
         return bill.period.strftime('%m.%Y')
@@ -67,6 +69,7 @@ class ListView(BaseApartListView, TuneData):
         if len(files):
             ret.append({'icon': 'attach'})
         return ret
+    """
 
 class DetailView(BaseDetailView, TuneData):
     model = Task

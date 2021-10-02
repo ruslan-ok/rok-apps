@@ -22,7 +22,6 @@ def get_base_context(request, app, role, detail, title):
                     title_2 = title[1]
             else:
                 title_1 = title
-    context['list_id'] = 0
     if not title_1 and not title_2:
         context['title'] = ''
     if title_1 and not title_2:
