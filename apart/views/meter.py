@@ -42,21 +42,23 @@ class ListView(BaseApartListView, TuneData):
         response = super().form_valid(form)
         return response
 
-    #def get_task_name(self, task):
-    #    meter = Meter.objects.filter(task=task.id).get()
-    #    return meter.period.strftime('%m.%Y')
-
     def get_info(self, item):
         ret = []
         if Meter.objects.filter(task=item.id).exists():
             meter = Meter.objects.filter(task=item.id).get()
-            ret.append({'text': '{} {}'.format(_('el:'), meter.el)})
-            ret.append({'icon': 'separator'})
-            ret.append({'text': '{} {}'.format(_('hw:'), meter.hw)})
-            ret.append({'icon': 'separator'})
-            ret.append({'text': '{} {}'.format(_('cw:'), meter.cw)})
+            if (meter.apart.has_el):
+                ret.append({'text': '{} {}'.format(_('el:'), meter.el)})
+            if (meter.apart.has_hw):
+                if ret:
+                    ret.append({'icon': 'separator'})
+                ret.append({'text': '{} {}'.format(_('hw:'), meter.hw)})
+            if (meter.apart.has_cw):
+                if ret:
+                    ret.append({'icon': 'separator'})
+                ret.append({'text': '{} {}'.format(_('cw:'), meter.cw)})
             if (meter.apart.has_gas):
-                ret.append({'icon': 'separator'})
+                if ret:
+                    ret.append({'icon': 'separator'})
                 ret.append({'text': '{} {}'.format(_('ga:'), meter.ga)})
         return ret
 
@@ -66,6 +68,21 @@ class DetailView(BaseDetailView, TuneData):
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        if Meter.objects.filter(task=form.instance.id).exists():
+            meter = Meter.objects.filter(task=form.instance.id).get()
+            meter.period = form.cleaned_data['period']
+            meter.reading = form.cleaned_data['reading']
+            meter.el = form.cleaned_data['el']
+            meter.hw = form.cleaned_data['hw']
+            meter.cw = form.cleaned_data['cw']
+            meter.ga = form.cleaned_data['ga']
+            meter.save()
+            form.instance.name = meter.period.strftime('%Y.%m')
+            form.instance.save()
+        return response
 
 def get_doc(request, pk, fname):
     return get_app_doc(app_config['name'], role, request, pk, fname)

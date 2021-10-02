@@ -40,4 +40,4 @@ class ApartSerializer(serializers.HyperlinkedModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')
     class Meta:
         model = Apart
-        fields = ['url', 'user', 'name', 'addr', 'active', 'has_gas', 'has_ppo', 'info', 'task']
+        fields = ['url', 'user', 'name', 'addr', 'active', 'has_el', 'has_hw', 'has_cw', 'has_gas', 'has_ppo', 'info', 'task']

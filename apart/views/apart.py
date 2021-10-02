@@ -41,6 +41,9 @@ class DetailView(BaseDetailView, TuneData):
         response = super().form_valid(form)
         if Apart.objects.filter(task=form.instance.id).exists():
             apart = Apart.objects.filter(task=form.instance.id).get()
+            apart.has_el = form.cleaned_data['has_el']
+            apart.has_hw = form.cleaned_data['has_hw']
+            apart.has_cw = form.cleaned_data['has_cw']
             apart.has_gas = form.cleaned_data['has_gas']
             apart.has_ppo = form.cleaned_data['has_ppo']
             apart.save()

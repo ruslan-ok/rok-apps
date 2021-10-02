@@ -27,11 +27,13 @@ app_config = {
             'role': ROLE_PRICE,
             'icon': 'star', 
             'title': 'prices',
+            'add_button': True,
         },
         'bill': {
             'role': ROLE_BILL,
             'icon': 'star', 
             'title': 'bills',
+            'add_button': True,
         },
     }
 }

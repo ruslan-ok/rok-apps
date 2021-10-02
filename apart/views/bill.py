@@ -75,5 +75,27 @@ class DetailView(BaseDetailView, TuneData):
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        self.config.set_view(self.request)
+        context = super().get_context_data(**kwargs)
+        if Bill.objects.filter(task=self.get_object().id).exists():
+            item = Bill.objects.filter(task=self.get_object().id).get()
+            context['ed_item'] = item
+            vel = 0
+            vga = 0
+            vwt = 0
+
+            if item.curr.el and item.prev.el:
+                vel = item.curr.el - item.prev.el
+
+            if item.curr.ga and item.prev.ga:
+                vga = item.curr.ga - item.prev.ga
+
+            if item.curr.hw and item.curr.cw and item.prev.hw and item.prev.cw:
+                vwt = (item.curr.hw + item.curr.cw) - (item.prev.hw + item.prev.cw)
+
+            context['volume'] = { 'el': vel, 'ga': vga, 'wt': vwt }
+        return context
+
 def get_doc(request, pk, fname):
     return get_app_doc(app_config['name'], role, request, pk, fname)

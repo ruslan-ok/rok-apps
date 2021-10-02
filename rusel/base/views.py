@@ -212,7 +212,9 @@ class BaseDetailView(UpdateView, Context):
         self.template_name = config['name'] + '/' + self.config.role + '.html'
 
     def get_success_url(self):
-        return reverse(self.config.app + ':item', args=(self.object.id,)) + extract_get_params(self.request)
+        if (self.config.role == self.config.base_role):
+            return reverse(self.config.app + ':item', args=(self.object.id,)) + extract_get_params(self.request)
+        return reverse(self.config.app + ':' + self.config.role + '-item', args=(self.object.id,)) + extract_get_params(self.request)
 
     def get_context_data(self, **kwargs):
         self.config.set_view(self.request)

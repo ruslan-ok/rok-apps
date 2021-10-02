@@ -51,3 +51,12 @@ class SwitchInput(DjangoCheckboxInput):
         if ('label' not in context['widget']['attrs']):
             context['widget']['attrs'].update({'label': name})
         return context
+
+class MyNumberInput(Input):
+    input_type = 'number'
+    template_name = 'widgets/input.html'
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        return context
+
