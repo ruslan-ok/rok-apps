@@ -2,7 +2,7 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from rusel.base.forms import BaseCreateForm, BaseEditForm
-from rusel.widgets import MyNumberInput
+from rusel.widgets import DateInput, NumberInput
 from task.models import Task
 from apart.config import app_config
 from apart.models import Bill
@@ -22,34 +22,34 @@ class CreateForm(BaseCreateForm):
 #----------------------------------
 class EditForm(BaseEditForm):
     period = forms.DateField(
-        label=_('period').capitalize(),
+        label=False,
         required=True,
-        widget=forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control date d-inline-block mb-1 me-3', 'type': 'date'}))
+        widget=DateInput(format='%Y-%m-%d', attrs={'label': _('period').capitalize(), 'type': 'date'}))
     payment = forms.DateTimeField(
-        label=_('date of payment').capitalize(),
+        label=False,
         required=True,
-        widget=forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime d-inline-block mb-1 me-3', 'type': 'datetime-local'}))
+        widget=DateInput(format='%Y-%m-%dT%H:%M', attrs={'label': _('date of payment').capitalize(), 'type': 'datetime-local'}))
     rate = forms.IntegerField(
-        label=_('US dollar exchange rate'),
+        label=False,
         required=False,
-        widget=MyNumberInput(attrs={'class': ''}))
-    el_pay = forms.DecimalField(required=False, widget=MyNumberInput(attrs={'label': _('electro - payment').capitalize(), 'class': ''}))
-    tv_bill = forms.DecimalField(required=False, widget=MyNumberInput(attrs={'label': _('Internet - accrued'), 'class': ''}))
-    tv_pay = forms.DecimalField(required=False, widget=MyNumberInput(attrs={'label': _('TV - payment'), 'class': ''}))
-    phone_bill = forms.DecimalField(required=False, widget=MyNumberInput(attrs={'label': _('phone - accrued').capitalize(), 'class': ''}))
-    phone_pay = forms.DecimalField(required=False, widget=MyNumberInput(attrs={'label': _('phone - payment').capitalize(), 'class': ''}))
-    zhirovka = forms.DecimalField(required=False, widget=MyNumberInput(attrs={'label': _('zhirovka').capitalize(), 'class': ''}))
-    hot_pay = forms.DecimalField(required=False, widget=MyNumberInput(attrs={'label': _('heatenergy - payment').capitalize(), 'class': ''}))
-    repair_pay = forms.DecimalField(required=False, widget=MyNumberInput(attrs={'label': _('overhaul - payment').capitalize(), 'class': ''}))
-    ZKX_pay = forms.DecimalField(required=False, widget=MyNumberInput(attrs={'label': _('HCS - payment'), 'class': ''}))
-    water_pay = forms.DecimalField(required=False, widget=MyNumberInput(attrs={'label': _('water - payment').capitalize(), 'class': ''}))
-    gas_pay = forms.DecimalField(required=False, widget=MyNumberInput(attrs={'label': _('gas - payment').capitalize(), 'class': ''}))
-    PoO = forms.DecimalField(required=False, widget=MyNumberInput(attrs={'label': _('PoO - accrued'), 'class': ''}))
-    PoO_pay = forms.DecimalField(required=False, widget=MyNumberInput(attrs={'label': _('PoO - payment'), 'class': ''}))
+        widget=NumberInput(attrs={'label': _('US dollar exchange rate')}))
+    el_pay = forms.DecimalField(required=False, widget=NumberInput(attrs={'label': _('electro - payment').capitalize(), 'class': ''}))
+    tv_bill = forms.DecimalField(required=False, widget=NumberInput(attrs={'label': _('Internet - accrued'), 'class': ''}))
+    tv_pay = forms.DecimalField(required=False, widget=NumberInput(attrs={'label': _('TV - payment'), 'class': ''}))
+    phone_bill = forms.DecimalField(required=False, widget=NumberInput(attrs={'label': _('phone - accrued').capitalize(), 'class': ''}))
+    phone_pay = forms.DecimalField(required=False, widget=NumberInput(attrs={'label': _('phone - payment').capitalize(), 'class': ''}))
+    zhirovka = forms.DecimalField(required=False, widget=NumberInput(attrs={'label': _('zhirovka').capitalize(), 'class': ''}))
+    hot_pay = forms.DecimalField(required=False, widget=NumberInput(attrs={'label': _('heatenergy - payment').capitalize(), 'class': ''}))
+    repair_pay = forms.DecimalField(required=False, widget=NumberInput(attrs={'label': _('overhaul - payment').capitalize(), 'class': ''}))
+    ZKX_pay = forms.DecimalField(required=False, widget=NumberInput(attrs={'label': _('HCS - payment'), 'class': ''}))
+    water_pay = forms.DecimalField(required=False, widget=NumberInput(attrs={'label': _('water - payment').capitalize(), 'class': ''}))
+    gas_pay = forms.DecimalField(required=False, widget=NumberInput(attrs={'label': _('gas - payment').capitalize(), 'class': ''}))
+    PoO = forms.DecimalField(required=False, widget=NumberInput(attrs={'label': _('PoO - accrued'), 'class': ''}))
+    PoO_pay = forms.DecimalField(required=False, widget=NumberInput(attrs={'label': _('PoO - payment'), 'class': ''}))
     info = forms.CharField(
         label=_('comment').capitalize(),
         required=False,
-        widget=forms.Textarea(attrs={'class': 'form-control mb-1'}))
+        widget=forms.Textarea(attrs={'label': _('comment').capitalize(), 'class': 'form-control mb-1', 'data-autoresize':''}))
 
     class Meta:
         model = Task

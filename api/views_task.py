@@ -1,14 +1,12 @@
 import os.path
 
 from datetime import date, datetime, timedelta
-from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework import viewsets, permissions, renderers, status, pagination
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.reverse import reverse
 
 from task.const import *
 from task.models import Task, TaskGroup
@@ -17,7 +15,14 @@ from api.serializers import TaskSerializer
 from apart.models import Apart, Service, Price, Meter, Bill
 from apart.views.meter import add_meter
 
+from todo.get_info import get_info as todo_get_info
 from note.get_info import get_info as note_get_info
+from news.get_info import get_info as news_get_info
+from apart.views.apart import get_info as apart_get_info
+from apart.views.serv import get_info as serv_get_info
+from apart.views.price import get_info as price_get_info
+from apart.views.meter import get_info as meter_get_info
+from apart.views.bill import get_info as bill_get_info
 
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
@@ -106,8 +111,23 @@ class TaskViewSet(viewsets.ModelViewSet):
     
     @action(detail=False)
     def get_info(self, request, pk=None):
-        for task in Task.objects.filter(user=request.user.id).exclude(app_note=NONE):
-            task.set_item_attr('note', note_get_info(task))
+        for task in Task.objects.filter(user=request.user.id):
+            if (task.app_task == NUM_ROLE_TODO):
+                task.set_item_attr('todo', todo_get_info(task))
+            if (task.app_note == NUM_ROLE_NOTE):
+                task.set_item_attr('note', note_get_info(task))
+            if (task.app_news == NUM_ROLE_NEWS):
+                task.set_item_attr('news', news_get_info(task))
+            if (task.app_apart == NUM_ROLE_APART):
+                task.set_item_attr('apart', apart_get_info(task))
+            if (task.app_apart == NUM_ROLE_SERVICE):
+                task.set_item_attr('apart', serv_get_info(task))
+            if (task.app_apart == NUM_ROLE_PRICE):
+                task.set_item_attr('apart', price_get_info(task))
+            if (task.app_apart == NUM_ROLE_METER):
+                task.set_item_attr('apart', meter_get_info(task))
+            if (task.app_apart == NUM_ROLE_BILL):
+                task.set_item_attr('apart', bill_get_info(task))
         serializer = self.get_serializer(self.get_queryset(), many=True)
         return Response(serializer.data)
     

@@ -6,9 +6,11 @@
     {% include "base/title.html" %}
     {% include "base/form_errors.html" %}
 
-    {{ form.period }}
-    {{ form.payment }}
-    {{ form.rate }}
+    <div class="row">
+      {{ form.period }}
+      {{ form.payment }}
+      {{ form.rate }}
+    </div>
 
     <div class="container">
       <div class="row">
@@ -51,9 +53,7 @@
       {% endif %}
     </div>
 
-    <hr>
-
-    <div class="row gx-3">
+    <div class="row">
       {% if not ed_item.apart.has_communal %}
       {{ form.tv_bill }}
       {{ form.tv_pay }}
@@ -63,7 +63,8 @@
       {% endif %}
     </div>
 
-    {{ form.info }}
+    {{ form.info.label_tag }} {{ form.info }}
+    {% include "widgets/attachments.html" %}
 
     <div class="d-flex justify-content-evenly mt-3 pb-5">
       <button type="submit" name="item_save" class="btn btn-primary bi-save" title="{% trans 'save changes'|capfirst %}">

@@ -1,24 +1,23 @@
-from datetime import date, datetime
 from django.utils.translation import gettext_lazy as _
 from task.const import ROLE_APART, NUM_ROLE_APART
-from task.models import Task, TaskGroup, Urls, Step
-from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView, get_app_doc
+from task.models import Task
+from rusel.base.views import BaseListView, BaseDetailView, get_app_doc
 from apart.forms.apart import CreateForm, EditForm
 from apart.config import app_config
 from apart.models import Apart
 
+app = 'apart'
 role = ROLE_APART
 
-class TuneData:
-    def tune_dataset(self, data, view_mode):
-        return data;
-
-class ListView(BaseListView, TuneData):
+class ListView(BaseListView):
     model = Task
     form_class = CreateForm
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
+
+    def tune_dataset(self, data, view_mode):
+        return data
 
     def form_valid(self, form):
         form.instance.app_apart = NUM_ROLE_APART
@@ -30,12 +29,15 @@ class ListView(BaseListView, TuneData):
         ret = []
         return ret
 
-class DetailView(BaseDetailView, TuneData):
+class DetailView(BaseDetailView):
     model = Task
     form_class = EditForm
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
+
+    def tune_dataset(self, data, view_mode):
+        return data
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -47,8 +49,31 @@ class DetailView(BaseDetailView, TuneData):
             apart.has_gas = form.cleaned_data['has_gas']
             apart.has_ppo = form.cleaned_data['has_ppo']
             apart.save()
+        form.instance.set_item_attr(app, get_info(form.instance))
         return response
 
+
+def get_info(item):
+    ret = {'attr': []}
+    ret['attr'].append({'text': item.info})
+
+    if Apart.objects.filter(task=item.id).exists():
+        apart = Apart.objects.filter(task=item.id).get()
+        if apart.has_el or apart.has_hw or apart.has_cw or apart.has_gas or apart.has_ppo:
+            if item.info:
+                ret['attr'].append({'icon': 'separator'})
+            if apart.has_el:
+                ret['attr'].append({'text': 'el'})
+            if apart.has_hw:
+                ret['attr'].append({'text': 'hw'})
+            if apart.has_cw:
+                ret['attr'].append({'text': 'cw'})
+            if apart.has_gas:
+                ret['attr'].append({'text': 'gas'})
+            if apart.has_ppo:
+                ret['attr'].append({'text': 'ppo'})
+
+    return ret
 
 def get_doc(request, pk, fname):
     return get_app_doc(app_config['name'], role, request, pk, fname)

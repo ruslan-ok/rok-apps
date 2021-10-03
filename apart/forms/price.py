@@ -2,6 +2,7 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from rusel.base.forms import BaseCreateForm, BaseEditForm
+from rusel.widgets import DateInput, Select, NumberInput
 from task.models import Task
 from apart.config import app_config
 from apart.models import Apart, Price, Service
@@ -21,42 +22,42 @@ class CreateForm(BaseCreateForm):
 #----------------------------------
 class EditForm(BaseEditForm):
     start = forms.DateField(
-        label=_('valid from').capitalize(),
+        label=False,
         required=True,
-        widget=forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control date d-inline-block mb-3 me-3', 'type': 'date'}))
+        widget=DateInput(format='%Y-%m-%d', attrs={'label': _('valid from').capitalize(), 'type': 'date'}))
     service = forms.ModelChoiceField(
-        label=_('service').capitalize(),
+        label=False,
         required=True,
         queryset=None,
-        widget=forms.Select(attrs={'class': 'form-control select mb-3'}))
+        widget=Select(attrs={'label': _('service').capitalize(), 'class': 'col-md-3'}))
     tarif = forms.DecimalField(
-        label=_('tarif').capitalize(),
+        label=False,
         required=True,
-        widget=forms.NumberInput(attrs={'class': 'form-control mb-3'}))
+        widget=NumberInput(attrs={'label': _('tarif').capitalize(), 'class': 'mb-1'}))
     border = forms.IntegerField(
-        label=_('border').capitalize(),
-        required=True,
-        widget=forms.NumberInput(attrs={'class': 'form-control mb-3'}))
+        label=False,
+        required=False,
+        widget=NumberInput(attrs={'label': _('border').capitalize(), 'class': 'mb-1'}))
     tarif2 = forms.DecimalField(
-        label=_('tarif 2').capitalize(),
-        required=True,
-        widget=forms.NumberInput(attrs={'class': 'form-control mb-3'}))
+        label=False,
+        required=False,
+        widget=NumberInput(attrs={'label': _('tarif 2').capitalize(), 'class': 'mb-1'}))
     border2 = forms.IntegerField(
-        label=_('border 2').capitalize(),
-        required=True,
-        widget=forms.NumberInput(attrs={'class': 'form-control mb-3'}))
+        label=False,
+        required=False,
+        widget=NumberInput(attrs={'label': _('border 2').capitalize(), 'class': 'mb-1'}))
     tarif3 = forms.DecimalField(
-        label=_('tarif 3').capitalize(),
-        required=True,
-        widget=forms.NumberInput(attrs={'class': 'form-control mb-3'}))
+        label=False,
+        required=False,
+        widget=NumberInput(attrs={'label': _('tarif 3').capitalize(), 'class': 'mb-1'}))
+    info = forms.CharField(
+        label=_('comment').capitalize(),
+        required=False,
+        widget=forms.Textarea(attrs={'class': 'form-control mb-1', 'data-autoresize':''}))
 
     class Meta:
         model = Task
         fields = ['start', 'service', 'tarif', 'border', 'tarif2', 'border2', 'tarif3', 'info']
-        widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
-            'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)

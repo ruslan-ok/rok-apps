@@ -8,16 +8,21 @@ ul.errorlist {
     list-style-type: none;
 }
 
-.form-control.date {
+.form-label {
+    margin-top: 0.3rem;
+    margin-bottom: 0.1rem;
+}
+
+input[type="date"].form-control {
     width: 170px;
+}
+
+input[type="datetime-local"].form-control {
+    width: 235px;
 }
 
 input[type="number"].form-control {
     width: 150px;
-}
-
-.form-control.datetime {
-    width: 200px;
 }
 
 .form-control.select {
@@ -471,6 +476,4 @@ textarea.form-control {
     font-weight: 600;
 }
 
-.col.value {
-}
 

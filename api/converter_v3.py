@@ -172,7 +172,7 @@ def transfer_price():
     for price in prices:
         atask = Task.objects.create(user=price.apart.user,
                                     start=price.start,
-                                    name=price.start.strftime('%Y.%m.%d'),
+                                    name=price.start.strftime('%d.%m.%Y') + ' ' + price.serv.name,
                                     info=price.info,
                                     app_apart=NUM_ROLE_PRICE,
                                     )

@@ -1,13 +1,12 @@
-from django.forms.widgets import Input, CheckboxInput as DjangoCheckboxInput
-from django.forms import FileInput
+from django.forms import widgets
 from django.db.models.fields.files import ImageFieldFile
 from rusel.categories import get_categories_list
 
-class UrlsInput(Input):
+class UrlsInput(widgets.Input):
     input_type = 'text'
     template_name = 'widgets/url_input.html'
 
-class CategoriesInput(Input):
+class CategoriesInput(widgets.Input):
     input_type = 'text'
     template_name = 'widgets/categories.html'
 
@@ -17,11 +16,11 @@ class CategoriesInput(Input):
         value = ''
         return context
 
-class FileUpload(Input):
+class FileUpload(widgets.Input):
     input_type = 'file'
     template_name = 'widgets/add_file.html'
 
-class AvatarInput(FileInput):
+class AvatarInput(widgets.FileInput):
     input_type = 'file'
     template_name = 'widgets/avatar.html'
 
@@ -30,7 +29,7 @@ class AvatarInput(FileInput):
         context['avatar_url'] = value.url if value and type(value) == ImageFieldFile else '/static/Default-avatar.jpg'
         return context
 
-class CheckboxInput(DjangoCheckboxInput):
+class CheckboxInput(widgets.CheckboxInput):
     input_type = 'checkbox'
     template_name = 'widgets/checkbox.html'
 
@@ -41,7 +40,7 @@ class CheckboxInput(DjangoCheckboxInput):
             context['widget']['attrs'].update({'label': name})
         return context
 
-class SwitchInput(DjangoCheckboxInput):
+class SwitchInput(widgets.CheckboxInput):
     input_type = 'checkbox'
     template_name = 'widgets/switch.html'
 
@@ -52,7 +51,23 @@ class SwitchInput(DjangoCheckboxInput):
             context['widget']['attrs'].update({'label': name})
         return context
 
-class MyNumberInput(Input):
+class DateInput(widgets.DateInput):
+    input_type = 'date'
+    template_name = 'widgets/date.html'
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        return context
+
+class Select(widgets.Select):
+    input_type = 'select'
+    template_name = 'widgets/select.html'
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        return context
+
+class NumberInput(widgets.Input):
     input_type = 'number'
     template_name = 'widgets/input.html'
 

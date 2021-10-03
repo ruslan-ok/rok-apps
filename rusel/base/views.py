@@ -82,9 +82,6 @@ class Context:
         context['params'] = extract_get_params(self.request)
         return context
 
-    def get_task_name(self, task):
-        return task.name
-
     def get_fixes(self, views):
         fixes = []
         common_url = reverse(self.config.app + ':list')
@@ -103,9 +100,6 @@ class Context:
             qty = self.get_qty(view_role, key, 0)
             fixes.append({'name': key, 'url': url, 'icon': value['icon'], 'title': _(value['title']).capitalize(), 'qty': qty})
         return fixes
-
-    def get_info(self, item):
-        return []
 
     def get_qty(self, view_role, view_mode, group_id):
         data = self.get_dataset(view_role, view_mode, group_id)
@@ -174,23 +168,6 @@ class BaseListView(CreateView, Context):
         context['add_item_placeholder'] = '{} {}'.format(_('add').capitalize(), self.config.item_name if self.config.item_name else self.config.role)
         context['add_button'] = self.config.add_button
         return context
-    """
-    def transform_datalist(self, items):
-        if (len(items) == 0) or (type(items[0]) != Task):
-            return items
-        else:
-            tasks = []
-            for t in items:
-                item = {
-                    'id': t.id,
-                    'name': self.get_task_name(t), #t.name,
-                    'important': t.important,
-                    'completed': t.completed,
-                    'attrs': self.get_info(t)
-                }
-                tasks.append(item)
-            return tasks
-    """
 
     def form_valid(self, form):
         form.instance.user = self.request.user
@@ -280,5 +257,5 @@ def get_app_doc(app, role, request, pk, fname):
         fsock = open(path + fname, 'rb')
         return FileResponse(fsock)
     except IOError:
-        response = HttpResponseNotFound()
+        return HttpResponseNotFound()
 

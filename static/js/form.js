@@ -253,7 +253,7 @@ function apartChange(selectObject) {
     xhttp.setRequestHeader('Content-type', 'application/json');
 
     xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
+        if ((this.readyState == 4 || this.readyState == 2)  && this.status == 200) {
             window.location.href = redirect_url;
         }
     };

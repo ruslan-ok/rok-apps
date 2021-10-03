@@ -3,6 +3,7 @@ from django.forms.widgets import HiddenInput
 from django.utils.translation import gettext_lazy as _
 
 from rusel.base.forms import BaseCreateForm, BaseEditForm
+from rusel.widgets import NumberInput
 from task.models import Task
 from apart.config import app_config
 from apart.models import Apart, Meter
@@ -30,21 +31,21 @@ class EditForm(BaseEditForm):
         required=True,
         widget=forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime d-inline-block mb-3 me-3', 'type': 'datetime-local'}))
     el = forms.IntegerField(
-        label=_('electricity').capitalize(),
+        label=False,
         required=False,
-        widget=forms.NumberInput(attrs={'class': 'form-control d-inline-block mb-3'}))
+        widget=NumberInput(attrs={'label': _('electricity').capitalize()}))
     hw = forms.IntegerField(
-        label=_('hot water').capitalize(),
+        label=False,
         required=False,
-        widget=forms.NumberInput(attrs={'class': 'form-control d-inline-block mb-3'}))
+        widget=NumberInput(attrs={'label': _('hot water').capitalize()}))
     cw = forms.IntegerField(
-        label=_('cold water').capitalize(),
+        label=False,
         required=False,
-        widget=forms.NumberInput(attrs={'class': 'form-control d-inline-block mb-3'}))
+        widget=NumberInput(attrs={'label': _('cold water').capitalize()}))
     ga = forms.IntegerField(
-        label=_('gas').capitalize(),
+        label=False,
         required=False,
-        widget=forms.NumberInput(attrs={'class': 'form-control d-inline-block mb-3'}))
+        widget=NumberInput(attrs={'label': _('gas').capitalize()}))
 
     class Meta:
         model = Task

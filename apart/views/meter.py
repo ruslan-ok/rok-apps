@@ -1,73 +1,41 @@
 from datetime import date, datetime
 from django.utils.translation import gettext_lazy as _
 from task.const import ROLE_METER, NUM_ROLE_METER
-from task.models import Task, TaskGroup, Urls, Step
-from rusel.base.views import BaseDetailView, BaseGroupView, get_app_doc
-from apart.views.base_list import BaseApartListView
+from task.models import Task
+from rusel.base.views import get_app_doc
+from apart.views.base_list import BaseApartListView, BaseApartDetailView
 from apart.forms.meter import CreateForm, EditForm
 from apart.config import app_config
 from apart.models import Meter, Apart
 
+app = 'apart'
 role = ROLE_METER
 
-class TuneData:
-    def tune_dataset(self, data, view_mode):
-        return data
-
-class ListView(BaseApartListView, TuneData):
+class ListView(BaseApartListView):
     model = Task
     form_class = CreateForm
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
-    def transform_datalist(self, items):
-        apart = Apart.objects.filter(user=self.request.user, active=True).get()
-        tasks = []
-        for t in items.order_by('-name'):
-            if Meter.objects.filter(task=t.id).exists():
-                meter = Meter.objects.filter(task=t.id).get()
-                if (meter.apart.id != apart.id):
-                    continue
-            item = {
-                'id': t.id,
-                'name': self.get_task_name(t),
-                'attrs': self.get_info(t)
-            }
-            tasks.append(item)
-        return tasks
-
     def form_valid(self, form):
         form.instance.app_apart = NUM_ROLE_METER
         response = super().form_valid(form)
         return response
 
-    def get_info(self, item):
-        ret = []
-        if Meter.objects.filter(task=item.id).exists():
-            meter = Meter.objects.filter(task=item.id).get()
-            if (meter.apart.has_el):
-                ret.append({'text': '{} {}'.format(_('el:'), meter.el)})
-            if (meter.apart.has_hw):
-                if ret:
-                    ret.append({'icon': 'separator'})
-                ret.append({'text': '{} {}'.format(_('hw:'), meter.hw)})
-            if (meter.apart.has_cw):
-                if ret:
-                    ret.append({'icon': 'separator'})
-                ret.append({'text': '{} {}'.format(_('cw:'), meter.cw)})
-            if (meter.apart.has_gas):
-                if ret:
-                    ret.append({'icon': 'separator'})
-                ret.append({'text': '{} {}'.format(_('ga:'), meter.ga)})
-        return ret
-
-class DetailView(BaseDetailView, TuneData):
+class DetailView(BaseApartDetailView):
     model = Task
     form_class = EditForm
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if Meter.objects.filter(task=self.object.id).exists():
+            meter = Meter.objects.filter(task=self.object.id).get()
+            context['title'] = _('meters data').capitalize() + ' - ' + meter.apart.name + ' - ' + self.object.name
+        return context
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -82,7 +50,30 @@ class DetailView(BaseDetailView, TuneData):
             meter.save()
             form.instance.name = meter.period.strftime('%Y.%m')
             form.instance.save()
+        form.instance.set_item_attr(app, get_info(form.instance))
         return response
+
+def get_info(item):
+    if not Meter.objects.filter(task=item.id).exists():
+        return {'attr': []}
+
+    ret = []
+    meter = Meter.objects.filter(task=item.id).get()
+    if (meter.apart.has_el):
+        ret.append({'text': '{} {}'.format(_('el:'), meter.el)})
+    if (meter.apart.has_hw):
+        if ret:
+            ret.append({'icon': 'separator'})
+        ret.append({'text': '{} {}'.format(_('hw:'), meter.hw)})
+    if (meter.apart.has_cw):
+        if ret:
+            ret.append({'icon': 'separator'})
+        ret.append({'text': '{} {}'.format(_('cw:'), meter.cw)})
+    if (meter.apart.has_gas):
+        if ret:
+            ret.append({'icon': 'separator'})
+        ret.append({'text': '{} {}'.format(_('ga:'), meter.ga)})
+    return {'attr': ret}
 
 def get_doc(request, pk, fname):
     return get_app_doc(app_config['name'], role, request, pk, fname)

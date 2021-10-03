@@ -1,38 +1,18 @@
-from datetime import date, datetime
 from django.utils.translation import gettext_lazy as _
 from task.const import ROLE_SERVICE, NUM_ROLE_SERVICE
-from task.models import Task, TaskGroup, Urls, Step
-from rusel.base.views import BaseDetailView, BaseGroupView, get_app_doc
+from task.models import Task
+from rusel.base.views import get_app_doc
 from apart.forms.serv import CreateForm, EditForm
 from apart.config import app_config
 from apart.models import Service, Apart
-from apart.views.base_list import BaseApartListView
+from apart.views.base_list import BaseApartListView, BaseApartDetailView
 
+app = 'apart'
 role = ROLE_SERVICE
 
-class TuneData:
-    def tune_dataset(self, data, view_mode):
-        return data
-
-class ListView(BaseApartListView, TuneData):
+class ListView(BaseApartListView):
     model = Task
     form_class = CreateForm
-
-    def transform_datalist(self, items):
-        apart = Apart.objects.filter(user=self.request.user, active=True).get()
-        tasks = []
-        for t in items.order_by('-name'):
-            if Service.objects.filter(task=t.id).exists():
-                serv = Service.objects.filter(task=t.id).get()
-                if (serv.apart.id != apart.id):
-                    continue
-            item = {
-                'id': t.id,
-                'name': self.get_task_name(t),
-                'attrs': self.get_info(t)
-            }
-            tasks.append(item)
-        return tasks
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
@@ -44,17 +24,24 @@ class ListView(BaseApartListView, TuneData):
         Service.objects.create(apart=apart, task=form.instance, name=form.instance.name);
         return response
 
-    def get_info(self, item):
-        ret = []
-        ret.append({'text': item.info})
-        return ret
-
-class DetailView(BaseDetailView, TuneData):
+class DetailView(BaseApartDetailView):
     model = Task
     form_class = EditForm
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        if Service.objects.filter(task=form.instance.id).exists():
+            serv = Service.objects.filter(task=form.instance.id).get()
+            serv.name = form.cleaned_data['name']
+            serv.save()
+        form.instance.set_item_attr(app, get_info(form.instance))
+        return response
+
+def get_info(item):
+    return {'attr': [{'text': item.info}]}
 
 def get_doc(request, pk, fname):
     return get_app_doc(app_config['name'], role, request, pk, fname)
