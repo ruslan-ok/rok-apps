@@ -34,8 +34,8 @@ class EditForm(BaseEditForm):
         required=False,
         widget=NumberInput(attrs={'label': _('US dollar exchange rate')}))
     el_pay = forms.DecimalField(required=False, widget=NumberInput(attrs={'label': _('electro - payment').capitalize(), 'class': ''}))
-    tv_bill = forms.DecimalField(required=False, widget=NumberInput(attrs={'label': _('Internet - accrued'), 'class': ''}))
-    tv_pay = forms.DecimalField(required=False, widget=NumberInput(attrs={'label': _('TV - payment'), 'class': ''}))
+    tv_bill = forms.DecimalField(required=False, widget=NumberInput(attrs={'label': _('Internet/TV - accrued'), 'class': ''}))
+    tv_pay = forms.DecimalField(required=False, widget=NumberInput(attrs={'label': _('Internet/TV - payment'), 'class': ''}))
     phone_bill = forms.DecimalField(required=False, widget=NumberInput(attrs={'label': _('phone - accrued').capitalize(), 'class': ''}))
     phone_pay = forms.DecimalField(required=False, widget=NumberInput(attrs={'label': _('phone - payment').capitalize(), 'class': ''}))
     zhirovka = forms.DecimalField(required=False, widget=NumberInput(attrs={'label': _('zhirovka').capitalize(), 'class': ''}))

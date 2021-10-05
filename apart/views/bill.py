@@ -50,6 +50,12 @@ class DetailView(BaseApartDetailView):
                 vwt = (item.curr.hw + item.curr.cw) - (item.prev.hw + item.prev.cw)
 
             context['volume'] = { 'el': vel, 'ga': vga, 'wt': vwt }
+            context['el_tar'] = {'title': _('electricity tarif').capitalize(), 'value': 777.88}
+            context['el_bill'] = {'title': _('electricity bill').capitalize(), 'value': 777.88}
+            context['gas_tar'] = {'title': _('gas tarif').capitalize(), 'value': 777.88}
+            context['gas_bill'] = {'title': _('gas bill').capitalize(), 'value': 777.88}
+            context['water_tar'] = {'title': _('water tarif').capitalize(), 'value': 777.88}
+            context['water_bill'] = {'title': _('water bill').capitalize(), 'value': 777.88}
         return context
 
     def form_valid(self, form):

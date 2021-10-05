@@ -53,17 +53,50 @@
       {% endif %}
     </div>
 
-    <div class="row">
-      {% if not ed_item.apart.has_communal %}
-      {{ form.tv_bill }}
-      {{ form.tv_pay }}
-      {{ form.phone_bill }}
-      {{ form.phone_pay }}
-      {{ form.zhirovka }}
-      {% endif %}
+    <div class="d-flex flex-column">
+      <div class="d-flex flex-row">
+        {{ form.tv_bill }}
+        {{ form.tv_pay }}
+      </div>
+
+      <div class="d-flex flex-row">
+        {{ form.phone_bill }}
+        {{ form.phone_pay }}
+      </div>
+
+      <div class="d-flex flex-row">
+        {{ form.zhirovka }}
+        {{ form.ZKX_pay }}
+      </div>
+
+      <div class="d-flex flex-row">
+        {{ form.PoO }}
+        {{ form.PoO_pay }}
+      </div>
+    </div>
+
+    <div class="d-flex flex-column bill">
+      <div class="d-flex flex-row bill-row">
+        <div class="info"><div class="title">{{ el_tar.title }}</div><div class="value">{{ el_tar.value }}</div></div>
+        <div class="info"><div class="title">{{ el_bill.title }}</div><div class="value">{{ el_bill.value }}</div></div>
+        {{ form.el_pay }}
+      </div>
+
+      <div class="d-flex flex-row bill-row">
+        <div class="info"><div class="title">{{ gas_tar.title }}</div><div class="value">{{ gas_tar.value }}</div></div>
+        <div class="info"><div class="title">{{ gas_bill.title }}</div><div class="value">{{ gas_bill.value }}</div></div>
+        {{ form.gas_pay }}
+      </div>
+
+      <div class="d-flex flex-row bill-row">
+        <div class="info"><div class="title">{{ water_tar.title }}</div><div class="value">{{ water_tar.value }}</div></div>
+        <div class="info"><div class="title">{{ water_bill.title }}</div><div class="value">{{ water_bill.value }}</div></div>
+        {{ form.water_pay }}
+      </div>
     </div>
 
     {{ form.info.label_tag }} {{ form.info }}
+
     {% include "widgets/attachments.html" %}
 
     <div class="d-flex justify-content-evenly mt-3 pb-5">

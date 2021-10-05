@@ -476,4 +476,15 @@ textarea.form-control {
     font-weight: 600;
 }
 
-
+.bill {
+    margin-top: 10px;
+    .bill-row {
+        margin-bottom: 5px;
+        .info {
+            min-width:80px;
+        }
+        .value {
+            min-width:80px;
+        }
+    }
+}
