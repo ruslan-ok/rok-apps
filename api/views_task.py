@@ -13,7 +13,9 @@ from task.models import Task, TaskGroup
 from rusel.files import storage_path
 from api.serializers import TaskSerializer
 from apart.models import Apart, Service, Price, Meter, Bill
+from apart.views.price import add_price
 from apart.views.meter import add_meter
+from apart.views.bill import add_bill
 
 from todo.get_info import get_info as todo_get_info
 from note.get_info import get_info as note_get_info
@@ -32,7 +34,8 @@ class TaskViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         data = Task.objects.filter(user=self.request.user).order_by('-created')
-        if 'role' in self.request.query_params:
+        if 'app' in self.request.query_params and 'role' in self.request.query_params:
+            app = self.request.query_params['app']
             role = self.request.query_params['role']
             if (role == ROLE_TODO):
                 return data.filter(app_task=NUM_ROLE_TODO)
@@ -49,21 +52,21 @@ class TaskViewSet(viewsets.ModelViewSet):
             if (role == ROLE_EXPENSES):
                 return data.filter(app_expen=NUM_ROLE_OPERATION)
             if (role == ROLE_SALDO):
+                if (app == 'trip'):
+                    return data.filter(app_trip=NUM_ROLE_SALDO)
                 return data.filter(app_expen=NUM_ROLE_SALDO)
             if (role == ROLE_PERSON):
                 return data.filter(app_trip=NUM_ROLE_PERSON)
             if (role == ROLE_TRIP):
                 return data.filter(app_trip=NUM_ROLE_TRIP)
-            if (role == ROLE_SALDO):
-                return data.filter(app_trip=NUM_ROLE_SALDO)
             if (role == ROLE_FUEL):
                 return data.filter(app_fuel=NUM_ROLE_FUEL)
             if (role == ROLE_PART):
                 return data.filter(app_fuel=NUM_ROLE_PART)
             if (role == ROLE_SERVICE):
+                if (app == 'apart'):
+                    return data.filter(app_apart=NUM_ROLE_SERVICE)
                 return data.filter(app_fuel=NUM_ROLE_SERVICE)
-            if (role == ROLE_SERVICE):
-                return data.filter(app_apart=NUM_ROLE_SERVICE)
             if (role == ROLE_METER):
                 return data.filter(app_apart=NUM_ROLE_METER)
             if (role == ROLE_PRICE):
@@ -141,14 +144,22 @@ class TaskViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
         app = self.request.query_params['app']
         role = self.request.query_params['role']
-        if (app == 'apart' and role == 'meter'):
-            task = Task.objects.create(user=request.user, app_apart=NUM_ROLE_METER)
-            meter = add_meter(request, task)
-            task.event = meter.reading
-            task.name = meter.period.strftime('%Y.%m')
-            task.start = meter.period
-            task.save()
-            return Response({'task_id': task.id})
+        if (app == 'apart'):
+            mess = None
+            if (role == ROLE_METER):
+                task = Task.objects.create(user=request.user, app_apart=NUM_ROLE_METER)
+                item = add_meter(request, task)
+            if (role == ROLE_PRICE):
+                task = Task.objects.create(user=request.user, app_apart=NUM_ROLE_PRICE)
+                item = add_price(request, task)
+            if (role == ROLE_BILL):
+                task = Task.objects.create(user=request.user, app_apart=NUM_ROLE_BILL)
+                item, mess = add_bill(request, task)
+            task_id = task.id
+            if not item:
+                task.delete()
+                task_id = 0
+            return Response({'task_id': task_id, 'mess': mess})
         return Response({'Warning': 'Application {} and role {} does not support creation of elements by button'.format(app, role)})
     
     # OK

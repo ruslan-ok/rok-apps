@@ -21,7 +21,7 @@ input[type="datetime-local"].form-control {
 }
 
 input[type="number"].form-control {
-  width: 150px;
+  width: 140px;
 }
 
 .form-control.select {
@@ -592,19 +592,179 @@ textarea.form-control {
   font-weight: 600;
 }
 
-.bill {
-  margin-top: 10px;
+form.bill {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
 }
 
-.bill .bill-row {
-  margin-bottom: 5px;
+form.bill .bill__period {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  margin-left: 10px;
 }
 
-.bill .bill-row .info {
-  min-width: 80px;
+form.bill .bill_data {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
 }
 
-.bill .bill-row .value {
-  min-width: 80px;
+form.bill .bill_data .bill__meters {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  min-width: 300px;
+  margin-top: 1rem;
+  margin-left: 5px;
+}
+
+form.bill .bill_data .bill__meters .service_row {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+}
+
+form.bill .bill_data .bill__meters .service_row .title {
+  max-width: 150px;
+  margin-top: 0.3rem;
+  margin-right: 0.6rem;
+  margin-bottom: 0.1rem;
+}
+
+form.bill .bill_data .bill__meters .service_row .value {
+  max-width: 150px;
+  padding: 0.375rem 0.75rem;
+}
+
+form.bill .bill_data .bill_chargeable {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  min-width: 300px;
+  margin-top: 1rem;
+  margin-left: 5px;
+}
+
+form.bill .bill_data .bill_chargeable .service_col {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+
+form.bill .bill_data .bill_chargeable .service_col .tarif {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+}
+
+form.bill .bill_data .bill_chargeable .service_col .tarif .title {
+  width: 90px;
+  padding-left: 5px;
+  margin-top: 0.3rem;
+  margin-right: 0.6rem;
+  margin-bottom: 0.1rem;
+}
+
+form.bill .bill_data .bill_chargeable .service_col .tarif .value {
+  margin-top: 0.5rem;
+  margin-right: 0.6rem;
+  font-size: small;
+}
+
+form.bill .bill_data .bill_chargeable .service_col .values {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+}
+
+form.bill .bill_data .bill_chargeable .service_col .values .bill {
+  width: 140px;
+  border: 1px solid #aeaeae;
+  border-radius: 0.25rem;
+  margin-right: 10px;
+  padding: 0.375rem 0.75rem;
+}
+
+form.bill .bill_data .bill__accrued {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  min-width: 300px;
+  margin-top: 1rem;
+  margin-left: 5px;
+}
+
+form.bill .bill_data .bill__accrued .service_row {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  max-width: 400px;
+}
+
+form.bill .bill_data .bill__accrued .service_row .title {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  min-height: 18px;
+  padding-left: 5px;
+  margin-top: 0.3rem;
+  margin-right: 0.6rem;
+  margin-bottom: 0.1rem;
+}
+
+form.bill .bill_data .bill__accrued .service_row .values {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
 }
 /*# sourceMappingURL=form.css.map */

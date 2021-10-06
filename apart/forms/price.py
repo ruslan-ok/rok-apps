@@ -2,7 +2,7 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from rusel.base.forms import BaseCreateForm, BaseEditForm
-from rusel.widgets import DateInput, Select, NumberInput
+from rusel.widgets import DateInput, Select, NumberInput, UrlsInput
 from task.models import Task
 from apart.config import app_config
 from apart.models import Apart, Price, Service
@@ -54,10 +54,19 @@ class EditForm(BaseEditForm):
         label=_('comment').capitalize(),
         required=False,
         widget=forms.Textarea(attrs={'class': 'form-control mb-1', 'data-autoresize':''}))
+    url = forms.CharField(
+        label=_('URLs'),
+        required=False,
+        widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add link').capitalize()}))
 
     class Meta:
         model = Task
-        fields = ['start', 'service', 'tarif', 'border', 'tarif2', 'border2', 'tarif3', 'info']
+        fields = ['start', 'service', 'tarif', 'border', 'tarif2', 'border2', 'tarif3', 'info', 'url']
+
+    def check_none(self, value):
+        if value:
+            return value
+        return 0
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
@@ -65,9 +74,12 @@ class EditForm(BaseEditForm):
         self.fields['service'].queryset = Service.objects.filter(apart=apart)
         if Price.objects.filter(task=kwargs['instance'].id).exists():
             price = Price.objects.filter(task=kwargs['instance'].id).get()
-            self.fields['service'].initial = price.serv.id
-            self.fields['tarif'].initial = price.tarif
-            self.fields['border'].initial = price.border
-            self.fields['tarif2'].initial = price.tarif2
-            self.fields['border2'].initial = price.border2
-            self.fields['tarif3'].initial = price.tarif3
+            serv_id = 0
+            if price.serv:
+                serv_id = price.serv.id
+            self.fields['service'].initial = serv_id
+            self.fields['tarif'].initial = self.check_none(price.tarif)
+            self.fields['border'].initial = self.check_none(price.border)
+            self.fields['tarif2'].initial = self.check_none(price.tarif2)
+            self.fields['border2'].initial = self.check_none(price.border2)
+            self.fields['tarif3'].initial = self.check_none(price.tarif3)

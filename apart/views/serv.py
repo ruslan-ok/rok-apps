@@ -1,6 +1,7 @@
 from django.utils.translation import gettext_lazy as _
 from task.const import ROLE_SERVICE, NUM_ROLE_SERVICE
 from task.models import Task
+from rusel.files import get_files_list
 from rusel.base.views import get_app_doc
 from apart.forms.serv import CreateForm, EditForm
 from apart.config import app_config
@@ -31,6 +32,13 @@ class DetailView(BaseApartDetailView):
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if Service.objects.filter(task=self.object.id).exists():
+            item = Service.objects.filter(task=self.object.id).get()
+            context['title'] = item.apart.name + ' ' + _('service').capitalize() + ' "' + self.object.name + '"'
+        return context
+
     def form_valid(self, form):
         response = super().form_valid(form)
         if Service.objects.filter(task=form.instance.id).exists():
@@ -41,7 +49,13 @@ class DetailView(BaseApartDetailView):
         return response
 
 def get_info(item):
-    return {'attr': [{'text': item.info}]}
+    ret = [{'text': item.info}]
+    files = (len(get_files_list(item.user, app, role, item.id)) > 0)
+    if files:
+        if item.info:
+            ret.append({'icon': 'separator'})
+        ret.append({'icon': 'attach'})
+    return {'attr': ret}
 
 def get_doc(request, pk, fname):
     return get_app_doc(app_config['name'], role, request, pk, fname)

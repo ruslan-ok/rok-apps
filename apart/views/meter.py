@@ -1,7 +1,8 @@
 from datetime import date, datetime
 from django.utils.translation import gettext_lazy as _
 from task.const import ROLE_METER, NUM_ROLE_METER
-from task.models import Task
+from task.models import Task, Urls
+from rusel.files import get_files_list
 from rusel.base.views import get_app_doc
 from apart.views.base_list import BaseApartListView, BaseApartDetailView
 from apart.forms.meter import CreateForm, EditForm
@@ -33,8 +34,8 @@ class DetailView(BaseApartDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if Meter.objects.filter(task=self.object.id).exists():
-            meter = Meter.objects.filter(task=self.object.id).get()
-            context['title'] = _('meters data').capitalize() + ' - ' + meter.apart.name + ' - ' + self.object.name
+            item = Meter.objects.filter(task=self.object.id).get()
+            context['title'] = item.apart.name + ' ' + _('meters data').capitalize() + ' ' + self.object.name
         return context
 
     def form_valid(self, form):
@@ -73,6 +74,17 @@ def get_info(item):
         if ret:
             ret.append({'icon': 'separator'})
         ret.append({'text': '{} {}'.format(_('ga:'), meter.ga)})
+    links = len(Urls.objects.filter(task=item.id)) > 0
+    files = (len(get_files_list(item.user, app, role, item.id)) > 0)
+    if item.info or links or files:
+        if ret:
+            ret.append({'icon': 'separator'})
+        if item.info:
+            ret.append({'icon': 'notes'})
+        if links:
+            ret.append({'icon': 'url'})
+        if files:
+            ret.append({'icon': 'attach'})
     return {'attr': ret}
 
 def get_doc(request, pk, fname):
@@ -128,5 +140,9 @@ def add_meter(request, task):
                 ga = last.ga + round((last.ga - first.ga) / (qty - 1))
 
     item = Meter.objects.create(apart=apart, period=period, task=task, reading=datetime.now(), el=el, hw=hw, cw=cw, ga=ga)
+    task.event = item.reading
+    task.name = item.period.strftime('%Y.%m')
+    task.start = item.period
+    task.save()
     return item
 

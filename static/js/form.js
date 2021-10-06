@@ -45,8 +45,15 @@ function addItem(app, role) {
 
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-            let url_parts = window.location.href.split('?');
             let resp = JSON.parse(this.responseText);
+            if (!resp || !resp.task_id) {
+                let mess = 'Error';
+                if (resp.mess)
+                    mess += '\n' + resp.mess;
+                alert(mess);
+                return;
+            }
+            let url_parts = window.location.href.split('?');
             let redirect_url = url_parts[0] + resp.task_id + '/';
             if (url_parts.length > 1)
                 redirect_url += '?' + url_parts[1];

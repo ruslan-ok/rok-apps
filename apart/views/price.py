@@ -1,10 +1,11 @@
 from django.utils.translation import gettext_lazy as _
 from task.const import ROLE_PRICE, NUM_ROLE_PRICE
-from task.models import Task
+from task.models import Task, Urls
+from rusel.files import get_files_list
 from rusel.base.views import get_app_doc
 from apart.views.base_list import BaseApartListView, BaseApartDetailView
 from apart.forms.price import CreateForm, EditForm
-from apart.models import Price
+from apart.models import Apart, Price
 from apart.config import app_config
 
 app = 'apart'
@@ -29,19 +30,29 @@ class DetailView(BaseApartDetailView):
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if Price.objects.filter(task=self.object.id).exists():
+            item = Price.objects.filter(task=self.object.id).get()
+            context['title'] = item.apart.name + ' ' + _('price').capitalize() + ' ' + self.object.name
+        return context
+
     def form_valid(self, form):
         response = super().form_valid(form)
         if Price.objects.filter(task=form.instance.id).exists():
-            price = Price.objects.filter(task=form.instance.id).get()
-            price.start = form.cleaned_data['start']
-            price.service = form.cleaned_data['service']
-            price.tarif = form.cleaned_data['tarif']
-            price.border = form.cleaned_data['border']
-            price.tarif2 = form.cleaned_data['tarif2']
-            price.border2 = form.cleaned_data['border2']
-            price.tarif3 = form.cleaned_data['tarif3']
-            price.save()
-            form.instance.name = price.start.strftime('%d.%m.%Y') + ' ' + price.serv.name
+            item = Price.objects.filter(task=form.instance.id).get()
+            item.start = form.cleaned_data['start']
+            item.serv = form.cleaned_data['service']
+            item.tarif = form.cleaned_data['tarif']
+            item.border = form.cleaned_data['border']
+            item.tarif2 = form.cleaned_data['tarif2']
+            item.border2 = form.cleaned_data['border2']
+            item.tarif3 = form.cleaned_data['tarif3']
+            item.save()
+            name = ''
+            if item.serv:
+                name = ' ' + item.serv.name
+            form.instance.name = item.start.strftime('%Y.%m.%d') + name
             form.instance.save()
         form.instance.set_item_attr(app, get_info(form.instance))
         return response
@@ -95,7 +106,30 @@ def get_info(item):
         ret.append({'icon': 'separator'})
         ret.append({'text': p3})
 
+    links = len(Urls.objects.filter(task=item.id)) > 0
+    files = (len(get_files_list(item.user, app, role, item.id)) > 0)
+    if item.info or links or files:
+        if ret:
+            ret.append({'icon': 'separator'})
+        if item.info:
+            ret.append({'icon': 'notes'})
+        if links:
+            ret.append({'icon': 'url'})
+        if files:
+            ret.append({'icon': 'attach'})
+
     return {'attr': ret}
+
+def add_price(request, task):
+    apart = Apart.objects.filter(user=request.user.id, active=True).get()
+    item = Price.objects.create(apart=apart, task=task)
+    name = ''
+    if item.serv:
+        name = ' ' + item.serv.name
+    task.name = item.start.strftime('%Y.%m.%d') + name
+    task.start = item.start
+    task.save()
+    return item
 
 def get_doc(request, pk, fname):
     return get_app_doc(app_config['name'], role, request, pk, fname)

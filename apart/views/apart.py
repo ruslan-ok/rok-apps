@@ -1,6 +1,7 @@
 from django.utils.translation import gettext_lazy as _
 from task.const import ROLE_APART, NUM_ROLE_APART
 from task.models import Task
+from rusel.files import get_files_list
 from rusel.base.views import BaseListView, BaseDetailView, get_app_doc
 from apart.forms.apart import CreateForm, EditForm
 from apart.config import app_config
@@ -25,9 +26,6 @@ class ListView(BaseListView):
         Apart.objects.create(user=form.instance.user, task=form.instance, name=form.instance.name);
         return response
 
-    def get_info(self, item):
-        ret = []
-        return ret
 
 class DetailView(BaseDetailView):
     model = Task
@@ -59,8 +57,13 @@ def get_info(item):
 
     if Apart.objects.filter(task=item.id).exists():
         apart = Apart.objects.filter(task=item.id).get()
-        if apart.has_el or apart.has_hw or apart.has_cw or apart.has_gas or apart.has_ppo:
+        files = (len(get_files_list(item.user, app, role, item.id)) > 0)
+        if files:
             if item.info:
+                ret['attr'].append({'icon': 'separator'})
+            ret['attr'].append({'icon': 'attach'})
+        if apart.has_el or apart.has_hw or apart.has_cw or apart.has_gas or apart.has_ppo:
+            if item.info or files:
                 ret['attr'].append({'icon': 'separator'})
             if apart.has_el:
                 ret['attr'].append({'text': 'el'})

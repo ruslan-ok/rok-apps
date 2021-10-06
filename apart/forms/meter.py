@@ -3,7 +3,7 @@ from django.forms.widgets import HiddenInput
 from django.utils.translation import gettext_lazy as _
 
 from rusel.base.forms import BaseCreateForm, BaseEditForm
-from rusel.widgets import NumberInput
+from rusel.widgets import DateInput, DateTimeInput, NumberInput, UrlsInput
 from task.models import Task
 from apart.config import app_config
 from apart.models import Apart, Meter
@@ -23,13 +23,13 @@ class CreateForm(BaseCreateForm):
 #----------------------------------
 class EditForm(BaseEditForm):
     period = forms.DateField(
-        label=_('period').capitalize(),
+        label=False,
         required=True,
-        widget=forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control date d-inline-block mb-3 me-3', 'type': 'date'}))
+        widget=DateInput(format='%Y-%m-%d', attrs={'label': _('period').capitalize()}))
     reading = forms.DateTimeField(
-        label=_('meters reading date').capitalize(),
+        label=False,
         required=True,
-        widget=forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime d-inline-block mb-3 me-3', 'type': 'datetime-local'}))
+        widget=DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'label': _('meters reading date').capitalize()}))
     el = forms.IntegerField(
         label=False,
         required=False,
@@ -46,10 +46,14 @@ class EditForm(BaseEditForm):
         label=False,
         required=False,
         widget=NumberInput(attrs={'label': _('gas').capitalize()}))
+    url = forms.CharField(
+        label=_('URLs'),
+        required=False,
+        widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add link').capitalize()}))
 
     class Meta:
         model = Task
-        fields = ['period', 'reading', 'el', 'hw', 'cw', 'ga', 'info']
+        fields = ['period', 'reading', 'el', 'hw', 'cw', 'ga', 'info', 'url']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
             'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),

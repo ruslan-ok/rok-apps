@@ -2,101 +2,140 @@
 {% load static i18n %}
 
 {% block main %}
-  <form method="post" class="w-100 px-2 item-form" enctype="multipart/form-data" id="article_form" data-item_id="{{ ed_item.id|cut:" " }}">{% csrf_token %}
+  <form method="post" class="w-100 px-2 item-form bill" enctype="multipart/form-data" id="article_form" data-item_id="{{ ed_item.id|cut:" " }}">{% csrf_token %}
     {% include "base/title.html" %}
     {% include "base/form_errors.html" %}
 
-    <div class="row">
-      {{ form.period }}
-      {{ form.payment }}
-      {{ form.rate }}
+    <div class="bill__period">
+      {{ form.period.errors }} {{ form.period }}
+      {{ form.payment.errors }} {{ form.payment }}
+      {{ form.rate.errors }} {{ form.rate }}
+    </div>
+    <div class="bill_data">
+      <div class="bill__meters">
+        <div class="service_row">
+          <div class="col title"></div>
+          <div class="col title">{% trans 'old'|capfirst %}</div>
+          <div class="col title">{% trans 'new'|capfirst %}</div>
+          <div class="col title">{% trans 'volume'|capfirst %}</div>
+        </div>
+        {% if ed_item.apart.has_el %}
+        <div class="service_row">
+          <div class="col title">{% trans 'electro'|capfirst %}</div>
+          <div class="col value">{{ ed_item.prev.el }}</div>
+          <div class="col value">{{ ed_item.curr.el }}</div>
+          <div class="col value">{{ volume.el }}</div>
+        </div>
+        {% endif %}
+        {% if ed_item.apart.has_gas %}
+        <div class="service_row">
+          <div class="col title">{% trans 'gas'|capfirst %}</div>
+          <div class="col value">{{ ed_item.prev.ga }}</div>
+          <div class="col value">{{ ed_item.curr.ga }}</div>
+          <div class="col value">{{ volume.ga }}</div>
+        </div>
+        {% endif %}
+        {% if ed_item.apart.has_cw %}
+        <div class="service_row">
+          <div class="col title">{% trans 'cold'|capfirst %}</div>
+          <div class="col value">{{ ed_item.prev.cw }}</div>
+          <div class="col value">{{ ed_item.curr.cw }}</div>
+          <div class="col value">{{ volume.wt }}</div>
+        </div>
+        {% endif %}
+        {% if ed_item.apart.has_hw %}
+        <div class="service_row">
+          <div class="col title">{% trans 'hot'|capfirst %}</div>
+          <div class="col value">{{ ed_item.prev.hw }}</div>
+          <div class="col value">{{ ed_item.curr.hw }}</div>
+          <div class="col value"></div>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="bill_chargeable">
+        <div class="service_col">
+          <div class="tarif">
+            <div class="title">{{ el_tar.title }}</div>
+            <div class="value">{{ el_tar.value }}</div>
+          </div>
+          <div class="values">
+            <div class="bill">{{ el_bill.value }}</div>
+            {{ form.el_pay }}
+          </div>
+        </div>
+
+        <div class="service_col">
+          <div class="tarif">
+            <div class="title">{{ gas_tar.title }}</div>
+            <div class="value">{{ gas_tar.value }}</div>
+          </div>
+          <div class="values">
+            <div class="bill">{{ gas_bill.value }}</div>
+            {{ form.gas_pay }}
+          </div>
+        </div>
+
+        <div class="service_col">
+          <div class="tarif">
+            <div class="title">{{ water_tar.title }}</div>
+            <div class="value">{{ water_tar.value }}</div>
+          </div>
+          <div class="values">
+            <div class="bill">{{ water_bill.value }}</div>
+            {{ form.water_pay }}
+          </div>
+        </div>
+      </div>
+
+      <div class="bill__accrued">
+        <div class="service_row">
+          <div class="title">
+            {{ tv_title }}
+          </div>
+          <div class="values">
+            {{ form.tv_bill }}
+            {{ form.tv_pay }}
+            </div>
+        </div>
+
+        <div class="service_row">
+          <div class="title">
+            {{ phone_title }}
+          </div>
+          <div class="values">
+            {{ form.phone_bill }}
+            {{ form.phone_pay }}
+          </div>
+        </div>
+
+        <div class="service_row">
+          <div class="title">
+            {{ ZKX_title }}
+          </div>
+          <div class="values">
+            {{ form.zhirovka }}
+            {{ form.ZKX_pay }}
+          </div>
+        </div>
+
+        <div class="service_row">
+          <div class="title">
+            {{ PoO_title }}
+          </div>
+          <div class="values">
+            {{ form.PoO }}
+            {{ form.PoO_pay }}
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <div class="container">
-      <div class="row">
-        <div class="col title"></div>
-        <div class="col title">{% trans 'old'|capfirst %}</div>
-        <div class="col title">{% trans 'new'|capfirst %}</div>
-        <div class="col title">{% trans 'volume'|capfirst %}</div>
-      </div>
-      {% if ed_item.apart.has_el %}
-      <div class="row">
-        <div class="col title">{% trans 'electro'|capfirst %}</div>
-        <div class="col value">{{ ed_item.prev.el }}</div>
-        <div class="col value">{{ ed_item.curr.el }}</div>
-        <div class="col value">{{ volume.el }}</div>
-      </div>
-      {% endif %}
-      {% if ed_item.apart.has_gas %}
-      <div class="row">
-        <div class="col title">{% trans 'gas'|capfirst %}</div>
-        <div class="col value">{{ ed_item.prev.ga }}</div>
-        <div class="col value">{{ ed_item.curr.ga }}</div>
-        <div class="col value">{{ volume.ga }}</div>
-      </div>
-      {% endif %}
-      {% if ed_item.apart.has_cw %}
-      <div class="row">
-        <div class="col title">{% trans 'cold'|capfirst %}</div>
-        <div class="col value">{{ ed_item.prev.cw }}</div>
-        <div class="col value">{{ ed_item.curr.cw }}</div>
-        <div class="col value">{{ volume.wt }}</div>
-      </div>
-      {% endif %}
-      {% if ed_item.apart.has_hw %}
-      <div class="row">
-        <div class="col title">{% trans 'hot'|capfirst %}</div>
-        <div class="col value">{{ ed_item.prev.hw }}</div>
-        <div class="col value">{{ ed_item.curr.hw }}</div>
-        <div class="col value"></div>
-      </div>
-      {% endif %}
-    </div>
+    {{ form.url.label_tag }} {{ form.url }}
+    {{ form.info.label_tag }} {{ form.info }} {{ form.upload }}
 
-    <div class="d-flex flex-column">
-      <div class="d-flex flex-row">
-        {{ form.tv_bill }}
-        {{ form.tv_pay }}
-      </div>
-
-      <div class="d-flex flex-row">
-        {{ form.phone_bill }}
-        {{ form.phone_pay }}
-      </div>
-
-      <div class="d-flex flex-row">
-        {{ form.zhirovka }}
-        {{ form.ZKX_pay }}
-      </div>
-
-      <div class="d-flex flex-row">
-        {{ form.PoO }}
-        {{ form.PoO_pay }}
-      </div>
-    </div>
-
-    <div class="d-flex flex-column bill">
-      <div class="d-flex flex-row bill-row">
-        <div class="info"><div class="title">{{ el_tar.title }}</div><div class="value">{{ el_tar.value }}</div></div>
-        <div class="info"><div class="title">{{ el_bill.title }}</div><div class="value">{{ el_bill.value }}</div></div>
-        {{ form.el_pay }}
-      </div>
-
-      <div class="d-flex flex-row bill-row">
-        <div class="info"><div class="title">{{ gas_tar.title }}</div><div class="value">{{ gas_tar.value }}</div></div>
-        <div class="info"><div class="title">{{ gas_bill.title }}</div><div class="value">{{ gas_bill.value }}</div></div>
-        {{ form.gas_pay }}
-      </div>
-
-      <div class="d-flex flex-row bill-row">
-        <div class="info"><div class="title">{{ water_tar.title }}</div><div class="value">{{ water_tar.value }}</div></div>
-        <div class="info"><div class="title">{{ water_bill.title }}</div><div class="value">{{ water_bill.value }}</div></div>
-        {{ form.water_pay }}
-      </div>
-    </div>
-
-    {{ form.info.label_tag }} {{ form.info }}
-
+    {% include "widgets/url_list.html" %}
     {% include "widgets/attachments.html" %}
 
     <div class="d-flex justify-content-evenly mt-3 pb-5">

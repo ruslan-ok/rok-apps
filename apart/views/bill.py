@@ -1,11 +1,14 @@
+from datetime import datetime
 from django.utils.translation import gettext_lazy as _
 from task.const import ROLE_BILL, NUM_ROLE_BILL
-from task.models import Task
+from task.models import Task, Urls
+from rusel.files import get_files_list
 from rusel.base.views import get_app_doc
 from apart.views.base_list import BaseApartListView, BaseApartDetailView
 from apart.forms.bill import CreateForm, EditForm
 from apart.config import app_config
-from apart.models import Bill
+from apart.models import Apart, Meter, Bill
+from apart.views.meter import next_period
 from rusel.files import get_files_list
 
 app = 'apart'
@@ -35,6 +38,7 @@ class DetailView(BaseApartDetailView):
         context = super().get_context_data(**kwargs)
         if Bill.objects.filter(task=self.get_object().id).exists():
             item = Bill.objects.filter(task=self.get_object().id).get()
+            context['title'] = item.apart.name + ' ' + _('bill').capitalize() + ' ' + self.object.name
             context['ed_item'] = item
             vel = 0
             vga = 0
@@ -50,12 +54,17 @@ class DetailView(BaseApartDetailView):
                 vwt = (item.curr.hw + item.curr.cw) - (item.prev.hw + item.prev.cw)
 
             context['volume'] = { 'el': vel, 'ga': vga, 'wt': vwt }
-            context['el_tar'] = {'title': _('electricity tarif').capitalize(), 'value': 777.88}
-            context['el_bill'] = {'title': _('electricity bill').capitalize(), 'value': 777.88}
-            context['gas_tar'] = {'title': _('gas tarif').capitalize(), 'value': 777.88}
-            context['gas_bill'] = {'title': _('gas bill').capitalize(), 'value': 777.88}
-            context['water_tar'] = {'title': _('water tarif').capitalize(), 'value': 777.88}
-            context['water_bill'] = {'title': _('water bill').capitalize(), 'value': 777.88}
+            context['el_tar'] = {'title': _('electricity').capitalize(), 'value': 777.88}
+            context['el_bill'] = {'value': 777.88}
+            context['gas_tar'] = {'title': _('gas').capitalize(), 'value': 777.88}
+            context['gas_bill'] = {'value': 777.88}
+            context['water_tar'] = {'title': _('water').capitalize(), 'value': 777.88}
+            context['water_bill'] = {'value': 777.88}
+
+            context['tv_title'] = _('Interet/TV')
+            context['phone_title'] = _('phone').capitalize()
+            context['ZKX_title'] = _('HCS')
+            context['PoO_title'] = _('PoO')
         return context
 
     def form_valid(self, form):
@@ -64,7 +73,7 @@ class DetailView(BaseApartDetailView):
             bill = Bill.objects.filter(task=form.instance.id).get()
             bill.period = form.cleaned_data['period']
             bill.save()
-            form.instance.name = bill.period.strftime('%m.%Y')
+            form.instance.name = bill.period.strftime('%Y.%m')
             form.instance.save()
         form.instance.set_item_attr(app, get_info(form.instance))
         return response
@@ -79,20 +88,46 @@ def get_info(item):
     ret.append({'icon': 'separator'})
     ret.append({'text': '{}: {}'.format(_('total pay'), bill.total_pay()) })
 
-    files = get_files_list(bill.apart.user, 'apart', 'bill', bill.id)
+    links = len(Urls.objects.filter(task=item.id)) > 0
+    files = len(get_files_list(item.user, app, role, item.id)) > 0
 
-    if bill.url or bill.info or len(files):
+    if item.info or links or files:
         ret.append({'icon': 'separator'})
 
-    if bill.url:
-        ret.append({'icon': 'url'})
-
-    if bill.info:
+    if item.info:
         ret.append({'icon': 'notes'})
 
-    if len(files):
+    if links:
+        ret.append({'icon': 'url'})
+
+    if files:
         ret.append({'icon': 'attach'})
     return {'attr': ret}
+
+def add_bill(request, task):
+    apart = Apart.objects.filter(user=request.user.id, active=True).get()
+    if (len(Meter.objects.filter(apart=apart.id)) < 2):
+        # Нет показаний счетчиков
+        return None, _('there are no meter readings').capitalize()
+
+    if not Bill.objects.filter(apart=apart.id).exists():
+        # Первая оплата
+        prev = Meter.objects.filter(apart=apart.id).order_by('period')[0]
+        curr = Meter.objects.filter(apart=apart.id).order_by('period')[1]
+        period = curr.period
+    else:
+        last = Bill.objects.filter(apart=apart.id).order_by('-period')[0]
+        period = next_period(last.period)
+        if not Meter.objects.filter(apart=apart.id, period = period).exists(): 
+            # Нет показаний счетчиков для очередного периода
+            return None, _('there are no meter readings for the next period').capitalize()
+        prev = last.curr
+        curr = Meter.objects.filter(apart=apart.id, period = period).get()
+
+    item = Bill.objects.create(apart=apart, period=period, task=task, payment=datetime.now(), prev=prev, curr=curr, rate=0)
+    task.name = period.strftime('%Y.%m')
+    task.set_item_attr(app, get_info(task))
+    return item, ''
 
 def get_doc(request, pk, fname):
     return get_app_doc(app_config['name'], role, request, pk, fname)

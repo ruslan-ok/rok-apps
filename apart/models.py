@@ -41,11 +41,6 @@ class Apart(models.Model):
     def __str__(self):
         return self.name
 
-    def get_info(self):
-        ret = []
-        ret.append({'text': self.addr })
-        return ret
-
     def marked_item(self):
         return self.active
 
@@ -104,18 +99,6 @@ class Meter(models.Model):
 
     def name(self):
         return self.period.strftime('%m.%Y')
-
-    def get_info(self):
-        ret = []
-        ret.append({'text': '{} {}'.format(_('el:'), self.el)})
-        ret.append({'icon': 'separator'})
-        ret.append({'text': '{} {}'.format(_('hw:'), self.hw)})
-        ret.append({'icon': 'separator'})
-        ret.append({'text': '{} {}'.format(_('cw:'), self.cw)})
-        if (self.apart.has_gas):
-            ret.append({'icon': 'separator'})
-            ret.append({'text': '{} {}'.format(_('ga:'), self.ga)})
-        return ret
 
 
 #----------------------------------
@@ -177,29 +160,6 @@ class Bill(models.Model):
 
     def name(self):
         return self.period.strftime('%m.%Y')
-
-    def get_info(self):
-        ret = []
-
-        ret.append({'text': '{}: {}'.format(_('total bill'), self.total_bill()) })
-        ret.append({'icon': 'separator'})
-        ret.append({'text': '{}: {}'.format(_('total pay'), self.total_pay()) })
-    
-        files = get_files_list(self.apart.user, app_name, 'apart_{}/{}/{}'.format(self.apart.id, self.period.year, str(self.period.month).zfill(2)))
-    
-        if self.url or self.info or len(files):
-            ret.append({'icon': 'separator'})
-    
-        if self.url:
-            ret.append({'icon': 'url'})
-    
-        if self.info:
-            ret.append({'icon': 'notes'})
-    
-        if len(files):
-            ret.append({'icon': 'attach'})
-    
-        return ret
         
 
 def zero(value):
@@ -256,12 +216,6 @@ class Service(models.Model):
     def __str__(self):
         return self.name
 
-    def get_info(self):
-        ret = []
-        if (self.abbr == ELECTRICITY) or (self.abbr == GAS) or (self.abbr == WATER):
-            ret.append({'icon': 'separator'})
-        ret.append({'text': self.abbr})
-        return ret
         
 def get_serv_id(apart_id, service_id):
     if Service.objects.filter(apart = apart_id, abbr = service_id).exists():
@@ -324,51 +278,6 @@ class Price(models.Model):
     def name(self):
         return self.start.strftime('%d.%m.%Y')
 
-    def get_info(self):
-        b1 = self.border
-        if not b1:
-            b1 = 0
-
-        t1 = self.tarif
-        if not t1:
-            t1 = 0
-
-        b2 = self.border2
-        if not b2:
-            b2 = 0
-
-        t2 = self.tarif2
-        if not t2:
-            t2 = 0
-
-        t3 = self.tarif3
-        if not t3:
-            t3 = 0
-
-        p1 = ''
-        p2 = ''
-        p3 = ''
-
-        if (b1 == 0):
-            p1 = str(t1)
-        else:
-            p1 = '{:.3f} {} {:.0f} {}'.format(t1, gettext('until'), b1, self.unit)
-            if (b2 == 0):
-                p2 = '{:.3f}'.format(t2)
-            else:
-                p2 = '{:.3f} {} {:.0f} {}'.format(t2, gettext('until'), b2, self.unit)
-                p3 = '{:.3f}'.format(t3)
-    
-        ret = []
-        if p1:
-            ret.append({'text': p1})
-        if p2:
-            ret.append({'icon': 'separator'})
-            ret.append({'text': p2})
-        if p3:
-            ret.append({'icon': 'separator'})
-            ret.append({'text': p3})
-        return ret
 
 def get_price_info(apart_id, service_id, year, month):
     serv_id = get_serv_id(apart_id, service_id)

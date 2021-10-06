@@ -59,6 +59,14 @@ class DateInput(widgets.DateInput):
         context = super().get_context(name, value, attrs)
         return context
 
+class DateTimeInput(widgets.DateTimeInput):
+    input_type = 'datetime-local'
+    template_name = 'widgets/datetime.html'
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        return context
+
 class Select(widgets.Select):
     input_type = 'select'
     template_name = 'widgets/select.html'
