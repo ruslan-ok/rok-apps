@@ -128,7 +128,7 @@ def add_price(request, task):
         name = ' ' + item.serv.name
     task.name = item.start.strftime('%Y.%m.%d') + name
     task.start = item.start
-    task.save()
+    task.set_item_attr(app, get_info(task))
     return item
 
 def get_doc(request, pk, fname):

@@ -6,7 +6,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from rusel.context import get_base_context
 from rusel.files import storage_path, get_files_list
 from rusel.utils import extract_get_params
-from task.forms import GroupForm, CreateGroupForm
+from rusel.base.forms import GroupForm, CreateGroupForm
 from task.const import ROLES_IDS
 from task.models import Task, Group, TaskGroup, Urls
 
@@ -249,6 +249,15 @@ class BaseGroupView(UpdateView, Context):
         self.config.set_view(self.request)
         context = super().get_context_data(**kwargs)
         context.update(self.get_app_context())
+        context['title'] = self.object.name
+        context['delete_question'] = _('delete group').capitalize()
+        if Group.objects.filter(node=self.object.id).exists():
+            context['ban_on_deletion'] = _('deletion is prohibited because there are subordinate groups').capitalize()
+        else:
+            if TaskGroup.objects.filter(group=self.object.id).exists():
+                context['ban_on_deletion'] = _('deletion is prohibited because the group contains items').capitalize()
+            else:
+                context['ban_on_deletion'] = ''
         return context
 
 def get_app_doc(app, role, request, pk, fname):

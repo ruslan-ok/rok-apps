@@ -62,13 +62,23 @@ function closeGroupForm() {
   window.location.href = redirect_url;
 }
 
-function delGroup(ban) {
+function delGroupConfirm(ban, text) {
   if (ban) {
     alert(ban);
     return;
   }
-  if (!confirm('Are you sure?'))
-    return;
+
+  let el = document.getElementById('dialogModal');
+  let sel = el.querySelectorAll('div.modal-body');
+  sel[0].innerText = text;
+  sel = el.querySelectorAll('button.btn-danger');
+  sel[0].onclick = function() {return delGroup();}
+
+  let conf = new bootstrap.Modal(document.getElementById('dialogModal'), {});
+  conf.show();
+}
+
+function delGroup() {
   let id = window.location.pathname.match( /\d+/ )[0];
   let url = window.location.protocol + '//' + window.location.host + group_api + id + '/?' + postfix;
   let redirect_url = window.location.href.split('/group/')[0] + '/';

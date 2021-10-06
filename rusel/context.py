@@ -33,6 +33,7 @@ def get_base_context(request, app, role, detail, title):
 
     context['please_correct_one'] = _('Please correct the error below.')
     context['please_correct_all'] = _('Please correct the errors below.')
+    context['delete_question'] = _('delete').capitalize()
     
     context['complete_icon'] = 'icon/main/complete.svg'
     context['uncomplete_icon'] = 'icon/main/uncomplete.svg'

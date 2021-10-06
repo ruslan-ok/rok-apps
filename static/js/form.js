@@ -64,10 +64,18 @@ function addItem(app, role) {
     xhttp.send();
 }
 
-function delItem(app_name) {
-    if (!confirm('Are you sure?'))
-        return;
+function delItemConfirm(app_name, text) {
+    let el = document.getElementById('dialogModal');
+    let sel = el.querySelectorAll('div.modal-body');
+    sel[0].innerText = text;
+    sel = el.querySelectorAll('button.btn-danger');
+    sel[0].onclick = function() {return delItem(app_name);}
 
+    let conf = new bootstrap.Modal(document.getElementById('dialogModal'), {});
+    conf.show();
+}
+
+function delItem(app_name) {
     let item_id = window.location.pathname.match( /\d+/ )[0];
     let redirect_url = window.location.href.split('/' + item_id + '/')[0] + '/';
     let grp = document.getElementById("id_grp");

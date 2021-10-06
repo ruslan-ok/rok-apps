@@ -143,6 +143,5 @@ def add_meter(request, task):
     task.event = item.reading
     task.name = item.period.strftime('%Y.%m')
     task.start = item.period
-    task.save()
+    task.set_item_attr(app, get_info(task))
     return item
-

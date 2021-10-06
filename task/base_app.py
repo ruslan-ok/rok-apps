@@ -1,6 +1,6 @@
 from django.views.generic.edit import CreateView, UpdateView
-from task.forms import GroupForm
-from task.models import Group, TaskGroup
+from rusel.base.forms import GroupForm
+from task.models import Group
 
 class BaseListView(CreateView):
 
