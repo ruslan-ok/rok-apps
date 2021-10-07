@@ -10,6 +10,7 @@ app_config = {
             'icon': 'building', 
             'title': 'apartments',
             'item_name': 'apartment',
+            'relate': ['docs'],
         },
         'service': {
             'role': ROLE_SERVICE,
@@ -28,12 +29,14 @@ app_config = {
             'title': 'meters data',
             'item_name': 'meters data',
             'add_button': True,
+            'relate': ['todo'],
         },
         'bill': {
             'role': ROLE_BILL,
             'icon': 'star', 
             'title': 'bills',
             'add_button': True,
-        },
+            'relate': ['todo'],
+       },
     }
 }
