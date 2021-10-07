@@ -45,6 +45,9 @@ class DetailView(BaseDetailView):
             apart.has_hw = form.cleaned_data['has_hw']
             apart.has_cw = form.cleaned_data['has_cw']
             apart.has_gas = form.cleaned_data['has_gas']
+            apart.has_tv = form.cleaned_data['has_tv']
+            apart.has_phone = form.cleaned_data['has_phone']
+            apart.has_zkx = form.cleaned_data['has_zkx']
             apart.has_ppo = form.cleaned_data['has_ppo']
             apart.save()
         form.instance.set_item_attr(app, get_info(form.instance))
@@ -73,6 +76,12 @@ def get_info(item):
                 ret['attr'].append({'text': 'cw'})
             if apart.has_gas:
                 ret['attr'].append({'text': 'gas'})
+            if apart.has_tv:
+                ret['attr'].append({'text': 'inet/tv'})
+            if apart.has_phone:
+                ret['attr'].append({'text': 'phone'})
+            if apart.has_zkx:
+                ret['attr'].append({'text': 'zkx'})
             if apart.has_ppo:
                 ret['attr'].append({'text': 'ppo'})
 

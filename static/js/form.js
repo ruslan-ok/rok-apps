@@ -1,4 +1,4 @@
-resize();
+//resize();
 moveLists();
 
 function resize()

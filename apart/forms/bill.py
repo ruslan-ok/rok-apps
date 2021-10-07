@@ -32,20 +32,20 @@ class EditForm(BaseEditForm):
     rate = forms.DecimalField(
         label=False,
         required=False,
-        widget=NumberInput(attrs={'label': _('US dollar exchange rate')}))
-    el_pay = forms.DecimalField(label=False, required=False, widget=NumberInput())
-    tv_bill = forms.DecimalField(label=False, required=False, widget=NumberInput())
-    tv_pay = forms.DecimalField(label=False, required=False, widget=NumberInput())
-    phone_bill = forms.DecimalField(label=False, required=False, widget=NumberInput())
-    phone_pay = forms.DecimalField(label=False, required=False, widget=NumberInput())
-    zhirovka = forms.DecimalField(label=False, required=False, widget=NumberInput())
-    hot_pay = forms.DecimalField(label=False, required=False, widget=NumberInput())
-    repair_pay = forms.DecimalField(label=False, required=False, widget=NumberInput())
-    ZKX_pay = forms.DecimalField(label=False, required=False, widget=NumberInput())
-    water_pay = forms.DecimalField(label=False, required=False, widget=NumberInput())
-    gas_pay = forms.DecimalField(label=False, required=False, widget=NumberInput())
-    PoO = forms.DecimalField(label=False, required=False, widget=NumberInput())
-    PoO_pay = forms.DecimalField(label=False, required=False, widget=NumberInput())
+        widget=NumberInput(attrs={'label': _('US dollar exchange rate'), 'step': '0.0001'}))
+    el_pay = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
+    tv_bill = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
+    tv_pay = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
+    phone_bill = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
+    phone_pay = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
+    zhirovka = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
+    hot_pay = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
+    repair_pay = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
+    ZKX_pay = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
+    water_pay = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
+    gas_pay = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
+    PoO = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
+    PoO_pay = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
     info = forms.CharField(
         label=_('comment').capitalize(),
         required=False,

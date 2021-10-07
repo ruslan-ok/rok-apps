@@ -45,6 +45,18 @@ class EditForm(BaseEditForm):
         label=False, 
         required=False, 
         widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('has gas').capitalize()}))
+    has_tv = forms.BooleanField(
+        label=False, 
+        required=False, 
+        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('Has Internet/TV')}))
+    has_phone = forms.BooleanField(
+        label=False, 
+        required=False, 
+        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('Has phone')}))
+    has_zkx = forms.BooleanField(
+        label=False, 
+        required=False, 
+        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('Has ZKX')}))
     has_ppo = forms.BooleanField(
         label=False, 
         required=False, 
@@ -52,7 +64,7 @@ class EditForm(BaseEditForm):
 
     class Meta:
         model = Task
-        fields = ['name', 'info', 'has_el', 'has_hw', 'has_cw', 'has_gas', 'has_ppo']
+        fields = ['name', 'info', 'has_el', 'has_hw', 'has_cw', 'has_gas', 'has_tv', 'has_phone', 'has_zkx', 'has_ppo']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
             'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),
@@ -67,3 +79,6 @@ class EditForm(BaseEditForm):
             self.fields['has_cw'].initial = apart.has_cw
             self.fields['has_gas'].initial = apart.has_gas
             self.fields['has_ppo'].initial = apart.has_ppo
+            self.fields['has_tv'].initial = apart.has_tv
+            self.fields['has_phone'].initial = apart.has_phone
+            self.fields['has_zkx'].initial = apart.has_zkx

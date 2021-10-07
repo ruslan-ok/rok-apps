@@ -31,6 +31,9 @@ class Apart(models.Model):
     has_cw = models.BooleanField(_('has cold water'), default = True)
     has_gas = models.BooleanField(_('has gas'), default = True)
     has_ppo = models.BooleanField(_('payments to the partnership of owners'), default = False)
+    has_tv = models.BooleanField(_('has Internet/TV'), default = True)
+    has_phone = models.BooleanField(_('has phone'), default = True)
+    has_zkx = models.BooleanField(_('has ZKX'), default = True)
     task = models.ForeignKey(Task, on_delete=models.SET_NULL, verbose_name=_('task'), related_name = 'task_apart', null=True)
     info = models.CharField(_('information'), max_length = 1000, blank = True, null=True)
 

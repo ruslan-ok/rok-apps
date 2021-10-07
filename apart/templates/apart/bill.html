@@ -54,80 +54,93 @@
       </div>
 
       <div class="bill_chargeable">
-        <div class="service_col">
-          <div class="tarif">
-            <div class="title">{{ el_tar.title }}</div>
-            <div class="value">{{ el_tar.value }}</div>
+        {% if ed_item.apart.has_el %}
+          <div class="service_col">
+            <div class="tarif">
+              <div class="title">{{ el_tar.title }}</div>
+              <div class="value">{{ el_tar.value }}</div>
+            </div>
+            <div class="values">
+              <div class="bill">{{ el_bill.value }}</div>
+              {{ form.el_pay }}
+            </div>
           </div>
-          <div class="values">
-            <div class="bill">{{ el_bill.value }}</div>
-            {{ form.el_pay }}
-          </div>
-        </div>
+        {% endif %}
 
-        <div class="service_col">
-          <div class="tarif">
-            <div class="title">{{ gas_tar.title }}</div>
-            <div class="value">{{ gas_tar.value }}</div>
+        {% if ed_item.apart.has_gas %}
+          <div class="service_col">
+            <div class="tarif">
+              <div class="title">{{ gas_tar.title }}</div>
+              <div class="value">{{ gas_tar.value }}</div>
+            </div>
+            <div class="values">
+              <div class="bill">{{ gas_bill.value }}</div>
+              {{ form.gas_pay }}
+            </div>
           </div>
-          <div class="values">
-            <div class="bill">{{ gas_bill.value }}</div>
-            {{ form.gas_pay }}
-          </div>
-        </div>
+        {% endif %}
 
-        <div class="service_col">
-          <div class="tarif">
-            <div class="title">{{ water_tar.title }}</div>
-            <div class="value">{{ water_tar.value }}</div>
+        {% if ed_item.apart.has_hw or ed_item.apart.has_cw %}
+          <div class="service_col">
+            <div class="tarif">
+              <div class="title">{{ water_tar.title }}</div>
+              <div class="value">{{ water_tar.value }}</div>
+            </div>
+            <div class="values">
+              <div class="bill">{{ water_bill.value }}</div>
+              {{ form.water_pay }}
+            </div>
           </div>
-          <div class="values">
-            <div class="bill">{{ water_bill.value }}</div>
-            {{ form.water_pay }}
-          </div>
-        </div>
+        {% endif %}
       </div>
 
       <div class="bill__accrued">
-        <div class="service_row">
-          <div class="title">
-            {{ tv_title }}
-          </div>
-          <div class="values">
-            {{ form.tv_bill }}
-            {{ form.tv_pay }}
+        {% if ed_item.apart.has_tv %}
+          <div class="service_row">
+            <div class="title">
+              {{ tv_title }}
             </div>
-        </div>
+            <div class="values">
+              {{ form.tv_bill }}
+              {{ form.tv_pay }}
+              </div>
+          </div>
+        {% endif %}
 
-        <div class="service_row">
-          <div class="title">
-            {{ phone_title }}
+        {% if ed_item.apart.has_phone %}
+          <div class="service_row">
+            <div class="title">
+              {{ phone_title }}
+            </div>
+            <div class="values">
+              {{ form.phone_bill }}
+              {{ form.phone_pay }}
+            </div>
           </div>
-          <div class="values">
-            {{ form.phone_bill }}
-            {{ form.phone_pay }}
+        {% endif %}
+        {% if ed_item.apart.has_zkx %}
+          <div class="service_row">
+            <div class="title">
+              {{ ZKX_title }}
+            </div>
+            <div class="values">
+              {{ form.zhirovka }}
+              {{ form.ZKX_pay }}
+            </div>
           </div>
-        </div>
+        {% endif %}
 
-        <div class="service_row">
-          <div class="title">
-            {{ ZKX_title }}
+        {% if ed_item.apart.has_ppo %}
+          <div class="service_row">
+            <div class="title">
+              {{ PoO_title }}
+            </div>
+            <div class="values">
+              {{ form.PoO }}
+              {{ form.PoO_pay }}
+            </div>
           </div>
-          <div class="values">
-            {{ form.zhirovka }}
-            {{ form.ZKX_pay }}
-          </div>
-        </div>
-
-        <div class="service_row">
-          <div class="title">
-            {{ PoO_title }}
-          </div>
-          <div class="values">
-            {{ form.PoO }}
-            {{ form.PoO_pay }}
-          </div>
-        </div>
+        {% endif %}
       </div>
 
     </div>

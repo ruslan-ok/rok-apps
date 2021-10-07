@@ -33,23 +33,23 @@ class EditForm(BaseEditForm):
     tarif = forms.DecimalField(
         label=False,
         required=True,
-        widget=NumberInput(attrs={'label': _('tarif').capitalize(), 'class': 'mb-1'}))
+        widget=NumberInput(attrs={'label': _('tarif').capitalize(), 'class': 'mb-1', 'step': '0.00001'}))
     border = forms.IntegerField(
         label=False,
         required=False,
-        widget=NumberInput(attrs={'label': _('border').capitalize(), 'class': 'mb-1'}))
+        widget=NumberInput(attrs={'label': _('border').capitalize(), 'class': 'mb-1', 'step': '0.0001'}))
     tarif2 = forms.DecimalField(
         label=False,
         required=False,
-        widget=NumberInput(attrs={'label': _('tarif 2').capitalize(), 'class': 'mb-1'}))
+        widget=NumberInput(attrs={'label': _('tarif 2').capitalize(), 'class': 'mb-1', 'step': '0.00001'}))
     border2 = forms.IntegerField(
         label=False,
         required=False,
-        widget=NumberInput(attrs={'label': _('border 2').capitalize(), 'class': 'mb-1'}))
+        widget=NumberInput(attrs={'label': _('border 2').capitalize(), 'class': 'mb-1', 'step': '0.0001'}))
     tarif3 = forms.DecimalField(
         label=False,
         required=False,
-        widget=NumberInput(attrs={'label': _('tarif 3').capitalize(), 'class': 'mb-1'}))
+        widget=NumberInput(attrs={'label': _('tarif 3').capitalize(), 'class': 'mb-1', 'step': '0.00001'}))
     info = forms.CharField(
         label=_('comment').capitalize(),
         required=False,

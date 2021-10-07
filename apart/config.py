@@ -16,17 +16,17 @@ app_config = {
             'icon': 'star', 
             'title': 'services',
         },
+        'price': {
+            'role': ROLE_PRICE,
+            'icon': 'star', 
+            'title': 'prices',
+            'add_button': True,
+        },
         'meter': {
             'role': ROLE_METER,
             'icon': 'star', 
             'title': 'meters data',
             'item_name': 'meters data',
-            'add_button': True,
-        },
-        'price': {
-            'role': ROLE_PRICE,
-            'icon': 'star', 
-            'title': 'prices',
             'add_button': True,
         },
         'bill': {

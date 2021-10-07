@@ -38,4 +38,17 @@ class BaseApartDetailView(BaseDetailView):
         super().__init__(app_config, role, *args, **kwargs)
 
     def tune_dataset(self, data, view_mode):
+        apart = Apart.objects.filter(user=self.request.user.id, active=True).get()
+        if (view_mode == 'meter'):
+            items = Meter.objects.filter(apart=apart.id)
+            return data.filter(id__in=Subquery(items.values('task'))).order_by('-name')
+        if (view_mode == 'service'):
+            items = Service.objects.filter(apart=apart.id)
+            return data.filter(id__in=Subquery(items.values('task')))
+        if (view_mode == 'price'):
+            items = Price.objects.filter(apart=apart.id)
+            return data.filter(id__in=Subquery(items.values('task'))).order_by('-name')
+        if (view_mode == 'bill'):
+            items = Bill.objects.filter(apart=apart.id)
+            return data.filter(id__in=Subquery(items.values('task'))).order_by('-name')
         return data
