@@ -1,6 +1,15 @@
 .content-title {
   font-size: 1.5rem;
   margin: 10px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.content-title .title {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
 }
 
 .content-title__icon {

@@ -10,7 +10,7 @@ app_config = {
             'icon': 'building', 
             'title': 'apartments',
             'item_name': 'apartment',
-            'relate': ['docs'],
+            'relate': ['doc'],
         },
         'service': {
             'role': ROLE_SERVICE,

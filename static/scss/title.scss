@@ -1,6 +1,10 @@
 .content-title {
     font-size: 1.5rem;
     margin: 10px;
+    display: flex;
+    .title {
+        display: flex;
+    }
 
     &__icon {
         padding: 10px 20px;

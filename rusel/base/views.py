@@ -3,11 +3,12 @@ from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 from django.http import FileResponse, HttpResponseNotFound
 from django.views.generic.edit import CreateView, UpdateView
+from rusel.apps import get_related_roles
 from rusel.context import get_base_context
 from rusel.files import storage_path, get_files_list
 from rusel.utils import extract_get_params
 from rusel.base.forms import GroupForm, CreateGroupForm
-from task.const import ROLES_IDS
+from task.const import NONE, ROLES_IDS, ROLE_BY_NUM, ROLE_DOC
 from task.models import Task, Group, TaskGroup, Urls
 
 class Config:
@@ -201,6 +202,9 @@ class BaseDetailView(UpdateView, Context):
         context['title'] = self.object.name
         context['urls'] = Urls.objects.filter(task=self.object.id)
         context['files'] = get_files_list(self.request.user, self.config.app, self.config.role, self.object.id)
+        related_roles, possible_related = get_related_roles(self.get_object(), self.config)
+        context['related_roles'] = related_roles
+        context['possible_related'] = possible_related
         return context
 
     def form_valid(self, form):
