@@ -19,7 +19,7 @@ class TuneData:
             return data.exclude(stop=None).exclude(completed=True)
         if (view_mode == 'completed'):
             return data.filter(completed=True)
-        return data;
+        return data
 
 class ListView(BaseListView, TuneData):
     model = Task
@@ -31,6 +31,13 @@ class ListView(BaseListView, TuneData):
     def form_valid(self, form):
         form.instance.app_task = NUM_ROLE_TODO
         response = super().form_valid(form)
+        self.config.set_view(self.request)
+        if (self.config.cur_view == 'todo'):
+            form.instance.in_my_day = True
+            form.instance.save()
+        if (self.config.cur_view == 'important'):
+            form.instance.important = True
+            form.instance.save()
         return response
 
 class DetailView(BaseDetailView, TuneData):

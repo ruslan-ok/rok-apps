@@ -64,14 +64,25 @@ function addItem(app, role) {
     xhttp.send();
 }
 
-function delItemConfirm(role, text) {
-    let el = document.getElementById('dialogModal');
-    let sel = el.querySelectorAll('div.modal-body');
-    sel[0].innerText = text;
-    sel = el.querySelectorAll('button.btn-danger');
-    sel[0].onclick = function() {return delItem(role);}
+function showInfo(text) {
+    let el = document.getElementById('infoModal');
+    el.querySelectorAll('div.modal-body')[0].innerText = text;
 
-    let conf = new bootstrap.Modal(document.getElementById('dialogModal'), {});
+    let message = new bootstrap.Modal(document.getElementById('infoModal'), {});
+    message.show();
+}
+
+function delItemConfirm(role, ban, text) {
+    if (ban) {
+        showInfo(ban);
+        return;
+      }
+    
+    let el = document.getElementById('delModal');
+    el.querySelectorAll('div.modal-body')[0].innerText = text;
+    el.querySelectorAll('button.btn-danger')[0].onclick = function() {return delItem(role);}
+
+    let conf = new bootstrap.Modal(document.getElementById('delModal'), {});
     conf.show();
 }
 

@@ -5,7 +5,7 @@ from rusel.files import get_files_list
 from rusel.base.views import get_app_doc
 from apart.forms.serv import CreateForm, EditForm
 from apart.config import app_config
-from apart.models import Service, Apart
+from apart.models import Service, Apart, Price
 from apart.views.base_list import BaseApartListView, BaseApartDetailView
 
 app = APP_APART
@@ -37,6 +37,10 @@ class DetailView(BaseApartDetailView):
         if Service.objects.filter(task=self.object.id).exists():
             item = Service.objects.filter(task=self.object.id).get()
             context['title'] = item.apart.name + ' ' + _('service').capitalize() + ' "' + self.object.name + '"'
+            context['delete_question'] = _('delete service').capitalize()
+            context['ban_on_deletion'] = ''
+            if Price.objects.filter(serv=item.id).exists():
+                context['ban_on_deletion'] = _('deletion is prohibited because there are tariffs for this service').capitalize()
         return context
 
     def form_valid(self, form):

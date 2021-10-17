@@ -7,7 +7,7 @@ from rusel.base.views import get_app_doc
 from apart.views.base_list import BaseApartListView, BaseApartDetailView
 from apart.forms.meter import CreateForm, EditForm
 from apart.config import app_config
-from apart.models import Meter, Apart
+from apart.models import Meter, Apart, Bill
 
 app = APP_APART
 role = ROLE_METER
@@ -36,6 +36,10 @@ class DetailView(BaseApartDetailView):
         if Meter.objects.filter(task=self.object.id).exists():
             item = Meter.objects.filter(task=self.object.id).get()
             context['title'] = item.apart.name + ' ' + _('meters data').capitalize() + ' ' + self.object.name
+            context['delete_question'] = _('delete meters data').capitalize()
+            context['ban_on_deletion'] = ''
+            if Bill.objects.filter(prev=item.id).exists() or Bill.objects.filter(curr=item.id).exists():
+                context['ban_on_deletion'] = _('deletion is prohibited because there are bills for this meters data').capitalize()
         return context
 
     def form_valid(self, form):

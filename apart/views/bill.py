@@ -65,6 +65,8 @@ class DetailView(BaseApartDetailView):
             context['phone_title'] = _('phone').capitalize()
             context['ZKX_title'] = _('HCS')
             context['PoO_title'] = _('PoO')
+            context['delete_question'] = _('delete bill').capitalize()
+            context['ban_on_deletion'] = ''
         return context
 
     def form_valid(self, form):

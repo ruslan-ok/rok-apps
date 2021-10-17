@@ -62,19 +62,25 @@ function closeGroupForm() {
   window.location.href = redirect_url;
 }
 
+function showInfo(text) {
+  let el = document.getElementById('infoModal');
+  el.querySelectorAll('div.modal-body')[0].innerText = text;
+
+  let message = new bootstrap.Modal(document.getElementById('infoModal'), {});
+  message.show();
+}
+
 function delGroupConfirm(ban, text) {
   if (ban) {
-    alert(ban);
+    showInfo(ban);
     return;
   }
 
-  let el = document.getElementById('dialogModal');
-  let sel = el.querySelectorAll('div.modal-body');
-  sel[0].innerText = text;
-  sel = el.querySelectorAll('button.btn-danger');
-  sel[0].onclick = function() {return delGroup();}
+  let el = document.getElementById('delModal');
+  el.querySelectorAll('div.modal-body')[0].innerText = text;
+  el.querySelectorAll('button.btn-danger')[0].onclick = function() {return delGroup();}
 
-  let conf = new bootstrap.Modal(document.getElementById('dialogModal'), {});
+  let conf = new bootstrap.Modal(document.getElementById('delModal'), {});
   conf.show();
 }
 

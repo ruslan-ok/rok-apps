@@ -41,8 +41,9 @@ class BaseEditForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.config = config
         self.role = role
-        self.fields['grp'].initial = self.get_group_id()
-        self.fields['grp'].queryset = Group.objects.filter(role=role).order_by('sort')
+        if ('grp' in self.fields):
+            self.fields['grp'].initial = self.get_group_id()
+            self.fields['grp'].queryset = Group.objects.filter(role=role).order_by('sort')
 
     def clean_categories(self):
         self.cleaned_data['categories'] = ' '.join([self.data['categories_1'], self.data['categories_2']]).strip()

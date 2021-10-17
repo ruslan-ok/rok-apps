@@ -27,6 +27,11 @@ class Config:
         self.use_important = self.check_property(config, 'use_important', False)
         self.add_button = self.check_property(config, 'add_button', False)
         self.item_name = self.check_property(config, 'item_name', '')
+        self.multy_role = False
+        for key, value in self.views.items():
+            if ('role' in value):
+                self.multy_role = True
+                break;
         self.cur_view = ''
         if (cur_view in self.views):
             if ('role' in config['views'][cur_view]):
@@ -43,12 +48,14 @@ class Config:
     def set_view(self, request):
         self.group_id = 0
         common_url = reverse(self.app + ':list')
-        view_mode = request.path.split(common_url)[1].split('?')[0].split('/')[0]
-        if request.method == 'GET':
-            if ('view' in request.GET):
-                view_mode = request.GET.get('view')
-            if (view_mode == 'by_group') and ('group_id' in request.GET):
-                self.group_id = int(request.GET.get('group_id'))
+        view_mode = ''
+        if (self.multy_role):
+            this_page_href = request.path
+            view_mode = this_page_href.split(common_url)[1].split('?')[0].split('/')[0]
+        if ('view' in request.GET):
+            view_mode = request.GET.get('view')
+        if (view_mode == 'by_group') and ('group_id' in request.GET):
+            self.group_id = int(request.GET.get('group_id'))
         if view_mode and (view_mode in self.views):
             self.cur_view = view_mode
             self.title = self.check_property(self.views[view_mode], 'title', self.title)

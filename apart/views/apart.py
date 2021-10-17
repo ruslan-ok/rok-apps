@@ -5,7 +5,7 @@ from rusel.files import get_files_list
 from rusel.base.views import BaseListView, BaseDetailView, get_app_doc
 from apart.forms.apart import CreateForm, EditForm
 from apart.config import app_config
-from apart.models import Apart
+from apart.models import Apart, Service, Price, Meter, Bill
 
 app = APP_APART
 role = ROLE_APART
@@ -36,6 +36,25 @@ class DetailView(BaseDetailView):
 
     def tune_dataset(self, data, view_mode):
         return data
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(self.get_app_context())
+        context['title'] = self.object.name
+        context['delete_question'] = _('delete apartment').capitalize()
+        context['ban_on_deletion'] = ''
+        apart_id = None
+        if Apart.objects.filter(task=self.object.id).exists():
+            apart_id = Apart.objects.filter(task=self.object.id).get().id
+            if Service.objects.filter(apart=apart_id).exists():
+                context['ban_on_deletion'] = _('deletion is prohibited because there are services for this apartment').capitalize()
+            elif Price.objects.filter(apart=apart_id).exists():
+                context['ban_on_deletion'] = _('deletion is prohibited because there are tariffs for this apartment').capitalize()
+            elif Meter.objects.filter(apart=apart_id).exists():
+                context['ban_on_deletion'] = _('deletion is prohibited because there are meters data for this apartment').capitalize()
+            elif Bill.objects.filter(apart=apart_id).exists():
+                context['ban_on_deletion'] = _('deletion is prohibited because there are bills for this apartment').capitalize()
+        return context
 
     def form_valid(self, form):
         response = super().form_valid(form)

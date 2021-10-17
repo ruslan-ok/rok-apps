@@ -158,7 +158,7 @@
       <button type="button" name="form_close" class="btn btn-secondary bi-x" onclick="closeForm()" title="{% trans 'close edit form'|capfirst %}">
         {% trans 'close'|capfirst %}
       </button>
-      <button type="button" name="item_delete" class="btn btn-danger bi-trash" onclick="delItemConfirm('{{config.app}}', '{{delete_question}} {{title}}?')" title="{% trans 'delete record'|capfirst %}">
+      <button type="button" name="item_delete" class="btn btn-danger bi-trash" onclick="delItemConfirm('{{config.app}}', '{{ban_on_deletion}}', '{{delete_question}} {{title}}?')" title="{% trans 'delete record'|capfirst %}">
         {% trans 'delete'|capfirst %}
       </button>
     </div>

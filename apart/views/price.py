@@ -35,6 +35,8 @@ class DetailView(BaseApartDetailView):
         if Price.objects.filter(task=self.object.id).exists():
             item = Price.objects.filter(task=self.object.id).get()
             context['title'] = item.apart.name + ' ' + _('price').capitalize() + ' ' + self.object.name
+            context['delete_question'] = _('delete tariff').capitalize()
+            context['ban_on_deletion'] = ''
         return context
 
     def form_valid(self, form):
