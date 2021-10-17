@@ -1,38 +1,43 @@
-from task.const import ROLE_DOC, NUM_ROLE_DOC, ROLE_APP
+from task.const import ROLE_STORE, NUM_ROLE_STORE, ROLE_APP
 from task.models import Task
 from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView, get_app_doc
-from docs.forms import CreateForm, EditForm
-from docs.config import app_config
+from store.forms import CreateForm, EditForm
+from store.config import app_config
+from store.get_info import get_info
 
-role = ROLE_DOC
+role = ROLE_STORE
 app = ROLE_APP[role]
 
-class ListView(BaseListView):
+class TuneData:
+    def tune_dataset(self, data, view_mode):
+        return data;
+
+class ListView(BaseListView, TuneData):
     model = Task
     form_class = CreateForm
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
-    def tune_dataset(self, data, view_mode):
-        return data;
-
     def form_valid(self, form):
-        form.instance.app_doc = NUM_ROLE_DOC
+        form.instance.app_note = NUM_ROLE_STORE
         response = super().form_valid(form)
         return response
 
-class DetailView(BaseDetailView):
+class DetailView(BaseDetailView, TuneData):
     model = Task
     form_class = EditForm
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
-    def tune_dataset(self, data, view_mode):
-        return data;
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        form.instance.set_item_attr(app, get_info(form.instance))
+        return response
 
-class GroupView(BaseGroupView):
+
+class GroupView(BaseGroupView, TuneData):
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 

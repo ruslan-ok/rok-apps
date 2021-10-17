@@ -1,6 +1,6 @@
 from datetime import date, datetime
 from django.utils.translation import gettext_lazy as _
-from task.const import ROLE_METER, NUM_ROLE_METER
+from task.const import APP_APART, ROLE_METER, NUM_ROLE_METER
 from task.models import Task, Urls
 from rusel.files import get_files_list
 from rusel.base.views import get_app_doc
@@ -9,7 +9,7 @@ from apart.forms.meter import CreateForm, EditForm
 from apart.config import app_config
 from apart.models import Meter, Apart
 
-app = 'apart'
+app = APP_APART
 role = ROLE_METER
 
 class ListView(BaseApartListView):

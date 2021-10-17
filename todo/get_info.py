@@ -2,9 +2,9 @@ from django.utils.translation import gettext_lazy as _
 from rusel.files import get_files_list
 from rusel.categories import get_categories_list
 from task.models import TaskGroup, Urls, Step
-from task.const import ROLE_TODO
+from task.const import APP_TODO, ROLE_TODO
 
-app = 'todo'
+app = APP_TODO
 role = ROLE_TODO
 
 def get_info(item):

@@ -1,9 +1,9 @@
 from rusel.files import get_files_list
 from rusel.categories import get_categories_list
 from task.models import TaskGroup, Urls
-from task.const import ROLE_NEWS
+from task.const import APP_NEWS, ROLE_NEWS
 
-app = 'news'
+app = APP_NEWS
 role = ROLE_NEWS
 
 def get_info(item):

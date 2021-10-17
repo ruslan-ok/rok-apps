@@ -1,7 +1,7 @@
 from task.const import *
 
 app_config = {
-    'name': 'news',
+    'name': APP_NEWS,
     'app_title': 'news',
     'icon': 'newspaper',
     'role': ROLE_NEWS,

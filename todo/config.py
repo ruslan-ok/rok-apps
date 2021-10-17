@@ -1,7 +1,7 @@
 from task.const import *
 
 app_config = {
-    'name': 'todo',
+    'name': APP_TODO,
     'app_title': 'tasks',
     'icon': 'check2-square',
     'role': ROLE_TODO,

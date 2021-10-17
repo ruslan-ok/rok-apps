@@ -1,5 +1,7 @@
+from task.const import *
+
 app_config = {
-    'name': 'health',
+    'name': APP_HEALTH,
     'title': 'health',
     'icon': 'star',
     'roles': {

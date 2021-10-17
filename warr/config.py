@@ -1,5 +1,7 @@
+from task.const import *
+
 app_config = {
-    'name': 'warr',
+    'name': APP_WARR,
     'title': 'warranties',
     'icon': 'star',
     'roles': {

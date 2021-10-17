@@ -1,5 +1,5 @@
 from django.utils.translation import gettext_lazy as _
-from task.const import ROLE_PRICE, NUM_ROLE_PRICE
+from task.const import APP_APART, ROLE_PRICE, NUM_ROLE_PRICE
 from task.models import Task, Urls
 from rusel.files import get_files_list
 from rusel.base.views import get_app_doc
@@ -8,7 +8,7 @@ from apart.forms.price import CreateForm, EditForm
 from apart.models import Apart, Price
 from apart.config import app_config
 
-app = 'apart'
+app = APP_APART
 role = ROLE_PRICE
 
 class ListView(BaseApartListView):

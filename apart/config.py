@@ -1,7 +1,7 @@
 from task.const import *
 
 app_config = {
-    'name': 'apart',
+    'name': APP_APART,
     'app_title': 'communal',
     'icon': 'building',
     'role': ROLE_APART,
@@ -10,7 +10,7 @@ app_config = {
             'icon': 'building', 
             'title': 'apartments',
             'item_name': 'apartment',
-            'relate': ['doc'],
+            'relate': [ROLE_DOC],
         },
         'service': {
             'role': ROLE_SERVICE,
@@ -29,14 +29,14 @@ app_config = {
             'title': 'meters data',
             'item_name': 'meters data',
             'add_button': True,
-            'relate': ['todo'],
+            'relate': [ROLE_TODO],
         },
         'bill': {
             'role': ROLE_BILL,
             'icon': 'star', 
             'title': 'bills',
             'add_button': True,
-            'relate': ['todo'],
+            'relate': [ROLE_TODO],
        },
     }
 }

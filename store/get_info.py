@@ -1,10 +1,10 @@
 from rusel.files import get_files_list
 from rusel.categories import get_categories_list
 from task.models import TaskGroup, Urls
-from task.const import APP_NOTE, ROLE_NOTE
+from task.const import APP_STORE, ROLE_STORE
 
-app = APP_NOTE
-role = ROLE_NOTE
+app = APP_STORE
+role = ROLE_STORE
 
 def get_info(item):
     ret = {'attr': []}

@@ -1,6 +1,6 @@
 from datetime import datetime
 from django.utils.translation import gettext_lazy as _
-from task.const import ROLE_BILL, NUM_ROLE_BILL
+from task.const import APP_APART, ROLE_BILL, NUM_ROLE_BILL
 from task.models import Task, Urls
 from rusel.files import get_files_list
 from rusel.base.views import get_app_doc
@@ -11,7 +11,7 @@ from apart.models import Apart, Meter, Bill
 from apart.views.meter import next_period
 from rusel.files import get_files_list
 
-app = 'apart'
+app = APP_APART
 role = ROLE_BILL
 
 class ListView(BaseApartListView):

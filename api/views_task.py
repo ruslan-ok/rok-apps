@@ -52,7 +52,7 @@ class TaskViewSet(viewsets.ModelViewSet):
             if (role == ROLE_EXPENSES):
                 return data.filter(app_expen=NUM_ROLE_OPERATION)
             if (role == ROLE_SALDO):
-                if (app == 'trip'):
+                if (app == APP_TRIP):
                     return data.filter(app_trip=NUM_ROLE_SALDO)
                 return data.filter(app_expen=NUM_ROLE_SALDO)
             if (role == ROLE_PERSON):
@@ -64,7 +64,7 @@ class TaskViewSet(viewsets.ModelViewSet):
             if (role == ROLE_PART):
                 return data.filter(app_fuel=NUM_ROLE_PART)
             if (role == ROLE_SERVICE):
-                if (app == 'apart'):
+                if (app == APP_APART):
                     return data.filter(app_apart=NUM_ROLE_SERVICE)
                 return data.filter(app_fuel=NUM_ROLE_SERVICE)
             if (role == ROLE_METER):
@@ -116,21 +116,21 @@ class TaskViewSet(viewsets.ModelViewSet):
     def get_info(self, request, pk=None):
         for task in Task.objects.filter(user=request.user.id):
             if (task.app_task == NUM_ROLE_TODO):
-                task.set_item_attr('todo', todo_get_info(task))
+                task.set_item_attr(APP_TODO, todo_get_info(task))
             if (task.app_note == NUM_ROLE_NOTE):
-                task.set_item_attr('note', note_get_info(task))
+                task.set_item_attr(APP_NOTE, note_get_info(task))
             if (task.app_news == NUM_ROLE_NEWS):
-                task.set_item_attr('news', news_get_info(task))
+                task.set_item_attr(APP_NEWS, news_get_info(task))
             if (task.app_apart == NUM_ROLE_APART):
-                task.set_item_attr('apart', apart_get_info(task))
+                task.set_item_attr(APP_APART, apart_get_info(task))
             if (task.app_apart == NUM_ROLE_SERVICE):
-                task.set_item_attr('apart', serv_get_info(task))
+                task.set_item_attr(APP_APART, serv_get_info(task))
             if (task.app_apart == NUM_ROLE_PRICE):
-                task.set_item_attr('apart', price_get_info(task))
+                task.set_item_attr(APP_APART, price_get_info(task))
             if (task.app_apart == NUM_ROLE_METER):
-                task.set_item_attr('apart', meter_get_info(task))
+                task.set_item_attr(APP_APART, meter_get_info(task))
             if (task.app_apart == NUM_ROLE_BILL):
-                task.set_item_attr('apart', bill_get_info(task))
+                task.set_item_attr(APP_APART, bill_get_info(task))
         serializer = self.get_serializer(self.get_queryset(), many=True)
         return Response(serializer.data)
     
@@ -144,7 +144,7 @@ class TaskViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
         app = self.request.query_params['app']
         role = self.request.query_params['role']
-        if (app == 'apart'):
+        if (app == APP_APART):
             mess = None
             if (role == ROLE_METER):
                 task = Task.objects.create(user=request.user, app_apart=NUM_ROLE_METER)

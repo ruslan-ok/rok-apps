@@ -18,10 +18,10 @@
             <div id="groups-tree" class="sidebar__groups">
                 {% for node in groups %}
                     {% if node.is_leaf %}
-                        <a href="/{{ config.app }}/?view=by_group&group_id={{ node.id }}" 
+                        <a href="/{{ config.app }}/?view=by_group&group_id={{ node.id|escape }}" 
                             class="{% if request.GET.group_id == node.s_id %}active{% endif %}"
                             {% if request.GET.group_id == node.s_id %}aria-current="true"{% endif %}
-                            data-id="{{ node.id }}" data-parent="{{ node.node.id }}" id="task_group_{{ node.id }}">
+                            data-id="{{ node.id|escape }}" data-parent="{{ node.node.id|escape }}" id="task_group_{{ node.id|escape }}">
                             <div>
                                 <i class="bi-journals level-{{ node.level }}"></i>
                                 <span class="">{{ node.name }}</span>
@@ -29,8 +29,8 @@
                             <span class="">{{ node.qty }}</span>
                         </a>
                     {% else %}
-                        <a role="button" href="#" class="sidebar__group-hidden" onclick="toggleGroup({{ node.id }})"
-                                data-id="{{ node.id }}" data-parent="{{ node.node.id }}" id="task_group_{{ node.id }}">
+                        <a role="button" href="#" class="sidebar__group-hidden" onclick="toggleGroup({{ node.id|escape }})"
+                                data-id="{{ node.id|escape }}" data-parent="{{ node.node.id|escape }}" id="task_group_{{ node.id|escape }}">
                             <div>
                                 <i class="bi-folder2 level-{{ node.level }}"></i>
                                 <span class="">{{ node.name }}</span>

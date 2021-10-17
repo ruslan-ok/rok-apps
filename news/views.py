@@ -1,11 +1,11 @@
-from task.const import ROLE_NEWS, NUM_ROLE_NEWS
+from task.const import APP_NEWS, ROLE_NEWS, NUM_ROLE_NEWS
 from task.models import Task
 from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView, get_app_doc
 from news.forms import CreateForm, EditForm
 from news.config import app_config
 from news.get_info import get_info
 
-app = 'news'
+app = APP_NEWS
 role = ROLE_NEWS
 
 class TuneData:

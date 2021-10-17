@@ -1,5 +1,5 @@
 from django.utils.translation import gettext_lazy as _
-from task.const import ROLE_SERVICE, NUM_ROLE_SERVICE
+from task.const import APP_APART, ROLE_SERVICE, NUM_ROLE_SERVICE
 from task.models import Task
 from rusel.files import get_files_list
 from rusel.base.views import get_app_doc
@@ -8,7 +8,7 @@ from apart.config import app_config
 from apart.models import Service, Apart
 from apart.views.base_list import BaseApartListView, BaseApartDetailView
 
-app = 'apart'
+app = APP_APART
 role = ROLE_SERVICE
 
 class ListView(BaseApartListView):

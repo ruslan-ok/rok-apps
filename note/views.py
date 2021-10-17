@@ -1,12 +1,12 @@
-from task.const import ROLE_NOTE, NUM_ROLE_NOTE
+from task.const import ROLE_NOTE, NUM_ROLE_NOTE, ROLE_APP
 from task.models import Task
 from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView, get_app_doc
 from note.forms import CreateForm, EditForm
 from note.config import app_config
 from note.get_info import get_info
 
-app = 'note'
 role = ROLE_NOTE
+app = ROLE_APP[role]
 
 class TuneData:
     def tune_dataset(self, data, view_mode):

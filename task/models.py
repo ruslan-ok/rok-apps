@@ -19,8 +19,8 @@ class Group(models.Model):
     Task groups
     """
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'), related_name='task_group')
-    app = models.CharField(_('app name'), max_length = 50, blank = False, default = 'todo', null = True)
-    role = models.CharField(_('role name'), max_length = 50, blank = False, default = 'todo', null = True)
+    app = models.CharField(_('app name'), max_length = 50, blank = False, default = APP_TODO, null = True)
+    role = models.CharField(_('role name'), max_length = 50, blank = False, default = ROLE_TODO, null = True)
     node = models.ForeignKey('self', on_delete=models.CASCADE, verbose_name=_('node'), blank=True, null=True)
     name = models.CharField(_('group name'), max_length=200, blank=False)
     sort = models.CharField(_('sort code'), max_length=50, blank=True)
@@ -138,9 +138,9 @@ class Task(models.Model):
 
     def get_item_app(self):
         if (self.app_task == NUM_ROLE_TODO):
-            return 'todo'
+            return APP_TODO
         if (self.app_note == NUM_ROLE_NOTE):
-            return 'note'
+            return APP_NOTE
         return None
 
     def get_absolute_url(self):

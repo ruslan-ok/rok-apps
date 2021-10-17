@@ -1,5 +1,7 @@
+from task.const import *
+
 app_config = {
-    'name': 'fuel',
+    'name': APP_FUEL,
     'title': 'fueling',
     'icon': 'star',
     'views': {
@@ -10,35 +12,22 @@ app_config = {
             'use_selector': True,
         },
         'fuelings': {
-            'role': ROLE_APART_SERV,
+            'role': ROLE_FUEL,
             'icon': 'star', 
             'url': 'services',
             'title': 'services',
         },
         'itnervals': {
-            'role': ROLE_FUEL_PART,
+            'role': ROLE_PART,
             'icon': 'star', 
             'url': 'meters',
             'title': 'meters data',
         },
         'service': {
-            'role': ROLE_FUEL_SERV,
+            'role': ROLE_SERVICE,
             'icon': 'star', 
             'url': 'prices',
             'title': 'prices',
-        },
-    }
-    'roles': {
-        'fuel': { 
-            'icon': 'star', 
-            'groups': False,
-            'views': {
-                'all': {
-                    'url': '',
-                    'icon': 'check-all',
-                    'title': 'all',
-                },
-            },
         },
     }
 }

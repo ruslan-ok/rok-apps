@@ -1,7 +1,7 @@
 from task.const import *
 
 app_config = {
-    'name': 'expen',
+    'name': APP_EXPEN,
     'title': 'expenses',
     'icon': 'star',
     'views': {

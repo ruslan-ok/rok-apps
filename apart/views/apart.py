@@ -1,5 +1,5 @@
 from django.utils.translation import gettext_lazy as _
-from task.const import ROLE_APART, NUM_ROLE_APART
+from task.const import APP_APART, ROLE_APART, NUM_ROLE_APART
 from task.models import Task
 from rusel.files import get_files_list
 from rusel.base.views import BaseListView, BaseDetailView, get_app_doc
@@ -7,7 +7,7 @@ from apart.forms.apart import CreateForm, EditForm
 from apart.config import app_config
 from apart.models import Apart
 
-app = 'apart'
+app = APP_APART
 role = ROLE_APART
 
 class ListView(BaseListView):

@@ -8,7 +8,7 @@ from rusel.context import get_base_context
 from rusel.files import storage_path, get_files_list
 from rusel.utils import extract_get_params
 from rusel.base.forms import GroupForm, CreateGroupForm
-from task.const import NONE, ROLES_IDS, ROLE_BY_NUM, ROLE_DOC
+from task.const import *
 from task.models import Task, Group, TaskGroup, Urls
 
 class Config:
@@ -114,31 +114,31 @@ class Context:
 
         role_id = ROLES_IDS[self.config.app][view_role]
 
-        if (self.config.app == 'todo'):
+        if (self.config.app == APP_TODO):
             data = data.filter(app_task=role_id)
-        if (self.config.app == 'note'):
+        if (self.config.app == APP_NOTE):
             data = data.filter(app_note=role_id)
-        if (self.config.app == 'news'):
+        if (self.config.app == APP_NEWS):
             data = data.filter(app_news=role_id)
-        if (self.config.app == 'store'):
+        if (self.config.app == APP_STORE):
             data = data.filter(app_store=role_id)
-        if (self.config.app == 'docs'):
+        if (self.config.app == APP_DOCS):
             data = data.filter(app_doc=role_id)
-        if (self.config.app == 'warr'):
+        if (self.config.app == APP_WARR):
             data = data.filter(app_warr=role_id)
-        if (self.config.app == 'expen'):
+        if (self.config.app == APP_EXPEN):
             data = data.filter(app_expen=role_id)
-        if (self.config.app == 'trip'):
+        if (self.config.app == APP_TRIP):
             data = data.filter(app_trip=role_id)
-        if (self.config.app == 'fuel'):
+        if (self.config.app == APP_FUEL):
             data = data.filter(app_fuel=role_id)
-        if (self.config.app == 'apart'):
+        if (self.config.app == APP_APART):
             data = data.filter(app_apart=role_id)
-        if (self.config.app == 'health'):
+        if (self.config.app == APP_HEALTH):
             data = data.filter(app_health=role_id)
-        if (self.config.app == 'work'):
+        if (self.config.app == APP_WORK):
             data = data.filter(app_work=role_id)
-        if (self.config.app == 'photo'):
+        if (self.config.app == APP_PHOTO):
             data = data.filter(app_photo=role_id)
 
         if data and (view_mode == 'by_group') and group_id:

@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 from task.models import Group, Task, TaskGroup
 from rusel.widgets import FileUpload
+#from rusel.context import get_cur_grp
 
 #----------------------------------
 class BaseCreateForm(forms.ModelForm):
@@ -15,7 +16,7 @@ class BaseCreateForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.config = config
         self.role = role
-        #self.fields['grp'].initial = self.get_group_id()
+        #self.fields['grp'].initial = get_cur_grp(self.request)
         #self.fields['grp'].queryset = Group.objects.filter(role=role).order_by('sort')
         
     def save(self, commit=True):
@@ -40,6 +41,8 @@ class BaseEditForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.config = config
         self.role = role
+        self.fields['grp'].initial = self.get_group_id()
+        self.fields['grp'].queryset = Group.objects.filter(role=role).order_by('sort')
 
     def clean_categories(self):
         self.cleaned_data['categories'] = ' '.join([self.data['categories_1'], self.data['categories_2']]).strip()

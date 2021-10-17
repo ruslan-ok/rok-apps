@@ -3,11 +3,11 @@ from django.utils.translation import gettext_lazy as _
 
 from rusel.base.forms import BaseCreateForm, BaseEditForm
 from task.models import Task, Group
-from task.const import ROLE_NOTE
-from note.config import app_config
+from task.const import ROLE_STORE
+from store.config import app_config
 from rusel.widgets import UrlsInput, CategoriesInput
 
-role = ROLE_NOTE
+role = ROLE_STORE
 
 #----------------------------------
 class CreateForm(BaseCreateForm):
@@ -37,10 +37,9 @@ class EditForm(BaseEditForm):
 
     class Meta:
         model = Task
-        fields = ['name', 'event', 'info', 'grp', 'url', 'categories', 'upload']
+        fields = ['name', 'info', 'grp', 'url', 'categories', 'upload']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
-            'event': forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime mb-3', 'type': 'datetime-local'}),
             'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),
         }
 

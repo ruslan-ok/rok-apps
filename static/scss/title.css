@@ -23,4 +23,8 @@
 .content-title__text {
   margin: 10px 0;
 }
+
+.content-title__separator {
+  margin: 10px 5px;
+}
 /*# sourceMappingURL=title.css.map */

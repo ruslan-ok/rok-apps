@@ -1,18 +1,15 @@
+from task.const import *
+
 app_config = {
-    'name': 'store',
-    'title': 'passwords',
-    'icon': 'star',
-    'roles': {
-        'store': { 
-            'icon': 'star', 
-            'groups': True,
-            'views': {
-                'all': {
-                    'url': '',
-                    'icon': 'check-all',
-                    'title': 'all',
-                },
-            },
+    'name': APP_STORE,
+    'app_title': 'passwords',
+    'icon': 'key',
+    'role': ROLE_STORE,
+    'groups': True,
+    'views': {
+        'store': {
+            'icon': 'check-all',
+            'title': 'all',
         },
     }
 }

@@ -1,5 +1,7 @@
+from task.const import *
+
 app_config = {
-    'name': 'work',
+    'name': APP_WORK,
     'title': 'work',
     'icon': 'star',
     'roles': {

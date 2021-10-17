@@ -1,5 +1,7 @@
+from task.const import *
+
 app_config = {
-    'name': 'photo',
+    'name': APP_PHOTO,
     'title': 'photo bank',
     'icon': 'star',
     'roles': {
