@@ -12,8 +12,6 @@
 }
 
 .list-content ul {
-  min-height: 500px;
-  max-height: 500px;
   list-style-type: none;
   padding: 0 15px;
   overflow: auto;

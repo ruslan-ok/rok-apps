@@ -12,7 +12,7 @@
   </ul>
 
   {% if not hide_add_item_input %}
-    <form method="post" class="add-form">{% csrf_token %}
+    <form method="post" class="add-form position-sticky bottom-0">{% csrf_token %}
       {% if add_button %}
         <button type="button" class="btn bi-plus-lg add-form__button" onclick="addItem('{{ config.app }}', '{{ config.role }}')">{{ add_item_placeholder }}</button>
       {% else %}
