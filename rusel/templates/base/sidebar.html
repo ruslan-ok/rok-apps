@@ -40,14 +40,11 @@
                     {% endif %}
                 {% endfor %}
             </div>
-
             <hr>
-
-            <div class="add-form">
+            <div class="add-form position-sticky bottom-0 mx-3">
                 <i class="bi-plus-lg add-form__button" id="add_group_btn_id" onclick="addGroup('{{ config.app }}','{{ config.role }}')"></i>
                 <input type="text" class="add-form__input" placeholder="{% trans 'create group'|capfirst %}" name="name" id="new_group_id">
             </div>
-
         {% endif %}
     </nav>
 </aside>

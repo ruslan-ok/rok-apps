@@ -9,6 +9,7 @@
   background-color: #d1e7dd !important;
   width: 100% !important;
   margin: 0 auto;
+  min-height: calc(100vh - 20rem);
 }
 
 .list-content ul {
