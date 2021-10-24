@@ -83,3 +83,11 @@ class NumberInput(widgets.Input):
         context = super().get_context(name, value, attrs)
         return context
 
+class CompletedInput(widgets.CheckboxInput):
+    input_type = 'checkbox'
+    template_name = 'widgets/completed.html'
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        context['widget'].update({'wrap_label': False})
+        return context

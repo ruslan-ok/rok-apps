@@ -6,6 +6,15 @@
     {% include "base/title.html" %}
     {% include "base/form_errors.html" %}
 
+    <div class="input-group">
+      {{ form.completed }}
+      {{ form.name }}
+      {% include "widgets/important.html" %}
+    </div>
+    {{ form.add_step }}
+    {% include "widgets/my_day.html" %}
+    {% include "widgets/termin.html" %}
+    <hr>
     {{ form }}
 
     {% include "widgets/url_list.html" %}

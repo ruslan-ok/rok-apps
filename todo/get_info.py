@@ -56,6 +56,6 @@ def get_info(item):
     if item.completed:
         if (len(ret['attr']) > 0):
             ret['attr'].append({'icon': 'separator'})
-        ret['attr'].append({'text': '{}: {}'.format(_('completion').capitalize(), item.completion.strftime('%d.%m.%Y'))})
+        ret['attr'].append({'text': '{}: {}'.format(_('completion').capitalize(), item.completion.strftime('%d.%m.%Y') if item.completion else '')})
 
     return ret

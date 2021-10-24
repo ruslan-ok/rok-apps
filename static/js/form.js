@@ -246,7 +246,7 @@ function toggleCompleted(item_id) {
     xhttp.send();
 }
 
-function toggleImportant(item_id) {
+function toggleImportant(item_id, redirect=true) {
     let redirect_url = window.location.href;
     const api = '/api/tasks/' + item_id + '/important/?format=json';
     let url = window.location.protocol + '//' + window.location.host + api;
@@ -259,11 +259,31 @@ function toggleImportant(item_id) {
 
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-            window.location.href = redirect_url;
+            if (redirect)
+                window.location.href = redirect_url;
         }
     };
 
     xhttp.send();
+}
+
+
+function toggleFormImportant() {
+    const item_id = window.location.pathname.match( /\d+/ )[0];
+    let el = document.getElementById('toggle-important');
+    let img = el.querySelectorAll('i')[0];
+    let checked = el.hasAttribute('checked');
+    if (checked) {
+        el.removeAttribute('checked');
+        img.classList.remove('bi-star-fill');
+        img.classList.add('bi-star');
+    }
+    else {
+        el.setAttribute('checked', '');
+        img.classList.remove('bi-star');
+        img.classList.add('bi-star-fill');
+    }
+    toggleImportant(item_id, false);
 }
 
 function apartChange(selectObject) {

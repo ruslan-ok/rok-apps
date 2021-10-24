@@ -1,0 +1,11 @@
+{% load i18n %}
+<button type="button" name="task_myday" class="form-button" onclick="toggleMyDay()">
+  <i class="bi-sun"></i>
+  <span class="section-title{% if item.in_my_day %} selected{% endif %}">
+    {% if item.in_my_day %}
+      {% trans 'added in "My day"'|capfirst %}
+    {% else %}
+      {% trans 'add to "My day"'|capfirst %}
+    {% endif %}
+  </span>
+</button>
