@@ -24,7 +24,11 @@ class EditForm(BaseEditForm):
     completed = forms.BooleanField(label=False, required=False, widget=CompletedInput(attrs={'class': '', 'label': _('completed').capitalize()}))
     #important = forms.BooleanField(label=False, required=False, widget=ImportantInput(attrs={'class': '', 'label': _('important').capitalize()}))
     #in_my_day = forms.BooleanField(label=False, required=False, widget=CheckboxInput(attrs={'class': 'ms-1 mb-3 me-3', 'label': _('in my day').capitalize()}))
-    add_step = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control form-control-sm mb-3', 'placeholder': _('next step').capitalize()}), required=False)
+    add_step = forms.CharField(
+        widget=forms.TextInput(
+            attrs={'class': 'form-control form-control-sm mb-3', 
+            'placeholder': _('next step').capitalize()}), 
+        required=False)
     stop = forms.DateTimeField(
         label=_('termin').capitalize(),
         required=False,

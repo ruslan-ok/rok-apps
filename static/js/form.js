@@ -349,3 +349,9 @@ function delRole(role) {
     xhttp.send();
 }
 
+function ToggleSelectField(name)
+{
+  var sel_id = name + '-select';
+  document.getElementById(sel_id).classList.toggle('d-none');
+}
+

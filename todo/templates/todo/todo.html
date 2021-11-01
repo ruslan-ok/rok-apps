@@ -12,14 +12,18 @@
       {% include "widgets/important.html" %}
     </div>
     {{ form.add_step }}
-    {% include "widgets/my_day.html" %}
-    {% include "widgets/termin.html" %}
-    <hr>
-    {{ form }}
-
+    <div class="row">
+      {% include "widgets/my_day.html" %}
+      {% include "widgets/termin.html" %}
+    </div>
+    <div class="row g-3">
+      <div class="col-sm-7">{{ form.info.label_tag }}{{ form.info }}</div>
+      <div class="col-sm">{{ form.grp.label_tag }}{{ form.grp }}</div>
+      <div class="col-sm">{{ form.categories.label_tag }}{{ form.categories }}</div>
+    </div>
+    <div>{{ form.url.label_tag }}{{ form.url }}</div>
     {% include "widgets/url_list.html" %}
     {% include "widgets/attachments.html" %}
-
     <div class="d-flex justify-content-evenly mt-3 pb-5">
       <button type="submit" name="item_save" class="btn btn-primary bi-save" title="{% trans 'save changes'|capfirst %}">
         {% trans 'save'|capfirst %}
