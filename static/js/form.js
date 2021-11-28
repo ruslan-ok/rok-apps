@@ -33,17 +33,21 @@ function closeForm() {
     window.location.href = redirect_url;
 }
 
-function addItem(app, role) {
-    const api = '/api/tasks/add_item/?format=json&app=' + app + '&role=' + role;
-    let url = window.location.protocol + '//' + window.location.host + api;
+function runAPI(api, callback, method='GET') {
+    const url = window.location.protocol + '//' + window.location.host + api;
     let xhttp = new XMLHttpRequest();
-    xhttp.open('GET', url, true);
+    xhttp.open(method, url, true);
     let y = document.getElementsByName('csrfmiddlewaretoken');
     let crsf = y[0].value; 
     xhttp.setRequestHeader('X-CSRFToken', crsf);
     xhttp.setRequestHeader('Content-type', 'application/json');
+    xhttp.onreadystatechange = callback;
+    xhttp.send();
+}
 
-    xhttp.onreadystatechange = function() {
+function addItem(app, role) {
+    const api = '/api/tasks/add_item/?format=json&app=' + app + '&role=' + role;
+    const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             let resp = JSON.parse(this.responseText);
             if (!resp || !resp.task_id) {
@@ -60,8 +64,7 @@ function addItem(app, role) {
             window.location.href = redirect_url;
         }
     };
-
-    xhttp.send();
+    runAPI(api, callback);
 }
 
 function showInfo(text) {
@@ -87,68 +90,40 @@ function delItemConfirm(role, ban, text) {
 }
 
 function delItem(role) {
-    let item_id = window.location.pathname.match( /\d+/ )[0];
+    const item_id = window.location.pathname.match( /\d+/ )[0];
     let redirect_url = window.location.href.split('/' + item_id + '/')[0] + '/';
     let grp = document.getElementById("id_grp");
     if (grp && grp.value)
         redirect_url = window.location.href.split('/' + item_id + '/')[0] + '/?view=by_group&group_id=' + grp.value;
-
     const api = '/api/tasks/' + item_id + '/role_delete/?format=json&role=' + role;
-    let url = window.location.protocol + '//' + window.location.host + api;
-    let xhttp = new XMLHttpRequest();
-    xhttp.open('GET', url, true);
-    let y = document.getElementsByName('csrfmiddlewaretoken');
-    let crsf = y[0].value; 
-    xhttp.setRequestHeader('X-CSRFToken', crsf);
-    xhttp.setRequestHeader('Content-type', 'application/json');
-
-    xhttp.onreadystatechange = function() {
+    const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             window.location.href = redirect_url;
         }
     };
-
-    xhttp.send();
+    runAPI(api, callback);
 }
 
 function delCategory(category) {
-    let item_id = window.location.pathname.match( /\d+/ )[0];
-    let redirect_url = window.location.href;
+    const item_id = window.location.pathname.match( /\d+/ )[0];
+    const redirect_url = window.location.href;
     const api = '/api/tasks/' + item_id + '/category_delete/?format=json&category=' + category;
-    let url = window.location.protocol + '//' + window.location.host + api;
-    let xhttp = new XMLHttpRequest();
-    xhttp.open('GET', url, true);
-    let y = document.getElementsByName('csrfmiddlewaretoken');
-    let crsf = y[0].value; 
-    xhttp.setRequestHeader('X-CSRFToken', crsf);
-    xhttp.setRequestHeader('Content-type', 'application/json');
-
-    xhttp.onreadystatechange = function() {
+    const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             window.location.href = redirect_url;
         }
     };
-
-    xhttp.send();
+    runAPI(api, callback);
 }
 
 function delURL(url_id) {
     const api = '/api/urls/' + url_id + '/?format=json';
-    let url = window.location.protocol + '//' + window.location.host + api;
-    let xhttp = new XMLHttpRequest();
-    xhttp.open('DELETE', url, true);
-    let y = document.getElementsByName('csrfmiddlewaretoken');
-    let crsf = y[0].value; 
-    xhttp.setRequestHeader('X-CSRFToken', crsf);
-    xhttp.setRequestHeader('Content-type', 'application/json');
-
-    xhttp.onreadystatechange = function() {
+    const callback = function() {
         if (this.readyState == 4 && this.status == 204) {
-            console.log('deleted URL');
+            console.log('URL deleted successfully.');
         }
     };
-
-    xhttp.send();
+    runAPI(api, callback, 'DELETE');
 
     let el = document.getElementById('id_url_' + url_id);
     if (el) {
@@ -171,23 +146,14 @@ function fileSelected()
 }
 
 function delFile(app, role, fname, file_id) {
-    let item_id = window.location.pathname.match( /\d+/ )[0];
+    const item_id = window.location.pathname.match( /\d+/ )[0];
     const api = '/api/tasks/' + item_id + '/file_delete/?format=json&app=' + app + '&role=' + role + '&fname=' + fname;
-    let url = window.location.protocol + '//' + window.location.host + api;
-    let xhttp = new XMLHttpRequest();
-    xhttp.open('GET', url, true);
-    let y = document.getElementsByName('csrfmiddlewaretoken');
-    let crsf = y[0].value; 
-    xhttp.setRequestHeader('X-CSRFToken', crsf);
-    xhttp.setRequestHeader('Content-type', 'application/json');
-
-    xhttp.onreadystatechange = function() {
+    const callback = function() {
         if (this.readyState == 4 && this.status == 204) {
             console.log('deleted file ' + fname);
         }
     };
-
-    xhttp.send();
+    runAPI(api, callback);
 
     let el = document.getElementById('id_file_' + file_id);
     if (el) {
@@ -206,65 +172,38 @@ function avatarSelected()
 }
 
 function delAvatar() {
-    let redirect_url = window.location.href;
+    const redirect_url = window.location.href;
     const api = '/api/profile/delete_avatar/?format=json';
-    let url = window.location.protocol + '//' + window.location.host + api;
-    let xhttp = new XMLHttpRequest();
-    xhttp.open('GET', url, true);
-    let y = document.getElementsByName('csrfmiddlewaretoken');
-    let crsf = y[0].value; 
-    xhttp.setRequestHeader('X-CSRFToken', crsf);
-    xhttp.setRequestHeader('Content-type', 'application/json');
-
-    xhttp.onreadystatechange = function() {
+    const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             console.log('deleted profile avatar');
             window.location.href = redirect_url;
         }
     };
-
-    xhttp.send();
+    runAPI(api, callback);
 }
 
 function toggleCompleted(item_id) {
-    let redirect_url = window.location.href;
+    const redirect_url = window.location.href;
     const api = '/api/tasks/' + item_id + '/completed/?format=json';
-    let url = window.location.protocol + '//' + window.location.host + api;
-    let xhttp = new XMLHttpRequest();
-    xhttp.open('GET', url, true);
-    let y = document.getElementsByName('csrfmiddlewaretoken');
-    let crsf = y[0].value; 
-    xhttp.setRequestHeader('X-CSRFToken', crsf);
-    xhttp.setRequestHeader('Content-type', 'application/json');
-
-    xhttp.onreadystatechange = function() {
+    const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             window.location.href = redirect_url;
         }
     };
-
-    xhttp.send();
+    runAPI(api, callback);
 }
 
 function toggleImportant(item_id, redirect=true) {
-    let redirect_url = window.location.href;
+    const redirect_url = window.location.href;
     const api = '/api/tasks/' + item_id + '/important/?format=json';
-    let url = window.location.protocol + '//' + window.location.host + api;
-    let xhttp = new XMLHttpRequest();
-    xhttp.open('GET', url, true);
-    let y = document.getElementsByName('csrfmiddlewaretoken');
-    let crsf = y[0].value; 
-    xhttp.setRequestHeader('X-CSRFToken', crsf);
-    xhttp.setRequestHeader('Content-type', 'application/json');
-
-    xhttp.onreadystatechange = function() {
+    const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             if (redirect)
                 window.location.href = redirect_url;
         }
     };
-
-    xhttp.send();
+    runAPI(api, callback);
 }
 
 
@@ -287,66 +226,39 @@ function toggleFormImportant() {
 }
 
 function apartChange(selectObject) {
-    var value = selectObject.value;
-    let redirect_url = window.location.href;
+    const value = selectObject.value;
+    const redirect_url = window.location.href;
     const api = '/api/apart/' + value + '/set_active/?format=json';
-    let url = window.location.protocol + '//' + window.location.host + api;
-    let xhttp = new XMLHttpRequest();
-    xhttp.open('GET', url, true);
-    let y = document.getElementsByName('csrfmiddlewaretoken');
-    let crsf = y[0].value; 
-    xhttp.setRequestHeader('X-CSRFToken', crsf);
-    xhttp.setRequestHeader('Content-type', 'application/json');
-
-    xhttp.onreadystatechange = function() {
+    const callback = function() {
         if ((this.readyState == 4 || this.readyState == 2)  && this.status == 200) {
             window.location.href = redirect_url;
         }
     };
-
-    xhttp.send();
+    runAPI(api, callback);
 }
 
 function addRole(role) {
-    let redirect_url = window.location.href;
-    let item_id = window.location.pathname.match( /\d+/ )[0];
+    const redirect_url = window.location.href;
+    const item_id = window.location.pathname.match( /\d+/ )[0];
     const api = '/api/tasks/' + item_id + '/role_add/?format=json&role=' + role;
-    let url = window.location.protocol + '//' + window.location.host + api;
-    let xhttp = new XMLHttpRequest();
-    xhttp.open('GET', url, true);
-    let y = document.getElementsByName('csrfmiddlewaretoken');
-    let crsf = y[0].value; 
-    xhttp.setRequestHeader('X-CSRFToken', crsf);
-    xhttp.setRequestHeader('Content-type', 'application/json');
-
-    xhttp.onreadystatechange = function() {
+    const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             window.location.href = redirect_url;
         }
     };
-
-    xhttp.send();
+    runAPI(api, callback);
 }
 
 function delRole(role) {
-    let item_id = window.location.pathname.match( /\d+/ )[0];
-    let redirect_url = window.location.href;
+    const item_id = window.location.pathname.match( /\d+/ )[0];
+    const redirect_url = window.location.href;
     const api = '/api/tasks/' + item_id + '/role_delete/?format=json&role=' + role;
-    let url = window.location.protocol + '//' + window.location.host + api;
-    let xhttp = new XMLHttpRequest();
-    xhttp.open('GET', url, true);
-    let y = document.getElementsByName('csrfmiddlewaretoken');
-    let crsf = y[0].value; 
-    xhttp.setRequestHeader('X-CSRFToken', crsf);
-    xhttp.setRequestHeader('Content-type', 'application/json');
-
-    xhttp.onreadystatechange = function() {
+    const callback = function() {
         if ((this.readyState == 4 || this.readyState == 2)  && this.status == 200) {
             window.location.href = redirect_url;
         }
     };
-
-    xhttp.send();
+    runAPI(api, callback);
 }
 
 function ToggleSelectField(name)
@@ -365,35 +277,14 @@ function toggleMyDay() {
     else
         el.setAttribute('selected', '');
     
-    let redirect_url = window.location.href;
+    const redirect_url = window.location.href;
     const api = '/api/tasks/' + item_id + '/in_my_day/?format=json';
-    let url = window.location.protocol + '//' + window.location.host + api;
-    let xhttp = new XMLHttpRequest();
-    xhttp.open('GET', url, true);
-    let y = document.getElementsByName('csrfmiddlewaretoken');
-    let crsf = y[0].value; 
-    xhttp.setRequestHeader('X-CSRFToken', crsf);
-    xhttp.setRequestHeader('Content-type', 'application/json');
-
-    xhttp.onreadystatechange = function() {
+    const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             window.location.href = redirect_url;
         }
     };
-
-    xhttp.send();
-}
-
-function runAPI(api, callback, method='GET') {
-    const url = window.location.protocol + '//' + window.location.host + api;
-    let xhttp = new XMLHttpRequest();
-    xhttp.open(method, url, true);
-    let y = document.getElementsByName('csrfmiddlewaretoken');
-    let crsf = y[0].value; 
-    xhttp.setRequestHeader('X-CSRFToken', crsf);
-    xhttp.setRequestHeader('Content-type', 'application/json');
-    xhttp.onreadystatechange = callback;
-    xhttp.send();
+    runAPI(api, callback);
 }
 
 function completeStep(step_id) {
@@ -401,7 +292,7 @@ function completeStep(step_id) {
     el.classList.toggle('completed');
 
     const api = '/api/steps/' + step_id + '/complete/?format=json';
-    let callback = function() {
+    const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             console.log('Step completion toggled.');
         }
@@ -411,8 +302,8 @@ function completeStep(step_id) {
 
 function delStep(step_id) {
     const api = '/api/steps/' + step_id + '/?format=json';
-    let redirect_url = window.location.href;
-    let callback = function() {
+    const redirect_url = window.location.href;
+    const callback = function() {
         if (this.readyState == 4 && this.status == 204) {
             console.log('Step deleted successfully.');
             window.location.href = redirect_url;
@@ -433,7 +324,7 @@ function delStepConfirm(step_id, text) {
 
 function editStep(step_id, value) {
     const api = '/api/steps/' + step_id + '/rename/?format=json&value=' + value;
-    let callback = function() {
+    const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             console.log('Step changes saved successfully.')
         }
