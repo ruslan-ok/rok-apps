@@ -1,21 +1,15 @@
 {% load i18n %}
-    <div class="section">
-      <div class="section-item">
-        <button type="submit" name="task_myday" class="section-inner-click">
-          <div class="section-inner">
-            <div class="section-icon">
-              <i class="bi-sun"></i>
-            </div>
-            <div class="section-content">
-              <div class="section-title{% if item.in_my_day %} selected{% endif %}">
-                {% if item.in_my_day %}
-                  {% trans 'added in "My day"'|capfirst %}
-                {% else %}
-                  {% trans 'add to "My day"'|capfirst %}
-                {% endif %}
-              </div>
-            </div>
-          </div>
-        </button>
+<div class="termin-block__fixed">
+  <button type="button" name="task_myday" class="termin-block" onclick="toggleMyDay()">
+    <div class="termin-block__content" id="toggle-myday">
+      <i class="bi-sun termin-block__icon{% if item.in_my_day %} selected{% endif %}"></i>
+      <div class="termin-block__title{% if item.in_my_day %} selected{% endif %}">
+        {% if item.in_my_day %}
+          {% trans 'added in "My day"'|capfirst %}
+        {% else %}
+          {% trans 'add to "My day"'|capfirst %}
+        {% endif %}
       </div>
     </div>
+  </button>
+</div>

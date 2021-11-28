@@ -577,6 +577,74 @@ form.bill {
     }
 }
 
+.selected {
+  color: blue;
+}
+
+.termin-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 2px;
+  .termin-block {
+    display: flex;
+    align-items: center;
+    min-width: 234px;
+    min-height: 50px;
+    border: 1px solid #ced4da;
+    border-radius: 0.2rem;
+    background-color: white;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding: 0 !important;
+    .termin-block__content {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      min-height: 50px;
+      border: none;
+      background-color: inherit;
+      color: #767678;
+      .termin-block__icon {
+        margin: 0 5px;
+      }
+      .termin-block__title {
+        .termin-block__description {
+          color: #767678;
+          font-size: 0.7rem;
+        }
+      }
+    }
+  }
+}
+
+.input-group {
+  .field-group {
+    display: flex;
+  }
+}
+
+.small-completed-checkbox {
+  font-size: 1rem;
+}
+
+.form-check-input[type="checkbox"].small-checkbox {
+  border-radius: 0.9em;
+  margin-top: 0.5rem;
+}
+
+.small-input {
+  padding: 0.1rem 1.75rem 0.1rem 0.75rem;
+  font-size: 0.875rem;
+  min-width: 300px;
+  margin-bottom: 0.3rem;
+}
+
+.del-item-icon {
+  padding-top: 0.3rem;
+  margin-left: -1.5rem;
+  margin-right: 0.5rem;
+}
+
 /* old style begin */
 
 .section-inner-click {
@@ -590,12 +658,12 @@ form.bill {
   .section {
     position: relative;
     background: transparent;
-    margin: 5px;
+    /*margin: 5px;*/
     border: 1px solid #eaeaea;
     border-radius: 2px;
     display: flex;
     flex-direction: column;
-    width: 280px;
+    width: 250px;
   }
   
   .section-item {

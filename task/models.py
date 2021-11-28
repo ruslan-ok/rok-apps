@@ -160,7 +160,7 @@ class Task(models.Model):
         self.completed = not self.completed
         if self.completed:
             if not self.stop:
-                self.stop = date.today()
+                self.stop = datetime.now()
             self.completion = datetime.now()
         else:
             self.completion = None
@@ -244,10 +244,33 @@ class Task(models.Model):
         return ''
     
     def s_repeat(self):
-        pass
+        if (not self.repeat) or (self.repeat == NONE):
+            return ''
+        if (self.repeat_num == 1):
+            if (self.repeat == WORKDAYS):
+                return REPEAT[WEEKLY][1].capitalize()
+            return REPEAT[self.repeat][1].capitalize()
+        
+        rn = ''
+        if self.repeat:
+            rn = REPEAT_NAME[self.repeat]
+        return '{} {} {}'.format(_('once every').capitalize(), self.repeat_num, rn)
     
     def repeat_s_days(self):
-        pass
+        if (self.repeat == WEEKLY):
+            if (self.repeat_days == 0):
+                return self.stop.strftime('%A')
+            if (self.repeat_days == 1+2+4+8+16):
+                return str(_('work days')).capitalize()
+            ret = ''
+            monday = datetime(2020, 7, 6, 0, 0)
+            for i in range(7):
+                if (self.repeat_days & (1 << i)):
+                    if (ret != ''):
+                        ret += ', '
+                    ret += (monday +timedelta(i)).strftime('%A')
+            return ret
+        return ''
     
     def repeat_title(self):
         if (not self.repeat) or (self.repeat == NONE):

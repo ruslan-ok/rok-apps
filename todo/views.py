@@ -1,6 +1,6 @@
 from django.utils.translation import gettext_lazy as _
 from task.const import APP_TODO, ROLE_TODO, NUM_ROLE_TODO
-from task.models import Task
+from task.models import Task, Step
 from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView, get_app_doc
 from todo.forms import CreateForm, EditForm
 from todo.config import app_config
@@ -47,8 +47,16 @@ class DetailView(BaseDetailView, TuneData):
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['steps'] = Step.objects.filter(task = self.get_object().id)
+        context['del_step_text'] = _('Delete this step?')
+        return context
+
     def form_valid(self, form):
         response = super().form_valid(form)
+        if ('add_step' in form.changed_data):
+            step = Step.objects.create(user = form.instance.user, name = self.request.POST['add_step'], task = form.instance)
         form.instance.set_item_attr(app, get_info(form.instance))
         return response
 

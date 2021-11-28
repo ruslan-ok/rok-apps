@@ -1,6 +1,6 @@
 import os.path
 
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
@@ -181,7 +181,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     def important(self, request, pk=None):
         task = self.get_object()
         task.important = not task.important
-        task.save()
+        self.save(task)
         serializer = TaskSerializer(instance=task, context={'request': request})
         return Response(serializer.data)
 
@@ -190,7 +190,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     def in_my_day(self, request, pk=None):
         task = self.get_object()
         task.in_my_day = not task.in_my_day
-        task.save()
+        self.save(task)
         return Response({'title': task.s_in_my_day(), 'value': task.in_my_day})
 
     # OK
@@ -213,7 +213,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         cats = task.categories.split()
         cats.append(category)
         task.categories = ' '.join(cats)
-        task.save()
+        self.save(task)
         serializer = TaskSerializer(instance=task, context={'request': request})
         return Response(serializer.data)
 
@@ -231,7 +231,7 @@ class TaskViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
         cats.remove(category)
         task.categories = ' '.join(cats)
-        task.save()
+        self.save(task)
         serializer = TaskSerializer(instance=task, context={'request': request})
         return Response(serializer.data)
 
@@ -239,7 +239,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     @action(detail=True)
     def file_upload(self, request, pk=None):
         task = self.get_object()
-        task.save()
+        self.save(task)
         serializer = TaskSerializer(instance=task, context={'request': request})
         return Response(serializer.data)
 
@@ -279,7 +279,7 @@ class TaskViewSet(viewsets.ModelViewSet):
                 correct_min = 60 - remind_today.minute
             remind_today += timedelta(minutes = correct_min)
         task.remind = remind_today
-        task.save()
+        self.save(task)
         return Response({'date': task.remind_date(), 'time': task.remind_time()})
 
     # OK
@@ -287,7 +287,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     def remind_tomorrow(self, request, pk=None):
         task = self.get_object()
         task.remind = datetime.now().replace(hour = 9, minute = 0, second = 0) + timedelta(1)
-        task.save()
+        self.save(task)
         return Response({'date': task.remind_date(), 'time': task.remind_time()})
 
     # OK
@@ -295,7 +295,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     def remind_next_week(self, request, pk=None):
         task = self.get_object()
         task.remind = datetime.now().replace(hour = 9, minute = 0, second = 0) + timedelta(8 - datetime.today().isoweekday())
-        task.save()
+        self.save(task)
         return Response({'date': task.remind_date(), 'time': task.remind_time()})
 
     # OK
@@ -303,7 +303,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     def remind_delete(self, request, pk=None):
         task = self.get_object()
         task.remind = None
-        task.save()
+        self.save(task)
         return Response({'date': task.remind_date(), 'time': task.remind_time()})
 
     # OK
@@ -311,7 +311,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     def remind_set(self, request, pk=None, *args, **kwargs):
         task = self.get_object()
         task.remind = datetime.strptime(kwargs['dt'] + "T" + kwargs['tm'], "%d.%m.%YT%H:%M:%S")
-        task.save()
+        self.save(task)
         return Response({'date': task.remind_date(), 'time': task.remind_time()})
 
     # OK
@@ -319,7 +319,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     def termin_today(self, request, pk=None):
         task = self.get_object()
         task.stop = datetime.today()
-        task.save()
+        self.save(task)
         return Response({'date': task.termin_date(), 'time': task.termin_time()})
 
     # OK
@@ -327,7 +327,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     def termin_tomorrow(self, request, pk=None):
         task = self.get_object()
         task.stop = datetime.today() + timedelta(1)
-        task.save()
+        self.save(task)
         return Response({'date': task.termin_date(), 'time': task.termin_time()})
 
     # OK
@@ -335,7 +335,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     def termin_next_week(self, request, pk=None):
         task = self.get_object()
         task.stop = datetime.today() + timedelta(8 - datetime.today().isoweekday())
-        task.save()
+        self.save(task)
         return Response({'date': task.termin_date(), 'time': task.termin_time()})
 
     # OK
@@ -345,7 +345,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         task.stop = None
         if task.repeat != 0:
             task.repeat = 0
-        task.save()
+        self.save(task)
         return Response({'date': task.termin_date(), 'time': task.termin_time()})
 
     # OK
@@ -353,7 +353,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     def termin_set(self, request, pk=None, *args, **kwargs):
         task = self.get_object()
         task.stop = datetime.strptime(kwargs['dt'] + "T" + kwargs['tm'], "%d.%m.%YT%H:%M:%S")
-        task.save()
+        self.save(task)
         return Response({'date': task.termin_date(), 'time': task.termin_time()})
 
     # OK
@@ -364,7 +364,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         task.repeat_num = 1
         if not task.stop:
             task.stop = datetime.today().date()
-        task.save()
+        self.save(task)
         return Response({'title': task.repeat_title(), 'info': task.repeat_info()})
 
     # OK
@@ -376,7 +376,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         task.repeat_days = 1+2+4+8+16
         if not task.stop:
             task.stop = datetime.today().date()
-        task.save()
+        self.save(task)
         return Response({'title': task.repeat_title(), 'info': task.repeat_info()})
 
     # OK
@@ -388,7 +388,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         task.repeat_days = 0
         if not task.stop:
             task.stop = datetime.today().date()
-        task.save()
+        self.save(task)
         return Response({'title': task.repeat_title(), 'info': task.repeat_info()})
 
     # OK
@@ -399,7 +399,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         task.repeat_num = 1
         if not task.stop:
             task.stop = datetime.today().date()
-        task.save()
+        self.save(task)
         return Response({'title': task.repeat_title(), 'info': task.repeat_info()})
 
     # OK
@@ -410,7 +410,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         task.repeat_num = 1
         if not task.stop:
             task.stop = datetime.today().date()
-        task.save()
+        self.save(task)
         return Response({'title': task.repeat_title(), 'info': task.repeat_info()})
 
     # OK
@@ -418,7 +418,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     def repeat_delete(self, request, pk=None):
         task = self.get_object()
         task.repeat = 0
-        task.save()
+        self.save(task)
         return Response({'title': task.repeat_title(), 'info': task.repeat_info()})
 
     # OK
@@ -430,14 +430,14 @@ class TaskViewSet(viewsets.ModelViewSet):
         task.repeat_days = int(kwargs['days'])
         if not task.stop:
             task.stop = datetime.today().date()
-        task.save()
+        self.save(task)
         return Response({'title': task.repeat_title(), 'info': task.repeat_info()})
 
     # OK
     @action(detail=True)
     def url_add(self, request, pk=None):
         task = self.get_object()
-        task.save()
+        self.save(task)
         serializer = TaskSerializer(instance=task, context={'request': request})
         return Response(serializer.data)
 
@@ -445,7 +445,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     @action(detail=True)
     def url_delete(self, request, pk=None):
         task = self.get_object()
-        task.save()
+        self.save(task)
         serializer = TaskSerializer(instance=task, context={'request': request})
         return Response(serializer.data)
 
@@ -529,7 +529,7 @@ class TaskViewSet(viewsets.ModelViewSet):
             task.app_work = NUM_ROLE_PAYMENT
         if (role == ROLE_PHOTO):
             task.app_photo = NUM_ROLE_PHOTO
-        task.save()
+        self.save(task)
         serializer = TaskSerializer(instance=task, context={'request': request})
         return Response(serializer.data)
 
@@ -605,9 +605,13 @@ class TaskViewSet(viewsets.ModelViewSet):
             task.app_trip + task.app_fuel + task.app_apart + task.app_health + task.app_work + task.app_photo) == 0):
             task.delete()
         else:
-            task.save()
+            self.save(task)
         
         serializer = TaskSerializer(instance=task, context={'request': request})
         return Response(serializer.data)
+
+    def save(self, task):
+        task.save()
+        task.set_item_attr(APP_TODO, todo_get_info(task))
 
 

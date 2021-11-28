@@ -1,29 +1,23 @@
 {% load static i18n %}
 
-    <div class="section">
+    <div class="termin-block-expandable">
 
       <!-- Task.remind VIEW -->
-      <div class="section-item" id="remind-view">
-        <div class="section-inner">
-          <div class="section-inner-left button d-flex" role="button" onclick="ToggleSelectField('remind')">
-            <div class="section-icon">
-              <i class="bi-bell"></i>
-            </div>
-            <div class="section-content">
-              <div class="section-title">
-                {% if task_b_remind %}
-                  <div {% if remind_active %} class="actual"{% endif %}> {{ task_remind_time }} </div>
-                  <div class="section-description"> {{ task_remind_date }} </div>
-                {% else %}
-                  {% trans 'to remind'|capfirst %}
-                {% endif %}
-              </div>
-            </div>
+      <div class="termin-block" id="remind-view">
+        <button type="button" class="termin-block__content" onclick="ToggleSelectField('remind')">
+          <i class="bi-bell termin-block__icon"></i>
+          <div class="termin-block__title">
+            {% if task_b_remind %}
+              <div {% if remind_active %} class="actual"{% endif %}> {{ task_remind_time }} </div>
+              <div class="termin-block__description"> {{ task_remind_date }} </div>
+            {% else %}
+              {% trans 'to remind'|capfirst %}
+            {% endif %}
           </div>
-          {% if task_b_remind %}
-            <button type="submit" name="remind_delete" class="bi-x field-icon"></button>
-          {% endif %}
-        </div>
+        </button>
+        {% if task_b_remind %}
+          <button type="button" name="remind_delete" class="bi-x termin-block__delete"></button>
+        {% endif %}
       </div>
 
 
@@ -59,28 +53,22 @@
       </div>
     </div>
       
-    <div class="section">
+    <div class="termin-block-expandable">
       <!-- Task.stop VIEW -->
-      <div class="section-item" id="termin-view">
-        <div class="section-inner">
-          <div class="section-inner-left button d-flex" role="button" onclick="ToggleSelectField('termin')">
-            <div class="section-icon">
-              <i class="bi-check2-square"></i>
-            </div>
-            <div class="section-content">
-              <div class="section-title{% if item.b_expired %} expired{% elif task_actual %} actual{% endif %}">
-                {% if item.stop %}
-                  {{ item.s_termin }}
-                {% else %}
-                  {% trans 'add due date'|capfirst %}
-                {% endif %}
-              </div>
-            </div>
+      <div class="termin-block" id="termin-view">
+        <button type="button" class="termin-block__content" onclick="ToggleSelectField('termin')">
+          <i class="bi-check2-square termin-block__icon"></i>
+          <div class="termin-block__title{% if item.b_expired %} expired{% elif task_actual %} actual{% endif %}">
+            {% if item.stop %}
+              {{ item.s_termin }}
+            {% else %}
+              {% trans 'add due date'|capfirst %}
+            {% endif %}
           </div>
-          {% if item.stop %}
-            <button type="submit" name="termin_delete" class="field-icon"><i class="bi-x"></i></button>
-          {% endif %}
-        </div>
+        </button>
+        {% if item.stop %}
+          <button type="submit" name="termin_delete" class="field-icon"><i class="bi-x termin-block__delete"></i></button>
+        {% endif %}
       </div>
 
       <!-- Task.stop SELECT -->
@@ -121,29 +109,23 @@
       </div>
     </div>
       
-    <div class="section">
+    <div class="termin-block-expandable">
       <!-- Task.repeat VIEW -->
-      <div class="section-item" id="repeat-view">
-        <div class="section-inner">
-          <div class="section-inner-left button d-flex" role="button" onclick="ToggleSelectField('repeat')">
-            <div class="section-icon">
-              <i class="bi-arrow-repeat"></i>
-            </div>
-            <div class="section-content">
-              <div class="section-title">
-                {% if item.repeat != 0 %}
-                  <div {% if item.repeat != 0 %} class="actual"{% endif %}> {{ item.s_repeat }} </div>
-                  <div class="section-description"> {{ item.repeat_s_days }} </div>
-                {% else %}
-                  {% trans 'repeat'|capfirst %}
-                {% endif %}
-              </div>
-            </div>
+      <div class="termin-block" id="repeat-view">
+        <button type="button" class="termin-block__content" onclick="ToggleSelectField('repeat')">
+          <i class="bi-arrow-repeat termin-block__icon"></i>
+          <div class="termin-block__title">
+            {% if item.repeat and item.repeat != 0 %}
+              <div {% if item.repeat != 0 %} class="actual"{% endif %}> {{ item.s_repeat }} </div>
+              <div class="termin-block__description"> {{ item.repeat_s_days }} </div>
+            {% else %}
+              {% trans 'repeat'|capfirst %}
+            {% endif %}
           </div>
-          {% if item.stop %}
-            <button type="submit" name="repeat_delete" class="field-icon"><i class="bu-x"></i></button>
-          {% endif %}
-        </div>
+        </button>
+        {% if item.stop %}
+          <button type="submit" name="repeat_delete" class="field-icon"><i class="bu-x termin-block__delete"></i></button>
+        {% endif %}
       </div>
 
       <!-- Task.repeat SELECT -->
@@ -204,4 +186,4 @@
         <div class="dropdown-content-separator"></div>
       </div>
 
-    </div> <!-- section -->
+    </div>

@@ -11,8 +11,8 @@
       {{ form.name }}
       {% include "widgets/important.html" %}
     </div>
-    {{ form.add_step }}
-    <div class="row">
+    {% include "todo/steps.html" %}
+    <div class="termin-row">
       {% include "widgets/my_day.html" %}
       {% include "widgets/termin.html" %}
     </div>

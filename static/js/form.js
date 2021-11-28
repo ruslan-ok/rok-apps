@@ -355,3 +355,88 @@ function ToggleSelectField(name)
   document.getElementById(sel_id).classList.toggle('d-none');
 }
 
+function toggleMyDay() {
+    const item_id = window.location.pathname.match( /\d+/ )[0];
+    let el = document.getElementById('toggle-myday');
+    let img = el.querySelectorAll('i')[0];
+    let selected = el.hasAttribute('selected');
+    if (selected)
+        el.removeAttribute('selected');
+    else
+        el.setAttribute('selected', '');
+    
+    let redirect_url = window.location.href;
+    const api = '/api/tasks/' + item_id + '/in_my_day/?format=json';
+    let url = window.location.protocol + '//' + window.location.host + api;
+    let xhttp = new XMLHttpRequest();
+    xhttp.open('GET', url, true);
+    let y = document.getElementsByName('csrfmiddlewaretoken');
+    let crsf = y[0].value; 
+    xhttp.setRequestHeader('X-CSRFToken', crsf);
+    xhttp.setRequestHeader('Content-type', 'application/json');
+
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            window.location.href = redirect_url;
+        }
+    };
+
+    xhttp.send();
+}
+
+function runAPI(api, callback, method='GET') {
+    const url = window.location.protocol + '//' + window.location.host + api;
+    let xhttp = new XMLHttpRequest();
+    xhttp.open(method, url, true);
+    let y = document.getElementsByName('csrfmiddlewaretoken');
+    let crsf = y[0].value; 
+    xhttp.setRequestHeader('X-CSRFToken', crsf);
+    xhttp.setRequestHeader('Content-type', 'application/json');
+    xhttp.onreadystatechange = callback;
+    xhttp.send();
+}
+
+function completeStep(step_id) {
+    let el = document.getElementById('step_edit_name_' + step_id);
+    el.classList.toggle('completed');
+
+    const api = '/api/steps/' + step_id + '/complete/?format=json';
+    let callback = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            console.log('Step completion toggled.');
+        }
+    };
+    runAPI(api, callback);
+}
+
+function delStep(step_id) {
+    const api = '/api/steps/' + step_id + '/?format=json';
+    let redirect_url = window.location.href;
+    let callback = function() {
+        if (this.readyState == 4 && this.status == 204) {
+            console.log('Step deleted successfully.');
+            window.location.href = redirect_url;
+        }
+    };
+    runAPI(api, callback, 'DELETE');
+}
+
+function delStepConfirm(step_id, text) {
+    let el = document.getElementById('delModal');
+    el.querySelectorAll('div.modal-body')[0].innerText = text;
+    el.querySelectorAll('button.btn-danger')[0].onclick = function() {return delStep(step_id);}
+
+    let conf = new bootstrap.Modal(document.getElementById('delModal'), {});
+    conf.show();
+    
+}
+
+function editStep(step_id, value) {
+    const api = '/api/steps/' + step_id + '/rename/?format=json&value=' + value;
+    let callback = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            console.log('Step changes saved successfully.')
+        }
+    };
+    runAPI(api, callback);
+}
