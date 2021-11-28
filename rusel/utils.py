@@ -1,5 +1,5 @@
 from django.core.exceptions import FieldError
-from datetime import datetime, date, timezone, timedelta
+from datetime import datetime, date
 from django.utils.translation import gettext_lazy as _
 
 def extract_get_params(request):
@@ -65,43 +65,53 @@ MUCH_LATER = 1 # Позже, чем через месяц
 ALL = 0 # Все сроки
 
 
-def get_term_for_two_dates(today, next):
+def get_term_from_today(next):
     if not next:
         return ALL
-    
-    if (next == today):
+
+    today = date.today()
+
+    match next:
+        case datetime():
+            next_date = next.date()
+        case date():
+            next_date = next
+
+    days = (next_date - today).days
+
+    if (days == 0):
         return TODAY
 
-    days = (next - today).days
     if (days == 1):
         return TOMORROW
+
     if (days == -1):
         return YESTERDAY
 
-    weeks = next.isocalendar()[1] - today.isocalendar()[1]
+    weeks = next_date.isocalendar()[1] - today.isocalendar()[1]
     if (weeks == 0):
         if (days > 0):
             return THIS_WEEK
-        if (next.weekday() == 0):
+        if (next_date.weekday() == 0):
             return MON
-        if (next.weekday() == 1):
+        if (next_date.weekday() == 1):
             return TUE
-        if (next.weekday() == 2):
+        if (next_date.weekday() == 2):
             return WED
-        if (next.weekday() == 3):
+        if (next_date.weekday() == 3):
             return THU
-        if (next.weekday() == 4):
+        if (next_date.weekday() == 4):
             return FRI
-        if (next.weekday() == 5):
+        if (next_date.weekday() == 5):
             return SAT
-        if (next.weekday() == 6):
+        if (next_date.weekday() == 6):
             return SUN
     if (weeks == 1):
         return NEXT_WEEK
     if (weeks == -1):
         return LAST_WEEK
 
-    months = (next.year - today.year) * 12 + next.month - today.month
+    months = (next_date.year - today.year) * 12 + next_date.month - today.month
     if (weeks == -2) and (months == 0):
         return TWO_WEEKS
     if (weeks == -3) and (months == 0):
@@ -123,18 +133,23 @@ def only_nice_date(d):
     if not d:
         return ''
     
-    term = get_term_for_two_dates(date.today(), d)
+    term = get_term_from_today(d)
+    ret = ''
 
     if (term == TODAY):
-        return str(_('today')).capitalize()
+        ret = str(_('today')).capitalize()
     
     if (term == TOMORROW):
-        return str(_('tomorrow')).capitalize()
+        ret = str(_('tomorrow')).capitalize()
     
     if (term == YESTERDAY):
-        return str(_('yesterday')).capitalize()
+        ret = str(_('yesterday')).capitalize()
 
-    return ''
+    match d:
+        case datetime() if ret:
+            ret += d.strftime(' %H:%M')
+
+    return ret
 
 
 def nice_date(d):

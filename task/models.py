@@ -210,7 +210,15 @@ class Task(models.Model):
             return False
 
         if self.stop:
-            return (self.stop.date() < date.today())
+            return (self.stop < datetime.now())
+        return False
+
+    def task_actual(self):
+        if self.completed:
+            return False
+
+        if self.stop:
+            return (self.stop > datetime.now())
         return False
 
     def termin_date(self):
@@ -243,6 +251,18 @@ class Task(models.Model):
             return _('remind at').capitalize() + ' ' + self.remind.strftime('%H:%M')
         return ''
     
+    def s_termin(self):
+        d = self.stop
+
+        if not d:
+            return ''
+
+        if self.b_expired():
+            s = str(_('expired')).capitalize() + ', '
+        else:
+            s = str(_('termin')).capitalize() + ': '
+        return s + str(nice_date(d))
+            
     def s_repeat(self):
         if (not self.repeat) or (self.repeat == NONE):
             return ''

@@ -50,7 +50,8 @@ class DetailView(BaseDetailView, TuneData):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['steps'] = Step.objects.filter(task = self.get_object().id)
-        context['del_step_text'] = _('Delete this step?')
+        context['del_step_text'] = _('delete this step?').capitalize()
+        context['add_due_date_text'] = _('add due date').capitalize()
         return context
 
     def form_valid(self, form):

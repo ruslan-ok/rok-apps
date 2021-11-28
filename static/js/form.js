@@ -331,3 +331,19 @@ function editStep(step_id, value) {
     };
     runAPI(api, callback);
 }
+
+function delTermin(text) {
+    const item_id = window.location.pathname.match( /\d+/ )[0];
+    let el = document.getElementById('id_termin_title');
+    el.classList.remove('expired');
+    el.classList.remove('actual');
+    el.innerText = text;
+    const api = '/api/tasks/' + item_id + '/termin_delete/?format=json';
+    const callback = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            console.log('Termin removed successfully.')
+        }
+    };
+    runAPI(api, callback);
+
+}
