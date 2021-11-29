@@ -39,12 +39,15 @@ def get_info(item):
             ret['attr'].append({'icon': 'separator'})
         if (item.remind != None):
             ret['attr'].append({'icon': 'remind'})
-        if item.info:
-            ret['attr'].append({'icon': 'notes'})
         if links:
             ret['attr'].append({'icon': 'url'})
         if files:
             ret['attr'].append({'icon': 'attach'})
+        if item.info:
+            info_descr = item.info[:80]
+            if len(item.info) > 80:
+                info_descr += '...'
+            ret['attr'].append({'icon': 'notes', 'text': info_descr})
 
     if item.categories:
         if (len(ret['attr']) > 0):

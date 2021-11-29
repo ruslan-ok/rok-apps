@@ -15,7 +15,7 @@
           </div>
         </button>
         {% if item.stop %}
-          <div type="button" name="termin_delete"
+          <div type="button" name="termin_delete" id="id_termin_delete"
               class="bi-x del-item-icon" onclick="delTermin('{{ add_due_date_text }}')"></div>
         {% endif %}
       </div>
@@ -23,33 +23,33 @@
       <!-- Task.stop SELECT -->
       <div class="section-item d-none" id="termin-select">
         <div class="dropdown-content-separator"></div>
-        <button type="submit" class="dropdown-content-item c001" name="termin_today">
+        <button type="button" class="dropdown-content-item c001" name="termin_today" onclick="terminToday()">
           <div class="c002">
             <i class="bi-calendar4"></i>
-            <span class="c003">{% trans 'today'|capfirst %}</span>
+            <span class="c003">{% trans 'later'|capfirst %}</span>
           </div>
-          <div class="c004">{{ termin_today_info|date:'D' }}</div>
+          <div class="c004">{{ termin_today_info }}</div>
         </button>
-        <button type="submit" class="dropdown-content-item c001" name="termin_tomorrow">
+        <button type="button" class="dropdown-content-item c001" name="termin_tomorrow" onclick="terminTomorrow()">
           <div class="c002">
             <i class="bi-calendar4-event"></i>
             <span class="c003">{% trans 'tomorrow'|capfirst %}</span>
           </div>
-          <div class="c004">{{ termin_tomorrow_info|date:'D' }}</div>
+          <div class="c004">{{ termin_tomorrow_info }}</div>
         </button>
-        <button type="submit" class="dropdown-content-item c001" name="termin_next_week">
+        <button type="button" class="dropdown-content-item c001" name="termin_next_week" onclick="terminNextWeek()">
           <div class="c002">
             <i class="bi-calendar4-week"></i>
             <span class="c003">{% trans 'next week'|capfirst %}</span>
           </div>
-          <div class="c004">{{ termin_next_week_info|date:'D' }}</div>
+          <div class="c004">{{ termin_next_week_info }}</div>
         </button>
         <div class="section-inner">
           {{ form.stop.errors }} 
-          <i class="bi-calendar3"></i>
+          <!--i class="bi-calendar3"></i-->
           <div class="section-content">
             <div class="section-title">
-              {{ form.stop.label_tag }}
+              {# form.stop.label_tag #}
             </div>
             {{ form.stop }}
           </div>
@@ -64,53 +64,54 @@
       <div class="termin-block" id="repeat-view">
         <button type="button" class="termin-block__content" onclick="ToggleSelectField('repeat')">
           <i class="bi-arrow-repeat termin-block__icon"></i>
-          <div class="termin-block__title">
+          <div id="id_repeat_title" class="termin-block__title">
             {% if item.repeat and item.repeat != 0 %}
               <div {% if item.repeat != 0 %} class="actual"{% endif %}> {{ item.s_repeat }} </div>
               <div class="termin-block__description"> {{ item.repeat_s_days }} </div>
             {% else %}
-              {% trans 'repeat'|capfirst %}
+              {{ repeat_text }}
             {% endif %}
           </div>
         </button>
-        {% if item.stop %}
-          <button type="submit" name="repeat_delete" class="field-icon"><i class="bu-x termin-block__delete"></i></button>
+        {% if item.repeat %}
+          <div type="button" name="repeat_delete" id="id_repeat_delete"
+              class="bi-x del-item-icon" onclick="delRepeat('{{ repeat_text }}')"></div>
         {% endif %}
       </div>
 
       <!-- Task.repeat SELECT -->
       <div class="section-item d-none" id="repeat-select">
         <div class="dropdown-content-separator"></div>
-        <button type="submit" class="dropdown-content-item c001" name="repeat_daily">
-          <div class="c002">
-            <i class="bi-calendar2-date"></i>
-            <span class="c003">{% trans 'daily'|capfirst %}</span>
-          </div>
-        </button>
-        <button type="submit" class="dropdown-content-item c001" name="repeat_workdays">
-          <div class="c002">
-            <i class="bi-calendar2-day"></i>
-            <span class="c003">{% trans 'work days'|capfirst %}</span>
-          </div>
-        </button>
-        <button type="submit" class="dropdown-content-item c001" name="repeat_weekly">
-          <div class="c002">
-            <i class="bi-calendar2-week"></i>
-            <span class="c003">{% trans 'weekly'|capfirst %}</span>
-          </div>
-        </button>
-        <button type="submit" class="dropdown-content-item c001" name="repeat_monthly">
-          <div class="c002">
-            <i class="bi-calendar2-month"></i>
-            <span class="c003">{% trans 'monthly'|capfirst %}</span>
-          </div>
-        </button>
-        <button type="submit" class="dropdown-content-item c001" name="repeat_annually">
-          <div class="c002">
-            <i class="bi-calendar2-range"></i>
-            <span class="c003">{% trans 'annually'|capfirst %}</span>
-          </div>
-        </button>
+          <button type="button" class="dropdown-content-item c001" name="repeat_daily" onclick="repeatSet(1)">
+            <div class="c002">
+              <i class="bi-calendar2-date"></i>
+              <span class="c003">{% trans 'daily'|capfirst %}</span>
+            </div>
+          </button>
+          <button type="button" class="dropdown-content-item c001" name="repeat_workdays" onclick="repeatSet(2)">
+            <div class="c002">
+              <i class="bi-calendar2-day"></i>
+              <span class="c003">{% trans 'work days'|capfirst %}</span>
+            </div>
+          </button>
+          <button type="button" class="dropdown-content-item c001" name="repeat_weekly" onclick="repeatSet(3)">
+            <div class="c002">
+              <i class="bi-calendar2-week"></i>
+              <span class="c003">{% trans 'weekly'|capfirst %}</span>
+            </div>
+          </button>
+          <button type="button" class="dropdown-content-item c001" name="repeat_monthly" onclick="repeatSet(4)">
+            <div class="c002">
+              <i class="bi-calendar2-month"></i>
+              <span class="c003">{% trans 'monthly'|capfirst %}</span>
+            </div>
+          </button>
+          <button type="button" class="dropdown-content-item c001" name="repeat_annually" onclick="repeatSet(5)">
+            <div class="c002">
+              <i class="bi-calendar2-range"></i>
+              <span class="c003">{% trans 'annually'|capfirst %}</span>
+            </div>
+          </button>
         <div class="dropdown-content-separator"></div>
         <div class="dropdown-content-title-part">{% trans 'repeat every...'|capfirst %}</div>
         <div class="repeat-options-block">
@@ -124,13 +125,13 @@
           </div>
           <div class="repeat-options-week">
             <input type="hidden" id="id_repeat_days" name="repeat_days" value="{{ form.repeat_days.value }}" required="">
-            <div id="d1" class="button day" onclick="DayClick(1)">{{ repeat_form_d1 }}</div>
-            <div id="d2" class="button day" onclick="DayClick(2)">{{ repeat_form_d2 }}</div>
-            <div id="d3" class="button day" onclick="DayClick(3)">{{ repeat_form_d3 }}</div>
-            <div id="d4" class="button day" onclick="DayClick(4)">{{ repeat_form_d4 }}</div>
-            <div id="d5" class="button day" onclick="DayClick(5)">{{ repeat_form_d5 }}</div>
-            <div id="d6" class="button day" onclick="DayClick(6)">{{ repeat_form_d6 }}</div>
-            <div id="d7" class="button day" onclick="DayClick(7)">{{ repeat_form_d7 }}</div>
+            <div id="d1" class="button day" type="button" onclick="dayClick(1)">{{ repeat_form_d1 }}</div>
+            <div id="d2" class="button day" type="button" onclick="dayClick(2)">{{ repeat_form_d2 }}</div>
+            <div id="d3" class="button day" type="button" onclick="dayClick(3)">{{ repeat_form_d3 }}</div>
+            <div id="d4" class="button day" type="button" onclick="dayClick(4)">{{ repeat_form_d4 }}</div>
+            <div id="d5" class="button day" type="button" onclick="dayClick(5)">{{ repeat_form_d5 }}</div>
+            <div id="d6" class="button day" type="button" onclick="dayClick(6)">{{ repeat_form_d6 }}</div>
+            <div id="d7" class="button day" type="button" onclick="dayClick(7)">{{ repeat_form_d7 }}</div>
           </div>
         </div>
         <div class="dropdown-content-separator"></div>
@@ -143,17 +144,18 @@
       <div class="termin-block" id="remind-view">
         <button type="button" class="termin-block__content" onclick="ToggleSelectField('remind')">
           <i class="bi-bell termin-block__icon"></i>
-          <div class="termin-block__title">
+          <div id="id_remind_title" class="termin-block__title">
             {% if task_b_remind %}
               <div {% if remind_active %} class="actual"{% endif %}> {{ task_remind_time }} </div>
               <div class="termin-block__description"> {{ task_remind_date }} </div>
             {% else %}
-              {% trans 'to remind'|capfirst %}
+              {{ remind_text }}
             {% endif %}
           </div>
         </button>
         {% if task_b_remind %}
-          <button type="button" name="remind_delete" class="bi-x termin-block__delete"></button>
+          <div type="button" name="remind_delete" id="id_remind_delete"
+              class="bi-x del-item-icon" onclick="delRemind('{{ remind_text }}')"></div>
         {% endif %}
       </div>
 
@@ -161,21 +163,21 @@
       <!-- Task.remind SELECT -->
       <div class="section-item d-none" id="remind-select">
         <div class="dropdown-content-separator"></div>
-        <button type="submit" class="dropdown-content-item c001" name="remind_today">
+        <button type="button" class="dropdown-content-item c001" name="remind_today" onclick="remindToday()">
           <div class="c002">
             <i class="bi-clock"></i>
             <span class="c003">{% trans 'later'|capfirst %}</span>
           </div>
           <div class="c004">{{ remind_today_info }}</div>
         </button>
-        <button type="submit" class="dropdown-content-item c001" name="remind_tomorrow">
+        <button type="button" class="dropdown-content-item c001" name="remind_tomorrow" onclick="remindTomorrow()">
           <div class="c002">
             <i class="bi-clock-history"></i>
             <span class="c003">{% trans 'tomorrow'|capfirst %}</span>
           </div>
           <div class="c004">{{ remind_tomorrow_info }}</div>
         </button>
-        <button type="submit" class="dropdown-content-item c001" name="remind_next_week">
+        <button type="button" class="dropdown-content-item c001" name="remind_next_week" onclick="remindNextWeek()">
           <div class="c002">
             <i class="bi-calendar-week"></i>
             <span class="c003">{% trans 'next week'|capfirst %}</span>
@@ -183,7 +185,7 @@
           <div class="c004">{{ remind_next_week_info }}</div>
         </button>
         <div class="section-inner">
-          {{ form.remind.label_tag }}
+          {# form.remind.label_tag #}
           {{ form.remind }}
         </div>
         <div class="dropdown-content-separator"></div>

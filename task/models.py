@@ -229,7 +229,7 @@ class Task(models.Model):
             s = str(_('expired')).capitalize() + ', '
         else:
             s = str(_('termin')).capitalize() + ': '
-        return s + str(nice_date(d.date()))
+        return s + str(nice_date(d))
             
     def termin_time(self):
         if not self.stop:
@@ -279,7 +279,7 @@ class Task(models.Model):
     def repeat_s_days(self):
         if (self.repeat == WEEKLY):
             if (self.repeat_days == 0):
-                return self.stop.strftime('%A')
+                return self.stop.strftime('%a')
             if (self.repeat_days == 1+2+4+8+16):
                 return str(_('work days')).capitalize()
             ret = ''
@@ -288,7 +288,7 @@ class Task(models.Model):
                 if (self.repeat_days & (1 << i)):
                     if (ret != ''):
                         ret += ', '
-                    ret += (monday +timedelta(i)).strftime('%A')
+                    ret += (monday +timedelta(i)).strftime('%a')
             return ret
         return ''
     

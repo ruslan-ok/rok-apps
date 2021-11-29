@@ -198,6 +198,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     def completed(self, request, pk=None):
         task = self.get_object()
         task.toggle_completed()
+        self.save(task)
         serializer = TaskSerializer(instance=task, context={'request': request})
         return Response(serializer.data)
 
@@ -272,7 +273,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     def remind_today(self, request, pk=None):
         task = self.get_object()
         remind_today = datetime.now()
-        remind_today += timedelta(hours = 3)
+        remind_today += timedelta(hours = 2)
         if (remind_today.minute > 0):
             correct_min = -remind_today.minute
             if (remind_today.minute > 30):
@@ -318,7 +319,14 @@ class TaskViewSet(viewsets.ModelViewSet):
     @action(detail=True)
     def termin_today(self, request, pk=None):
         task = self.get_object()
-        task.stop = datetime.today()
+        termin_today = datetime.now()
+        termin_today += timedelta(hours = 3)
+        if (termin_today.minute > 0):
+            correct_min = -termin_today.minute
+            if (termin_today.minute > 30):
+                correct_min = 60 - termin_today.minute
+            termin_today += timedelta(minutes = correct_min)
+        task.stop = termin_today
         self.save(task)
         return Response({'date': task.termin_date(), 'time': task.termin_time()})
 
@@ -326,7 +334,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     @action(detail=True)
     def termin_tomorrow(self, request, pk=None):
         task = self.get_object()
-        task.stop = datetime.today() + timedelta(1)
+        task.stop = datetime.now().replace(hour = 9, minute = 0, second = 0) + timedelta(1)
         self.save(task)
         return Response({'date': task.termin_date(), 'time': task.termin_time()})
 
@@ -334,7 +342,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     @action(detail=True)
     def termin_next_week(self, request, pk=None):
         task = self.get_object()
-        task.stop = datetime.today() + timedelta(8 - datetime.today().isoweekday())
+        task.stop = datetime.now().replace(hour = 9, minute = 0, second = 0) + timedelta(5 - datetime.today().isoweekday())
         self.save(task)
         return Response({'date': task.termin_date(), 'time': task.termin_time()})
 

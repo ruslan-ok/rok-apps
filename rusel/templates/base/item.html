@@ -52,7 +52,7 @@
                     <div class="label"><span>{% trans "My day" %}</span></div>
                   {% endif %}
 
-                  {% if attr.termin %}
+                  {% if attr.termin and not item.completed %}
                     {% if item.b_expired %}
                       <i class="bi-check2-square expired"></i>
                       <div class="label expired"><span>{{ item.termin_date }}</span></div>

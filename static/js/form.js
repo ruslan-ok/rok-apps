@@ -1,5 +1,7 @@
 //resize();
 moveLists();
+initDays();
+checkCompleted(0);
 
 function resize()
 {
@@ -338,6 +340,9 @@ function delTermin(text) {
     el.classList.remove('expired');
     el.classList.remove('actual');
     el.innerText = text;
+    document.getElementById('id_termin_delete').classList.add('d-none');
+    const frm = document.getElementById('article_form');
+    frm.elements['stop'].value = '';
     const api = '/api/tasks/' + item_id + '/termin_delete/?format=json';
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
@@ -346,4 +351,190 @@ function delTermin(text) {
     };
     runAPI(api, callback);
 
+}
+
+function terminToday() {
+    const item_id = window.location.pathname.match( /\d+/ )[0];
+    const api = '/api/tasks/' + item_id + '/termin_today/?format=json';
+    const redirect_url = window.location.href;
+    const callback = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            console.log('Termin set successfully.');
+            window.location.href = redirect_url;
+        }
+    };
+    runAPI(api, callback);
+}
+
+function terminTomorrow() {
+    const item_id = window.location.pathname.match( /\d+/ )[0];
+    const api = '/api/tasks/' + item_id + '/termin_tomorrow/?format=json';
+    const redirect_url = window.location.href;
+    const callback = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            console.log('Termin set successfully.');
+            window.location.href = redirect_url;
+        }
+    };
+    runAPI(api, callback);
+}
+
+function terminNextWeek() {
+    const item_id = window.location.pathname.match( /\d+/ )[0];
+    const api = '/api/tasks/' + item_id + '/termin_next_week/?format=json';
+    const redirect_url = window.location.href;
+    const callback = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            console.log('Termin set successfully.');
+            window.location.href = redirect_url;
+        }
+    };
+    runAPI(api, callback);
+}
+
+function delRepeat(text) {
+    const item_id = window.location.pathname.match( /\d+/ )[0];
+    let el = document.getElementById('id_repeat_title');
+    el.innerText = text;
+    document.getElementById('id_repeat_delete').classList.add('d-none');
+    const frm = document.getElementById('article_form');
+    frm.elements['repeat'].value = '';
+    const api = '/api/tasks/' + item_id + '/repeat_delete/?format=json';
+    const callback = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            console.log('Repeat removed successfully.')
+        }
+    };
+    runAPI(api, callback);
+}
+
+function repeatSet(mode) {
+    const item_id = window.location.pathname.match( /\d+/ )[0];
+    let repeat = 0;
+    let days = 0;
+    switch (mode) {
+        case 1:
+            repeat = 1;
+            break;
+        case 2:
+            repeat = 3;
+            days = 31;
+            break;
+        case 3:
+            repeat = 3;
+            break;
+        case 4:
+            repeat = 4;
+            break;
+        case 5:
+            repeat = 5;
+            break;
+    }
+    const api = '/api/tasks/' + item_id + '/repeat_set/1/' + repeat + '/' + days + '/?format=json';
+    const redirect_url = window.location.href;
+    const callback = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            console.log('Repeat set successfully.');
+            window.location.href = redirect_url;
+        }
+    };
+    runAPI(api, callback);
+}
+
+function initDays() {
+  const frm = document.getElementById('article_form');
+  if (!frm)
+    return;
+  const days = frm.elements['repeat_days'].value;
+  if (!days)
+    return;
+  for (let i = 1; i <= 7; i++) {
+    if ((days & (1 << (i-1))) != 0)
+      document.getElementById('d' + i).classList.add('selected');
+  }
+}
+
+function getDays() {
+  let days = 0;
+  for (let i = 1; i <= 7; i++) {
+    if (document.getElementById('d' + i).classList.contains('selected'))
+      days += (1 << (i-1));
+  }
+  return days;
+}
+
+function dayClick(_num) {
+  let day = document.getElementById('d' + _num);
+  day.classList.toggle('selected');
+  const frm = document.getElementById('article_form');
+  frm.elements['repeat_days'].value = getDays();
+}
+
+function delRemind(text) {
+    const item_id = window.location.pathname.match( /\d+/ )[0];
+    let el = document.getElementById('id_remind_title');
+    el.innerText = text;
+    document.getElementById('id_remind_delete').classList.add('d-none');
+    const frm = document.getElementById('article_form');
+    frm.elements['remind'].value = '';
+      const api = '/api/tasks/' + item_id + '/remind_delete/?format=json';
+    const callback = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            console.log('Remind removed successfully.')
+        }
+    };
+    runAPI(api, callback);
+}
+
+function remindToday() {
+    const item_id = window.location.pathname.match( /\d+/ )[0];
+    const api = '/api/tasks/' + item_id + '/remind_today/?format=json';
+    const redirect_url = window.location.href;
+    const callback = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            console.log('Remind set successfully.');
+            window.location.href = redirect_url;
+        }
+    };
+    runAPI(api, callback);
+}
+
+function remindTomorrow() {
+    const item_id = window.location.pathname.match( /\d+/ )[0];
+    const api = '/api/tasks/' + item_id + '/remind_tomorrow/?format=json';
+    const redirect_url = window.location.href;
+    const callback = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            console.log('Remind set successfully.');
+            window.location.href = redirect_url;
+        }
+    };
+    runAPI(api, callback);
+}
+
+function remindNextWeek() {
+    const item_id = window.location.pathname.match( /\d+/ )[0];
+    const api = '/api/tasks/' + item_id + '/remind_next_week/?format=json';
+    const redirect_url = window.location.href;
+    const callback = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            console.log('Remind set successfully.');
+            window.location.href = redirect_url;
+        }
+    };
+    runAPI(api, callback);
+}
+
+function checkCompleted(mode) {
+    cf = document.getElementById('id_completed');
+    nf = document.getElementById('id_name');
+    if (!cf || !nf)
+        return;
+    if (mode == 0)
+        if (cf.hasAttribute('checked'))
+            nf.classList.add('completed');
+        else
+            nf.classList.remove('completed');
+    if (mode == 1)
+        nf.classList.toggle('completed');
 }

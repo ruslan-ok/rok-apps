@@ -21,7 +21,10 @@ class CreateForm(BaseCreateForm):
         
 #----------------------------------
 class EditForm(BaseEditForm):
-    completed = forms.BooleanField(label=False, required=False, widget=CompletedInput(attrs={'class': '', 'label': _('completed').capitalize()}))
+    completed = forms.BooleanField(label=False, required=False, 
+        widget=CompletedInput(
+            attrs={'class': '', 
+                'label': _('completed').capitalize()}))
     add_step = forms.CharField(
         widget=forms.TextInput(
             attrs={'class': 'form-control-sm form-control small-input', 
@@ -53,9 +56,9 @@ class EditForm(BaseEditForm):
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
             'remind': forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime d-inline-block mb-3 me-3', 'type': 'datetime-local'}),
-            'repeat': forms.Select(attrs={'class': 'form-control mb-3'}),
-            'repeat_num': forms.NumberInput(attrs={'class': 'form-control d-inline-block mb-3'}),
-            'repeat_days': forms.NumberInput(attrs={'class': 'form-control d-inline-block mb-3'}),
+            'repeat': forms.Select(attrs={'class': 'form-control-sm'}),
+            'repeat_num': forms.NumberInput(attrs={'class': 'form-control-sm d-inline-block'}),
+            'repeat_days': forms.NumberInput(attrs={'class': 'form-control d-inline-block'}),
             'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),
         }
 
