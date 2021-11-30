@@ -207,7 +207,15 @@ class BaseDetailView(UpdateView, Context):
         context = super().get_context_data(**kwargs)
         context.update(self.get_app_context())
         context['title'] = self.object.name
-        context['urls'] = Urls.objects.filter(task=self.object.id)
+        urls = []
+        for url in Urls.objects.filter(task=self.object.id):
+            if (self.request.path not in url.href):
+                urls.append(url)
+            else:
+                fake_url = url
+                fake_url.href = '#'
+                urls.append(fake_url)
+        context['urls'] = urls
         context['files'] = get_files_list(self.request.user, self.config.app, self.config.role, self.object.id)
         context['item'] = self.object
         related_roles, possible_related = get_related_roles(self.get_object(), self.config)

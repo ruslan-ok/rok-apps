@@ -1,11 +1,11 @@
 {% if urls %}
     <div class="url-list" id="url-list-src">
         {% for url in urls %}
-            <div class="url-link" id="id_url_{{url.id}}">
+            <div class="url-link" id="id_url_{{url.id|escape}}">
                 <div class="label">
                     <a href="{{ url.href|escape }}" class="value">{{ url.name }}</a>
                 </div>
-                <div class="icon" onclick="delURL({{url.id}})">
+                <div class="icon" onclick="delURL({{url.id|escape}})">
                     <div class="delete">
                         <svg height="8" width="8" style="fill: currentcolor;">
                             <path d="M4.46607 4L8 7.53905L7.53905 8L4 4.46607L0.460948 8L0 7.53905L3.53393 4L0 0.460948L0.460948 0L4 3.53393L7.53905 0L8 0.460948L4.46607 4Z"></path>
