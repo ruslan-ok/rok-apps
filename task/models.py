@@ -42,10 +42,8 @@ class Group(models.Model):
         return '.' * self.level() + self.name
 
     def qty(self):
-        groups = TaskGroup.objects.filter(group=self.id)
-        if (not self.completed):
-            groups = groups.filter(task__completed=False)
-        return len(groups)
+        tasks = TaskGroup.objects.filter(group=self.id).filter(task__completed=False)
+        return len(tasks)
 
     def s_id(self):
         return str(self.id)

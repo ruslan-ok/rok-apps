@@ -1,12 +1,15 @@
 import os
+from datetime import date
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 from django.http import FileResponse, HttpResponseNotFound
 from django.views.generic.edit import CreateView, UpdateView
+from django.db.models import Q
+from django.core.exceptions import FieldError
 from rusel.apps import get_related_roles
 from rusel.context import get_base_context
 from rusel.files import storage_path, get_files_list
-from rusel.utils import extract_get_params
+from rusel.utils import extract_get_params, get_search_mode
 from rusel.base.forms import GroupForm, CreateGroupForm
 from task.const import *
 from task.models import Task, Group, TaskGroup, Urls
@@ -176,10 +179,95 @@ class BaseListView(CreateView, Context):
         self.config.set_view(self.request)
         context = super().get_context_data(**kwargs)
         context.update(self.get_app_context())
-        context['items'] = self.get_queryset()
         context['add_item_placeholder'] = '{} {}'.format(_('add').capitalize(), self.config.item_name if self.config.item_name else self.config.role)
         context['add_button'] = self.config.add_button
+
+        groups = self.load_item_groups()
+        query = None
+        if (self.request.method == 'GET'):
+            query = self.request.GET.get('q')
+        search_mode = 0
+
+        tasks = self.get_sorted_items(query)
+        for task in tasks:
+            grp_id = self.get_items_group_id(task.stop, task.completed)
+            group = self.find_group(groups, grp_id, GRPS_PLANNED[grp_id].capitalize())
+            group.items.append(task)
+        
+        context['item_groups'] = sorted(groups, key = lambda group: group.id)
         return context
+
+    def load_item_groups(self):
+        return [] # todo
+
+    def get_items_group_id(self, termin, completed):
+        if completed and self.config.group:
+            return GRP_PLANNED_DONE
+        if (not termin) or (self.config.view_mode != 'planned'):
+            return GRP_PLANNED_NONE
+        today = date.today()
+        if (termin == today):
+            return GRP_PLANNED_TODAY
+        days = (termin - today).days
+        if (days == 1):
+            return GRP_PLANNED_TOMORROW
+        if (days < 0):
+            return GRP_PLANNED_EARLIER
+        if (days < 8):
+            return GRP_PLANNED_ON_WEEK
+        return GRP_PLANNED_LATER
+
+    def find_group(self, groups, grp_id, name):
+        for group in groups:
+            if (group.id == grp_id):
+                return group
+        group = ItemsGroup(grp_id, name)
+        groups.append(group)
+        return group
+
+    def get_sorted_items(self, query):
+        data = self.get_filtered_items(query)
+        sort_mode = 'name' # todo
+        sort_reverse = False # todo
+        return self.sort_data(data, sort_mode + ' stop', sort_reverse)
+
+    def get_filtered_items(self, query):
+        ret = self.get_queryset()
+        search_mode = get_search_mode(query)
+        lookups = None
+        if (search_mode == 0):
+            return ret
+        elif (search_mode == 1):
+            lookups = Q(name__icontains=query) | Q(info__icontains=query)
+        elif (search_mode == 2):
+            lookups = Q(categories__icontains=query[1:])
+        return ret.filter(lookups)
+
+    def sort_data(self, data, sort, reverse):
+        if not data:
+            return data
+
+        sort_fields = sort.split()
+        if reverse:
+            revers_list = []
+            for sf in sort_fields:
+                if (sf[0] == '-'):
+                    revers_list.append(sf[1:])
+                else:
+                    revers_list.append('-' + sf)
+            sort_fields = revers_list
+
+        try:
+            if (len(sort_fields) == 1):
+                data = data.order_by(sort_fields[0])
+            elif (len(sort_fields) == 2):
+                data = data.order_by(sort_fields[0], sort_fields[1])
+            elif (len(sort_fields) == 3):
+                data = data.order_by(sort_fields[0], sort_fields[1], sort_fields[2])
+        except FieldError:
+            pass
+
+        return data
 
     def form_valid(self, form):
         form.instance.user = self.request.user
@@ -292,3 +380,35 @@ def get_app_doc(app, role, request, pk, fname):
     except IOError:
         return HttpResponseNotFound()
 
+GRP_PLANNED_NONE     = 0
+GRP_PLANNED_EARLIER  = 1
+GRP_PLANNED_TODAY    = 2
+GRP_PLANNED_TOMORROW = 3
+GRP_PLANNED_ON_WEEK  = 4
+GRP_PLANNED_LATER    = 5
+GRP_PLANNED_DONE     = 6
+
+GRPS_PLANNED = {
+    GRP_PLANNED_NONE:     '',
+    GRP_PLANNED_EARLIER:  _('earlier'),
+    GRP_PLANNED_TODAY:    _('today'),
+    GRP_PLANNED_TOMORROW: _('tomorrow'),
+    GRP_PLANNED_ON_WEEK:  _('on the week'),
+    GRP_PLANNED_LATER:    _('later'),
+    GRP_PLANNED_DONE:     _('completed'),
+}  
+
+class ItemsGroup():
+    id = 0
+    name = ''
+    is_open = True
+    items = []
+
+    def __init__(self, grp_id, name):
+        self.id = grp_id
+        self.name = name
+        self.is_open = True
+        self.items = []
+
+    def qty(self):
+        return len(self.items)

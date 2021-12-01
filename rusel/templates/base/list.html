@@ -5,11 +5,16 @@
 <div class="list-content"{% if bg_color %} style="background-color: {{bg_color}} !important;"{% endif %}>
   {% include "base/title.html" %}
 
-  <ul>
-      {% for item in items %}
-        {% include "base/item.html" %}
-      {% endfor %}
-  </ul>
+  {% for group in item_groups %}
+    {% include "base/item_group.html" %}
+    {% if group.is_open %}
+      <ul>
+        {% for item in group.items %}
+          {% include "base/item.html" %}
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endfor %}
 
   {% if not hide_add_item_input %}
     <form method="post" class="add-form position-sticky bottom-0">{% csrf_token %}

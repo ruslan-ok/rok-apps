@@ -16,7 +16,7 @@
             justify-content: space-between !important;
             min-height: 50px;
             margin-bottom: 0.25rem !important;
-            border-radius: 0.25rem;
+            border-radius: 5px;
             background-color: white;
         
             button.left-icon {
@@ -119,3 +119,17 @@
         }
     }
 }
+
+.item-group {
+    border-radius: 5px;
+    background-color: white;
+    color: #3f697e;
+    margin-left: 15px;
+    padding: 4px 7px;
+    font-size: 0.9rem;
+    &__name {
+      margin: 0 5px;
+    }
+  }
+  
+  

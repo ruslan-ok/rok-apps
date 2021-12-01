@@ -1,0 +1,11 @@
+{% load static i18n %}
+
+{% if group.name %}
+  <div>
+    <span type="button" class="item-group" onclick="toggleItemsGroup({{group.id}})">
+      <i class="item-group__icon {% if group.is_open %}bi-chevron-down{% else %}bi-chevron-right{%endif %}"></i>
+      <span class="item-group__name">{{ group.name }}</span>
+      <span class="item-group__qty">{{ group.qty }}</span>
+    </span>
+  </div>
+{% endif %}
