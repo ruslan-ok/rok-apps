@@ -46,6 +46,17 @@ class GroupViewSet(viewsets.ModelViewSet):
     def get_tasks(self, request, pk=None):
         return Response('')
 
+    @action(detail=True)
+    def toggle_sub_group(self, request, pk=None):
+        if 'sub_group_id' not in self.request.query_params:
+            return Response({'Error': "Expected parameter 'sub_group_id'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        sub_group_id = self.request.query_params['sub_group_id']
+        group = self.get_object()
+        group.toggle_sub_group(sub_group_id)
+        serializer = GroupSerializer(instance=group, context={'request': request})
+        return Response(serializer.data)
+    
     @action(detail=False)
     def sort(self, request, pk=None):
         if 'role' not in self.request.query_params:

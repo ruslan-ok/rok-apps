@@ -537,3 +537,15 @@ function checkCompleted(mode) {
     if (mode == 1)
         nf.classList.toggle('completed');
 }
+
+function toggleSubGroup(div, sub_group_id) {
+    const hidden = document.getElementById('id-sub-group-' + sub_group_id).classList.toggle('d-none');
+    if (hidden) {
+        div.children[0].classList.remove('bi-chevron-down');
+        div.children[0].classList.add('bi-chevron-right');
+    } else {
+        div.children[0].classList.remove('bi-chevron-right');
+        div.children[0].classList.add('bi-chevron-down');
+    }
+    console.log('toggled sub group ' + sub_group_id);
+}

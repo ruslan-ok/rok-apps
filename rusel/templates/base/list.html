@@ -5,15 +5,13 @@
 <div class="list-content"{% if bg_color %} style="background-color: {{bg_color}} !important;"{% endif %}>
   {% include "base/title.html" %}
 
-  {% for group in item_groups %}
-    {% include "base/item_group.html" %}
-    {% if group.is_open %}
-      <ul>
-        {% for item in group.items %}
-          {% include "base/item.html" %}
-        {% endfor %}
-      </ul>
-    {% endif %}
+  {% for sub_group in sub_groups %}
+    {% include "base/sub_group.html" %}
+    <ul id="id-sub-group-{{ sub_group.id|escape }}">
+      {% for item in sub_group.items %}
+        {% include "base/item.html" %}
+      {% endfor %}
+    </ul>
   {% endfor %}
 
   {% if not hide_add_item_input %}

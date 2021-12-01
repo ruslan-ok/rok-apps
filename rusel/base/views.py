@@ -182,7 +182,7 @@ class BaseListView(CreateView, Context):
         context['add_item_placeholder'] = '{} {}'.format(_('add').capitalize(), self.config.item_name if self.config.item_name else self.config.role)
         context['add_button'] = self.config.add_button
 
-        groups = self.load_item_groups()
+        sub_groups = self.load_sub_groups()
         query = None
         if (self.request.method == 'GET'):
             query = self.request.GET.get('q')
@@ -190,17 +190,17 @@ class BaseListView(CreateView, Context):
 
         tasks = self.get_sorted_items(query)
         for task in tasks:
-            grp_id = self.get_items_group_id(task.stop, task.completed)
-            group = self.find_group(groups, grp_id, GRPS_PLANNED[grp_id].capitalize())
+            grp_id = self.get_sub_group_id(task.stop, task.completed)
+            group = self.find_sub_group(sub_groups, grp_id, GRPS_PLANNED[grp_id].capitalize())
             group.items.append(task)
         
-        context['item_groups'] = sorted(groups, key = lambda group: group.id)
+        context['sub_groups'] = sorted(sub_groups, key = lambda group: group.id)
         return context
 
-    def load_item_groups(self):
+    def load_sub_groups(self):
         return [] # todo
 
-    def get_items_group_id(self, termin, completed):
+    def get_sub_group_id(self, termin, completed):
         if completed and self.config.group:
             return GRP_PLANNED_DONE
         if (not termin) or (self.config.cur_view != 'planned'):
@@ -217,7 +217,7 @@ class BaseListView(CreateView, Context):
             return GRP_PLANNED_ON_WEEK
         return GRP_PLANNED_LATER
 
-    def find_group(self, groups, grp_id, name):
+    def find_sub_group(self, groups, grp_id, name):
         for group in groups:
             if (group.id == grp_id):
                 return group

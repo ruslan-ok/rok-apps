@@ -30,6 +30,7 @@ class Group(models.Model):
     hier = models.BooleanField(_('display records as a hierarchy'), default=False, null=True)
     completed = models.BooleanField(_('display completed records'), default=False, null=True)
     color = models.CharField(_('background color'), max_length=20, blank=True, null=True)
+    sub_groups = models.CharField(_('content items sub groups'), max_length=1000, blank=True, null=True)
 
     class Meta:
         verbose_name=_('task group')
@@ -64,6 +65,9 @@ class Group(models.Model):
 
     def is_leaf(self):
         return not Group.objects.filter(node=self.id).exists()
+
+    def toggle_sub_group(self, sub_group_id):
+        pass
 
     """
     @classmethod
