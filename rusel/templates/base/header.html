@@ -15,7 +15,7 @@
         <li class="nav-item col-6 col-md-auto">
           <a class="nav-link p-2{% if app.active %} active{% endif %}" href="{{ app.href }}"{% if app.active %} aria-current="true"{% endif %}>
             <i class="bi-{{app.icon}}"></i>
-            {{ app.name }}
+            {% if app.active %}{{ app.name }}{% endif %}
           </a>
         </li>
       {% endfor %}

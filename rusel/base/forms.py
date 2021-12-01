@@ -3,8 +3,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from task.models import Group, Task, TaskGroup
-from rusel.widgets import FileUpload
-#from rusel.context import get_cur_grp
+from rusel.widgets import FileUpload, SwitchInput
 
 #----------------------------------
 class BaseCreateForm(forms.ModelForm):
@@ -65,13 +64,23 @@ class CreateGroupForm(forms.ModelForm):
         fields = ['name']
 
 class GroupForm(forms.ModelForm):
+    hier = forms.BooleanField(
+        label=False, 
+        required=False, 
+        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('display records as a hierarchy').capitalize()}))
+    completed = forms.BooleanField(
+        label=False, 
+        required=False, 
+        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('display completed records').capitalize()}))
     class Meta:
         model = Group
-        fields = ['node', 'name', 'sort']
+        fields = ['node', 'name', 'color', 'sort', 'wallpaper', 'hier', 'completed']
         widgets = {
-            'node': forms.Select(attrs={'class': 'form-control mb-5'}),
-            'name': forms.TextInput(attrs={'class': 'form-control mb-5'}),
-            'sort': forms.TextInput(attrs={'class': 'form-control mb-5'}),
+            'node': forms.Select(attrs={'class': 'form-control mb-2'}),
+            'name': forms.TextInput(attrs={'class': 'form-control mb-2'}),
+            'sort': forms.TextInput(attrs={'class': 'mb-2'}),
+            'wallpaper': forms.ClearableFileInput(),
+            'color': forms.TextInput(attrs={'class': 'form-control-sm mb-2', 'type': 'color'}),
         }
 
     def __init__(self, *args, **kwargs):

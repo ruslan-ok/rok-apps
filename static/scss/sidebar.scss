@@ -2,7 +2,10 @@
     &__fix-item {
         display: flex !important;
         justify-content: space-between !important;
-    }
+        &.active {
+            background-color: rgba(112, 76, 167, 0.2);;
+        }
+}
     &__groups {
         display: flex !important;
         flex-direction: column;

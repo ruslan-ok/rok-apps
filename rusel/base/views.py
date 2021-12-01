@@ -46,7 +46,7 @@ class Config:
             self.item_name = self.check_property(self.views[cur_view], 'item_name', self.item_name)
 
     def set_view(self, request):
-        self.group_id = 0
+        self.group = None
         common_url = reverse(self.app + ':list')
         view_mode = ''
         if (self.multy_role):
@@ -55,7 +55,9 @@ class Config:
         if ('view' in request.GET):
             view_mode = request.GET.get('view')
         if (view_mode == 'by_group') and ('group_id' in request.GET):
-            self.group_id = int(request.GET.get('group_id'))
+            group_id = int(request.GET.get('group_id'))
+            if Group.objects.filter(id=group_id).exists():
+                self.group = Group.objects.filter(id=group_id).get()
         if view_mode and (view_mode in self.views):
             self.cur_view = view_mode
             self.title = self.check_property(self.views[view_mode], 'title', self.title)
@@ -105,15 +107,15 @@ class Context:
                     view_mode = key
             if (view_mode):
                 url += '?view=' + view_mode
-            qty = self.get_qty(view_role, key, 0)
-            fixes.append({'name': key, 'url': url, 'icon': value['icon'], 'title': _(value['title']).capitalize(), 'qty': qty})
+            qty = self.get_qty(view_role, key)
+            fixes.append({'name': key, 'url': url, 'icon': value['icon'], 'title': _(value['title']).capitalize(), 'qty': qty, 'view': view_mode})
         return fixes
 
-    def get_qty(self, view_role, view_mode, group_id):
-        data = self.get_dataset(view_role, view_mode, group_id)
+    def get_qty(self, view_role, view_mode, group=None):
+        data = self.get_dataset(view_role, view_mode, group)
         return len(data)    
 
-    def get_dataset(self, view_role, view_mode, group_id):
+    def get_dataset(self, view_role, view_mode, group=None):
         data = None
         if (not self.config.app) or (not view_role):
             return data
@@ -148,8 +150,10 @@ class Context:
         if (self.config.app == APP_PHOTO):
             data = data.filter(app_photo=role_id)
 
-        if data and (view_mode == 'by_group') and group_id:
-            data = data.filter(groups__id=group_id)
+        if data and (view_mode == 'by_group') and group:
+            data = data.filter(groups__id=group.id)
+            if (not group.completed):
+                data = data.filter(completed=False)
         
         return self.tune_dataset(data, view_mode)
 
@@ -161,7 +165,7 @@ class BaseListView(CreateView, Context):
         self.template_name = 'base/list.html'
 
     def get_queryset(self):
-        return self.get_dataset(self.config.role, self.config.cur_view, self.config.group_id)
+        return self.get_dataset(self.config.role, self.config.cur_view, self.config.group)
 
     def get_success_url(self):
         if (self.config.role == self.config.base_role):

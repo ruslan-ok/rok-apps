@@ -3,7 +3,7 @@
 <aside class="bd-sidebar">
     <nav class="bd-links collapse sidebar" id="bd-docs-nav" aria-label="Groups navigation">
         {% for fix in fix_list %}
-            <a href="{{ fix.url }}" class="sidebar__fix-item">
+            <a href="{{ fix.url }}" class="sidebar__fix-item{% if not request.GET.view and not fix.view %} active{% else %}{% if request.GET.view == fix.view %} active{% endif %}{% endif %}">
                 <div class="">
                     <i class="bi-{{fix.icon}}"></i>
                     <span class="">{{ fix.title }}</span>

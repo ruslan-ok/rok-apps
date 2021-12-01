@@ -2,7 +2,7 @@
 {% load static i18n %}
 
 {% block main %}
-<div class="list-content">
+<div class="list-content"{% if bg_color %} style="background-color: {{bg_color}} !important;"{% endif %}>
   {% include "base/title.html" %}
 
   <ul>
