@@ -21,16 +21,18 @@
         
             button.left-icon {
                 cursor: pointer;
-                padding: 17px;
+                padding: 15px;
                 font-size: 1.3rem;
                 border: none;
-                background-color: inherit;
+                background-color: transparent;
+                color: #447e9b;
             }
 
             a.container {
                 display: flex;
                 min-height: 50px;
                 width: 100%;
+                padding: 0;
 
                 .info {
                     display: flex;
@@ -38,7 +40,7 @@
                     justify-content: center;
                     
                     .name {
-                        color: black;
+                        color: #2b576d;
 
                         &.completed {
                             text-decoration: line-through;
@@ -55,6 +57,7 @@
                             align-items: center;
                             font-size: 0.8rem;
                             padding: 0 3px;
+                            border-radius: 2px;
 
                             .actual { color: #465efc !important; }
                             .expired { color: #af2e20 !important; }
@@ -78,9 +81,10 @@
         
             button.right-icon {
                 cursor: pointer;
-                padding: 17px;
+                padding: 15px;
                 border: none;
-                background-color: inherit;
+                background-color: transparent;
+                color: #447e9b;
             }
         }
     }

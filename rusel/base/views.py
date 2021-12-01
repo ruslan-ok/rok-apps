@@ -203,12 +203,12 @@ class BaseListView(CreateView, Context):
     def get_items_group_id(self, termin, completed):
         if completed and self.config.group:
             return GRP_PLANNED_DONE
-        if (not termin) or (self.config.view_mode != 'planned'):
+        if (not termin) or (self.config.cur_view != 'planned'):
             return GRP_PLANNED_NONE
         today = date.today()
         if (termin == today):
             return GRP_PLANNED_TODAY
-        days = (termin - today).days
+        days = (termin.date() - today).days
         if (days == 1):
             return GRP_PLANNED_TOMORROW
         if (days < 0):

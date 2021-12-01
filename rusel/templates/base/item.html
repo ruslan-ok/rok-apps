@@ -30,11 +30,11 @@
                 {% endif %}
               {% endif %}
               {% for attr in v.attr %}
-                <div class="inline">
+                <div class="inline {% if attr.color %}{{ attr.color }}{% endif %}">
                   {% if attr.icon == "attach" %}
                     <i class="bi-paperclip"></i>
                   {% elif attr.icon == "category" %}
-                    <i class="bi-circle {{ attr.color }}"></i>
+                    <i class="bi-circle"></i>
                   {% elif attr.icon == "notes" %}
                     <i class="bi-sticky"></i>
                   {% elif attr.icon == "remind" %}
@@ -69,7 +69,7 @@
                   {% endif %}
 
                   {% if attr.text %}
-                    <div class="label {% if attr.color %}{{ attr.color }}{% endif %}"><span>{{ attr.text }}</span></div>
+                    <div class="label"><span>{{ attr.text }}</span></div>
                   {% endif %}
 
                 </div>
