@@ -62,8 +62,9 @@ def get_sorted_groups(groups, user_id, role, node=None):
         node_id = node.id
     items = Group.objects.filter(user=user_id, role=role, node=node_id).order_by('sort')
     for item in items:
-        groups.append(item)
-        get_sorted_groups(groups, user_id, role, item)
+        if (item.determinator != 'role') and (item.determinator != 'view'):
+            groups.append(item)
+            get_sorted_groups(groups, user_id, role, item)
 
 def get_cur_grp(request):
     cur_grp = None

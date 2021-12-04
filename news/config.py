@@ -5,7 +5,7 @@ app_config = {
     'app_title': 'news',
     'icon': 'newspaper',
     'role': ROLE_NEWS,
-    'groups': True,
+    'use_groups': True,
     'views': {
         'news': {
             'icon': 'check-all',

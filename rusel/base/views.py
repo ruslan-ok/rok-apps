@@ -15,7 +15,7 @@ from task.const import *
 from task.models import Task, Group, TaskGroup, Urls
 
 class Config:
-    def __init__(self, config, cur_view, *args, **kwargs):
+    def __init__(self, config, cur_view_name, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.app = config['name']
@@ -24,7 +24,7 @@ class Config:
         self.icon = config['icon']
         self.views = config['views']
         self.base_role = config['role']
-        self.groups = self.check_property(config, 'groups', False)
+        self.use_groups = self.check_property(config, 'use_groups', False)
         self.use_selector = self.check_property(config, 'use_selector', False)
         self.use_important = self.check_property(config, 'use_important', False)
         self.add_button = self.check_property(config, 'add_button', False)
@@ -34,50 +34,37 @@ class Config:
             if ('role' in value):
                 self.multy_role = True
                 break;
-        self.cur_view = {}
-        if (cur_view in self.views):
-            if ('role' in config['views'][cur_view]):
-                self.cur_view['determinator'] = 'role'
-                self.cur_view['view_id'] = config['views'][cur_view]['role']
-            else:
-                self.cur_view['determinator'] = 'view'
-                self.cur_view['view_id'] = cur_view
-            self.title = self.check_property(self.views[cur_view], 'title', self.title)
-            self.icon = self.check_property(self.views[cur_view], 'icon', self.icon)
-            self.use_selector = self.check_property(self.views[cur_view], 'use_selector', self.use_selector)
-            self.use_important = self.check_property(self.views[cur_view], 'use_important', self.use_important)
-            self.add_button = self.check_property(self.views[cur_view], 'add_button', self.add_button)
-            self.item_name = self.check_property(self.views[cur_view], 'item_name', self.item_name)
+        self.cur_view_group = None
 
     def set_view(self, request):
-        self.group = None
+        self.cur_view_group = None
         common_url = reverse(self.app + ':list')
-        self.cur_view['determinator'] = 'role'
-        self.cur_view['view_id'] = self.base_role
+        determinator = 'role'
+        view_id = self.base_role
         if (self.multy_role):
             if (request.path != common_url):
                 role_name = request.path.split(common_url)[1].split('?')[0].split('/')[0]
-                self.cur_view['determinator'] = 'role'
-                self.cur_view['view_id'] = role_name
+                determinator = 'role'
+                view_id = role_name
         if ('view' in request.GET):
             view_name = request.GET.get('view')
-            self.cur_view['determinator'] = 'view'
-            self.cur_view['view_id'] = view_name
+            determinator = 'view'
+            view_id = view_name
         if ('group' in request.GET):
             group_id = int(request.GET.get('group'))
             if Group.objects.filter(id=group_id).exists():
-                self.group = Group.objects.filter(id=group_id).get()
-                self.cur_view['determinator'] = 'group'
-                self.cur_view['view_id'] = str(group_id)
-                self.title = self.group.name
-        view_id = self.cur_view['view_id']
-        if (self.cur_view['determinator'] != 'group') and (view_id in self.views):
+                determinator = 'group'
+                view_id = str(group_id)
+                self.title = Group.objects.filter(id=group_id).get().name
+        if (determinator != 'group') and (view_id in self.views):
             self.title = self.check_property(self.views[view_id], 'title', self.title)
             self.icon = self.check_property(self.views[view_id], 'icon', self.icon)
+            self.use_selector = self.check_property(self.views[view_id], 'use_selector', self.use_selector)
+            self.use_important = self.check_property(self.views[view_id], 'use_important', self.use_important)
             self.add_button = self.check_property(self.views[view_id], 'add_button', self.add_button)
             self.item_name = self.check_property(self.views[view_id], 'item_name', self.item_name)
-        if not self.group:
-            self.group = self.get_cur_group(request.user)
+        if determinator and view_id:
+            self.cur_view_group = detect_group(request.user, self.app, determinator, view_id, self.title)
 
     def check_property(self, config, prop, default):
         ret = default
@@ -86,29 +73,29 @@ class Config:
         return ret
 
     def get_cur_role(self):
-        if (self.cur_view['determinator'] == 'role'):
-            return self.cur_view['view_id']
+        if (self.cur_view_group.determinator == 'role'):
+            return self.cur_view_group.view_id
         return self.base_role
 
-    def get_cur_group(self, user):
-        cur_group = None
-        if (self.cur_view['determinator'] == 'group'):
-            if Group.objects.filter(user=user.id, app=self.app, id=int(self.cur_view['view_id'])).exists():
-                cur_group = Group.objects.filter(user=user.id, app=self.app, id=int(self.cur_view['view_id'])).get()
-        if (self.cur_view['determinator'] == 'role'):
-            if Group.objects.filter(user=user.id, app=self.app, determinator='role', view_id=self.cur_view['view_id']).exists():
-                cur_group = Group.objects.filter(user=user.id, app=self.app, determinator='role', view_id=self.cur_view['view_id']).get()
-        if (self.cur_view['determinator'] == 'view'):
-            if Group.objects.filter(user=user.id, app=self.app, determinator='view', view_id=self.cur_view['view_id']).exists():
-                cur_group = Group.objects.filter(user=user.id, app=self.app, determinator='view', view_id=self.cur_view['view_id']).get()
-        if not cur_group and (self.cur_view['determinator'] != 'group'):
-            cur_group = Group.objects.create(
-                user=user, 
-                app=self.app, 
-                determinator=self.cur_view['determinator'], 
-                view_id=self.cur_view['view_id'], 
-                name=self.title)
-        return cur_group
+def detect_group(user, app, determinator, view_id, name):
+    group = None
+    if (determinator == 'group'):
+        if Group.objects.filter(user=user.id, app=app, id=int(view_id)).exists():
+            group = Group.objects.filter(user=user.id, app=app, id=int(view_id)).get()
+    if (determinator == 'role'):
+        if Group.objects.filter(user=user.id, app=app, determinator='role', view_id=view_id).exists():
+            group = Group.objects.filter(user=user.id, app=app, determinator='role', view_id=view_id).get()
+    if (determinator == 'view'):
+        if Group.objects.filter(user=user.id, app=app, determinator='view', view_id=view_id).exists():
+            group = Group.objects.filter(user=user.id, app=app, determinator='view', view_id=view_id).get()
+    if not group and (determinator != 'group'):
+        group = Group.objects.create(
+            user=user, 
+            app=app, 
+            determinator=determinator, 
+            view_id=view_id,
+            name=name)
+    return group
 
 class Context:
     def set_config(self, config, cur_view):
@@ -145,7 +132,7 @@ class Context:
                     view_id = key
                     determinator = 'view'
                     url += '?view=' + key
-            qty = self.get_view_qty(determinator, view_id)
+            qty = self.get_view_qty(detect_group(self.request.user, self.config.app, determinator, view_id, self.config.title))
             fix = {
                 'determinator': determinator,
                 'id': view_id, 
@@ -153,23 +140,20 @@ class Context:
                 'icon': value['icon'], 
                 'title': _(value['title']).capitalize(), 
                 'qty': qty,
-                'active': (self.config.cur_view['determinator'] == determinator) and (self.config.cur_view['view_id'] == view_id)
+                'active': (self.config.cur_view_group.determinator == determinator) and (self.config.cur_view_group.view_id == view_id)
             }
             fixes.append(fix)
         return fixes
 
-    def get_view_qty(self, determinator, view_id):
-        data = self.get_dataset(determinator, view_id)
+    def get_view_qty(self, group):
+        data = self.get_dataset(group)
         return len(data)    
 
-    def get_dataset(self, determinator, view_id):
-        #data = None
-        #if (not self.config.app) or (determinator == 'view'):
-        #    return data
+    def get_dataset(self, group):
         data = Task.objects.filter(user=self.request.user.id)
 
-        if (determinator == 'role'):
-            cur_role = view_id
+        if (group.determinator == 'role'):
+            cur_role = group.view_id
         else:
             cur_role = self.config.base_role
         role_id = ROLES_IDS[self.config.app][cur_role]
@@ -201,12 +185,12 @@ class Context:
         if (self.config.app == APP_PHOTO):
             data = data.filter(app_photo=role_id)
 
-        if data and (determinator == 'group'):
-            data = data.filter(groups__id=self.config.group.id)
-            if (not self.config.group.completed):
+        if data and ((not group.determinator) or (group.determinator == 'group')):
+            data = data.filter(groups__id=group.id)
+            if (not group.completed):
                 data = data.filter(completed=False)
         
-        return self.tune_dataset(data, determinator, view_id)
+        return self.tune_dataset(data, group)
 
 class BaseListView(CreateView, Context):
 
@@ -217,7 +201,7 @@ class BaseListView(CreateView, Context):
 
     def get_queryset(self):
         self.config.set_view(self.request)
-        return self.get_dataset(self.config.cur_view['determinator'], self.config.cur_view['view_id'])
+        return self.get_dataset(self.config.cur_view_group)
 
     def get_success_url(self):
         if (self.config.get_cur_role() == self.config.base_role):
@@ -249,7 +233,7 @@ class BaseListView(CreateView, Context):
         return context
 
     def load_sub_groups(self):
-        cur_group = self.config.group
+        cur_group = self.config.cur_view_group
         ret = []
         if not cur_group:
             return ret
@@ -257,11 +241,11 @@ class BaseListView(CreateView, Context):
             return ret
         sgs = json.loads(cur_group.sub_groups)
         for sg in sgs:
-            ret.append({'id': sg['id'], 'name': sg['name'], 'is_open': sg['is_open'], 'items': [] })
+            ret.append({'id': sg['id'], 'name': sg['name'], 'is_open': sg['is_open'], 'items': [], 'qty': 0 })
         return ret
 
     def save_sub_groups(self, sub_groups):
-        cur_group = self.config.group
+        cur_group = self.config.cur_view_group
         if not cur_group:
             return
         sub_groups_json = []
@@ -273,9 +257,9 @@ class BaseListView(CreateView, Context):
         cur_group.save()
 
     def get_sub_group_id(self, termin, completed):
-        if completed and self.config.group:
+        if completed and self.config.cur_view_group:
             return GRP_PLANNED_DONE
-        if (not termin) or not ((self.config.cur_view['determinator'] == 'view' and self.config.cur_view['view_id'] == 'planned')):
+        if (not termin) or not ((self.config.cur_view_group.determinator == 'view' and self.config.cur_view_group.view_id == 'planned')):
             return GRP_PLANNED_NONE
         today = date.today()
         if (termin == today):
@@ -292,8 +276,9 @@ class BaseListView(CreateView, Context):
     def find_sub_group(self, groups, grp_id, name):
         for group in groups:
             if (group['id'] == grp_id):
+                group['qty'] += 1
                 return group
-        group = {'id': grp_id, 'name': name, 'is_open': True, 'items': [] }
+        group = {'id': grp_id, 'name': name, 'is_open': True, 'items': [], 'qty': 1 }
         groups.append(group)
         return group
 
@@ -345,8 +330,8 @@ class BaseListView(CreateView, Context):
         form.instance.user = self.request.user
         response = super().form_valid(form)
         self.config.set_view(self.request)
-        if (self.config.group):
-            TaskGroup.objects.create(task=self.object, group=self.config.group, role=self.config.app)
+        if (self.config.cur_view_group):
+            TaskGroup.objects.create(task=self.object, group=self.config.cur_view_group, role=self.config.app)
         return response
     
 class BaseDetailView(UpdateView, Context):

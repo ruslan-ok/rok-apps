@@ -4,7 +4,7 @@ app_config = {
     'name': APP_DOCS,
     'app_title': 'documents',
     'icon': 'star',
-    'folders': True,
+    'use_folders': True,
     'use_important': True,
     'role': ROLE_DOC,
     'views': {

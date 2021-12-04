@@ -5,7 +5,7 @@ app_config = {
     'app_title': 'tasks',
     'icon': 'check2-square',
     'role': ROLE_TODO,
-    'groups': True,
+    'use_groups': True,
     'use_selector': True,
     'use_important': True,
     'views': {

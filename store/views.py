@@ -9,7 +9,7 @@ role = ROLE_STORE
 app = ROLE_APP[role]
 
 class TuneData:
-    def tune_dataset(self, data, determinator, view_id):
+    def tune_dataset(self, data, group):
         return data;
 
 class ListView(BaseListView, TuneData):

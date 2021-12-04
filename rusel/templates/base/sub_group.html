@@ -2,7 +2,7 @@
 
 {% if sub_group.name %}
   <div>
-    <span type="button" class="sub-group" onclick="toggleSubGroup(this, {{config.group.id|escape}}, {{sub_group.id|escape}})">
+    <span type="button" class="sub-group" onclick="toggleSubGroup(this, {{config.cur_view_group.id|escape}}, {{sub_group.id|escape}})">
       <i class="sub-group__icon {% if sub_group.is_open %}bi-chevron-down{% else %}bi-chevron-right{%endif %}"></i>
       <span class="sub-group__name">{{ sub_group.name }}</span>
       <span class="sub-group__qty">{{ sub_group.qty }}</span>

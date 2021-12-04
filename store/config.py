@@ -5,7 +5,7 @@ app_config = {
     'app_title': 'passwords',
     'icon': 'key',
     'role': ROLE_STORE,
-    'groups': True,
+    'use_groups': True,
     'views': {
         'store': {
             'icon': 'check-all',

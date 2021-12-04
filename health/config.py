@@ -7,7 +7,7 @@ app_config = {
     'roles': {
         'health': { 
             'icon': 'star', 
-            'groups': False,
+            'use_groups': False,
             'views': {
                 'all': {
                     'url': '',

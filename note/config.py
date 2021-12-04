@@ -5,7 +5,7 @@ app_config = {
     'app_title': 'notes',
     'icon': 'sticky',
     'role': ROLE_NOTE,
-    'groups': True,
+    'use_groups': True,
     'views': {
         'note': {
             'icon': 'check-all',

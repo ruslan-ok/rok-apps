@@ -7,7 +7,7 @@ app_config = {
     'roles': {
         'warr': { 
             'icon': 'star', 
-            'groups': True,
+            'use_groups': True,
             'views': {
                 'all': {
                     'url': '',

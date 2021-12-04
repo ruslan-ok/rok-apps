@@ -7,7 +7,7 @@ app_config = {
     'roles': {
         'photo': { 
             'icon': 'star', 
-            'groups': False,
+            'use_groups': False,
             'views': {
                 'all': {
                     'url': '',
