@@ -9,7 +9,7 @@
         list-style-type: none;
         padding: 0 15px;
         overflow: auto;
-        margin-top: 10px;
+        margin-top: 5px;
 
         li.list-item {
             display: flex !important;
@@ -129,6 +129,7 @@
     background-color: white;
     color: #3f697e;
     margin-left: 15px;
+    margin-bottom: 5px;
     padding: 4px 7px;
     font-size: 0.9rem;
     &__name {

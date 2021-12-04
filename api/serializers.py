@@ -8,7 +8,8 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
     node_id = serializers.ReadOnlyField(source='node.id')
     class Meta:
         model = Group
-        fields = ['url', 'id', 'node', 'node_id', 'user', 'app', 'role', 'name', 'sort', 'created', 'last_mod']
+        fields = ['url', 'id', 'node', 'node_id', 'user', 'app', 'role', 'name', 'sort', 'created', 'last_mod',
+                'hier', 'completed', 'color', 'sub_groups', 'determinator', 'view_id']
 
 class TaskSerializer(serializers.HyperlinkedModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')

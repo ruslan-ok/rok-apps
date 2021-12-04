@@ -9,20 +9,21 @@ class BaseApartListView(BaseListView):
         super().__init__(app_config, role, *args, **kwargs)
         self.template_name = 'apart/list.html'
 
-    def tune_dataset(self, data, view_mode):
+    def tune_dataset(self, data, determinator, view_id):
         apart = Apart.objects.filter(user=self.request.user.id, active=True).get()
-        if (view_mode == 'meter'):
-            items = Meter.objects.filter(apart=apart.id)
-            return data.filter(id__in=Subquery(items.values('task'))).order_by('-name')
-        if (view_mode == 'service'):
-            items = Service.objects.filter(apart=apart.id)
-            return data.filter(id__in=Subquery(items.values('task')))
-        if (view_mode == 'price'):
-            items = Price.objects.filter(apart=apart.id)
-            return data.filter(id__in=Subquery(items.values('task'))).order_by('-name')
-        if (view_mode == 'bill'):
-            items = Bill.objects.filter(apart=apart.id)
-            return data.filter(id__in=Subquery(items.values('task'))).order_by('-name')
+        if (determinator == 'role'):
+            if (view_id == 'meter'):
+                items = Meter.objects.filter(apart=apart.id)
+                return data.filter(id__in=Subquery(items.values('task'))).order_by('-name')
+            if (view_id == 'service'):
+                items = Service.objects.filter(apart=apart.id)
+                return data.filter(id__in=Subquery(items.values('task')))
+            if (view_id == 'price'):
+                items = Price.objects.filter(apart=apart.id)
+                return data.filter(id__in=Subquery(items.values('task'))).order_by('-name')
+            if (view_id == 'bill'):
+                items = Bill.objects.filter(apart=apart.id)
+                return data.filter(id__in=Subquery(items.values('task'))).order_by('-name')
         return data
 
     def get_context_data(self, **kwargs):
@@ -37,18 +38,19 @@ class BaseApartDetailView(BaseDetailView):
     def __init__(self, app_config, role, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
-    def tune_dataset(self, data, view_mode):
+    def tune_dataset(self, data, determinator, view_id):
         apart = Apart.objects.filter(user=self.request.user.id, active=True).get()
-        if (view_mode == 'meter'):
-            items = Meter.objects.filter(apart=apart.id)
-            return data.filter(id__in=Subquery(items.values('task'))).order_by('-name')
-        if (view_mode == 'service'):
-            items = Service.objects.filter(apart=apart.id)
-            return data.filter(id__in=Subquery(items.values('task')))
-        if (view_mode == 'price'):
-            items = Price.objects.filter(apart=apart.id)
-            return data.filter(id__in=Subquery(items.values('task'))).order_by('-name')
-        if (view_mode == 'bill'):
-            items = Bill.objects.filter(apart=apart.id)
-            return data.filter(id__in=Subquery(items.values('task'))).order_by('-name')
+        if (determinator == 'role'):
+            if (view_id == 'meter'):
+                items = Meter.objects.filter(apart=apart.id)
+                return data.filter(id__in=Subquery(items.values('task'))).order_by('-name')
+            if (view_id == 'service'):
+                items = Service.objects.filter(apart=apart.id)
+                return data.filter(id__in=Subquery(items.values('task')))
+            if (view_id == 'price'):
+                items = Price.objects.filter(apart=apart.id)
+                return data.filter(id__in=Subquery(items.values('task'))).order_by('-name')
+            if (view_id == 'bill'):
+                items = Bill.objects.filter(apart=apart.id)
+                return data.filter(id__in=Subquery(items.values('task'))).order_by('-name')
         return data

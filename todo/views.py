@@ -12,15 +12,16 @@ app = APP_TODO
 role = ROLE_TODO
 
 class TuneData:
-    def tune_dataset(self, data, view_mode):
-        if (view_mode == 'todo'):
+    def tune_dataset(self, data, determinator, view_id):
+        if (determinator == 'role') and (view_id == 'todo'):
             return data.filter(in_my_day=True).exclude(completed=True)
-        if (view_mode == 'important'):
-            return data.filter(important=True).exclude(completed=True)
-        if (view_mode == 'planned'):
-            return data.exclude(stop=None).exclude(completed=True)
-        if (view_mode == 'completed'):
-            return data.filter(completed=True)
+        if (determinator == 'view'):
+            if (view_id == 'important'):
+                return data.filter(important=True).exclude(completed=True)
+            if (view_id == 'planned'):
+                return data.exclude(stop=None).exclude(completed=True)
+            if (view_id == 'completed'):
+                return data.filter(completed=True)
         return data
 
 class ListView(BaseListView, TuneData):
@@ -34,11 +35,14 @@ class ListView(BaseListView, TuneData):
         form.instance.app_task = NUM_ROLE_TODO
         response = super().form_valid(form)
         self.config.set_view(self.request)
-        if (self.config.cur_view == 'todo'):
+        if ((self.config.cur_view['determinator'] == 'role' and self.config.cur_view['view_id'] == 'todo')):
             form.instance.in_my_day = True
             form.instance.save()
-        if (self.config.cur_view == 'important'):
+        if ((self.config.cur_view['determinator'] == 'view' and self.config.cur_view['view_id'] == 'important')):
             form.instance.important = True
+            form.instance.save()
+        if ((self.config.cur_view['determinator'] == 'view' and self.config.cur_view['view_id'] == 'planned')):
+            form.instance.stop = get_remind_tomorrow()
             form.instance.save()
         return response
 

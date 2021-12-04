@@ -89,9 +89,10 @@ def get_app_icon(app):
 def get_related_roles(task, config):
     related_roles = []
     possible_related = []
-    if config.cur_view and (config.cur_view in config.views) and ('relate' in config.views[config.cur_view]):
-        for role in config.views[config.cur_view]['relate']:
-            possible_related.append({'name': role, 'icon': ROLE_ICON[role], 'href': get_role_href(role, task.id)})
+    if (config.cur_view['determinator'] != 'group'):
+        if (config.cur_view['view_id'] in config.views) and ('relate' in config.views[config.cur_view['view_id']]):
+            for role in config.views[config.cur_view['view_id']]['relate']:
+                possible_related.append({'name': role, 'icon': ROLE_ICON[role], 'href': get_role_href(role, task.id)})
     for app_role in (task.app_task, task.app_note, task.app_news, task.app_store, task.app_doc, 
                     task.app_warr, task.app_expen, task.app_trip, task.app_fuel, task.app_apart, 
                     task.app_health, task.app_work, task.app_photo):
@@ -101,7 +102,7 @@ def get_related_roles(task, config):
 def check_role(related_roles, possible_related, num_role, config, task_id):
     if (num_role != NONE):
         role = ROLE_BY_NUM[num_role]
-        if (role != config.role):
+        if (role != config.get_cur_role()):
             related_role = {'name': role}
             related_role['icon'] = ROLE_ICON[role]
             related_role['href'] = get_role_href(role, task_id)

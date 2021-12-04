@@ -31,6 +31,8 @@ class Group(models.Model):
     completed = models.BooleanField(_('display completed records'), default=False, null=True)
     color = models.CharField(_('background color'), max_length=20, blank=True, null=True)
     sub_groups = models.CharField(_('content items sub groups'), max_length=1000, blank=True, null=True)
+    determinator = models.CharField(_('group category: "group", "role" or "view"'), max_length=10, blank=True, null=True)
+    view_id = models.CharField(_('view identificator for "role" and "view"'), max_length=50, blank=True, null=True)
 
     class Meta:
         verbose_name=_('task group')
@@ -67,24 +69,12 @@ class Group(models.Model):
         return not Group.objects.filter(node=self.id).exists()
 
     def toggle_sub_group(self, sub_group_id):
-        pass
-
-    """
-    @classmethod
-    def scan_node(cls, tree, group_id):
-        for x in cls.objects.filter(node=group_id).order_by('sort'):
-            tree.append((x.id, '.' * x.level() * 2 + x.name))
-            cls.scan_node(tree, x.id)
-    
-    @classmethod
-    def get_tree(cls, user_id, app):
-        tree = []
-        tree.append((0, '-----------'))
-        for x in cls.objects.filter(user=user_id, app=app, node=None).order_by('sort'):
-            tree.append((x.id, x.name))
-            cls.scan_node(tree, x.id)
-        return tree
-    """
+        sgs = json.loads(self.sub_groups)
+        for sg in sgs:
+            if (sg['id'] == int(sub_group_id)):
+                sg['is_open'] = not sg['is_open']
+        self.sub_groups = json.dumps(sgs)
+        self.save()
 
 class Task(models.Model):
     """

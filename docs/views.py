@@ -14,7 +14,7 @@ class ListView(BaseListView):
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
-    def tune_dataset(self, data, view_mode):
+    def tune_dataset(self, data, determinator, view_id):
         return data;
 
     def form_valid(self, form):
@@ -29,7 +29,7 @@ class DetailView(BaseDetailView):
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
-    def tune_dataset(self, data, view_mode):
+    def tune_dataset(self, data, determinator, view_id):
         return data;
 
 class GroupView(BaseGroupView):

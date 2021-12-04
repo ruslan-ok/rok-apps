@@ -64,17 +64,17 @@ def get_sorted_groups(groups, user_id, role, node=None):
     for item in items:
         groups.append(item)
         get_sorted_groups(groups, user_id, role, item)
-    
+
 def get_cur_grp(request):
     cur_grp = None
     if request.method == 'GET':
-        v = request.GET.get('view')
-        if v and (v == 'by_group'):
-            g = request.GET.get('group_id')
+        if ('group' in request.GET):
+            g = request.GET.get('group')
             if g:
                 if Group.objects.filter(id=g, user=request.user.id).exists():
                     cur_grp = Group.objects.filter(id=g, user=request.user.id).get()
     return cur_grp
+    
 
 def get_group_path(cur_grp_id):
     ret = []

@@ -95,7 +95,7 @@ function delItem(role) {
     let redirect_url = window.location.href.split('/' + item_id + '/')[0] + '/';
     let grp = document.getElementById("id_grp");
     if (grp && grp.value)
-        redirect_url = window.location.href.split('/' + item_id + '/')[0] + '/?view=by_group&group_id=' + grp.value;
+        redirect_url = window.location.href.split('/' + item_id + '/')[0] + '/?group=' + grp.value;
     const api = '/api/tasks/' + item_id + '/role_delete/?format=json&role=' + role;
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
@@ -538,7 +538,7 @@ function checkCompleted(mode) {
         nf.classList.toggle('completed');
 }
 
-function toggleSubGroup(div, sub_group_id) {
+function toggleSubGroup(div, group_id, sub_group_id) {
     const hidden = document.getElementById('id-sub-group-' + sub_group_id).classList.toggle('d-none');
     if (hidden) {
         div.children[0].classList.remove('bi-chevron-down');
@@ -547,5 +547,11 @@ function toggleSubGroup(div, sub_group_id) {
         div.children[0].classList.remove('bi-chevron-right');
         div.children[0].classList.add('bi-chevron-down');
     }
-    console.log('toggled sub group ' + sub_group_id);
+    const api = '/api/groups/' + group_id + '/toggle_sub_group/?format=json&sub_group_id=' + sub_group_id;
+    const callback = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            console.log('Sub group ' + sub_group_id + ' toggled successfully.');
+        }
+    };
+    runAPI(api, callback);
 }

@@ -37,7 +37,7 @@ function addGroup(app, role) {
       if (this.readyState == 4 && this.status == 201) {
         group_id = JSON.parse(this.responseText).id;
         group_name = JSON.parse(this.responseText).name;
-        group_url = `${window.location.protocol}//${window.location.host}/${app}/?view=by_group&group_id=${group_id}`;
+        group_url = `${window.location.protocol}//${window.location.host}/${app}/?group=${group_id}`;
         window.location.href = group_url;
       }
     };
@@ -58,7 +58,7 @@ function closeGroupForm() {
   const urlParams = new URLSearchParams(window.location.search);
   const group_id = urlParams.get('ret');
   if (group_id)
-    redirect_url += '?view=by_group&group_id=' + group_id;
+    redirect_url += '?group=' + group_id;
   window.location.href = redirect_url;
 }
 

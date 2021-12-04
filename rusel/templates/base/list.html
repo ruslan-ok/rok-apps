@@ -7,7 +7,7 @@
 
   {% for sub_group in sub_groups %}
     {% include "base/sub_group.html" %}
-    <ul id="id-sub-group-{{ sub_group.id|escape }}">
+    <ul id="id-sub-group-{{ sub_group.id|escape }}"{% if not sub_group.is_open %} class="d-none"{% endif %}>
       {% for item in sub_group.items %}
         {% include "base/item.html" %}
       {% endfor %}
@@ -17,7 +17,7 @@
   {% if not hide_add_item_input %}
     <form method="post" class="add-form position-sticky bottom-0">{% csrf_token %}
       {% if add_button %}
-        <button type="button" class="btn bi-plus-lg add-form__button" onclick="addItem('{{ config.app }}', '{{ config.role }}')">{{ add_item_placeholder }}</button>
+        <button type="button" class="btn bi-plus-lg add-form__button" onclick="addItem('{{ config.app }}', '{{ config.get_cur_role }}')">{{ add_item_placeholder }}</button>
       {% else %}
         <button type="submit" class="bi-plus-lg add-form__button"></button>
         <input type="text" name="name" maxlength="200" required="" id="id_name" class="add-form__input" placeholder="{{ add_item_placeholder }}">

@@ -6,7 +6,7 @@ def extract_get_params(request):
     v = request.GET.get('view')
     if not v:
         v = ''
-    g = request.GET.get('group_id')
+    g = request.GET.get('group')
     if not g:
         g = ''
     q = request.GET.get('q')
@@ -22,8 +22,8 @@ def extract_get_params(request):
     ret = ''
     if v:
         ret += 'view=' + v
-    if (v == 'by_group') and g:
-        ret += '&group_id=' + g
+    if (not v) and g:
+        ret += 'group=' + g
     if q:
         if ret:
             ret += '&'
