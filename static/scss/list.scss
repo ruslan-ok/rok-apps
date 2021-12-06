@@ -3,13 +3,13 @@
     flex-direction: column;
     width: 100% !important;
     margin:0 auto;
-    min-height:calc(100vh - 20rem);
+    min-height:calc(100vh - 110px);
 
     ul {
         list-style-type: none;
         padding: 0 15px;
         overflow: auto;
-        margin-top: 5px;
+        margin-top: 15px;
 
         li.list-item {
             display: flex !important;
@@ -21,8 +21,8 @@
         
             button.left-icon {
                 cursor: pointer;
-                padding: 15px;
-                font-size: 1.3rem;
+                padding: 9px;
+                font-size: 1.1rem;
                 border: none;
                 background-color: transparent;
                 color: #447e9b;
@@ -81,7 +81,7 @@
         
             button.right-icon {
                 cursor: pointer;
-                padding: 15px;
+                padding: 9px;
                 border: none;
                 background-color: transparent;
                 color: #447e9b;

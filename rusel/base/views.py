@@ -73,7 +73,7 @@ class Config:
         return ret
 
     def get_cur_role(self):
-        if (self.cur_view_group.determinator == 'role'):
+        if (self.cur_view_group and self.cur_view_group.determinator and self.cur_view_group.determinator == 'role'):
             return self.cur_view_group.view_id
         return self.base_role
 
