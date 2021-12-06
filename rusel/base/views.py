@@ -230,6 +230,8 @@ class BaseListView(CreateView, Context):
         self.save_sub_groups(sub_groups)
         
         context['sub_groups'] = sorted(sub_groups, key = lambda group: group['id'])
+        if self.config.cur_view_group and self.config.cur_view_group.theme:
+            context['theme_id'] = self.config.cur_view_group.theme
         return context
 
     def load_sub_groups(self):

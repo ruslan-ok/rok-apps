@@ -26,10 +26,8 @@ class Group(models.Model):
     sort = models.CharField(_('sort code'), max_length=50, blank=True)
     created = models.DateTimeField(_('creation time'), blank=True, auto_now_add=True)
     last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now=True)
-    wallpaper = models.ImageField(_('wallpaper'), blank=True, null=True)
-    hier = models.BooleanField(_('display records as a hierarchy'), default=False, null=True)
     completed = models.BooleanField(_('display completed records'), default=False, null=True)
-    color = models.CharField(_('background color'), max_length=20, blank=True, null=True)
+    theme = models.IntegerField(_('theme id'), blank=True, null=True)
     sub_groups = models.CharField(_('content items sub groups'), max_length=1000, blank=True, null=True)
     determinator = models.CharField(_('group category: "group", "role" or "view"'), max_length=10, blank=True, null=True)
     view_id = models.CharField(_('view identificator for "role" and "view"'), max_length=50, blank=True, null=True)
@@ -74,6 +72,10 @@ class Group(models.Model):
             if (sg['id'] == int(sub_group_id)):
                 sg['is_open'] = not sg['is_open']
         self.sub_groups = json.dumps(sgs)
+        self.save()
+
+    def set_theme(self, theme_id):
+        self.theme = theme_id
         self.save()
 
 class Task(models.Model):

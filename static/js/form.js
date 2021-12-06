@@ -555,3 +555,15 @@ function toggleSubGroup(div, group_id, sub_group_id) {
     };
     runAPI(api, callback);
 }
+
+function setTheme(group_id, theme_id) {
+    const redirect_url = window.location.href;
+    const api = '/api/groups/' + group_id + '/set_theme/?format=json&theme_id=' + theme_id;
+    const callback = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            console.log('Theme ' + theme_id + ' setted successfully.');
+            window.location.href = redirect_url;
+        }
+    };
+    runAPI(api, callback);
+}

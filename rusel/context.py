@@ -46,13 +46,13 @@ def get_base_context(request, app, role, detail, title):
     groups = []
     get_sorted_groups(groups, request.user.id, role)
     context['groups'] = groups
-    context['bg_color'] = '#EAEAF6'
+    context['theme_id'] = 7
     if cur_grp:
         context['group_return'] = cur_grp.id
         if (not detail):
             context['group_path'] = get_group_path(cur_grp.id)
-            if cur_grp.color and (cur_grp.color != '0'):
-                context['bg_color'] = cur_grp.color
+            if cur_grp.theme:
+                context['theme_id'] = cur_grp.theme
 
     return context
 

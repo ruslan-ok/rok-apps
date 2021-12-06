@@ -64,23 +64,17 @@ class CreateGroupForm(forms.ModelForm):
         fields = ['name']
 
 class GroupForm(forms.ModelForm):
-    hier = forms.BooleanField(
-        label=False, 
-        required=False, 
-        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('display records as a hierarchy').capitalize()}))
     completed = forms.BooleanField(
         label=False, 
         required=False, 
         widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('display completed records').capitalize()}))
     class Meta:
         model = Group
-        fields = ['node', 'name', 'color', 'sort', 'wallpaper', 'hier', 'completed']
+        fields = ['node', 'name', 'sort', 'completed']
         widgets = {
             'node': forms.Select(attrs={'class': 'form-control mb-2'}),
             'name': forms.TextInput(attrs={'class': 'form-control mb-2'}),
             'sort': forms.TextInput(attrs={'class': 'mb-2'}),
-            'wallpaper': forms.ClearableFileInput(),
-            'color': forms.TextInput(attrs={'class': 'form-control-sm mb-2', 'type': 'color'}),
         }
 
     def __init__(self, *args, **kwargs):

@@ -1,0 +1,43 @@
+{% load static i18n %}
+
+{% if not hide_add_item_input %}
+    <div class="dropdown mx-3">
+        <button class="btn bi-plus-lg" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false"></button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+            <form method="post" class="d-flex py-2">{% csrf_token %}
+                {% if add_button %}
+                    <button type="button" class="btn bi-plus-lg" onclick="addItem('{{ config.app }}', '{{ config.get_cur_role }}')">{{ add_item_placeholder }}</button>
+                {% else %}
+                    <input type="text" name="name" maxlength="200" required="" id="id_name" class="" placeholder="{{ add_item_placeholder }}">
+                    <button type="submit" class="btn bi-plus-lg"></button>
+                {% endif %}
+            </form>
+        </ul>
+    </div>
+{% endif %}
+
+{% if sorts %}
+    <div class="dropdown">
+        <button class="btn bi-sort-alpha-down" type="button" id="dropdownMenuButton1" 
+            data-bs-toggle="dropdown" aria-expanded="false"></button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+            {% for sort in sorts %}
+                <button type="button" class="btn dropdown-item" onclick="setSort({{ sort.id }})">{{ sort.name }}</button>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+
+<div class="dropdown mx-3">
+    <button class="btn bi-gear" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" 
+        data-bs-auto-close="false" aria-expanded="false"></button>
+    <ul class="dropdown-menu wide" aria-labelledby="dropdownMenuButton1">
+        <p>Theme</p>
+        {% for theme in themes %}
+            <button type="button" class="btn theme{% if theme.style %} {{ theme.style }}{% endif %}" 
+                onclick="setTheme({{config.cur_view_group.id|escape}}, {{ theme.id|escape }})">
+                {% if theme.img %}<img src="/static/backgrounds/{{ theme.img }}/thumb.jpg">{% endif %}
+            </button>
+        {% endfor %}
+    </ul>
+</div>

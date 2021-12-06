@@ -89,40 +89,6 @@
             }
         }
     }
-
-    .add-form {
-        display: flex !important;
-        position: relative;
-        &__button {
-            display: inline-block;
-            position: absolute;
-            top: 0;
-            margin: 0px 15px 20px 15px;
-            padding: 13px;
-            background-color: rgba(43, 99, 75, 0.671);
-            cursor: pointer;
-            border: 0 solid transparent;
-            font-size: 1rem;
-            color: white;
-            &:hover {
-                background-color: rgba(30, 71, 53, 0.671);
-            }
-        }
-        &__input {
-            height: 50px;
-            width: 100%;
-            margin: 0px 15px 20px 15px;
-            padding-left: 60px;
-            border-radius: 0.25rem;
-            border: 1px solid transparent;
-            background-color: rgba(43, 99, 75, 0.671);
-            color: white;
-            &::placeholder {
-                color: white;
-                opacity: 0.5;
-            }
-        }
-    }
 }
 
 .sub-group {

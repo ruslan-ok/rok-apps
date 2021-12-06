@@ -57,6 +57,17 @@ class GroupViewSet(viewsets.ModelViewSet):
         serializer = GroupSerializer(instance=group, context={'request': request})
         return Response(serializer.data)
     
+    @action(detail=True)
+    def set_theme(self, request, pk=None):
+        if 'theme_id' not in self.request.query_params:
+            return Response({'Error': "Expected parameter 'theme_id'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        theme_id = self.request.query_params['theme_id']
+        group = self.get_object()
+        group.set_theme(theme_id)
+        serializer = GroupSerializer(instance=group, context={'request': request})
+        return Response(serializer.data)
+    
     @action(detail=False)
     def sort(self, request, pk=None):
         if 'role' not in self.request.query_params:
