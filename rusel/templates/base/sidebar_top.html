@@ -6,7 +6,17 @@
         {% if config.icon %}
           <i class="bi-{{config.icon}} content-title__icon"></i>
         {% endif %}
-        {{title}}
+        {% if group_path %}
+            {% for group in group_path %}
+              {% if group == group_path|first %}
+                <a href="{% url group.edit_url group.id|escape %}?ret={{ group_return|escape }}" class="content-title__href">
+                    {{ group.name }}
+                </a>
+              {% endif %}
+            {% endfor %}
+        {% else %}
+            <span class="content-title__text">{{ title }}</span>
+        {% endif %}
       </div>
       <button class="btn bd-sidebar-toggle d-md-none py-0 px-1 ms-3 order-3" type="button" data-bs-toggle="collapse" data-bs-target="#bd-docs-nav" aria-controls="bd-docs-nav" aria-expanded="true" aria-label="Toggle docs navigation">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="bi bi-expand" fill="currentColor" viewBox="0 0 16 16">
