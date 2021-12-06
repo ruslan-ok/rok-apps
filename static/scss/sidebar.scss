@@ -28,32 +28,8 @@
         }
     }
     .add-form {
-        display: flex !important;
-        position: relative;
-        &__button {
-            display: inline-block;
-            position: absolute;
-            top: 0;
-            padding: 13px;
-            cursor: pointer;
-            color: white;
-            &:hover {
-                background-color: rgba(85, 97, 92, 0.671);
-            }
-        }
-        &__input {
-            height: 50px;
-            width: 100%;
-            padding-left: 45px;
-            border-radius: 0.25rem;
-            border: 1px solid transparent;
-            background-color: rgba(124, 141, 134, 0.671);
-            color: white;
-            &::placeholder {
-                color: white;
-                opacity: 0.5;
-            }
-        }
+        background-color: rgba(255, 255, 255, 0.8);
+        
     }
 }
 
@@ -66,4 +42,17 @@
 .bd-links {
       font-weight: 400;
       font-size: 0.9rem;
+}
+
+@media (min-width: 768px) {
+    .bd-links {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 5rem;
+        display: block !important;
+        height: calc(100vh - 90px);
+        padding-left: 0.25rem;
+        margin-left: -0.25rem;
+        overflow-y: auto;
+    }
 }
