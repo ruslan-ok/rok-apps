@@ -1,7 +1,7 @@
 {% load static i18n %}
 
 {% block item_content %}
-    <div class="content-title d-none d-md-flex justify-content-between{% if theme_id %} theme-{{theme_id}}{% endif %}">
+    <div class="content-title d-none d-md-flex justify-content-between">
         <div class="title">
             {% if config.icon %}
                 <i class="bi-{{config.icon}} content-title__icon"></i>
@@ -42,7 +42,7 @@
         </div>
     </div>
 
-    <div class="content-title d-lg-none d-flex justify-content-between{% if theme_id %} theme-{{theme_id}}{% endif %}">
+    <div class="content-title d-lg-none d-flex justify-content-between">
         <div class="title"></div>
         <div class="actions d-flex">
             {% include "base/tune.html" %}

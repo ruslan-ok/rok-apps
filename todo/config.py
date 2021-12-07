@@ -8,6 +8,12 @@ app_config = {
     'use_groups': True,
     'use_selector': True,
     'use_important': True,
+    'sort': [
+        ('important', 'important'),
+        ('stop', 'termin'),
+        ('name', 'name'),
+        ('created', 'create date'),
+    ],
     'views': {
         'todo': {
             'icon': 'sun',
@@ -16,10 +22,20 @@ app_config = {
         'important': {
             'icon': 'star',
             'title': 'important tasks',
+            'sort': [
+                ('stop', 'termin'),
+                ('name', 'name'),
+                ('created', 'create date'),
+            ],
         },
         'planned': {
             'icon': 'check2-square',
             'title': 'planned tasks',
+            'sort': [
+                ('important', 'important'),
+                ('name', 'name'),
+                ('created', 'create date'),
+            ],
         },
         'all': {
             'icon': 'check-all',

@@ -567,3 +567,39 @@ function setTheme(group_id, theme_id) {
     };
     runAPI(api, callback);
 }
+
+function setSort(group_id, sort_id) {
+    const redirect_url = window.location.href;
+    const api = '/api/groups/' + group_id + '/set_sort/?format=json&sort_id=' + sort_id;
+    const callback = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            console.log('Sort ' + sort_id + ' setted successfully.');
+            window.location.href = redirect_url;
+        }
+    };
+    runAPI(api, callback);
+}
+
+function reverseSort(group_id) {
+    const redirect_url = window.location.href;
+    const api = '/api/groups/' + group_id + '/reverse_sort/?format=json';
+    const callback = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            console.log('Sort reversed successfully.');
+            window.location.href = redirect_url;
+        }
+    };
+    runAPI(api, callback);
+}
+
+function delSort(group_id) {
+    const redirect_url = window.location.href;
+    const api = '/api/groups/' + group_id + '/delete_sort/?format=json';
+    const callback = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            console.log('Sort deleted successfully.');
+            window.location.href = redirect_url;
+        }
+    };
+    runAPI(api, callback);
+}

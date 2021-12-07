@@ -46,7 +46,7 @@ def get_base_context(request, app, role, detail, title):
     groups = []
     get_sorted_groups(groups, request.user.id, role)
     context['groups'] = groups
-    context['theme_id'] = 7
+    context['theme_id'] = 8
     if cur_grp:
         context['group_return'] = cur_grp.id
         if (not detail):

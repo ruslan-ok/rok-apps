@@ -14,6 +14,18 @@ from rusel.base.forms import GroupForm, CreateGroupForm
 from task.const import *
 from task.models import Task, Group, TaskGroup, Urls
 
+BG_IMAGES = [
+    'beach',
+    'desert',
+    'fern',
+    'field',
+    'gradient',
+    'lighthouse',
+    'safari',
+    'sea',
+    'tv_tower'
+]
+
 class Config:
     def __init__(self, config, cur_view_name, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -35,6 +47,9 @@ class Config:
                 self.multy_role = True
                 break;
         self.cur_view_group = None
+        self.app_sorts = None
+        if config['sort']:
+            self.app_sorts = config['sort']
 
     def set_view(self, request):
         self.cur_view_group = None
@@ -56,6 +71,8 @@ class Config:
                 determinator = 'group'
                 view_id = str(group_id)
                 self.title = Group.objects.filter(id=group_id).get().name
+
+        self.view_sorts = None
         if (determinator != 'group') and (view_id in self.views):
             self.title = self.check_property(self.views[view_id], 'title', self.title)
             self.icon = self.check_property(self.views[view_id], 'icon', self.icon)
@@ -63,6 +80,9 @@ class Config:
             self.use_important = self.check_property(self.views[view_id], 'use_important', self.use_important)
             self.add_button = self.check_property(self.views[view_id], 'add_button', self.add_button)
             self.item_name = self.check_property(self.views[view_id], 'item_name', self.item_name)
+            if 'sort' in self.views[view_id]:
+                self.view_sorts = self.views[view_id]['sort']
+
         if determinator and view_id:
             self.cur_view_group = detect_group(request.user, self.app, determinator, view_id, self.title)
 
@@ -107,7 +127,6 @@ class Context:
         context.update(get_base_context(self.request, self.config.app, self.config.get_cur_role(), False, title))
         context['fix_list'] = self.get_fixes(self.config.views)
         context['group_form'] = CreateGroupForm()
-        #context['sort_options'] = self.get_sorts()
         role = self.config.get_cur_role()
         if (role == self.config.base_role):
             context['item_detail_url'] = self.config.app + ':item'
@@ -115,7 +134,17 @@ class Context:
             context['item_detail_url'] = self.config.app + ':' + role + '-item'
         context['config'] = self.config
         context['params'] = extract_get_params(self.request)
+        if self.config.view_sorts:
+            context['sorts'] = self.get_sorts(self.config.view_sorts)
+        elif self.config.app_sorts:
+            context['sorts'] = self.get_sorts(self.config.app_sorts)
         return context
+
+    def get_sorts(self, sorts):
+        ret = []
+        for sort in sorts:
+            ret.append({'id': sort[0], 'name': _(sort[1]).capitalize()})
+        return ret
 
     def get_fixes(self, views):
         fixes = []
@@ -230,9 +259,34 @@ class BaseListView(CreateView, Context):
         self.save_sub_groups(sub_groups)
         
         context['sub_groups'] = sorted(sub_groups, key = lambda group: group['id'])
+
+        themes = []
+        for x in range(23):
+            if (x < 14):
+                themes.append({'id': x+1, 'style': 'theme-' + str(x+1)})
+            else:
+                themes.append({'id': x+1, 'img': self.get_bg_img(x)})
+        context['themes'] = themes
+
         if self.config.cur_view_group and self.config.cur_view_group.theme:
             context['theme_id'] = self.config.cur_view_group.theme
+
+        if self.config.cur_view_group.sort:
+            context['sort_id'] = self.config.cur_view_group.sort
+            context['sort_reverse'] = self.config.cur_view_group.sort[0] == '-'
+            if self.config.view_sorts:
+                sorts = self.config.view_sorts
+            else:
+                sorts = self.config.app_sorts
+            for sort in sorts:
+                if (sort[0] == self.config.cur_view_group.sort.replace('-', '')):
+                    context['sort_name'] = _(sort[1]).capitalize()
+                    break
+
         return context
+
+    def get_bg_img(self, num):
+        return BG_IMAGES[num-14]
 
     def load_sub_groups(self):
         cur_group = self.config.cur_view_group
@@ -286,9 +340,9 @@ class BaseListView(CreateView, Context):
 
     def get_sorted_items(self, query):
         data = self.get_filtered_items(query)
-        sort_mode = 'name' # todo
-        sort_reverse = False # todo
-        return self.sort_data(data, sort_mode + ' stop', sort_reverse)
+        if not self.config.cur_view_group.sort:
+            return data
+        return self.sort_data(data, self.config.cur_view_group.sort)
 
     def get_filtered_items(self, query):
         ret = self.get_queryset()
@@ -302,8 +356,8 @@ class BaseListView(CreateView, Context):
             lookups = Q(categories__icontains=query[1:])
         return ret.filter(lookups)
 
-    def sort_data(self, data, sort, reverse):
-        if not data:
+    def sort_data(self, data, sort, reverse=False):
+        if not data or not sort:
             return data
 
         sort_fields = sort.split()

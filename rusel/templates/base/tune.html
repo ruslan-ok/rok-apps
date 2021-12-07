@@ -22,7 +22,8 @@
             data-bs-toggle="dropdown" aria-expanded="false"></button>
         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
             {% for sort in sorts %}
-                <button type="button" class="btn dropdown-item" onclick="setSort({{ sort.id }})">{{ sort.name }}</button>
+                <button type="button" class="btn dropdown-item" 
+                    onclick="setSort({{config.cur_view_group.id|escape}}, '{{ sort.id }}')">{{ sort.name }}</button>
             {% endfor %}
         </ul>
     </div>

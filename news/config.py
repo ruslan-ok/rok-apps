@@ -6,6 +6,10 @@ app_config = {
     'icon': 'newspaper',
     'role': ROLE_NEWS,
     'use_groups': True,
+    'sort': [
+        ('event', 'event date'),
+        ('name', 'name'),
+    ],
     'views': {
         'news': {
             'icon': 'check-all',

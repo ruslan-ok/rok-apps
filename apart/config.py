@@ -5,6 +5,10 @@ app_config = {
     'app_title': 'communal',
     'icon': 'building',
     'role': ROLE_APART,
+    'sort': [
+        ('name', 'name'),
+        ('created', 'create date'),
+    ],
     'views': {
         'apart': {
             'icon': 'building', 

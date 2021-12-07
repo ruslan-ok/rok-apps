@@ -6,6 +6,10 @@ app_config = {
     'icon': 'sticky',
     'role': ROLE_NOTE,
     'use_groups': True,
+    'sort': [
+        ('event', 'event date'),
+        ('name', 'name'),
+    ],
     'views': {
         'note': {
             'icon': 'check-all',

@@ -78,6 +78,29 @@ class Group(models.Model):
         self.theme = theme_id
         self.save()
 
+    def set_sort(self, sort_id):
+        if self.sort.replace('-', '') == sort_id:
+            if self.sort.replace('-', '') == self.sort:
+                self.sort = '-' + sort_id
+            else:
+                self.sort = sort_id
+        else:
+            self.sort = sort_id
+        self.save()
+
+    def reverse_sort(self):
+        if not self.sort:
+            return
+        if self.sort.replace('-', '') == self.sort:
+            self.sort = '-' + self.sort
+        else:
+            self.sort = self.sort[1:]
+        self.save()
+
+    def delete_sort(self):
+        self.sort = ''
+        self.save()
+
 class Task(models.Model):
     """
     An Entity that can be a Task or something else

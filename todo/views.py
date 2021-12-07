@@ -10,17 +10,6 @@ from todo.get_info import get_info
 
 app = APP_TODO
 role = ROLE_TODO
-BG_IMAGES = [
-    'beach',
-    'desert',
-    'fern',
-    'field',
-    'gradient',
-    'lighthouse',
-    'safari',
-    'sea',
-    'tv_tower'
-]
 
 class TuneData:
     def tune_dataset(self, data, group):
@@ -41,21 +30,6 @@ class ListView(BaseListView, TuneData):
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['sorts'] = [{'id': 1, 'name': 'important'}, {'id': 2, 'name': 'my day'}, {'id': 3, 'name': 'termin'}]
-        themes = []
-        for x in range(23):
-            if (x < 14):
-                themes.append({'id': x+1, 'style': 'theme-' + str(x+1)})
-            else:
-                themes.append({'id': x+1, 'img': self.get_bg_img(x)})
-        context['themes'] = themes
-        return context
-
-    def get_bg_img(self, num):
-        return BG_IMAGES[num-14]
 
     def form_valid(self, form):
         form.instance.app_task = NUM_ROLE_TODO
