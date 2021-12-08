@@ -8,7 +8,7 @@
                     <i class="bi-{{fix.icon}}"></i>
                     <span class="">{{ fix.title }}</span>
                 </div>
-                <span class="">{% if fix.qty != None %}{{ fix.qty }}{% endif %}</span>
+                <span class="">{% if fix.active and fix.search_qty != None %}{{ fix.search_qty }} / {% endif %}{% if fix.qty != None %}{{ fix.qty }}{% endif %}</span>
             </a>
         {% endfor %}
 

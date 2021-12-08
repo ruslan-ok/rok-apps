@@ -126,11 +126,11 @@ class Context:
     def set_config(self, config, cur_view):
         self.config = Config(config, cur_view)
 
-    def get_app_context(self, **kwargs):
+    def get_app_context(self, search_qty=None, **kwargs):
         context = {}
         title = _(self.config.title).capitalize()
         context.update(get_base_context(self.request, self.config.app, self.config.get_cur_role(), False, title))
-        context['fix_list'] = self.get_fixes(self.config.views)
+        context['fix_list'] = self.get_fixes(self.config.views, search_qty)
         context['group_form'] = CreateGroupForm()
         context['config'] = self.config
         context['params'] = extract_get_params(self.request)
@@ -146,7 +146,7 @@ class Context:
             ret.append({'id': sort[0], 'name': _(sort[1]).capitalize()})
         return ret
 
-    def get_fixes(self, views):
+    def get_fixes(self, views, search_qty):
         fixes = []
         if (self.config.app == APP_ALL):
             common_url = reverse('index')
@@ -165,6 +165,7 @@ class Context:
                     determinator = 'view'
                     url += '?view=' + key
             qty = self.get_view_qty(detect_group(self.request.user, self.config.app, determinator, view_id, self.config.title))
+            active = (self.config.cur_view_group.determinator == determinator) and (self.config.cur_view_group.view_id == view_id)
             fix = {
                 'determinator': determinator,
                 'id': view_id, 
@@ -172,7 +173,8 @@ class Context:
                 'icon': value['icon'], 
                 'title': _(value['title']).capitalize(), 
                 'qty': qty,
-                'active': (self.config.cur_view_group.determinator == determinator) and (self.config.cur_view_group.view_id == view_id)
+                'active': active,
+                'search_qty': search_qty,
             }
             fixes.append(fix)
         return fixes
@@ -182,10 +184,10 @@ class Context:
         return len(data)    
 
     def get_dataset(self, group, query=None):
-        if (self.config.app == APP_ALL) and (not query):
-            return []
-
         data = Task.objects.filter(user=self.request.user.id)
+
+        if (self.config.app == APP_ALL) and (not query):
+            return data
 
         if (group.determinator == 'role'):
             cur_role = group.view_id
@@ -250,7 +252,6 @@ class BaseListView(CreateView, Context):
         self.config.set_view(self.request)
         self.object = None
         context = super().get_context_data(**kwargs)
-        context.update(self.get_app_context())
         context['add_item_placeholder'] = '{} {}'.format(_('add').capitalize(), self.config.item_name if self.config.item_name else self.config.get_cur_role())
         context['add_button'] = self.config.add_button
 
@@ -269,6 +270,11 @@ class BaseListView(CreateView, Context):
         self.save_sub_groups(sub_groups)
         
         context['sub_groups'] = sorted(sub_groups, key = lambda group: group['id'])
+
+        search_qty = None
+        if query:
+            search_qty = len(tasks)
+        context.update(self.get_app_context(search_qty))
 
         themes = []
         for x in range(23):
