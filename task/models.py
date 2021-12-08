@@ -165,7 +165,7 @@ class Task(models.Model):
             return APP_TODO
         if (self.app_note == NUM_ROLE_NOTE):
             return APP_NOTE
-        return None
+        return APP_TODO
 
     def get_absolute_url(self):
         app = self.get_item_app()

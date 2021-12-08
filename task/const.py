@@ -19,6 +19,8 @@ APP_WORK = 'work'
 APP_PHOTO = 'photo'
 APP_ADMIN = 'admin'
 
+APP_ALL = 'all'
+
 NONE = 0
 
 """
@@ -153,6 +155,7 @@ ROLE_PAY_TITLE   = 'pay_title'
 ROLE_PAYMENT     = 'payment'    
 ROLE_PHOTO       = 'photo'      
 ROLE_ACCOUNT     = 'account'     
+ROLE_SEARCH_RESULTS = 'search'
 
 ALL_ROLES = (
     ROLE_TODO,             
@@ -189,7 +192,8 @@ ALL_ROLES = (
     ROLE_PAY_TITLE,   
     ROLE_PAYMENT,     
     ROLE_PHOTO, 
-    ROLE_ACCOUNT,           
+    ROLE_ACCOUNT,  
+    ROLE_SEARCH_RESULTS,         
     )
 
 ROLES_IDS = {
@@ -210,6 +214,7 @@ ROLES_IDS = {
                 ROLE_CHILDREN: NUM_ROLE_CHILD, ROLE_APPOINTMENT: NUM_ROLE_APPOINTMENT, ROLE_EDUCATION: NUM_ROLE_EDUCATION, 
                 ROLE_EMPLOYEE_PERIOD: NUM_ROLE_EMPL_PER, ROLE_PAY_TITLE: NUM_ROLE_PAY_TITLE, ROLE_PAYMENT: NUM_ROLE_PAYMENT },
     APP_PHOTO: { ROLE_PHOTO: NUM_ROLE_PHOTO },
+    APP_ALL: { ROLE_SEARCH_RESULTS: NONE },
 }
 
 """
@@ -306,6 +311,7 @@ ROLE_ICON = {
     ROLE_PAYMENT: 'calculator',
     ROLE_PHOTO: 'image',
     ROLE_ACCOUNT: 'person-check',
+    ROLE_SEARCH_RESULTS: 'search-results',
 }
 
 ROLE_BASE = {
@@ -368,4 +374,5 @@ ROLE_APP = {
     ROLE_PAYMENT: APP_WORK,
     ROLE_PHOTO: APP_PHOTO,
     ROLE_ACCOUNT: APP_HOME,
+    ROLE_SEARCH_RESULTS: NONE,
 }

@@ -1,69 +1,50 @@
-import datetime
-import django
-import OpenSSL
-import ssl, socket
+import datetime, django, OpenSSL, ssl
 from platform import python_version
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse
 from django.template import loader
-from django.urls import reverse
-from django.urls.exceptions import NoReverseMatch
-from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.decorators import login_required
-from django.views import View
 from django.conf import settings
 
 from rusel.context import get_base_context
-from task.const import ROLE_ACCOUNT
-#from hier.models import Param, Folder
 #from trip.models import trip_summary
 #from rusel.site_stat import get_site_stat
-#from hier.params import get_search_info
 
-#from note.search import search as note_search
-#from todo.search import search as todo_search
-#from proj.search import search as proj_search
-#from trip.search import search as trip_search
-#from fuel.search import search as fuel_search
-#from wage.search import search as wage_search
-#from apart.search import search as apart_search
-#from store.search import search as store_search
+from task.const import APP_ALL, APP_HOME, ROLE_ACCOUNT, ROLE_SEARCH_RESULTS
+from task.models import Task
+from rusel.base.views import BaseListView
+from rusel.config import app_config
 
-app_name = 'home'
+class TuneData:
+    def tune_dataset(self, data, group):
+        return data
 
-#----------------------------------
-# Index
-#----------------------------------
-def index(request):
-    if request.user.is_authenticated:
-        return index_user(request)
-    return index_anonim(request)
+class ListView(BaseListView, TuneData):
+    model = Task
+    fields = {'name'}
 
-def index_anonim(request):
-    context = get_base_context(request, 'home', ROLE_ACCOUNT, '', ('rusel.by',))
-    template = loader.get_template('index_anonim.html')
-    return HttpResponse(template.render(context, request))
+    def __init__(self, *args, **kwargs):
+        super().__init__(app_config, ROLE_ACCOUNT, *args, **kwargs)
 
-#----------------------------------
-#@login_required(login_url='account:login')
-#----------------------------------
-def index_user(request):
-    context = get_base_context(request, 'home', ROLE_ACCOUNT, '', (_('applications').capitalize(),))
-    context['debug'] = settings.DEBUG
-    config = {'app_title': 'rusel.by'}
-    context['config'] = config
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            context = get_base_context(request, APP_HOME, ROLE_ACCOUNT, '', ('rusel.by',))
+            template = loader.get_template('index_anonim.html')
+            return HttpResponse(template.render(context, request))
 
-    query = None
-    data = []
-    if (request.method == 'GET'):
-        query = request.GET.get('q')
-        context['search_info'] = query #get_search_info(query)
-        data = get_search_data(request.user, query)
-        context['search_qty'] = len(data)
-        context['search_data'] = data
+        query = None
+        if (self.request.method == 'GET'):
+            query = self.request.GET.get('q')
         if query:
-            context['title'] = _('search results').capitalize()
-    if not data:
+            context = self.get_context_data(**kwargs)
+            #context = get_base_context(request, APP_ALL, ROLE_SEARCH_RESULTS, '', (_('search results').capitalize(),))
+            template = loader.get_template('base/list.html')
+            return HttpResponse(template.render(context, request))
+
+        context = get_base_context(request, APP_HOME, ROLE_ACCOUNT, '', (_('applications').capitalize(),))
+        context['debug'] = settings.DEBUG
+        config = {'app_title': 'rusel.by'}
+        context['config'] = config
+
         if (request.user.username == 'ruslan.ok'):
             #statistics = get_site_stat(request.user)
             #indicators = statistics[0]
@@ -91,33 +72,10 @@ def index_user(request):
             except:
                 pass
 
-        #context['last_visited'] = get_last_visited(request.user)
+            #context['last_visited'] = get_last_visited(request.user)
 
-    if query:
-        template = loader.get_template('index_search.html')
-    else:
         template = loader.get_template('index_user.html')
-    return HttpResponse(template.render(context, request))
-
-def get_si_date(e):
-    if not e.created:
-        return datetime.datetime(2000,1,1).date()
-    return e.created
-
-def get_search_data(user, query):
-    if not query:
-        return []
-    data = []
-    #data += note_search(user, query)
-    data += todo_search(user, query)
-    #data += proj_search(user, query)
-    #data += trip_search(user, query)
-    #data += fuel_search(user, query)
-    #data += wage_search(user, query)
-    #data += apart_search(user, query)
-    #data += store_search(user, query)
-    data.sort(reverse=True, key=get_si_date)
-    return data
+        return HttpResponse(template.render(context, request))
 
 
 

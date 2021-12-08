@@ -29,7 +29,7 @@ BG_IMAGES = [
 class Config:
     def __init__(self, config, cur_view_name, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
+        self.cur_view_group = None
         self.app = config['name']
         self.app_title = _(config['app_title']).capitalize()
         self.title = config['app_title']
@@ -46,14 +46,18 @@ class Config:
             if ('role' in value):
                 self.multy_role = True
                 break;
-        self.cur_view_group = None
         self.app_sorts = None
         if config['sort']:
             self.app_sorts = config['sort']
 
     def set_view(self, request):
+        if not self.app:
+            return
         self.cur_view_group = None
-        common_url = reverse(self.app + ':list')
+        if (self.app == APP_ALL):
+            common_url = reverse('index')
+        else:
+            common_url = reverse(self.app + ':list')
         determinator = 'role'
         view_id = self.base_role
         if (self.multy_role):
@@ -63,11 +67,12 @@ class Config:
                 view_id = role_name
         if ('view' in request.GET):
             view_name = request.GET.get('view')
-            determinator = 'view'
-            view_id = view_name
+            if view_name:
+                determinator = 'view'
+                view_id = view_name
         if ('group' in request.GET):
             group_id = int(request.GET.get('group'))
-            if Group.objects.filter(id=group_id).exists():
+            if group_id and Group.objects.filter(id=group_id).exists():
                 determinator = 'group'
                 view_id = str(group_id)
                 self.title = Group.objects.filter(id=group_id).get().name
@@ -127,11 +132,6 @@ class Context:
         context.update(get_base_context(self.request, self.config.app, self.config.get_cur_role(), False, title))
         context['fix_list'] = self.get_fixes(self.config.views)
         context['group_form'] = CreateGroupForm()
-        role = self.config.get_cur_role()
-        if (role == self.config.base_role):
-            context['item_detail_url'] = self.config.app + ':item'
-        else:
-            context['item_detail_url'] = self.config.app + ':' + role + '-item'
         context['config'] = self.config
         context['params'] = extract_get_params(self.request)
         if self.config.view_sorts:
@@ -148,7 +148,10 @@ class Context:
 
     def get_fixes(self, views):
         fixes = []
-        common_url = reverse(self.config.app + ':list')
+        if (self.config.app == APP_ALL):
+            common_url = reverse('index')
+        else:
+            common_url = reverse(self.config.app + ':list')
         for key, value in views.items():
             url = common_url
             determinator = 'role'
@@ -178,7 +181,10 @@ class Context:
         data = self.get_dataset(group)
         return len(data)    
 
-    def get_dataset(self, group):
+    def get_dataset(self, group, query=None):
+        if (self.config.app == APP_ALL) and (not query):
+            return []
+
         data = Task.objects.filter(user=self.request.user.id)
 
         if (group.determinator == 'role'):
@@ -230,7 +236,10 @@ class BaseListView(CreateView, Context):
 
     def get_queryset(self):
         self.config.set_view(self.request)
-        return self.get_dataset(self.config.cur_view_group)
+        query = None
+        if (self.request.method == 'GET'):
+            query = self.request.GET.get('q')
+        return self.get_dataset(self.config.cur_view_group, query)
 
     def get_success_url(self):
         if (self.config.get_cur_role() == self.config.base_role):
@@ -239,6 +248,7 @@ class BaseListView(CreateView, Context):
 
     def get_context_data(self, **kwargs):
         self.config.set_view(self.request)
+        self.object = None
         context = super().get_context_data(**kwargs)
         context.update(self.get_app_context())
         context['add_item_placeholder'] = '{} {}'.format(_('add').capitalize(), self.config.item_name if self.config.item_name else self.config.get_cur_role())

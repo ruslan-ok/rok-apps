@@ -23,7 +23,7 @@ api_router.register(r'profile', api_profile.ProfileViewSet, basename='profile')
 api_router.register(r'apart', api_apart.ApartViewSet, basename='apart')
 
 urlpatterns = i18n_patterns(
-    path('', views.index, name='index'),
+    path('', views.ListView.as_view(), name='index'),
     path('todo/',   include('todo.urls')),
     path('note/',   include('note.urls')),
     path('news/',   include('news.urls')),
