@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
+from django.urls import NoReverseMatch
 
 from rest_framework.reverse import reverse
 
@@ -160,20 +161,57 @@ class Task(models.Model):
             return json.loads(self.item_attr)
         return {}
 
-    def get_item_app(self):
-        if (self.app_task == NUM_ROLE_TODO):
-            return APP_TODO
-        if (self.app_note == NUM_ROLE_NOTE):
-            return APP_NOTE
-        return APP_TODO
+    def get_roles(self):
+        roles = []
+        for app in ROLES_IDS:
+            app_field = None
+            if (app == APP_TODO):
+                app_field = self.app_task
+            elif (app == APP_NOTE):
+                app_field = self.app_note
+            elif (app == APP_NEWS):
+                app_field = self.app_news
+            elif (app == APP_STORE):
+                app_field = self.app_store
+            elif (app == APP_DOCS):
+                app_field = self.app_doc
+            elif (app == APP_WARR):
+                app_field = self.app_warr
+            elif (app == APP_EXPEN):
+                app_field = self.app_expen
+            elif (app == APP_TRIP):
+                app_field = self.app_trip
+            elif (app == APP_FUEL):
+                app_field = self.app_fuel
+            elif (app == APP_APART):
+                app_field = self.app_apart
+            elif (app == APP_HEALTH):
+                app_field = self.app_health
+            elif (app == APP_WORK):
+                app_field = self.app_work
+            elif (app == APP_PHOTO):
+                app_field = self.app_photo
+            if app_field:
+                for role in ROLES_IDS[app]:
+                    if (app_field == ROLES_IDS[app][role]):
+                        roles.append({'icon': ROLE_ICON[role], 'href': self.get_url_for_app(app, role), 'name': role})
+        return roles
 
     def get_absolute_url(self):
-        app = self.get_item_app()
+        roles = self.get_roles()
+        if (len(roles) < 1):
+            return '/'
+        return roles[0]['href']
+
+    def get_url_for_app(self, app, role):
         if not app:
             return '/'
         id = self.id
-        url = reverse(app + ':item', args = [id])
-        return url
+        try:
+            url = reverse(app + ':item', args = [id])
+            return url
+        except NoReverseMatch:
+            return '/'
     
     def toggle_completed(self):
         next = None

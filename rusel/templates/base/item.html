@@ -1,7 +1,7 @@
 {% load static i18n %}
 
 {% block item_content %}
-  <li class="list-item">
+  <li class="list-item{% if not config.use_selector and config.get_cur_role != 'search' %} px-3{% endif %}">
 
     {% if config.use_selector %}
       <button type="button" onclick="toggleCompleted({{ item.id|escape }})" class="left-icon">
@@ -13,12 +13,18 @@
     </button>      
     {% endif %}
 
+    {% if config.get_cur_role == 'search' %}
+      {% for role in item.get_roles %}
+        <a href="{{ role.href|escape }}{{ params }}" class="left-icon"><i class="bi-{{ role.icon }}"></i></a>
+      {% endfor %}
+    {% endif %}
+
     <a href="{{ item.get_absolute_url|escape }}{{ params }}" class="container">
       <div class="info">
-        <span class="name{% if item.completed %} completed{% endif %}">{{ item.name }}</span>
+        <span class="name{% if item.completed %} completed{% endif %}">{{ item.name|safe }}</span>
         <div class="descr">
           {% for k, v in item.get_item_attr.items %}
-            {% if k == config.app %}
+            {% if k == config.app or config.get_cur_role == 'search' %}
               {% if not config.group_id %}
                 {% if v.group %}
                   <div class="inline">
@@ -69,11 +75,18 @@
                   {% endif %}
 
                   {% if attr.text %}
-                    <div class="label"><span>{{ attr.text }}</span></div>
+                    <div class="label"><span>{{ attr.text|safe }}</span></div>
                   {% endif %}
 
                 </div>
               {% endfor %}
+              {% if item.found %}
+                <div class="inline">
+                  <div class="label">
+                    <span>{{ item.found|safe }}</span>
+                  </div>
+                </div>
+              {% endif %}
             {% endif %}
           {% endfor %}
         </div>

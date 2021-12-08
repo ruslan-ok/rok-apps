@@ -263,6 +263,24 @@ class BaseListView(CreateView, Context):
 
         tasks = self.get_sorted_items(query)
         for task in tasks:
+            if query:
+                strong = '<strong>' + query + '</strong>'
+                if query in task.name:
+                    task.name = strong.join(task.name.split(query))
+                if query in task.info:
+                    if (len(task.info) < 200):
+                        fnd_info = task.info
+                    else:
+                        prefix = ''
+                        pos = task.info.find(query)
+                        if (pos > 80):
+                            pos -= 80
+                            prefix = '... '
+                        else:
+                            pos = 0
+                        fnd_info = prefix + task.info[pos:pos+200] + ' ...'
+                    task.found = strong.join(fnd_info.split(query))
+
             grp_id = self.get_sub_group_id(task.stop, task.completed)
             group = self.find_sub_group(sub_groups, grp_id, GRPS_PLANNED[grp_id].capitalize())
             group['items'].append(task)
@@ -367,7 +385,7 @@ class BaseListView(CreateView, Context):
         if (search_mode == 0):
             return ret
         elif (search_mode == 1):
-            lookups = Q(name__icontains=query) | Q(info__icontains=query)
+            lookups = Q(name__icontains=query) | Q(info__icontains=query) | Q(categories__icontains=query)
         elif (search_mode == 2):
             lookups = Q(categories__icontains=query[1:])
         return ret.filter(lookups)

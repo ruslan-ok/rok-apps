@@ -6,6 +6,9 @@ app_config = {
     'icon': 'key',
     'role': ROLE_STORE,
     'use_groups': True,
+    'sort': [
+        ('name', 'name'),
+    ],
     'views': {
         'store': {
             'icon': 'check-all',
