@@ -134,10 +134,6 @@ class Context:
         context['group_form'] = CreateGroupForm()
         context['config'] = self.config
         context['params'] = extract_get_params(self.request)
-        if self.config.view_sorts:
-            context['sorts'] = self.get_sorts(self.config.view_sorts)
-        elif self.config.app_sorts:
-            context['sorts'] = self.get_sorts(self.config.app_sorts)
         return context
 
     def get_sorts(self, sorts):
@@ -294,6 +290,11 @@ class BaseListView(CreateView, Context):
             search_qty = len(tasks)
         context.update(self.get_app_context(search_qty))
 
+        if self.config.view_sorts:
+            context['sorts'] = self.get_sorts(self.config.view_sorts)
+        elif self.config.app_sorts:
+            context['sorts'] = self.get_sorts(self.config.app_sorts)
+
         themes = []
         for x in range(23):
             if (x < 14):
@@ -305,15 +306,15 @@ class BaseListView(CreateView, Context):
         if self.config.cur_view_group and self.config.cur_view_group.theme:
             context['theme_id'] = self.config.cur_view_group.theme
 
-        if self.config.cur_view_group.sort:
-            context['sort_id'] = self.config.cur_view_group.sort
-            context['sort_reverse'] = self.config.cur_view_group.sort[0] == '-'
+        if self.config.cur_view_group.items_sort:
+            context['sort_id'] = self.config.cur_view_group.items_sort
+            context['sort_reverse'] = self.config.cur_view_group.items_sort[0] == '-'
             if self.config.view_sorts:
                 sorts = self.config.view_sorts
             else:
                 sorts = self.config.app_sorts
             for sort in sorts:
-                if (sort[0] == self.config.cur_view_group.sort.replace('-', '')):
+                if (sort[0] == self.config.cur_view_group.items_sort.replace('-', '')):
                     context['sort_name'] = _(sort[1]).capitalize()
                     break
 
@@ -374,9 +375,9 @@ class BaseListView(CreateView, Context):
 
     def get_sorted_items(self, query):
         data = self.get_filtered_items(query)
-        if not self.config.cur_view_group.sort:
+        if not self.config.cur_view_group.items_sort:
             return data
-        return self.sort_data(data, self.config.cur_view_group.sort)
+        return self.sort_data(data, self.config.cur_view_group.items_sort)
 
     def get_filtered_items(self, query):
         ret = self.get_queryset()

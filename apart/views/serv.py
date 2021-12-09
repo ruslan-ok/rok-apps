@@ -53,12 +53,15 @@ class DetailView(BaseApartDetailView):
         return response
 
 def get_info(item):
-    ret = [{'text': item.info}]
+    ret = []
     files = (len(get_files_list(item.user, app, role, item.id)) > 0)
     if files:
-        if item.info:
-            ret.append({'icon': 'separator'})
         ret.append({'icon': 'attach'})
+    if item.info:
+        info_descr = item.info[:80]
+        if len(item.info) > 80:
+            info_descr += '...'
+        ret['attr'].append({'icon': 'notes', 'text': info_descr})
     return {'attr': ret}
 
 def get_doc(request, pk, fname):

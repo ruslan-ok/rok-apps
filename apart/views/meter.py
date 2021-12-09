@@ -83,12 +83,15 @@ def get_info(item):
     if item.info or links or files:
         if ret:
             ret.append({'icon': 'separator'})
-        if item.info:
-            ret.append({'icon': 'notes'})
         if links:
             ret.append({'icon': 'url'})
         if files:
             ret.append({'icon': 'attach'})
+        if item.info:
+            info_descr = item.info[:80]
+            if len(item.info) > 80:
+                info_descr += '...'
+            ret['attr'].append({'icon': 'notes', 'text': info_descr})
     return {'attr': ret}
 
 def get_doc(request, pk, fname):

@@ -9,6 +9,8 @@ role = ROLE_NOTE
 def get_info(item):
     ret = {'attr': []}
     
+    ret['attr'].append({'text': item.event.strftime('%d.%m.%Y %H:%M')})
+
     if TaskGroup.objects.filter(task=item.id, role=role).exists():
         ret['group'] = TaskGroup.objects.filter(task=item.id, role=role).get().group.name
 
@@ -17,12 +19,15 @@ def get_info(item):
     files = (len(get_files_list(item.user, app, role, item.id)) > 0)
 
     if item.info or links or files:
-        if item.info:
-            ret['attr'].append({'icon': 'notes'})
         if links:
             ret['attr'].append({'icon': 'url'})
         if files:
             ret['attr'].append({'icon': 'attach'})
+        if item.info:
+            info_descr = item.info[:80]
+            if len(item.info) > 80:
+                info_descr += '...'
+            ret['attr'].append({'icon': 'notes', 'text': info_descr})
 
     if item.categories:
         if (len(ret['attr']) > 0):

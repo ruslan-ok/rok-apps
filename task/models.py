@@ -32,6 +32,7 @@ class Group(models.Model):
     sub_groups = models.CharField(_('content items sub groups'), max_length=1000, blank=True, null=True)
     determinator = models.CharField(_('group category: "group", "role" or "view"'), max_length=10, blank=True, null=True)
     view_id = models.CharField(_('view identificator for "role" and "view"'), max_length=50, blank=True, null=True)
+    items_sort = models.CharField(_('items sorting orders'), max_length=500, blank=True)
 
     class Meta:
         verbose_name=_('task group')
@@ -80,26 +81,26 @@ class Group(models.Model):
         self.save()
 
     def set_sort(self, sort_id):
-        if self.sort.replace('-', '') == sort_id:
-            if self.sort.replace('-', '') == self.sort:
-                self.sort = '-' + sort_id
+        if self.items_sort.replace('-', '') == sort_id:
+            if self.items_sort.replace('-', '') == self.items_sort:
+                self.items_sort = '-' + sort_id
             else:
-                self.sort = sort_id
+                self.items_sort = sort_id
         else:
-            self.sort = sort_id
+            self.items_sort = sort_id
         self.save()
 
     def reverse_sort(self):
-        if not self.sort:
+        if not self.items_sort:
             return
-        if self.sort.replace('-', '') == self.sort:
-            self.sort = '-' + self.sort
+        if self.items_sort.replace('-', '') == self.items_sort:
+            self.items_sort = '-' + self.items_sort
         else:
-            self.sort = self.sort[1:]
+            self.items_sort = self.items_sort[1:]
         self.save()
 
     def delete_sort(self):
-        self.sort = ''
+        self.items_sort = ''
         self.save()
 
 class Task(models.Model):

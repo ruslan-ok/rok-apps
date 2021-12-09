@@ -75,7 +75,11 @@ class DetailView(BaseDetailView):
 
 def get_info(item):
     ret = {'attr': []}
-    ret['attr'].append({'text': item.info})
+    if item.info:
+        info_descr = item.info[:80]
+        if len(item.info) > 80:
+            info_descr += '...'
+        ret['attr'].append({'icon': 'notes', 'text': info_descr})
 
     if Apart.objects.filter(task=item.id).exists():
         apart = Apart.objects.filter(task=item.id).get()

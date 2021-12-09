@@ -755,6 +755,10 @@ form.bill {
     width: 100px;
   }
   
+  .dropdown-menu.show {
+    padding: 5px 15px;
+  }
+
   .dropdown-content-item {
     display: flex;
     align-items: center;
