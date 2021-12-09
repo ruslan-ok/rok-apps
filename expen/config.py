@@ -2,18 +2,21 @@ from task.const import *
 
 app_config = {
     'name': APP_EXPEN,
-    'title': 'expenses',
+    'app_title': 'expenses',
     'icon': 'star',
+    'role': ROLE_PROJECT,
+    'sort': [
+        ('name', 'name'),
+    ],
     'views': {
-        'projects': {
-            'role': ROLE_PROJECT,
+        'project': {
             'icon': 'star', 
             'title': 'projects',
-            'url': 'projects',
+            'url': 'project',
             'use_selector': True,
         },
-        'expenses': {
-            'role': ROLE_EXPENSES,
+        'expense': {
+            'role': ROLE_EXPENSE,
             'icon': 'star', 
             'title': 'expenses',
         },

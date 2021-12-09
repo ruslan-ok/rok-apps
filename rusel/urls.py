@@ -30,6 +30,7 @@ urlpatterns = i18n_patterns(
     path('apart/',  include('apart.urls')),
     path('docs/',   include('docs.urls')),
     path('store/',   include('store.urls')),
+    path('expen/',   include('expen.urls')),
     path('account/', include('account.urls')),
     #path('admin/',   admin.site.urls, name='admin'),
     path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),

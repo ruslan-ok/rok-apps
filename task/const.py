@@ -126,7 +126,7 @@ ROLE_STORE       = 'store'
 ROLE_DOC         = 'doc'             
 ROLE_WARR        = 'warr'            
 ROLE_PROJECT     = 'expen_proj'
-ROLE_EXPENSES    = 'expenses'           
+ROLE_EXPENSE     = 'expense'           
 ROLE_PERSON      = 'person'       
 ROLE_TRIP        = 'trip'            
 ROLE_SALDO       = 'saldo'      
@@ -165,7 +165,7 @@ ALL_ROLES = (
     ROLE_DOC,              
     ROLE_WARR,             
     ROLE_PROJECT,
-    ROLE_EXPENSES,            
+    ROLE_EXPENSE,            
     ROLE_PERSON,        
     ROLE_TRIP,             
     ROLE_SALDO,       
@@ -204,7 +204,7 @@ ROLES_IDS = {
     APP_STORE: { ROLE_STORE: NUM_ROLE_STORE },
     APP_DOCS: { ROLE_DOC: NUM_ROLE_DOC },
     APP_WARR: { ROLE_WARR: NUM_ROLE_WARR },
-    APP_EXPEN: { ROLE_PROJECT: NUM_ROLE_SALDO, ROLE_EXPENSES: NUM_ROLE_OPERATION },
+    APP_EXPEN: { ROLE_PROJECT: NUM_ROLE_SALDO, ROLE_EXPENSE: NUM_ROLE_OPERATION },
     APP_TRIP: { ROLE_PERSON: NUM_ROLE_PERSON, ROLE_TRIP: NUM_ROLE_TRIP, ROLE_SALDO: NUM_ROLE_SALDO },
     APP_FUEL: { ROLE_CAR: NUM_ROLE_CAR, ROLE_FUEL: NUM_ROLE_FUEL, ROLE_PART: NUM_ROLE_PART, ROLE_SERVICE: NUM_ROLE_SERVICE },
     APP_APART: { ROLE_APART: NUM_ROLE_APART, ROLE_SERVICE: NUM_ROLE_SERVICE, ROLE_METER: NUM_ROLE_METER, ROLE_PRICE: NUM_ROLE_PRICE, ROLE_BILL: NUM_ROLE_BILL },
@@ -244,7 +244,7 @@ ROLE_BY_NUM = {
     NUM_ROLE_STORE        : ROLE_STORE       , 
     NUM_ROLE_DOC          : ROLE_DOC         , 
     NUM_ROLE_WARR         : ROLE_WARR        , 
-    NUM_ROLE_OPERATION    : ROLE_EXPENSES    , 
+    NUM_ROLE_OPERATION    : ROLE_EXPENSE     , 
     NUM_ROLE_SALDO        : ROLE_SALDO       , 
     NUM_ROLE_PERSON       : ROLE_PERSON      , 
     NUM_ROLE_TRIP         : ROLE_TRIP        , 
@@ -283,7 +283,7 @@ ROLE_ICON = {
     ROLE_DOC: 'file-text',
     ROLE_WARR: 'award',
     ROLE_PROJECT: 'kanban',
-    ROLE_EXPENSES: 'piggy-bank',
+    ROLE_EXPENSE: 'piggy-bank',
     ROLE_PERSON: 'person',
     ROLE_TRIP: 'truck',
     ROLE_SALDO: 'currency-dollar',
@@ -315,7 +315,7 @@ ROLE_ICON = {
 }
 
 ROLE_BASE = {
-    ROLE_EXPENSES: ROLE_PROJECT,
+    ROLE_EXPENSE: ROLE_PROJECT,
     ROLE_PERSON: ROLE_TRIP,
     ROLE_SALDO: ROLE_TRIP,
     ROLE_PART: ROLE_FUEL,
@@ -346,7 +346,7 @@ ROLE_APP = {
     ROLE_DOC: APP_DOCS,
     ROLE_WARR: APP_WARR,
     ROLE_PROJECT: APP_EXPEN,
-    ROLE_EXPENSES: APP_EXPEN,
+    ROLE_EXPENSE: APP_EXPEN,
     ROLE_PERSON: APP_EXPEN,
     ROLE_TRIP: APP_TRIP,
     ROLE_SALDO: APP_TRIP,
