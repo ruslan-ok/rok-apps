@@ -6,7 +6,21 @@
 <form method="post" class="w-100 px-2 item-form" enctype="multipart/form-data" id="article_form" data-item_id="{{ ed_item.id|cut:" " }}">{% csrf_token %}
   {% include "base/form_errors.html" %}
 
-    {{ form }}
+    <div class="input-group flex-wrap mb-3">
+      <div>{{ form.event }}</div>
+      <div>{{ form.name }}</div>
+      <div>{{ form.qty }}</div>
+      <div>{{ form.price }}</div>
+      <div>{{ form.rate }}</div>
+      <div>{{ form.rate_2 }}</div>
+      <div>{{ form.usd }}</div>
+      <div>{{ form.eur }}</div>
+      <div>{{ form.kontr }}</div>
+      <div>{{ form.info }}</div>
+      <div class="col-sm">{{ form.categories.label_tag }}{{ form.categories }}</div>
+      <div>{{ form.url.label_tag }}{{ form.url }}</div>
+    </div>
+      
 
     {% include "widgets/url_list.html" %}
     {% include "widgets/attachments.html" %}

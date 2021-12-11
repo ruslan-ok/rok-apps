@@ -89,7 +89,7 @@ NUM_ROLE_NEWS = 3
 NUM_ROLE_STORE = 4
 NUM_ROLE_DOC = 5
 NUM_ROLE_WARR = 6
-NUM_ROLE_OPERATION = 7
+NUM_ROLE_EXPENSE = 7
 NUM_ROLE_SALDO = 8
 NUM_ROLE_PERSON = 9
 NUM_ROLE_TRIP = 10
@@ -125,7 +125,6 @@ ROLE_NEWS        = 'news'
 ROLE_STORE       = 'store'           
 ROLE_DOC         = 'doc'             
 ROLE_WARR        = 'warr'            
-ROLE_PROJECT     = 'expen_proj'
 ROLE_EXPENSE     = 'expense'           
 ROLE_PERSON      = 'person'       
 ROLE_TRIP        = 'trip'            
@@ -164,7 +163,6 @@ ALL_ROLES = (
     ROLE_STORE,            
     ROLE_DOC,              
     ROLE_WARR,             
-    ROLE_PROJECT,
     ROLE_EXPENSE,            
     ROLE_PERSON,        
     ROLE_TRIP,             
@@ -204,7 +202,7 @@ ROLES_IDS = {
     APP_STORE: { ROLE_STORE: NUM_ROLE_STORE },
     APP_DOCS: { ROLE_DOC: NUM_ROLE_DOC },
     APP_WARR: { ROLE_WARR: NUM_ROLE_WARR },
-    APP_EXPEN: { ROLE_PROJECT: NUM_ROLE_SALDO, ROLE_EXPENSE: NUM_ROLE_OPERATION },
+    APP_EXPEN: { ROLE_EXPENSE: NUM_ROLE_EXPENSE },
     APP_TRIP: { ROLE_PERSON: NUM_ROLE_PERSON, ROLE_TRIP: NUM_ROLE_TRIP, ROLE_SALDO: NUM_ROLE_SALDO },
     APP_FUEL: { ROLE_CAR: NUM_ROLE_CAR, ROLE_FUEL: NUM_ROLE_FUEL, ROLE_PART: NUM_ROLE_PART, ROLE_SERVICE: NUM_ROLE_SERVICE },
     APP_APART: { ROLE_APART: NUM_ROLE_APART, ROLE_SERVICE: NUM_ROLE_SERVICE, ROLE_METER: NUM_ROLE_METER, ROLE_PRICE: NUM_ROLE_PRICE, ROLE_BILL: NUM_ROLE_BILL },
@@ -226,7 +224,7 @@ NEWS_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_NEWS, _('news'))]
 STORE_ROLE_CHOICE  = [(NONE, '--------'), (NUM_ROLE_STORE, _('store'))]
 DOC_ROLE_CHOICE    = [(NONE, '--------'), (NUM_ROLE_DOC, _('doc'))]
 WARR_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_WARR, _('warranty'))]
-EXPEN_ROLE_CHOICE  = [(NONE, '--------'), (NUM_ROLE_OPERATION, _('operation')), (NUM_ROLE_SALDO, _('saldo'))]
+EXPEN_ROLE_CHOICE  = [(NONE, '--------'), (NUM_ROLE_EXPENSE, _('operation'))]
 TRIP_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_PERSON, _('person')), (NUM_ROLE_TRIP, _('trip')), (NUM_ROLE_SALDO, _('saldo'))]
 FUEL_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_CAR, _('cars')), (NUM_ROLE_FUEL, _('fueling')), (NUM_ROLE_PART, _('car part service interval')), (NUM_ROLE_SERVICE, _('service'))]
 APART_ROLE_CHOICE  = [(NONE, '--------'), (NUM_ROLE_APART, _('apartment')), (NUM_ROLE_SERVICE, _('service')), (NUM_ROLE_METER, _('meter')), (NUM_ROLE_PRICE, _('price')), (NUM_ROLE_BILL, _('bill'))]
@@ -244,7 +242,7 @@ ROLE_BY_NUM = {
     NUM_ROLE_STORE        : ROLE_STORE       , 
     NUM_ROLE_DOC          : ROLE_DOC         , 
     NUM_ROLE_WARR         : ROLE_WARR        , 
-    NUM_ROLE_OPERATION    : ROLE_EXPENSE     , 
+    NUM_ROLE_EXPENSE      : ROLE_EXPENSE     , 
     NUM_ROLE_SALDO        : ROLE_SALDO       , 
     NUM_ROLE_PERSON       : ROLE_PERSON      , 
     NUM_ROLE_TRIP         : ROLE_TRIP        , 
@@ -282,7 +280,6 @@ ROLE_ICON = {
     ROLE_STORE: 'key',
     ROLE_DOC: 'file-text',
     ROLE_WARR: 'award',
-    ROLE_PROJECT: 'kanban',
     ROLE_EXPENSE: 'piggy-bank',
     ROLE_PERSON: 'person',
     ROLE_TRIP: 'truck',
@@ -315,7 +312,6 @@ ROLE_ICON = {
 }
 
 ROLE_BASE = {
-    ROLE_EXPENSE: ROLE_PROJECT,
     ROLE_PERSON: ROLE_TRIP,
     ROLE_SALDO: ROLE_TRIP,
     ROLE_PART: ROLE_FUEL,
@@ -345,9 +341,8 @@ ROLE_APP = {
     ROLE_STORE: APP_STORE,
     ROLE_DOC: APP_DOCS,
     ROLE_WARR: APP_WARR,
-    ROLE_PROJECT: APP_EXPEN,
     ROLE_EXPENSE: APP_EXPEN,
-    ROLE_PERSON: APP_EXPEN,
+    ROLE_PERSON: APP_TRIP,
     ROLE_TRIP: APP_TRIP,
     ROLE_SALDO: APP_TRIP,
     ROLE_FUEL: APP_FUEL,

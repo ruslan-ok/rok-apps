@@ -89,16 +89,20 @@ def get_app_icon(app):
 def get_related_roles(task, config):
     related_roles = []
     possible_related = []
+    """
     if (config.cur_view_group.determinator != 'group'):
         if (config.cur_view_group.view_id in config.views) and ('relate' in config.views[config.cur_view_group.view_id]):
             for role in config.views[config.cur_view_group.view_id]['relate']:
                 possible_related.append({'name': role, 'icon': ROLE_ICON[role], 'href': get_role_href(role, task.id)})
-    for app_role in (task.app_task, task.app_note, task.app_news, task.app_store, task.app_doc, 
-                    task.app_warr, task.app_expen, task.app_trip, task.app_fuel, task.app_apart, 
-                    task.app_health, task.app_work, task.app_photo):
+    for app_role in (task.app_task, task.app_note, task.app_news, task.app_store, #task.app_doc, 
+                    task.app_expen, task.app_apart, #task.app_warr, task.app_trip, task.app_fuel, 
+                    #task.app_health, task.app_work, task.app_photo
+                    ):
         check_role(related_roles, possible_related, app_role, config, task.id)
+    """
     return related_roles, possible_related
 
+"""
 def check_role(related_roles, possible_related, num_role, config, task_id):
     if (num_role != NONE):
         role = ROLE_BY_NUM[num_role]
@@ -115,3 +119,4 @@ def get_role_href(role, task_id):
     if role in ROLE_BASE:
         return reverse(app + ':' + role + '-item', args=[task_id])
     return reverse(app + ':' + 'item', args=[task_id])
+"""

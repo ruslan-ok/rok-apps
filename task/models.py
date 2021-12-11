@@ -33,6 +33,9 @@ class Group(models.Model):
     determinator = models.CharField(_('group category: "group", "role" or "view"'), max_length=10, blank=True, null=True)
     view_id = models.CharField(_('view identificator for "role" and "view"'), max_length=50, blank=True, null=True)
     items_sort = models.CharField(_('items sorting orders'), max_length=500, blank=True)
+    tot_byn = models.BooleanField(_('totals in BYN'), default = False, null=True)
+    tot_usd = models.BooleanField(_('totals in USD'), default = False, null=True)
+    tot_eur = models.BooleanField(_('totals in EUR'), default = False, null=True)
 
     class Meta:
         verbose_name=_('task group')
@@ -139,8 +142,16 @@ class Task(models.Model):
     created = models.DateTimeField(_('creation time'), auto_now_add=True)
     last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now=True)
     groups = models.ManyToManyField(Group, through='TaskGroup')
+    # -- Expenses
     item_attr = models.CharField(_('item attributes'), max_length=2000, blank=True, null=True)
-
+    qty = models.DecimalField(_('quantity'), blank = True, null = True, max_digits = 15, decimal_places = 3, default = 1)
+    price = models.DecimalField(_('national currency price'), blank = True, null = True, max_digits = 15, decimal_places = 2)
+    rate = models.DecimalField(_('USD exchange rate'), blank = True, null = True, max_digits = 15, decimal_places = 4)
+    rate_2 = models.DecimalField(_('EUR exchange rate'), blank = True, null = True, max_digits = 15, decimal_places = 4)
+    usd = models.DecimalField(_('summa in USD'), blank = True, null = True, max_digits = 15, decimal_places = 2)
+    eur = models.DecimalField(_('summa in EUR'), blank = True, null = True, max_digits = 15, decimal_places = 2)
+    kontr = models.CharField(_('manufacturer'), max_length = 1000, blank = True)
+    # -------------
     class Meta:
         verbose_name = _('task')
         verbose_name_plural = _('tasks')

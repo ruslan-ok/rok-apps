@@ -41,6 +41,7 @@ class Config:
         self.use_important = self.check_property(config, 'use_important', False)
         self.add_button = self.check_property(config, 'add_button', False)
         self.item_name = self.check_property(config, 'item_name', '')
+        self.event_in_name = self.check_property(config, 'event_in_name', False)
         self.multy_role = False
         for key, value in self.views.items():
             if ('role' in value):
@@ -85,6 +86,7 @@ class Config:
             self.use_important = self.check_property(self.views[view_id], 'use_important', self.use_important)
             self.add_button = self.check_property(self.views[view_id], 'add_button', self.add_button)
             self.item_name = self.check_property(self.views[view_id], 'item_name', self.item_name)
+            self.event_in_name = self.check_property(self.views[view_id], 'event_in_name', self.event_in_name)
             if 'sort' in self.views[view_id]:
                 self.view_sorts = self.views[view_id]['sort']
 

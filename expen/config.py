@@ -4,19 +4,15 @@ app_config = {
     'name': APP_EXPEN,
     'app_title': 'expenses',
     'icon': 'star',
-    'role': ROLE_PROJECT,
+    'role': ROLE_EXPENSE,
+    'use_groups': True,
+    'event_in_name': True,
     'sort': [
+        ('event', 'operation date'),
         ('name', 'name'),
     ],
     'views': {
-        'project': {
-            'icon': 'star', 
-            'title': 'projects',
-            'url': 'project',
-            'use_selector': True,
-        },
-        'expense': {
-            'role': ROLE_EXPENSE,
+        'all': {
             'icon': 'star', 
             'title': 'expenses',
         },

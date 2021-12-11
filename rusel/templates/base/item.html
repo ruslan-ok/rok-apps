@@ -21,7 +21,10 @@
 
     <a href="{{ item.get_absolute_url|escape }}{{ params }}" class="container">
       <div class="info">
-        <span class="name{% if item.completed %} completed{% endif %}">{{ item.name|safe }}</span>
+        <span class="name{% if item.completed %} completed{% endif %}">
+          {% if config.event_in_name %}{{ item.event|date:"j M Y" }}{% if item.name %} - {% endif %}{% endif %}
+          {{ item.name|safe }}
+        </span>
         <div class="descr">
           {% for k, v in item.get_item_attr.items %}
             {% if k == config.app or config.get_cur_role == 'search' %}

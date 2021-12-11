@@ -58,11 +58,13 @@ class BaseEditForm(forms.ModelForm):
             return grp_id
         return None
 
+#----------------------------------
 class CreateGroupForm(forms.ModelForm):
     class Meta:
         model = Group
         fields = ['name']
 
+#----------------------------------
 class GroupForm(forms.ModelForm):
     completed = forms.BooleanField(
         label=False, 

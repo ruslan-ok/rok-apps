@@ -49,8 +49,8 @@ class TaskViewSet(viewsets.ModelViewSet):
                 return data.filter(app_doc=NUM_ROLE_DOC)
             if (role == ROLE_WARR):
                 return data.filter(app_warr=NUM_ROLE_WARR)
-            if (role == ROLE_EXPENSES):
-                return data.filter(app_expen=NUM_ROLE_OPERATION)
+            if (role == ROLE_EXPENSE):
+                return data.filter(app_expen=NUM_ROLE_EXPENSE)
             if (role == ROLE_SALDO):
                 if (app == APP_TRIP):
                     return data.filter(app_trip=NUM_ROLE_SALDO)
@@ -481,8 +481,8 @@ class TaskViewSet(viewsets.ModelViewSet):
             task.app_doc = NUM_ROLE_DOC
         if (role == ROLE_WARR):
             task.app_warr = NUM_ROLE_WARR
-        if (role == ROLE_EXPENSES):
-            task.app_expen = NUM_ROLE_OPERATION
+        if (role == ROLE_EXPENSE):
+            task.app_expen = NUM_ROLE_EXPENSE
         if (role == ROLE_SALDO):
             task.app_expen = NUM_ROLE_SALDO
         if (role == ROLE_PERSON):
@@ -573,7 +573,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         if (role == ROLE_WARR):
             task.app_warr = NONE
         
-        if (role in [ROLE_EXPENSES, ROLE_SALDO]):
+        if (role == ROLE_EXPENSE):
             task.app_expen = NONE
         
         if (role in [ROLE_PERSON, ROLE_TRIP, ROLE_SALDO]):
