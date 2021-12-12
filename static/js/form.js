@@ -444,11 +444,11 @@ function initDays() {
   const frm = document.getElementById('article_form');
   if (!frm)
     return;
-  const days = frm.elements['repeat_days'].value;
+  const days = frm.elements['repeat_days'];
   if (!days)
     return;
   for (let i = 1; i <= 7; i++) {
-    if ((days & (1 << (i-1))) != 0)
+    if ((days.value & (1 << (i-1))) != 0)
       document.getElementById('d' + i).classList.add('selected');
   }
 }
