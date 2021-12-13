@@ -42,7 +42,8 @@ class BaseEditForm(forms.ModelForm):
         self.role = role
         if ('grp' in self.fields):
             self.fields['grp'].initial = self.get_group_id()
-            self.fields['grp'].queryset = Group.objects.filter(role=role).order_by('sort')
+            # TODO: set "user" field
+            self.fields['grp'].queryset = Group.objects.filter(role=role, determinator=None).order_by('sort')
 
     def clean_categories(self):
         self.cleaned_data['categories'] = ' '.join([self.data['categories_1'], self.data['categories_2']]).strip()

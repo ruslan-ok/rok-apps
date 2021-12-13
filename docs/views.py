@@ -17,10 +17,6 @@ class ListView(BaseListView):
     def tune_dataset(self, data, group):
         return data;
 
-    def form_valid(self, form):
-        form.instance.app_doc = NUM_ROLE_DOC
-        response = super().form_valid(form)
-        return response
 
 class DetailView(BaseDetailView):
     model = Task

@@ -14,10 +14,10 @@
     {% if not hide_add_item_input %}
         <form method="post" class="add-form">{% csrf_token %}
           {% if add_button %}
-            <button type="button" class="btn bi-plus-lg add-form__button" onclick="addItem('{{ config.app }}', '{{ config.get_cur_role }}')">{{ add_item_placeholder }}</button>
+            <button type="button" class="btn bi-plus-lg add-form__button" onclick="addItem('{{ config.app }}', '{{ config.get_cur_role }}', {{ config.cur_view_group.id|escape }})">{{ add_item_placeholder }}</button>
           {% else %}
-            <button type="submit" class="bi-plus-lg add-form__button"></button>
             <input type="text" name="name" maxlength="200" required="" id="id_name" class="add-form__input" placeholder="{{ add_item_placeholder }}">
+            <button type="button" class="btn btn-primary ms-2" onclick="addItem('{{ config.app }}', '{{ config.get_cur_role }}', {{ config.cur_view_group.id|escape }})">{% trans 'add'|capfirst %}</button>
           {% endif %}
         </form>
     {% endif %}

@@ -106,6 +106,46 @@ class Group(models.Model):
         self.items_sort = ''
         self.save()
 
+    def expen_what_totals(self):
+        if (not self.tot_byn) and (not self.tot_usd) and (not self.tot_eur):
+            return True, False, False
+        return self.tot_byn, self.tot_usd, self.tot_eur
+
+    def expen_get_totals(self):
+        byn = 0
+        usd = 0
+        eur = 0
+        in_byn, in_usd, in_eur = self.expen_what_totals()
+        for exp in TaskGroup.objects.filter(group=self.id):
+            if in_byn:
+                byn += exp.task.expen_amount('BYN')
+            if in_usd:
+                usd += exp.task.expen_amount('USD')
+            if in_eur:
+                eur += exp.task.expen_amount('EUR')
+        return byn, usd, eur
+
+    def expen_summary(self):
+        in_byn, in_usd, in_eur = self.expen_what_totals()
+        byn, usd, eur = self.expen_get_totals()
+
+        res = ''
+        if in_usd:
+            res = currency_repr(usd, '$')
+        
+        if in_eur:
+            if res:
+                res += ', '
+            res += currency_repr(eur, '€')
+        
+        if in_byn:
+            if res:
+                res += ', '
+            res += currency_repr(byn, ' BYN')
+        
+        return res
+
+
 class Task(models.Model):
     """
     An Entity that can be a Task or something else
@@ -415,6 +455,70 @@ class Task(models.Model):
         else:
             return _('Add in "My day"')
 
+    def expen_amount(self, currency):
+        byn = 0
+        if self.price:
+            byn = self.price
+            if self.qty:
+                byn = self.price * self.qty
+
+        if (currency == 'USD'):
+            if self.usd:
+                return self.usd
+            if byn and self.rate:
+                return byn / self.rate
+
+        if (currency == 'EUR'):
+            if self.eur:
+                return self.eur
+            if byn and self.rate_2:
+                return byn / self.rate_2
+
+        if (currency == 'BYN'):
+            if self.price:
+                return byn
+
+            if self.usd and self.rate:
+                return self.usd * self.rate
+
+            if self.eur and self.rate_2:
+                return self.eur * self.rate_2
+
+        return 0
+
+    def expen_summary(self):
+        if TaskGroup.objects.filter(task=self.id, role=ROLE_EXPENSE).exists():
+            tg = TaskGroup.objects.filter(task=self.id, role=ROLE_EXPENSE).get()
+            in_byn, in_usd, in_eur = tg.group.expen_what_totals()
+        else:
+            in_byn, in_usd, in_eur = True, False, False
+        usd = eur = byn = None
+        if in_usd:
+            usd = self.expen_amount('USD')
+        if in_eur:
+            eur = self.expen_amount('EUR')
+        if in_byn:
+            byn = self.expen_amount('BYN')
+
+        res = ''
+        if in_usd and usd:
+            res = currency_repr(usd, '$')
+        
+        if in_eur and eur:
+            if res:
+                res += ', '
+            res += currency_repr(eur, '€')
+        
+        if in_byn:
+            if res:
+                res += ', '
+            if (self.event < datetime(2016, 6, 1)):
+                res += currency_repr(byn, ' BYR')
+            else:
+                res += currency_repr(byn, ' BYN')
+        
+        return res
+
 
 def add_months(sourcedate, months):
     month = sourcedate.month - 1 + months
@@ -514,3 +618,8 @@ class Subscription(models.Model):
 
     def __str__(self):
         return self.user.username + ': ' + self.token
+
+def currency_repr(value, currency):
+    if (round(value, 2) % 1):
+        return '{:,.2f}{}'.format(value, currency).replace(',', '`')
+    return '{:,.0f}{}'.format(value, currency).replace(',', '`')

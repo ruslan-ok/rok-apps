@@ -48,6 +48,7 @@ class Config:
                 self.multy_role = True
                 break;
         self.app_sorts = None
+        self.default_sort = '-event'
         if config['sort']:
             self.app_sorts = config['sort']
 
@@ -378,6 +379,8 @@ class BaseListView(CreateView, Context):
     def get_sorted_items(self, query):
         data = self.get_filtered_items(query)
         if not self.config.cur_view_group.items_sort:
+            if self.config.default_sort:
+                return self.sort_data(data, self.config.default_sort)
             return data
         return self.sort_data(data, self.config.cur_view_group.items_sort)
 

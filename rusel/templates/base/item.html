@@ -28,7 +28,7 @@
         <div class="descr">
           {% for k, v in item.get_item_attr.items %}
             {% if k == config.app or config.get_cur_role == 'search' %}
-              {% if not config.group_id %}
+              {% if config.cur_view_group.determinator == 'role' or config.cur_view_group.determinator == 'view' %}
                 {% if v.group %}
                   <div class="inline">
                     <div class="label"><span>{{ v.group }}</span></div>

@@ -20,12 +20,6 @@ class ListView(BaseListView):
     def tune_dataset(self, data, group):
         return data
 
-    def form_valid(self, form):
-        form.instance.app_apart = NUM_ROLE_APART
-        response = super().form_valid(form)
-        Apart.objects.create(user=form.instance.user, task=form.instance, name=form.instance.name);
-        return response
-
 
 class DetailView(BaseDetailView):
     model = Task

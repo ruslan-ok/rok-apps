@@ -46,8 +46,13 @@ function runAPI(api, callback, method='GET') {
     xhttp.send();
 }
 
-function addItem(app, role) {
-    const api = '/api/tasks/add_item/?format=json&app=' + app + '&role=' + role;
+function addItem(app, role, group_id) {
+    const name = document.getElementById('id_add_item_name');
+    let param_name = '';
+    if (name)
+        param_name = '&name=' + name.value;
+    param_group = '&group_id=' + group_id;
+    const api = '/api/tasks/add_item/?format=json&app=' + app + '&role=' + role + param_name + param_group;
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             let resp = JSON.parse(this.responseText);
@@ -58,8 +63,16 @@ function addItem(app, role) {
                 alert(mess);
                 return;
             }
+            let item_id_arr = window.location.pathname.match( /\d+/ );
+            let item_id = 0;
+            if (item_id_arr && item_id_arr.length > 0)
+                item_id = item_id_arr[0];
             let url_parts = window.location.href.split('?');
-            let redirect_url = url_parts[0] + resp.task_id + '/';
+            let redirect_url = url_parts[0];
+            if ((item_id != 0) && redirect_url.includes(item_id))
+                redirect_url = redirect_url.replace(item_id, resp.task_id);
+            else
+                redirect_url = redirect_url + resp.task_id + '/';
             if (url_parts.length > 1)
                 redirect_url += '?' + url_parts[1];
             window.location.href = redirect_url;

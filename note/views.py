@@ -19,10 +19,6 @@ class ListView(BaseListView, TuneData):
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
-    def form_valid(self, form):
-        form.instance.app_note = NUM_ROLE_NOTE
-        response = super().form_valid(form)
-        return response
 
 class DetailView(BaseDetailView, TuneData):
     model = Task

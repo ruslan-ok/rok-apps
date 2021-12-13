@@ -31,7 +31,6 @@ def get_info(item):
         ret['attr'].append({'termin': True})
 
     links = len(Urls.objects.filter(task=item.id)) > 0
-
     files = (len(get_files_list(item.user, app, role, item.id)) > 0)
 
     if (item.remind != None) or item.info or links or files:

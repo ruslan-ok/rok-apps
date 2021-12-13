@@ -4,14 +4,14 @@
     <div class="dropdown mx-3">
         <button class="btn bi-plus-lg" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false"></button>
         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-            <form method="post" class="d-flex py-2">{% csrf_token %}
+            <div class="d-flex py-2">
                 {% if add_button %}
-                    <button type="button" class="btn bi-plus-lg" onclick="addItem('{{ config.app }}', '{{ config.get_cur_role }}')">{{ add_item_placeholder }}</button>
+                    <button type="button" class="btn bi-plus-lg" onclick="addItem('{{ config.app }}', '{{ config.get_cur_role }}', {{ config.cur_view_group.id|escape }})">{{ add_item_placeholder }}</button>
                 {% else %}
-                    <input type="text" name="name" maxlength="200" required="" id="id_name" class="" placeholder="{{ add_item_placeholder }}">
-                    <button type="submit" class="btn bi-plus-lg"></button>
+                    <input type="text" name="add_item_name" maxlength="200" id="id_add_item_name" class="" placeholder="{{ add_item_placeholder }}">
+                    <button type="button" class="btn btn-primary ms-2" onclick="addItem('{{ config.app }}', '{{ config.get_cur_role }}', {{ config.cur_view_group.id|escape }})">{% trans 'add'|capfirst %}</button>
                 {% endif %}
-            </form>
+            </div>
         </ul>
     </div>
 {% endif %}

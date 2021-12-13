@@ -2,8 +2,8 @@
 {% load static i18n %}
 
 {% block main %}
-  {% include "base/title.html" %}
   <form method="post" class="w-100 px-2 item-form" enctype="multipart/form-data" id="article_form" data-item_id="{{ ed_item.id|cut:" " }}">{% csrf_token %}
+    {% include "base/title.html" %}
     {% include "base/form_errors.html" %}
 
     <div class="input-group flex-wrap justify-content-start mb-3">
@@ -13,6 +13,10 @@
     <div class="input-group flex-wrap mb-3">
       <div class="col-sm me-2">{{ form.qty.label_tag }}{{ form.qty }}</div>
       <div class="col-sm me-2">{{ form.price.label_tag }}{{ form.price }}</div>
+      <div class="col-sm me-2">
+        <label for="id_amount_nc">{% trans 'Amount in NC:' %}</label>
+        <input type="text" name="amount_nc" value="{{ amount_nc|escape }}" class="form-control" readonly id="id_amount_nc">
+      </div>
       <div class="col-sm">{{ form.rate.label_tag }}{{ form.rate }}</div>
       <div class="col-sm me-2">{{ form.rate_2.label_tag }}{{ form.rate_2 }}</div>
       <div class="col-sm me-2">{{ form.usd.label_tag }}{{ form.usd }}</div>

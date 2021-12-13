@@ -31,21 +31,6 @@ class ListView(BaseListView, TuneData):
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
-    def form_valid(self, form):
-        form.instance.app_task = NUM_ROLE_TODO
-        response = super().form_valid(form)
-        self.config.set_view(self.request)
-        if ((self.config.cur_view_group.determinator == 'role' and self.config.cur_view_group.view_id == 'todo')):
-            form.instance.in_my_day = True
-            form.instance.save()
-        if ((self.config.cur_view_group.determinator == 'view' and self.config.cur_view_group.view_id == 'important')):
-            form.instance.important = True
-            form.instance.save()
-        if ((self.config.cur_view_group.determinator == 'view' and self.config.cur_view_group.view_id == 'planned')):
-            form.instance.stop = get_remind_tomorrow()
-            form.instance.save()
-        return response
-
 class DetailView(BaseDetailView, TuneData):
     model = Task
     form_class = EditForm
