@@ -12,7 +12,7 @@ app_config = {
     ],
     'views': {
         'news': {
-            'icon': 'check-all',
+            'icon': 'infinity',
             'title': 'all',
         },
     }

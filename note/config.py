@@ -12,7 +12,7 @@ app_config = {
     ],
     'views': {
         'note': {
-            'icon': 'check-all',
+            'icon': 'infinity',
             'title': 'all',
         },
     }

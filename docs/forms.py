@@ -5,6 +5,7 @@ from rusel.base.forms import BaseCreateForm, BaseEditForm
 from task.models import Task, Group
 from task.const import ROLE_DOC
 from docs.config import app_config
+from rusel.base.forms import GroupForm
 
 role = ROLE_DOC
 
@@ -20,13 +21,21 @@ class CreateForm(BaseCreateForm):
         
 #----------------------------------
 class EditForm(BaseEditForm):
-
     class Meta:
         model = Task
         fields = ['name']
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
+
+#----------------------------------
+class FolderForm(GroupForm):
+    class Meta:
+        model = Group
+        fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+        }

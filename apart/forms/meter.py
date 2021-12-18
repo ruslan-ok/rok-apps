@@ -2,9 +2,9 @@ from django import forms
 from django.forms.widgets import HiddenInput
 from django.utils.translation import gettext_lazy as _
 
-from rusel.base.forms import BaseCreateForm, BaseEditForm
+from rusel.base.forms import BaseCreateForm, BaseEditForm, GroupForm
 from rusel.widgets import DateInput, DateTimeInput, NumberInput, UrlsInput
-from task.models import Task
+from task.models import Task, Group
 from apart.config import app_config
 from apart.models import Apart, Meter
 
@@ -78,3 +78,13 @@ class EditForm(BaseEditForm):
                 self.fields['cw'].widget = HiddenInput()
             if (not apart.has_gas):
                 self.fields['ga'].widget = HiddenInput()
+
+#----------------------------------
+class ApartForm(GroupForm):
+    class Meta:
+        model = Group
+        fields = ['name', 'sort']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control mb-2'}),
+            'sort': forms.TextInput(attrs={'class': 'form-control mb-2'}),
+        }

@@ -11,7 +11,7 @@ app_config = {
     ],
     'views': {
         'store': {
-            'icon': 'check-all',
+            'icon': 'infinity',
             'title': 'all',
         },
     }

@@ -29,6 +29,7 @@
     <form action="" method="GET" class="bd-search position-relative ms-md-auto me-auto">
       <span class="algolia-autocomplete" style="position: relative; display: inline-block; direction: ltr;">
         <input type="hidden" name="view" value="{{request.GET.view}}">
+        <input type="hidden" name="group" value="{{request.GET.group}}">
         <input type="search" class="form-control ds-input" id="search-input" placeholder="Search..." aria-label="Search info for..." autocomplete="off" 
               data-bd-docs-version="5.1" spellcheck="false" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-owns="algolia-autocomplete-listbox-0" 
               dir="auto" style="position: relative; vertical-align: top;" name="q" value="{{request.GET.q}}">

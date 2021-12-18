@@ -37,6 +37,7 @@ class Config:
         self.views = config['views']
         self.base_role = config['role']
         self.use_groups = self.check_property(config, 'use_groups', False)
+        self.group_entity = self.check_property(config, 'group_entity', 'group')
         self.use_selector = self.check_property(config, 'use_selector', False)
         self.use_important = self.check_property(config, 'use_important', False)
         self.add_button = self.check_property(config, 'add_button', False)
@@ -72,12 +73,12 @@ class Config:
             if view_name:
                 determinator = 'view'
                 view_id = view_name
-        if ('group' in request.GET):
-            group_id = int(request.GET.get('group'))
-            if group_id and Group.objects.filter(id=group_id).exists():
+        if (self.group_entity in request.GET):
+            group_id = request.GET.get(self.group_entity)
+            if group_id and int(group_id) and Group.objects.filter(id=int(group_id)).exists():
                 determinator = 'group'
-                view_id = str(group_id)
-                self.title = Group.objects.filter(id=group_id).get().name
+                view_id = group_id
+                self.title = Group.objects.filter(id=int(group_id)).get().name
 
         self.view_sorts = None
         if (determinator != 'group') and (view_id in self.views):
@@ -92,7 +93,7 @@ class Config:
                 self.view_sorts = self.views[view_id]['sort']
 
         if determinator and view_id:
-            self.cur_view_group = detect_group(request.user, self.app, determinator, view_id, self.title)
+            self.cur_view_group = detect_group(request.user, self.app, determinator, view_id, _(self.title).capitalize())
 
     def check_property(self, config, prop, default):
         ret = default
@@ -131,12 +132,15 @@ class Context:
 
     def get_app_context(self, search_qty=None, **kwargs):
         context = {}
-        title = _(self.config.title).capitalize()
-        context.update(get_base_context(self.request, self.config.app, self.config.get_cur_role(), False, title))
+        if self.object:
+            title = self.object.name
+        else:
+            title = _(self.config.title).capitalize()
+        context.update(get_base_context(self.request, self.config.app, self.config.get_cur_role(), self.config.cur_view_group, (self.object != None), title))
         context['fix_list'] = self.get_fixes(self.config.views, search_qty)
         context['group_form'] = CreateGroupForm()
         context['config'] = self.config
-        context['params'] = extract_get_params(self.request)
+        context['params'] = extract_get_params(self.request, self.config.group_entity)
         return context
 
     def get_sorts(self, sorts):
@@ -163,7 +167,7 @@ class Context:
                     view_id = key
                     determinator = 'view'
                     url += '?view=' + key
-            qty = self.get_view_qty(detect_group(self.request.user, self.config.app, determinator, view_id, self.config.title))
+            qty = self.get_view_qty(detect_group(self.request.user, self.config.app, determinator, view_id, _(value['title']).capitalize()))
             active = (self.config.cur_view_group.determinator == determinator) and (self.config.cur_view_group.view_id == view_id)
             fix = {
                 'determinator': determinator,
@@ -183,43 +187,14 @@ class Context:
         return len(data)    
 
     def get_dataset(self, group, query=None):
-        data = Task.objects.filter(user=self.request.user.id)
-
-        if (self.config.app == APP_ALL) and (not query):
-            return data
-
         if (group.determinator == 'role'):
             cur_role = group.view_id
         else:
             cur_role = self.config.base_role
-        role_id = ROLES_IDS[self.config.app][cur_role]
+        data = Task.get_role_tasks(self.request.user.id, self.config.app, cur_role)
 
-        if (self.config.app == APP_TODO):
-            data = data.filter(app_task=role_id)
-        if (self.config.app == APP_NOTE):
-            data = data.filter(app_note=role_id)
-        if (self.config.app == APP_NEWS):
-            data = data.filter(app_news=role_id)
-        if (self.config.app == APP_STORE):
-            data = data.filter(app_store=role_id)
-        if (self.config.app == APP_DOCS):
-            data = data.filter(app_doc=role_id)
-        if (self.config.app == APP_WARR):
-            data = data.filter(app_warr=role_id)
-        if (self.config.app == APP_EXPEN):
-            data = data.filter(app_expen=role_id)
-        if (self.config.app == APP_TRIP):
-            data = data.filter(app_trip=role_id)
-        if (self.config.app == APP_FUEL):
-            data = data.filter(app_fuel=role_id)
-        if (self.config.app == APP_APART):
-            data = data.filter(app_apart=role_id)
-        if (self.config.app == APP_HEALTH):
-            data = data.filter(app_health=role_id)
-        if (self.config.app == APP_WORK):
-            data = data.filter(app_work=role_id)
-        if (self.config.app == APP_PHOTO):
-            data = data.filter(app_photo=role_id)
+        if (self.config.app == APP_ALL) and (not query):
+            return data
 
         if data and ((not group.determinator) or (group.determinator == 'group')):
             data = data.filter(groups__id=group.id)
@@ -244,8 +219,8 @@ class BaseListView(CreateView, Context):
 
     def get_success_url(self):
         if (self.config.get_cur_role() == self.config.base_role):
-            return reverse(self.config.app + ':item', args=(self.object.id,)) + extract_get_params(self.request)
-        return reverse(self.config.app + ':' + self.config.get_cur_role() + '-item', args=(self.object.id,)) + extract_get_params(self.request)
+            return reverse(self.config.app + ':item', args=(self.object.id,)) + extract_get_params(self.request, self.config.group_entity)
+        return reverse(self.config.app + ':' + self.config.get_cur_role() + '-item', args=(self.object.id,)) + extract_get_params(self.request, self.config.group_entity)
 
     def get_context_data(self, **kwargs):
         self.config.set_view(self.request)
@@ -439,8 +414,8 @@ class BaseDetailView(UpdateView, Context):
 
     def get_success_url(self):
         if (self.config.get_cur_role() == self.config.base_role):
-            return reverse(self.config.app + ':item', args=(self.object.id,)) + extract_get_params(self.request)
-        return reverse(self.config.app + ':' + self.config.get_cur_role() + '-item', args=(self.object.id,)) + extract_get_params(self.request)
+            return reverse(self.config.app + ':item', args=(self.object.id,)) + extract_get_params(self.request, self.config.group_entity)
+        return reverse(self.config.app + ':' + self.config.get_cur_role() + '-item', args=(self.object.id,)) + extract_get_params(self.request, self.config.group_entity)
 
     def get_context_data(self, **kwargs):
         self.config.set_view(self.request)
@@ -504,13 +479,14 @@ class BaseGroupView(UpdateView, Context):
         self.set_config(config, cur_role)
 
     def get_success_url(self):
-        return reverse(self.config.app + ':group', args=(self.object.id,)) + extract_get_params(self.request)
+        return reverse(self.config.app + ':group', args=(self.object.id,)) + extract_get_params(self.request, self.config.group_entity)
 
     def get_context_data(self, **kwargs):
         self.config.set_view(self.request)
         context = super().get_context_data(**kwargs)
         context.update(self.get_app_context())
         context['title'] = self.object.name
+        context['is_group_form'] = self.object.name
         context['delete_question'] = _('delete group').capitalize()
         if Group.objects.filter(node=self.object.id).exists():
             context['ban_on_deletion'] = _('deletion is prohibited because there are subordinate groups').capitalize()

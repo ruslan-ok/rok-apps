@@ -29,7 +29,11 @@
     }
     .add-form {
         background-color: rgba(255, 255, 255, 0.8);
-        
+        input {
+            border: 1px solid #aeaeae;
+            border-radius: 0.25rem;
+            padding: 5px;
+        }
     }
 }
 

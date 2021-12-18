@@ -2,19 +2,17 @@ from task.const import *
 
 app_config = {
     'name': APP_WARR,
-    'title': 'warranties',
+    'app_title': 'warranties',
     'icon': 'star',
-    'roles': {
-        'warr': { 
+    'role': ROLE_WARR,
+    'use_groups': True,
+    'sort': [
+        ('name', 'name'),
+    ],
+    'views': {
+        'all': {
             'icon': 'star', 
-            'use_groups': True,
-            'views': {
-                'all': {
-                    'url': '',
-                    'icon': 'check-all',
-                    'title': 'all',
-                },
-            },
+            'title': 'warranties',
         },
     }
 }

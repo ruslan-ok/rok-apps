@@ -40,7 +40,7 @@ APP_ADMIN = 'people'
 FIX_MY_DAY = 'sun'
 FIX_IMPORTANT = 'star'
 FIX_PLANNED = 'check2-square'
-FIX_ALL = 'check-all'
+FIX_ALL = 'infinity'
 FIX_COMPLETED = 'check2-circle'
 
 # Todo Controls

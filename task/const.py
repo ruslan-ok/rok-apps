@@ -24,7 +24,7 @@ APP_ALL = 'all'
 NONE = 0
 
 """
-Kinds of Entities that can be combined into Lists
+Kinds of Entities that can be combined into Group
 """
 KIND_TASK = 1 # Tasks Group
 KIND_NOTE = 2 # Notes Group

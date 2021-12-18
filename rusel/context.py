@@ -1,18 +1,17 @@
 from django.utils.translation import gettext_lazy as _
-from rusel.apps import get_app_human_name, get_apps_list, get_app_icon
+from rusel.apps import get_apps_list
 from task.models import Group
 
-def get_base_context(request, app, role, detail, title):
+def get_base_context(request, app, role, group, detail, title):
     context = {}
     if hasattr(request.user, 'userext') and request.user.userext.avatar_mini:
         context['avatar'] = request.user.userext.avatar_mini.url
     else:
         context['avatar'] = '/static/Default-avatar.jpg'
 
-    cur_grp = get_cur_grp(request)
-    title_1 = title_2 = url = ''
-    if (not detail or not title) and cur_grp:
-        title_1 = Group.objects.filter(id=cur_grp.id).get().name
+    title_1 = title_2 = ''
+    if (not detail or not title) and group and (group.determinator != 'role') and (group.determinator != 'view'):
+        title_1 = Group.objects.filter(id=group.id).get().name
     else:
         if title:
             if type(title) is tuple:
@@ -47,12 +46,12 @@ def get_base_context(request, app, role, detail, title):
     get_sorted_groups(groups, request.user.id, role)
     context['groups'] = groups
     context['theme_id'] = 8
-    if cur_grp:
-        context['group_return'] = cur_grp.id
+    if group:
+        context['group_return'] = group.id
         if (not detail):
-            context['group_path'] = get_group_path(cur_grp.id)
-            if cur_grp.theme:
-                context['theme_id'] = cur_grp.theme
+            context['group_path'] = get_group_path(group.id)
+            if group.theme:
+                context['theme_id'] = group.theme
 
     return context
 
@@ -66,25 +65,15 @@ def get_sorted_groups(groups, user_id, role, node=None):
             groups.append(item)
             get_sorted_groups(groups, user_id, role, item)
 
-def get_cur_grp(request):
-    cur_grp = None
-    if request.method == 'GET':
-        if ('group' in request.GET):
-            g = request.GET.get('group')
-            if g:
-                if Group.objects.filter(id=g, user=request.user.id).exists():
-                    cur_grp = Group.objects.filter(id=g, user=request.user.id).get()
-    return cur_grp
-    
 
 def get_group_path(cur_grp_id):
     ret = []
     if cur_grp_id:
         grp = Group.objects.filter(id=cur_grp_id).get()
-        ret.append({'id': grp.id, 'name': grp.name, 'edit_url': grp.edit_url})
+        ret.append({'id': grp.id, 'name': grp.name, 'edit_url': grp.edit_url()})
         parent = grp.node
         while parent:
             grp = Group.objects.filter(id=parent.id).get()
-            ret.append({'id': grp.id, 'name': grp.name, 'edit_url': grp.edit_url})
+            ret.append({'id': grp.id, 'name': grp.name, 'edit_url': grp.edit_url()})
             parent = grp.node
     return ret

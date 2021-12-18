@@ -41,7 +41,6 @@ class EditForm(BaseEditForm):
         'url', 'categories', 'upload']
         widgets = {
             'event': forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime mb-3', 'type': 'datetime-local'}),
-            'name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
             'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),
             'qty': forms.NumberInput(attrs={'class': 'form-control'}),
             'price': forms.NumberInput(attrs={'class': 'form-control'}),
@@ -56,7 +55,7 @@ class EditForm(BaseEditForm):
         super().__init__(app_config, role, *args, **kwargs)
 
 #----------------------------------
-class ExpenGroupForm(GroupForm):
+class ProjectForm(GroupForm):
     tot_byn = forms.BooleanField(
         label=False, 
         required=False, 

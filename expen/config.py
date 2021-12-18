@@ -6,6 +6,7 @@ app_config = {
     'icon': 'star',
     'role': ROLE_EXPENSE,
     'use_groups': True,
+    'group_entity': 'project',
     'event_in_name': True,
     'sort': [
         ('event', 'operation date'),

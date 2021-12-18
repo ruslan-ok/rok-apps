@@ -38,7 +38,7 @@ app_config = {
             ],
         },
         'all': {
-            'icon': 'check-all',
+            'icon': 'infinity',
             'title': 'all',
         },
         'completed': {

@@ -4,17 +4,20 @@ app_config = {
     'name': APP_APART,
     'app_title': 'communal',
     'icon': 'building',
-    'role': ROLE_APART,
+    'role': ROLE_METER,
+    'use_groups': True,
+    'group_entity': 'apart',
     'sort': [
         ('name', 'name'),
         ('created', 'create date'),
     ],
     'views': {
-        'apart': {
-            'icon': 'building', 
-            'title': 'apartments',
-            'item_name': 'apartment',
-            'relate': [ROLE_DOC],
+        'meter': {
+            'icon': 'star', 
+            'title': 'meters data',
+            'item_name': 'meters data',
+            'add_button': True,
+            'relate': [ROLE_TODO],
         },
         'service': {
             'role': ROLE_SERVICE,
@@ -26,14 +29,6 @@ app_config = {
             'icon': 'star', 
             'title': 'prices',
             'add_button': True,
-        },
-        'meter': {
-            'role': ROLE_METER,
-            'icon': 'star', 
-            'title': 'meters data',
-            'item_name': 'meters data',
-            'add_button': True,
-            'relate': [ROLE_TODO],
         },
         'bill': {
             'role': ROLE_BILL,

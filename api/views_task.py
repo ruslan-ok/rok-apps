@@ -37,79 +37,15 @@ class TaskViewSet(viewsets.ModelViewSet):
         if 'app' in self.request.query_params and 'role' in self.request.query_params:
             app = self.request.query_params['app']
             role = self.request.query_params['role']
-            if (role == ROLE_TODO):
-                return data.filter(app_task=NUM_ROLE_TODO)
-            if (role == ROLE_NOTE):
-                return data.filter(app_note=NUM_ROLE_NOTE)
-            if (role == ROLE_NEWS):
-                return data.filter(app_news=NUM_ROLE_NEWS)
-            if (role == ROLE_STORE):
-                return data.filter(app_store=NUM_ROLE_STORE)
-            if (role == ROLE_DOC):
-                return data.filter(app_doc=NUM_ROLE_DOC)
-            if (role == ROLE_WARR):
-                return data.filter(app_warr=NUM_ROLE_WARR)
-            if (role == ROLE_EXPENSE):
-                return data.filter(app_expen=NUM_ROLE_EXPENSE)
-            if (role == ROLE_SALDO):
-                if (app == APP_TRIP):
-                    return data.filter(app_trip=NUM_ROLE_SALDO)
-                return data.filter(app_expen=NUM_ROLE_SALDO)
-            if (role == ROLE_PERSON):
-                return data.filter(app_trip=NUM_ROLE_PERSON)
-            if (role == ROLE_TRIP):
-                return data.filter(app_trip=NUM_ROLE_TRIP)
-            if (role == ROLE_FUEL):
-                return data.filter(app_fuel=NUM_ROLE_FUEL)
-            if (role == ROLE_PART):
-                return data.filter(app_fuel=NUM_ROLE_PART)
-            if (role == ROLE_SERVICE):
-                if (app == APP_APART):
-                    return data.filter(app_apart=NUM_ROLE_SERVICE)
-                return data.filter(app_fuel=NUM_ROLE_SERVICE)
-            if (role == ROLE_METER):
-                return data.filter(app_apart=NUM_ROLE_METER)
-            if (role == ROLE_PRICE):
-                return data.filter(app_apart=NUM_ROLE_PRICE)
-            if (role == ROLE_BILL):
-                return data.filter(app_apart=NUM_ROLE_BILL)
-            if (role == ROLE_MARKER):
-                return data.filter(app_health=NUM_ROLE_MARKER)
-            if (role == ROLE_INCIDENT):
-                return data.filter(app_health=NUM_ROLE_INCIDENT)
-            if (role == ROLE_ANAMNESIS):
-                return data.filter(app_health=NUM_ROLE_ANAMNESIS)
-            if (role == ROLE_PERIOD):
-                return data.filter(app_work=NUM_ROLE_PERIOD)
-            if (role == ROLE_DEPARTMENT):
-                return data.filter(app_work=NUM_ROLE_DEPARTMENT)
-            if (role == ROLE_DEP_HIST):
-                return data.filter(app_work=NUM_ROLE_DEP_HIST)
-            if (role == ROLE_POST):
-                return data.filter(app_work=NUM_ROLE_POST)
-            if (role == ROLE_EMPLOYEE):
-                return data.filter(app_work=NUM_ROLE_EMPLOYEE)
-            if (role == ROLE_FIO_HIST):
-                return data.filter(app_work=NUM_ROLE_FIO_HIST)
-            if (role == ROLE_CHILDREN):
-                return data.filter(app_work=NUM_ROLE_CHILD)
-            if (role == ROLE_APPOINTMENT):
-                return data.filter(app_work=NUM_ROLE_APPOINTMENT)
-            if (role == ROLE_EDUCATION):
-                return data.filter(app_work=NUM_ROLE_EDUCATION)
-            if (role == ROLE_EMPLOYEE_PERIOD):
-                return data.filter(app_work=NUM_ROLE_EMPL_PER)
-            if (role == ROLE_PAY_TITLE):
-                return data.filter(app_work=NUM_ROLE_PAY_TITLE)
-            if (role == ROLE_PAYMENT):
-                return data.filter(app_work=NUM_ROLE_PAYMENT)
-            if (role == ROLE_PHOTO):
-                return data.filter(app_photo=NUM_ROLE_PHOTO)
+            return Task.get_role_tasks(self.request.user.id, app, role)
         return data
 
     @action(detail=False)
     def get_qty(self, request, pk=None):
-        qty = len(self.get_queryset())
+        qs = self.get_queryset()
+        aty = 0
+        if qs:
+            qty = len(qs)
         return Response({'qty': qty})
     
     @action(detail=False)

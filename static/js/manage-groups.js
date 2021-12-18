@@ -15,7 +15,7 @@ function tuneOnEnter() {
   });
 }
 
-function addGroup(app, role) {
+function addGroup(app, role, group_entity) {
     let x = document.getElementById('new_group_id');
     if (!x)
       return;
@@ -37,7 +37,7 @@ function addGroup(app, role) {
       if (this.readyState == 4 && this.status == 201) {
         group_id = JSON.parse(this.responseText).id;
         group_name = JSON.parse(this.responseText).name;
-        group_url = `${window.location.protocol}//${window.location.host}/${app}/?group=${group_id}`;
+        group_url = `${window.location.protocol}//${window.location.host}/${app}/?${group_entity}=${group_id}`;
         window.location.href = group_url;
       }
     };
@@ -53,8 +53,8 @@ function addGroup(app, role) {
     xhttp.send(JSON.stringify(data));
 }
 
-function closeGroupForm() {
-  let redirect_url = window.location.href.split('/group/')[0] + '/';
+function closeGroupForm(group_entity) {
+  let redirect_url = window.location.href.split('/' + group_entity + '/')[0] + '/';
   const urlParams = new URLSearchParams(window.location.search);
   const group_id = urlParams.get('ret');
   if (group_id)

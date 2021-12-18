@@ -36,6 +36,15 @@ class Group(models.Model):
     tot_byn = models.BooleanField(_('totals in BYN'), default = False, null=True)
     tot_usd = models.BooleanField(_('totals in USD'), default = False, null=True)
     tot_eur = models.BooleanField(_('totals in EUR'), default = False, null=True)
+    info = models.TextField(_('information').capitalize(), blank=True, default="")
+    has_el = models.BooleanField(_('has electricity'), default = True)
+    has_hw = models.BooleanField(_('has hot water'), default = True)
+    has_cw = models.BooleanField(_('has cold water'), default = True)
+    has_gas = models.BooleanField(_('has gas'), default = True)
+    has_ppo = models.BooleanField(_('payments to the partnership of owners'), default = False)
+    has_tv = models.BooleanField(_('has Internet/TV'), default = True)
+    has_phone = models.BooleanField(_('has phone'), default = True)
+    has_zkx = models.BooleanField(_('has ZKX'), default = True)
 
     class Meta:
         verbose_name=_('task group')
@@ -58,6 +67,8 @@ class Group(models.Model):
         return '.'*self.level()*2 + self.name
     
     def edit_url(self):
+        if (self.app == APP_ALL):
+            return 'todo:group'
         return self.app + ':group'
 
     def level(self):
@@ -192,12 +203,51 @@ class Task(models.Model):
     eur = models.DecimalField(_('amount in EUR'), blank = True, null = True, max_digits = 15, decimal_places = 2)
     kontr = models.CharField(_('manufacturer').capitalize(), max_length = 1000, blank = True)
     # -------------
+    trip_days = models.IntegerField(_('days'), blank = False, default = 0)
+    trip_oper = models.IntegerField(_('operation'), blank = False, default = 0)
+    # -------------
     class Meta:
         verbose_name = _('task')
         verbose_name_plural = _('tasks')
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def get_role_tasks(cls, user_id, app, role):
+        if user_id:
+            data = Task.objects.filter(user=user_id)
+        else:
+            data = Task.objects.all()
+        if (app != APP_ALL):
+            role_id = ROLES_IDS[app][role]
+            if (app == APP_TODO):
+                data = data.filter(app_task=role_id)
+            if (app == APP_NOTE):
+                data = data.filter(app_note=role_id)
+            if (app == APP_NEWS):
+                data = data.filter(app_news=role_id)
+            if (app == APP_STORE):
+                data = data.filter(app_store=role_id)
+            if (app == APP_DOCS):
+                data = data.filter(app_doc=role_id)
+            if (app == APP_WARR):
+                data = data.filter(app_warr=role_id)
+            if (app == APP_EXPEN):
+                data = data.filter(app_expen=role_id)
+            if (app == APP_TRIP):
+                data = data.filter(app_trip=role_id)
+            if (app == APP_FUEL):
+                data = data.filter(app_fuel=role_id)
+            if (app == APP_APART):
+                data = data.filter(app_apart=role_id)
+            if (app == APP_HEALTH):
+                data = data.filter(app_health=role_id)
+            if (app == APP_WORK):
+                data = data.filter(app_work=role_id)
+            if (app == APP_PHOTO):
+                data = data.filter(app_photo=role_id)
+        return data
 
     def set_item_attr(self, app, attr):
         if not self.item_attr:
@@ -442,7 +492,7 @@ class Task(models.Model):
             rmd = self.remind
         else:
             rmd = self.last_remind
-        delta = self.stop - rmd.date()
+        delta = self.stop.date() - rmd.date()
         next = self.next_iteration()
         if (not next):
             return None

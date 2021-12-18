@@ -73,31 +73,36 @@ class GroupForm(forms.ModelForm):
         widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('display completed records').capitalize()}))
     class Meta:
         model = Group
-        fields = ['node', 'name', 'sort', 'completed']
+        fields = ['name', 'sort', 'node', 'completed']
         widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control mb-2', 'id': 'id_grp_name'}),
             'node': forms.Select(attrs={'class': 'form-control mb-2'}),
-            'name': forms.TextInput(attrs={'class': 'form-control mb-2'}),
-            'sort': forms.TextInput(attrs={'class': 'mb-2'}),
+            'sort': forms.TextInput(attrs={'class': 'form-control mb-2'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['node'].queryset = Group.objects.filter(user=self.instance.user.id, role=self.instance.role).order_by('sort')
+        if ('node' in self.fields):
+            self.fields['node'].queryset = Group.objects.filter(user=self.instance.user.id, role=self.instance.role).order_by('sort')
 
     def clean_node(self):
         node_ok = self.cleaned_data['node']
         if node_ok:
             inst_id = self.instance.id
             node_id = node_ok.id
-            test = Group.objects.filter(id = node_id).get()
+            test = Group.objects.filter(id=node_id).get()
             if (test.id == inst_id):
-                raise  ValidationError(_('self reference'))
+                raise  ValidationError(_('self reference').capitalize())
             
             while test.node:
                 node_id = test.node.id
-                test = Group.objects.filter(id = node_id).get()
+                test = Group.objects.filter(id=node_id).get()
                 if (test.id == inst_id):
-                    raise  ValidationError(_('loop link'))
+                    raise  ValidationError(_('loop link').capitalize())
+
+            gts = TaskGroup.objects.filter(group=node_ok)
+            if (len(gts) > 0):
+                raise  ValidationError(_('not empty node group').capitalize())
 
         return node_ok
 

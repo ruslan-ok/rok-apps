@@ -1,37 +1,33 @@
-from task.const import ROLE_DOC, NUM_ROLE_DOC, ROLE_APP
+from task.const import ROLE_DOC, ROLE_APP
 from task.models import Task
-from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView, get_app_doc
-from docs.forms import CreateForm, EditForm
+from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView
+from docs.forms import CreateForm, EditForm, FolderForm
 from docs.config import app_config
 
 role = ROLE_DOC
 app = ROLE_APP[role]
 
-class ListView(BaseListView):
+class TuneData:
+    def tune_dataset(self, data, group):
+        return data
+
+class ListView(BaseListView, TuneData):
     model = Task
     form_class = CreateForm
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
-    def tune_dataset(self, data, group):
-        return data;
-
-
-class DetailView(BaseDetailView):
+class DetailView(BaseDetailView, TuneData):
     model = Task
     form_class = EditForm
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
-    def tune_dataset(self, data, group):
-        return data;
+class FolderView(BaseGroupView, TuneData):
+    form_class = FolderForm
 
-class GroupView(BaseGroupView):
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
-
-def get_doc(request, pk, fname):
-    return get_app_doc(app_config['name'], role, request, pk, fname)
 

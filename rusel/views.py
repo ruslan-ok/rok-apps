@@ -27,7 +27,7 @@ class ListView(BaseListView, TuneData):
 
     def get(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
-            context = get_base_context(request, APP_HOME, ROLE_ACCOUNT, '', ('rusel.by',))
+            context = get_base_context(request, APP_HOME, ROLE_ACCOUNT, None, '', ('rusel.by',))
             template = loader.get_template('index_anonim.html')
             return HttpResponse(template.render(context, request))
 
@@ -40,7 +40,7 @@ class ListView(BaseListView, TuneData):
             template = loader.get_template('base/list.html')
             return HttpResponse(template.render(context, request))
 
-        context = get_base_context(request, APP_HOME, ROLE_ACCOUNT, '', (_('applications').capitalize(),))
+        context = get_base_context(request, APP_HOME, ROLE_ACCOUNT, None, '', (_('applications').capitalize(),))
         context['debug'] = settings.DEBUG
         config = {'app_title': 'rusel.by'}
         context['config'] = config

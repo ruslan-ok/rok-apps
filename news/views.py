@@ -10,7 +10,7 @@ role = ROLE_NEWS
 
 class TuneData:
     def tune_dataset(self, data, group):
-        return data;
+        return data
 
 class ListView(BaseListView, TuneData):
     model = Task

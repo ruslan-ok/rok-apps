@@ -91,3 +91,21 @@ class CompletedInput(widgets.CheckboxInput):
         context = super().get_context(name, value, attrs)
         context['widget'].update({'wrap_label': False})
         return context
+
+class EntryUsernameInput(widgets.Input):
+    input_type = 'text'
+    template_name = 'widgets/entry_username.html'
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        return context
+
+class EntryValueInput(widgets.Input):
+    input_type = 'text'
+    template_name = 'widgets/entry_value.html'
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        return context
+
+        

@@ -1,10 +1,11 @@
-from collections import Counter
+from datetime import datetime
 from todo.models import Grp, Lst, Task as OldTask, Step as OldStep
 from note.models import Note
 from task.models import Task, Step, Group, TaskGroup, Urls
 from apart.models import Apart, Meter, Bill, Service, Price
 from store.models import Entry
 from proj.models import Projects, Expenses
+from fuel.models import Car, Fuel, Part, Repl
 from task.const import *
 from todo.get_info import get_info as todo_get_info
 from note.get_info import get_info as note_get_info
@@ -16,205 +17,174 @@ from apart.views.price import get_info as price_get_info
 from apart.views.bill import get_info as bill_get_info
 from store.get_info import get_info as store_get_info
 from expen.views import get_info as expen_get_info
+from fuel.views.fuel import get_info as fuel_get_info
+from fuel.views.serv import get_info as repl_get_info
+from fuel.views.part import get_info as part_get_info
 
 STAGES = {
-    'groups': 0,
-    'todo': 0,
-    'note_news': 0,
-    'apart': 0,
-    'store': 0,
-    'expen': 1,
-    'trip': 0,
-    'fuel': 0,
-    'work': 0,
-    'health': 0,
-    'docs': 0,
-    'warr': 0,
-    'photo': 0,
+    APP_TODO: 0,
+    APP_NOTE: 0,
+    APP_NEWS: 0,
+    APP_STORE: 1,
+    APP_EXPEN: 0,
+    APP_TRIP: 0,
+    APP_FUEL: 0,
+    APP_APART: 0,
+    APP_WORK: 0,
+    APP_HEALTH: 0,
+    APP_DOCS: 0,
+    APP_WARR: 0,
+    APP_PHOTO: 0,
 }
 
 def convert_v3():
-    counter = Counter()
-    init(counter)
-    convert(counter)
-    done(counter)
-    return dict(counter)
+    result = {}
+    result['start'] = datetime.now()
+    init(result)
+    convert(result)
+    result['stop'] = datetime.now()
+    done(result)
+    return result
 
+def set(result, app, role, table, oper, qnt: int):
+    if (qnt == 0) and (table not in result[app][role]):
+        return
+    if (qnt == 0) and (oper not in result[app][role][table]):
+        return
+    if (table not in result[app][role]):
+        result[app][role][table] = {}
+    result[app][role][table][oper] = qnt
 
-GRP_APP = 0
-NUM_ROLE = 1
-STR_ROLE = 2
+def inc(result, app, role, table, oper):
+    if (table not in result[app][role]):
+        result[app][role][table] = {}
+    if (oper not in result[app][role][table]):
+        result[app][role][table][oper] = 1
+    else:
+        result[app][role][table][oper] += 1
 
-STAGE_ROLES = {
-    'expen': (APP_EXPEN, NUM_ROLE_EXPENSE, ROLE_EXPENSE),
-}
+def get_excluded(app, kind):
+    if (app != APP_TODO):
+        return []
+    leave_groups = Group.objects.filter(name__contains='Сайт 3.0')
+    if (kind == 'Group'):
+        return leave_groups
+    leave_tgs = TaskGroup.objects.filter(role=ROLE_TODO).filter(group__in=leave_groups)
+    if (kind == 'TaskGroup'):
+        return leave_tgs
+    return leave_tgs.values('task')
 
-def init(counter):
-    for stage in STAGES:
-        if STAGES[stage]:
-            counter['del_TaskGroup_'+stage] += TaskGroup.objects.filter(role=STAGE_ROLES[stage][STR_ROLE]).delete()[0]
-            if (stage == 'groups'):
-                pass
-            elif (stage == 'todo'):
-                pass
-            elif (stage == 'note_news'):
-                pass
-            elif (stage == 'apart'):
-                pass
-            elif (stage == 'store'):
-                pass
-            elif (stage == 'expen'):
-                counter['upd_Task_'     +stage] += Task.objects.exclude(app_expen=NONE).update(app_expen=NONE)
-            elif (stage == 'trip'):
-                pass
-            elif (stage == 'fuel'):
-                pass
-            elif (stage == 'work'):
-                pass
-            elif (stage == 'health'):
-                pass
-            elif (stage == 'docs'):
-                pass
-            elif (stage == 'warr'):
-                pass
-            elif (stage == 'photo'):
-                pass
-            counter['del_Task'] += Task.objects.filter(app_task=NONE, app_note=NONE, app_news=NONE, 
+def delete_task_role(app, role, result):
+    data = Task.get_role_tasks(None, app, role).exclude(id__in=get_excluded(app, 'Task'))
+    if (app == APP_TODO):
+        qnt = data.update(app_task=NONE)
+    if (app == APP_NOTE):
+        qnt = data.update(app_note=NONE)
+    if (app == APP_NEWS):
+        qnt = data.update(app_news=NONE)
+    if (app == APP_STORE):
+        qnt = data.update(app_store=NONE)
+    if (app == APP_DOCS):
+        qnt = data.update(app_doc=NONE)
+    if (app == APP_WARR):
+        qnt = data.update(app_warr=NONE)
+    if (app == APP_EXPEN):
+        qnt = data.update(app_expen=NONE)
+    if (app == APP_TRIP):
+        qnt = data.update(app_trip=NONE)
+    if (app == APP_FUEL):
+        qnt = data.update(app_fuel=NONE)
+    if (app == APP_APART):
+        qnt = data.update(app_apart=NONE)
+    if (app == APP_HEALTH):
+        qnt = data.update(app_health=NONE)
+    if (app == APP_WORK):
+        qnt = data.update(app_work=NONE)
+    if (app == APP_PHOTO):
+        qnt = data.update(app_photo=NONE)
+    set(result, app, role, 'Task', 'reset_role', qnt)
+    to_kill = Task.objects.filter(app_task=NONE, app_note=NONE, app_news=NONE, 
                         app_store=NONE, app_doc=NONE, app_warr=NONE, app_expen=NONE, app_trip=NONE, 
-                        app_fuel=NONE, app_apart=NONE, app_health=NONE, app_work=NONE, app_photo=NONE).delete()[0]
-            counter['del_Group_'+stage] += Group.objects.filter(app=STAGE_ROLES[stage][GRP_APP]).delete()[0]
+                        app_fuel=NONE, app_apart=NONE, app_health=NONE, app_work=NONE, app_photo=NONE)
+    set(result, app, role, 'Step', 'delete', Step.objects.filter(task__in=to_kill).delete()[0])
+    set(result, app, role, 'Urls', 'delete', Urls.objects.filter(task__in=to_kill).delete()[0])
+    set(result, app, role, 'Task', 'delete', to_kill.delete()[0])
 
-def convert(counter):
-    for stage in STAGES:
-        if STAGES[stage]:
-            if (stage == 'groups'):
-                transfer_grp(None, None)
-                transfer_lst(None, None)
-            elif (stage == 'todo'):
-                transfer_task(None, None)
-            elif (stage == 'note_news'):
-                transfer_note(None, None)
-            elif (stage == 'apart'):
-                transfer_apart()
-                transfer_meter()
-                transfer_service()
-                transfer_price()
-                transfer_bill()
-            elif (stage == 'store'):
-                transfer_store(None, None)
-            elif (stage == 'expen'):
-                transfer_expen_proj(stage, counter)
-                transfer_expenses(stage, counter)
-            elif (stage == 'trip'):
-                transfer_pass()
-            elif (stage == 'fuel'):
-                transfer_pass()
-            elif (stage == 'work'):
-                transfer_pass()
-            elif (stage == 'health'):
-                transfer_pass()
-            elif (stage == 'docs'):
-                transfer_pass()
-            elif (stage == 'warr'):
-                transfer_pass()
-            elif (stage == 'photo'):
-                transfer_pass()
+def init(result):
+    for app in STAGES:
+        if STAGES[app]:
+            result[app] = {}
+            for role in ROLES_IDS[app]:
+                result[app][role] = {}
+                delete_task_role(app, role, result)
+                set(result, app, role, 'TaskGroup', 'delete', TaskGroup.objects.filter(role=role).exclude(id__in=get_excluded(app, 'TaskGroup')).delete()[0])
+                set(result, app, role, 'Group', 'delete', Group.objects.filter(app=app).exclude(id__in=get_excluded(app, 'Group')).delete()[0])
 
-"""
-    debug = []
-    debug.append('Start convert')
-    Task.objects.exclude(app_store=NONE).delete()
-    task_len_before = len(Task.objects.all())
-    urls_len_before = len(Urls.objects.all())
-    TaskGroup.objects.all().delete()
-    Group.objects.all().delete()
-    Task.objects.all().delete()
-    Step.objects.all().delete()
-    Urls.objects.all().delete()
-    transfer_grp(None, None, debug)
-    transfer_lst(None, None, debug)
-    transfer_task(None, None)
-    transfer_note(None, None)
-    transfer_apart()
-    transfer_meter()
-    transfer_service()
-    transfer_price()
-    transfer_bill()
-    transfer_store(None, None)
-    debug.append('Records in Grp: ' + str(len(Grp.objects.all())))
-    debug.append('Records in Lst: ' + str(len(Lst.objects.all())))
-    debug.append('Records in Group: ' + str(len(Group.objects.all())))
-    debug.append('-')
-    task_qty = len(OldTask.objects.all())
-    note_qty = len(Note.objects.all())
-    apart_qty = len(Apart.objects.all())
-    serv_qty = len(Service.objects.all())
-    meter_qty = len(Meter.objects.all())
-    price_qty = len(Price.objects.all())
-    bill_qty = len(Bill.objects.all())
-    debug.append('Records in OldTask: ' + str(task_qty))
-    debug.append('Records in Note: ' + str(note_qty))
-    debug.append('Records in Apart: ' + str(apart_qty))
-    debug.append('Records in Service: ' + str(serv_qty))
-    debug.append('Records in Meter: ' + str(meter_qty))
-    debug.append('Records in Price: ' + str(price_qty))
-    debug.append('Records in Bill: ' + str(bill_qty))
-    debug.append('Total: ' + str(task_qty + note_qty + apart_qty + serv_qty + meter_qty + bill_qty))
-    debug.append('Total: ' + str(apart_qty + serv_qty + meter_qty + bill_qty + price_qty))
-    debug.append('Records in Task added: ' + str(len(Task.objects.all())-task_len_before))
-    debug.append('-')
-    debug.append('Records in OldStep: ' + str(len(OldStep.objects.all())))
-    debug.append('Records in Step: ' + str(len(Step.objects.all())))
-    debug.append('-')
-    debug.append('Records in Urls added: ' + str(len(Urls.objects.all())-urls_len_before))
-    debug.append('Stop convert')
-    return debug
-"""
+def convert(result):
+    for app in STAGES:
+        if STAGES[app]:
+            for role in ROLES_IDS[app]:
+                transfer_grp(result, app, role, None, None)
+                transfer_lst(result, app, role, None, None)
+            if (app == APP_TODO):
+                transfer_task(result, None, None)
+            if (app == APP_NOTE):
+                transfer_note(result, app, role, None, None)
+            if (app == APP_NEWS):
+                transfer_note(result, app, role, None, None)
+            if (app == APP_STORE):
+                transfer_store(result, None, None)
+            if (app == APP_DOCS):
+                pass
+            if (app == APP_WARR):
+                pass
+            if (app == APP_EXPEN):
+                transfer_expen_proj(result)
+                transfer_expenses(result)
+            if (app == APP_TRIP):
+                pass
+            if (app == APP_FUEL):
+                transfer_car(result)
+                transfer_fuel(result)
+                transfer_part(result)
+                transfer_repl(result)
+            if (app == APP_APART):
+                transfer_apart(result)
+                transfer_meter(result)
+                transfer_service(result)
+                transfer_price(result)
+                transfer_bill(result)
+            if (app == APP_HEALTH):
+                pass
+            if (app == APP_WORK):
+                pass
+            if (app == APP_PHOTO):
+                pass
 
-def done(counter):
-    print(counter)
+def done(result):
+    print(result)
 
-def transfer_pass():
-    pass
-
-def transfer_grp(grp_node, task_grp_node, debug):
-    grps = Grp.objects.filter(node=grp_node)
+def transfer_grp(result, app, role, grp_node, task_grp_node):
+    grps = Grp.objects.filter(app=app, node=grp_node)
     for grp in grps:
-        """
-        task_grp_node_id = None
-        if task_grp_node:
-            task_grp_node_id = task_grp_node.id
-        if Group.objects.filter(user=grp.user.id, app=grp.app, role=grp.app, node=task_grp_node_id, name=grp.name, sort=grp.sort, created=grp.created, last_mod=grp.last_mod).exists():
-            task_grp = Group.objects.filter(user=grp.user.id, app=grp.app, role=grp.app, node=task_grp_node_id, name=grp.name, sort=grp.sort, created=grp.created, last_mod=grp.last_mod).get()
-        else:
-            task_grp = Group.objects.create(user=grp.user, app=grp.app, role=grp.app, node=task_grp_node, name=grp.name, sort=grp.sort, created=grp.created, last_mod=grp.last_mod)
-        """
         task_grp = Group.objects.create(user=grp.user, app=grp.app, role=grp.app, node=task_grp_node, name=grp.name, sort=grp.sort, created=grp.created, last_mod=grp.last_mod)
-        transfer_grp(grp, task_grp, debug)
-        transfer_lst(grp, task_grp, debug)
+        inc(result, app, role, 'Group', 'added')
+        transfer_grp(result, app, role, grp, task_grp)
+        transfer_lst(result, app, role, grp, task_grp)
 
-
-def transfer_lst(grp, task_grp, debug):
-    lsts = Lst.objects.filter(grp=grp)
-    """
-    task_grp_id = None
-    if task_grp:
-        task_grp_id = task_grp.id
-    """
+def transfer_lst(result, app, role, grp, task_grp):
+    lsts = Lst.objects.filter(app=app, grp=grp)
     for lst in lsts:
-        """
-        if Group.objects.filter(user=lst.user.id, app=lst.app, role=lst.app, node=task_grp_id, name=lst.name, sort=lst.sort, created=lst.created, last_mod=lst.last_mod).exists():
-            task_grp_ = Group.objects.filter(user=lst.user.id, app=lst.app, role=lst.app, node=task_grp_id, name=lst.name, sort=lst.sort, created=lst.created, last_mod=lst.last_mod).get()
-        else:
-            task_grp_ = Group.objects.create(user=lst.user, app=lst.app, role=lst.app, node=task_grp, name=lst.name, sort=lst.sort, created=lst.created, last_mod=lst.last_mod)
-        """
         task_grp_ = Group.objects.create(user=lst.user, app=lst.app, role=lst.app, node=task_grp, name=lst.name, sort=lst.sort, created=lst.created, last_mod=lst.last_mod)
-        transfer_task(lst, task_grp_)
-        transfer_note(lst, task_grp_)
-        transfer_store(lst, task_grp_)
+        inc(result, app, role, 'Group', 'added')
+        if (role == ROLE_TODO):
+            transfer_task(result, lst, task_grp_)
+        if (role == ROLE_NOTE) or (role == ROLE_NEWS):
+            transfer_note(result, app, role, lst, task_grp_)
+        if (role == ROLE_STORE):
+            transfer_store(result, lst, task_grp_)
 
-
-def transfer_task(lst, task_grp):
+def transfer_task(result, lst, task_grp):
     tasks = OldTask.objects.filter(lst=lst)
     for task in tasks:
         atask = Task.objects.create(user=task.user,
@@ -235,21 +205,29 @@ def transfer_task(lst, task_grp):
                                     app_task=NUM_ROLE_TODO,
                                     created=task.created,
                                     last_mod=task.last_mod)
+        inc(result, APP_TODO, ROLE_TODO, 'Task', 'added')
         
         for step in OldStep.objects.filter(task=task.id):
             Step.objects.create(user=step.task.user, task=atask, name=step.name, sort=step.sort, completed=step.completed)
+            inc(result, APP_TODO, ROLE_TODO, 'Step', 'added')
         
         if task_grp:
             TaskGroup.objects.create(task=atask, group=task_grp, role=task_grp.role)
+            inc(result, APP_TODO, ROLE_TODO, 'TaskGroup', 'added')
         
         if task.url:
             Urls.objects.create(task=atask, num=1, href=task.url)
+            inc(result, APP_TODO, ROLE_TODO, 'Urls', 'added')
 
         atask.set_item_attr(APP_TODO, todo_get_info(atask))
 
-def transfer_note(lst, task_grp):
+def transfer_note(result, app, role, lst, task_grp):
     notes = Note.objects.filter(lst=lst)
     for note in notes:
+        if (note.kind == 'note') and (role != ROLE_NOTE):
+            continue
+        if (note.kind == 'news') and (role != ROLE_NEWS):
+            continue
         note_role = NONE
         news_role = NONE
         if note.kind == 'note':
@@ -265,112 +243,175 @@ def transfer_note(lst, task_grp):
                                     app_news=news_role,
                                     created=note.publ,
                                     last_mod=note.last_mod)
+        inc(result, app, role, 'Task', 'added')
         
         if task_grp:
             TaskGroup.objects.create(task=atask, group=task_grp, role=task_grp.role)
+            inc(result, app, role, 'TaskGroup', 'added')
 
         if note.url:
             Urls.objects.create(task=atask, num=1, href=note.url)
+            inc(result, app, role, 'Urls', 'added')
 
         if note.kind == 'note':
             atask.set_item_attr(APP_NOTE, note_get_info(atask))
         else:
             atask.set_item_attr(APP_NEWS, news_get_info(atask))
 
-def transfer_apart():
-    aparts = Apart.objects.all()
-    for apart in aparts:
-        param = 0
-        atask = Task.objects.create(user=apart.user,
-                                    name=apart.name,
-                                    important=apart.active,
-                                    info=apart.addr,
-                                    app_apart=NUM_ROLE_APART,
-                                    )
-        apart.task = atask
-        apart.save()
-        atask.set_item_attr(APP_APART, apart_get_info(atask))
+def transfer_apart(result):
+    items = Apart.objects.all()
+    for item in items:
+        Group.objects.create(user=item.user,
+                            app=APP_APART,
+                            role=ROLE_APART,
+                            node=None,
+                            name=item.name,
+                            sort=str(item.id),
+                            info=item.addr,
+                            has_el=item.has_el,
+                            has_hw=item.has_hw,
+                            has_cw=item.has_cw,
+                            has_gas=item.has_gas,
+                            has_ppo=item.has_ppo,
+                            has_tv=item.has_tv,
+                            has_phone=item.has_phone,
+                            has_zkx=item.has_zkx,
+                            )
+        inc(result, APP_APART, ROLE_APART, 'Group', 'added')
 
-def transfer_meter():
-    meters = Meter.objects.all()
-    for meter in meters:
-        atask = Task.objects.create(user=meter.apart.user,
-                                    event=meter.reading,
-                                    name=meter.period.strftime('%Y.%m'),
-                                    start=meter.period,
-                                    info=meter.info,
+def transfer_meter(result):
+    items = Meter.objects.all()
+    for item in items:
+        atask = Task.objects.create(user=item.apart.user,
+                                    event=item.reading,
+                                    name=item.period.strftime('%Y.%m'),
+                                    start=item.period,
+                                    info=item.info,
                                     app_apart=NUM_ROLE_METER,
                                     )
-        meter.task = atask
-        meter.save()
+        inc(result, APP_APART, ROLE_METER, 'Task', 'added')
+        item.task = atask
+        item.save()
+        link_group(result, atask.user_id, APP_APART, ROLE_METER, str(item.apart.id), atask)
         atask.set_item_attr(APP_APART, meter_get_info(atask))
 
-def transfer_service():
-    services = Service.objects.all()
-    for serv in services:
-        atask = Task.objects.create(user=serv.apart.user,
-                                    name=serv.name,
-                                    info=serv.abbr,
+def transfer_service(result):
+    items = Service.objects.all()
+    for item in items:
+        atask = Task.objects.create(user=item.apart.user,
+                                    name=item.name,
+                                    info=item.abbr,
                                     app_apart=NUM_ROLE_SERVICE,
                                     )
-        serv.task = atask
-        serv.save()
+        inc(result, APP_APART, ROLE_SERVICE, 'Task', 'added')
+        item.task = atask
+        item.save()
+        link_group(result, atask.user_id, APP_APART, ROLE_SERVICE, str(item.apart.id), atask)
         atask.set_item_attr(APP_APART, serv_get_info(atask))
 
-def transfer_price():
-    prices = Price.objects.all()
-    for price in prices:
-        atask = Task.objects.create(user=price.apart.user,
-                                    start=price.start,
-                                    name=price.start.strftime('%Y.%m.%d') + ' ' + price.serv.name,
-                                    info=price.info,
+def transfer_price(result):
+    items = Price.objects.all()
+    for item in items:
+        atask = Task.objects.create(user=item.apart.user,
+                                    start=item.start,
+                                    name=item.start.strftime('%Y.%m.%d') + ' ' + item.serv.name,
+                                    info=item.info,
                                     app_apart=NUM_ROLE_PRICE,
                                     )
-        price.task = atask
-        price.save()
+        inc(result, APP_APART, ROLE_PRICE, 'Task', 'added')
+        item.task = atask
+        item.save()
+        link_group(result, atask.user_id, APP_APART, ROLE_PRICE, str(item.apart.id), atask)
         atask.set_item_attr(APP_APART, price_get_info(atask))
 
-def transfer_bill():
-    bills = Bill.objects.all()
-    for bill in bills:
-        atask = Task.objects.create(user=bill.apart.user,
-                                    event=bill.payment,
-                                    name=bill.period.strftime('%Y.%m'),
-                                    start=bill.period,
-                                    info=bill.info,
+def transfer_bill(result):
+    items = Bill.objects.all()
+    for item in items:
+        atask = Task.objects.create(user=item.apart.user,
+                                    event=item.payment,
+                                    name=item.period.strftime('%Y.%m'),
+                                    start=item.period,
+                                    info=item.info,
                                     app_apart=NUM_ROLE_BILL,
                                     )
-        bill.task = atask
-        bill.save()
+        inc(result, APP_APART, ROLE_BILL, 'Task', 'added')
+        item.task = atask
+        item.save()
+        link_group(result, atask.user_id, APP_APART, ROLE_BILL, str(item.apart.id), atask)
 
-        if bill.url:
-            Urls.objects.create(task=atask, num=1, href=bill.url)
+        if item.url:
+            Urls.objects.create(task=atask, num=1, href=item.url)
+            inc(result, APP_APART, ROLE_BILL, 'Urls', 'added')
 
         atask.set_item_attr(APP_APART, bill_get_info(atask))
 
-def transfer_store(lst, task_grp):
-    items = Entry.objects.filter(lst=lst)
+def transfer_store(result, lst, task_grp):
+    items = Entry.objects.filter(lst=lst, actual=True)
     for item in items:
         atask = Task.objects.create(user=item.user,
                                     name=item.title,
                                     categories=item.categories,
                                     info=item.notes if item.notes else '',
                                     app_store=NUM_ROLE_STORE)
+        inc(result, APP_STORE, ROLE_STORE, 'Task', 'added')
+        item.task = atask
+        item.save()
         
         if task_grp:
             TaskGroup.objects.create(task=atask, group=task_grp, role=task_grp.role)
+            inc(result, APP_STORE, ROLE_STORE, 'TaskGroup', 'added')
 
         if item.url:
             Urls.objects.create(task=atask, num=1, href=item.url)
+            inc(result, APP_STORE, ROLE_STORE, 'Urls', 'added')
 
         atask.set_item_attr(APP_STORE, store_get_info(atask))
 
-def transfer_expen_proj(stage, counter):
+    items = Entry.objects.filter(lst=lst, actual=False)
+    for item in items:
+        if task_grp:
+            atasks = Task.objects.filter(user=item.user.id, name=item.title, app_store=NUM_ROLE_STORE, groups__id=task_grp.id)
+        else:
+            atasks = Task.objects.filter(user=item.user.id, name=item.title, app_store=NUM_ROLE_STORE, groups__id=None)
+
+        if (len(atasks) > 1):
+            print('oops')
+            break
+
+        if (len(atasks) == 1):
+            atask = atasks[0]
+            if item.url:
+                Urls.objects.create(task=atask, num=2, href=item.url)
+                inc(result, APP_STORE, ROLE_STORE, 'Urls', 'added')
+            item.task = atask
+            item.save()
+        else:
+            atask = Task.objects.create(user=item.user,
+                                        name=item.title,
+                                        categories=item.categories,
+                                        info=item.notes if item.notes else '',
+                                        app_store=NUM_ROLE_STORE)
+            inc(result, APP_STORE, ROLE_STORE, 'Task', 'added_broken_Entry')
+            item.task = atask
+            item.save()
+            
+            if task_grp:
+                TaskGroup.objects.create(task=atask, group=task_grp, role=task_grp.role)
+                inc(result, APP_STORE, ROLE_STORE, 'TaskGroup', 'added')
+
+            if item.url:
+                Urls.objects.create(task=atask, num=1, href=item.url)
+                inc(result, APP_STORE, ROLE_STORE, 'Urls', 'added')
+
+            atask.set_item_attr(APP_STORE, store_get_info(atask))
+
+
+def transfer_expen_proj(result):
     items = Projects.objects.all()
     for item in items:
         Group.objects.create(user=item.user,
-                            app=STAGE_ROLES[stage][GRP_APP],
-                            role=STAGE_ROLES[stage][STR_ROLE],
+                            app=APP_EXPEN,
+                            role=ROLE_EXPENSE,
                             node=None,
                             name=item.name,
                             sort=str(item.id),
@@ -380,13 +421,13 @@ def transfer_expen_proj(stage, counter):
                             tot_usd=item.tot_usd,
                             tot_eur=item.tot_eur,
                             )
-        counter['add_Group_'+stage] += 1
+        inc(result, APP_EXPEN, ROLE_EXPENSE, 'Group', 'added')
 
-def transfer_expenses(stage, counter):
+def transfer_expenses(result):
     items = Expenses.objects.all()
     for item in items:
         atask = Task.objects.create(user=item.direct.user,
-                                    app_expen=STAGE_ROLES[stage][NUM_ROLE],
+                                    app_expen=NUM_ROLE_EXPENSE,
                                     event=item.date,
                                     name = item.description,
                                     created=item.created,
@@ -400,11 +441,78 @@ def transfer_expenses(stage, counter):
                                     eur=item.eur,
                                     kontr=item.kontr,
                                     )
-        counter['add_Task_'+stage] += 1
-
-        if Group.objects.filter(user=atask.user_id, app=APP_EXPEN, sort=str(item.direct.id)).exists():
-            task_grp = Group.objects.filter(user=atask.user_id, app=APP_EXPEN, sort=str(item.direct.id)).get()
-            TaskGroup.objects.create(task=atask, group=task_grp, role=STAGE_ROLES[stage][STR_ROLE])
-            counter['add_TaskGroup_'+stage] += 1
-
+        inc(result, APP_EXPEN, ROLE_EXPENSE, 'Task', 'added')
+        link_group(result, atask.user_id, APP_EXPEN, ROLE_EXPENSE, str(item.direct.id), atask)
         atask.set_item_attr(APP_EXPEN, expen_get_info(atask))
+
+def transfer_car(result):
+    items = Car.objects.all()
+    for item in items:
+        Group.objects.create(user=item.user,
+                            app=APP_FUEL,
+                            role=ROLE_CAR,
+                            node=None,
+                            name=item.name,
+                            sort=str(item.id),
+                            info=item.plate,
+                            )
+        inc(result, APP_FUEL, ROLE_CAR, 'Group', 'added')
+
+def transfer_fuel(result):
+    items = Fuel.objects.all()
+    for item in items:
+        atask = Task.objects.create(user=item.car.user,
+                                    app_fuel=NUM_ROLE_FUEL,
+                                    event=item.pub_date,
+                                    name=str(item.odometer),
+                                    qty=item.volume,
+                                    price=item.price,
+                                    info=item.comment,
+                                    created=item.created,
+                                    last_mod=item.last_mod,
+                                    )
+        inc(result, APP_FUEL, ROLE_FUEL, 'Task', 'added')
+        link_group(result, atask.user_id, APP_FUEL, ROLE_FUEL, str(item.car.id), atask)
+        atask.set_item_attr(APP_FUEL, fuel_get_info(atask))
+
+def transfer_part(result):
+    items = Part.objects.all()
+    for item in items:
+        atask = Task.objects.create(user=item.car.user,
+                                    app_fuel=NUM_ROLE_PART,
+                                    event=item.pub_date,
+                                    name=str(item.odometer),
+                                    qty=item.volume,
+                                    price=item.price,
+                                    info=item.comment,
+                                    created=item.created,
+                                    last_mod=item.last_mod,
+                                    )
+        inc(result, APP_FUEL, ROLE_PART, 'Task', 'added')
+        link_group(result, atask.user_id, APP_FUEL, ROLE_PART, str(item.car.id), atask)
+        atask.set_item_attr(APP_FUEL, part_get_info(atask))
+
+def transfer_repl(result):
+    items = Repl.objects.all()
+    for item in items:
+        atask = Task.objects.create(user=item.car.user,
+                                    app_fuel=NUM_ROLE_SERVICE,
+                                    event=item.pub_date,
+                                    name=str(item.odometer),
+                                    qty=item.volume,
+                                    price=item.price,
+                                    info=item.comment,
+                                    created=item.created,
+                                    last_mod=item.last_mod,
+                                    )
+        inc(result, APP_FUEL, ROLE_SERVICE, 'Task', 'added')
+        link_group(result, atask.user_id, APP_FUEL, ROLE_SERVICE, str(item.car.id), atask)
+        atask.set_item_attr(APP_FUEL, repl_get_info(atask))
+
+
+def link_group(result, user_id, app, role, todo_grp_id, task):
+        if Group.objects.filter(user=user_id, app=app, sort=todo_grp_id).exists():
+            task_grp = Group.objects.filter(user=user_id, app=app, sort=todo_grp_id).get()
+            TaskGroup.objects.create(task=task, group=task_grp, role=role)
+            inc(result, app, role, 'TaskGroup', 'added')
+

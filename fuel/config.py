@@ -2,32 +2,30 @@ from task.const import *
 
 app_config = {
     'name': APP_FUEL,
-    'title': 'fueling',
+    'app_title': 'fueling',
     'icon': 'star',
+    'role': ROLE_FUEL,
+    'use_groups': True,
+    'group_entity': 'person',
+    'sort': [
+        ('event', 'fueling date'),
+    ],
     'views': {
-        'cars': {
-            'role': ROLE_APART,
-            'icon': 'building', 
-            'title': 'apartments',
-            'use_selector': True,
-        },
         'fuelings': {
-            'role': ROLE_FUEL,
             'icon': 'star', 
-            'url': 'services',
-            'title': 'services',
+            'title': 'fuelings',
         },
         'itnervals': {
             'role': ROLE_PART,
             'icon': 'star', 
-            'url': 'meters',
-            'title': 'meters data',
+            'url': 'itnerval',
+            'title': 'itnervals',
         },
-        'service': {
+        'services': {
             'role': ROLE_SERVICE,
             'icon': 'star', 
-            'url': 'prices',
-            'title': 'prices',
+            'url': 'service',
+            'title': 'services',
         },
     }
 }

@@ -2,11 +2,29 @@
 {% load static i18n %}
 
 {% block main %}
-  {% include "base/title.html" %}
   <form method="post" class="w-100 px-2 item-form" enctype="multipart/form-data" id="article_form" data-item_id="{{ ed_item.id|cut:" " }}">{% csrf_token %}
+    {% include "base/title.html" %}
     {% include "base/form_errors.html" %}
 
-    {{ form }}
+    <div class="row mb-3">
+      <div class="col-sm">{{ form.name.label_tag }}{{ form.name }}</div>
+      <div class="col-sm">{{ form.username.label_tag }}{{ form.username }}</div>
+      <div class="col-sm">{{ form.value.label_tag }}{{ form.value }}</div>
+    </div>
+
+    <!-- There will be collapsed History -->
+
+    <div class="row">
+      <div class="col-sm">
+        <div class="col-item">{{ form.info.label_tag }}{{ form.info }}</div>
+        <div class="col-item">{{ form.url.label_tag }}{{ form.url }}</div>
+      </div>
+      <div class="col-sm">
+        <div class="col-item">{{ form.grp.label_tag }}{{ form.grp }}</div>
+        <div class="col-item">{{ form.categories.label_tag }}{{ form.categories }}</div>
+        <div class="col-item">{{ form.upload.label_tag }}{{ form.upload }}</div>
+      </div>
+    </div>
 
     {% include "widgets/url_list.html" %}
     {% include "widgets/attachments.html" %}
@@ -23,5 +41,6 @@
       </button>
     </div>
   </form>
+  <script src="{% static 'js/store.js' %}"></script>
 {% endblock %}
 

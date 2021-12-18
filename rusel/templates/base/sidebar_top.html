@@ -4,7 +4,7 @@
     <div class="container-xxl d-flex align-items-md-center">
       <div class="position-relative me-auto">
         {% if config.icon %}
-          <i class="bi-{{config.icon}} content-title__icon"></i>
+          <i class="bi-{% if is_group_form %}journals{% else %}{{config.icon}}{% endif %} content-title__icon"></i>
         {% endif %}
         {% if group_path %}
             {% for group in group_path %}

@@ -2,11 +2,11 @@ from django.core.exceptions import FieldError
 from datetime import datetime, date
 from django.utils.translation import gettext_lazy as _
 
-def extract_get_params(request):
+def extract_get_params(request, group_entity):
     v = request.GET.get('view')
     if not v:
         v = ''
-    g = request.GET.get('group')
+    g = request.GET.get(group_entity)
     if not g:
         g = ''
     q = request.GET.get('q')
@@ -23,7 +23,7 @@ def extract_get_params(request):
     if v:
         ret += 'view=' + v
     if (not v) and g:
-        ret += 'group=' + g
+        ret += group_entity + '=' + g
     if q:
         if ret:
             ret += '&'

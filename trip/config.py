@@ -2,19 +2,19 @@ from task.const import *
 
 app_config = {
     'name': APP_TRIP,
-    'title': 'trips',
+    'app_title': 'trips',
     'icon': 'star',
-    'roles': {
-        'trip': { 
+    'role': ROLE_TRIP,
+    'use_groups': True,
+    'group_entity': 'car',
+    'sort': [
+        ('event', 'trip date'),
+        ('name', 'direction'),
+    ],
+    'views': {
+        'all': {
             'icon': 'star', 
-            'use_groups': True,
-            'views': {
-                'all': {
-                    'url': '',
-                    'icon': 'check-all',
-                    'title': 'all',
-                },
-            },
+            'title': 'trips',
         },
     }
 }

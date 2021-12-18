@@ -3,7 +3,7 @@ from task.models import Task, Urls, TaskGroup
 from rusel.files import get_files_list
 from rusel.categories import get_categories_list
 from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView, get_app_doc
-from expen.forms import CreateForm, EditForm, ExpenGroupForm
+from expen.forms import CreateForm, EditForm, ProjectForm
 from expen.config import app_config
 
 role = ROLE_EXPENSE
@@ -11,7 +11,7 @@ app = ROLE_APP[role]
 
 class TuneData:
     def tune_dataset(self, data, group):
-        return data;
+        return data
 
 class ListView(BaseListView, TuneData):
     model = Task
@@ -98,8 +98,8 @@ def get_info(item):
     return ret
 
 
-class GroupView(BaseGroupView, TuneData):
-    form_class = ExpenGroupForm
+class ProjectView(BaseGroupView, TuneData):
+    form_class = ProjectForm
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)

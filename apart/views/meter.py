@@ -3,9 +3,9 @@ from django.utils.translation import gettext_lazy as _
 from task.const import APP_APART, ROLE_METER, NUM_ROLE_METER
 from task.models import Task, Urls
 from rusel.files import get_files_list
-from rusel.base.views import get_app_doc
+from rusel.base.views import get_app_doc, BaseGroupView
 from apart.views.base_list import BaseApartListView, BaseApartDetailView
-from apart.forms.meter import CreateForm, EditForm
+from apart.forms.meter import CreateForm, EditForm, ApartForm
 from apart.config import app_config
 from apart.models import Meter, Apart, Bill
 
@@ -91,7 +91,7 @@ def get_info(item):
             info_descr = item.info[:80]
             if len(item.info) > 80:
                 info_descr += '...'
-            ret['attr'].append({'icon': 'notes', 'text': info_descr})
+            ret.append({'icon': 'notes', 'text': info_descr})
     return {'attr': ret}
 
 def get_doc(request, pk, fname):
@@ -152,3 +152,13 @@ def add_meter(request, task):
     task.start = item.period
     task.set_item_attr(app, get_info(task))
     return item
+
+
+class ApartView(BaseGroupView):
+    form_class = ApartForm
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(app_config, role, *args, **kwargs)
+
+def get_doc(request, pk, fname):
+    return get_app_doc(app_config['name'], role, request, pk, fname)
