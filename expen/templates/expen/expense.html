@@ -6,6 +6,17 @@
     {% include "base/title.html" %}
     {% include "base/form_errors.html" %}
 
+    {% if summary %}
+      <div class="mb-3">
+        {% for item in summary %}
+          <span class="sort">
+            <i class="sort__icon bi-star"></i>
+            <span class="sort__name">{{ item }}</span>
+          </span>
+        {% endfor %}
+      </div>
+    {% endif %}
+
     <div class="input-group flex-wrap justify-content-start mb-3">
       <div class="col-sm-4">{{ form.event.label_tag }}{{ form.event }}</div>
       <div class="col-sm-8">{{ form.name.label_tag }}{{ form.name }}</div>

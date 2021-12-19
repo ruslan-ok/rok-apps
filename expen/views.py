@@ -23,10 +23,8 @@ class ListView(BaseListView, TuneData):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if (not self.config.cur_view_group.determinator):
-            summary = ' ' + self.config.cur_view_group.expen_summary()
-            context['title'] += summary
             if ('group_path' in context):
-                context['group_path'][0]['name'] += summary
+                context['summary'] = self.config.cur_view_group.expen_summary()
         return context
 
 
@@ -50,6 +48,7 @@ class DetailView(BaseDetailView, TuneData):
             title = self.object.event.strftime('%d %b %Y')
 
         context['title'] = title
+        context['summary'] = self.object.expen_summary()
         context['amount_nc'] = currency_repr(self.object.expen_amount('BYN'))
         return context
 
@@ -65,7 +64,7 @@ def currency_repr(value):
 
 def get_info(item):
     attr = []
-    attr.append({'text': item.expen_summary()})
+    attr.append({'text': ', '.join(item.expen_summary())})
 
     links = len(Urls.objects.filter(task=item.id)) > 0
     files = (len(get_files_list(item.user, app, role, item.id)) > 0)

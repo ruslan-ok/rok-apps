@@ -35,7 +35,7 @@ class DetailView(BaseDetailView, TuneData):
 
 def get_info(item):
     attr = []
-    attr.append({'text': item.expen_summary()})
+    attr.append({'text': ', '.join(item.expen_summary())})
 
     links = len(Urls.objects.filter(task=item.id)) > 0
     files = (len(get_files_list(item.user, app, role, item.id)) > 0)

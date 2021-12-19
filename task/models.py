@@ -139,21 +139,13 @@ class Group(models.Model):
     def expen_summary(self):
         in_byn, in_usd, in_eur = self.expen_what_totals()
         byn, usd, eur = self.expen_get_totals()
-
-        res = ''
+        res = []
         if in_usd:
-            res = currency_repr(usd, '$')
-        
+            res.append(currency_repr(usd, '$'))
         if in_eur:
-            if res:
-                res += ', '
-            res += currency_repr(eur, '€')
-        
+            res.append(currency_repr(eur, '€'))
         if in_byn:
-            if res:
-                res += ', '
-            res += currency_repr(byn, ' BYN')
-        
+            res.append(currency_repr(byn, ' BYN'))
         return res
 
 
@@ -550,23 +542,16 @@ class Task(models.Model):
         if in_byn:
             byn = self.expen_amount('BYN')
 
-        res = ''
+        res = []
         if in_usd and usd:
-            res = currency_repr(usd, '$')
-        
+            res.append(currency_repr(usd, '$'))
         if in_eur and eur:
-            if res:
-                res += ', '
-            res += currency_repr(eur, '€')
-        
+            res.append(currency_repr(eur, '€'))
         if in_byn:
-            if res:
-                res += ', '
             if (self.event < datetime(2016, 6, 1)):
-                res += currency_repr(byn, ' BYR')
+                res.append(currency_repr(byn, ' BYR'))
             else:
-                res += currency_repr(byn, ' BYN')
-        
+                res.append(currency_repr(byn, ' BYN'))
         return res
 
 

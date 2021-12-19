@@ -6,6 +6,17 @@
   <form method="post" class="d-none">{% csrf_token %}</form>
   {% include "base/title.html" %}
 
+  {% if summary %}
+    <div>
+      {% for item in summary %}
+        <span class="sort">
+          <i class="sort__icon bi-star"></i>
+          <span class="sort__name">{{ item }}</span>
+        </span>
+      {% endfor %}
+    </div>
+  {% endif %}
+
   {% if sort_id %}
     <div>
       <span type="button" class="sort" onclick="reverseSort({{config.cur_view_group.id|escape}}, '{{sort_id|escape}}')">
