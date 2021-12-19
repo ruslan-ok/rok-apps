@@ -5,7 +5,7 @@ from rusel.base.forms import BaseCreateForm, BaseEditForm
 from task.models import Task, Group
 from task.const import ROLE_STORE
 from store.config import app_config
-from store.models import Entry
+from store.models import Entry, Params
 from rusel.widgets import UrlsInput, CategoriesInput, EntryUsernameInput, EntryValueInput
 
 role = ROLE_STORE
@@ -61,10 +61,27 @@ class EditForm(BaseEditForm):
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
         if Entry.objects.filter(task=self.instance, actual=1).exists():
-            self.fields['username'].initial = Entry.objects.filter(task=self.instance, actual=1)[0].username
-            self.fields['value'].initial = Entry.objects.filter(task=self.instance, actual=1)[0].value
-            self.fields['params'].initial = Entry.objects.filter(task=self.instance, actual=1)[0].params
+            entry = Entry.objects.filter(task=self.instance, actual=1)[0]
+            self.fields['username'].initial = entry.username
+            self.fields['value'].initial = entry.value
+            self.fields['params'].initial = entry.params
         else:
             self.fields['username'].initial = ''
             self.fields['value'].initial = ''
             self.fields['params'].initial = ''
+
+#----------------------------------
+class ParamsForm(BaseEditForm):
+
+    class Meta:
+        model = Params
+        fields = ['ln', 'uc', 'lc', 'dg', 'sp', 'br', 'mi', 'ul', 'ac']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(app_config, role, *args, **kwargs)
+        if self.instance:
+            #if Params.objects.filter(user=self.request.user.id).exists():
+            #params = Params.objects.filter(user=self.request.user.id)
+            self.fields['ln'].initial = self.instance.ln
+
+        

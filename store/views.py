@@ -1,9 +1,14 @@
-from task.const import ROLE_STORE, NUM_ROLE_STORE, ROLE_APP
+from django.views.generic.edit import FormView
+from django.urls import reverse
+from django.http import HttpResponse
+from django.template import loader
+from task.const import APP_STORE, ROLE_PARAMS, ROLE_STORE, ROLE_APP
 from task.models import Task
-from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView, get_app_doc
-from store.forms import CreateForm, EditForm
+from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView, Context, get_app_doc
+from store.forms import CreateForm, EditForm, ParamsForm
 from store.config import app_config
 from store.get_info import get_info
+from store.models import Entry, Params
 
 role = ROLE_STORE
 app = ROLE_APP[role]
@@ -27,11 +32,63 @@ class DetailView(BaseDetailView, TuneData):
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        store_params = get_store_params(self.request.user)
+        params = 0
+        if store_params.uc:
+            params += 1
+        if store_params.lc:
+            params += 2
+        if store_params.dg:
+            params += 4
+        if store_params.sp:
+            params += 8
+        if store_params.br:
+            params += 16
+        if store_params.mi:
+            params += 32
+        if store_params.ul:
+            params += 64
+        if store_params.ac:
+            params += 128
+
+        context['default_len'] = store_params.ln
+        context['default_params'] = params
+        return context
+
     def form_valid(self, form):
         response = super().form_valid(form)
         form.instance.set_item_attr(app, get_info(form.instance))
+        if Entry.objects.filter(task=form.instance, actual=1).exists():
+            entry = Entry.objects.filter(task=form.instance, actual=1)[0]
+            entry.username = form.cleaned_data['username']
+            entry.value = form.cleaned_data['value']
+            entry.params = form.cleaned_data['params']
+            entry.save()
         return response
 
+
+def params(request):
+    form = None
+    params = get_store_params(request.user)
+    if (request.method == 'POST'):
+        form = ParamsForm(request.POST, instance=params)
+        if form.is_valid():
+            data = form.save(commit = False)
+            data.user = request.user
+            form.save()
+    if not form:
+        form = ParamsForm(instance=params)
+    ctx = Context()
+    ctx.object = None
+    ctx.request = request
+    ctx.set_config(app_config, ROLE_PARAMS)
+    ctx.config.set_view(request)
+    context = ctx.get_app_context()
+    context['form'] = form
+    template = loader.get_template('store/params.html')
+    return HttpResponse(template.render(context, request))
 
 class GroupView(BaseGroupView, TuneData):
     def __init__(self, *args, **kwargs):
@@ -40,3 +97,8 @@ class GroupView(BaseGroupView, TuneData):
 def get_doc(request, pk, fname):
     return get_app_doc(app_config['name'], role, request, pk, fname)
 
+def get_store_params(user):
+    if Params.objects.filter(user = user.id).exists():
+        return Params.objects.filter(user = user.id).get()
+    else:
+        return Params.objects.create(user = user, ln = 30, uc = True, lc = True, dg = True, sp = True, br = True, mi = True, ul = True, ac = False)

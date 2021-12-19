@@ -5,6 +5,7 @@ app_config = {
     'app_title': 'tasks',
     'icon': 'check2-square',
     'role': ROLE_TODO,
+    'main_view': 'myday',
     'use_groups': True,
     'use_selector': True,
     'use_important': True,
@@ -15,7 +16,7 @@ app_config = {
         ('created', 'create date'),
     ],
     'views': {
-        'todo': {
+        'myday': {
             'icon': 'sun',
             'title': 'my day',
         },
@@ -39,7 +40,7 @@ app_config = {
         },
         'all': {
             'icon': 'infinity',
-            'title': 'all',
+            'title': 'all tasks',
         },
         'completed': {
             'icon': 'check2-circle',

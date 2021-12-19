@@ -49,7 +49,8 @@ def get_base_context(request, app, role, group, detail, title):
     if group:
         context['group_return'] = group.id
         if (not detail):
-            context['group_path'] = get_group_path(group.id)
+            if (not group.determinator) or (group.determinator == 'group'):
+                context['group_path'] = get_group_path(group.id)
             if group.theme:
                 context['theme_id'] = group.theme
 

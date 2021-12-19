@@ -4,22 +4,25 @@ app_config = {
     'name': APP_HEALTH,
     'app_title': 'health',
     'icon': 'star',
-    'role': ROLE_MARKER,
+    'main_view': 'biomarker',
+    'use_groups': True,
+    'group_entity': 'incident',
     'sort': [
         ('name', 'name'),
     ],
     'views': {
         'biomarker': {
-            'icon': 'star', 
+            'role': ROLE_MARKER,
+            'icon': 'heart', 
             'title': 'biomarkers',
         },
         'chart': {
-            'icon': 'star', 
+            'icon': 'graph-up', 
             'title': 'charts',
         },
         'incident': {
             'role': ROLE_ANAMNESIS,
-            'icon': 'star', 
+            'icon': 'thermometer-half', 
             'title': 'incidents',
             'use_groups': True,
             'group_entity': 'anamnesis',

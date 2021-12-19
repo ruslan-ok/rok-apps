@@ -3,8 +3,8 @@
 <nav class="bd-subnavbar py-2 d-md-none" aria-label="Secondary navigation">
     <div class="container-xxl d-flex align-items-md-center">
       <div class="position-relative me-auto">
-        {% if config.icon %}
-          <i class="bi-{% if is_group_form %}journals{% else %}{{config.icon}}{% endif %} content-title__icon"></i>
+        {% if icon %}
+            <i class="bi-{{ icon }} content-title__icon"></i>
         {% endif %}
         {% if group_path %}
             {% for group in group_path %}

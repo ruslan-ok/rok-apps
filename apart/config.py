@@ -5,6 +5,7 @@ app_config = {
     'app_title': 'communal',
     'icon': 'building',
     'role': ROLE_METER,
+    'main_view': 'meter',
     'use_groups': True,
     'group_entity': 'apart',
     'sort': [
@@ -13,7 +14,7 @@ app_config = {
     ],
     'views': {
         'meter': {
-            'icon': 'star', 
+            'icon': 'speedometer2', 
             'title': 'meters data',
             'item_name': 'meters data',
             'add_button': True,
@@ -21,18 +22,18 @@ app_config = {
         },
         'service': {
             'role': ROLE_SERVICE,
-            'icon': 'star', 
+            'icon': 'tools', 
             'title': 'services',
         },
         'price': {
             'role': ROLE_PRICE,
-            'icon': 'star', 
+            'icon': 'tag', 
             'title': 'prices',
             'add_button': True,
         },
         'bill': {
             'role': ROLE_BILL,
-            'icon': 'star', 
+            'icon': 'receipt', 
             'title': 'bills',
             'add_button': True,
             'relate': [ROLE_TODO],

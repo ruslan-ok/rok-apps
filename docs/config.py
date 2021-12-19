@@ -3,8 +3,8 @@ from task.const import *
 app_config = {
     'name': APP_DOCS,
     'app_title': 'documents',
-    'icon': 'star',
-    'role': ROLE_DOC,
+    'icon': 'file-text',
+    'main_view': 'all',
     'use_groups': True,
     'group_entity': 'folder',
     'sort': [
@@ -12,7 +12,8 @@ app_config = {
     ],
     'views': {
         'all': {
-            'icon': 'star', 
+            'role': ROLE_DOC,
+            'icon': 'file-text', 
             'title': 'documents',
         },
     }

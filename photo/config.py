@@ -3,8 +3,8 @@ from task.const import *
 app_config = {
     'name': APP_PHOTO,
     'app_title': 'photo bank',
-    'icon': 'star',
-    'role': ROLE_PHOTO,
+    'icon': 'image',
+    'main_view': 'all',
     'use_groups': True,
     'group_entity': 'folder',
     'sort': [
@@ -12,7 +12,8 @@ app_config = {
     ],
     'views': {
         'all': {
-            'icon': 'star', 
+            'role': ROLE_PHOTO,
+            'icon': 'image', 
             'title': 'all photos',
         },
     }

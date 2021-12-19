@@ -10,6 +10,9 @@
       <div class="col-sm">{{ form.name.label_tag }}{{ form.name }}</div>
       <div class="col-sm">{{ form.username.label_tag }}{{ form.username }}</div>
       <div class="col-sm">{{ form.value.label_tag }}{{ form.value }}</div>
+      <input type="hidden" name="default_len" value="{{ default_len }}" id="id_default_len">
+      <input type="hidden" name="default_params" value="{{ default_params }}" id="id_default_params">
+      <input type="hidden" name="params" value="{{ form.params.value }}" required="" id="id_params">
     </div>
 
     <!-- There will be collapsed History -->

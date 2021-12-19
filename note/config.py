@@ -5,13 +5,14 @@ app_config = {
     'app_title': 'notes',
     'icon': 'sticky',
     'role': ROLE_NOTE,
+    'main_view': 'all',
     'use_groups': True,
     'sort': [
         ('event', 'event date'),
         ('name', 'name'),
     ],
     'views': {
-        'note': {
+        'all': {
             'icon': 'infinity',
             'title': 'all',
         },

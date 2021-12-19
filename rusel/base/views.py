@@ -33,9 +33,18 @@ class Config:
         self.app = config['name']
         self.app_title = _(config['app_title']).capitalize()
         self.title = config['app_title']
-        self.icon = config['icon']
+        self.app_icon = config['icon']
+        self.view_icon = config['icon']
+        self.role_icon = config['icon']
         self.views = config['views']
-        self.base_role = config['role']
+        self.base_role = None
+        if ('role' in config):
+            self.base_role = config['role']
+        self.main_view = None
+        if ('main_view' in config):
+            self.main_view = config['main_view']
+            if ('role' in config['views'][self.main_view]):
+                self.base_role = config['views'][self.main_view]['role']
         self.use_groups = self.check_property(config, 'use_groups', False)
         self.group_entity = self.check_property(config, 'group_entity', 'group')
         self.use_selector = self.check_property(config, 'use_selector', False)
@@ -61,8 +70,11 @@ class Config:
             common_url = reverse('index')
         else:
             common_url = reverse(self.app + ':list')
-        determinator = 'role'
-        view_id = self.base_role
+        determinator = 'view'
+        if self.main_view:
+            view_id = self.main_view
+        #else:
+        #    view_id = self.base_role
         if (self.multy_role):
             if (request.path != common_url):
                 role_name = request.path.split(common_url)[1].split('?')[0].split('/')[0]
@@ -71,7 +83,6 @@ class Config:
         if ('view' in request.GET):
             view_name = request.GET.get('view')
             if view_name:
-                determinator = 'view'
                 view_id = view_name
         if (self.group_entity in request.GET):
             group_id = request.GET.get(self.group_entity)
@@ -79,11 +90,18 @@ class Config:
                 determinator = 'group'
                 view_id = group_id
                 self.title = Group.objects.filter(id=int(group_id)).get().name
-
+                self.role_icon = self.app_icon
+                self.view_icon = self.app_icon
         self.view_sorts = None
         if (determinator != 'group') and (view_id in self.views):
+            if (determinator == 'role')  and ('role' in self.views[view_id]):
+                self.role_icon = self.check_property(self.views[view_id], 'icon', self.role_icon)
+                self.view_icon = self.check_property(self.views[view_id], 'icon', self.view_icon)
+            else:
+                self.role_icon = self.app_icon
+            if (determinator == 'view'):
+                self.view_icon = self.check_property(self.views[view_id], 'icon', self.view_icon)
             self.title = self.check_property(self.views[view_id], 'title', self.title)
-            self.icon = self.check_property(self.views[view_id], 'icon', self.icon)
             self.use_selector = self.check_property(self.views[view_id], 'use_selector', self.use_selector)
             self.use_important = self.check_property(self.views[view_id], 'use_important', self.use_important)
             self.add_button = self.check_property(self.views[view_id], 'add_button', self.add_button)
@@ -157,17 +175,24 @@ class Context:
             common_url = reverse(self.config.app + ':list')
         for key, value in views.items():
             url = common_url
-            determinator = 'role'
-            view_id = self.config.base_role
+            determinator = 'view'
+            view_id = self.config.main_view
             if (view_id != key):
                 if ('role' in value):
+                    determinator = 'role'
                     view_id = value['role']
                     url += view_id + '/'
                 else:
                     view_id = key
-                    determinator = 'view'
-                    url += '?view=' + key
-            qty = self.get_view_qty(detect_group(self.request.user, self.config.app, determinator, view_id, _(value['title']).capitalize()))
+                    if (key != self.config.main_view):
+                        url += '?view=' + key
+            hide_qty = False
+            if ('hide_qty' in value):
+                hide_qty = value['hide_qty']
+            if hide_qty:
+                qty = None
+            else:
+                qty = self.get_view_qty(detect_group(self.request.user, self.config.app, determinator, view_id, _(value['title']).capitalize()))
             active = (self.config.cur_view_group.determinator == determinator) and (self.config.cur_view_group.view_id == view_id)
             fix = {
                 'determinator': determinator,
@@ -203,6 +228,9 @@ class Context:
         
         return self.tune_dataset(data, group)
 
+    def tune_dataset(self, data, group):
+        return data
+
 class BaseListView(CreateView, Context):
 
     def __init__(self, config, cur_role, *args, **kwargs):
@@ -226,6 +254,7 @@ class BaseListView(CreateView, Context):
         self.config.set_view(self.request)
         self.object = None
         context = super().get_context_data(**kwargs)
+        context['icon'] = self.config.view_icon
         context['add_item_placeholder'] = '{} {}'.format(_('add').capitalize(), self.config.item_name if self.config.item_name else self.config.get_cur_role())
         context['add_button'] = self.config.add_button
 
@@ -422,6 +451,7 @@ class BaseDetailView(UpdateView, Context):
         context = super().get_context_data(**kwargs)
         context.update(self.get_app_context())
         context['title'] = self.object.name
+        context['icon'] = self.config.role_icon
         urls = []
         for url in Urls.objects.filter(task=self.object.id):
             if (self.request.path not in url.href):
@@ -486,6 +516,7 @@ class BaseGroupView(UpdateView, Context):
         context = super().get_context_data(**kwargs)
         context.update(self.get_app_context())
         context['title'] = self.object.name
+        context['icon'] = 'journals'
         context['is_group_form'] = self.object.name
         context['delete_question'] = _('delete group').capitalize()
         if Group.objects.filter(node=self.object.id).exists():
@@ -496,6 +527,7 @@ class BaseGroupView(UpdateView, Context):
             else:
                 context['ban_on_deletion'] = ''
         return context
+
 
 def get_app_doc(app, role, request, pk, fname):
     path = storage_path.format(request.user.id) + app + '/' + role + '_{}/'.format(pk)

@@ -13,9 +13,9 @@ role = ROLE_TODO
 
 class TuneData:
     def tune_dataset(self, data, group):
-        if (group.determinator == 'role') and (group.view_id == 'todo'):
-            return data.filter(in_my_day=True).exclude(completed=True)
         if (group.determinator == 'view'):
+            if (group.view_id == 'myday'):
+                return data.filter(in_my_day=True).exclude(completed=True)
             if (group.view_id == 'important'):
                 return data.filter(important=True).exclude(completed=True)
             if (group.view_id == 'planned'):

@@ -96,7 +96,7 @@ class TaskViewSet(viewsets.ModelViewSet):
             in_my_day = False
             important = False
             stop = None
-            if group and (group.determinator == 'role') and (group.view_id == 'todo'):
+            if group and (group.determinator == 'view') and (group.view_id == 'myday'):
                 in_my_day = True
             if group and (group.determinator == 'view') and (group.view_id == 'important'):
                 important = True

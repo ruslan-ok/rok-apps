@@ -5,13 +5,14 @@ app_config = {
     'app_title': 'news',
     'icon': 'newspaper',
     'role': ROLE_NEWS,
+    'main_view': 'all',
     'use_groups': True,
     'sort': [
         ('event', 'event date'),
         ('name', 'name'),
     ],
     'views': {
-        'news': {
+        'all': {
             'icon': 'infinity',
             'title': 'all',
         },
