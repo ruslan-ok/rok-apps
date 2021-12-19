@@ -7,25 +7,60 @@
     {% include "base/form_errors.html" %}
 
     <div class="row mb-3">
-      <div class="col-sm">{{ form.name.label_tag }}{{ form.name }}</div>
-      <div class="col-sm">{{ form.username.label_tag }}{{ form.username }}</div>
-      <div class="col-sm">{{ form.value.label_tag }}{{ form.value }}</div>
+      <div class="col-sm">{{ form.name.errors }}{{ form.name.label_tag }}{{ form.name }}</div>
+      <div class="col-sm">{{ form.username.errors }}{{ form.username.label_tag }}{{ form.username }}</div>
+      <div class="col-sm">{{ form.value.errors }}{{ form.value.label_tag }}{{ form.value }}</div>
       <input type="hidden" name="default_len" value="{{ default_len }}" id="id_default_len">
       <input type="hidden" name="default_params" value="{{ default_params }}" id="id_default_params">
       <input type="hidden" name="params" value="{{ form.params.value }}" required="" id="id_params">
     </div>
 
-    <!-- There will be collapsed History -->
+    <div>
+      <div>{{ form.actual.errors }}{{ form.actual }}</div>
+      {% if history %}
+        <span type="button" class="sub-group" onclick="toggleHistory(this)">
+          <i class="sub-group__icon bi-chevron-right"></i>
+          <span class="sub-group__name">{% trans 'history'|capfirst %}</span>
+          <span class="sub-group__qty">{{ history_qty }}</span>
+        </span>
+      {% endif %}
+    </div>
+
+    {% if history %}
+      <div class="overflow-auto d-none" id="id_history">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">{% trans 'date'|capfirst %}</th>
+              <th scope="col">{% trans 'username'|capfirst %}</th>
+              <th scope="col">{% trans 'value'|capfirst %}</th>
+              <th scope="col">{% trans 'notes'|capfirst %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in history %}
+              <tr>
+                <th scope="row">{{ item.last_mod|date:'d.m.Y' }}</th>
+                <td>{{ item.username }}</td>
+                <td>{{ item.value }}</td>
+                <td>{{ item.notes }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+      </div>
+    {% endif %}
+
 
     <div class="row">
       <div class="col-sm">
-        <div class="col-item">{{ form.info.label_tag }}{{ form.info }}</div>
-        <div class="col-item">{{ form.url.label_tag }}{{ form.url }}</div>
+        <div class="col-item">{{ form.info.errors }}{{ form.info.label_tag }}{{ form.info }}</div>
+        <div class="col-item">{{ form.url.errors }}{{ form.url.label_tag }}{{ form.url }}</div>
       </div>
       <div class="col-sm">
-        <div class="col-item">{{ form.grp.label_tag }}{{ form.grp }}</div>
-        <div class="col-item">{{ form.categories.label_tag }}{{ form.categories }}</div>
-        <div class="col-item">{{ form.upload.label_tag }}{{ form.upload }}</div>
+        <div class="col-item">{{ form.grp.errors }}{{ form.grp.label_tag }}{{ form.grp }}</div>
+        <div class="col-item">{{ form.categories.errors }}{{ form.categories.label_tag }}{{ form.categories }}</div>
+        <div class="col-item">{{ form.upload.errors }}{{ form.upload.label_tag }}{{ form.upload }}</div>
       </div>
     </div>
 

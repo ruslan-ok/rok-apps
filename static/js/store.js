@@ -26,7 +26,7 @@ function valueEditCheck()
     document.getElementById('id_ac').checked = (params & 128);
   }
   document.getElementById('id_edit').classList.toggle('d-none');
-  document.getElementById('id_execute').classList.toggle('d-none');
+  document.getElementById('id_close').classList.toggle('d-none');
   document.getElementById('id_options').classList.toggle('d-none');
   document.getElementById('id_buttons').classList.toggle('d-none');
 }
@@ -141,4 +141,10 @@ function alert(kind, message, type) {
     const wrapper = document.createElement('div');
     wrapper.innerHTML = '<div class="alert alert-' + type + ' alert-dismissible" role="alert">' + message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
     alertPlaceholder.append(wrapper);
+}
+
+function toggleHistory(btn) {
+  document.getElementById('id_history').classList.toggle('d-none');
+  btn.children[0].classList.toggle('bi-chevron-right');
+  btn.children[0].classList.toggle('bi-chevron-down');
 }

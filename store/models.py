@@ -36,6 +36,7 @@ class Entry(models.Model):
     params = models.IntegerField(_('generator parameters used'), default = 0, null = True)
     lst = models.ForeignKey(Lst, on_delete = models.CASCADE, verbose_name = _('list'), blank = True, null = True)
     task = models.ForeignKey(Task, on_delete=models.SET_NULL, verbose_name=_('task for entry'), related_name = 'task_store', null=True)
+    hist = models.DateTimeField(_('when archived'), null=True)
 
     @classmethod
     def get_new_value(cls, user):
@@ -95,7 +96,7 @@ class Entry(models.Model):
             ret_params += 128
 
         ret_value = get_random_string(params.ln, allowed_chars)
-        return ret_params, ret_value
+        return ret_params, params.un, ret_value
 
 #----------------------------------
 # deprecated
@@ -115,4 +116,5 @@ class Params(models.Model):
     mi = models.BooleanField(_('minus').capitalize(), default = True)
     ul = models.BooleanField(_('underline').capitalize(), default = True)
     ac = models.BooleanField(_('avoid confusion').capitalize(), default = True)
+    un = models.CharField(_('default username'), max_length=150, blank=True, default='')
 

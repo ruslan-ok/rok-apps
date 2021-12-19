@@ -52,19 +52,29 @@ class DetailView(BaseDetailView, TuneData):
             params += 64
         if store_params.ac:
             params += 128
-
         context['default_len'] = store_params.ln
         context['default_params'] = params
+        this_entry = None
+        if Entry.objects.filter(user=self.request.user.id, task=self.object.id, actual=1).exists():
+            this_entry = Entry.objects.filter(user=self.request.user.id, task=self.object.id, actual=1)[0]
+        else:
+            if Entry.objects.filter(user=self.request.user.id, task=self.object.id).exists():
+                this_entry = Entry.objects.filter(user=self.request.user.id, task=self.object.id)[0]
+        if this_entry:
+            hist = Entry.objects.filter(user=self.request.user, task=this_entry.task.id).exclude(id=this_entry.id)
+            context['history'] = hist
+            context['history_qty'] = len(hist)
         return context
 
     def form_valid(self, form):
         response = super().form_valid(form)
         form.instance.set_item_attr(app, get_info(form.instance))
-        if Entry.objects.filter(task=form.instance, actual=1).exists():
-            entry = Entry.objects.filter(task=form.instance, actual=1)[0]
+        if Entry.objects.filter(task=form.instance, hist=None).exists():
+            entry = Entry.objects.filter(task=form.instance, hist=None)[0]
             entry.username = form.cleaned_data['username']
             entry.value = form.cleaned_data['value']
             entry.params = form.cleaned_data['params']
+            entry.actual = 1 if form.cleaned_data['actual'] else 0
             entry.save()
         return response
 

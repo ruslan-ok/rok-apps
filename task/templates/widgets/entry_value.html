@@ -27,7 +27,7 @@
                 {% endfor %}>
         </div>
         <div class="btn btn-secondary d-none bi-pencil" id="id_edit" onclick="openParams()"></div>
-        <div class="btn btn-secondary bi-lightbulb" id="id_execute" onclick="buildValue()"></div>
+        <div class="btn btn-secondary bi-arrow-bar-up" id="id_close" onclick="closeParams()"></div>
       </div>
     </div>
     <div class="row expandable-part" id="id_options">
@@ -44,7 +44,7 @@
           <div><input type="checkbox" name="ac" id="id_ac" checked="">  <label for="id_ac">Исключить путаницу</label>       </div>
         </div>
       <div class="d-flex justify-content-end" id="id_buttons">
-        <div class="btn btn-outline-secondary bi-arrow-bar-up" onclick="closeParams()"></div>
+        <div class="btn btn-primary bi-lightbulb" id="id_execute" onclick="buildValue()"></div>
       </div>
     </div>
     <div id="valueAlertPlaceholder"></div>

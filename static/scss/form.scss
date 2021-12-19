@@ -270,7 +270,7 @@ textarea.form-control {
 
 .add-item-name {
   border: 1px solid #aeaeae;
-  border-radius: 2px;
+  border-radius: 0.25rem;
 }
 
 .files-area {
@@ -285,7 +285,7 @@ textarea.form-control {
     background: white;
     margin: 5px 0;
     border: 1px solid #eaeaea;
-    border-radius: 2px;
+    border-radius: 0.25rem;
     display: flex;
     flex-direction: column;
 
@@ -679,7 +679,7 @@ form.bill {
     background: transparent;
     /*margin: 5px;*/
     border: 1px solid #eaeaea;
-    border-radius: 2px;
+    border-radius: 0.25rem;
     display: flex;
     flex-direction: column;
     width: 250px;
@@ -871,7 +871,7 @@ form.bill {
     height: auto;
     border: 1px solid #eaeaea;
     border-width: 1px;
-    border-radius: 2px;
+    border-radius: 0.25rem;
   }
   
   .details .footer {

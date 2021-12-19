@@ -110,8 +110,8 @@ class TaskViewSet(viewsets.ModelViewSet):
             task = Task.objects.create(user=request.user, app_news=NUM_ROLE_NEWS, name=name, event=datetime.now())
         if name and (app == APP_STORE) and (role == ROLE_STORE):
             task = Task.objects.create(user=request.user, app_store=NUM_ROLE_STORE, name=name, event=datetime.now())
-            params, value = Entry.get_new_value(request.user)
-            Entry.objects.create(user=request.user, title=name, value=value, actual=1, params=params, task=task)
+            params, username, value = Entry.get_new_value(request.user)
+            Entry.objects.create(user=request.user, title=name, username=username, value=value, actual=1, params=params, task=task)
         if name and (app == APP_DOCS) and (role == ROLE_DOC):
             task = Task.objects.create(user=request.user, app_doc=NUM_ROLE_DOC, name=name, event=datetime.now())
         if name and (app == APP_WARR) and (role == ROLE_WARR):
