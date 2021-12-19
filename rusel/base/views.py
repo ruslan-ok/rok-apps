@@ -229,9 +229,6 @@ class Context:
         
         return self.tune_dataset(data, group)
 
-    def tune_dataset(self, data, group):
-        return data
-
 class BaseListView(CreateView, Context):
 
     def __init__(self, config, cur_role, *args, **kwargs):

@@ -15,6 +15,11 @@ app = ROLE_APP[role]
 
 class TuneData:
     def tune_dataset(self, data, group):
+        if (group.determinator == 'view'):
+            if (group.view_id == 'actual'):
+                return data.filter(completed=False)
+            if (group.view_id == 'completed'):
+                return data.filter(completed=True)
         return data
 
 class ListView(BaseListView, TuneData):
@@ -69,15 +74,23 @@ class DetailView(BaseDetailView, TuneData):
     def form_valid(self, form):
         response = super().form_valid(form)
         form.instance.set_item_attr(app, get_info(form.instance))
+        form.instance.completed = not form.cleaned_data['actual']
+        form.instance.save()
         if Entry.objects.filter(task=form.instance, hist=None).exists():
             entry = Entry.objects.filter(task=form.instance, hist=None)[0]
             entry.username = form.cleaned_data['username']
             entry.value = form.cleaned_data['value']
             entry.params = form.cleaned_data['params']
-            entry.actual = 1 if form.cleaned_data['actual'] else 0
             entry.save()
         return response
 
+class ParamsView(Context, TuneData):
+    def __init__(self, request, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.object = None
+        self.request = request
+        self.set_config(app_config, ROLE_STORE)
+        self.config.set_view(request)
 
 def params(request):
     form = None
@@ -90,14 +103,11 @@ def params(request):
             form.save()
     if not form:
         form = ParamsForm(instance=params)
-    ctx = Context()
-    ctx.object = None
-    ctx.request = request
-    ctx.set_config(app_config, ROLE_STORE)
-    ctx.config.set_view(request)
-    context = ctx.get_app_context()
+    
+    params_view = ParamsView(request)
+    context = params_view.get_app_context()
     context['form'] = form
-    context['icon'] = ctx.config.view_icon
+    context['icon'] = params_view.config.view_icon
     context['hide_add_item_input'] = True
     template = loader.get_template('store/params.html')
     return HttpResponse(template.render(context, request))

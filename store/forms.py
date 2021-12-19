@@ -26,10 +26,6 @@ class EditForm(BaseEditForm):
         label=_('title').capitalize(),
         required=True,
         widget=forms.TextInput(attrs={'class': 'form-control'}))
-    actual = forms.BooleanField(
-        label=False, 
-        required=False, 
-        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('actual').capitalize()}))
     username = forms.CharField(
         label=_('user name').capitalize(),
         required=False,
@@ -38,13 +34,17 @@ class EditForm(BaseEditForm):
         label=_('value').capitalize(),
         required=False,
         widget=EntryValueInput(attrs={'class': ''}))
+    params = forms.IntegerField(
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'}))
+    actual = forms.BooleanField(
+        label=False, 
+        required=False, 
+        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('actual').capitalize()}))
     url = forms.CharField(
         label=_('URLs'),
         required=False,
         widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add link').capitalize()}))
-    params = forms.IntegerField(
-        required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control'}))
     grp = forms.ModelChoiceField(
         label=_('group').capitalize(),
         required=False,
@@ -57,24 +57,23 @@ class EditForm(BaseEditForm):
 
     class Meta:
         model = Task
-        fields = ['name', 'actual', 'username', 'value', 'params', 'info', 'grp', 'url', 'categories', 'upload']
+        fields = ['name', 'username', 'value', 'params', 'actual', 'info', 'url', 'grp', 'categories', 'upload']
         widgets = {
             'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
+        self.fields['actual'].initial = not self.instance.completed
         if Entry.objects.filter(task=self.instance, hist=None).exists():
             entry = Entry.objects.filter(task=self.instance, hist=None)[0]
             self.fields['username'].initial = entry.username
             self.fields['value'].initial = entry.value
             self.fields['params'].initial = entry.params
-            self.fields['actual'].initial = (entry.actual == 1)
         else:
             self.fields['username'].initial = ''
             self.fields['value'].initial = ''
             self.fields['params'].initial = ''
-            self.fields['actual'].initial = True
 
 #----------------------------------
 class ParamsForm(BaseEditForm):

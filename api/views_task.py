@@ -590,6 +590,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         
         if (role == ROLE_STORE):
             task.app_store = NONE
+            Entry.objects.filter(task=task).delete()
         
         if (role == ROLE_DOC):
             task.app_doc = NONE

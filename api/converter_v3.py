@@ -22,14 +22,14 @@ from fuel.views.serv import get_info as repl_get_info
 from fuel.views.part import get_info as part_get_info
 
 STAGES = {
-    APP_TODO: 0,
-    APP_NOTE: 0,
-    APP_NEWS: 0,
+    APP_TODO: 1,
+    APP_NOTE: 1,
+    APP_NEWS: 1,
     APP_STORE: 1,
-    APP_EXPEN: 0,
+    APP_EXPEN: 1,
     APP_TRIP: 0,
     APP_FUEL: 0,
-    APP_APART: 0,
+    APP_APART: 1,
     APP_WORK: 0,
     APP_HEALTH: 0,
     APP_DOCS: 0,
@@ -201,7 +201,7 @@ def transfer_task(result, lst, task_grp):
                                     repeat_num=task.repeat_num,
                                     repeat_days=task.repeat_days,
                                     categories=task.categories,
-                                    info=task.info,
+                                    info=str(task.info).replace('\\r\\n', '\n') if task.info else '',
                                     app_task=NUM_ROLE_TODO,
                                     created=task.created,
                                     last_mod=task.last_mod)
@@ -238,7 +238,7 @@ def transfer_note(result, app, role, lst, task_grp):
                                     name=note.name,
                                     event=note.publ,
                                     categories=note.categories,
-                                    info=note.descr,
+                                    info=str(note.descr).replace('\\r\\n', '\n') if note.descr else '',
                                     app_note=note_role,
                                     app_news=news_role,
                                     created=note.publ,
@@ -315,7 +315,7 @@ def transfer_price(result):
         atask = Task.objects.create(user=item.apart.user,
                                     start=item.start,
                                     name=item.start.strftime('%Y.%m.%d') + ' ' + item.serv.name,
-                                    info=item.info,
+                                    info=str(item.info).replace('\\r\\n', '\n') if item.info else '',
                                     app_apart=NUM_ROLE_PRICE,
                                     )
         inc(result, APP_APART, ROLE_PRICE, 'Task', 'added')
@@ -331,7 +331,7 @@ def transfer_bill(result):
                                     event=item.payment,
                                     name=item.period.strftime('%Y.%m'),
                                     start=item.period,
-                                    info=item.info,
+                                    info=str(item.info).replace('\\r\\n', '\n') if item.info else '',
                                     app_apart=NUM_ROLE_BILL,
                                     )
         inc(result, APP_APART, ROLE_BILL, 'Task', 'added')
@@ -346,12 +346,13 @@ def transfer_bill(result):
         atask.set_item_attr(APP_APART, bill_get_info(atask))
 
 def transfer_store(result, lst, task_grp):
-    items = Entry.objects.filter(lst=lst, actual=True)
+    items = Entry.objects.filter(lst=lst, actual=1)
     for item in items:
         atask = Task.objects.create(user=item.user,
                                     name=item.title,
                                     categories=item.categories,
-                                    info=item.notes if item.notes else '',
+                                    info=str(item.notes).replace('\\r\\n', '\n') if item.notes else '',
+                                    completed=(item.actual==0),
                                     app_store=NUM_ROLE_STORE)
         inc(result, APP_STORE, ROLE_STORE, 'Task', 'added')
         item.task = atask
@@ -367,7 +368,7 @@ def transfer_store(result, lst, task_grp):
 
         atask.set_item_attr(APP_STORE, store_get_info(atask))
 
-    items = Entry.objects.filter(lst=lst, actual=False)
+    items = Entry.objects.filter(lst=lst, actual=0)
     for item in items:
         if task_grp:
             atasks = Task.objects.filter(user=item.user.id, name=item.title, app_store=NUM_ROLE_STORE, groups__id=task_grp.id)
@@ -384,12 +385,18 @@ def transfer_store(result, lst, task_grp):
                 Urls.objects.create(task=atask, num=2, href=item.url)
                 inc(result, APP_STORE, ROLE_STORE, 'Urls', 'added')
             item.task = atask
+            item.hist = item.last_mod
+            if not item.hist:
+                item.hist = item.created
+            if not item.hist:
+                item.hist = datetime.now()
             item.save()
         else:
             atask = Task.objects.create(user=item.user,
                                         name=item.title,
                                         categories=item.categories,
-                                        info=item.notes if item.notes else '',
+                                        info=str(item.notes).replace('\\r\\n', '\n') if item.notes else '',
+                                        completed=(item.actual==0),
                                         app_store=NUM_ROLE_STORE)
             inc(result, APP_STORE, ROLE_STORE, 'Task', 'added_broken_Entry')
             item.task = atask
@@ -432,7 +439,7 @@ def transfer_expenses(result):
                                     name = item.description,
                                     created=item.created,
                                     last_mod=item.last_mod,
-                                    info=item.text,
+                                    info=str(item.text).replace('\\r\\n', '\n') if item.text else '',
                                     qty=item.qty,
                                     price=item.price,
                                     rate=item.rate,
@@ -484,7 +491,7 @@ def transfer_part(result):
                                     name=str(item.odometer),
                                     qty=item.volume,
                                     price=item.price,
-                                    info=item.comment,
+                                    info=str(item.comment).replace('\\r\\n', '\n') if item.comment else '',
                                     created=item.created,
                                     last_mod=item.last_mod,
                                     )
@@ -501,7 +508,7 @@ def transfer_repl(result):
                                     name=str(item.odometer),
                                     qty=item.volume,
                                     price=item.price,
-                                    info=item.comment,
+                                    info=str(item.comment).replace('\\r\\n', '\n') if item.comment else '',
                                     created=item.created,
                                     last_mod=item.last_mod,
                                     )
