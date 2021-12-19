@@ -4,6 +4,7 @@ app_config = {
     'name': APP_STORE,
     'app_title': 'passwords',
     'icon': 'key',
+    'role': ROLE_STORE,
     'main_view': 'all',
     'use_groups': True,
     'sort': [
@@ -11,12 +12,11 @@ app_config = {
     ],
     'views': {
         'all': {
-            'role': ROLE_STORE,
             'icon': 'infinity',
             'title': 'all',
         },
         'params': {
-            'role': ROLE_PARAMS,
+            'page_url': 'params',
             'icon': 'gear', 
             'title': 'default parameters',
             'hide_qty': True,

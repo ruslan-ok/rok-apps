@@ -52,11 +52,6 @@ class Config:
         self.add_button = self.check_property(config, 'add_button', False)
         self.item_name = self.check_property(config, 'item_name', '')
         self.event_in_name = self.check_property(config, 'event_in_name', False)
-        self.multy_role = False
-        for key, value in self.views.items():
-            if ('role' in value):
-                self.multy_role = True
-                break;
         self.app_sorts = None
         self.default_sort = '-event'
         if config['sort']:
@@ -75,11 +70,14 @@ class Config:
             view_id = self.main_view
         #else:
         #    view_id = self.base_role
-        if (self.multy_role):
-            if (request.path != common_url):
-                role_name = request.path.split(common_url)[1].split('?')[0].split('/')[0]
-                determinator = 'role'
-                view_id = role_name
+        #if (self.multy_role):
+        if (request.path != common_url):
+            view_id = request.path.split(common_url)[1].split('?')[0].split('/')[0]
+            if (view_id in self.views):
+                if ('page_url' in self.views[view_id]) and (self.views[view_id]['page_url'] == view_id):
+                    determinator = 'view'
+                else:
+                    determinator = 'role'
         if ('view' in request.GET):
             view_name = request.GET.get('view')
             if view_name:
@@ -185,7 +183,10 @@ class Context:
                 else:
                     view_id = key
                     if (key != self.config.main_view):
-                        url += '?view=' + key
+                        if ('page_url' in value):
+                            url += value['page_url'] + '/'
+                        else:
+                            url += '?view=' + key
             hide_qty = False
             if ('hide_qty' in value):
                 hide_qty = value['hide_qty']

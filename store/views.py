@@ -2,7 +2,7 @@ from django.views.generic.edit import FormView
 from django.urls import reverse
 from django.http import HttpResponse
 from django.template import loader
-from task.const import APP_STORE, ROLE_PARAMS, ROLE_STORE, ROLE_APP
+from task.const import ROLE_STORE, ROLE_APP
 from task.models import Task
 from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView, Context, get_app_doc
 from store.forms import CreateForm, EditForm, ParamsForm
@@ -83,10 +83,12 @@ def params(request):
     ctx = Context()
     ctx.object = None
     ctx.request = request
-    ctx.set_config(app_config, ROLE_PARAMS)
+    ctx.set_config(app_config, ROLE_STORE)
     ctx.config.set_view(request)
     context = ctx.get_app_context()
     context['form'] = form
+    context['icon'] = ctx.config.view_icon
+    context['hide_add_item_input'] = True
     template = loader.get_template('store/params.html')
     return HttpResponse(template.render(context, request))
 

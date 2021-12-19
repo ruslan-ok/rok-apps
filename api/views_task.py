@@ -16,6 +16,7 @@ from apart.models import Apart, Service, Price, Meter, Bill
 from apart.views.price import add_price
 from apart.views.meter import add_meter
 from apart.views.bill import add_bill
+from store.models import Entry
 
 from todo.get_info import get_info as todo_get_info
 from note.get_info import get_info as note_get_info
@@ -109,6 +110,8 @@ class TaskViewSet(viewsets.ModelViewSet):
             task = Task.objects.create(user=request.user, app_news=NUM_ROLE_NEWS, name=name, event=datetime.now())
         if name and (app == APP_STORE) and (role == ROLE_STORE):
             task = Task.objects.create(user=request.user, app_store=NUM_ROLE_STORE, name=name, event=datetime.now())
+            params, value = Entry.get_new_value(request.user)
+            Entry.objects.create(user=request.user, title=name, value=value, actual=1, params=params, task=task)
         if name and (app == APP_DOCS) and (role == ROLE_DOC):
             task = Task.objects.create(user=request.user, app_doc=NUM_ROLE_DOC, name=name, event=datetime.now())
         if name and (app == APP_WARR) and (role == ROLE_WARR):

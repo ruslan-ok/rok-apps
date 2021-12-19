@@ -2,6 +2,7 @@ from datetime import datetime
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
+from django.utils.crypto import get_random_string
 
 from todo.models import Lst
 from task.models import Task
@@ -35,6 +36,66 @@ class Entry(models.Model):
     params = models.IntegerField(_('generator parameters used'), default = 0, null = True)
     lst = models.ForeignKey(Lst, on_delete = models.CASCADE, verbose_name = _('list'), blank = True, null = True)
     task = models.ForeignKey(Task, on_delete=models.SET_NULL, verbose_name=_('task for entry'), related_name = 'task_store', null=True)
+
+    @classmethod
+    def get_new_value(cls, user):
+        if (len(Params.objects.filter(user = user.id)) > 0):
+            params = Params.objects.filter(user = user.id)[0]
+        else:
+            params = Params.objects.create(user = user)
+
+        allowed_chars = ''
+        
+        if params.uc:
+            allowed_chars = allowed_chars + 'ABCDEFGHJKLMNPQRSTUVWXYZ'
+            if not params.ac:
+                allowed_chars = allowed_chars + 'IO'
+        
+        if params.lc:
+            allowed_chars = allowed_chars + 'abcdefghjkmnpqrstuvwxyz'
+            if not params.ac:
+                allowed_chars = allowed_chars + 'io'
+
+        if params.dg:
+            allowed_chars = allowed_chars + '23456789'
+            if not params.ac:
+                allowed_chars = allowed_chars + '10'
+
+        if params.sp:
+            allowed_chars = allowed_chars + '!@#$%^&*=+'
+
+        if params.br:
+            allowed_chars = allowed_chars + '()[]{}<>'
+        
+        if params.mi:
+            allowed_chars = allowed_chars + '-'
+        
+        if params.ul:
+            allowed_chars = allowed_chars + '_'
+
+        if (allowed_chars == ''):
+            allowed_chars = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#$%^&*(-_=+)'
+
+        ret_params = 0
+        if params.uc:
+            ret_params += 1
+        if params.lc:
+            ret_params += 2
+        if params.dg:
+            ret_params += 4
+        if params.sp:
+            ret_params += 8
+        if params.br:
+            ret_params += 16
+        if params.mi:
+            ret_params += 32
+        if params.ul:
+            ret_params += 64
+        if params.ac:
+            ret_params += 128
+
+        ret_value = get_random_string(params.ln, allowed_chars)
+        return ret_params, ret_value
 
 #----------------------------------
 # deprecated

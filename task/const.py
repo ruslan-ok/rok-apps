@@ -155,7 +155,6 @@ ROLE_PAYMENT     = 'payment'
 ROLE_PHOTO       = 'photo'      
 ROLE_ACCOUNT     = 'account'     
 ROLE_SEARCH_RESULTS = 'search'
-ROLE_PARAMS      = 'params'
 
 ALL_ROLES = (
     ROLE_TODO,             

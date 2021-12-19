@@ -79,9 +79,5 @@ class ParamsForm(BaseEditForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
-        if self.instance:
-            #if Params.objects.filter(user=self.request.user.id).exists():
-            #params = Params.objects.filter(user=self.request.user.id)
-            self.fields['ln'].initial = self.instance.ln
 
         
