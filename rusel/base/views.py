@@ -146,13 +146,13 @@ class Context:
     def set_config(self, config, cur_view):
         self.config = Config(config, cur_view)
 
-    def get_app_context(self, search_qty=None, **kwargs):
+    def get_app_context(self, search_qty=None, icon=None, **kwargs):
         context = {}
         if self.object:
             title = self.object.name
         else:
             title = _(self.config.title).capitalize()
-        context.update(get_base_context(self.request, self.config.app, self.config.get_cur_role(), self.config.cur_view_group, (self.object != None), title))
+        context.update(get_base_context(self.request, self.config.app, self.config.get_group_role(), self.config.cur_view_group, (self.object != None), title, icon=icon))
         context['fix_list'] = self.get_fixes(self.config.views, search_qty)
         context['group_form'] = CreateGroupForm()
         context['config'] = self.config
@@ -252,7 +252,6 @@ class BaseListView(CreateView, Context):
         self.config.set_view(self.request)
         self.object = None
         context = super().get_context_data(**kwargs)
-        context['icon'] = self.config.view_icon
         context['add_item_placeholder'] = '{} {}'.format(_('add').capitalize(), self.config.item_name if self.config.item_name else self.config.get_cur_role())
         context['add_button'] = self.config.add_button
 
@@ -260,7 +259,6 @@ class BaseListView(CreateView, Context):
         query = None
         if (self.request.method == 'GET'):
             query = self.request.GET.get('q')
-        #search_mode = 0
 
         tasks = self.get_sorted_items(query)
         for task in tasks:
@@ -293,7 +291,7 @@ class BaseListView(CreateView, Context):
         search_qty = None
         if query:
             search_qty = len(tasks)
-        context.update(self.get_app_context(search_qty))
+        context.update(self.get_app_context(search_qty, icon=self.config.view_icon))
 
         if self.config.view_sorts:
             context['sorts'] = self.get_sorts(self.config.view_sorts)
@@ -447,9 +445,8 @@ class BaseDetailView(UpdateView, Context):
     def get_context_data(self, **kwargs):
         self.config.set_view(self.request)
         context = super().get_context_data(**kwargs)
-        context.update(self.get_app_context())
+        context.update(self.get_app_context(None, icon=self.config.role_icon))
         context['title'] = self.object.name
-        context['icon'] = self.config.role_icon
         urls = []
         for url in Urls.objects.filter(task=self.object.id):
             if (self.request.path not in url.href):
@@ -512,9 +509,8 @@ class BaseGroupView(UpdateView, Context):
     def get_context_data(self, **kwargs):
         self.config.set_view(self.request)
         context = super().get_context_data(**kwargs)
-        context.update(self.get_app_context())
+        context.update(self.get_app_context(None, icon='journals'))
         context['title'] = self.object.name
-        context['icon'] = 'journals'
         context['is_group_form'] = self.object.name
         context['delete_question'] = _('delete group').capitalize()
         if Group.objects.filter(node=self.object.id).exists():

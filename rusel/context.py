@@ -1,9 +1,13 @@
+from datetime import datetime
 from django.utils.translation import gettext_lazy as _
 from rusel.apps import get_apps_list
-from task.models import Group
+from task.models import Group, VisitedHistory
+from task.const import APP_HOME, APP_NAME
 
-def get_base_context(request, app, role, group, detail, title):
+def get_base_context(request, app, role, group, detail, title, icon=None):
     context = {}
+    if icon:
+        context['icon'] = icon
     if hasattr(request.user, 'userext') and request.user.userext.avatar_mini:
         context['avatar'] = request.user.userext.avatar_mini.url
     else:
@@ -39,8 +43,18 @@ def get_base_context(request, app, role, group, detail, title):
     
     context['apps'] = get_apps_list(request.user, app)
 
-    #if url:
-    #    save_last_visited(request.user, app + '/' + url, app, title_1, title_2)
+    if (request.method == 'GET'):
+        url = request.path
+        if (len(request.GET) > 0):
+            url += '?'
+            first = True
+            for k in request.GET:
+                if first:
+                    first = False
+                else:
+                    url += '&'
+                url += k + '=' + request.GET[k]
+        save_last_visited(request.user, url, app, title_1, title_2, icon)
 
     groups = []
     get_sorted_groups(groups, request.user.id, role)
@@ -78,3 +92,28 @@ def get_group_path(cur_grp_id):
             ret.append({'id': grp.id, 'name': grp.name, 'edit_url': grp.edit_url()})
             parent = grp.node
     return ret
+
+def save_last_visited(user, url, app, title_1, title_2, icon):
+    if not title_1 and not title_2:
+        return
+
+    if (app == APP_HOME):
+        return
+    
+    str_app = APP_NAME[app]
+    
+    pages = VisitedHistory.objects.filter(user=user.id).order_by('stamp')
+    
+    for page in pages:
+        if (page.url == url) and (page.app == str_app):
+            page.stamp = datetime.now()
+            page.page = title_1
+            page.info = title_2
+            page.icon = icon
+            page.save()
+            return
+
+    if (len(pages) >= 15):
+        pages[0].delete()
+
+    VisitedHistory.objects.create(user=user, stamp=datetime.now(), url=url, app=str_app, page=title_1, info=title_2, icon=icon)

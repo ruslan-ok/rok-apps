@@ -10,7 +10,7 @@ from rusel.context import get_base_context
 #from rusel.site_stat import get_site_stat
 
 from task.const import APP_ALL, APP_HOME, ROLE_ACCOUNT, ROLE_SEARCH_RESULTS
-from task.models import Task
+from task.models import Task, VisitedHistory
 from rusel.base.views import BaseListView
 from rusel.config import app_config
 
@@ -72,7 +72,7 @@ class ListView(BaseListView, TuneData):
             except:
                 pass
 
-            #context['last_visited'] = get_last_visited(request.user)
+            context['last_visited'] = VisitedHistory.objects.filter(user=request.user.id).order_by('-stamp')
 
         template = loader.get_template('index_user.html')
         return HttpResponse(template.render(context, request))
