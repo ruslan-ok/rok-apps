@@ -18,57 +18,62 @@
 
       {#<a href="{% url 'trip:main' %}">{{ trip_summary|safe }}</a>#}
       
-      {% if last_visited %}
-        <h4>{% trans 'last visited pages'|capfirst %}</h4>
-        <table class="info-table">
-          <tr> <th>{% trans 'date'|capfirst %}</th> <th>{% trans 'time'|capfirst %}</th> <th> </th> <th>{% trans 'page'|capfirst %}</th> </tr>
-          {% for page in last_visited %}
-            <tr> <td>{{ page.stamp|date:'d.m.Y' }}</td> <td>{{ page.stamp|date:'G:i' }}</td>
-              <td><i class="bi-{{ page.icon }}"></i></td>   
-              <td><a href="{{ page.reverse_url }}">{{ page.title }}</a></td> </tr>
-          {% endfor %}
-        </table>
-      {% endif %}
-    
-      {% if user.username == 'ruslan.ok' %}
-        {% if show_stat %}
-          <h4>{% trans 'site statistics'|capfirst %}</h4>
-          <table>
-            <tr> <th>{% trans 'application'|capfirst %}</th> <th>{% trans 'visitor'|capfirst %}</th> <th>{% trans 'page'|capfirst %}</th> </tr>
-            {% for app, hosts in stat.items %}
-              <tr> <td>{{ app }}</td> <td></td> <td></td> </tr>
-              {% for host, pages in hosts.items %}
-                <tr> <td></td> <td>{{ host }}</td> <td></td> </tr>
-                  {% for page in pages %}
-                    <tr> <td></td> <td></td> <td>{{ page }}</td> </tr>
-                  {% endfor %}
+      <div class="row">
+        <div class="col">
+          {% if last_visited %}
+            <h4>{% trans 'last visited pages'|capfirst %}</h4>
+            <table class="info-table">
+              <tr> <th>{% trans 'date'|capfirst %}</th> <th>{% trans 'time'|capfirst %}</th> <th> </th> <th>{% trans 'page'|capfirst %}</th> </tr>
+              {% for page in last_visited %}
+                <tr> <td>{{ page.stamp|date:'d.m.Y' }}</td> <td>{{ page.stamp|date:'G:i' }}</td>
+                  <td><i class="bi-{{ page.icon }}"></i></td>   
+                  <td><a href="{{ page.reverse_url }}">{{ page.title }}</a></td> </tr>
               {% endfor %}
-            {% endfor %}
-          </table>
-        {% endif %}
-        
-        {% if indicators %}
-          <h4>{% trans 'site statistics'|capfirst %}</h4>
-          <table>
-            <tr> <th>{% trans 'indictor'|capfirst %}</th> <th>{% trans 'value'|capfirst %}</th> </tr>
-            {% for x in indicators %}
-              <tr> <td>{{ x.0 }}</td> <td>{{ x.1 }}</td> </tr>
-            {% endfor %}
-          </table>
-        {% endif %}
-        
-        <h4>{% trans 'software versions'|capfirst %}</h4>
-        <table class="table table-striped w-50">
-          <tr> <th>{% trans 'product'|capfirst %}</th> <th>{% trans 'version'|capfirst %}</th> <th>{% trans 'check new version'|capfirst %}</th></tr>
-          <tr> <td> Python </td> <td> {{ python_version }} </td> <td><a href="https://www.python.org/downloads/">python.org</a></td> </tr>
-          <tr> <td> Django </td> <td> {{ django_version }} </td> <td><a href="https://www.djangoproject.com/download/">djangoproject.com</a></td> </tr>
-          <tr> <td> Apache </td> <td> {{ apache_version }} </td> <td><a href="https://httpd.apache.org/download.cgi">apache.org</a></td> </tr>
-          <tr> <td> MySQL  </td> <td> {{ mysql_version }} </td> <td><a href="https://dev.mysql.com/downloads/mysql/">dev.mysql.com</a></td> </tr>
-          <tr> <td> SSL-certificate </td> <td> {{ cert_termin }} </td> <td><a href="https://letsencrypt.org/ru/docs/">letsencrypt.org</a></td> </tr>
-          <tr> <td> hMailServer  </td> <td> {{ hmail_version }} </td> <td><a href="https://www.hmailserver.com/download">hmailserver.com</a></td> </tr>
-        </table>
+            </table>
+          {% endif %}
+        </div>
+        <div class="col">
+          {% if user.username == 'ruslan.ok' %}
+            {% if show_stat %}
+              <h4>{% trans 'site statistics'|capfirst %}</h4>
+              <table>
+                <tr> <th>{% trans 'application'|capfirst %}</th> <th>{% trans 'visitor'|capfirst %}</th> <th>{% trans 'page'|capfirst %}</th> </tr>
+                {% for app, hosts in stat.items %}
+                  <tr> <td>{{ app }}</td> <td></td> <td></td> </tr>
+                  {% for host, pages in hosts.items %}
+                    <tr> <td></td> <td>{{ host }}</td> <td></td> </tr>
+                      {% for page in pages %}
+                        <tr> <td></td> <td></td> <td>{{ page }}</td> </tr>
+                      {% endfor %}
+                  {% endfor %}
+                {% endfor %}
+              </table>
+            {% endif %}
+            
+            {% if indicators %}
+              <h4>{% trans 'site statistics'|capfirst %}</h4>
+              <table>
+                <tr> <th>{% trans 'indictor'|capfirst %}</th> <th>{% trans 'value'|capfirst %}</th> </tr>
+                {% for x in indicators %}
+                  <tr> <td>{{ x.0 }}</td> <td>{{ x.1 }}</td> </tr>
+                {% endfor %}
+              </table>
+            {% endif %}
+            
+            <h4>{% trans 'software versions'|capfirst %}</h4>
+            <table class="table table-striped fs-13">
+              <tr> <th>{% trans 'product'|capfirst %}</th> <th>{% trans 'version'|capfirst %}</th> <th>{% trans 'check new version'|capfirst %}</th></tr>
+              <tr> <td> Python </td> <td> {{ python_version }} </td> <td><a href="https://www.python.org/downloads/">python.org</a></td> </tr>
+              <tr> <td> Django </td> <td> {{ django_version }} </td> <td><a href="https://www.djangoproject.com/download/">djangoproject.com</a></td> </tr>
+              <tr> <td> Apache </td> <td> {{ apache_version }} </td> <td><a href="https://httpd.apache.org/download.cgi">apache.org</a></td> </tr>
+              <tr> <td> MySQL  </td> <td> {{ mysql_version }} </td> <td><a href="https://dev.mysql.com/downloads/mysql/">dev.mysql.com</a></td> </tr>
+              <tr> <td> SSL-certificate </td> <td> {{ cert_termin }} </td> <td><a href="https://letsencrypt.org/ru/docs/">letsencrypt.org</a></td> </tr>
+              <tr> <td> hMailServer  </td> <td> {{ hmail_version }} </td> <td><a href="https://www.hmailserver.com/download">hmailserver.com</a></td> </tr>
+            </table>
 
-      {% endif %}
+          {% endif %}
+        </div>
+      </div>
     </div>
   </div>
 {% endblock %}

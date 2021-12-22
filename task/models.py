@@ -45,6 +45,9 @@ class Group(models.Model):
     has_tv = models.BooleanField(_('has Internet/TV'), default = True)
     has_phone = models.BooleanField(_('has phone'), default = True)
     has_zkx = models.BooleanField(_('has ZKX'), default = True)
+    name2 = models.CharField(_('additional group name'), max_length=200, blank=True)
+    info = models.TextField(_('information').capitalize(), blank=True, default="")
+    active = models.BooleanField(_('is active'), default = False, null=True)
 
     class Meta:
         verbose_name=_('task group')
@@ -148,6 +151,15 @@ class Group(models.Model):
             res.append(currency_repr(byn, ' BYN'))
         return res
 
+    def get_absolute_url(self):
+        if not self.app:
+            return '/'
+        id = self.id
+        try:
+            url = reverse(self.app + ':' + self.role + '-item', args = [id])
+            return url
+        except NoReverseMatch:
+            return '/'
 
 class Task(models.Model):
     """
@@ -658,3 +670,37 @@ def currency_repr(value, currency):
     if (round(value, 2) % 1):
         return '{:,.2f}{}'.format(value, currency).replace(',', '`')
     return '{:,.0f}{}'.format(value, currency).replace(',', '`')
+
+
+class VisitedHistory(models.Model):
+    user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'visit_user')
+    stamp = models.DateTimeField(_('visit time'), null = False)
+    url = models.CharField(_('visited url'), max_length=200, blank = True)
+    app = models.CharField(_('visited application'), max_length=200, blank = True)
+    page = models.CharField(_('visited page'), max_length=200, blank = True)
+    info = models.CharField(_('page info'), max_length=200, blank = True)
+    icon = models.CharField(_('page icon'), max_length=20, blank = True, null=True)
+
+    class Meta:
+        verbose_name = _('visited page')
+        verbose_name_plural = _('visited pages')
+
+    def __str__(self):
+        return self.app + ' - ' + self.page
+    
+    def title(self):
+        if not self.page and not self.info:
+            title = ''
+        if self.page and not self.info:
+            title = self.page
+        if not self.page and self.info:
+            title = self.info
+        if self.page and self.info:
+            title = '{} [{}]'.format(self.page, self.info)
+        if not title:
+            return _(self.app).capitalize()
+        else:
+            return _(self.app).capitalize() + ' - ' + title
+        
+    def reverse_url(self):
+        return self.url

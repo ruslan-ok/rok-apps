@@ -13,6 +13,7 @@ from task.const import APP_ALL, APP_HOME, ROLE_ACCOUNT, ROLE_SEARCH_RESULTS
 from task.models import Task, VisitedHistory
 from rusel.base.views import BaseListView
 from rusel.config import app_config
+from rusel.context import MAX_LAST_VISITED
 
 class TuneData:
     def tune_dataset(self, data, group):
@@ -72,7 +73,7 @@ class ListView(BaseListView, TuneData):
             except:
                 pass
 
-            context['last_visited'] = VisitedHistory.objects.filter(user=request.user.id).order_by('-stamp')
+            context['last_visited'] = VisitedHistory.objects.filter(user=request.user.id).order_by('-stamp')[:MAX_LAST_VISITED]
 
         template = loader.get_template('index_user.html')
         return HttpResponse(template.render(context, request))

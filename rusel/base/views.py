@@ -152,7 +152,7 @@ class Context:
             title = self.object.name
         else:
             title = _(self.config.title).capitalize()
-        context.update(get_base_context(self.request, self.config.app, self.config.get_group_role(), self.config.cur_view_group, (self.object != None), title, icon=icon))
+        context.update(get_base_context(self.request, self.config.app, self.config.get_cur_role(), self.config.cur_view_group, (self.object != None), title, icon=icon))
         context['fix_list'] = self.get_fixes(self.config.views, search_qty)
         context['group_form'] = CreateGroupForm()
         context['config'] = self.config

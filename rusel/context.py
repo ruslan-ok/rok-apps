@@ -4,6 +4,8 @@ from rusel.apps import get_apps_list
 from task.models import Group, VisitedHistory
 from task.const import APP_HOME, APP_NAME
 
+MAX_LAST_VISITED = 10
+
 def get_base_context(request, app, role, group, detail, title, icon=None):
     context = {}
     if icon:
@@ -113,7 +115,7 @@ def save_last_visited(user, url, app, title_1, title_2, icon):
             page.save()
             return
 
-    if (len(pages) >= 15):
+    if (len(pages) >= MAX_LAST_VISITED):
         pages[0].delete()
 
     VisitedHistory.objects.create(user=user, stamp=datetime.now(), url=url, app=str_app, page=title_1, info=title_2, icon=icon)

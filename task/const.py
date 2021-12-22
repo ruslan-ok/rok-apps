@@ -23,6 +23,25 @@ APP_ALL = 'all'
 
 NONE = 0
 
+APP_NAME = {
+    APP_HOME: 'rusel.by',
+    APP_TODO: 'tasks',
+    APP_NOTE: 'notes',
+    APP_NEWS: 'news',
+    APP_STORE: 'passwords',
+    APP_DOCS: 'docs',
+    APP_WARR: 'warr',
+    APP_EXPEN: 'expenses',
+    APP_TRIP: 'trips',
+    APP_FUEL: 'fuelings',
+    APP_APART: 'communal',
+    APP_HEALTH: 'health',
+    APP_WORK: 'work',
+    APP_PHOTO: 'photobank',
+    APP_ADMIN: 'administration',
+    APP_ALL: 'all applications',
+}
+
 """
 Kinds of Entities that can be combined into Group
 """
