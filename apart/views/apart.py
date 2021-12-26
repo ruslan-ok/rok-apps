@@ -1,11 +1,10 @@
 from django.utils.translation import gettext_lazy as _
-from task.const import APP_APART, ROLE_APART, NUM_ROLE_APART
+from task.const import APP_APART, ROLE_APART, NUM_ROLE_SERVICE, NUM_ROLE_METER, NUM_ROLE_PRICE, NUM_ROLE_BILL
 from task.models import Task
-from rusel.files import get_files_list
-from rusel.base.views import BaseListView, BaseDetailView, get_app_doc
+from rusel.files import get_files_list, get_app_doc
+from rusel.base.views import BaseListView, BaseDetailView
 from apart.forms.apart import CreateForm, EditForm
 from apart.config import app_config
-from apart.models import Apart, Service, Price, Meter, Bill
 
 app = APP_APART
 role = ROLE_APART
@@ -37,32 +36,18 @@ class DetailView(BaseDetailView):
         context['title'] = self.object.name
         context['delete_question'] = _('delete apartment').capitalize()
         context['ban_on_deletion'] = ''
-        apart_id = None
-        if Apart.objects.filter(task=self.object.id).exists():
-            apart_id = Apart.objects.filter(task=self.object.id).get().id
-            if Service.objects.filter(apart=apart_id).exists():
-                context['ban_on_deletion'] = _('deletion is prohibited because there are services for this apartment').capitalize()
-            elif Price.objects.filter(apart=apart_id).exists():
-                context['ban_on_deletion'] = _('deletion is prohibited because there are tariffs for this apartment').capitalize()
-            elif Meter.objects.filter(apart=apart_id).exists():
-                context['ban_on_deletion'] = _('deletion is prohibited because there are meters data for this apartment').capitalize()
-            elif Bill.objects.filter(apart=apart_id).exists():
-                context['ban_on_deletion'] = _('deletion is prohibited because there are bills for this apartment').capitalize()
+        if Task.objects.filter(app_apart=NUM_ROLE_SERVICE, task_1=self.object.id).exists():
+            context['ban_on_deletion'] = _('deletion is prohibited because there are services for this apartment').capitalize()
+        elif Task.objects.filter(app_apart=NUM_ROLE_PRICE, task_1=self.object.id).exists():
+            context['ban_on_deletion'] = _('deletion is prohibited because there are tariffs for this apartment').capitalize()
+        elif Task.objects.filter(app_apart=NUM_ROLE_METER, task_1=self.object.id).exists():
+            context['ban_on_deletion'] = _('deletion is prohibited because there are meters data for this apartment').capitalize()
+        elif Task.objects.filter(app_apart=NUM_ROLE_BILL, task_1=self.object.id).exists():
+            context['ban_on_deletion'] = _('deletion is prohibited because there are bills for this apartment').capitalize()
         return context
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        if Apart.objects.filter(task=form.instance.id).exists():
-            apart = Apart.objects.filter(task=form.instance.id).get()
-            apart.has_el = form.cleaned_data['has_el']
-            apart.has_hw = form.cleaned_data['has_hw']
-            apart.has_cw = form.cleaned_data['has_cw']
-            apart.has_gas = form.cleaned_data['has_gas']
-            apart.has_tv = form.cleaned_data['has_tv']
-            apart.has_phone = form.cleaned_data['has_phone']
-            apart.has_zkx = form.cleaned_data['has_zkx']
-            apart.has_ppo = form.cleaned_data['has_ppo']
-            apart.save()
         form.instance.set_item_attr(app, get_info(form.instance))
         return response
 
@@ -75,32 +60,30 @@ def get_info(item):
             info_descr += '...'
         ret['attr'].append({'icon': 'notes', 'text': info_descr})
 
-    if Apart.objects.filter(task=item.id).exists():
-        apart = Apart.objects.filter(task=item.id).get()
-        files = (len(get_files_list(item.user, app, role, item.id)) > 0)
-        if files:
-            if item.info:
-                ret['attr'].append({'icon': 'separator'})
-            ret['attr'].append({'icon': 'attach'})
-        if apart.has_el or apart.has_hw or apart.has_cw or apart.has_gas or apart.has_ppo:
-            if item.info or files:
-                ret['attr'].append({'icon': 'separator'})
-            if apart.has_el:
-                ret['attr'].append({'text': 'el'})
-            if apart.has_hw:
-                ret['attr'].append({'text': 'hw'})
-            if apart.has_cw:
-                ret['attr'].append({'text': 'cw'})
-            if apart.has_gas:
-                ret['attr'].append({'text': 'gas'})
-            if apart.has_tv:
-                ret['attr'].append({'text': 'inet/tv'})
-            if apart.has_phone:
-                ret['attr'].append({'text': 'phone'})
-            if apart.has_zkx:
-                ret['attr'].append({'text': 'zkx'})
-            if apart.has_ppo:
-                ret['attr'].append({'text': 'ppo'})
+    files = (len(get_files_list(item.user, app, role, item.id)) > 0)
+    if files:
+        if item.info:
+            ret['attr'].append({'icon': 'separator'})
+        ret['attr'].append({'icon': 'attach'})
+    if item.apart_has_el or item.apart_has_hw or item.apart_has_cw or item.apart_has_gas or item.apart_has_ppo:
+        if item.info or files:
+            ret['attr'].append({'icon': 'separator'})
+        if item.apart_has_el:
+            ret['attr'].append({'text': 'el'})
+        if item.apart_has_hw:
+            ret['attr'].append({'text': 'hw'})
+        if item.apart_has_cw:
+            ret['attr'].append({'text': 'cw'})
+        if item.apart_has_gas:
+            ret['attr'].append({'text': 'gas'})
+        if item.apart_has_tv:
+            ret['attr'].append({'text': 'inet/tv'})
+        if item.apart_has_phone:
+            ret['attr'].append({'text': 'phone'})
+        if item.apart_has_zkx:
+            ret['attr'].append({'text': 'zkx'})
+        if item.apart_has_ppo:
+            ret['attr'].append({'text': 'ppo'})
 
     return ret
 

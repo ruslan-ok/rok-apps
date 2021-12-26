@@ -2,11 +2,10 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from rusel.base.forms import BaseCreateForm, BaseEditForm
-from task.models import Task, Group
+from task.models import Task
 from task.const import ROLE_FUEL
 from fuel.config import app_config
-from rusel.widgets import UrlsInput, CategoriesInput, SwitchInput
-from rusel.base.forms import GroupForm
+from rusel.widgets import UrlsInput, CategoriesInput
 
 role = ROLE_FUEL
 
@@ -48,11 +47,3 @@ class EditForm(BaseEditForm):
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
-#----------------------------------
-class CarForm(GroupForm):
-    class Meta:
-        model = Group
-        fields = ['name']
-        widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control mb-2'}),
-        }

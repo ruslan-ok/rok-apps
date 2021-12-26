@@ -1,17 +1,15 @@
-from task.const import ROLE_NOTE, ROLE_APP
+from task.const import ROLE_CAR, ROLE_APP
 from task.models import Task
-from rusel.files import get_app_doc
-from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView
-from note.forms import CreateForm, EditForm
-from note.config import app_config
-from note.get_info import get_info
+from rusel.base.views import BaseListView, BaseDetailView
+from fuel.forms.car import CreateForm, EditForm
+from fuel.config import app_config
 
-role = ROLE_NOTE
+role = ROLE_CAR
 app = ROLE_APP[role]
 
 class TuneData:
     def tune_dataset(self, data, group):
-        return data
+        return data;
 
 class ListView(BaseListView, TuneData):
     model = Task
@@ -33,11 +31,14 @@ class DetailView(BaseDetailView, TuneData):
         form.instance.set_item_attr(app, get_info(form.instance))
         return response
 
+def get_info(item):
+    attr = []
 
-class GroupView(BaseGroupView, TuneData):
-    def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+    if item.info:
+        info_descr = item.info[:80]
+        if len(item.info) > 80:
+            info_descr += '...'
+        attr.append({'icon': 'notes', 'text': info_descr})
 
-def get_doc(request, pk, fname):
-    return get_app_doc(app_config['name'], role, request, pk, fname)
-
+    ret = {'attr': attr}
+    return ret

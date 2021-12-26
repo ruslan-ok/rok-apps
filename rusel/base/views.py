@@ -1,9 +1,10 @@
 import os, json
 from datetime import date
+from django.http.response import HttpResponseRedirect
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
-from django.http import FileResponse, HttpResponseNotFound
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.list import ListView
+from django.views.generic.edit import UpdateView
 from django.db.models import Q
 from django.core.exceptions import FieldError
 from rusel.apps import get_related_roles
@@ -37,14 +38,10 @@ class Config:
         self.view_icon = config['icon']
         self.role_icon = config['icon']
         self.views = config['views']
-        self.base_role = None
-        if ('role' in config):
-            self.base_role = config['role']
-        self.main_view = None
-        if ('main_view' in config):
-            self.main_view = config['main_view']
-            if ('role' in config['views'][self.main_view]):
-                self.base_role = config['views'][self.main_view]['role']
+        self.base_role = self.check_property(config, 'role', None)
+        self.main_view = self.check_property(config, 'main_view', None)
+        if self.main_view:
+            self.base_role = self.check_property(config['views'][self.main_view], 'role', self.base_role)
         self.use_groups = self.check_property(config, 'use_groups', False)
         self.group_entity = self.check_property(config, 'group_entity', 'group')
         self.use_selector = self.check_property(config, 'use_selector', False)
@@ -52,15 +49,20 @@ class Config:
         self.add_button = self.check_property(config, 'add_button', False)
         self.item_name = self.check_property(config, 'item_name', '')
         self.event_in_name = self.check_property(config, 'event_in_name', False)
+        self.nav_role = self.check_property(config, 'nav_role', None)
+        self.nav_item = None
+        if self.nav_role:
+            self.nav_role_entity = self.check_property(config['views'][self.nav_role], 'item_name', None)
         self.app_sorts = None
         self.default_sort = '-event'
         if config['sort']:
             self.app_sorts = config['sort']
 
-    def set_view(self, request):
+    def set_view(self, request, active_nav_item_id=None):
         if not self.app:
             return
         self.cur_view_group = None
+        self.nav_item = None
         if (self.app == APP_ALL):
             common_url = reverse('index')
         else:
@@ -68,9 +70,6 @@ class Config:
         determinator = 'view'
         if self.main_view:
             view_id = self.main_view
-        #else:
-        #    view_id = self.base_role
-        #if (self.multy_role):
         if (request.path != common_url):
             view_id = request.path.split(common_url)[1].split('?')[0].split('/')[0]
             if (view_id in self.views):
@@ -82,12 +81,13 @@ class Config:
             view_name = request.GET.get('view')
             if view_name:
                 view_id = view_name
-        if (self.group_entity in request.GET):
+
+        if (not self.nav_role) and (self.group_entity in request.GET):
             group_id = request.GET.get(self.group_entity)
-            if group_id and int(group_id) and Group.objects.filter(id=int(group_id)).exists():
+            if group_id and int(group_id) and Group.objects.filter(user=request.user.id, id=int(group_id)).exists():
                 determinator = 'group'
                 view_id = group_id
-                self.title = Group.objects.filter(id=int(group_id)).get().name
+                self.title = Group.objects.filter(user=request.user.id, id=int(group_id)).get().name
                 self.role_icon = self.app_icon
                 self.view_icon = self.app_icon
         self.view_sorts = None
@@ -110,6 +110,14 @@ class Config:
 
         if determinator and view_id:
             self.cur_view_group = detect_group(request.user, self.app, determinator, view_id, _(self.title).capitalize())
+        cur_role = self.get_cur_role()
+        if self.nav_role and (self.nav_role != cur_role) and self.group_entity:
+            if (self.group_entity in request.GET):
+                group_id = request.GET.get(self.group_entity)
+            else:
+                group_id = active_nav_item_id
+            if group_id and int(group_id) and Task.objects.filter(user=request.user.id, id=int(group_id)).exists():
+                self.nav_item = Task.objects.filter(user=request.user.id, id=int(group_id)).get()
 
     def check_property(self, config, prop, default):
         ret = default
@@ -121,6 +129,9 @@ class Config:
         if (self.cur_view_group and self.cur_view_group.determinator and self.cur_view_group.determinator == 'role'):
             return self.cur_view_group.view_id
         return self.base_role
+
+    # def get_active_nav_item_id(self):
+    #     return None
 
 def detect_group(user, app, determinator, view_id, name):
     group = None
@@ -146,17 +157,21 @@ class Context:
     def set_config(self, config, cur_view):
         self.config = Config(config, cur_view)
 
-    def get_app_context(self, search_qty=None, icon=None, **kwargs):
+    def get_app_context(self, search_qty=None, icon=None, nav_items=None, **kwargs):
         context = {}
         if self.object:
             title = self.object.name
         else:
             title = _(self.config.title).capitalize()
+        if self.config.nav_item:
+            title = (title, self.config.nav_item.name)
         context.update(get_base_context(self.request, self.config.app, self.config.get_cur_role(), self.config.cur_view_group, (self.object != None), title, icon=icon))
         context['fix_list'] = self.get_fixes(self.config.views, search_qty)
         context['group_form'] = CreateGroupForm()
         context['config'] = self.config
         context['params'] = extract_get_params(self.request, self.config.group_entity)
+        if nav_items:
+            context['nav_items'] = nav_items
         return context
 
     def get_sorts(self, sorts):
@@ -217,7 +232,10 @@ class Context:
             cur_role = group.view_id
         else:
             cur_role = self.config.base_role
-        data = Task.get_role_tasks(self.request.user.id, self.config.app, cur_role)
+        nav_item = None
+        if self.config.nav_item and (cur_role != self.config.nav_role):
+            nav_item = self.config.nav_item
+        data = Task.get_role_tasks(self.request.user.id, self.config.app, cur_role, nav_item)
 
         if (self.config.app == APP_ALL) and (not query):
             return data
@@ -229,15 +247,53 @@ class Context:
         
         return self.tune_dataset(data, group)
 
-class BaseListView(CreateView, Context):
+    def get_nav_items(self):
+        if (not self.config.nav_role) or (self.config.nav_role == self.config.cur_view_group.view_id):
+            return None
+        ret = []
+        for item in Task.get_role_tasks(self.request.user.id, self.config.app, self.config.nav_role, None):
+            ret.append({
+                'id': item.id, 
+                'name': item.name, 
+                'qty': len(Task.get_role_tasks(self.request.user.id, self.config.app, self.config.cur_view_group.view_id, item)), 
+                })
+        return ret
+
+class BaseListView(ListView, Context):
 
     def __init__(self, config, cur_role, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.set_config(config, cur_role)
         self.template_name = 'base/list.html'
 
+    def get(self, request, *args, **kwargs):
+        ret = super().get(request, *args, **kwargs)
+        if self.config.nav_role and (self.config.nav_role != self.config.get_cur_role()):
+            if (self.config.group_entity in request.GET):
+                active_nav_item_id = request.GET[self.config.group_entity]
+                self.set_active_nav_item(active_nav_item_id)
+            else:
+                ani = self.get_active_nav_item_id()
+                if ani:
+                    return HttpResponseRedirect(request.path + '?' + self.config.group_entity + '=' + str(ani))
+        return ret
+
+    def get_active_nav_item_id(self):
+        if self.config.nav_role:
+            nav_items = Task.get_role_tasks(self.request.user.id, self.config.app, self.config.nav_role, None)
+            if nav_items.filter(active=True).exists():
+                return nav_items.filter(active=True).order_by('name')[0].id
+            if (len(nav_items) > 0):
+                return nav_items.order_by('name')[0].id
+        return None
+
+    def set_active_nav_item(self, active_nav_item_id):
+        nav_items = Task.get_role_tasks(self.request.user.id, self.config.app, self.config.nav_role, None)
+        nav_items.update(active=False)
+        nav_items.filter(id=active_nav_item_id).update(active=True)
+
     def get_queryset(self):
-        self.config.set_view(self.request)
+        self.config.set_view(self.request, self.get_active_nav_item_id())
         query = None
         if (self.request.method == 'GET'):
             query = self.request.GET.get('q')
@@ -249,7 +305,7 @@ class BaseListView(CreateView, Context):
         return reverse(self.config.app + ':' + self.config.get_cur_role() + '-item', args=(self.object.id,)) + extract_get_params(self.request, self.config.group_entity)
 
     def get_context_data(self, **kwargs):
-        self.config.set_view(self.request)
+        self.config.set_view(self.request, self.get_active_nav_item_id())
         self.object = None
         context = super().get_context_data(**kwargs)
         context['add_item_placeholder'] = '{} {}'.format(_('add').capitalize(), self.config.item_name if self.config.item_name else self.config.get_cur_role())
@@ -291,7 +347,8 @@ class BaseListView(CreateView, Context):
         search_qty = None
         if query:
             search_qty = len(tasks)
-        context.update(self.get_app_context(search_qty, icon=self.config.view_icon))
+        nav_items=self.get_nav_items()
+        context.update(self.get_app_context(search_qty, icon=self.config.view_icon, nav_items=nav_items))
 
         if self.config.view_sorts:
             context['sorts'] = self.get_sorts(self.config.view_sorts)
@@ -425,7 +482,7 @@ class BaseListView(CreateView, Context):
     def form_valid(self, form):
         form.instance.user = self.request.user
         response = super().form_valid(form)
-        self.config.set_view(self.request)
+        self.config.set_view(self.request, self.get_active_nav_item_id())
         if (self.config.cur_view_group):
             TaskGroup.objects.create(task=self.object, group=self.config.cur_view_group, role=self.config.app)
         return response
@@ -442,10 +499,16 @@ class BaseDetailView(UpdateView, Context):
             return reverse(self.config.app + ':item', args=(self.object.id,)) + extract_get_params(self.request, self.config.group_entity)
         return reverse(self.config.app + ':' + self.config.get_cur_role() + '-item', args=(self.object.id,)) + extract_get_params(self.request, self.config.group_entity)
 
+    def get_active_nav_item_id(self):
+        return None
+
+    def get_nav_items(self):
+        return None
+
     def get_context_data(self, **kwargs):
-        self.config.set_view(self.request)
+        self.config.set_view(self.request, self.get_active_nav_item_id())
         context = super().get_context_data(**kwargs)
-        context.update(self.get_app_context(None, icon=self.config.role_icon))
+        context.update(self.get_app_context(None, icon=self.config.role_icon, nav_items=self.get_nav_items()))
         context['title'] = self.object.name
         urls = []
         for url in Urls.objects.filter(task=self.object.id):
@@ -522,14 +585,6 @@ class BaseGroupView(UpdateView, Context):
                 context['ban_on_deletion'] = ''
         return context
 
-
-def get_app_doc(app, role, request, pk, fname):
-    path = storage_path.format(request.user.id) + app + '/' + role + '_{}/'.format(pk)
-    try:
-        fsock = open(path + fname, 'rb')
-        return FileResponse(fsock)
-    except IOError:
-        return HttpResponseNotFound()
 
 GRP_PLANNED_NONE     = 0
 GRP_PLANNED_EARLIER  = 1

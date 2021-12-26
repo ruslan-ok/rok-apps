@@ -4,16 +4,22 @@ app_config = {
     'name': APP_APART,
     'app_title': 'communal',
     'icon': 'building',
-    'role': ROLE_METER,
-    'main_view': 'meter',
-    'use_groups': True,
+    'main_view': 'apart',
+    'nav_role': 'apart',
     'group_entity': 'apart',
     'sort': [
         ('name', 'name'),
         ('created', 'create date'),
     ],
     'views': {
+        'apart': {
+            'role': ROLE_APART,
+            'icon': 'building', 
+            'title': 'apartments',
+            'item_name': 'apartment',
+        },
         'meter': {
+            'role': ROLE_METER,
             'icon': 'speedometer2', 
             'title': 'meters data',
             'item_name': 'meters data',

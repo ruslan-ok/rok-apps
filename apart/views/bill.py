@@ -2,9 +2,8 @@ from datetime import datetime
 from django.utils.translation import gettext_lazy as _
 from task.const import APP_APART, ROLE_BILL, NUM_ROLE_BILL
 from task.models import Task, Urls
-from rusel.files import get_files_list
-from rusel.base.views import get_app_doc
-from apart.views.base_list import BaseApartListView, BaseApartDetailView
+from rusel.files import get_files_list, get_app_doc
+from rusel.base.views import BaseListView, BaseDetailView
 from apart.forms.bill import CreateForm, EditForm
 from apart.config import app_config
 from apart.models import Apart, Meter, Bill
@@ -14,7 +13,7 @@ from rusel.files import get_files_list
 app = APP_APART
 role = ROLE_BILL
 
-class ListView(BaseApartListView):
+class ListView(BaseListView):
     model = Task
     form_class = CreateForm
 
@@ -26,19 +25,24 @@ class ListView(BaseApartListView):
         response = super().form_valid(form)
         return response
 
-class DetailView(BaseApartDetailView):
+    def tune_dataset(self, data, group):
+        return data
+
+class DetailView(BaseDetailView):
     model = Task
     form_class = EditForm
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
+    def tune_dataset(self, data, group):
+        return data
+
     def get_context_data(self, **kwargs):
         self.config.set_view(self.request)
         context = super().get_context_data(**kwargs)
         if Bill.objects.filter(task=self.get_object().id).exists():
             item = Bill.objects.filter(task=self.get_object().id).get()
-            context['title'] = item.apart.name + ' ' + _('bill').capitalize() + ' ' + self.object.name
             context['ed_item'] = item
             vel = 0
             vga = 0

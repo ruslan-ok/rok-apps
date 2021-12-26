@@ -1,9 +1,9 @@
 from task.const import ROLE_FUEL, ROLE_APP
 from task.models import Task, Urls, TaskGroup
-from rusel.files import get_files_list
+from rusel.files import get_files_list, get_app_doc
 from rusel.categories import get_categories_list
-from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView, get_app_doc
-from fuel.forms.fuel import CreateForm, EditForm, CarForm
+from rusel.base.views import BaseListView, BaseDetailView
+from fuel.forms.fuel import CreateForm, EditForm
 from fuel.config import app_config
 
 role = ROLE_FUEL
@@ -66,13 +66,6 @@ def get_info(item):
         ret['group'] = TaskGroup.objects.filter(task=item.id, role=role).get().group.name
 
     return ret
-
-
-class CarView(BaseGroupView, TuneData):
-    form_class = CarForm
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
 
 def get_doc(request, pk, fname):
     return get_app_doc(app_config['name'], role, request, pk, fname)

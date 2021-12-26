@@ -2,7 +2,8 @@ from datetime import datetime, date, timedelta
 from django.utils.translation import gettext_lazy as _
 from task.const import APP_TODO, ROLE_TODO, NUM_ROLE_TODO
 from task.models import Task, Step
-from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView, get_app_doc
+from rusel.files import get_app_doc
+from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView
 from rusel.utils import nice_date
 from todo.forms import CreateForm, EditForm
 from todo.config import app_config

@@ -1,22 +1,24 @@
 from django.utils.translation import gettext_lazy as _
 from task.const import APP_APART, ROLE_SERVICE, NUM_ROLE_SERVICE
 from task.models import Task
-from rusel.files import get_files_list
-from rusel.base.views import get_app_doc
+from rusel.files import get_files_list, get_app_doc
 from apart.forms.serv import CreateForm, EditForm
 from apart.config import app_config
 from apart.models import Service, Apart, Price
-from apart.views.base_list import BaseApartListView, BaseApartDetailView
+from rusel.base.views import BaseListView, BaseDetailView
 
 app = APP_APART
 role = ROLE_SERVICE
 
-class ListView(BaseApartListView):
+class ListView(BaseListView):
     model = Task
     form_class = CreateForm
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
+
+    def tune_dataset(self, data, group):
+        return data
 
     def form_valid(self, form):
         form.instance.app_apart = NUM_ROLE_SERVICE
@@ -25,18 +27,20 @@ class ListView(BaseApartListView):
         Service.objects.create(apart=apart, task=form.instance, name=form.instance.name);
         return response
 
-class DetailView(BaseApartDetailView):
+class DetailView(BaseDetailView):
     model = Task
     form_class = EditForm
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
+    def tune_dataset(self, data, group):
+        return data
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if Service.objects.filter(task=self.object.id).exists():
             item = Service.objects.filter(task=self.object.id).get()
-            context['title'] = item.apart.name + ' ' + _('service').capitalize() + ' "' + self.object.name + '"'
             context['delete_question'] = _('delete service').capitalize()
             context['ban_on_deletion'] = ''
             if Price.objects.filter(serv=item.id).exists():

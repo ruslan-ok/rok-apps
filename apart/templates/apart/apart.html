@@ -1,26 +1,26 @@
-{% extends "base/page_content.html" %}
+{% extends "base/item_detail.html" %}
 {% load static i18n %}
 
-{% block main %}
-  <form method="post" class="w-100 px-2 item-form row" enctype="multipart/form-data" id="article_form" data-item_id="{{ ed_item.id|cut:" " }}">{% csrf_token %}
-    {% include "base/title.html" %}
-    {% include "base/form_errors.html" %}
-
-    {{ form }}
+{% block item_detail %}
+    {{ form.name.errors }}{{ form.name.label_tag }}{{ form.name }}
+    {{ form.info.errors }}{{ form.info.label_tag }}{{ form.info }}
+    <div class="row">
+      <div class="col">
+        {{ form.apart_has_el }}
+        {{ form.apart_has_hw }}
+        {{ form.apart_has_cw }}
+      </div>
+      <div class="col">
+        {{ form.apart_has_gas }}
+        {{ form.apart_has_tv }}
+        {{ form.apart_has_phone }}
+      </div>
+      <div class="col">
+        {{ form.apart_has_zkx }}
+        {{ form.apart_has_ppo }}
+      </div>
+    </div>
 
     {% include "widgets/attachments.html" %}
-
-    <div class="d-flex justify-content-evenly mt-3 pb-5">
-      <button type="submit" name="item_save" class="btn btn-primary bi-save" title="{% trans 'save changes'|capfirst %}">
-        {% trans 'save'|capfirst %}
-      </button>
-      <button type="button" name="form_close" class="btn btn-secondary bi-x" onclick="closeForm()" title="{% trans 'close edit form'|capfirst %}">
-        {% trans 'close'|capfirst %}
-      </button>
-      <button type="button" name="item_delete" class="btn btn-danger bi-trash" onclick="delItemConfirm('{{config.app}}', '{{ban_on_deletion}}', '{{delete_question}} {{title}}?')" title="{% trans 'delete record'|capfirst %}">
-        {% trans 'delete'|capfirst %}
-      </button>
-    </div>
-  </form>
 {% endblock %}
 

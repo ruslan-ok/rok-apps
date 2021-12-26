@@ -1,10 +1,10 @@
 from django.views.generic.edit import FormView
-from django.urls import reverse
 from django.http import HttpResponse
 from django.template import loader
 from task.const import ROLE_STORE, ROLE_APP
 from task.models import Task
-from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView, Context, get_app_doc
+from rusel.files import get_app_doc
+from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView, Context
 from store.forms import CreateForm, EditForm, ParamsForm
 from store.config import app_config
 from store.get_info import get_info

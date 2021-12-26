@@ -33,21 +33,12 @@ class Group(models.Model):
     determinator = models.CharField(_('group category: "group", "role" or "view"'), max_length=10, blank=True, null=True)
     view_id = models.CharField(_('view identificator for "role" and "view"'), max_length=50, blank=True, null=True)
     items_sort = models.CharField(_('items sorting orders'), max_length=500, blank=True)
-    tot_byn = models.BooleanField(_('totals in BYN'), default = False, null=True)
-    tot_usd = models.BooleanField(_('totals in USD'), default = False, null=True)
-    tot_eur = models.BooleanField(_('totals in EUR'), default = False, null=True)
     info = models.TextField(_('information').capitalize(), blank=True, default="")
-    has_el = models.BooleanField(_('has electricity'), default = True)
-    has_hw = models.BooleanField(_('has hot water'), default = True)
-    has_cw = models.BooleanField(_('has cold water'), default = True)
-    has_gas = models.BooleanField(_('has gas'), default = True)
-    has_ppo = models.BooleanField(_('payments to the partnership of owners'), default = False)
-    has_tv = models.BooleanField(_('has Internet/TV'), default = True)
-    has_phone = models.BooleanField(_('has phone'), default = True)
-    has_zkx = models.BooleanField(_('has ZKX'), default = True)
-    name2 = models.CharField(_('additional group name'), max_length=200, blank=True)
-    info = models.TextField(_('information').capitalize(), blank=True, default="")
-    active = models.BooleanField(_('is active'), default = False, null=True)
+    src_id = models.IntegerField(_('ID in source table'), blank=True, null=True)
+    #------------- Expen --------------
+    expen_byn = models.BooleanField(_('totals in BYN'), default = False, null=True)
+    expen_usd = models.BooleanField(_('totals in USD'), default = False, null=True)
+    expen_eur = models.BooleanField(_('totals in EUR'), default = False, null=True)
 
     class Meta:
         verbose_name=_('task group')
@@ -121,9 +112,9 @@ class Group(models.Model):
         self.save()
 
     def expen_what_totals(self):
-        if (not self.tot_byn) and (not self.tot_usd) and (not self.tot_eur):
+        if (not self.expen_byn) and (not self.expen_usd) and (not self.expen_eur):
             return True, False, False
-        return self.tot_byn, self.tot_usd, self.tot_eur
+        return self.expen_byn, self.expen_usd, self.expen_eur
 
     def expen_get_totals(self):
         byn = 0
@@ -181,6 +172,7 @@ class Task(models.Model):
     repeat_days = models.IntegerField(_('repeat days').capitalize(), blank=True, default=0)
     categories = models.TextField(_('categories').capitalize(), blank=True, default="")
     info = models.TextField(_('information').capitalize(), blank=True, default="")
+    src_id = models.IntegerField(_('ID in source table'), blank=True, null=True)
     app_task = models.IntegerField('Role in application Task', choices=TASK_ROLE_CHOICE, default=NONE, null=True)
     app_note = models.IntegerField('Role in application Note', choices=NOTE_ROLE_CHOICE, default=NONE, null=True)
     app_news = models.IntegerField('Role in application News', choices=NEWS_ROLE_CHOICE, default=NONE, null=True)
@@ -197,6 +189,10 @@ class Task(models.Model):
     created = models.DateTimeField(_('creation time').capitalize(), auto_now_add=True)
     last_mod = models.DateTimeField(_('last modification time').capitalize(), blank=True, auto_now=True)
     groups = models.ManyToManyField(Group, through='TaskGroup')
+    active = models.BooleanField(_('is active navigation item').capitalize(), default=False, null=True)
+    task_1 = models.ForeignKey('self', on_delete=models.SET_NULL, verbose_name=_('linked task #1'), related_name='task_link_1', blank=True, null=True)
+    task_2 = models.ForeignKey('self', on_delete=models.SET_NULL, verbose_name=_('linked task #2'), related_name='task_link_2', blank=True, null=True)
+    task_3 = models.ForeignKey('self', on_delete=models.SET_NULL, verbose_name=_('linked task #3'), related_name='task_link_3', blank=True, null=True)
     # -- Expenses
     item_attr = models.CharField(_('item attributes').capitalize(), max_length=2000, blank=True, null=True)
     qty = models.DecimalField(_('quantity').capitalize(), blank = True, null = True, max_digits = 15, decimal_places = 3, default = 1)
@@ -209,6 +205,15 @@ class Task(models.Model):
     # -------------
     trip_days = models.IntegerField(_('days'), blank = False, default = 0)
     trip_oper = models.IntegerField(_('operation'), blank = False, default = 0)
+    #------------- Apart --------------
+    apart_has_el = models.BooleanField(_('has electricity'), default = True)
+    apart_has_hw = models.BooleanField(_('has hot water'), default = True)
+    apart_has_cw = models.BooleanField(_('has cold water'), default = True)
+    apart_has_gas = models.BooleanField(_('has gas'), default = True)
+    apart_has_ppo = models.BooleanField(_('payments to the partnership of owners'), default = False)
+    apart_has_tv = models.BooleanField(_('has Internet/TV'), default = True)
+    apart_has_phone = models.BooleanField(_('has phone'), default = True)
+    apart_has_zkx = models.BooleanField(_('has ZKX'), default = True)
     # -------------
     class Meta:
         verbose_name = _('task')
@@ -218,11 +223,14 @@ class Task(models.Model):
         return self.name
 
     @classmethod
-    def get_role_tasks(cls, user_id, app, role):
+    def get_role_tasks(cls, user_id, app, role, nav_item):
         if user_id:
             data = Task.objects.filter(user=user_id)
         else:
             data = Task.objects.all()
+        if nav_item:
+            data = data.filter(task_1=nav_item.id)
+
         if (app != APP_ALL):
             role_id = ROLES_IDS[app][role]
             if (app == APP_TODO):
@@ -298,9 +306,13 @@ class Task(models.Model):
             elif (app == APP_PHOTO):
                 app_field = self.app_photo
             if app_field:
+                base_role = list(ROLES_IDS[app].values())[0]
                 for role in ROLES_IDS[app]:
                     if (app_field == ROLES_IDS[app][role]):
-                        roles.append({'icon': ROLE_ICON[role], 'href': self.get_url_for_app(app, role), 'name': role})
+                        url_role = None
+                        if (role != ROLE_BY_NUM[base_role]):
+                            url_role = role
+                        roles.append({'icon': ROLE_ICON[role], 'href': self.get_url_for_app(app, url_role), 'name': role})
         return roles
 
     def get_absolute_url(self):
@@ -314,7 +326,10 @@ class Task(models.Model):
             return '/'
         id = self.id
         try:
-            url = reverse(app + ':item', args = [id])
+            if role:
+                url = reverse(app + ':' + role + '-item', args = [id])
+            else:
+                url = reverse(app + ':item', args = [id])
             return url
         except NoReverseMatch:
             return '/'

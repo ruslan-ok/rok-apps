@@ -38,7 +38,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         if 'app' in self.request.query_params and 'role' in self.request.query_params:
             app = self.request.query_params['app']
             role = self.request.query_params['role']
-            return Task.get_role_tasks(self.request.user.id, app, role)
+            return Task.get_role_tasks(self.request.user.id, app, role, None)
         return data
 
     @action(detail=False)

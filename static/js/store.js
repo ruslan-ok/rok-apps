@@ -124,7 +124,7 @@ function buildValue()
 }
 
 function copyToClipboard(fld, kind) {
-    const value = fld.parentNode.parentNode.children[0].value;
+    const value = fld.parentNode.parentNode.children[1].value;
     if (!navigator.clipboard) {
         fallbackCopyTextToClipboard(value);
         return;

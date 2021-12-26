@@ -1,8 +1,8 @@
 from task.const import ROLE_SERVICE, ROLE_APP
 from task.models import Task, Urls, TaskGroup
-from rusel.files import get_files_list
+from rusel.files import get_files_list, get_app_doc
 from rusel.categories import get_categories_list
-from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView, get_app_doc
+from rusel.base.views import BaseListView, BaseDetailView
 from fuel.forms.serv import CreateForm, EditForm
 from fuel.config import app_config
 

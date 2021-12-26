@@ -1,9 +1,8 @@
 from django.utils.translation import gettext_lazy as _
 from task.const import APP_APART, ROLE_PRICE, NUM_ROLE_PRICE
 from task.models import Task, Urls
-from rusel.files import get_files_list
-from rusel.base.views import get_app_doc
-from apart.views.base_list import BaseApartListView, BaseApartDetailView
+from rusel.files import get_files_list, get_app_doc
+from rusel.base.views import BaseListView, BaseDetailView
 from apart.forms.price import CreateForm, EditForm
 from apart.models import Apart, Price
 from apart.config import app_config
@@ -11,30 +10,35 @@ from apart.config import app_config
 app = APP_APART
 role = ROLE_PRICE
 
-class ListView(BaseApartListView):
+class ListView(BaseListView):
     model = Task
     form_class = CreateForm
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
+    def tune_dataset(self, data, group):
+        return data
+
     def form_valid(self, form):
         form.instance.app_apart = NUM_ROLE_PRICE
         response = super().form_valid(form)
         return response
 
-class DetailView(BaseApartDetailView):
+class DetailView(BaseDetailView):
     model = Task
     form_class = EditForm
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
+    def tune_dataset(self, data, group):
+        return data
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if Price.objects.filter(task=self.object.id).exists():
             item = Price.objects.filter(task=self.object.id).get()
-            context['title'] = item.apart.name + ' ' + _('price').capitalize() + ' ' + self.object.name
             context['delete_question'] = _('delete tariff').capitalize()
             context['ban_on_deletion'] = ''
         return context
