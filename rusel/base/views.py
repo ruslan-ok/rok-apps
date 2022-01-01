@@ -172,6 +172,12 @@ class Context:
         context['params'] = extract_get_params(self.request, self.config.group_entity)
         if nav_items:
             context['nav_items'] = nav_items
+        context['add_item_placeholder'] = '{} {}'.format(_('add').capitalize(), self.config.item_name if self.config.item_name else self.config.get_cur_role())
+        if self.config.add_button:
+            context['add_item_template'] = 'base/add_item_button.html'
+        else:
+            context['add_item_template'] = 'base/add_item_input.html'
+
         return context
 
     def get_sorts(self, sorts):
@@ -308,8 +314,6 @@ class BaseListView(ListView, Context):
         self.config.set_view(self.request, self.get_active_nav_item_id())
         self.object = None
         context = super().get_context_data(**kwargs)
-        context['add_item_placeholder'] = '{} {}'.format(_('add').capitalize(), self.config.item_name if self.config.item_name else self.config.get_cur_role())
-        context['add_button'] = self.config.add_button
 
         sub_groups = self.load_sub_groups()
         query = None

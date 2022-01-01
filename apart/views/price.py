@@ -20,6 +20,11 @@ class ListView(BaseListView):
     def tune_dataset(self, data, group):
         return data
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['add_item_template'] = 'apart/add_price.html'
+        return context
+
     def form_valid(self, form):
         form.instance.app_apart = NUM_ROLE_PRICE
         response = super().form_valid(form)
@@ -41,6 +46,7 @@ class DetailView(BaseDetailView):
             item = Price.objects.filter(task=self.object.id).get()
             context['delete_question'] = _('delete tariff').capitalize()
             context['ban_on_deletion'] = ''
+        context['add_item_template'] = 'apart/add_price.html'
         return context
 
     def form_valid(self, form):
