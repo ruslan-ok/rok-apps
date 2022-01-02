@@ -21,6 +21,10 @@ class CreateForm(BaseCreateForm):
         
 #----------------------------------
 class EditForm(BaseEditForm):
+    car_odometr = forms.IntegerField(
+        label=_('odometer').capitalize(),
+        required=False,
+        widget=forms.NumberInput(attrs={'class': 'form-control mb-3', 'placeholder': _('odometer value').capitalize()}))
     url = forms.CharField(
         label=_('URLs'),
         required=False,
@@ -32,7 +36,7 @@ class EditForm(BaseEditForm):
 
     class Meta:
         model = Task
-        fields = ['name', 'info', 'url', 'categories', 'upload']
+        fields = ['car_odometr', 'info', 'url', 'categories', 'upload']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
             'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),

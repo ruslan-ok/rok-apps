@@ -37,18 +37,18 @@ class EditForm(BaseEditForm):
 
     class Meta:
         model = Task
-        fields = ['event', 'name', 'qty', 'price', 'rate', 'rate_2', 'usd', 'eur', 'kontr', 'info', 
+        fields = ['event', 'name', 'expen_qty', 'expen_price', 'expen_rate', 'expen_rate_2', 'expen_usd', 'expen_eur', 'expen_kontr', 'info', 
         'url', 'categories', 'upload']
         widgets = {
             'event': forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime mb-3', 'type': 'datetime-local'}),
             'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),
-            'qty': forms.NumberInput(attrs={'class': 'form-control'}),
-            'price': forms.NumberInput(attrs={'class': 'form-control'}),
-            'rate': forms.NumberInput(attrs={'class': 'form-control'}),
-            'rate_2': forms.NumberInput(attrs={'class': 'form-control'}),
-            'usd': forms.NumberInput(attrs={'class': 'form-control'}),
-            'eur': forms.NumberInput(attrs={'class': 'form-control'}),
-            'kontr': forms.TextInput(attrs={'class': 'form-control'}),
+            'expen_qty': forms.NumberInput(attrs={'class': 'form-control'}),
+            'expen_price': forms.NumberInput(attrs={'class': 'form-control'}),
+            'expen_rate': forms.NumberInput(attrs={'class': 'form-control'}),
+            'expen_rate_2': forms.NumberInput(attrs={'class': 'form-control'}),
+            'expen_usd': forms.NumberInput(attrs={'class': 'form-control'}),
+            'expen_eur': forms.NumberInput(attrs={'class': 'form-control'}),
+            'expen_kontr': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):

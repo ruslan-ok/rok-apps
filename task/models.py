@@ -20,8 +20,8 @@ class Group(models.Model):
     Task groups
     """
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'), related_name='task_group')
-    app = models.CharField(_('app name'), max_length = 50, blank = False, default = APP_TODO, null = True)
-    role = models.CharField(_('role name'), max_length = 50, blank = False, default = ROLE_TODO, null = True)
+    app = models.CharField(_('app name'), max_length=50, blank=False, default=APP_TODO, null=True)
+    role = models.CharField(_('role name'), max_length=50, blank=False, default=ROLE_TODO, null=True)
     node = models.ForeignKey('self', on_delete=models.CASCADE, verbose_name=_('node'), blank=True, null=True)
     name = models.CharField(_('group name'), max_length=200, blank=False)
     sort = models.CharField(_('sort code'), max_length=50, blank=True)
@@ -36,9 +36,9 @@ class Group(models.Model):
     info = models.TextField(_('information').capitalize(), blank=True, default="")
     src_id = models.IntegerField(_('ID in source table'), blank=True, null=True)
     #------------- Expen --------------
-    expen_byn = models.BooleanField(_('totals in BYN'), default = False, null=True)
-    expen_usd = models.BooleanField(_('totals in USD'), default = False, null=True)
-    expen_eur = models.BooleanField(_('totals in EUR'), default = False, null=True)
+    expen_byn = models.BooleanField(_('totals in BYN'), default=False, null=True)
+    expen_usd = models.BooleanField(_('totals in USD'), default=False, null=True)
+    expen_eur = models.BooleanField(_('totals in EUR'), default=False, null=True)
 
     class Meta:
         verbose_name=_('task group')
@@ -193,27 +193,80 @@ class Task(models.Model):
     task_1 = models.ForeignKey('self', on_delete=models.SET_NULL, verbose_name=_('linked task #1'), related_name='task_link_1', blank=True, null=True)
     task_2 = models.ForeignKey('self', on_delete=models.SET_NULL, verbose_name=_('linked task #2'), related_name='task_link_2', blank=True, null=True)
     task_3 = models.ForeignKey('self', on_delete=models.SET_NULL, verbose_name=_('linked task #3'), related_name='task_link_3', blank=True, null=True)
-    # -- Expenses
     item_attr = models.CharField(_('item attributes').capitalize(), max_length=2000, blank=True, null=True)
-    qty = models.DecimalField(_('quantity').capitalize(), blank = True, null = True, max_digits = 15, decimal_places = 3, default = 1)
-    price = models.DecimalField(_('Price in NC'), blank = True, null = True, max_digits = 15, decimal_places = 2)
-    rate = models.DecimalField(_('USD exchange rate'), blank = True, null = True, max_digits = 15, decimal_places = 4)
-    rate_2 = models.DecimalField(_('EUR exchange rate'), blank = True, null = True, max_digits = 15, decimal_places = 4)
-    usd = models.DecimalField(_('amount in USD'), blank = True, null = True, max_digits = 15, decimal_places = 2)
-    eur = models.DecimalField(_('amount in EUR'), blank = True, null = True, max_digits = 15, decimal_places = 2)
-    kontr = models.CharField(_('manufacturer').capitalize(), max_length = 1000, blank = True)
-    # -------------
-    trip_days = models.IntegerField(_('days'), blank = False, default = 0)
-    trip_oper = models.IntegerField(_('operation'), blank = False, default = 0)
+    #------------ Expenses ------------
+    expen_qty = models.DecimalField(_('quantity').capitalize(), blank=True, null=True, max_digits=15, decimal_places=3, default=1)
+    expen_price = models.DecimalField(_('Price in NC'), blank=True, null=True, max_digits=15, decimal_places=2)
+    expen_rate = models.DecimalField(_('USD exchange rate'), blank=True, null=True, max_digits=15, decimal_places=4)
+    expen_rate_2 = models.DecimalField(_('EUR exchange rate'), blank=True, null=True, max_digits=15, decimal_places=4)
+    expen_usd = models.DecimalField(_('amount in USD'), blank=True, null=True, max_digits=15, decimal_places=2)
+    expen_eur = models.DecimalField(_('amount in EUR'), blank=True, null=True, max_digits=15, decimal_places=2)
+    expen_kontr = models.CharField(_('manufacturer').capitalize(), max_length=1000, blank=True, null=True)
+    #------------ Person --------------
+    pers_dative = models.CharField(_('dative'), max_length=500, null=True)
+    #------------- Trip ---------------
+    trip_days = models.IntegerField(_('days'), default=0, null=True)
+    trip_oper = models.IntegerField(_('operation'), default=0, null=True)
+    trip_price = models.DecimalField(_('price'), max_digits=15, decimal_places=2, default=0, null=True)
+    #------------- Store --------------
+    store_username = models.CharField(_('username'), max_length=150, blank=True, null=True)
+    store_value = models.CharField(_('value'), max_length=128, null=True)
+    store_uuid = models.CharField(_('UUID'), max_length=100, blank=True, null=True)
+    store_params = models.IntegerField(_('generator parameters used'), default=0, null=True)
+    store_hist = models.DateTimeField(_('when archived'), null=True)
     #------------- Apart --------------
-    apart_has_el = models.BooleanField(_('has electricity'), default = True)
-    apart_has_hw = models.BooleanField(_('has hot water'), default = True)
-    apart_has_cw = models.BooleanField(_('has cold water'), default = True)
-    apart_has_gas = models.BooleanField(_('has gas'), default = True)
-    apart_has_ppo = models.BooleanField(_('payments to the partnership of owners'), default = False)
-    apart_has_tv = models.BooleanField(_('has Internet/TV'), default = True)
-    apart_has_phone = models.BooleanField(_('has phone'), default = True)
-    apart_has_zkx = models.BooleanField(_('has ZKX'), default = True)
+    apart_has_el = models.BooleanField(_('has electricity'), default=True, null=True)
+    apart_has_hw = models.BooleanField(_('has hot water'), default=True, null=True)
+    apart_has_cw = models.BooleanField(_('has cold water'), default=True, null=True)
+    apart_has_gas = models.BooleanField(_('has gas'), default=True, null=True)
+    apart_has_ppo = models.BooleanField(_('payments to the partnership of owners'), default=False, null=True)
+    apart_has_tv = models.BooleanField(_('has Internet/TV'), default=True, null=True)
+    apart_has_phone = models.BooleanField(_('has phone'), default=True, null=True)
+    apart_has_zkx = models.BooleanField(_('has ZKX'), default=True, null=True)
+    #------------- Meter --------------
+    meter_el = models.IntegerField(_('electricity'), null=True)
+    meter_hw = models.IntegerField(_('hot water'), null=True)
+    meter_cw = models.IntegerField(_('cold water'), null=True)
+    meter_ga = models.IntegerField(_('gas'), null=True)
+    meter_zkx = models.DecimalField('account amount', null=True, max_digits=15, decimal_places=2)
+    #------------- Price --------------
+    price_tarif = models.DecimalField(_('tariff 1'), null=True, max_digits=15, decimal_places=5)
+    price_border = models.DecimalField(_('border 1'), null=True, max_digits=15, decimal_places=4)
+    price_tarif2 = models.DecimalField(_('tariff 2'), null=True, max_digits=15, decimal_places=5)
+    price_border2 = models.DecimalField(_('border 2'), null=True, max_digits=15, decimal_places=4)
+    price_tarif3 = models.DecimalField(_('tariff 3'), null=True, max_digits=15, decimal_places=5)
+    price_unit = models.CharField(_('unit'), max_length=100, blank=True, null=True)
+    #------------- Bill ---------------
+    bill_el_pay = models.DecimalField('electro - payment', null=True, max_digits=15, decimal_places=2)
+    bill_tv_bill = models.DecimalField('tv - accrued', null=True, max_digits=15, decimal_places=2)
+    bill_tv_pay = models.DecimalField('tv - payment', null=True, max_digits=15, decimal_places=2)
+    bill_phone_bill = models.DecimalField('phone - accrued', null=True, max_digits=15, decimal_places=2)
+    bill_phone_pay = models.DecimalField('phone - payment', null=True, max_digits=15, decimal_places=2)
+    bill_zhirovka = models.DecimalField('zhirovka', null=True, max_digits=15, decimal_places=2)
+    bill_hot_pay = models.DecimalField('heatenergy - payment', null=True, max_digits=15, decimal_places=2)
+    bill_repair_pay = models.DecimalField('overhaul - payment', null=True, max_digits=15, decimal_places=2)
+    bill_zkx_pay = models.DecimalField('HCS - payment', null=True, max_digits=15, decimal_places=2)
+    bill_water_pay = models.DecimalField('water - payment', null=True, max_digits=15, decimal_places=2)
+    bill_gas_pay = models.DecimalField('gas - payment', null=True, max_digits=15, decimal_places=2)
+    bill_rate = models.DecimalField(_('rate').capitalize(), null=True, max_digits=15, decimal_places=4)
+    bill_poo = models.DecimalField('pay to the Partnersheep of Owners - accrued', null=True, max_digits=15, decimal_places=2)
+    bill_poo_pay = models.DecimalField('pay to the Partnersheep of Owners - payment', null=True, max_digits=15, decimal_places=2)
+    #-------------- Car ----------------
+    car_plate  = models.CharField(_('car number'), max_length=100, null=True)
+    car_odometr = models.IntegerField(_('odometer'), null=True)
+    #-------------- Fuel ---------------
+    fuel_volume = models.DecimalField(_('volume'), null=True, max_digits=5, decimal_places=3)
+    fuel_price = models.DecimalField(_('price'), null=True, max_digits=15, decimal_places=2)
+    #-------------- Part ---------------
+    part_chg_km = models.IntegerField(_('replacement interval, km'), null=True)
+    part_chg_mo = models.IntegerField(_('replacement interval, months'), null=True)
+    #-------------- Repl ---------------
+    repl_dt_chg = models.DateTimeField(_('date'), null=True)
+    repl_manuf = models.CharField(_('manufacturer'), max_length=1000, null=True)
+    repl_part_num = models.CharField(_('catalog number'), max_length=100, null=True)
+    repl_descr = models.CharField(_('name'), max_length=1000, null=True)
+    #------------- Health --------------
+    diagnosis = models.CharField(_('diagnosis'), max_length = 1000, blank = True)
     # -------------
     class Meta:
         verbose_name = _('task')
@@ -554,32 +607,32 @@ class Task(models.Model):
 
     def expen_amount(self, currency):
         byn = 0
-        if self.price:
-            byn = self.price
-            if self.qty:
-                byn = self.price * self.qty
+        if self.expen_price:
+            byn = self.expen_price
+            if self.expen_qty:
+                byn = self.expen_price * self.expen_qty
 
         if (currency == 'USD'):
-            if self.usd:
-                return self.usd
-            if byn and self.rate:
-                return byn / self.rate
+            if self.expen_usd:
+                return self.expen_usd
+            if byn and self.expen_rate:
+                return byn / self.expen_rate
 
         if (currency == 'EUR'):
-            if self.eur:
-                return self.eur
-            if byn and self.rate_2:
-                return byn / self.rate_2
+            if self.expen_eur:
+                return self.expen_eur
+            if byn and self.expen_rate_2:
+                return byn / self.expen_rate_2
 
         if (currency == 'BYN'):
-            if self.price:
+            if self.expen_price:
                 return byn
 
-            if self.usd and self.rate:
-                return self.usd * self.rate
+            if self.expen_usd and self.expen_rate:
+                return self.expen_usd * self.expen_rate
 
-            if self.eur and self.rate_2:
-                return self.eur * self.rate_2
+            if self.expen_eur and self.expen_rate_2:
+                return self.expen_eur * self.expen_rate_2
 
         return 0
 
@@ -602,7 +655,7 @@ class Task(models.Model):
             res.append(currency_repr(usd, '$'))
         if in_eur and eur:
             res.append(currency_repr(eur, '€'))
-        if in_byn:
+        if in_byn and self.event:
             if (self.event < datetime(2016, 6, 1)):
                 res.append(currency_repr(byn, ' BYR'))
             else:
@@ -622,11 +675,11 @@ def add_months(sourcedate, months):
 class Step(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'), related_name='task_step')
     task = models.ForeignKey(Task, on_delete = models.CASCADE, verbose_name = _('step task'))
-    created = models.DateTimeField(_('creation time'), blank = True, auto_now_add = True)
-    last_mod = models.DateTimeField(_('last modification time'), blank = True, auto_now = True)
-    name = models.CharField(_('step name'), max_length = 200, blank = False)
-    sort = models.CharField(_('sort code'), max_length = 50, blank = True)
-    completed = models.BooleanField(_('step is completed'), default = False)
+    created = models.DateTimeField(_('creation time'), blank=True, auto_now_add = True)
+    last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now = True)
+    name = models.CharField(_('step name'), max_length=200, blank=False)
+    sort = models.CharField(_('sort code'), max_length=50, blank=True)
+    completed = models.BooleanField(_('step is completed'), default=False)
 
     class Meta:
         verbose_name = _('step')
@@ -645,9 +698,9 @@ class Step(models.Model):
 class TaskGroup(models.Model):
     group = models.ForeignKey(Group, on_delete=models.CASCADE, verbose_name=_('group'), blank=True, null=True)
     task = models.ForeignKey(Task, on_delete = models.CASCADE, verbose_name = _('task'))
-    role = models.CharField(_('role name'), max_length = 50, blank = False, default = 'todo', null = True)
-    created = models.DateTimeField(_('creation time'), blank = True, auto_now_add = True)
-    last_mod = models.DateTimeField(_('last modification time'), blank = True, auto_now = True)
+    role = models.CharField(_('role name'), max_length=50, blank=False, default='todo', null=True)
+    created = models.DateTimeField(_('creation time'), blank=True, auto_now_add = True)
+    last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now = True)
 
 class Urls(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, verbose_name=_('task'), related_name = 'task_urlsr')
@@ -656,8 +709,8 @@ class Urls(models.Model):
     status = models.IntegerField(_('status'), default=0, null=True)
     hostname = models.CharField(_('hostname'), max_length=200, blank=True, null=True)
     title = models.CharField(_('page title'), max_length=200, blank=True, null=True)
-    created = models.DateTimeField(_('creation time'), blank = True, auto_now_add = True)
-    last_mod = models.DateTimeField(_('last modification time'), blank = True, auto_now = True)
+    created = models.DateTimeField(_('creation time'), blank=True, auto_now_add = True)
+    last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now = True)
 
     def name(self):
         if (self.status == 0):
@@ -700,7 +753,7 @@ class Urls(models.Model):
 
 class Subscription(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'todo_subscription_user')
-    token = models.CharField(_('user device token'), max_length = 200, blank = False)
+    token = models.CharField(_('user device token'), max_length=200, blank=False)
 
     class Meta:
         verbose_name = _('subscription')
@@ -717,12 +770,12 @@ def currency_repr(value, currency):
 
 class VisitedHistory(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'visit_user')
-    stamp = models.DateTimeField(_('visit time'), null = False)
-    url = models.CharField(_('visited url'), max_length=200, blank = True)
-    app = models.CharField(_('visited application'), max_length=200, blank = True)
-    page = models.CharField(_('visited page'), max_length=200, blank = True)
-    info = models.CharField(_('page info'), max_length=200, blank = True)
-    icon = models.CharField(_('page icon'), max_length=20, blank = True, null=True)
+    stamp = models.DateTimeField(_('visit time'), null=False)
+    url = models.CharField(_('visited url'), max_length=200, blank=True)
+    app = models.CharField(_('visited application'), max_length=200, blank=True)
+    page = models.CharField(_('visited page'), max_length=200, blank=True)
+    info = models.CharField(_('page info'), max_length=200, blank=True)
+    icon = models.CharField(_('page icon'), max_length=20, blank=True, null=True)
 
     class Meta:
         verbose_name = _('visited page')

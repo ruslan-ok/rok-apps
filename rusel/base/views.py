@@ -54,7 +54,7 @@ class Config:
         if config['sort']:
             self.app_sorts = config['sort']
 
-    def set_view(self, request):
+    def set_view(self, request, detail=False):
         if not self.app:
             return
         self.cur_view_group = None
@@ -68,11 +68,18 @@ class Config:
             view_id = self.main_view
         if (request.path != common_url):
             view_id = request.path.split(common_url)[1].split('?')[0].split('/')[0]
-            if (view_id in self.views):
+            if detail:
+                view_id = request.path.split(common_url)[1].split('?')[0].split(view_id)[0]
+
+            if view_id and (view_id in self.views):
                 if ('page_url' in self.views[view_id]) and (self.views[view_id]['page_url'] == view_id):
                     determinator = 'view'
                 else:
                     determinator = 'role'
+
+        if (not view_id):
+            view_id = self.main_view
+
         if ('view' in request.GET):
             view_name = request.GET.get('view')
             if view_name:
@@ -491,7 +498,7 @@ class BaseDetailView(UpdateView, Context):
         return reverse(self.config.app + ':' + self.config.get_cur_role() + '-item', args=(self.object.id,)) + extract_get_params(self.request, self.config.group_entity)
 
     def get_context_data(self, **kwargs):
-        self.config.set_view(self.request)
+        self.config.set_view(self.request, detail=True)
         self.template_name = self.config.app + '/' + self.config.get_cur_role() + '.html'
         context = super().get_context_data(**kwargs)
         context.update(self.get_app_context(self.request.user.id, None, icon=self.config.role_icon, nav_items=self.get_nav_items()))
@@ -555,7 +562,7 @@ class BaseGroupView(UpdateView, Context):
         return reverse(self.config.app + ':group', args=(self.object.id,)) + extract_get_params(self.request, self.config.group_entity)
 
     def get_context_data(self, **kwargs):
-        self.config.set_view(self.request)
+        self.config.set_view(self.request, detail=True)
         context = super().get_context_data(**kwargs)
         context.update(self.get_app_context(self.request.user.id, None, icon='journals'))
         context['title'] = self.object.name

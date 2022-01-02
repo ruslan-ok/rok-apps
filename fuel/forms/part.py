@@ -32,7 +32,7 @@ class EditForm(BaseEditForm):
 
     class Meta:
         model = Task
-        fields = ['name', 'info', 'url', 'categories', 'upload']
+        fields = ['name', 'part_chg_km', 'part_chg_mo', 'info', 'url', 'categories', 'upload']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
             'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),

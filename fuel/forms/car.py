@@ -22,7 +22,7 @@ class CreateForm(BaseCreateForm):
 class EditForm(BaseEditForm):
     class Meta:
         model = Task
-        fields = ['name']
+        fields = ['name', 'car_plate']
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)

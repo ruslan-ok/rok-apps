@@ -6,6 +6,8 @@ from apart.models import Apart, Meter, Bill, Service, Price
 from store.models import Entry
 from proj.models import Projects, Expenses
 from fuel.models import Car, Fuel, Part, Repl
+from trip.models import Person, Trip
+from health.models import Biomarker, Incident
 from task.const import *
 from todo.get_info import get_info as todo_get_info
 from note.get_info import get_info as note_get_info
@@ -21,16 +23,18 @@ from fuel.views.car import get_info as car_get_info
 from fuel.views.fuel import get_info as fuel_get_info
 from fuel.views.serv import get_info as repl_get_info
 from fuel.views.part import get_info as part_get_info
+# from trip.views.pers import get_info as pers_get_info
+# from trip.views.trip import get_info as trip_get_info
 
 STAGES = {
-    APP_TODO:   1,
-    APP_NOTE:   1,
-    APP_NEWS:   1,
-    APP_STORE:  1,
-    APP_EXPEN:  1,
-    APP_TRIP:   0,
-    APP_FUEL:   0,
-    APP_APART:  1,
+    APP_TODO:   0,
+    APP_NOTE:   0,
+    APP_NEWS:   0,
+    APP_STORE:  0,
+    APP_EXPEN:  0,
+    APP_TRIP:   1,
+    APP_FUEL:   1,
+    APP_APART:  0,
     APP_WORK:   0,
     APP_HEALTH: 0,
     APP_DOCS:   0,
@@ -143,7 +147,8 @@ def convert(result):
                 transfer_expen_proj(result)
                 transfer_expenses(result)
             if (app == APP_TRIP):
-                pass
+                transfer_person(result)
+                transfer_trip(result)
             if (app == APP_FUEL):
                 transfer_car(result)
                 transfer_fuel(result)
@@ -156,7 +161,8 @@ def convert(result):
                 transfer_price(result)
                 transfer_bill(result)
             if (app == APP_HEALTH):
-                pass
+                transfer_incident(result)
+                transfer_biomarker(result)
             if (app == APP_WORK):
                 pass
             if (app == APP_PHOTO):
@@ -301,12 +307,16 @@ def transfer_meter(result):
                                     name=item.period.strftime('%Y.%m'),
                                     start=item.period,
                                     info=item.info if item.info else '',
+                                    meter_el=item.el,
+                                    meter_hw=item.hw,
+                                    meter_cw=item.cw,
+                                    meter_ga=item.ga,
+                                    meter_zkx=item.zhirovka,
                                     task_1=link_task(item.apart.user, item.apart.id, role_apart=NUM_ROLE_APART),
                                     )
         inc(result, APP_APART, ROLE_METER, 'Task', 'added')
         item.task = atask
         item.save()
-        #link_group(result, atask.user_id, APP_APART, ROLE_METER, item.apart.id, atask)
         atask.set_item_attr(APP_APART, meter_get_info(atask))
 
 def transfer_service(result):
@@ -322,25 +332,34 @@ def transfer_service(result):
         inc(result, APP_APART, ROLE_SERVICE, 'Task', 'added')
         item.task = atask
         item.save()
-        #link_group(result, atask.user_id, APP_APART, ROLE_SERVICE, item.apart.id, atask)
         atask.set_item_attr(APP_APART, serv_get_info(atask))
 
 def transfer_price(result):
     items = Price.objects.all()
     for item in items:
+        service = None
+        name = item.start.strftime('%Y.%m.%d')
+        if item.serv:
+            name += ' ' + item.serv.name
+            service = link_task(item.apart.user, item.serv.id, role_apart=NUM_ROLE_SERVICE)
         atask = Task.objects.create(user=item.apart.user,
                                     src_id=item.id,
                                     app_apart=NUM_ROLE_PRICE,
                                     start=item.start,
-                                    name=item.start.strftime('%Y.%m.%d') + ' ' + item.serv.name,
+                                    name=name,
                                     info=str(item.info).replace('\\r\\n', '\n') if item.info else '',
+                                    price_tarif=item.tarif,
+                                    price_border=item.border,
+                                    price_tarif2=item.tarif2,
+                                    price_border2=item.border2,
+                                    price_tarif3=item.tarif3,
+                                    price_unit=item.unit,
                                     task_1=link_task(item.apart.user, item.apart.id, role_apart=NUM_ROLE_APART),
-                                    task_2=link_task(item.apart.user, item.serv.id, role_apart=NUM_ROLE_SERVICE),
+                                    task_2=service,
                                     )
         inc(result, APP_APART, ROLE_PRICE, 'Task', 'added')
         item.task = atask
         item.save()
-        #link_group(result, atask.user_id, APP_APART, ROLE_PRICE, item.apart.id, atask)
         atask.set_item_attr(APP_APART, price_get_info(atask))
 
 def transfer_bill(result):
@@ -353,6 +372,20 @@ def transfer_bill(result):
                                     name=item.period.strftime('%Y.%m'),
                                     start=item.period,
                                     info=str(item.info).replace('\\r\\n', '\n') if item.info else '',
+                                    bill_el_pay=item.el_pay,
+                                    bill_tv_bill=item.tv_bill,
+                                    bill_tv_pay=item.tv_pay,
+                                    bill_phone_bill=item.phone_bill,
+                                    bill_phone_pay=item.phone_pay,
+                                    bill_zhirovka=item.zhirovka,
+                                    bill_hot_pay=item.hot_pay,
+                                    bill_repair_pay=item.repair_pay,
+                                    bill_zkx_pay=item.ZKX_pay,
+                                    bill_water_pay=item.water_pay,
+                                    bill_gas_pay=item.gas_pay,
+                                    bill_rate=item.rate,
+                                    bill_poo=item.PoO,
+                                    bill_poo_pay=item.PoO_pay,
                                     task_1=link_task(item.apart.user, item.apart.id, role_apart=NUM_ROLE_APART),
                                     task_2=link_task(item.apart.user, item.prev.id, role_apart=NUM_ROLE_METER),
                                     task_3=link_task(item.apart.user, item.curr.id, role_apart=NUM_ROLE_METER),
@@ -360,8 +393,7 @@ def transfer_bill(result):
         inc(result, APP_APART, ROLE_BILL, 'Task', 'added')
         item.task = atask
         item.save()
-        #link_group(result, atask.user_id, APP_APART, ROLE_BILL, item.apart.id, atask)
-
+        
         if item.url:
             Urls.objects.create(task=atask, num=1, href=item.url)
             inc(result, APP_APART, ROLE_BILL, 'Urls', 'added')
@@ -378,6 +410,11 @@ def transfer_store(result, lst, task_grp):
                                     categories=item.categories,
                                     info=str(item.notes).replace('\\r\\n', '\n') if item.notes else '',
                                     completed=(item.actual==0),
+                                    store_username=item.username,
+                                    store_value=item.value,
+                                    store_uuid=item.uuid,
+                                    store_params=item.params,
+                                    store_hist=item.hist,
                                     )
         inc(result, APP_STORE, ROLE_STORE, 'Task', 'added')
         item.task = atask
@@ -424,6 +461,11 @@ def transfer_store(result, lst, task_grp):
                                         categories=item.categories,
                                         info=str(item.notes).replace('\\r\\n', '\n') if item.notes else '',
                                         completed=(item.actual==0),
+                                        store_username=item.username,
+                                        store_value=item.value,
+                                        store_uuid=item.uuid,
+                                        store_params=item.params,
+                                        store_hist=item.hist,
                                         )
             inc(result, APP_STORE, ROLE_STORE, 'Task', 'added_broken_Entry')
             item.task = atask
@@ -449,7 +491,6 @@ def transfer_expen_proj(result):
                             role=ROLE_EXPENSE,
                             node=None,
                             name=item.name,
-                            sort=str(item.id),
                             created=item.created,
                             last_mod=item.last_mod,
                             expen_byn=item.tot_byn,
@@ -469,17 +510,48 @@ def transfer_expenses(result):
                                     created=item.created,
                                     last_mod=item.last_mod,
                                     info=str(item.text).replace('\\r\\n', '\n') if item.text else '',
-                                    qty=item.qty,
-                                    price=item.price,
-                                    rate=item.rate,
-                                    rate_2=item.rate_2,
-                                    usd=item.usd,
-                                    eur=item.eur,
-                                    kontr=item.kontr,
+                                    expen_qty=item.qty,
+                                    expen_price=item.price,
+                                    expen_rate=item.rate,
+                                    expen_rate_2=item.rate_2,
+                                    expen_usd=item.usd,
+                                    expen_eur=item.eur,
+                                    expen_kontr=item.kontr,
                                     )
         inc(result, APP_EXPEN, ROLE_EXPENSE, 'Task', 'added')
         link_group(result, atask.user_id, APP_EXPEN, ROLE_EXPENSE, item.direct.id, atask)
         atask.set_item_attr(APP_EXPEN, expen_get_info(atask))
+
+def transfer_person(result):
+    items = Person.objects.all()
+    for item in items:
+        atask = Task.objects.create(user=item.user,
+                                    src_id=item.id,
+                                    app_trip=NUM_ROLE_PERSON,
+                                    name=item.name,
+                                    pers_dative=item.dative,
+                                    active=item.me,
+                                    )
+        inc(result, APP_TRIP, ROLE_PERSON, 'Task', 'added')
+        #atask.set_item_attr(APP_TRIP, pers_get_info(atask))
+
+def transfer_trip(result):
+    items = Trip.objects.all()
+    for item in items:
+        atask = Task.objects.create(user=item.user,
+                                    src_id=item.id,
+                                    app_trip=NUM_ROLE_TRIP,
+                                    event=datetime.strptime('{}-W{}'.format(item.year, item.week), "%Y-W%W"),
+                                    trip_days=item.days,
+                                    trip_oper=item.oper,
+                                    trip_price=item.price,
+                                    info=item.text,
+                                    last_mod=item.modif,
+                                    task_1=link_task(item.user, item.driver.id, role_trip=NUM_ROLE_PERSON),
+                                    task_2=link_task(item.user, item.passenger.id, role_trip=NUM_ROLE_PERSON),
+                                    )
+        inc(result, APP_TRIP, ROLE_TRIP, 'Task', 'added')
+        #atask.set_item_attr(APP_TRIP, trip_get_info(atask))
 
 def transfer_car(result):
     items = Car.objects.all()
@@ -488,8 +560,7 @@ def transfer_car(result):
                                     src_id=item.id,
                                     app_fuel=NUM_ROLE_CAR,
                                     name=item.name,
-                                    kontr=item.plate,
-                                    sort=str(item.id),
+                                    car_plate=item.plate,
                                     )
         inc(result, APP_FUEL, ROLE_CAR, 'Task', 'added')
         atask.set_item_attr(APP_FUEL, car_get_info(atask))
@@ -501,16 +572,16 @@ def transfer_fuel(result):
                                     src_id=item.id,
                                     app_fuel=NUM_ROLE_FUEL,
                                     event=item.pub_date,
-                                    name=str(item.odometer),
-                                    qty=item.volume,
-                                    price=item.price,
+                                    name=str(item.odometr),
+                                    car_odometr=item.odometr,
+                                    fuel_volume=item.volume,
+                                    fuel_price=item.price,
                                     info=item.comment,
                                     created=item.created,
                                     last_mod=item.last_mod,
-                                    task_1=link_task(item.apart.user, item.car.id, role_fuel=NUM_ROLE_CAR),
+                                    task_1=link_task(item.car.user, item.car.id, role_fuel=NUM_ROLE_CAR),
                                     )
         inc(result, APP_FUEL, ROLE_FUEL, 'Task', 'added')
-        #link_group(result, atask.user_id, APP_FUEL, ROLE_FUEL, item.car.id, atask)
         atask.set_item_attr(APP_FUEL, fuel_get_info(atask))
 
 def transfer_part(result):
@@ -519,38 +590,69 @@ def transfer_part(result):
         atask = Task.objects.create(user=item.car.user,
                                     src_id=item.id,
                                     app_fuel=NUM_ROLE_PART,
-                                    event=item.pub_date,
-                                    name=str(item.odometer),
-                                    qty=item.volume,
-                                    price=item.price,
+                                    part_chg_km=item.chg_km,
+                                    part_chg_mo=item.chg_mo,
                                     info=str(item.comment).replace('\\r\\n', '\n') if item.comment else '',
-                                    created=item.created,
-                                    last_mod=item.last_mod,
-                                    task_1=link_task(item.apart.user, item.car.id, role_fuel=NUM_ROLE_CAR),
+                                    task_1=link_task(item.car.user, item.car.id, role_fuel=NUM_ROLE_CAR),
                                     )
         inc(result, APP_FUEL, ROLE_PART, 'Task', 'added')
-        #link_group(result, atask.user_id, APP_FUEL, ROLE_PART, item.car.id, atask)
         atask.set_item_attr(APP_FUEL, part_get_info(atask))
 
 def transfer_repl(result):
     items = Repl.objects.all()
     for item in items:
+        part = None
+        if item.part:
+            part = link_task(item.car.user, item.part.id, role_fuel=NUM_ROLE_PART)
+        else:
+            pass
         atask = Task.objects.create(user=item.car.user,
                                     src_id=item.id,
                                     app_fuel=NUM_ROLE_SERVICE,
-                                    event=item.pub_date,
-                                    name=str(item.odometer),
-                                    qty=item.volume,
-                                    price=item.price,
+                                    event=item.dt_chg,
+                                    car_odometr=item.odometr,
+                                    repl_manuf=item.manuf,
+                                    repl_part_num=item.part_num,
+                                    repl_descr=item.descr,
                                     info=str(item.comment).replace('\\r\\n', '\n') if item.comment else '',
                                     created=item.created,
                                     last_mod=item.last_mod,
-                                    task_1=link_task(item.apart.user, item.car.id, role_fuel=NUM_ROLE_CAR),
-                                    task_2=link_task(item.apart.user, item.part.id, role_apart=NUM_ROLE_PART),
+                                    task_1=link_task(item.car.user, item.car.id, role_fuel=NUM_ROLE_CAR),
+                                    task_2=part,
                                     )
         inc(result, APP_FUEL, ROLE_SERVICE, 'Task', 'added')
-        #link_group(result, atask.user_id, APP_FUEL, ROLE_SERVICE, item.car.id, atask)
         atask.set_item_attr(APP_FUEL, repl_get_info(atask))
+
+def transfer_incident(result):
+    items = Incident.objects.all()
+    for item in items:
+        atask = Task.objects.create(user=item.user,
+                                    src_id=item.id,
+                                    app_health=NUM_ROLE_INCIDENT,
+                                    name=item.name,
+                                    start=item.beg,
+                                    stop=item.end,
+                                    diagnosis=item.diagnosis,
+                                    info=str(item.info).replace('\\r\\n', '\n') if item.info else '',
+                                    )
+        inc(result, APP_HEALTH, ROLE_INCIDENT, 'Task', 'added')
+        #atask.set_item_attr(APP_HEALTH, incident_get_info(atask))
+
+def transfer_biomarker(result):
+    items = Biomarker.objects.all()
+    for item in items:
+        atask = Task.objects.create(user=item.user,
+                                    src_id=item.id,
+                                    app_health=NUM_ROLE_MARKER,
+                                    name=item.name,
+                                    start=item.beg,
+                                    stop=item.end,
+                                    diagnosis=item.diagnosis,
+                                    info=str(item.info).replace('\\r\\n', '\n') if item.info else '',
+                                    )
+        inc(result, APP_HEALTH, ROLE_MARKER, 'Task', 'added')
+        #atask.set_item_attr(APP_HEALTH, marker_get_info(atask))
+
 
 
 def link_group(result, user_id, app, role, todo_grp_id, task):

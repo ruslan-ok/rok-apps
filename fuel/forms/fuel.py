@@ -21,7 +21,7 @@ class CreateForm(BaseCreateForm):
         
 #----------------------------------
 class EditForm(BaseEditForm):
-    name = forms.IntegerField(
+    car_odometr = forms.IntegerField(
         label=_('odometer').capitalize(),
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control mb-3', 'placeholder': _('odometer value').capitalize()}))
@@ -36,11 +36,11 @@ class EditForm(BaseEditForm):
 
     class Meta:
         model = Task
-        fields = ['name', 'event', 'qty', 'price', 'info', 'url', 'categories', 'upload']
+        fields = ['car_odometr', 'event', 'fuel_volume', 'fuel_price', 'info', 'url', 'categories', 'upload']
         widgets = {
             'event': forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime mb-3', 'type': 'datetime-local'}),
-            'qty': forms.NumberInput(attrs={'class': 'form-control'}),
-            'price': forms.NumberInput(attrs={'class': 'form-control'}),
+            'fuel_volume': forms.NumberInput(attrs={'class': 'form-control'}),
+            'fuel_price': forms.NumberInput(attrs={'class': 'form-control'}),
             'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),
         }
 
