@@ -4,7 +4,7 @@ from task.models import Task, Urls
 from rusel.files import get_files_list, get_app_doc
 from rusel.base.views import BaseListView, BaseDetailView
 from apart.forms.price import CreateForm, EditForm
-from apart.models import Apart, Price
+from apart.models import Apart, Price, Service
 from apart.config import app_config
 
 app = APP_APART
@@ -16,6 +16,7 @@ class ListView(BaseListView):
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
+        self.template_name = 'apart/list.html'
 
     def tune_dataset(self, data, group):
         return data
@@ -23,6 +24,9 @@ class ListView(BaseListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['add_item_template'] = 'apart/add_price.html'
+        nav_item = Task.get_active_nav_item(self.request.user.id, APP_APART)
+        form = CreateForm(nav_item)
+        context['form'] = form
         return context
 
     def form_valid(self, form):
@@ -136,11 +140,14 @@ def get_info(item):
     return {'attr': ret}
 
 def add_price(request, task):
-    apart = Apart.objects.filter(user=request.user.id, active=True).get()
-    item = Price.objects.create(apart=apart, task=task)
+    apart = Apart.objects.filter(user=request.user.id, task=task.task_1.id).get()
+    service = None
+    if task.task_2:
+        service = Service.objects.filter(apart=apart, task=task.task_2).get()
+    item = Price.objects.create(apart=apart, serv=service, task=task)
     name = ''
-    if item.serv:
-        name = ' ' + item.serv.name
+    if service:
+        name = ' ' + service.name
     task.name = item.start.strftime('%Y.%m.%d') + name
     task.start = item.start
     task.set_item_attr(app, get_info(task))

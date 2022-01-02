@@ -1,0 +1,36 @@
+.bill {
+    .meters {
+        border-top: 1px solid black;
+        border-left: 1px solid black;
+        margin-bottom: 1rem;
+        .meter {
+            display: flex;
+            .title {
+                border-bottom: 1px solid black;
+                border-right: 1px solid black;
+                width: 100px;
+                font-weight: 500;
+                padding: 0.1rem 0.5rem;
+            }
+            .value {
+                border-bottom: 1px solid black;
+                border-right: 1px solid black;
+                width: 100px;
+                padding: 0.1rem 0.5rem;
+            }
+        }
+    }
+    .accruals {
+        display: flex;
+        flex-wrap: wrap;
+        .service {
+            display: flex;
+        }
+    }
+}
+
+.add-price {
+    select {
+        width: 200px;
+    }
+}

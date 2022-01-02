@@ -5,7 +5,6 @@ app_config = {
     'app_title': 'communal',
     'icon': 'building',
     'main_view': 'apart',
-    'nav_role': 'apart',
     'group_entity': 'apart',
     'sort': [
         ('name', 'name'),

@@ -1,57 +1,61 @@
 {% extends "base/item_detail.html" %}
 {% load static i18n %}
 
+{% block extrastyle %}
+  <link href="{% static 'scss/apart.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block item_detail %}
-    <div class="bill__period">
+    <div class="row mb-3" name="period_date_rate">
       {{ form.period.errors }} {{ form.period }}
       {{ form.payment.errors }} {{ form.payment }}
       {{ form.rate.errors }} {{ form.rate }}
     </div>
-    <div class="bill_data">
-      <div class="bill__meters">
-        <div class="service_row">
-          <div class="col title"></div>
-          <div class="col title">{% trans 'old'|capfirst %}</div>
-          <div class="col title">{% trans 'new'|capfirst %}</div>
-          <div class="col title">{% trans 'volume'|capfirst %}</div>
+    <div class="bill">
+      <div class="meters" name="meters_data">
+        <div class="meter">
+          <div class="title"></div>
+          <div class="title">{% trans 'old'|capfirst %}</div>
+          <div class="title">{% trans 'new'|capfirst %}</div>
+          <div class="title">{% trans 'volume'|capfirst %}</div>
         </div>
         {% if ed_item.apart.has_el %}
-        <div class="service_row">
-          <div class="col title">{% trans 'electro'|capfirst %}</div>
-          <div class="col value">{{ ed_item.prev.el }}</div>
-          <div class="col value">{{ ed_item.curr.el }}</div>
-          <div class="col value">{{ volume.el }}</div>
+        <div class="meter">
+          <div class="title">{% trans 'electro'|capfirst %}</div>
+          <div class="value">{{ ed_item.prev.el }}</div>
+          <div class="value">{{ ed_item.curr.el }}</div>
+          <div class="value">{{ volume.el }}</div>
         </div>
         {% endif %}
         {% if ed_item.apart.has_gas %}
-        <div class="service_row">
-          <div class="col title">{% trans 'gas'|capfirst %}</div>
-          <div class="col value">{{ ed_item.prev.ga }}</div>
-          <div class="col value">{{ ed_item.curr.ga }}</div>
-          <div class="col value">{{ volume.ga }}</div>
+        <div class="meter">
+          <div class="title">{% trans 'gas'|capfirst %}</div>
+          <div class="value">{{ ed_item.prev.ga }}</div>
+          <div class="value">{{ ed_item.curr.ga }}</div>
+          <div class="value">{{ volume.ga }}</div>
         </div>
         {% endif %}
         {% if ed_item.apart.has_cw %}
-        <div class="service_row">
-          <div class="col title">{% trans 'cold'|capfirst %}</div>
-          <div class="col value">{{ ed_item.prev.cw }}</div>
-          <div class="col value">{{ ed_item.curr.cw }}</div>
-          <div class="col value">{{ volume.wt }}</div>
+        <div class="meter">
+          <div class="title">{% trans 'cold'|capfirst %}</div>
+          <div class="value">{{ ed_item.prev.cw }}</div>
+          <div class="value">{{ ed_item.curr.cw }}</div>
+          <div class="value">{{ volume.wt }}</div>
         </div>
         {% endif %}
         {% if ed_item.apart.has_hw %}
-        <div class="service_row">
-          <div class="col title">{% trans 'hot'|capfirst %}</div>
-          <div class="col value">{{ ed_item.prev.hw }}</div>
-          <div class="col value">{{ ed_item.curr.hw }}</div>
-          <div class="col value"></div>
+        <div class="meter">
+          <div class="title">{% trans 'hot'|capfirst %}</div>
+          <div class="value">{{ ed_item.prev.hw }}</div>
+          <div class="value">{{ ed_item.curr.hw }}</div>
+          <div class="value"></div>
         </div>
         {% endif %}
       </div>
 
-      <div class="bill_chargeable">
+      <div class="accruals" name="pay_data_el_gas_water">
         {% if ed_item.apart.has_el %}
-          <div class="service_col">
+          <div class="service">
             <div class="tarif">
               <div class="title">{{ el_tar.title }}</div>
               <div class="value">{{ el_tar.value }}</div>
@@ -64,7 +68,7 @@
         {% endif %}
 
         {% if ed_item.apart.has_gas %}
-          <div class="service_col">
+          <div class="service">
             <div class="tarif">
               <div class="title">{{ gas_tar.title }}</div>
               <div class="value">{{ gas_tar.value }}</div>
@@ -77,7 +81,7 @@
         {% endif %}
 
         {% if ed_item.apart.has_hw or ed_item.apart.has_cw %}
-          <div class="service_col">
+          <div class="service">
             <div class="tarif">
               <div class="title">{{ water_tar.title }}</div>
               <div class="value">{{ water_tar.value }}</div>
@@ -90,9 +94,9 @@
         {% endif %}
       </div>
 
-      <div class="bill__accrued">
+      <div class="" name="pay_data_tv_phone_ppo">
         {% if ed_item.apart.has_tv %}
-          <div class="service_row">
+          <div class="row">
             <div class="title">
               {{ tv_title }}
             </div>
@@ -104,7 +108,7 @@
         {% endif %}
 
         {% if ed_item.apart.has_phone %}
-          <div class="service_row">
+          <div class="row">
             <div class="title">
               {{ phone_title }}
             </div>
@@ -115,7 +119,7 @@
           </div>
         {% endif %}
         {% if ed_item.apart.has_zkx %}
-          <div class="service_row">
+          <div class="row">
             <div class="title">
               {{ ZKX_title }}
             </div>
@@ -127,7 +131,7 @@
         {% endif %}
 
         {% if ed_item.apart.has_ppo %}
-          <div class="service_row">
+          <div class="row">
             <div class="title">
               {{ PoO_title }}
             </div>

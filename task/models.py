@@ -223,11 +223,39 @@ class Task(models.Model):
         return self.name
 
     @classmethod
-    def get_role_tasks(cls, user_id, app, role, nav_item):
+    def get_nav_role(cls, app):
+        nav_role = ''
+        if (app == APP_APART):
+            nav_role = ROLE_APART
+        return nav_role
+
+    @classmethod
+    def set_active_nav_item(cls, user_id, app, active_nav_item_id):
+        nav_role = cls.get_nav_role(app)
+        if (not nav_role or not active_nav_item_id):
+            return
+        nav_items = Task.get_role_tasks(user_id, app, nav_role)
+        nav_items.update(active=False)
+        nav_items.filter(id=active_nav_item_id).update(active=True)
+
+    @classmethod
+    def get_active_nav_item(cls, user_id, app):
+        nav_role = cls.get_nav_role(app)
+        if nav_role:
+            nav_items = Task.get_role_tasks(user_id, app, nav_role)
+            if nav_items.filter(active=True).exists():
+                return nav_items.filter(active=True).order_by('name')[0]
+            if (len(nav_items) > 0):
+                return nav_items.order_by('name')[0]
+        return None
+
+    @classmethod
+    def get_role_tasks(cls, user_id, app, role, nav_item=None):
         if user_id:
             data = Task.objects.filter(user=user_id)
         else:
             data = Task.objects.all()
+
         if nav_item:
             data = data.filter(task_1=nav_item.id)
 

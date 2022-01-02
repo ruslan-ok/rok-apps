@@ -1,0 +1,10 @@
+{% extends "base/list.html" %}
+{% load static %}
+
+{% block extrastyle %}
+  <link href="{% static 'scss/apart.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block extrascript %}
+    <script src="{% static 'js/apart.js' %}"></script>
+{% endblock %}

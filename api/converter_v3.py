@@ -76,7 +76,7 @@ def get_excluded(app, kind):
     return leave_tgs.values('task')
 
 def delete_task_role(app, role, result):
-    data = Task.get_role_tasks(None, app, role, None).exclude(id__in=get_excluded(app, 'Task'))
+    data = Task.get_role_tasks(None, app, role).exclude(id__in=get_excluded(app, 'Task'))
     if (app == APP_TODO):
         qnt = data.update(app_task=NONE)
     if (app == APP_NOTE):

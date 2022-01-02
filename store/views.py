@@ -105,7 +105,7 @@ def params(request):
         form = ParamsForm(instance=params)
     
     params_view = ParamsView(request)
-    context = params_view.get_app_context(icon=params_view.config.view_icon)
+    context = params_view.get_app_context(request.user.id, icon=params_view.config.view_icon)
     context['form'] = form
     context['hide_add_item_input'] = True
     template = loader.get_template('store/params.html')

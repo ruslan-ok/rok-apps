@@ -32,8 +32,8 @@ class DetailView(BaseDetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update(self.get_app_context())
-        context['title'] = self.object.name
+        context.update(self.get_app_context(self.request.user.id))
+        #context['title'] = self.object.name
         context['delete_question'] = _('delete apartment').capitalize()
         context['ban_on_deletion'] = ''
         if Task.objects.filter(app_apart=NUM_ROLE_SERVICE, task_1=self.object.id).exists():

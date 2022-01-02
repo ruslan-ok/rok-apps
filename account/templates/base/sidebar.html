@@ -61,9 +61,9 @@
 
             <div id="groups-tree" class="sidebar__groups">
                 {% for node in nav_items %}
-                    <a href="{{ request.path }}?{{ config.group_entity }}={{ node.id|escape }}" 
-                        class="{% if config.nav_item.id == node.id %}active{% endif %}"
-                        {% if config.nav_item.id == node.id %}aria-current="true"{% endif %}
+                    <a href="{{ node.href }}?{{ config.group_entity }}={{ node.id|escape }}" 
+                        class="{% if nav_item.id == node.id %}active{% endif %}"
+                        {% if nav_item.id == node.id %}aria-current="true"{% endif %}
                         data-id="{{ node.id|escape }}" id="task_group_{{ node.id|escape }}">
                         <div>
                             <i class="bi-journals"></i>

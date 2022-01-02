@@ -3,21 +3,29 @@ from django.utils.translation import gettext_lazy as _
 
 from rusel.base.forms import BaseCreateForm, BaseEditForm
 from rusel.widgets import DateInput, Select, NumberInput, UrlsInput
+from task.const import APP_APART, NUM_ROLE_SERVICE
 from task.models import Task
 from apart.config import app_config
-from apart.models import Apart, Price, Service
+from apart.models import Price
 
 role = 'price'
 
 #----------------------------------
 class CreateForm(BaseCreateForm):
 
+    new_service = forms.ModelChoiceField(
+        label=False,
+        required=True,
+        queryset=None,
+        widget=Select(attrs={'label': _('service').capitalize(), 'class': 'col-md-3'}))
+
     class Meta:
         model = Task
-        fields = ['name']
+        fields = ['new_service']
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, nav_item, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
+        self.fields['new_service'].queryset = Task.objects.filter(user=nav_item.user.id, app_apart=NUM_ROLE_SERVICE, task_1=nav_item.id)
         
 #----------------------------------
 class EditForm(BaseEditForm):
@@ -70,14 +78,12 @@ class EditForm(BaseEditForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
-        apart = Apart.objects.filter(user=kwargs['instance'].user.id, active=True).get()
-        self.fields['service'].queryset = Service.objects.filter(apart=apart)
-        if Price.objects.filter(task=kwargs['instance'].id).exists():
-            price = Price.objects.filter(task=kwargs['instance'].id).get()
-            serv_id = 0
-            if price.serv:
-                serv_id = price.serv.id
-            self.fields['service'].initial = serv_id
+        price_task = kwargs['instance']
+        apart = Task.get_active_nav_item(price_task.user.id, APP_APART)
+        self.fields['service'].queryset = Task.objects.filter(user=price_task.user.id, app_apart=NUM_ROLE_SERVICE, task_1=apart)
+        self.fields['service'].initial = price_task.task_2
+        if Price.objects.filter(task=price_task.id).exists():
+            price = Price.objects.filter(task=price_task.id).get()
             self.fields['tarif'].initial = self.check_none(price.tarif)
             self.fields['border'].initial = self.check_none(price.border)
             self.fields['tarif2'].initial = self.check_none(price.tarif2)

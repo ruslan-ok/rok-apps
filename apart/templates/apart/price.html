@@ -1,9 +1,31 @@
 {% extends "base/item_detail.html" %}
 {% load static i18n %}
 
+{% block extrastyle %}
+  <link href="{% static 'scss/apart.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block item_detail %}
-    {{ form }}
+    <div class="row">
+        <div class="col">{{ form.start }}</div>
+        <div class="col">{{ form.service }}</div>
+        <div class="col-sm"></div>
+    </div>
+    <div class="row">
+        <div class="col">{{ form.tarif }}</div>
+        <div class="col">{{ form.border }}</div>
+        <div class="col">{{ form.tarif2 }}</div>
+        <div class="col">{{ form.border2 }}</div>
+        <div class="col">{{ form.tarif3 }}</div>
+    </div>
+    <div class="row">
+        <div class="col-sm">{{ form.url.label_tag }} {{ form.url }}</div>
+        <div class="col-sm">{{ form.upload }}</div>
+    </div>
     {% include "widgets/url_list.html" %}
     {% include "widgets/attachments.html" %}
 {% endblock %}
 
+{% block extrascript %}
+    <script src="{% static 'js/apart.js' %}"></script>
+{% endblock %}

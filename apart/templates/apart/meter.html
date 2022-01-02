@@ -2,7 +2,24 @@
 {% load static i18n %}
 
 {% block item_detail %}
-    {{ form }}
+    <div class="row">
+        {{ form.period }}
+        {{ form.reading }}
+        <div class="col"></div>
+        <div class="col"></div>
+    </div>
+    <div class="row">
+        {{ form.el }}
+        {{ form.hw }}
+        {{ form.cw }}
+        {{ form.ga }}
+    </div>
+    {{ form.info.label_tag }}{{ form.info }}
+    <div class="row">
+        <div class="col">{{ form.url.label_tag }} {{ form.url }}</div>
+        <div class="col">{{ form.upload }}</div>
+    </div>
+
     {% include "widgets/url_list.html" %}
     {% include "widgets/attachments.html" %}
 {% endblock %}
