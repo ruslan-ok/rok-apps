@@ -14,6 +14,7 @@ from rusel.utils import extract_get_params, get_search_mode
 from rusel.base.forms import GroupForm, CreateGroupForm
 from task.const import *
 from task.models import Task, Group, TaskGroup, Urls
+from apart.forms.price import APART_SERVICE
 
 BG_IMAGES = [
     'beach',
@@ -54,6 +55,12 @@ class Config:
         if config['sort']:
             self.app_sorts = config['sort']
 
+    def is_num(self, value):
+        try:
+            return (int(value) > 0)
+        except:
+            return False
+
     def set_view(self, request, detail=False):
         if not self.app:
             return
@@ -68,7 +75,7 @@ class Config:
             view_id = self.main_view
         if (request.path != common_url):
             view_id = request.path.split(common_url)[1].split('?')[0].split('/')[0]
-            if detail:
+            if detail and self.is_num(view_id):
                 view_id = request.path.split(common_url)[1].split('?')[0].split(view_id)[0]
 
             if view_id and (view_id in self.views):
@@ -188,6 +195,7 @@ class Context:
             common_url = reverse('index')
         else:
             common_url = reverse(self.config.app + ':list')
+        nav_item=Task.get_active_nav_item(self.request.user.id, self.config.app)
         for key, value in views.items():
             url = common_url
             determinator = 'view'
@@ -210,7 +218,11 @@ class Context:
             if hide_qty:
                 qty = None
             else:
-                qty = self.get_view_qty(detect_group(self.request.user, self.config.app, determinator, view_id, _(value['title']).capitalize()))
+                if (view_id == self.config.main_view):
+                    _nav_item = None
+                else:
+                    _nav_item = nav_item
+                qty = self.get_view_qty(detect_group(self.request.user, self.config.app, determinator, view_id, _(value['title']).capitalize()), _nav_item)
             active = (self.config.cur_view_group.determinator == determinator) and (self.config.cur_view_group.view_id == view_id)
             fix = {
                 'determinator': determinator,
@@ -225,8 +237,8 @@ class Context:
             fixes.append(fix)
         return fixes
 
-    def get_view_qty(self, group):
-        data = self.get_dataset(group)
+    def get_view_qty(self, group, nav_item):
+        data = self.get_dataset(group, nav_item=nav_item)
         return len(data)    
 
     def get_dataset(self, group, query=None, nav_item=None):
@@ -335,8 +347,12 @@ class BaseListView(ListView, Context):
                         fnd_info = prefix + task.info[pos:pos+200] + ' ...'
                     task.found = strong.join(fnd_info.split(query))
 
-            grp_id = self.get_sub_group_id(task.stop, task.completed)
-            group = self.find_sub_group(sub_groups, grp_id, GRPS_PLANNED[grp_id].capitalize())
+            grp_id = self.get_sub_group_id(task)
+            if (task.app_apart == NUM_ROLE_PRICE):
+                name = APART_SERVICE[task.price_service]
+            else:
+                name = GRPS_PLANNED[grp_id].capitalize()
+            group = self.find_sub_group(sub_groups, grp_id, name)
             group['items'].append(task)
 
         self.save_sub_groups(sub_groups)
@@ -405,15 +421,17 @@ class BaseListView(ListView, Context):
         cur_group.sub_groups = sub_groups_str
         cur_group.save()
 
-    def get_sub_group_id(self, termin, completed):
-        if completed and self.config.cur_view_group:
+    def get_sub_group_id(self, task):
+        if (task.app_apart == NUM_ROLE_PRICE):
+            return task.price_service
+        if task.completed and self.config.cur_view_group:
             return GRP_PLANNED_DONE
-        if (not termin) or not ((self.config.cur_view_group.determinator == 'view' and self.config.cur_view_group.view_id == 'planned')):
+        if (not task.stop) or not ((self.config.cur_view_group.determinator == 'view' and self.config.cur_view_group.view_id == 'planned')):
             return GRP_PLANNED_NONE
         today = date.today()
-        if (termin == today):
+        if (task.stop == today):
             return GRP_PLANNED_TODAY
-        days = (termin.date() - today).days
+        days = (task.stop.date() - today).days
         if (days == 1):
             return GRP_PLANNED_TOMORROW
         if (days < 0):
@@ -519,6 +537,7 @@ class BaseDetailView(UpdateView, Context):
         return context
 
     def form_valid(self, form):
+        self.config.set_view(self.request, detail=True)
         item = form.instance
         if ('url' in form.changed_data):
             url = form.cleaned_data['url']

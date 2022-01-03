@@ -21,11 +21,11 @@ class CreateForm(BaseCreateForm):
         
 #----------------------------------
 class EditForm(BaseEditForm):
-    period = forms.DateField(
+    start = forms.DateField(
         label=False,
         required=True,
         widget=DateInput(format='%Y-%m-%d', attrs={'label': _('period').capitalize(), 'type': 'date'}))
-    payment = forms.DateTimeField(
+    event = forms.DateTimeField(
         label=False,
         required=True,
         widget=DateInput(format='%Y-%m-%dT%H:%M', attrs={'label': _('date of payment').capitalize(), 'type': 'datetime-local'}))
@@ -33,19 +33,19 @@ class EditForm(BaseEditForm):
         label=False,
         required=False,
         widget=NumberInput(attrs={'label': _('US dollar exchange rate'), 'step': '0.0001'}))
-    el_pay = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
-    tv_bill = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
-    tv_pay = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
-    phone_bill = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
-    phone_pay = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
-    zhirovka = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
-    hot_pay = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
-    repair_pay = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
-    ZKX_pay = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
-    water_pay = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
-    gas_pay = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
-    PoO = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
-    PoO_pay = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
+    bill_el_pay = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
+    bill_tv_bill = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
+    bill_tv_pay = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
+    bill_phone_bill = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
+    bill_phone_pay = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
+    bill_zhirovka = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
+    bill_hot_pay = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
+    bill_repair_pay = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
+    bill_zkx_pay = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
+    bill_water_pay = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
+    bill_gas_pay = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
+    bill_poo = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
+    bill_poo_pay = forms.DecimalField(label=False, required=False, widget=NumberInput(attrs={'step': '0.01'}))
     info = forms.CharField(
         label=_('comment').capitalize(),
         required=False,
@@ -57,8 +57,8 @@ class EditForm(BaseEditForm):
 
     class Meta:
         model = Task
-        fields = ['period', 'payment', 'rate', 'el_pay', 'tv_bill', 'tv_pay', 'phone_bill', 'phone_pay', 'zhirovka', 'hot_pay',
-                    'repair_pay', 'ZKX_pay', 'water_pay', 'gas_pay', 'PoO', 'PoO_pay', 'info', 'upload', 'url']
+        fields = ['start', 'event', 'bill_rate', 'bill_el_pay', 'bill_tv_bill', 'bill_tv_pay', 'bill_phone_bill', 'bill_phone_pay', 'bill_zhirovka', 'bill_hot_pay',
+                    'bill_repair_pay', 'bill_zkx_pay', 'bill_water_pay', 'bill_gas_pay', 'bill_poo', 'bill_poo_pay', 'info', 'upload', 'url']
 
     def check_none(self, value):
         if value:

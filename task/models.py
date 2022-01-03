@@ -230,6 +230,7 @@ class Task(models.Model):
     meter_ga = models.IntegerField(_('gas'), null=True)
     meter_zkx = models.DecimalField('account amount', null=True, max_digits=15, decimal_places=2)
     #------------- Price --------------
+    price_service = models.IntegerField(_('service code'), null=True)
     price_tarif = models.DecimalField(_('tariff 1'), null=True, max_digits=15, decimal_places=5)
     price_border = models.DecimalField(_('border 1'), null=True, max_digits=15, decimal_places=4)
     price_tarif2 = models.DecimalField(_('tariff 2'), null=True, max_digits=15, decimal_places=5)
@@ -275,6 +276,13 @@ class Task(models.Model):
     def __str__(self):
         return self.name
 
+    @classmethod
+    def use_name(cls, app, role):
+        ret = True
+        if (app == APP_APART):
+            ret = (role != ROLE_METER) and (role != ROLE_PRICE) and (role != ROLE_BILL)
+        return ret
+        
     @classmethod
     def get_nav_role(cls, app):
         nav_role = ''

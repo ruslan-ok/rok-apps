@@ -2,7 +2,7 @@ from datetime import datetime
 from todo.models import Grp, Lst, Task as OldTask, Step as OldStep
 from note.models import Note
 from task.models import Task, Step, Group, TaskGroup, Urls
-from apart.models import Apart, Meter, Bill, Service, Price
+from apart.models import Apart, Meter, Bill, Price
 from store.models import Entry
 from proj.models import Projects, Expenses
 from fuel.models import Car, Fuel, Part, Repl
@@ -14,7 +14,6 @@ from note.get_info import get_info as note_get_info
 from news.get_info import get_info as news_get_info
 from apart.views.apart import get_info as apart_get_info
 from apart.views.meter import get_info as meter_get_info
-from apart.views.serv import get_info as serv_get_info
 from apart.views.price import get_info as price_get_info
 from apart.views.bill import get_info as bill_get_info
 from store.get_info import get_info as store_get_info
@@ -23,8 +22,6 @@ from fuel.views.car import get_info as car_get_info
 from fuel.views.fuel import get_info as fuel_get_info
 from fuel.views.serv import get_info as repl_get_info
 from fuel.views.part import get_info as part_get_info
-# from trip.views.pers import get_info as pers_get_info
-# from trip.views.trip import get_info as trip_get_info
 
 STAGES = {
     APP_TODO:   0,
@@ -32,9 +29,9 @@ STAGES = {
     APP_NEWS:   0,
     APP_STORE:  0,
     APP_EXPEN:  0,
-    APP_TRIP:   1,
-    APP_FUEL:   1,
-    APP_APART:  0,
+    APP_TRIP:   0,
+    APP_FUEL:   0,
+    APP_APART:  1,
     APP_WORK:   0,
     APP_HEALTH: 0,
     APP_DOCS:   0,
@@ -157,7 +154,6 @@ def convert(result):
             if (app == APP_APART):
                 transfer_apart(result)
                 transfer_meter(result)
-                transfer_service(result)
                 transfer_price(result)
                 transfer_bill(result)
             if (app == APP_HEALTH):
@@ -319,35 +315,21 @@ def transfer_meter(result):
         item.save()
         atask.set_item_attr(APP_APART, meter_get_info(atask))
 
-def transfer_service(result):
-    items = Service.objects.all()
-    for item in items:
-        atask = Task.objects.create(user=item.apart.user,
-                                    src_id=item.id,
-                                    app_apart=NUM_ROLE_SERVICE,
-                                    name=item.name,
-                                    info=item.abbr if item.abbr else '',
-                                    task_1=link_task(item.apart.user, item.apart.id, role_apart=NUM_ROLE_APART),
-                                    )
-        inc(result, APP_APART, ROLE_SERVICE, 'Task', 'added')
-        item.task = atask
-        item.save()
-        atask.set_item_attr(APP_APART, serv_get_info(atask))
-
 def transfer_price(result):
     items = Price.objects.all()
     for item in items:
-        service = None
         name = item.start.strftime('%Y.%m.%d')
+        service_id = 0
         if item.serv:
             name += ' ' + item.serv.name
-            service = link_task(item.apart.user, item.serv.id, role_apart=NUM_ROLE_SERVICE)
+            service_id = item.serv.id
         atask = Task.objects.create(user=item.apart.user,
                                     src_id=item.id,
                                     app_apart=NUM_ROLE_PRICE,
                                     start=item.start,
                                     name=name,
                                     info=str(item.info).replace('\\r\\n', '\n') if item.info else '',
+                                    price_service=service_id,
                                     price_tarif=item.tarif,
                                     price_border=item.border,
                                     price_tarif2=item.tarif2,
@@ -355,7 +337,6 @@ def transfer_price(result):
                                     price_tarif3=item.tarif3,
                                     price_unit=item.unit,
                                     task_1=link_task(item.apart.user, item.apart.id, role_apart=NUM_ROLE_APART),
-                                    task_2=service,
                                     )
         inc(result, APP_APART, ROLE_PRICE, 'Task', 'added')
         item.task = atask

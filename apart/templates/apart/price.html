@@ -8,15 +8,15 @@
 {% block item_detail %}
     <div class="row">
         <div class="col">{{ form.start }}</div>
-        <div class="col">{{ form.service }}</div>
+        <div class="col">{{ form.service_name.label_tag }}{{ form.service_name }}</div>
         <div class="col-sm"></div>
     </div>
     <div class="row">
-        <div class="col">{{ form.tarif }}</div>
-        <div class="col">{{ form.border }}</div>
-        <div class="col">{{ form.tarif2 }}</div>
-        <div class="col">{{ form.border2 }}</div>
-        <div class="col">{{ form.tarif3 }}</div>
+        <div class="col">{{ form.price_tarif }}</div>
+        <div class="col">{{ form.price_border }}</div>
+        <div class="col">{{ form.price_tarif2 }}</div>
+        <div class="col">{{ form.price_border2 }}</div>
+        <div class="col">{{ form.price_tarif3 }}</div>
     </div>
     <div class="row">
         <div class="col-sm">{{ form.url.label_tag }} {{ form.url }}</div>

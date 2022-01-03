@@ -22,27 +22,27 @@ class CreateForm(BaseCreateForm):
         
 #----------------------------------
 class EditForm(BaseEditForm):
-    period = forms.DateField(
+    start = forms.DateField(
         label=False,
         required=True,
         widget=DateInput(format='%Y-%m-%d', attrs={'label': _('period').capitalize()}))
-    reading = forms.DateTimeField(
+    event = forms.DateTimeField(
         label=False,
         required=True,
         widget=DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'label': _('meters reading date').capitalize()}))
-    el = forms.IntegerField(
+    meter_el = forms.IntegerField(
         label=False,
         required=False,
         widget=NumberInput(attrs={'label': _('electricity').capitalize()}))
-    hw = forms.IntegerField(
+    meter_hw = forms.IntegerField(
         label=False,
         required=False,
         widget=NumberInput(attrs={'label': _('hot water').capitalize()}))
-    cw = forms.IntegerField(
+    meter_cw = forms.IntegerField(
         label=False,
         required=False,
         widget=NumberInput(attrs={'label': _('cold water').capitalize()}))
-    ga = forms.IntegerField(
+    meter_ga = forms.IntegerField(
         label=False,
         required=False,
         widget=NumberInput(attrs={'label': _('gas').capitalize()}))
@@ -53,38 +53,20 @@ class EditForm(BaseEditForm):
 
     class Meta:
         model = Task
-        fields = ['period', 'reading', 'el', 'hw', 'cw', 'ga', 'info', 'url']
+        fields = ['start', 'event', 'meter_el', 'meter_hw', 'meter_cw', 'meter_ga', 'info', 'url']
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
             'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
-        apart = Apart.objects.filter(user=kwargs['instance'].user.id, active=True).get()
-        if Meter.objects.filter(task=kwargs['instance'].id).exists():
-            meter = Meter.objects.filter(task=kwargs['instance'].id).get()
-            self.fields['period'].initial = meter.period
-            self.fields['reading'].initial = meter.reading
-            self.fields['el'].initial = meter.el
-            self.fields['hw'].initial = meter.hw
-            self.fields['cw'].initial = meter.cw
-            self.fields['ga'].initial = meter.ga
-            if (not apart.has_el):
-                self.fields['el'].widget = HiddenInput()
-            if (not apart.has_hw):
-                self.fields['hw'].widget = HiddenInput()
-            if (not apart.has_cw):
-                self.fields['cw'].widget = HiddenInput()
-            if (not apart.has_gas):
-                self.fields['ga'].widget = HiddenInput()
+        apart = kwargs['instance'].task_1
+        if (not apart.apart_has_el):
+            self.fields['meter_el'].widget = HiddenInput()
+        if (not apart.apart_has_hw):
+            self.fields['meter_hw'].widget = HiddenInput()
+        if (not apart.apart_has_cw):
+            self.fields['meter_cw'].widget = HiddenInput()
+        if (not apart.apart_has_gas):
+            self.fields['meter_ga'].widget = HiddenInput()
 
-#----------------------------------
-class ApartForm(GroupForm):
-    class Meta:
-        model = Group
-        fields = ['name', 'sort']
-        widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control mb-2'}),
-            'sort': forms.TextInput(attrs={'class': 'form-control mb-2'}),
-        }

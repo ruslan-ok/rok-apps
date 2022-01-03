@@ -3,20 +3,31 @@ from django.utils.translation import gettext_lazy as _
 
 from rusel.base.forms import BaseCreateForm, BaseEditForm
 from rusel.widgets import DateInput, Select, NumberInput, UrlsInput
-from task.const import APP_APART, NUM_ROLE_SERVICE
+from task.const import NUM_ROLE_SERVICE
 from task.models import Task
 from apart.config import app_config
-from apart.models import Price
 
 role = 'price'
+
+APART_SERVICE = [
+    'не задано',
+    'электроснабжение',
+    'газоснабжение',
+    'вода',
+    'водоснабжение',
+    'водоотведение',
+    'не задано',
+    'электроснабжение',
+    'земельный налог',
+    'kill',
+]
 
 #----------------------------------
 class CreateForm(BaseCreateForm):
 
-    new_service = forms.ModelChoiceField(
+    new_service = forms.ChoiceField(
         label=False,
         required=True,
-        queryset=None,
         widget=Select(attrs={'label': _('service').capitalize(), 'class': 'col-md-3'}))
 
     class Meta:
@@ -25,7 +36,15 @@ class CreateForm(BaseCreateForm):
 
     def __init__(self, nav_item, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
-        self.fields['new_service'].queryset = Task.objects.filter(user=nav_item.user.id, app_apart=NUM_ROLE_SERVICE, task_1=nav_item.id)
+        service_choices = []
+        if nav_item.apart_has_el:
+            service_choices.append((1, 'электроснабжение'),)
+        if nav_item.apart_has_gas:
+            service_choices.append((2, 'газоснабжение'),)
+        if nav_item.apart_has_hw or nav_item.apart_has_cw:
+            service_choices.append((4, 'водоснабжение'),)
+            service_choices.append((5, 'водоотведение'),)
+        self.fields['new_service'].choices = service_choices
         
 #----------------------------------
 class EditForm(BaseEditForm):
@@ -33,28 +52,27 @@ class EditForm(BaseEditForm):
         label=False,
         required=True,
         widget=DateInput(format='%Y-%m-%d', attrs={'label': _('valid from').capitalize(), 'type': 'date'}))
-    service = forms.ModelChoiceField(
-        label=False,
+    service_name = forms.CharField(
+        label=_('service').capitalize(), 
         required=True,
-        queryset=None,
-        widget=Select(attrs={'label': _('service').capitalize(), 'class': 'col-md-3'}))
-    tarif = forms.DecimalField(
+        widget=forms.TextInput(attrs={'class': 'form-control col-md-3', 'readonly': ''}))
+    price_tarif = forms.DecimalField(
         label=False,
         required=True,
         widget=NumberInput(attrs={'label': _('tarif').capitalize(), 'class': 'mb-1', 'step': '0.00001'}))
-    border = forms.IntegerField(
+    price_border = forms.IntegerField(
         label=False,
         required=False,
         widget=NumberInput(attrs={'label': _('border').capitalize(), 'class': 'mb-1', 'step': '0.0001'}))
-    tarif2 = forms.DecimalField(
+    price_tarif2 = forms.DecimalField(
         label=False,
         required=False,
         widget=NumberInput(attrs={'label': _('tarif 2').capitalize(), 'class': 'mb-1', 'step': '0.00001'}))
-    border2 = forms.IntegerField(
+    price_border2 = forms.IntegerField(
         label=False,
         required=False,
         widget=NumberInput(attrs={'label': _('border 2').capitalize(), 'class': 'mb-1', 'step': '0.0001'}))
-    tarif3 = forms.DecimalField(
+    price_tarif3 = forms.DecimalField(
         label=False,
         required=False,
         widget=NumberInput(attrs={'label': _('tarif 3').capitalize(), 'class': 'mb-1', 'step': '0.00001'}))
@@ -69,7 +87,7 @@ class EditForm(BaseEditForm):
 
     class Meta:
         model = Task
-        fields = ['start', 'service', 'tarif', 'border', 'tarif2', 'border2', 'tarif3', 'info', 'url']
+        fields = ['start', 'service_name', 'price_tarif', 'price_border', 'price_tarif2', 'price_border2', 'price_tarif3', 'info', 'url']
 
     def check_none(self, value):
         if value:
@@ -78,14 +96,4 @@ class EditForm(BaseEditForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
-        price_task = kwargs['instance']
-        apart = Task.get_active_nav_item(price_task.user.id, APP_APART)
-        self.fields['service'].queryset = Task.objects.filter(user=price_task.user.id, app_apart=NUM_ROLE_SERVICE, task_1=apart)
-        self.fields['service'].initial = price_task.task_2
-        if Price.objects.filter(task=price_task.id).exists():
-            price = Price.objects.filter(task=price_task.id).get()
-            self.fields['tarif'].initial = self.check_none(price.tarif)
-            self.fields['border'].initial = self.check_none(price.border)
-            self.fields['tarif2'].initial = self.check_none(price.tarif2)
-            self.fields['border2'].initial = self.check_none(price.border2)
-            self.fields['tarif3'].initial = self.check_none(price.tarif3)
+        self.fields['service_name'].initial = APART_SERVICE[kwargs['instance'].price_service]

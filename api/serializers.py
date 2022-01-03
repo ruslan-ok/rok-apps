@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from task.models import Group, Task, Step, Urls
 from account.models import UserExt
-from apart.models import Apart, Meter, Service, Bill
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')
@@ -36,9 +35,3 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserExt
         fields = ['user', 'avatar', 'avatar_mini']
-
-class ApartSerializer(serializers.HyperlinkedModelSerializer):
-    user = serializers.ReadOnlyField(source='user.username')
-    class Meta:
-        model = Apart
-        fields = ['url', 'user', 'name', 'addr', 'active', 'has_el', 'has_hw', 'has_cw', 'has_gas', 'has_ppo', 'info', 'task']

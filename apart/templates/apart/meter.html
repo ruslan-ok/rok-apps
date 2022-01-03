@@ -3,16 +3,16 @@
 
 {% block item_detail %}
     <div class="row">
-        {{ form.period }}
-        {{ form.reading }}
+        {{ form.start }}
+        {{ form.event }}
         <div class="col"></div>
         <div class="col"></div>
     </div>
     <div class="row">
-        {{ form.el }}
-        {{ form.hw }}
-        {{ form.cw }}
-        {{ form.ga }}
+        {{ form.meter_el }}
+        {{ form.meter_hw }}
+        {{ form.meter_cw }}
+        {{ form.meter_ga }}
     </div>
     {{ form.info.label_tag }}{{ form.info }}
     <div class="row">

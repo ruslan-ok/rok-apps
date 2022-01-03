@@ -12,17 +12,14 @@ from task.const import *
 from task.models import Task, Group, TaskGroup
 from rusel.files import storage_path
 from api.serializers import TaskSerializer
-from apart.models import Apart, Service, Price, Meter, Bill
-from apart.views.price import add_price
+from apart.models import Apart, Price, Meter, Bill
 from apart.views.meter import add_meter
-from apart.views.bill import add_bill
 from store.models import Entry
 
 from todo.get_info import get_info as todo_get_info
 from note.get_info import get_info as note_get_info
 from news.get_info import get_info as news_get_info
 from apart.views.apart import get_info as apart_get_info
-from apart.views.serv import get_info as serv_get_info
 from apart.views.price import get_info as price_get_info
 from apart.views.meter import get_info as meter_get_info
 from apart.views.bill import get_info as bill_get_info
@@ -44,30 +41,31 @@ class TaskViewSet(viewsets.ModelViewSet):
     @action(detail=False)
     def get_qty(self, request, pk=None):
         qs = self.get_queryset()
-        aty = 0
+        qty = 0
         if qs:
             qty = len(qs)
         return Response({'qty': qty})
     
+    def _get_info(self, task):
+        if (task.app_task == NUM_ROLE_TODO):
+            task.set_item_attr(APP_TODO, todo_get_info(task))
+        if (task.app_note == NUM_ROLE_NOTE):
+            task.set_item_attr(APP_NOTE, note_get_info(task))
+        if (task.app_news == NUM_ROLE_NEWS):
+            task.set_item_attr(APP_NEWS, news_get_info(task))
+        if (task.app_apart == NUM_ROLE_APART):
+            task.set_item_attr(APP_APART, apart_get_info(task))
+        if (task.app_apart == NUM_ROLE_PRICE):
+            task.set_item_attr(APP_APART, price_get_info(task))
+        if (task.app_apart == NUM_ROLE_METER):
+            task.set_item_attr(APP_APART, meter_get_info(task))
+        if (task.app_apart == NUM_ROLE_BILL):
+            task.set_item_attr(APP_APART, bill_get_info(task))
+    
     @action(detail=False)
     def get_info(self, request, pk=None):
         for task in Task.objects.filter(user=request.user.id):
-            if (task.app_task == NUM_ROLE_TODO):
-                task.set_item_attr(APP_TODO, todo_get_info(task))
-            if (task.app_note == NUM_ROLE_NOTE):
-                task.set_item_attr(APP_NOTE, note_get_info(task))
-            if (task.app_news == NUM_ROLE_NEWS):
-                task.set_item_attr(APP_NEWS, news_get_info(task))
-            if (task.app_apart == NUM_ROLE_APART):
-                task.set_item_attr(APP_APART, apart_get_info(task))
-            if (task.app_apart == NUM_ROLE_SERVICE):
-                task.set_item_attr(APP_APART, serv_get_info(task))
-            if (task.app_apart == NUM_ROLE_PRICE):
-                task.set_item_attr(APP_APART, price_get_info(task))
-            if (task.app_apart == NUM_ROLE_METER):
-                task.set_item_attr(APP_APART, meter_get_info(task))
-            if (task.app_apart == NUM_ROLE_BILL):
-                task.set_item_attr(APP_APART, bill_get_info(task))
+            self._get_info(task)
         serializer = self.get_serializer(self.get_queryset(), many=True)
         return Response(serializer.data)
     
@@ -84,6 +82,9 @@ class TaskViewSet(viewsets.ModelViewSet):
         name = ''
         if 'name' in self.request.query_params:
             name = self.request.query_params['name']
+        if Task.use_name(app, role):
+            if (not name):
+                return Response({'task_id': 0})
         group = None
         group_id = None
         if 'group_id' in self.request.query_params:
@@ -91,10 +92,8 @@ class TaskViewSet(viewsets.ModelViewSet):
             if Group.objects.filter(user=request.user.id, id=group_id).exists():
                 group = Group.objects.filter(user=request.user.id, id=group_id).get()
         task = None
-        item = None
         ani = Task.get_active_nav_item(request.user.id, app)
-        mess = 'Task added succussfully.'
-        if name and (app == APP_TODO) and (role == ROLE_TODO):
+        if (app == APP_TODO) and (role == ROLE_TODO):
             in_my_day = False
             important = False
             stop = None
@@ -105,94 +104,94 @@ class TaskViewSet(viewsets.ModelViewSet):
             if group and (group.determinator == 'view') and (group.view_id == 'planned'):
                 stop = datetime.now().replace(hour=9, minute=0, second=0) + timedelta(1)
             task = Task.objects.create(user=request.user, app_task=NUM_ROLE_TODO, name=name, in_my_day=in_my_day, important=important, stop=stop)
-        if name and (app == APP_NOTE) and (role == ROLE_NOTE):
+        if (app == APP_NOTE) and (role == ROLE_NOTE):
             task = Task.objects.create(user=request.user, app_note=NUM_ROLE_NOTE, name=name, event=datetime.now())
-        if name and (app == APP_NEWS) and (role == ROLE_NEWS):
+        if (app == APP_NEWS) and (role == ROLE_NEWS):
             task = Task.objects.create(user=request.user, app_news=NUM_ROLE_NEWS, name=name, event=datetime.now())
-        if name and (app == APP_STORE) and (role == ROLE_STORE):
+        if (app == APP_STORE) and (role == ROLE_STORE):
             task = Task.objects.create(user=request.user, app_store=NUM_ROLE_STORE, name=name, event=datetime.now())
             params, username, value = Entry.get_new_value(request.user)
             Entry.objects.create(user=request.user, title=name, username=username, value=value, actual=1, params=params, task=task)
-        if name and (app == APP_DOCS) and (role == ROLE_DOC):
+        if (app == APP_DOCS) and (role == ROLE_DOC):
             task = Task.objects.create(user=request.user, app_doc=NUM_ROLE_DOC, name=name, event=datetime.now())
-        if name and (app == APP_WARR) and (role == ROLE_WARR):
+        if (app == APP_WARR) and (role == ROLE_WARR):
             task = Task.objects.create(user=request.user, app_warr=NUM_ROLE_WARR, name=name, event=datetime.now())
-        if name and (app == APP_EXPEN) and (role == ROLE_EXPENSE):
+        if (app == APP_EXPEN) and (role == ROLE_EXPENSE):
             task = Task.objects.create(user=request.user, app_expen=NUM_ROLE_EXPENSE, name=name, event=datetime.now())
-        if name and (app == APP_TRIP) and (role == ROLE_PERSON):
+        if (app == APP_TRIP) and (role == ROLE_PERSON):
             task = Task.objects.create(user=request.user, app_trip=NUM_ROLE_PERSON, name=name, event=datetime.now())
-        if name and (app == APP_TRIP) and (role == ROLE_TRIP):
+        if (app == APP_TRIP) and (role == ROLE_TRIP):
             task = Task.objects.create(user=request.user, app_trip=NUM_ROLE_TRIP, name=name, event=datetime.now())
-        if name and (app == APP_TRIP) and (role == ROLE_SALDO):
+        if (app == APP_TRIP) and (role == ROLE_SALDO):
             task = Task.objects.create(user=request.user, app_trip=NUM_ROLE_SALDO, name=name, event=datetime.now())
-        if name and (app == APP_FUEL) and (role == ROLE_CAR):
+        if (app == APP_FUEL) and (role == ROLE_CAR):
             task = Task.objects.create(user=request.user, app_fuel=NUM_ROLE_CAR, name=name, event=datetime.now())
-        if name and (app == APP_FUEL) and (role == ROLE_FUEL):
+        if (app == APP_FUEL) and (role == ROLE_FUEL):
             task = Task.objects.create(user=request.user, app_fuel=NUM_ROLE_FUEL, name=name, event=datetime.now(), task_1=ani)
-        if name and (app == APP_FUEL) and (role == ROLE_PART):
+        if (app == APP_FUEL) and (role == ROLE_PART):
             task = Task.objects.create(user=request.user, app_fuel=NUM_ROLE_PART, name=name, event=datetime.now(), task_1=ani)
-        if name and (app == APP_FUEL) and (role == ROLE_SERVICE):
+        if (app == APP_FUEL) and (role == ROLE_SERVICE):
             task = Task.objects.create(user=request.user, app_fuel=NUM_ROLE_SERVICE, name=name, event=datetime.now(), task_1=ani)
-        if name and (app == APP_APART) and (role == ROLE_APART):
+        if (app == APP_APART) and (role == ROLE_APART):
             task = Task.objects.create(user=request.user, app_apart=NUM_ROLE_APART, name=name, event=datetime.now())
-        if name and (app == APP_APART) and (role == ROLE_SERVICE):
-            task = Task.objects.create(user=request.user, app_apart=NUM_ROLE_SERVICE, name=name, event=datetime.now(), task_1=ani)
-        if name and (app == APP_APART) and (role == ROLE_METER):
+        if (app == APP_APART) and (role == ROLE_METER):
             task = Task.objects.create(user=request.user, app_apart=NUM_ROLE_METER, name=name, event=datetime.now(), task_1=ani)
-            item = add_meter(request, task)
+            add_meter(task)
         if (app == APP_APART) and (role == ROLE_PRICE):
-            service_id = None
+            service_id = 0
             if 'service_id' in self.request.query_params:
                 service_id = int(self.request.query_params['service_id'])
-                if Task.objects.filter(user=request.user.id, app_apart=NUM_ROLE_SERVICE, id=service_id).exists():
-                    service = Task.objects.filter(user=request.user.id, app_apart=NUM_ROLE_SERVICE, id=service_id).get()
-            task = Task.objects.create(user=request.user, app_apart=NUM_ROLE_PRICE, name=name, event=datetime.now(), task_1=ani, task_2=service)
-            item = add_price(request, task)
-        if name and (app == APP_APART) and (role == ROLE_BILL):
-            task = Task.objects.create(user=request.user, app_apart=NUM_ROLE_BILL, name=name, event=datetime.now(), task_1=ani)
-            item, mess = add_bill(request, task)
-        if name and (app == APP_HEALTH) and (role == ROLE_MARKER):
+            task = Task.objects.create(user=request.user, app_apart=NUM_ROLE_PRICE, name=name, start=datetime.now(), price_service=service_id, task_1=ani)
+        if (app == APP_APART) and (role == ROLE_BILL):
+            now = datetime.now()
+            year = now.year
+            month = now.month
+            if (month == 1):
+                month = 12
+                year -= 1
+            period = datetime(year, month, 1)
+            task = Task.objects.create(user=request.user, app_apart=NUM_ROLE_BILL, name=name, start=period, event=datetime.now(), task_1=ani)
+        if (app == APP_HEALTH) and (role == ROLE_MARKER):
             task = Task.objects.create(user=request.user, app_health=NUM_ROLE_MARKER, name=name, event=datetime.now())
-        if name and (app == APP_HEALTH) and (role == ROLE_INCIDENT):
+        if (app == APP_HEALTH) and (role == ROLE_INCIDENT):
             task = Task.objects.create(user=request.user, app_health=NUM_ROLE_INCIDENT, name=name, event=datetime.now())
-        if name and (app == APP_HEALTH) and (role == ROLE_ANAMNESIS):
+        if (app == APP_HEALTH) and (role == ROLE_ANAMNESIS):
             task = Task.objects.create(user=request.user, app_health=NUM_ROLE_ANAMNESIS, name=name, event=datetime.now())
-        if name and (app == APP_WORK) and (role == ROLE_PERIOD):
+        if (app == APP_WORK) and (role == ROLE_PERIOD):
             task = Task.objects.create(user=request.user, app_work=NUM_ROLE_PERIOD, name=name, event=datetime.now())
-        if name and (app == APP_WORK) and (role == ROLE_DEPARTMENT):
+        if (app == APP_WORK) and (role == ROLE_DEPARTMENT):
             task = Task.objects.create(user=request.user, app_work=NUM_ROLE_DEPARTMENT, name=name, event=datetime.now())
-        if name and (app == APP_WORK) and (role == ROLE_DEP_HIST):
+        if (app == APP_WORK) and (role == ROLE_DEP_HIST):
             task = Task.objects.create(user=request.user, app_work=NUM_ROLE_DEP_HIST, name=name, event=datetime.now())
-        if name and (app == APP_WORK) and (role == ROLE_POST):
+        if (app == APP_WORK) and (role == ROLE_POST):
             task = Task.objects.create(user=request.user, app_work=NUM_ROLE_POST, name=name, event=datetime.now())
-        if name and (app == APP_WORK) and (role == ROLE_EMPLOYEE):
+        if (app == APP_WORK) and (role == ROLE_EMPLOYEE):
             task = Task.objects.create(user=request.user, app_work=NUM_ROLE_EMPLOYEE, name=name, event=datetime.now())
-        if name and (app == APP_WORK) and (role == ROLE_FIO_HIST):
+        if (app == APP_WORK) and (role == ROLE_FIO_HIST):
             task = Task.objects.create(user=request.user, app_work=NUM_ROLE_FIO_HIST, name=name, event=datetime.now())
-        if name and (app == APP_WORK) and (role == ROLE_CHILDREN):
+        if (app == APP_WORK) and (role == ROLE_CHILDREN):
             task = Task.objects.create(user=request.user, app_work=NUM_ROLE_CHILD, name=name, event=datetime.now())
-        if name and (app == APP_WORK) and (role == ROLE_APPOINTMENT):
+        if (app == APP_WORK) and (role == ROLE_APPOINTMENT):
             task = Task.objects.create(user=request.user, app_work=NUM_ROLE_APPOINTMENT, name=name, event=datetime.now())
-        if name and (app == APP_WORK) and (role == ROLE_EDUCATION):
+        if (app == APP_WORK) and (role == ROLE_EDUCATION):
             task = Task.objects.create(user=request.user, app_work=NUM_ROLE_EDUCATION, name=name, event=datetime.now())
-        if name and (app == APP_WORK) and (role == ROLE_EMPLOYEE_PERIOD):
+        if (app == APP_WORK) and (role == ROLE_EMPLOYEE_PERIOD):
             task = Task.objects.create(user=request.user, app_work=NUM_ROLE_EMPL_PER, name=name, event=datetime.now())
-        if name and (app == APP_WORK) and (role == ROLE_PAY_TITLE):
+        if (app == APP_WORK) and (role == ROLE_PAY_TITLE):
             task = Task.objects.create(user=request.user, app_work=NUM_ROLE_PAY_TITLE, name=name, event=datetime.now())
-        if name and (app == APP_WORK) and (role == ROLE_PAYMENT):
+        if (app == APP_WORK) and (role == ROLE_PAYMENT):
             task = Task.objects.create(user=request.user, app_work=NUM_ROLE_PAYMENT, name=name, event=datetime.now())
-        if name and (app == APP_PHOTO) and (role == ROLE_PHOTO):
+        if (app == APP_PHOTO) and (role == ROLE_PHOTO):
             task = Task.objects.create(user=request.user, app_photo=NUM_ROLE_PHOTO, name=name, event=datetime.now())
 
         task_id = 0
         if task:
             task_id = task.id
-            if (app == APP_APART) and ((role == ROLE_METER) or (role == ROLE_PRICE) or (role == ROLE_BILL)) and (not item):
-                task.delete()
-                task_id = 0
-        if task_id and group and ((group.determinator == 'group') or (group.determinator == None)):
+        if task and group and ((group.determinator == 'group') or (group.determinator == None)):
             TaskGroup.objects.create(task=task, group=group, role=role)
-        return Response({'task_id': task_id, 'mess': mess})
+        if task:
+            self._get_info(task)
+        return Response({'task_id': task_id})
 
     # OK
     @action(detail=False)
@@ -529,8 +528,6 @@ class TaskViewSet(viewsets.ModelViewSet):
             task.app_fuel = NUM_ROLE_PART
         if (role == ROLE_SERVICE):
             task.app_fuel = NUM_ROLE_SERVICE
-        if (role == ROLE_SERVICE):
-            task.app_apart = NUM_ROLE_SERVICE
         if (role == ROLE_METER):
             task.app_apart = NUM_ROLE_METER
         if (role == ROLE_PRICE):
@@ -615,11 +612,9 @@ class TaskViewSet(viewsets.ModelViewSet):
         if (role in [ROLE_FUEL, ROLE_PART, ROLE_SERVICE]):
             task.app_fuel = NONE
 
-        if (role in [ROLE_APART, ROLE_SERVICE, ROLE_METER, ROLE_PRICE, ROLE_BILL]):
+        if (role in [ROLE_APART, ROLE_METER, ROLE_PRICE, ROLE_BILL]):
             if (task.app_apart == NUM_ROLE_APART):
                 Apart.objects.filter(task=task.id).delete()
-            if (task.app_apart == NUM_ROLE_SERVICE):
-                Service.objects.filter(task=task.id).delete()
             if (task.app_apart == NUM_ROLE_METER):
                 Meter.objects.filter(task=task.id).delete()
             if (task.app_apart == NUM_ROLE_PRICE):

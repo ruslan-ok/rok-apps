@@ -25,11 +25,6 @@ app_config = {
             'add_button': True,
             'relate': [ROLE_TODO],
         },
-        'service': {
-            'role': ROLE_SERVICE,
-            'icon': 'tools', 
-            'title': 'services',
-        },
         'price': {
             'role': ROLE_PRICE,
             'icon': 'tag', 

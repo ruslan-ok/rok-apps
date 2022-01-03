@@ -1,6 +1,6 @@
 from django.urls import path
 from apart.config import app_config
-from apart.views import apart, serv, meter, price, bill
+from apart.views import apart, meter, price, bill
 
 app_name = app_config['name']
 urlpatterns = [
@@ -11,10 +11,6 @@ urlpatterns = [
     path('meter/', meter.ListView.as_view(), name='meter-list'),
     path('meter/<int:pk>/', meter.DetailView.as_view(), name='meter-item'),
     path('meter/<int:pk>/doc/<str:fname>', meter.get_doc, name='meter-doc'),
-
-    path('service/', serv.ListView.as_view(), name='service-list'),
-    path('service/<int:pk>/', serv.DetailView.as_view(), name='service-item'),
-    path('service/<int:pk>/doc/<str:fname>', serv.get_doc, name='service-doc'),
 
     path('price/', price.ListView.as_view(), name='price-list'),
     path('price/<int:pk>/', price.DetailView.as_view(), name='price-item'),
