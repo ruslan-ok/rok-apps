@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.utils.translation import gettext_lazy as _
 from task.const import APP_APART, ROLE_PRICE, NUM_ROLE_PRICE
 from task.models import Task, Urls
@@ -46,7 +47,6 @@ class DetailView(BaseDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['delete_question'] = _('delete tariff').capitalize()
-        context['ban_on_deletion'] = ''
         context['add_item_template'] = 'apart/add_price.html'
         context['service_name'] = APART_SERVICE[self.get_object().price_service]
         return context
@@ -54,7 +54,7 @@ class DetailView(BaseDetailView):
     def form_valid(self, form):
         response = super().form_valid(form)
         form.instance.save()
-        form.instance.name = form.instance.start.strftime('%Y.%m.%d') + ' ' + APART_SERVICE[form.instance.price_service]
+        form.instance.name = get_price_name(form.instance.start, form.instance.price_service)
         form.instance.save()
         form.instance.set_item_attr(app, get_info(form.instance))
         return response
@@ -120,6 +120,15 @@ def get_info(item):
             ret.append({'icon': 'notes', 'text': info_descr})
 
     return {'attr': ret}
+
+def get_price_name(start, service_id):
+    return start.strftime('%Y.%m.%d') + ' ' + APART_SERVICE[service_id]
+
+def add_price(user, apart, service_id):
+    start = datetime.now()
+    name = get_price_name(start, service_id)
+    task = Task.objects.create(user=user, app_apart=NUM_ROLE_PRICE, task_1=apart, start=start, name=name, price_service=service_id)
+    return task
 
 def get_doc(request, pk, fname):
     return get_app_doc(app_config['name'], role, request, pk, fname)

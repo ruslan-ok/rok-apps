@@ -1,9 +1,42 @@
 .bill {
+    display: flex;
+    flex-wrap: wrap;
     .meters {
         border-top: 1px solid black;
         border-left: 1px solid black;
         margin-bottom: 1rem;
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        overflow: auto;
         .meter {
+            display: flex;
+            .title {
+                border-bottom: 1px solid black;
+                border-right: 1px solid black;
+                width: 80px;
+                font-weight: 500;
+                padding: 0.1rem 0.5rem;
+            }
+            .value {
+                border-bottom: 1px solid black;
+                border-right: 1px solid black;
+                width: 80px;
+                padding: 0.1rem 0.5rem;
+            }
+        }
+    }
+    .separator {
+        margin-right: 3rem;
+    }
+    .accruals {
+        border-top: 1px solid black;
+        border-left: 1px solid black;
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        overflow: auto;
+        .titles {
             display: flex;
             .title {
                 border-bottom: 1px solid black;
@@ -12,19 +45,31 @@
                 font-weight: 500;
                 padding: 0.1rem 0.5rem;
             }
-            .value {
+        }
+        .service {
+            display: flex;
+            .title {
+                border-bottom: 1px solid black;
+                border-right: 1px solid black;
+                width: 100px;
+                font-weight: 500;
+                padding: 0.1rem 0.5rem;
+            }
+            .tarif {
                 border-bottom: 1px solid black;
                 border-right: 1px solid black;
                 width: 100px;
                 padding: 0.1rem 0.5rem;
             }
-        }
-    }
-    .accruals {
-        display: flex;
-        flex-wrap: wrap;
-        .service {
-            display: flex;
+            .accrued {
+                border-bottom: 1px solid black;
+                border-right: 1px solid black;
+                width: 100px;
+                padding: 0.1rem 0.5rem;
+            }
+            input {
+                width: 100px;
+            }
         }
     }
 }

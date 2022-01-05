@@ -14,6 +14,8 @@ from rusel.files import storage_path
 from api.serializers import TaskSerializer
 from apart.models import Apart, Price, Meter, Bill
 from apart.views.meter import add_meter
+from apart.views.price import add_price
+from apart.views.bill import add_bill
 from store.models import Entry
 
 from todo.get_info import get_info as todo_get_info
@@ -91,7 +93,11 @@ class TaskViewSet(viewsets.ModelViewSet):
             group_id = int(self.request.query_params['group_id'])
             if Group.objects.filter(user=request.user.id, id=group_id).exists():
                 group = Group.objects.filter(user=request.user.id, id=group_id).get()
+        service_id = 0
+        if 'service_id' in self.request.query_params:
+            service_id = int(self.request.query_params['service_id'])
         task = None
+        message = ''
         ani = Task.get_active_nav_item(request.user.id, app)
         if (app == APP_TODO) and (role == ROLE_TODO):
             in_my_day = False
@@ -135,22 +141,11 @@ class TaskViewSet(viewsets.ModelViewSet):
         if (app == APP_APART) and (role == ROLE_APART):
             task = Task.objects.create(user=request.user, app_apart=NUM_ROLE_APART, name=name, event=datetime.now())
         if (app == APP_APART) and (role == ROLE_METER):
-            task = Task.objects.create(user=request.user, app_apart=NUM_ROLE_METER, name=name, event=datetime.now(), task_1=ani)
-            add_meter(task)
+            task = add_meter(request.user, ani)
         if (app == APP_APART) and (role == ROLE_PRICE):
-            service_id = 0
-            if 'service_id' in self.request.query_params:
-                service_id = int(self.request.query_params['service_id'])
-            task = Task.objects.create(user=request.user, app_apart=NUM_ROLE_PRICE, name=name, start=datetime.now(), price_service=service_id, task_1=ani)
+            task = add_price(request.user, ani, service_id)
         if (app == APP_APART) and (role == ROLE_BILL):
-            now = datetime.now()
-            year = now.year
-            month = now.month
-            if (month == 1):
-                month = 12
-                year -= 1
-            period = datetime(year, month, 1)
-            task = Task.objects.create(user=request.user, app_apart=NUM_ROLE_BILL, name=name, start=period, event=datetime.now(), task_1=ani)
+            task, message = add_bill(request.user, ani)
         if (app == APP_HEALTH) and (role == ROLE_MARKER):
             task = Task.objects.create(user=request.user, app_health=NUM_ROLE_MARKER, name=name, event=datetime.now())
         if (app == APP_HEALTH) and (role == ROLE_INCIDENT):
@@ -183,15 +178,12 @@ class TaskViewSet(viewsets.ModelViewSet):
             task = Task.objects.create(user=request.user, app_work=NUM_ROLE_PAYMENT, name=name, event=datetime.now())
         if (app == APP_PHOTO) and (role == ROLE_PHOTO):
             task = Task.objects.create(user=request.user, app_photo=NUM_ROLE_PHOTO, name=name, event=datetime.now())
-
-        task_id = 0
-        if task:
-            task_id = task.id
-        if task and group and ((group.determinator == 'group') or (group.determinator == None)):
+        if not task:
+            return Response({'task_id': 0, 'mess': message})
+        if group and ((group.determinator == 'group') or (group.determinator == None)):
             TaskGroup.objects.create(task=task, group=group, role=role)
-        if task:
-            self._get_info(task)
-        return Response({'task_id': task_id})
+        self._get_info(task)
+        return Response({'task_id': task.id})
 
     # OK
     @action(detail=False)

@@ -35,7 +35,6 @@ class DetailView(BaseDetailView):
         context.update(self.get_app_context(self.request.user.id))
         #context['title'] = self.object.name
         context['delete_question'] = _('delete apartment').capitalize()
-        context['ban_on_deletion'] = ''
         if Task.objects.filter(app_apart=NUM_ROLE_SERVICE, task_1=self.object.id).exists():
             context['ban_on_deletion'] = _('deletion is prohibited because there are services for this apartment').capitalize()
         elif Task.objects.filter(app_apart=NUM_ROLE_PRICE, task_1=self.object.id).exists():

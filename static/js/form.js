@@ -57,10 +57,10 @@ function addItem(app, role, group_id) {
         if (this.readyState == 4 && this.status == 200) {
             let resp = JSON.parse(this.responseText);
             if (!resp || !resp.task_id) {
-                let mess = 'Error';
+                let mess = 'Unknown Error';
                 if (resp.mess)
-                    mess += '\n' + resp.mess;
-                alert(mess);
+                    mess = resp.mess;
+                showInfo(mess);
                 return;
             }
             let item_id_arr = window.location.pathname.match( /\d+/ );

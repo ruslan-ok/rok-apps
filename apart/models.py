@@ -282,14 +282,14 @@ class Price(models.Model):
         return self.start.strftime('%d.%m.%Y')
 
 
-def get_price_info(apart_id, service_id, year, month):
-    serv_id = get_serv_id(apart_id, service_id)
-    period = date(year, month, 1)
-    prices = Price.objects.filter(apart = apart_id, serv = serv_id, start__lte = period).order_by('-start')[:1]
-    if (len(prices) == 0):
-        return ''
-    else:
-        return str(prices[0])
+# def get_price_info(apart_id, service_id, year, month):
+#     serv_id = get_serv_id(apart_id, service_id)
+#     period = date(year, month, 1)
+#     prices = Price.objects.filter(apart = apart_id, serv = serv_id, start__lte = period).order_by('-start')[:1]
+#     if (len(prices) == 0):
+#         return ''
+#     else:
+#         return str(prices[0])
     
 #----------------------------------
 def get_per_price(apart_id, service_id, year, month):

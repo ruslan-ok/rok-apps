@@ -7,146 +7,130 @@
 
 {% block item_detail %}
     <div class="row mb-3" name="period_date_rate">
-      {{ form.period.errors }} {{ form.period }}
-      {{ form.payment.errors }} {{ form.payment }}
-      {{ form.rate.errors }} {{ form.rate }}
+      {{ form.start.errors }} {{ form.start }}
+      {{ form.event.errors }} {{ form.event }}
+      {{ form.bill_rate.errors }} {{ form.bill_rate }}
+      {{ form.bill_residents.errors }} {{ form.bill_residents }}
     </div>
     <div class="bill">
       <div class="meters" name="meters_data">
         <div class="meter">
-          <div class="title"></div>
+          <div class="title">{% trans 'resource'|capfirst %}</div>
           <div class="title">{% trans 'old'|capfirst %}</div>
           <div class="title">{% trans 'new'|capfirst %}</div>
           <div class="title">{% trans 'volume'|capfirst %}</div>
         </div>
-        {% if ed_item.apart.has_el %}
+        {% if apart_has_el %}
         <div class="meter">
           <div class="title">{% trans 'electro'|capfirst %}</div>
-          <div class="value">{{ ed_item.prev.el }}</div>
-          <div class="value">{{ ed_item.curr.el }}</div>
-          <div class="value">{{ volume.el }}</div>
+          <div class="value">{{ prev.meter_el }}</div>
+          <div class="value">{{ curr.meter_el }}</div>
+          <div class="value">{{ bill_info.volume.el }}</div>
         </div>
         {% endif %}
-        {% if ed_item.apart.has_gas %}
+        {% if apart_has_gas %}
         <div class="meter">
           <div class="title">{% trans 'gas'|capfirst %}</div>
-          <div class="value">{{ ed_item.prev.ga }}</div>
-          <div class="value">{{ ed_item.curr.ga }}</div>
-          <div class="value">{{ volume.ga }}</div>
+          <div class="value">{{ prev.meter_ga }}</div>
+          <div class="value">{{ curr.meter_ga }}</div>
+          <div class="value">{{ bill_info.volume.ga }}</div>
         </div>
         {% endif %}
-        {% if ed_item.apart.has_cw %}
+        {% if apart_has_cw %}
         <div class="meter">
           <div class="title">{% trans 'cold'|capfirst %}</div>
-          <div class="value">{{ ed_item.prev.cw }}</div>
-          <div class="value">{{ ed_item.curr.cw }}</div>
-          <div class="value">{{ volume.wt }}</div>
+          <div class="value">{{ prev.meter_cw }}</div>
+          <div class="value">{{ curr.meter_cw }}</div>
+          <div class="value">{{ bill_info.volume.wt }}</div>
         </div>
         {% endif %}
-        {% if ed_item.apart.has_hw %}
+        {% if apart_has_hw %}
         <div class="meter">
           <div class="title">{% trans 'hot'|capfirst %}</div>
-          <div class="value">{{ ed_item.prev.hw }}</div>
-          <div class="value">{{ ed_item.curr.hw }}</div>
+          <div class="value">{{ prev.meter_hw }}</div>
+          <div class="value">{{ curr.meter_hw }}</div>
           <div class="value"></div>
         </div>
         {% endif %}
       </div>
 
+      <div class="separator"></div>
+
       <div class="accruals" name="pay_data_el_gas_water">
-        {% if ed_item.apart.has_el %}
+        <div class="titles">
+          <div class="title">{% trans 'service'|capfirst %}</div>
+          <div class="title">{% trans 'tarif'|capfirst %}</div>
+          <div class="title">{% trans 'accrued'|capfirst %}</div>
+          <div class="title">{% trans 'payment'|capfirst %}</div>
+        </div>
+        {% if bill_info.internet.used %}
           <div class="service">
-            <div class="tarif">
-              <div class="title">{{ el_tar.title }}</div>
-              <div class="value">{{ el_tar.value }}</div>
-            </div>
-            <div class="values">
-              <div class="bill">{{ el_bill.value }}</div>
-              {{ form.el_pay }}
-            </div>
+            <div class="title">{{ bill_info.internet.title }}</div>
+            <div class="tarif"></div>
+            {{ form.bill_tv_bill }}
+            {{ form.bill_tv_pay }}
           </div>
         {% endif %}
-
-        {% if ed_item.apart.has_gas %}
+        {% if bill_info.phone.used %}
           <div class="service">
-            <div class="tarif">
-              <div class="title">{{ gas_tar.title }}</div>
-              <div class="value">{{ gas_tar.value }}</div>
-            </div>
-            <div class="values">
-              <div class="bill">{{ gas_bill.value }}</div>
-              {{ form.gas_pay }}
-            </div>
+            <div class="title">{{ bill_info.phone.title }}</div>
+            <div class="tarif"></div>
+            {{ form.bill_phone_bill }}
+            {{ form.bill_phone_pay }}
           </div>
         {% endif %}
-
-        {% if ed_item.apart.has_hw or ed_item.apart.has_cw %}
+        {% if bill_info.zkx.used %}
           <div class="service">
-            <div class="tarif">
-              <div class="title">{{ water_tar.title }}</div>
-              <div class="value">{{ water_tar.value }}</div>
-            </div>
-            <div class="values">
-              <div class="bill">{{ water_bill.value }}</div>
-              {{ form.water_pay }}
-            </div>
+            <div class="title">{{ bill_info.zkx.title }}</div>
+            <div class="tarif"></div>
+            {{ form.bill_zhirovka }}
+            {{ form.bill_zkx_pay }}
           </div>
         {% endif %}
+        {% if bill_info.poo.used %}
+          <div class="service">
+            <div class="title">{{ bill_info.poo.title }}</div>
+            <div class="tarif"></div>
+            {{ form.bill_poo }}
+            {{ form.bill_poo_pay }}
+          </div>
+        {% endif %}
+        {% if bill_info.electro.used %}
+          <div class="service">
+            <div class="title">{{ bill_info.electro.title }}</div>
+            <div class="tarif">{{ bill_info.electro.tarif }}</div>
+            <div class="accrued">{{ bill_info.electro.accrued }}</div>
+            {{ form.bill_el_pay }}
+          </div>
+        {% endif %}
+        {% if bill_info.gas.used %}
+          <div class="service">
+            <div class="title">{{ bill_info.gas.title }}</div>
+            <div class="tarif">{{ bill_info.gas.tarif }}</div>
+            <div class="accrued">{{ bill_info.gas.accrued }}</div>
+            {{ form.bill_gas_pay }}
+          </div>
+        {% endif %}
+        {% if bill_info.water.used %}
+          <div class="service">
+            <div class="title">{{ bill_info.water.title }}</div>
+            <div class="tarif">{{ bill_info.water.tarif }}</div>
+            <div class="accrued">{{ bill_info.water.accrued }}</div>
+            {{ form.bill_water_pay }}
+          </div>
+        {% endif %}
+        <div class="titles">
+          <div class="title">{{ bill_info.total.title }}</div>
+          <div class="title"></div>
+          <div class="title">{{ bill_info.total.accrued }}</div>
+          <div class="title">{{ bill_info.total.paid }}</div>
+        </div>
       </div>
-
-      <div class="" name="pay_data_tv_phone_ppo">
-        {% if ed_item.apart.has_tv %}
-          <div class="row">
-            <div class="title">
-              {{ tv_title }}
-            </div>
-            <div class="values">
-              {{ form.tv_bill }}
-              {{ form.tv_pay }}
-              </div>
-          </div>
-        {% endif %}
-
-        {% if ed_item.apart.has_phone %}
-          <div class="row">
-            <div class="title">
-              {{ phone_title }}
-            </div>
-            <div class="values">
-              {{ form.phone_bill }}
-              {{ form.phone_pay }}
-            </div>
-          </div>
-        {% endif %}
-        {% if ed_item.apart.has_zkx %}
-          <div class="row">
-            <div class="title">
-              {{ ZKX_title }}
-            </div>
-            <div class="values">
-              {{ form.zhirovka }}
-              {{ form.ZKX_pay }}
-            </div>
-          </div>
-        {% endif %}
-
-        {% if ed_item.apart.has_ppo %}
-          <div class="row">
-            <div class="title">
-              {{ PoO_title }}
-            </div>
-            <div class="values">
-              {{ form.PoO }}
-              {{ form.PoO_pay }}
-            </div>
-          </div>
-        {% endif %}
-      </div>
-
     </div>
 
+    {{ form.info.label_tag }} {{ form.info }} 
     {{ form.url.label_tag }} {{ form.url }}
-    {{ form.info.label_tag }} {{ form.info }} {{ form.upload }}
+    {{ form.upload }}
 
     {% include "widgets/url_list.html" %}
     {% include "widgets/attachments.html" %}

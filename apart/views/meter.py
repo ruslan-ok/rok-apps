@@ -38,7 +38,6 @@ class DetailView(BaseDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['delete_question'] = _('delete meters data').capitalize()
-        context['ban_on_deletion'] = ''
         if Task.objects.filter(app_apart=NUM_ROLE_BILL, task_2=self.object.id).exists() or Task.objects.filter(app_apart=NUM_ROLE_BILL, task_3=self.object.id).exists():
             context['ban_on_deletion'] = _('deletion is prohibited because there are bills for this meters data').capitalize()
         if Task.objects.filter(app_apart=NUM_ROLE_METER, task_1=self.object.task_1.id, start__gt=self.object.start).exists():
@@ -47,7 +46,7 @@ class DetailView(BaseDetailView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        form.instance.name = form.instance.start.strftime('%Y.%m')
+        form.instance.name = get_meter_name(form.instance.start)
         form.instance.save()
         form.instance.set_item_attr(app, get_info(form.instance))
         return response
@@ -109,8 +108,11 @@ def next_period(last=None):
 
     return date(y, m, 1)
 
-def add_meter(task):
-    few = Task.objects.filter(app_apart=NUM_ROLE_METER, task_1=task.task_1.id).exclude(id=task.id).order_by('-start')[:3]
+def get_meter_name(period):
+    return period.strftime('%Y.%m')
+
+def add_meter(user, apart):
+    few = Task.objects.filter(app_apart=NUM_ROLE_METER, task_1=apart.id).order_by('-start')[:3]
     qty = len(few)
     if (qty == 0):
         period = next_period()
@@ -135,12 +137,5 @@ def add_meter(task):
             if last.meter_ga:
                 ga = last.meter_ga + round((last.meter_ga - first.meter_ga) / (qty - 1))
 
-    task.event = datetime.now()
-    task.name = period.strftime('%Y.%m')
-    task.start = period
-    task.meter_el = el
-    task.meter_hw = hw
-    task.meter_cw = cw
-    task.meter_ga = ga
-    task.save()
-
+    task = Task.objects.create(user=user, app_apart=NUM_ROLE_METER, event=datetime.now(), task_1=apart, start=period, name=get_meter_name(period), meter_el=el, meter_hw=hw, meter_cw=cw, meter_ga=ga)
+    return task
