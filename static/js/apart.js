@@ -1,3 +1,9 @@
+afterCalendarChanged(1, 1);
+
+function afterCalendarChanged(init, field) {
+  getRateOnDate('USD', init, 'id_event', 'id_bill_rate');
+}
+
 function showInfo(text) {
     let el = document.getElementById('infoModal');
     el.querySelectorAll('div.modal-body')[0].innerText = text;

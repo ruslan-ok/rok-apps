@@ -9,7 +9,7 @@ from apart.config import app_config
 from apart.models import Apart, Meter, Bill
 from apart.views.meter import next_period
 from rusel.files import get_files_list
-from apart.calc_tarif import get_bill_info
+from apart.calc_tarif import HSC, INTERNET, PHONE, get_bill_info
 
 app = APP_APART
 role = ROLE_BILL
@@ -115,6 +115,20 @@ def get_info(item):
 def get_bill_name(period):
     return period.strftime('%Y.%m')
 
+def avg_accrual(user, apart, period, service_id):
+    last = Task.objects.filter(user=user.id, app_apart=NUM_ROLE_BILL, task_1=apart.id, start__lt=period).order_by('-start')[:3]
+    ret = 0
+    for bill in last:
+        if (service_id == INTERNET):
+            ret += bill.bill_tv_bill
+        if (service_id == PHONE):
+            ret += bill.bill_phone_bill
+        if (service_id == HSC):
+            ret += bill.bill_zhirovka
+    if (len(last) > 0):
+        ret = round(ret / len(last), 2)
+    return ret
+
 def add_bill(user, apart):
     if (len(Task.objects.filter(user=user.id, app_apart=NUM_ROLE_METER, task_1=apart.id)) < 2):
         return None, _('there are no meter readings').capitalize()
@@ -131,7 +145,14 @@ def add_bill(user, apart):
         prev = last.task_3
         curr = Task.objects.filter(user=user.id, app_apart=NUM_ROLE_METER, task_1=apart.id, start=period).get()
 
-    task = Task.objects.create(user=user, app_apart=NUM_ROLE_METER, task_1=apart, task_2=prev, task_3=curr, start=period, name=get_bill_name(period), event=datetime.now())
+    internet = phone = zkx = 0
+    if apart.apart_has_tv:
+        internet = avg_accrual(user, apart, period, INTERNET)
+    if apart.apart_has_phone:
+        phone = avg_accrual(user, apart, period, PHONE)
+    if apart.apart_has_zkx:
+        zkx = avg_accrual(user, apart, period, HSC)
+    task = Task.objects.create(user=user, app_apart=NUM_ROLE_BILL, task_1=apart, task_2=prev, task_3=curr, start=period, name=get_bill_name(period), event=datetime.now(), bill_tv_bill=internet, bill_phone_bill=phone, bill_zhirovka=zkx)
     return task, ''
 
 def get_doc(request, pk, fname):
