@@ -1,0 +1,28 @@
+{% extends "base/item_detail.html" %}
+{% load static i18n %}
+
+{% block item_detail %}
+    <div class="row mb-3">
+        <div class="col">{{ form.car_odometr.label_tag }}{{ form.car_odometr }}</div>
+        <div class="col">{{ form.event }}</div>
+        <div class="col">{{ form.task_2.label_tag }}{{ form.task_2 }}</div>
+    </div>
+    <div class="row mb-3">
+        <div class="col">{{ form.repl_manuf.label_tag }}{{ form.repl_manuf }}</div>
+        <div class="col">{{ form.repl_part_num.label_tag }}{{ form.repl_part_num }}</div>
+        <div class="col">{{ form.repl_descr.label_tag }}{{ form.repl_descr }}</div>
+    </div>
+    <div class="row mb-3">
+        <div class="col">
+            {{ form.info.label_tag }}{{ form.info }}
+            {{ form.url.label_tag }}{{ form.url }}
+        </div>
+        <div class="col">
+            {{ form.categories.label_tag }}{{ form.categories }}
+            {{ form.upload.label_tag }}{{ form.upload }}
+        </div>
+    </div>
+    {% include "widgets/url_list.html" %}
+    {% include "widgets/attachments.html" %}
+{% endblock %}
+

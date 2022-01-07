@@ -50,11 +50,12 @@ class Config:
         self.add_button = self.check_property(config, 'add_button', False)
         self.item_name = self.check_property(config, 'item_name', '')
         self.event_in_name = self.check_property(config, 'event_in_name', False)
+        self.use_sub_groups = False
         self.app_sorts = None
         self.default_sort = '-event'
-        if config['sort']:
+        if 'sort' in config and config['sort']:
             self.app_sorts = config['sort']
-
+    
     def is_num(self, value):
         try:
             return (int(value) > 0)
@@ -115,6 +116,7 @@ class Config:
             self.add_button = self.check_property(self.views[view_id], 'add_button', self.add_button)
             self.item_name = self.check_property(self.views[view_id], 'item_name', self.item_name)
             self.event_in_name = self.check_property(self.views[view_id], 'event_in_name', self.event_in_name)
+            self.use_sub_groups = self.check_property(self.views[view_id], 'use_sub_groups', self.use_sub_groups)
             if 'sort' in self.views[view_id]:
                 self.view_sorts = self.views[view_id]['sort']
 
@@ -218,11 +220,12 @@ class Context:
             if hide_qty:
                 qty = None
             else:
-                if (view_id == self.config.main_view):
+                if (view_id == self.config.group_entity):
                     _nav_item = None
                 else:
                     _nav_item = nav_item
-                qty = self.get_view_qty(detect_group(self.request.user, self.config.app, determinator, view_id, _(value['title']).capitalize()), _nav_item)
+                fix_group = detect_group(self.request.user, self.config.app, determinator, view_id, _(value['title']).capitalize())
+                qty = self.get_view_qty(fix_group, _nav_item)
             active = (self.config.cur_view_group.determinator == determinator) and (self.config.cur_view_group.view_id == view_id)
             fix = {
                 'determinator': determinator,
@@ -267,8 +270,12 @@ class Context:
             pk = str(self.kwargs['pk']) + '/'
             if (pk in href):
                 href = href.split(pk)[0]
+        sort = 'name'
+        nav_item_group = detect_group(self.request.user, self.config.app, 'role', nav_role, '')
+        if nav_item_group and nav_item_group.items_sort:
+            sort = nav_item_group.items_sort
         ret = []
-        for item in Task.get_role_tasks(self.request.user.id, self.config.app, nav_role):
+        for item in Task.get_role_tasks(self.request.user.id, self.config.app, nav_role).order_by(sort):
             ret.append({
                 'id': item.id, 
                 'name': item.name, 
@@ -347,11 +354,7 @@ class BaseListView(ListView, Context):
                         fnd_info = prefix + task.info[pos:pos+200] + ' ...'
                     task.found = strong.join(fnd_info.split(query))
 
-            grp_id = self.get_sub_group_id(task)
-            if (task.app_apart == NUM_ROLE_PRICE):
-                name = APART_SERVICE[task.price_service]
-            else:
-                name = GRPS_PLANNED[grp_id].capitalize()
+            grp_id, name = self.get_sub_group(task)
             group = self.find_sub_group(sub_groups, grp_id, name)
             group['items'].append(task)
 
@@ -421,24 +424,35 @@ class BaseListView(ListView, Context):
         cur_group.sub_groups = sub_groups_str
         cur_group.save()
 
-    def get_sub_group_id(self, task):
+    def get_sub_group(self, task):
+        if not self.config.use_sub_groups or not self.config.cur_view_group.use_sub_groups:
+            return 0, ''
         if (task.app_apart == NUM_ROLE_PRICE):
-            return task.price_service
+            return task.price_service, APART_SERVICE[task.price_service]
+        if (task.app_fuel == NUM_ROLE_SERVICE):
+            if not task.task_2:
+                return 0, ''
+            else:
+                return task.task_2.id, task.task_2.name
         if task.completed and self.config.cur_view_group:
-            return GRP_PLANNED_DONE
-        if (not task.stop) or not ((self.config.cur_view_group.determinator == 'view' and self.config.cur_view_group.view_id == 'planned')):
-            return GRP_PLANNED_NONE
-        today = date.today()
-        if (task.stop == today):
-            return GRP_PLANNED_TODAY
-        days = (task.stop.date() - today).days
-        if (days == 1):
-            return GRP_PLANNED_TOMORROW
-        if (days < 0):
-            return GRP_PLANNED_EARLIER
-        if (days < 8):
-            return GRP_PLANNED_ON_WEEK
-        return GRP_PLANNED_LATER
+            grp_id = GRP_PLANNED_DONE
+        elif (not task.stop) or not ((self.config.cur_view_group.determinator == 'view' and self.config.cur_view_group.view_id == 'planned')):
+            grp_id = GRP_PLANNED_NONE
+        else:
+            today = date.today()
+            if (task.stop == today):
+                grp_id = GRP_PLANNED_TODAY
+            else:
+                days = (task.stop.date() - today).days
+                if (days == 1):
+                    grp_id = GRP_PLANNED_TOMORROW
+                elif (days < 0):
+                    grp_id = GRP_PLANNED_EARLIER
+                elif (days < 8):
+                    grp_id = GRP_PLANNED_ON_WEEK
+                else:
+                    grp_id = GRP_PLANNED_LATER
+        return grp_id, GRPS_PLANNED[grp_id].capitalize()
 
     def find_sub_group(self, groups, grp_id, name):
         for group in groups:

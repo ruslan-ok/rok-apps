@@ -23,6 +23,7 @@ app_config = {
         'all': {
             'icon': 'infinity',
             'title': 'all',
+            'use_sub_groups': True,
         },
         'params': {
             'page_url': 'params',

@@ -35,6 +35,8 @@ class EditForm(BaseEditForm):
         fields = ['name', 'part_chg_km', 'part_chg_mo', 'info', 'url', 'categories', 'upload']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
+            'part_chg_km': forms.NumberInput(attrs={'class': 'form-control mb-3'}),
+            'part_chg_mo': forms.NumberInput(attrs={'class': 'form-control mb-3'}),
             'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),
         }
 

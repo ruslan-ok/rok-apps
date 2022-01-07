@@ -32,6 +32,7 @@ app_config = {
         'planned': {
             'icon': 'check2-square',
             'title': 'planned tasks',
+            'use_sub_groups': True,
             'sort': [
                 ('important', 'important'),
                 ('name', 'name'),
@@ -41,7 +42,8 @@ app_config = {
         'all': {
             'icon': 'infinity',
             'title': 'all tasks',
-        },
+             'use_sub_groups': True,
+       },
         'completed': {
             'icon': 'check2-circle',
             'title': 'completed tasks',

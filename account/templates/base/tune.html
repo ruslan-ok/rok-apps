@@ -36,6 +36,15 @@
                     {% if theme.img %}<img src="/static/backgrounds/{{ theme.img }}/thumb.jpg">{% endif %}
                 </button>
             {% endfor %}
+            {% if config.use_sub_groups %}
+            <div class="form-check form-switch my-1 mx-1">
+                <input type="checkbox" name="use_sub_groups" id="id_use_sub_groups" class="form-check-input" 
+                {% if config.cur_view_group.use_sub_groups %} checked{% endif %} onclick="toggleSubGroups({{config.cur_view_group.id|escape}})">
+                <label for="id_use_sub_groups" class="form-check-label">
+                    {% trans 'use groups'|capfirst %}
+                </label>
+            </div>
+            {% endif %}
         </ul>
     </div>
 {% endif %}

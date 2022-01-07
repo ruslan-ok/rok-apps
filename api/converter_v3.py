@@ -9,6 +9,8 @@ from fuel.models import Car, Fuel, Part, Repl
 from trip.models import Person, Trip
 from health.models import Biomarker, Incident
 from task.const import *
+from fuel.views.fuel import get_fuel_name
+from fuel.views.serv import get_serv_name
 from todo.get_info import get_info as todo_get_info
 from note.get_info import get_info as note_get_info
 from news.get_info import get_info as news_get_info
@@ -30,8 +32,8 @@ STAGES = {
     APP_STORE:  0,
     APP_EXPEN:  0,
     APP_TRIP:   0,
-    APP_FUEL:   0,
-    APP_APART:  1,
+    APP_FUEL:   1,
+    APP_APART:  0,
     APP_WORK:   0,
     APP_HEALTH: 0,
     APP_DOCS:   0,
@@ -553,11 +555,11 @@ def transfer_fuel(result):
                                     src_id=item.id,
                                     app_fuel=NUM_ROLE_FUEL,
                                     event=item.pub_date,
-                                    name=str(item.odometr),
+                                    name=get_fuel_name(item.pub_date),
                                     car_odometr=item.odometr,
                                     fuel_volume=item.volume,
                                     fuel_price=item.price,
-                                    info=item.comment,
+                                    info=item.comment.strip(),
                                     created=item.created,
                                     last_mod=item.last_mod,
                                     task_1=link_task(item.car.user, item.car.id, role_fuel=NUM_ROLE_CAR),
@@ -571,13 +573,13 @@ def transfer_part(result):
         atask = Task.objects.create(user=item.car.user,
                                     src_id=item.id,
                                     app_fuel=NUM_ROLE_PART,
+                                    name=item.name,
                                     part_chg_km=item.chg_km,
                                     part_chg_mo=item.chg_mo,
                                     info=str(item.comment).replace('\\r\\n', '\n') if item.comment else '',
                                     task_1=link_task(item.car.user, item.car.id, role_fuel=NUM_ROLE_CAR),
                                     )
         inc(result, APP_FUEL, ROLE_PART, 'Task', 'added')
-        atask.set_item_attr(APP_FUEL, part_get_info(atask))
 
 def transfer_repl(result):
     items = Repl.objects.all()
@@ -591,6 +593,7 @@ def transfer_repl(result):
                                     src_id=item.id,
                                     app_fuel=NUM_ROLE_SERVICE,
                                     event=item.dt_chg,
+                                    name=get_serv_name(part, item.dt_chg),
                                     car_odometr=item.odometr,
                                     repl_manuf=item.manuf,
                                     repl_part_num=item.part_num,
@@ -603,6 +606,9 @@ def transfer_repl(result):
                                     )
         inc(result, APP_FUEL, ROLE_SERVICE, 'Task', 'added')
         atask.set_item_attr(APP_FUEL, repl_get_info(atask))
+
+    for part in Task.objects.filter(app_fuel=NUM_ROLE_PART):
+        part.set_item_attr(APP_FUEL, part_get_info(part))
 
 def transfer_incident(result):
     items = Incident.objects.all()

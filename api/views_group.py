@@ -131,3 +131,10 @@ class GroupViewSet(viewsets.ModelViewSet):
             self.sort_level(self.request.user, app, None, '', 0)
         return Response(result)
     
+    @action(detail=True)
+    def toggle_sub_groups(self, request, pk=None):
+        group = self.get_object()
+        group.use_sub_groups = not group.use_sub_groups
+        group.save()
+        serializer = GroupSerializer(instance=group, context={'request': request})
+        return Response(serializer.data)

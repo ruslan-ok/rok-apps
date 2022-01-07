@@ -30,6 +30,7 @@ app_config = {
             'icon': 'tag', 
             'title': 'prices',
             'add_button': True,
+            'use_sub_groups': True,
         },
         'bill': {
             'role': ROLE_BILL,

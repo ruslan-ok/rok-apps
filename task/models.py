@@ -30,6 +30,7 @@ class Group(models.Model):
     completed = models.BooleanField(_('display completed records'), default=False, null=True)
     theme = models.IntegerField(_('theme id'), blank=True, null=True)
     sub_groups = models.CharField(_('content items sub groups'), max_length=1000, blank=True, null=True)
+    use_sub_groups = models.BooleanField(_('using content items sub groups'), default=True, null=True)
     determinator = models.CharField(_('group category: "group", "role" or "view"'), max_length=10, blank=True, null=True)
     view_id = models.CharField(_('view identificator for "role" and "view"'), max_length=50, blank=True, null=True)
     items_sort = models.CharField(_('items sorting orders'), max_length=500, blank=True)
@@ -254,7 +255,7 @@ class Task(models.Model):
     bill_poo = models.DecimalField('pay to the Partnersheep of Owners - accrued', null=True, max_digits=15, decimal_places=2, default=0)
     bill_poo_pay = models.DecimalField('pay to the Partnersheep of Owners - payment', null=True, max_digits=15, decimal_places=2, default=0)
     #-------------- Car ----------------
-    car_plate  = models.CharField(_('car number'), max_length=100, null=True)
+    car_plate  = models.CharField(_('car number'), max_length=100, null=True, blank=True)
     car_odometr = models.IntegerField(_('odometer'), null=True)
     #-------------- Fuel ---------------
     fuel_volume = models.DecimalField(_('volume'), null=True, max_digits=5, decimal_places=3)
@@ -263,12 +264,11 @@ class Task(models.Model):
     part_chg_km = models.IntegerField(_('replacement interval, km'), null=True)
     part_chg_mo = models.IntegerField(_('replacement interval, months'), null=True)
     #-------------- Repl ---------------
-    repl_dt_chg = models.DateTimeField(_('date'), null=True)
-    repl_manuf = models.CharField(_('manufacturer'), max_length=1000, null=True)
-    repl_part_num = models.CharField(_('catalog number'), max_length=100, null=True)
-    repl_descr = models.CharField(_('name'), max_length=1000, null=True)
+    repl_manuf = models.CharField(_('manufacturer'), max_length=1000, null=True, blank=True)
+    repl_part_num = models.CharField(_('catalog number'), max_length=100, null=True, blank=True)
+    repl_descr = models.CharField(_('name'), max_length=1000, null=True, blank=True)
     #------------- Health --------------
-    diagnosis = models.CharField(_('diagnosis'), max_length = 1000, blank = True)
+    diagnosis = models.CharField(_('diagnosis'), max_length=1000, blank=True)
     # -------------
     class Meta:
         verbose_name = _('task')
@@ -289,6 +289,8 @@ class Task(models.Model):
         nav_role = ''
         if (app == APP_APART):
             nav_role = ROLE_APART
+        if (app == APP_FUEL):
+            nav_role = ROLE_CAR
         return nav_role
 
     @classmethod
@@ -402,7 +404,9 @@ class Task(models.Model):
                         url_role = None
                         if (role != ROLE_BY_NUM[base_role]):
                             url_role = role
-                        roles.append({'icon': ROLE_ICON[role], 'href': self.get_url_for_app(app, url_role), 'name': role})
+                        icon = ROLE_ICON[role]
+                        href = self.get_url_for_app(app, url_role)
+                        roles.append({'icon': icon, 'href': href, 'name': role})
         return roles
 
     def get_absolute_url(self):

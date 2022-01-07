@@ -16,6 +16,9 @@ from apart.models import Apart, Price, Meter, Bill
 from apart.views.meter import add_meter
 from apart.views.price import add_price
 from apart.views.bill import add_bill
+from fuel.views.fuel import add_fuel
+from fuel.views.part import add_part
+from fuel.views.serv import add_serv
 from store.models import Entry
 
 from todo.get_info import get_info as todo_get_info
@@ -133,11 +136,11 @@ class TaskViewSet(viewsets.ModelViewSet):
         if (app == APP_FUEL) and (role == ROLE_CAR):
             task = Task.objects.create(user=request.user, app_fuel=NUM_ROLE_CAR, name=name, event=datetime.now())
         if (app == APP_FUEL) and (role == ROLE_FUEL):
-            task = Task.objects.create(user=request.user, app_fuel=NUM_ROLE_FUEL, name=name, event=datetime.now(), task_1=ani)
+            task = add_fuel(request.user, ani)
         if (app == APP_FUEL) and (role == ROLE_PART):
-            task = Task.objects.create(user=request.user, app_fuel=NUM_ROLE_PART, name=name, event=datetime.now(), task_1=ani)
+            task = add_part(request.user, ani)
         if (app == APP_FUEL) and (role == ROLE_SERVICE):
-            task = Task.objects.create(user=request.user, app_fuel=NUM_ROLE_SERVICE, name=name, event=datetime.now(), task_1=ani)
+            task = add_serv(request.user, ani)
         if (app == APP_APART) and (role == ROLE_APART):
             task = Task.objects.create(user=request.user, app_apart=NUM_ROLE_APART, name=name, event=datetime.now())
         if (app == APP_APART) and (role == ROLE_METER):

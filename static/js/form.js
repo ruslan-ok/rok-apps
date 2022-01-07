@@ -616,3 +616,15 @@ function delSort(group_id) {
     };
     runAPI(api, callback);
 }
+
+function toggleSubGroups(group_id) {
+    const redirect_url = window.location.href;
+    const api = '/api/groups/' + group_id + '/toggle_sub_groups/?format=json';
+    const callback = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            console.log('Using sub groups changed successfully.');
+            window.location.href = redirect_url;
+        }
+    };
+    runAPI(api, callback);
+}
