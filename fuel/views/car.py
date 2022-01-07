@@ -1,5 +1,5 @@
-from datetime import datetime, timedelta
-from task.const import NUM_ROLE_SERVICE, ROLE_CAR, ROLE_APP
+from datetime import timedelta
+from task.const import ROLE_CAR, ROLE_APP
 from task.models import Task
 from rusel.base.views import BaseListView, BaseDetailView
 from fuel.forms.car import CreateForm, EditForm

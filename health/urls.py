@@ -1,10 +1,13 @@
 from django.urls import path
 from health.config import app_config
-from health import views
+from health.views import incident, marker
 
 app_name = app_config['name']
 urlpatterns = [
-    path('', views.ListView.as_view(), name='list'),
-    path('<int:pk>/', views.DetailView.as_view(), name='item'),
-    path('incident/<int:pk>/', views.IncidentView.as_view(), name='group'),
+    path('', marker.ListView.as_view(), name='list'),
+    path('<int:pk>/', marker.DetailView.as_view(), name='item'),
+
+    path('incident/', incident.ListView.as_view(), name='incident-list'),
+    path('incident/<int:pk>/', incident.DetailView.as_view(), name='incident-item'),
+    path('incident/<int:pk>/doc/<str:fname>', incident.get_doc, name='incident-doc'),
 ]

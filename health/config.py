@@ -5,8 +5,6 @@ app_config = {
     'app_title': 'health',
     'icon': 'star',
     'main_view': 'biomarker',
-    'use_groups': True,
-    'group_entity': 'incident',
     'sort': [
         ('name', 'name'),
     ],
@@ -15,17 +13,19 @@ app_config = {
             'role': ROLE_MARKER,
             'icon': 'heart', 
             'title': 'biomarkers',
+            'paginator': 10,
+            'hide_qty': True,
         },
         'chart': {
             'icon': 'graph-up', 
             'title': 'charts',
+            'hide_qty': True,
         },
         'incident': {
-            'role': ROLE_ANAMNESIS,
+            'role': ROLE_INCIDENT,
             'icon': 'thermometer-half', 
             'title': 'incidents',
-            'use_groups': True,
-            'group_entity': 'anamnesis',
+            'hide_qty': True,
         },
     }
 }
