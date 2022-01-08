@@ -9,7 +9,7 @@ from rusel.context import get_base_context
 #from trip.models import trip_summary
 #from rusel.site_stat import get_site_stat
 
-from task.const import APP_ALL, APP_HOME, ROLE_ACCOUNT, ROLE_SEARCH_RESULTS
+from task.const import APP_HOME, ROLE_ACCOUNT
 from task.models import Task, VisitedHistory
 from rusel.base.views import BaseListView
 from rusel.config import app_config
@@ -36,8 +36,8 @@ class ListView(BaseListView, TuneData):
         if (self.request.method == 'GET'):
             query = self.request.GET.get('q')
         if query:
+            super().get(self, request, *args, **kwargs)
             context = self.get_context_data(**kwargs)
-            #context = get_base_context(request, APP_ALL, ROLE_SEARCH_RESULTS, '', (_('search results').capitalize(),))
             template = loader.get_template('base/list.html')
             return HttpResponse(template.render(context, request))
 
@@ -77,6 +77,3 @@ class ListView(BaseListView, TuneData):
 
         template = loader.get_template('index_user.html')
         return HttpResponse(template.render(context, request))
-
-
-

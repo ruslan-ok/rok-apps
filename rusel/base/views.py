@@ -68,11 +68,13 @@ class Config:
             return
         self.cur_view_group = None
         self.nav_item = None
+        determinator = 'view'
+        view_id = ''
         if (self.app == APP_ALL):
             common_url = reverse('index')
+            view_id = 'search'
         else:
             common_url = reverse(self.app + ':list')
-        determinator = 'view'
         if self.main_view:
             view_id = self.main_view
         if (request.path != common_url):
@@ -319,7 +321,29 @@ class BaseListView(ListView, Context):
         data = self.get_sorted_items(query)
         if self.config.limit_list:
             data = data[:self.config.limit_list]
+        if query:
+            for task in data:
+                task = self.highlight_search(query, task)
         return data
+
+    def highlight_search(self, query, task):
+        strong = '<strong>' + query + '</strong>'
+        if query in task.name:
+            task.name = strong.join(task.name.split(query))
+        if query in task.info:
+            if (len(task.info) < 200):
+                fnd_info = task.info
+            else:
+                prefix = ''
+                pos = task.info.find(query)
+                if (pos > 80):
+                    pos -= 80
+                    prefix = '... '
+                else:
+                    pos = 0
+                fnd_info = prefix + task.info[pos:pos+200] + ' ...'
+            task.found = strong.join(fnd_info.split(query))
+        return task
 
     def get_success_url(self):
         if (self.config.get_cur_role() == self.config.base_role):
@@ -334,25 +358,7 @@ class BaseListView(ListView, Context):
         context['use_sub_groups'] = use_sub_groups
         if use_sub_groups:
             sub_groups = self.load_sub_groups()
-            tasks = self.get_queryset()
-            for task in tasks:
-                # if query:
-                #     strong = '<strong>' + query + '</strong>'
-                #     if query in task.name:
-                #         task.name = strong.join(task.name.split(query))
-                #     if query in task.info:
-                #         if (len(task.info) < 200):
-                #             fnd_info = task.info
-                #         else:
-                #             prefix = ''
-                #             pos = task.info.find(query)
-                #             if (pos > 80):
-                #                 pos -= 80
-                #                 prefix = '... '
-                #             else:
-                #                 pos = 0
-                #             fnd_info = prefix + task.info[pos:pos+200] + ' ...'
-                #         task.found = strong.join(fnd_info.split(query))
+            for task in self.get_queryset():
                 grp_id, name = self.get_sub_group(task)
                 group = self.find_sub_group(sub_groups, grp_id, name)
                 group['items'].append(task)
@@ -360,8 +366,11 @@ class BaseListView(ListView, Context):
             context['sub_groups'] = sorted(sub_groups, key = lambda group: group['id'])
 
         search_qty = None
-        # if query:
-        #     search_qty = len(tasks)
+        query = None
+        if (self.request.method == 'GET'):
+            query = self.request.GET.get('q')
+        if query:
+            search_qty = len(self.object_list)
         context.update(self.get_app_context(self.request.user.id, search_qty, icon=self.config.view_icon, nav_items=self.get_nav_items()))
 
         if self.config.view_sorts:
