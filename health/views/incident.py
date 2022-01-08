@@ -1,7 +1,8 @@
+from django.utils.translation import gettext_lazy as _
 from rusel.base.views import BaseListView, BaseDetailView
 from health.forms.incident import CreateForm, EditForm
 from task.const import ROLE_INCIDENT, ROLE_APP
-from task.models import Task
+from task.models import Task, Urls
 from health.config import app_config
 from rusel.files import get_files_list, get_app_doc
 from rusel.categories import get_categories_list
@@ -35,6 +36,15 @@ class DetailView(BaseDetailView, TuneData):
 
 def get_info(item):
     attr = []
+
+    if item.start:
+        attr.append({'text': '{} {}'.format(_('from'), item.start.strftime('%d.%m.%Y'))})
+
+    if item.stop:
+        attr.append({'text': '{} {}'.format(_('to'), item.stop.strftime('%d.%m.%Y'))})
+
+    if item.diagnosis:
+        attr.append({'text': item.diagnosis})
 
     links = len(Urls.objects.filter(task=item.id)) > 0
     files = (len(get_files_list(item.user, app, role, item.id)) > 0)

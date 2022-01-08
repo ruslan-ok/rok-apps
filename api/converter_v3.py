@@ -9,8 +9,6 @@ from fuel.models import Car, Fuel, Part, Repl
 from trip.models import Person, Trip
 from health.models import Biomarker, Incident
 from task.const import *
-from fuel.views.fuel import get_fuel_name
-from fuel.views.serv import get_serv_name
 from todo.get_info import get_info as todo_get_info
 from note.get_info import get_info as note_get_info
 from news.get_info import get_info as news_get_info
@@ -24,6 +22,12 @@ from fuel.views.car import get_info as car_get_info
 from fuel.views.fuel import get_info as fuel_get_info
 from fuel.views.serv import get_info as repl_get_info
 from fuel.views.part import get_info as part_get_info
+from health.views.incident import get_info as incident_get_info
+from health.views.marker import get_info as marker_get_info
+
+from fuel.views.fuel import get_item_name as get_fuel_name
+from fuel.views.serv import get_item_name as get_serv_name
+from health.views.marker import get_item_name as get_marker_name
 
 STAGES = {
     APP_TODO:   0,
@@ -623,7 +627,7 @@ def transfer_incident(result):
                                     info=str(item.info).replace('\\r\\n', '\n') if item.info else '',
                                     )
         inc(result, APP_HEALTH, ROLE_INCIDENT, 'Task', 'added')
-        #atask.set_item_attr(APP_HEALTH, incident_get_info(atask))
+        atask.set_item_attr(APP_HEALTH, incident_get_info(atask))
 
 def transfer_biomarker(result):
     items = Biomarker.objects.all()
@@ -632,6 +636,7 @@ def transfer_biomarker(result):
                                     src_id=item.id,
                                     app_health=NUM_ROLE_MARKER,
                                     event=item.publ,
+                                    name=get_marker_name(item.publ),
                                     bio_height=item.height,
                                     bio_weight=item.weight,
                                     bio_temp=item.temp,
@@ -642,7 +647,7 @@ def transfer_biomarker(result):
                                     info=str(item.info).replace('\\r\\n', '\n') if item.info else '',
                                     )
         inc(result, APP_HEALTH, ROLE_MARKER, 'Task', 'added')
-        #atask.set_item_attr(APP_HEALTH, marker_get_info(atask))
+        atask.set_item_attr(APP_HEALTH, marker_get_info(atask))
 
 
 

@@ -1,7 +1,8 @@
+from datetime import datetime
 from django.utils.translation import gettext_lazy as _
 from rusel.base.views import BaseListView, BaseDetailView
 from health.forms.marker import CreateForm, EditForm
-from task.const import ROLE_MARKER, ROLE_APP
+from task.const import ROLE_MARKER, ROLE_APP, NUM_ROLE_MARKER
 from task.models import Task
 from health.config import app_config
 
@@ -29,8 +30,14 @@ class DetailView(BaseDetailView, TuneData):
 
     def form_valid(self, form):
         response = super().form_valid(form)
+        form.instance.name = get_item_name(form.instance.event)
+        form.instance.save()
         form.instance.set_item_attr(app, get_info(form.instance))
         return response
+
+def get_item_name(event):
+    name = event.strftime('%Y.%m.%d')
+    return name
 
 def get_info(item):
     attr = []
@@ -65,11 +72,6 @@ def get_info(item):
             attr.append({'icon': 'separator'})
         attr.append({'icon': 'myday', 'text': '{}: {}'.format(_('pulse').capitalize(), item.bio_pulse) })
 
-    if item.bio_info:
-        if (len(attr) > 0):
-            attr.append({'icon': 'separator'})
-        attr.append({'icon': 'notes', 'text': item.bio_info })
-
     if item.info:
         if (len(attr) > 0):
             attr.append({'icon': 'separator'})
@@ -80,3 +82,36 @@ def get_info(item):
 
     ret = {'attr': attr}
     return ret
+
+def add_item(user, value):
+    height = None
+    weight = None
+    temp = None
+    waist = None
+    systolic = None
+    diastolic = None
+    pulse = None
+    info = ''
+    n_value = 0
+
+    try:
+        n_value = float(value.replace(',', '.'))
+    except ValueError:
+        info = value
+
+    if (n_value >= 35) and (n_value < 50):
+        temp = n_value
+    elif (n_value >= 50) and (n_value < 90):
+        weight = n_value
+    elif (n_value >= 90) and (n_value < 150):
+        waist = n_value
+    elif (n_value >= 150) and (n_value < 250):
+        height = n_value
+
+    event = datetime.now()
+    name = get_item_name(event)
+    task = Task.objects.create(user=user, app_health=NUM_ROLE_MARKER, name=name, bio_height=height, bio_weight=weight, bio_temp=temp, bio_waist=waist, \
+                                bio_systolic=systolic, bio_diastolic=diastolic, bio_pulse=pulse, info=info, event=event)
+    task.set_item_attr(app, get_info(task))
+    return task
+

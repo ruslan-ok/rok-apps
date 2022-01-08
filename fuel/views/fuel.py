@@ -32,12 +32,12 @@ class DetailView(BaseDetailView, TuneData):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        form.instance.name = get_fuel_name(form.instance.event)
+        form.instance.name = get_item_name(form.instance.event)
         form.instance.save()
         form.instance.set_item_attr(app, get_info(form.instance))
         return response
 
-def get_fuel_name(event):
+def get_item_name(event):
     name = event.strftime('%Y.%m.%d')
     return name
 
@@ -69,7 +69,7 @@ def add_fuel(user, car):
         if consumption:
             new_odo = fuels[0].car_odometr + int(fuels[0].fuel_volume / consumption * 100)
     event=datetime.now()
-    task = Task.objects.create(user=user, app_fuel=NUM_ROLE_FUEL, task_1=car, event=event, name=get_fuel_name(event), car_odometr=new_odo, fuel_volume=new_vol, fuel_price=new_prc)
+    task = Task.objects.create(user=user, app_fuel=NUM_ROLE_FUEL, task_1=car, event=event, name=get_item_name(event), car_odometr=new_odo, fuel_volume=new_vol, fuel_price=new_prc)
     return task
 
 def get_info(item):

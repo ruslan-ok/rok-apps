@@ -5,16 +5,15 @@ app_config = {
     'app_title': 'health',
     'icon': 'star',
     'main_view': 'biomarker',
-    'sort': [
-        ('name', 'name'),
-    ],
     'views': {
         'biomarker': {
             'role': ROLE_MARKER,
             'icon': 'heart', 
             'title': 'biomarkers',
-            'paginator': 10,
-            'hide_qty': True,
+            'limit_list': 10,
+            'sort': [
+                ('event', 'event date'),
+            ],
         },
         'chart': {
             'icon': 'graph-up', 
@@ -25,7 +24,10 @@ app_config = {
             'role': ROLE_INCIDENT,
             'icon': 'thermometer-half', 
             'title': 'incidents',
-            'hide_qty': True,
+            'sort': [
+                ('name', 'name'),
+                ('start', 'period'),
+            ],
         },
     }
 }

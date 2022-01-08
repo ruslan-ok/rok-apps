@@ -42,7 +42,7 @@ app_config = {
         'all': {
             'icon': 'infinity',
             'title': 'all tasks',
-             'use_sub_groups': True,
+            'use_sub_groups': True,
        },
         'completed': {
             'icon': 'check2-circle',

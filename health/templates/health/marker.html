@@ -2,16 +2,16 @@
 
 {% block item_detail %}
     <div class="row mb-3">
-        <div class="col">
-            {{ form.event }}
-            {{ form.bio_height }}
-            {{ form.bio_weight }}
-            {{ form.bio_temp }}
-            {{ form.bio_waist }}
-            {{ form.bio_systolic }}
-            {{ form.bio_diastolic }}
-            {{ form.bio_pulse }}
-        </div>
+        <div class="col">{{ form.event }}</div>
+        <div class="col">{{ form.bio_weight }}</div>
+        <div class="col">{{ form.bio_temp }}</div>
+        <div class="col">{{ form.bio_waist }}</div>
+        <div class="col">{{ form.bio_height }}</div>
+    </div>
+    <div class="row mb-3">
+        <div class="col">{{ form.bio_systolic }}
+        {{ form.bio_diastolic }}
+        {{ form.bio_pulse }}</div>
         <div class="col">{{ form.info.label_tag }}{{ form.info }}</div>
     </div>
 {% endblock %}

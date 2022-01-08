@@ -27,8 +27,8 @@
                     {% for node in groups %}
                         {% if node.is_leaf %}
                             <a href="/{{ config.app }}/?{{ config.group_entity }}={{ node.id|escape }}" 
-                                class="{% if request.GET.group == node.s_id %}active{% endif %}"
-                                {% if request.GET.group_id == node.s_id %}aria-current="true"{% endif %}
+                                class="{% if current_group == node.s_id %}active{% endif %}"
+                                {% if current_group == node.s_id %}aria-current="true"{% endif %}
                                 data-id="{{ node.id|escape }}" data-parent="{{ node.node.id|escape }}" id="task_group_{{ node.id|escape }}">
                                 <div>
                                     <i class="bi-journals level-{{ node.level }}"></i>

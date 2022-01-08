@@ -13,13 +13,15 @@ from task.models import Task, Group, TaskGroup
 from rusel.files import storage_path
 from api.serializers import TaskSerializer
 from apart.models import Apart, Price, Meter, Bill
+from store.models import Entry
+
 from apart.views.meter import add_meter
 from apart.views.price import add_price
 from apart.views.bill import add_bill
 from fuel.views.fuel import add_fuel
 from fuel.views.part import add_part
 from fuel.views.serv import add_serv
-from store.models import Entry
+from health.views.marker import add_item as add_marker
 
 from todo.get_info import get_info as todo_get_info
 from note.get_info import get_info as note_get_info
@@ -28,6 +30,7 @@ from apart.views.apart import get_info as apart_get_info
 from apart.views.price import get_info as price_get_info
 from apart.views.meter import get_info as meter_get_info
 from apart.views.bill import get_info as bill_get_info
+from health.views.incident import get_info as incident_get_info
 
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
@@ -66,6 +69,8 @@ class TaskViewSet(viewsets.ModelViewSet):
             task.set_item_attr(APP_APART, meter_get_info(task))
         if (task.app_apart == NUM_ROLE_BILL):
             task.set_item_attr(APP_APART, bill_get_info(task))
+        if (task.app_apart == NUM_ROLE_INCIDENT):
+            task.set_item_attr(APP_HEALTH, incident_get_info(task))
     
     @action(detail=False)
     def get_info(self, request, pk=None):
@@ -150,7 +155,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         if (app == APP_APART) and (role == ROLE_BILL):
             task, message = add_bill(request.user, ani)
         if (app == APP_HEALTH) and (role == ROLE_MARKER):
-            task = Task.objects.create(user=request.user, app_health=NUM_ROLE_MARKER, name=name, event=datetime.now())
+            task = add_marker(request.user, name)
         if (app == APP_HEALTH) and (role == ROLE_INCIDENT):
             task = Task.objects.create(user=request.user, app_health=NUM_ROLE_INCIDENT, name=name, event=datetime.now())
         if (app == APP_HEALTH) and (role == ROLE_ANAMNESIS):

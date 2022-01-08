@@ -51,6 +51,7 @@ class Config:
         self.item_name = self.check_property(config, 'item_name', '')
         self.event_in_name = self.check_property(config, 'event_in_name', False)
         self.use_sub_groups = False
+        self.limit_list = 0
         self.app_sorts = None
         self.default_sort = '-event'
         if 'sort' in config and config['sort']:
@@ -117,8 +118,12 @@ class Config:
             self.item_name = self.check_property(self.views[view_id], 'item_name', self.item_name)
             self.event_in_name = self.check_property(self.views[view_id], 'event_in_name', self.event_in_name)
             self.use_sub_groups = self.check_property(self.views[view_id], 'use_sub_groups', self.use_sub_groups)
+            self.limit_list = self.check_property(self.views[view_id], 'limit_list', self.limit_list)
             if 'sort' in self.views[view_id]:
                 self.view_sorts = self.views[view_id]['sort']
+
+        if (determinator == 'group'):
+            self.use_sub_groups = (self.app in (APP_TODO, APP_STORE))
 
         if determinator and view_id:
             self.cur_view_group = detect_group(request.user, self.app, determinator, view_id, _(self.title).capitalize())
@@ -182,6 +187,9 @@ class Context:
             context['add_item_template'] = 'base/add_item_button.html'
         else:
             context['add_item_template'] = 'base/add_item_input.html'
+
+        if (self.config.group_entity in self.request.GET):
+            context['current_group'] = self.request.GET[self.config.group_entity]
 
         return context
 
@@ -305,19 +313,13 @@ class BaseListView(ListView, Context):
         return ret
 
     def get_queryset(self):
-        nav_role = Task.get_nav_role(self.config.app)
-        if nav_role and (nav_role != self.config.get_cur_role()):
-            if (self.config.group_entity in self.request.GET):
-                active_nav_item_id = self.request.GET[self.config.group_entity]
-                Task.set_active_nav_item(self.request.user.id, self.config.app, active_nav_item_id)
-        self.config.set_view(self.request)
         query = None
         if (self.request.method == 'GET'):
             query = self.request.GET.get('q')
-        nav_item = None
-        if (Task.get_nav_role(self.config.app) != self.config.get_cur_role()):
-            nav_item = Task.get_active_nav_item(self.request.user.id, self.config.app)
-        return self.get_dataset(self.config.cur_view_group, query, nav_item)
+        data = self.get_sorted_items(query)
+        if self.config.limit_list:
+            data = data[:self.config.limit_list]
+        return data
 
     def get_success_url(self):
         if (self.config.get_cur_role() == self.config.base_role):
@@ -328,43 +330,38 @@ class BaseListView(ListView, Context):
         self.config.set_view(self.request)
         self.object = None
         context = super().get_context_data(**kwargs)
-
-        sub_groups = self.load_sub_groups()
-        query = None
-        if (self.request.method == 'GET'):
-            query = self.request.GET.get('q')
-
-        tasks = self.get_sorted_items(query)
-        for task in tasks:
-            if query:
-                strong = '<strong>' + query + '</strong>'
-                if query in task.name:
-                    task.name = strong.join(task.name.split(query))
-                if query in task.info:
-                    if (len(task.info) < 200):
-                        fnd_info = task.info
-                    else:
-                        prefix = ''
-                        pos = task.info.find(query)
-                        if (pos > 80):
-                            pos -= 80
-                            prefix = '... '
-                        else:
-                            pos = 0
-                        fnd_info = prefix + task.info[pos:pos+200] + ' ...'
-                    task.found = strong.join(fnd_info.split(query))
-
-            grp_id, name = self.get_sub_group(task)
-            group = self.find_sub_group(sub_groups, grp_id, name)
-            group['items'].append(task)
-
-        self.save_sub_groups(sub_groups)
-        
-        context['sub_groups'] = sorted(sub_groups, key = lambda group: group['id'])
+        use_sub_groups = self.config.use_sub_groups and self.config.cur_view_group.use_sub_groups
+        context['use_sub_groups'] = use_sub_groups
+        if use_sub_groups:
+            sub_groups = self.load_sub_groups()
+            tasks = self.get_queryset()
+            for task in tasks:
+                # if query:
+                #     strong = '<strong>' + query + '</strong>'
+                #     if query in task.name:
+                #         task.name = strong.join(task.name.split(query))
+                #     if query in task.info:
+                #         if (len(task.info) < 200):
+                #             fnd_info = task.info
+                #         else:
+                #             prefix = ''
+                #             pos = task.info.find(query)
+                #             if (pos > 80):
+                #                 pos -= 80
+                #                 prefix = '... '
+                #             else:
+                #                 pos = 0
+                #             fnd_info = prefix + task.info[pos:pos+200] + ' ...'
+                #         task.found = strong.join(fnd_info.split(query))
+                grp_id, name = self.get_sub_group(task)
+                group = self.find_sub_group(sub_groups, grp_id, name)
+                group['items'].append(task)
+            self.save_sub_groups(sub_groups)
+            context['sub_groups'] = sorted(sub_groups, key = lambda group: group['id'])
 
         search_qty = None
-        if query:
-            search_qty = len(tasks)
+        # if query:
+        #     search_qty = len(tasks)
         context.update(self.get_app_context(self.request.user.id, search_qty, icon=self.config.view_icon, nav_items=self.get_nav_items()))
 
         if self.config.view_sorts:
@@ -425,7 +422,8 @@ class BaseListView(ListView, Context):
         cur_group.save()
 
     def get_sub_group(self, task):
-        if not self.config.use_sub_groups or not self.config.cur_view_group.use_sub_groups:
+        use_sub_groups = self.config.use_sub_groups and self.config.cur_view_group.use_sub_groups
+        if not use_sub_groups:
             return 0, ''
         if (task.app_apart == NUM_ROLE_PRICE):
             return task.price_service, APART_SERVICE[task.price_service]
@@ -471,8 +469,23 @@ class BaseListView(ListView, Context):
             return data
         return self.sort_data(data, self.config.cur_view_group.items_sort)
 
+    def get_base_dataset(self):
+        nav_role = Task.get_nav_role(self.config.app)
+        if nav_role and (nav_role != self.config.get_cur_role()):
+            if (self.config.group_entity in self.request.GET):
+                active_nav_item_id = self.request.GET[self.config.group_entity]
+                Task.set_active_nav_item(self.request.user.id, self.config.app, active_nav_item_id)
+        self.config.set_view(self.request)
+        query = None
+        if (self.request.method == 'GET'):
+            query = self.request.GET.get('q')
+        nav_item = None
+        if nav_role and (nav_role != self.config.get_cur_role()):
+            nav_item = Task.get_active_nav_item(self.request.user.id, self.config.app)
+        return self.get_dataset(self.config.cur_view_group, query, nav_item)
+
     def get_filtered_items(self, query):
-        ret = self.get_queryset()
+        ret = self.get_base_dataset()
         search_mode = get_search_mode(query)
         lookups = None
         if (search_mode == 0):

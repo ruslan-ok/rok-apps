@@ -269,6 +269,13 @@ class Task(models.Model):
     repl_descr = models.CharField(_('name'), max_length=1000, null=True, blank=True)
     #------------- Health --------------
     diagnosis = models.CharField(_('diagnosis'), max_length=1000, blank=True)
+    bio_height = models.IntegerField(_('height, cm'), blank=True, null=True)
+    bio_weight = models.DecimalField(_('weight, kg'), blank=True, null=True, max_digits=5, decimal_places=1)
+    bio_temp = models.DecimalField(_('temperature'), blank=True, null=True, max_digits=4, decimal_places=1)
+    bio_waist = models.IntegerField(_('waist circumference'), blank=True, null=True)
+    bio_systolic = models.IntegerField(_('systolic blood pressure'), blank=True, null=True)
+    bio_diastolic = models.IntegerField(_('diastolic blood pressure'), blank=True, null=True)
+    bio_pulse = models.IntegerField(_('the number of heartbeats per minute'), blank=True, null=True)
     # -------------
     class Meta:
         verbose_name = _('task')

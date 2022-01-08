@@ -33,7 +33,7 @@ class DetailView(BaseDetailView, TuneData):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        form.instance.name = get_serv_name(form.instance.task_2, form.instance.event)
+        form.instance.name = get_item_name(form.instance.task_2, form.instance.event)
         form.instance.save()
         form.instance.set_item_attr(app, get_info(form.instance))
         return response
@@ -78,7 +78,7 @@ def get_info(item):
     ret = {'attr': attr}
     return ret
 
-def get_serv_name(part, event):
+def get_item_name(part, event):
     name = event.strftime('%Y.%m.%d')
     if part and part.name:
         name += ' ' + part.name
@@ -91,7 +91,7 @@ def add_serv(user, car, part_id):
             part = Task.objects.filter(id=part_id).get()
     event = datetime.now()
     odometr = get_new_odometr(car)
-    name = get_serv_name(part, event)
+    name = get_item_name(part, event)
     task = Task.objects.create(user=user, app_fuel=NUM_ROLE_SERVICE, name=name, event=event, task_1=car, task_2=part, car_odometr=odometr)
     return task
 
