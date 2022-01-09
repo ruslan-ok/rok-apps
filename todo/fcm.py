@@ -4,7 +4,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
-from task.models import Task, Subscription
+from task.models import Task
+from todo.models import Subscription
 #from .views import complete_task
 
 #----------------------------------

@@ -6,6 +6,10 @@ from django.utils.crypto import get_random_string
 
 from todo.models import Lst
 from task.models import Task
+from hier.models import Folder, Lst
+from v2_hier.categories import get_categories_list
+
+app_name = 'store'
 
 #----------------------------------
 # deprecated
@@ -16,6 +20,12 @@ class Group(models.Model):
     uuid = models.CharField(_('UUID'), max_length=100, blank = True)
     creation = models.DateTimeField(_('creation time'), null = True, auto_now_add = True)
     last_mod = models.DateTimeField(_('last modification time'), null = True, auto_now = True)
+
+    def __str__(self):
+        return self.name
+
+    def qty(self):
+        return len(Entry.objects.filter(group = self.id))
  
 
 #----------------------------------
@@ -35,7 +45,6 @@ class Entry(models.Model):
     categories = models.CharField(_('categories'), max_length = 2000, blank = True, default = '', null = True)
     params = models.IntegerField(_('generator parameters used'), default = 0, null = True)
     lst = models.ForeignKey(Lst, on_delete = models.CASCADE, verbose_name = _('list'), blank = True, null = True)
-    task = models.ForeignKey(Task, on_delete=models.SET_NULL, verbose_name=_('task for entry'), related_name = 'task_store', null=True)
     hist = models.DateTimeField(_('when archived'), null=True)
 
     @classmethod
@@ -98,11 +107,56 @@ class Entry(models.Model):
         ret_value = get_random_string(params.ln, allowed_chars)
         return ret_params, params.un, ret_value
 
+    def __str__(self):
+        return self.title
+
+    def name(self):
+        return self.title
+
+    def marked_item(self):
+        return (self.actual != 1)
+
+    def have_notes(self):
+        if (self.notes == None) or (self.notes == ''):
+            return ''
+        else:
+            return '@'
+
+    def get_info(item):
+        ret = []
+        
+        if item.lst: # and (app_param.restriction != 'list'):
+            ret.append({'text': item.lst.name})
+    
+        if item.username:
+            if (len(ret) > 0):
+                ret.append({'icon': 'separator'})
+            ret.append({'text': item.username})
+    
+        if item.notes:
+            if (len(ret) > 0):
+                ret.append({'icon': 'separator'})
+            ret.append({'icon': 'notes'})
+    
+        if item.categories:
+            if (len(ret) > 0):
+                ret.append({'icon': 'separator'})
+            categs = get_categories_list(item.categories)
+            for categ in categs:
+                ret.append({'icon': 'category', 'text': categ.name, 'color': 'category-design-' + categ.design})
+    
+        return ret
+
+
 #----------------------------------
 # deprecated
 class History(models.Model):
     node = models.ForeignKey(Entry, verbose_name = _('node'), on_delete = models.CASCADE, related_name='node')
     data = models.ForeignKey(Entry, verbose_name = _('entry'), on_delete = models.CASCADE, related_name='data')
+
+    def __str__(self):
+        return self.node.name
+
 
 #----------------------------------
 class Params(models.Model):
@@ -117,4 +171,9 @@ class Params(models.Model):
     ul = models.BooleanField(_('underline').capitalize(), default = True)
     ac = models.BooleanField(_('avoid confusion').capitalize(), default = True)
     un = models.CharField(_('default username'), max_length=150, blank=True, default='')
+
+    class Meta:
+        verbose_name = _('user settings')
+        verbose_name_plural = _('user settings')
+
 

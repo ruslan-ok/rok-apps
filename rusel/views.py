@@ -10,7 +10,8 @@ from rusel.context import get_base_context
 #from rusel.site_stat import get_site_stat
 
 from task.const import APP_HOME, ROLE_ACCOUNT
-from task.models import Task, VisitedHistory
+from task.models import Task
+from hier.models import VisitedHistory
 from rusel.base.views import BaseListView
 from rusel.config import app_config
 from rusel.context import MAX_LAST_VISITED

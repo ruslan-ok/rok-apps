@@ -1,7 +1,8 @@
 from datetime import datetime
 from django.utils.translation import gettext_lazy as _
 from rusel.apps import get_apps_list
-from task.models import Group, VisitedHistory
+from hier.models import VisitedHistory
+from task.models import Group
 from task.const import APP_HOME, APP_NAME
 
 MAX_LAST_VISITED = 10

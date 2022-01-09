@@ -1,0 +1,33 @@
+{% extends "v2_hier/list.html" %}
+{% load static i18n %}
+
+{% block actions %}
+  <button type="submit" name="item-add"><img class="img-20_20" src="{% static 'v2/rok/icon/add-gray.png' %}">{% trans 'add department history record'|capfirst %}</button>
+{% endblock %}
+
+{% block article_content %}
+  <div class="header">
+    <div class="section">
+      <div class="row field-error"> {{ form.dBeg.errors }} </div>
+      <div class="section-item">
+        <div class="section-inner">
+          {{ form.dBeg.label_tag }}
+          {{ form.dBeg }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="section">
+      <div class="section-item">
+        <div class="section-inner">
+          {{ form.node.errors }}
+          {{ form.node.label_tag }}
+          {{ form.node }}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+

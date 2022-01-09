@@ -1,0 +1,11 @@
+{% load static %}
+  <nav id="launcher">
+    <div class="launcher-top">
+      <button class="button launcher-icon" onclick="launcherClose()"><img src="{% static 'v2/rok/icon/apps-black.png' %}"></button>
+    </div>
+    <div class="launcher-menu">
+      {% for app in apps %}
+        <a href="{{ app.href }}" class="launcher-button"><img src="{% static app.icon %}"><span class="marked">{{ app.name }}</span></a>
+      {% endfor %}
+    </div>
+  </nav>

@@ -1,0 +1,27 @@
+{% extends "task/tree.html" %}
+{% load static i18n %}
+{% load rest_framework %}
+
+{% block extrastyle %}
+  <link rel="stylesheet" type="text/css" href="{% static 'v2/todo/css/todo.css' %}">
+{% endblock %}
+
+{% block article_info %}
+  {{ item_info }}
+{% endblock %}
+
+{% block article_content %}
+  {% csrf_token %}
+  {% if serializer %}
+    {% render_form serializer %}
+  {% endif %}
+{% endblock %}
+
+
+{% block scripts %}
+  {{ block.super }}
+  <script src="{% static 'v2/rok/js/resize.js' %}"></script>
+  <script src="{% static 'v2/rok/js/uploads.js' %}"></script>
+  <script src="{% static 'v2/rok/js/categories.js' %}"></script>
+{% endblock %}
+

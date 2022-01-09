@@ -771,52 +771,10 @@ class Urls(models.Model):
             return self.title
         return self.href
 
-class Subscription(models.Model):
-    user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'todo_subscription_user')
-    token = models.CharField(_('user device token'), max_length=200, blank=False)
-
-    class Meta:
-        verbose_name = _('subscription')
-        verbose_name_plural = _('subscriptions')
-
-    def __str__(self):
-        return self.user.username + ': ' + self.token
-
 def currency_repr(value, currency):
     if (round(value, 2) % 1):
         return '{:,.2f}{}'.format(value, currency).replace(',', '`')
     return '{:,.0f}{}'.format(value, currency).replace(',', '`')
 
 
-class VisitedHistory(models.Model):
-    user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'visit_user')
-    stamp = models.DateTimeField(_('visit time'), null=False)
-    url = models.CharField(_('visited url'), max_length=200, blank=True)
-    app = models.CharField(_('visited application'), max_length=200, blank=True)
-    page = models.CharField(_('visited page'), max_length=200, blank=True)
-    info = models.CharField(_('page info'), max_length=200, blank=True)
-    icon = models.CharField(_('page icon'), max_length=20, blank=True, null=True)
 
-    class Meta:
-        verbose_name = _('visited page')
-        verbose_name_plural = _('visited pages')
-
-    def __str__(self):
-        return self.app + ' - ' + self.page
-    
-    def title(self):
-        if not self.page and not self.info:
-            title = ''
-        if self.page and not self.info:
-            title = self.page
-        if not self.page and self.info:
-            title = self.info
-        if self.page and self.info:
-            title = '{} [{}]'.format(self.page, self.info)
-        if not title:
-            return _(self.app).capitalize()
-        else:
-            return _(self.app).capitalize() + ' - ' + title
-        
-    def reverse_url(self):
-        return self.url
