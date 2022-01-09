@@ -158,8 +158,6 @@ class TaskViewSet(viewsets.ModelViewSet):
             task = add_marker(request.user, name)
         if (app == APP_HEALTH) and (role == ROLE_INCIDENT):
             task = Task.objects.create(user=request.user, app_health=NUM_ROLE_INCIDENT, name=name, event=datetime.now())
-        if (app == APP_HEALTH) and (role == ROLE_ANAMNESIS):
-            task = Task.objects.create(user=request.user, app_health=NUM_ROLE_ANAMNESIS, name=name, event=datetime.now())
         if (app == APP_WORK) and (role == ROLE_PERIOD):
             task = Task.objects.create(user=request.user, app_work=NUM_ROLE_PERIOD, name=name, event=datetime.now())
         if (app == APP_WORK) and (role == ROLE_DEPARTMENT):
@@ -538,8 +536,6 @@ class TaskViewSet(viewsets.ModelViewSet):
             task.app_health = NUM_ROLE_MARKER
         if (role == ROLE_INCIDENT):
             task.app_health = NUM_ROLE_INCIDENT
-        if (role == ROLE_ANAMNESIS):
-            task.app_health = NUM_ROLE_ANAMNESIS
         if (role == ROLE_PERIOD):
             task.app_work = NUM_ROLE_PERIOD
         if (role == ROLE_DEPARTMENT):
@@ -623,7 +619,7 @@ class TaskViewSet(viewsets.ModelViewSet):
                 Bill.objects.filter(task=task.id).delete()
             task.app_apart = NONE
         
-        if (role in [ROLE_MARKER, ROLE_INCIDENT, ROLE_ANAMNESIS]):
+        if (role in [ROLE_MARKER, ROLE_INCIDENT, ROLE_CHART]):
             task.app_health = NONE
         
         if (role in [ROLE_PERIOD, ROLE_DEPARTMENT, ROLE_DEP_HIST, ROLE_POST, ROLE_EMPLOYEE, ROLE_FIO_HIST,

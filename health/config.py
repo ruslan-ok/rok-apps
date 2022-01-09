@@ -15,11 +15,6 @@ app_config = {
                 ('event', 'event date'),
             ],
         },
-        'chart': {
-            'icon': 'graph-up', 
-            'title': 'charts',
-            'hide_qty': True,
-        },
         'incident': {
             'role': ROLE_INCIDENT,
             'icon': 'thermometer-half', 
@@ -28,6 +23,24 @@ app_config = {
                 ('name', 'name'),
                 ('start', 'period'),
             ],
+        },
+        'weight': {
+            'role': ROLE_CHART_WEIGHT,
+            'icon': 'graph-up', 
+            'title': 'weight chart',
+            'hide_qty': True,
+        },
+        'waist': {
+            'role': ROLE_CHART_WAIST,
+            'icon': 'graph-up', 
+            'title': 'waist chart',
+            'hide_qty': True,
+        },
+        'temp': {
+            'role': ROLE_CHART_TEMP,
+            'icon': 'graph-up', 
+            'title': 'temperature chart',
+            'hide_qty': True,
         },
     }
 }

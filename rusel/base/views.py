@@ -167,7 +167,7 @@ class Context:
 
     def get_app_context(self, user_id, search_qty=None, icon=None, nav_items=None, **kwargs):
         context = {}
-        if self.object:
+        if hasattr(self, 'object') and self.object:
             title = self.object.name
         else:
             title = _(self.config.title).capitalize()
@@ -177,7 +177,7 @@ class Context:
             if nav_item:
                 title = (title, nav_item.name)
                 context['nav_item'] = nav_item
-        context.update(get_base_context(self.request, self.config.app, self.config.get_cur_role(), self.config.cur_view_group, (self.object != None), title, icon=icon))
+        context.update(get_base_context(self.request, self.config.app, self.config.get_cur_role(), self.config.cur_view_group, (hasattr(self, 'object') and self.object != None), title, icon=icon))
         context['fix_list'] = self.get_fixes(self.config.views, search_qty)
         context['group_form'] = CreateGroupForm()
         context['config'] = self.config
@@ -269,7 +269,10 @@ class Context:
             if (not group.completed):
                 data = data.filter(completed=False)
         
-        return self.tune_dataset(data, group)
+        if hasattr(self, 'tune_dataset'):
+            return self.tune_dataset(data, group)
+
+        return data
 
     def get_nav_items(self):
         nav_role = Task.get_nav_role(self.config.app)

@@ -55,7 +55,6 @@ KIND_EXPEN = 7 # Project for Expenses
 KIND_TRIP = 8 # Trips Group
 KIND_CAR = 9 # Car for Fueling, Part and Service
 KIND_APART = 10 # Apartment for Service, Meter, Price and Bill
-KIND_ANAMN = 11 # Anamnesis for a Health Incident
 
 KIND_CHOICE = [(KIND_TASK, _('tasks')),
                 (KIND_NOTE, _('notes')),
@@ -67,7 +66,6 @@ KIND_CHOICE = [(KIND_TASK, _('tasks')),
                 (KIND_TRIP, _('trips')),
                 (KIND_CAR, _('list is a car')),
                 (KIND_APART, _('list is an apartment')),
-                (KIND_ANAMN, _('list is an anamnesis')),
                 ]
 
 DAILY = 1
@@ -122,7 +120,7 @@ NUM_ROLE_PRICE = 17
 NUM_ROLE_BILL = 18
 NUM_ROLE_MARKER = 19 
 NUM_ROLE_INCIDENT = 20 
-NUM_ROLE_ANAMNESIS = 21
+NUM_ROLE_CHART_WEIGHT = 21
 NUM_ROLE_PERIOD = 22 
 NUM_ROLE_DEPARTMENT = 23
 NUM_ROLE_DEP_HIST = 24 
@@ -137,6 +135,8 @@ NUM_ROLE_PAY_TITLE = 32
 NUM_ROLE_PAYMENT = 33 
 NUM_ROLE_PHOTO = 34
 NUM_ROLE_ACCOUNT = 35
+NUM_ROLE_CHART_WAIST = 36
+NUM_ROLE_CHART_TEMP = 37
 
 ROLE_TODO        = 'todo'            
 ROLE_NOTE        = 'note'            
@@ -158,7 +158,9 @@ ROLE_PRICE       = 'price'
 ROLE_BILL        = 'bill'      
 ROLE_MARKER      = 'marker'   
 ROLE_INCIDENT    = 'incident' 
-ROLE_ANAMNESIS   = 'anamnesis'
+ROLE_CHART_WEIGHT= 'weight'
+ROLE_CHART_WAIST = 'waist'
+ROLE_CHART_TEMP  = 'temp'
 ROLE_PERIOD      = 'period'     
 ROLE_DEPARTMENT  = 'department'     
 ROLE_DEP_HIST    = 'dep_hist'   
@@ -195,7 +197,9 @@ ALL_ROLES = (
     ROLE_BILL,       
     ROLE_MARKER,    
     ROLE_INCIDENT,  
-    ROLE_ANAMNESIS, 
+    ROLE_CHART_WEIGHT,
+    ROLE_CHART_WAIST,
+    ROLE_CHART_TEMP,
     ROLE_PERIOD,      
     ROLE_DEPARTMENT,      
     ROLE_DEP_HIST,    
@@ -225,7 +229,7 @@ ROLES_IDS = {
     APP_TRIP: { ROLE_PERSON: NUM_ROLE_PERSON, ROLE_TRIP: NUM_ROLE_TRIP, ROLE_SALDO: NUM_ROLE_SALDO },
     APP_FUEL: { ROLE_FUEL: NUM_ROLE_FUEL, ROLE_PART: NUM_ROLE_PART, ROLE_SERVICE: NUM_ROLE_SERVICE, ROLE_CAR: NUM_ROLE_CAR },
     APP_APART: { ROLE_APART: NUM_ROLE_APART, ROLE_METER: NUM_ROLE_METER, ROLE_PRICE: NUM_ROLE_PRICE, ROLE_BILL: NUM_ROLE_BILL },
-    APP_HEALTH: { ROLE_MARKER: NUM_ROLE_MARKER, ROLE_INCIDENT: NUM_ROLE_INCIDENT, ROLE_ANAMNESIS: NUM_ROLE_ANAMNESIS },
+    APP_HEALTH: { ROLE_MARKER: NUM_ROLE_MARKER, ROLE_INCIDENT: NUM_ROLE_INCIDENT, ROLE_CHART_WEIGHT: NUM_ROLE_CHART_WEIGHT, ROLE_CHART_WAIST: NUM_ROLE_CHART_WAIST, ROLE_CHART_TEMP: NUM_ROLE_CHART_TEMP },
     APP_WORK: { ROLE_PERIOD: NUM_ROLE_PERIOD, ROLE_DEPARTMENT: NUM_ROLE_DEPARTMENT, ROLE_DEP_HIST: NUM_ROLE_DEP_HIST, 
                 ROLE_POST: NUM_ROLE_POST, ROLE_EMPLOYEE: NUM_ROLE_EMPLOYEE, ROLE_FIO_HIST: NUM_ROLE_FIO_HIST, 
                 ROLE_CHILDREN: NUM_ROLE_CHILD, ROLE_APPOINTMENT: NUM_ROLE_APPOINTMENT, ROLE_EDUCATION: NUM_ROLE_EDUCATION, 
@@ -247,7 +251,7 @@ EXPEN_ROLE_CHOICE  = [(NONE, '--------'), (NUM_ROLE_EXPENSE, _('operation'))]
 TRIP_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_PERSON, _('person')), (NUM_ROLE_TRIP, _('trip')), (NUM_ROLE_SALDO, _('saldo'))]
 FUEL_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_CAR, _('cars')), (NUM_ROLE_FUEL, _('fueling')), (NUM_ROLE_PART, _('car part service interval')), (NUM_ROLE_SERVICE, _('service'))]
 APART_ROLE_CHOICE  = [(NONE, '--------'), (NUM_ROLE_APART, _('apartment')), (NUM_ROLE_SERVICE, _('service')), (NUM_ROLE_METER, _('meter')), (NUM_ROLE_PRICE, _('price')), (NUM_ROLE_BILL, _('bill'))]
-HEALTH_ROLE_CHOICE = [(NONE, '--------'), (NUM_ROLE_MARKER, _('marker')), (NUM_ROLE_INCIDENT, _('incident')), (NUM_ROLE_ANAMNESIS, _('anamnesis'))]
+HEALTH_ROLE_CHOICE = [(NONE, '--------'), (NUM_ROLE_MARKER, _('marker')), (NUM_ROLE_INCIDENT, _('incident')), (NUM_ROLE_CHART_WEIGHT, _('chart_weight')), (NUM_ROLE_CHART_WAIST, _('chart_waist')), (NUM_ROLE_CHART_TEMP, _('chart_temp'))]
 WORK_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_PERIOD, _('period')), (NUM_ROLE_DEPARTMENT, _('department')), (NUM_ROLE_DEP_HIST, _('department history')), 
                         (NUM_ROLE_POST, _('post')), (NUM_ROLE_EMPLOYEE, _('employee')), (NUM_ROLE_FIO_HIST, _('surname history')), (NUM_ROLE_CHILD, _('child')), 
                         (NUM_ROLE_APPOINTMENT, _('appointment')), (NUM_ROLE_EDUCATION, _('education')), (NUM_ROLE_EMPL_PER, _('periods for employee')),
@@ -275,7 +279,9 @@ ROLE_BY_NUM = {
     NUM_ROLE_BILL         : ROLE_BILL        , 
     NUM_ROLE_MARKER       : ROLE_MARKER      , 
     NUM_ROLE_INCIDENT     : ROLE_INCIDENT    , 
-    NUM_ROLE_ANAMNESIS    : ROLE_ANAMNESIS   , 
+    NUM_ROLE_CHART_WEIGHT : ROLE_CHART_WEIGHT,
+    NUM_ROLE_CHART_WAIST  : ROLE_CHART_WAIST ,
+    NUM_ROLE_CHART_TEMP   : ROLE_CHART_TEMP  ,
     NUM_ROLE_PERIOD       : ROLE_PERIOD      , 
     NUM_ROLE_DEPARTMENT   : ROLE_DEPARTMENT  , 
     NUM_ROLE_DEP_HIST     : ROLE_DEP_HIST    , 
@@ -313,7 +319,9 @@ ROLE_ICON = {
     ROLE_BILL: 'receipt',
     ROLE_MARKER: 'heart',
     ROLE_INCIDENT: 'termometer-half',
-    ROLE_ANAMNESIS: 'info-square',
+    ROLE_CHART_WEIGHT: 'info-square',
+    ROLE_CHART_WAIST: 'info-square',
+    ROLE_CHART_TEMP: 'info-square',
     ROLE_PERIOD: 'calendar-range',
     ROLE_DEPARTMENT: 'door-closed',
     ROLE_DEP_HIST: 'clock-history',
@@ -340,7 +348,9 @@ ROLE_BASE = {
     ROLE_PRICE: ROLE_APART,
     ROLE_BILL: ROLE_APART,
     ROLE_INCIDENT: ROLE_MARKER,
-    ROLE_ANAMNESIS: ROLE_MARKER,
+    ROLE_CHART_WEIGHT: ROLE_MARKER,
+    ROLE_CHART_WAIST: ROLE_MARKER,
+    ROLE_CHART_TEMP: ROLE_MARKER,
     ROLE_DEPARTMENT: ROLE_PERIOD,
     ROLE_DEP_HIST: ROLE_PERIOD,
     ROLE_POST: ROLE_PERIOD,
@@ -375,7 +385,9 @@ ROLE_APP = {
     ROLE_BILL: APP_APART,
     ROLE_MARKER: APP_HEALTH,
     ROLE_INCIDENT: APP_HEALTH,
-    ROLE_ANAMNESIS: APP_HEALTH,
+    ROLE_CHART_WEIGHT: APP_HEALTH,
+    ROLE_CHART_WAIST: APP_HEALTH,
+    ROLE_CHART_TEMP: APP_HEALTH,
     ROLE_PERIOD: APP_WORK,
     ROLE_DEPARTMENT: APP_WORK,
     ROLE_DEP_HIST: APP_WORK,
