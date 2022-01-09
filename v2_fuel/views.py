@@ -12,8 +12,8 @@ from v2_hier.utils import get_base_context_ext, process_common_commands, extract
 from v2_hier.params import set_article_visible, set_article_kind, set_restriction, get_search_mode, get_search_info
 from hier.models import get_app_params
 from v2_hier.aside import Fix
-from .models import app_name, CARS, FUEL, INTR, SRVC
-from .models import Car, set_active, Fuel, Part, Repl, consumption
+from fuel.models import app_name, CARS, FUEL, INTR, SRVC
+from fuel.models import Car, set_active, Fuel, Part, Repl, consumption
 from .forms import CarForm, FuelForm, PartForm, ReplForm
 
 items_per_page = 10

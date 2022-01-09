@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.admin.widgets import AdminSplitDateTime
 from django.utils.translation import gettext_lazy as _
 
-from .models import Car, Fuel, Part, Repl
+from fuel.models import Car, Fuel, Part, Repl
 
 
 #----------------------------------

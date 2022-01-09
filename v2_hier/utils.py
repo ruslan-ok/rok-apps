@@ -29,20 +29,20 @@ NAVBAR_BUTTONS = [
 
 APPS = {
     'home':    ('home',        '/'),
-    'todo':    ('application', '/todo/'),
-    'note':    ('note',        '/note/'),
-    'news':    ('news',        '/news/'),
-    'store':   ('key',         '/store/'),
-    'proj':    ('cost',        '/proj/'),
-    'trip':    ('car',         '/trip/'),
-    'fuel':    ('gas',         '/fuel/'),
-    'apart':   ('apartment',   '/apart/'),
-    'wage':    ('work',        '/wage/'),
-    'photo':   ('photo',       '/photo/'),
-    'health':  ('health',      '/health/'),
+    'todo':    ('application', '/v2_todo/'),
+    'note':    ('note',        '/v2_note/'),
+    'news':    ('news',        '/v2_news/'),
+    'store':   ('key',         '/v2_store/'),
+    'proj':    ('cost',        '/v2_proj/'),
+    'trip':    ('car',         '/v2_trip/'),
+    'fuel':    ('gas',         '/v2_fuel/'),
+    'apart':   ('apartment',   '/v2_apart/'),
+    'wage':    ('work',        '/v2_wage/'),
+    'photo':   ('photo',       '/v2_photo/'),
+    'health':  ('health',      '/v2_health/'),
     'admin':   ('admin',       '/admin/'),
-    'profile': ('user',        '/account/profile/'),
-    'logout':  ('exit',        '/account/logout/'),
+    'profile': ('user',        '/v2_account/profile/'),
+    'logout':  ('exit',        '/v2_account/logout/'),
 }
 
 #----------------------------------

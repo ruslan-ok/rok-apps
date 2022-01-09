@@ -16,7 +16,7 @@ from v2_hier.aside import Fix
 from v2_hier.utils import get_base_context_ext, process_common_commands, sort_data, extract_get_params
 from v2_hier.params import get_search_mode, get_search_info, set_restriction, set_article_kind, set_article_visible
 from v2_hier.files import service_path
-from .models import app_name, Biomarker, Incident, Anamnesis
+from health.models import app_name, Biomarker, Incident, Anamnesis
 from .forms import BiomarkerForm, IncidentForm
 from .plot import Plot
 from .secret import imp_file

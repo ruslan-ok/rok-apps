@@ -152,7 +152,10 @@ def do_entry_list(request):
         context['sort_mode'] = SORT_MODE_DESCR[app_param.sort].capitalize()
 
     if (app_param.restriction == 'default'):
-        context['form_title'] = _(title).capitalize()
+        if type(title) is tuple:
+            context['form_title'] = _(title[0]).capitalize()
+        else:
+            context['form_title'] = _(title).capitalize()
         context['form'] = form
 
     redirect = False

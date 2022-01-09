@@ -2,7 +2,7 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 from django.contrib.admin.widgets import AdminSplitDateTime
 from v2_hier.forms import DateInput
-from .models import app_name, Biomarker, Incident
+from health.models import app_name, Biomarker, Incident
 
 #----------------------------------
 class BiomarkerForm(forms.ModelForm):

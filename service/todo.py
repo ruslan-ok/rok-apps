@@ -62,8 +62,8 @@ def remind_one_task(log, db, task):
         priority = 'high'
     else:
         priority = 'normal'
-    myicon = 'https://rusel.by/static/rok/img/test-192.png'
-    mybadge = 'https://rusel.by/static/rok/img/test-72.png'
+    myicon = 'https://rusel.by/static/v2/rok/img/test-192.png'
+    mybadge = 'https://rusel.by/static/v2/rok/img/test-72.png'
     click_action = 'https://rusel.by/todo/' + str(task['id']) + '/'
     an = messaging.AndroidNotification(title = task['name'], body = body, icon = myicon, color = None, sound = None, tag = None, click_action = click_action, body_loc_key = None, \
                                        body_loc_args = None, title_loc_key = None, title_loc_args = None, channel_id = None, image = None, ticker = None, sticky = None, \

@@ -170,7 +170,7 @@ class Params(models.Model):
     mi = models.BooleanField(_('minus').capitalize(), default = True)
     ul = models.BooleanField(_('underline').capitalize(), default = True)
     ac = models.BooleanField(_('avoid confusion').capitalize(), default = True)
-    un = models.CharField(_('default username'), max_length=150, blank=True, default='')
+    un = models.CharField(_('default username'), max_length=160, blank=True, default='')
 
     class Meta:
         verbose_name = _('user settings')
