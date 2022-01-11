@@ -1,3 +1,4 @@
+import os, shutil
 from datetime import datetime
 from todo.models import Grp, Lst, Task as OldTask, Step as OldStep
 from note.models import Note
@@ -29,20 +30,24 @@ from fuel.views.fuel import get_item_name as get_fuel_name
 from fuel.views.serv import get_item_name as get_serv_name
 from health.views.marker import get_item_name as get_marker_name
 
+from rusel.secret import storage_dvlp #, storage_prod, service_dvlp, service_prod, folder_dvlp, folder_prod
+
+storage_path = storage_dvlp
+
 STAGES = {
-    APP_TODO:   0,
-    APP_NOTE:   0,
-    APP_NEWS:   0,
-    APP_STORE:  0,
-    APP_EXPEN:  0,
-    APP_TRIP:   0,
-    APP_FUEL:   0,
-    APP_APART:  0,
-    APP_WORK:   0,
+    APP_TODO:   1,
+    APP_NOTE:   1,
+    APP_NEWS:   1,
+    APP_STORE:  1,
+    APP_EXPEN:  1,
+    APP_TRIP:   1,
+    APP_FUEL:   1,
+    APP_APART:  1,
+    APP_WORK:   1,
     APP_HEALTH: 1,
-    APP_DOCS:   0,
-    APP_WARR:   0,
-    APP_PHOTO:  0,
+    APP_DOCS:   1,
+    APP_WARR:   1,
+    APP_PHOTO:  1,
 }
 
 def convert_v3():
@@ -72,15 +77,16 @@ def inc(result, app, role, table, oper):
         result[app][role][table][oper] += 1
 
 def get_excluded(app, kind):
-    if (app != APP_TODO):
-        return []
-    leave_groups = Group.objects.filter(name__contains='Сайт 3.0')
-    if (kind == 'Group'):
-        return leave_groups
-    leave_tgs = TaskGroup.objects.filter(role=ROLE_TODO).filter(group__in=leave_groups)
-    if (kind == 'TaskGroup'):
-        return leave_tgs
-    return leave_tgs.values('task')
+    return []
+    # if (app != APP_TODO):
+    #     return []
+    # leave_groups = Group.objects.filter(name__contains='Сайт 3.0')
+    # if (kind == 'Group'):
+    #     return leave_groups
+    # leave_tgs = TaskGroup.objects.filter(role=ROLE_TODO).filter(group__in=leave_groups)
+    # if (kind == 'TaskGroup'):
+    #     return leave_tgs
+    # return leave_tgs.values('task')
 
 def delete_task_role(app, role, result):
     data = Task.get_role_tasks(None, app, role).exclude(id__in=get_excluded(app, 'Task'))
@@ -176,7 +182,7 @@ def done(result):
 def transfer_grp(result, app, role, grp_node, task_grp_node):
     grps = Grp.objects.filter(app=app, node=grp_node)
     for grp in grps:
-        task_grp = Group.objects.create(user=grp.user, app=grp.app, role=grp.app, node=task_grp_node, name=grp.name, sort=grp.sort, created=grp.created, last_mod=grp.last_mod)
+        task_grp = Group.objects.create(user=grp.user, app=grp.app, role=grp.app, node=task_grp_node, name=grp.name, sort=grp.sort, created=grp.created, last_mod=grp.last_mod, act_items_qty=0)
         inc(result, app, role, 'Group', 'added')
         transfer_grp(result, app, role, grp, task_grp)
         transfer_lst(result, app, role, grp, task_grp)
@@ -192,7 +198,9 @@ def transfer_lst(result, app, role, grp, task_grp):
                                          name=lst.name, 
                                          sort=lst.sort, 
                                          created=lst.created, 
-                                         last_mod=lst.last_mod)
+                                         last_mod=lst.last_mod,
+                                         act_items_qty=0,
+                                         )
         inc(result, app, role, 'Group', 'added')
         if (role == ROLE_TODO):
             transfer_task(result, lst, task_grp_)
@@ -231,12 +239,16 @@ def transfer_task(result, lst, task_grp):
         
         if task_grp:
             TaskGroup.objects.create(task=atask, group=task_grp, role=task_grp.role)
+            if not atask.completed:
+                task_grp.act_items_qty += 1
+                task_grp.save()
             inc(result, APP_TODO, ROLE_TODO, 'TaskGroup', 'added')
         
         if task.url:
             Urls.objects.create(task=atask, num=1, href=task.url)
             inc(result, APP_TODO, ROLE_TODO, 'Urls', 'added')
-
+        
+        copy_attachments(task.user.id, 'todo', 'task', task.id, APP_TODO, ROLE_TODO, atask.id)
         atask.set_item_attr(APP_TODO, todo_get_info(atask))
 
 def transfer_note(result, app, role, lst, task_grp):
@@ -266,12 +278,16 @@ def transfer_note(result, app, role, lst, task_grp):
         
         if task_grp:
             TaskGroup.objects.create(task=atask, group=task_grp, role=task_grp.role)
+            if not atask.completed:
+                task_grp.act_items_qty += 1
+                task_grp.save()
             inc(result, app, role, 'TaskGroup', 'added')
 
         if note.url:
             Urls.objects.create(task=atask, num=1, href=note.url)
             inc(result, app, role, 'Urls', 'added')
 
+        copy_attachments(note.user.id, 'note', note.kind, note.id, APP_NOTE, ROLE_NOTE, atask.id)
         if note.kind == 'note':
             atask.set_item_attr(APP_NOTE, note_get_info(atask))
         else:
@@ -285,14 +301,14 @@ def transfer_apart(result):
                                     app_apart=NUM_ROLE_APART,
                                     name=item.name,
                                     info=item.addr if item.addr else '',
-                                    apart_has_el=item.has_el,
-                                    apart_has_hw=item.has_hw,
-                                    apart_has_cw=item.has_cw,
+                                    apart_has_el=True, #item.has_el,
+                                    apart_has_hw=True, #item.has_hw,
+                                    apart_has_cw=True, #item.has_cw,
                                     apart_has_gas=item.has_gas,
                                     apart_has_ppo=item.has_ppo,
-                                    apart_has_tv=item.has_tv,
-                                    apart_has_phone=item.has_phone,
-                                    apart_has_zkx=item.has_zkx,
+                                    apart_has_tv=False, #item.has_tv,
+                                    apart_has_phone=False, #item.has_phone,
+                                    apart_has_zkx=False, #item.has_zkx,
                                     )
         inc(result, APP_APART, ROLE_APART, 'Task', 'added')
         item.task = atask
@@ -385,6 +401,7 @@ def transfer_bill(result):
             Urls.objects.create(task=atask, num=1, href=item.url)
             inc(result, APP_APART, ROLE_BILL, 'Urls', 'added')
 
+        copy_attachments(item.apart.user.id, 'apart', 'bill', item.id, APP_APART, ROLE_BILL, atask.id)
         atask.set_item_attr(APP_APART, bill_get_info(atask))
 
 def transfer_store(result, lst, task_grp):
@@ -409,6 +426,9 @@ def transfer_store(result, lst, task_grp):
         
         if task_grp:
             TaskGroup.objects.create(task=atask, group=task_grp, role=task_grp.role)
+            if not atask.completed:
+                task_grp.act_items_qty += 1
+                task_grp.save()
             inc(result, APP_STORE, ROLE_STORE, 'TaskGroup', 'added')
 
         if item.url:
@@ -460,6 +480,9 @@ def transfer_store(result, lst, task_grp):
             
             if task_grp:
                 TaskGroup.objects.create(task=atask, group=task_grp, role=task_grp.role)
+                if not atask.completed:
+                    task_grp.act_items_qty += 1
+                    task_grp.save()
                 inc(result, APP_STORE, ROLE_STORE, 'TaskGroup', 'added')
 
             if item.url:
@@ -483,6 +506,7 @@ def transfer_expen_proj(result):
                             expen_byn=item.tot_byn,
                             expen_usd=item.tot_usd,
                             expen_eur=item.tot_eur,
+                            act_items_qty=0,
                             )
         inc(result, APP_EXPEN, ROLE_EXPENSE, 'Group', 'added')
 
@@ -655,6 +679,9 @@ def link_group(result, user_id, app, role, todo_grp_id, task):
     if Group.objects.filter(user=user_id, app=app, src_id=todo_grp_id).exists():
         task_grp = Group.objects.filter(user=user_id, app=app, src_id=todo_grp_id).get()
         TaskGroup.objects.create(task=task, group=task_grp, role=role)
+        if not task.completed:
+            task_grp.act_items_qty += 1
+            task_grp.save()
         inc(result, app, role, 'TaskGroup', 'added')
 
 def link_task(user_id, todo_grp_id, role_trip=NONE, role_fuel=NONE, role_apart=NONE):
@@ -662,3 +689,14 @@ def link_task(user_id, todo_grp_id, role_trip=NONE, role_fuel=NONE, role_apart=N
         return Task.objects.filter(user=user_id, app_trip=role_trip, app_fuel=role_fuel, app_apart=role_apart, src_id=todo_grp_id).get()
     return None
 
+def copy_attachments(user_id, src_app, src_role, src_item_id, dst_app, dst_role, dst_item_id):
+    src_path = storage_path.format(user_id) + '{}/{}_{}/'.format(src_app, src_role, src_item_id)
+    if not os.path.exists(src_path):
+        return
+    dst_path = storage_path.format(user_id) + 'attachments/{}/{}_{}/'.format(dst_app, dst_role, dst_item_id)
+    os.makedirs(os.path.dirname(dst_path), exist_ok=True)
+    src_files = os.listdir(src_path)
+    for file_name in src_files:
+        full_file_name = os.path.join(src_path, file_name)
+        if os.path.isfile(full_file_name):
+            shutil.copy(full_file_name, dst_path)

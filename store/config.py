@@ -24,6 +24,7 @@ app_config = {
             'icon': 'infinity',
             'title': 'all',
             'use_sub_groups': True,
+            # 'hide_qty': True,
         },
         'params': {
             'page_url': 'params',

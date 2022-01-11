@@ -154,7 +154,9 @@ def get_service_amount(bill, service_id):
         water_accrued = water_tarif['t1'] * pers_consump
         sewer_accrued = sewer_tarif['t1'] * pers_consump
         pers_accrued = round(water_accrued, 2) + round(sewer_accrued, 2)
-        accrued = pers_accrued * bill.bill_residents
+        accrued = 0
+        if pers_accrued and bill.bill_residents:
+            accrued = pers_accrued * bill.bill_residents
         tarif = 0
         if (cold_water_consump + hot_water_consump):
             tarif = accrued / (cold_water_consump + hot_water_consump)

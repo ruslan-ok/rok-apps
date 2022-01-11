@@ -47,7 +47,7 @@
     <hr class="d-md-none text-white-50">
 
     <div class="s-f-container dropdown mx-4">
-      <a href="#" class="d-flex align-items-center justify-content-center link-light text-decoration-none dropdown-toggle" id="dropdownUser2" data-bs-toggle="dropdown" aria-expanded="false">
+      <a href="{{request.GET.path}}" class="d-flex align-items-center justify-content-center link-light text-decoration-none dropdown-toggle" id="dropdownUser2" data-bs-toggle="dropdown" aria-expanded="false">
         <img src="{{ avatar }}" alt="" width="32" height="32" class="rounded-circle me-2">
         <span>{{ user.username }}</span>
       </a>

@@ -158,7 +158,8 @@ def detect_group(user, app, determinator, view_id, name):
             app=app, 
             determinator=determinator, 
             view_id=view_id,
-            name=name)
+            name=name,
+            act_items_qty=0,)
     return group
 
 class Context:
@@ -266,8 +267,8 @@ class Context:
 
         if data and ((not group.determinator) or (group.determinator == 'group')):
             data = data.filter(groups__id=group.id)
-            if (not group.completed):
-                data = data.filter(completed=False)
+            # if (not group.completed):
+            #     data = data.filter(completed=False)
         
         if hasattr(self, 'tune_dataset'):
             return self.tune_dataset(data, group)
@@ -540,6 +541,8 @@ class BaseListView(ListView, Context):
         self.config.set_view(self.request)
         if (self.config.cur_view_group):
             TaskGroup.objects.create(task=self.object, group=self.config.cur_view_group, role=self.config.app)
+            self.config.cur_view_group.act_items_qty += 1
+            self.config.cur_view_group.save()
         return response
     
 class BaseDetailView(UpdateView, Context):
@@ -585,12 +588,31 @@ class BaseDetailView(UpdateView, Context):
         if ('upload' in self.request.FILES):
             self.handle_uploaded_file(self.request.FILES['upload'], self.request.user, item.id)
         ret = super().form_valid(form)
+        role = self.config.get_cur_role()
+        old_completed = item.completed 
+        if ('completed' in form.changed_data):
+            old_completed = not old_completed
+            if TaskGroup.objects.filter(task=item.id, role=role).exists():
+                tg = TaskGroup.objects.filter(task=item.id, role=role).get()
+                if tg.group:
+                    if item.completed:
+                        tg.group.act_items_qty -= 1
+                    else:
+                        tg.group.act_items_qty += 1
+                    tg.group.save()
         if ('grp' in form.changed_data):
             grp = form.cleaned_data['grp']
-            role = self.config.get_cur_role()
-            if not grp and TaskGroup.objects.filter(task=item.id, role=role).exists():
-                TaskGroup.objects.filter(task=item.id, role=role).delete()
+            if TaskGroup.objects.filter(task=item.id, role=role).exists():
+                tg = TaskGroup.objects.filter(task=item.id, role=role).get()
+                if not old_completed and tg.group and (tg.group.act_items_qty > 0):
+                    tg.group.act_items_qty -= 1
+                    tg.group.save()
+                if not grp:
+                    tg.delete()
             if grp:
+                if not item.completed:
+                    grp.act_items_qty += 1
+                    grp.save()
                 if not TaskGroup.objects.filter(task=item.id, role=role).exists():
                     TaskGroup.objects.create(task=item, group=grp, role=grp.role)
                 else:
@@ -601,7 +623,7 @@ class BaseDetailView(UpdateView, Context):
         return ret
 
     def handle_uploaded_file(self, f, user, item_id):
-        path = storage_path.format(user.id) + self.config.app + '/' + self.config.get_cur_role() + '_{}/'.format(item_id)
+        path = storage_path.format(user.id) + 'attachments/' + self.config.app + '/' + self.config.get_cur_role() + '_{}/'.format(item_id)
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path + f.name, 'wb+') as destination:
             for chunk in f.chunks():

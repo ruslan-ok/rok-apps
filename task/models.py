@@ -27,19 +27,20 @@ class Group(models.Model):
     sort = models.CharField(_('sort code'), max_length=50, blank=True)
     created = models.DateTimeField(_('creation time'), blank=True, auto_now_add=True)
     last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now=True)
-    completed = models.BooleanField(_('display completed records'), default=False, null=True)
+    completed = models.BooleanField(_('display completed records'), null=True)
     theme = models.IntegerField(_('theme id'), blank=True, null=True)
     sub_groups = models.CharField(_('content items sub groups'), max_length=1000, blank=True, null=True)
-    use_sub_groups = models.BooleanField(_('using content items sub groups'), default=True, null=True)
+    use_sub_groups = models.BooleanField(_('using content items sub groups'), null=True)
     determinator = models.CharField(_('group category: "group", "role" or "view"'), max_length=10, blank=True, null=True)
     view_id = models.CharField(_('view identificator for "role" and "view"'), max_length=50, blank=True, null=True)
     items_sort = models.CharField(_('items sorting orders'), max_length=500, blank=True)
-    info = models.TextField(_('information').capitalize(), blank=True, default="")
+    info = models.TextField(_('information').capitalize(), blank=True, null=True)
     src_id = models.IntegerField(_('ID in source table'), blank=True, null=True)
+    act_items_qty = models.IntegerField(_('items in group'), blank=True, null=True)
     #------------- Expen --------------
-    expen_byn = models.BooleanField(_('totals in BYN'), default=False, null=True)
-    expen_usd = models.BooleanField(_('totals in USD'), default=False, null=True)
-    expen_eur = models.BooleanField(_('totals in EUR'), default=False, null=True)
+    expen_byn = models.BooleanField(_('totals in BYN'), null=True)
+    expen_usd = models.BooleanField(_('totals in USD'), null=True)
+    expen_eur = models.BooleanField(_('totals in EUR'), null=True)
 
     class Meta:
         verbose_name=_('task group')
@@ -50,10 +51,6 @@ class Group(models.Model):
 
     def __unicode__(self):
         return '.' * self.level() + self.name
-
-    def qty(self):
-        tasks = TaskGroup.objects.filter(group=self.id).filter(task__completed=False)
-        return len(tasks)
 
     def s_id(self):
         return str(self.id)
@@ -163,16 +160,16 @@ class Task(models.Model):
     start = models.DateField(_('start date').capitalize(), blank=True, null=True)
     stop = models.DateTimeField(_('termin').capitalize(), blank=True, null=True)
     completed = models.BooleanField(_('completed').capitalize(), default=False)
-    completion = models.DateTimeField(_('completion time').capitalize(), blank=True, null=True, default=None)
+    completion = models.DateTimeField(_('completion time').capitalize(), blank=True, null=True)
     in_my_day = models.BooleanField(_('in my day').capitalize(), default=False)
     important = models.BooleanField(_('important').capitalize(), default=False)
     remind = models.DateTimeField(_('remind').capitalize(), blank=True, null=True)
     last_remind = models.DateTimeField(_('last remind').capitalize(), blank=True, null=True)
     repeat = models.IntegerField(_('repeat').capitalize(), blank=True, null=True, choices=REPEAT_SELECT, default=NONE)
-    repeat_num = models.IntegerField(_('repeat num').capitalize(), blank=True, default=1)
-    repeat_days = models.IntegerField(_('repeat days').capitalize(), blank=True, default=0)
-    categories = models.TextField(_('categories').capitalize(), blank=True, default="")
-    info = models.TextField(_('information').capitalize(), blank=True, default="")
+    repeat_num = models.IntegerField(_('repeat num').capitalize(), blank=True, null=True)
+    repeat_days = models.IntegerField(_('repeat days').capitalize(), blank=True, null=True)
+    categories = models.TextField(_('categories').capitalize(), blank=True, null=True)
+    info = models.TextField(_('information').capitalize(), blank=True, null=True)
     src_id = models.IntegerField(_('ID in source table'), blank=True, null=True)
     app_task = models.IntegerField('Role in application Task', choices=TASK_ROLE_CHOICE, default=NONE, null=True)
     app_note = models.IntegerField('Role in application Note', choices=NOTE_ROLE_CHOICE, default=NONE, null=True)
@@ -190,13 +187,13 @@ class Task(models.Model):
     created = models.DateTimeField(_('creation time').capitalize(), auto_now_add=True)
     last_mod = models.DateTimeField(_('last modification time').capitalize(), blank=True, auto_now=True)
     groups = models.ManyToManyField(Group, through='TaskGroup')
-    active = models.BooleanField(_('is active navigation item').capitalize(), default=False, null=True)
+    active = models.BooleanField(_('is active navigation item').capitalize(), null=True)
     task_1 = models.ForeignKey('self', on_delete=models.SET_NULL, verbose_name=_('linked task #1'), related_name='task_link_1', blank=True, null=True)
     task_2 = models.ForeignKey('self', on_delete=models.SET_NULL, verbose_name=_('linked task #2'), related_name='task_link_2', blank=True, null=True)
     task_3 = models.ForeignKey('self', on_delete=models.SET_NULL, verbose_name=_('linked task #3'), related_name='task_link_3', blank=True, null=True)
     item_attr = models.CharField(_('item attributes').capitalize(), max_length=2000, blank=True, null=True)
     #------------ Expenses ------------
-    expen_qty = models.DecimalField(_('quantity').capitalize(), blank=True, null=True, max_digits=15, decimal_places=3, default=1)
+    expen_qty = models.DecimalField(_('quantity').capitalize(), blank=True, null=True, max_digits=15, decimal_places=3)
     expen_price = models.DecimalField(_('Price in NC'), blank=True, null=True, max_digits=15, decimal_places=2)
     expen_rate = models.DecimalField(_('USD exchange rate'), blank=True, null=True, max_digits=15, decimal_places=4)
     expen_rate_2 = models.DecimalField(_('EUR exchange rate'), blank=True, null=True, max_digits=15, decimal_places=4)
@@ -206,24 +203,24 @@ class Task(models.Model):
     #------------ Person --------------
     pers_dative = models.CharField(_('dative'), max_length=500, null=True)
     #------------- Trip ---------------
-    trip_days = models.IntegerField(_('days'), default=0, null=True)
-    trip_oper = models.IntegerField(_('operation'), default=0, null=True)
-    trip_price = models.DecimalField(_('price'), max_digits=15, decimal_places=2, default=0, null=True)
+    trip_days = models.IntegerField(_('days'), null=True)
+    trip_oper = models.IntegerField(_('operation'), null=True)
+    trip_price = models.DecimalField(_('price'), max_digits=15, decimal_places=2, null=True)
     #------------- Store --------------
     store_username = models.CharField(_('username'), max_length=150, blank=True, null=True)
     store_value = models.CharField(_('value'), max_length=128, null=True)
     store_uuid = models.CharField(_('UUID'), max_length=100, blank=True, null=True)
-    store_params = models.IntegerField(_('generator parameters used'), default=0, null=True)
+    store_params = models.IntegerField(_('generator parameters used'), null=True)
     store_hist = models.DateTimeField(_('when archived'), null=True)
     #------------- Apart --------------
-    apart_has_el = models.BooleanField(_('has electricity'), default=True, null=True)
-    apart_has_hw = models.BooleanField(_('has hot water'), default=True, null=True)
-    apart_has_cw = models.BooleanField(_('has cold water'), default=True, null=True)
-    apart_has_gas = models.BooleanField(_('has gas'), default=True, null=True)
-    apart_has_ppo = models.BooleanField(_('payments to the partnership of owners'), default=False, null=True)
-    apart_has_tv = models.BooleanField(_('has Internet/TV'), default=True, null=True)
-    apart_has_phone = models.BooleanField(_('has phone'), default=True, null=True)
-    apart_has_zkx = models.BooleanField(_('has ZKX'), default=True, null=True)
+    apart_has_el = models.BooleanField(_('has electricity'), null=True)
+    apart_has_hw = models.BooleanField(_('has hot water'), null=True)
+    apart_has_cw = models.BooleanField(_('has cold water'), null=True)
+    apart_has_gas = models.BooleanField(_('has gas'), null=True)
+    apart_has_ppo = models.BooleanField(_('payments to the partnership of owners'), null=True)
+    apart_has_tv = models.BooleanField(_('has Internet/TV'), null=True)
+    apart_has_phone = models.BooleanField(_('has phone'), null=True)
+    apart_has_zkx = models.BooleanField(_('has ZKX'), null=True)
     #------------- Meter --------------
     meter_el = models.IntegerField(_('electricity'), null=True)
     meter_hw = models.IntegerField(_('hot water'), null=True)
@@ -232,28 +229,28 @@ class Task(models.Model):
     meter_zkx = models.DecimalField('account amount', null=True, max_digits=15, decimal_places=2)
     #------------- Price --------------
     price_service = models.IntegerField(_('service code'), null=True)
-    price_tarif = models.DecimalField(_('tariff 1'), null=True, max_digits=15, decimal_places=5, default=0)
-    price_border = models.DecimalField(_('border 1'), null=True, max_digits=15, decimal_places=4, default=0)
-    price_tarif2 = models.DecimalField(_('tariff 2'), null=True, max_digits=15, decimal_places=5, default=0)
-    price_border2 = models.DecimalField(_('border 2'), null=True, max_digits=15, decimal_places=4, default=0)
-    price_tarif3 = models.DecimalField(_('tariff 3'), null=True, max_digits=15, decimal_places=5, default=0)
+    price_tarif = models.DecimalField(_('tariff 1'), null=True, max_digits=15, decimal_places=5)
+    price_border = models.DecimalField(_('border 1'), null=True, max_digits=15, decimal_places=4)
+    price_tarif2 = models.DecimalField(_('tariff 2'), null=True, max_digits=15, decimal_places=5)
+    price_border2 = models.DecimalField(_('border 2'), null=True, max_digits=15, decimal_places=4)
+    price_tarif3 = models.DecimalField(_('tariff 3'), null=True, max_digits=15, decimal_places=5)
     price_unit = models.CharField(_('unit'), max_length=100, blank=True, null=True)
     #------------- Bill ---------------
-    bill_residents = models.IntegerField(_('number of residents'), null=True, default=2)
-    bill_el_pay = models.DecimalField('electro - payment', null=True, max_digits=15, decimal_places=2, default=0)
-    bill_tv_bill = models.DecimalField('tv - accrued', null=True, max_digits=15, decimal_places=2, default=0)
-    bill_tv_pay = models.DecimalField('tv - payment', null=True, max_digits=15, decimal_places=2, default=0)
-    bill_phone_bill = models.DecimalField('phone - accrued', null=True, max_digits=15, decimal_places=2, default=0)
-    bill_phone_pay = models.DecimalField('phone - payment', null=True, max_digits=15, decimal_places=2, default=0)
-    bill_zhirovka = models.DecimalField('zhirovka', null=True, max_digits=15, decimal_places=2, default=0)
-    bill_hot_pay = models.DecimalField('heatenergy - payment', null=True, max_digits=15, decimal_places=2, default=0)
-    bill_repair_pay = models.DecimalField('overhaul - payment', null=True, max_digits=15, decimal_places=2, default=0)
-    bill_zkx_pay = models.DecimalField('housing and communal services - payment', null=True, max_digits=15, decimal_places=2, default=0)
-    bill_water_pay = models.DecimalField('water - payment', null=True, max_digits=15, decimal_places=2, default=0)
-    bill_gas_pay = models.DecimalField('gas - payment', null=True, max_digits=15, decimal_places=2, default=0)
-    bill_rate = models.DecimalField('rate', null=True, max_digits=15, decimal_places=4, default=0)
-    bill_poo = models.DecimalField('pay to the Partnersheep of Owners - accrued', null=True, max_digits=15, decimal_places=2, default=0)
-    bill_poo_pay = models.DecimalField('pay to the Partnersheep of Owners - payment', null=True, max_digits=15, decimal_places=2, default=0)
+    bill_residents = models.IntegerField(_('number of residents'), null=True)
+    bill_el_pay = models.DecimalField('electro - payment', null=True, max_digits=15, decimal_places=2)
+    bill_tv_bill = models.DecimalField('tv - accrued', null=True, max_digits=15, decimal_places=2)
+    bill_tv_pay = models.DecimalField('tv - payment', null=True, max_digits=15, decimal_places=2)
+    bill_phone_bill = models.DecimalField('phone - accrued', null=True, max_digits=15, decimal_places=2)
+    bill_phone_pay = models.DecimalField('phone - payment', null=True, max_digits=15, decimal_places=2)
+    bill_zhirovka = models.DecimalField('zhirovka', null=True, max_digits=15, decimal_places=2)
+    bill_hot_pay = models.DecimalField('heatenergy - payment', null=True, max_digits=15, decimal_places=2)
+    bill_repair_pay = models.DecimalField('overhaul - payment', null=True, max_digits=15, decimal_places=2)
+    bill_zkx_pay = models.DecimalField('housing and communal services - payment', null=True, max_digits=15, decimal_places=2)
+    bill_water_pay = models.DecimalField('water - payment', null=True, max_digits=15, decimal_places=2)
+    bill_gas_pay = models.DecimalField('gas - payment', null=True, max_digits=15, decimal_places=2)
+    bill_rate = models.DecimalField('rate', null=True, max_digits=15, decimal_places=4)
+    bill_poo = models.DecimalField('pay to the Partnersheep of Owners - accrued', null=True, max_digits=15, decimal_places=2)
+    bill_poo_pay = models.DecimalField('pay to the Partnersheep of Owners - payment', null=True, max_digits=15, decimal_places=2)
     #-------------- Car ----------------
     car_plate  = models.CharField(_('car number'), max_length=100, null=True, blank=True)
     car_odometr = models.IntegerField(_('odometer'), null=True)
@@ -449,6 +446,12 @@ class Task(models.Model):
         else:
             self.completion = None
         self.save()
+        for tg in TaskGroup.objects.filter(task_id=self.id):
+            if self.completed:
+                tg.group.act_items_qty -= 1
+            else:
+                tg.group.act_items_qty += 1
+            tg.group.save()
         if self.completed and next: # Completed a stage of a recurring task and set a deadline for the next iteration
             if not Task.objects.filter(user = self.user, name = self.name, completed = False).exists():
                 Task.objects.create(user = self.user, name = self.name, start = self.start, stop = next, important = self.important, \

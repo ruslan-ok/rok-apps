@@ -79,7 +79,7 @@ class File():
 
 def get_files_list(user, app, role, item_id):
     ret = []
-    fss_path = storage_path.format(user.id) + app + '/' + role + '_' + str(item_id) + '/'
+    fss_path = storage_path.format(user.id) + 'attachments/' + app + '/' + role + '_' + str(item_id) + '/'
     fs = FileSystemStorage(location = fss_path, base_url = file_storage_url)
     try:
         npp = 1
@@ -96,7 +96,7 @@ def get_files_list(user, app, role, item_id):
     return ret
 
 def get_app_doc(app, role, request, pk, fname):
-    path = storage_path.format(request.user.id) + app + '/' + role + '_{}/'.format(pk)
+    path = storage_path.format(request.user.id) + 'attachments/' + app + '/' + role + '_{}/'.format(pk)
     try:
         fsock = open(path + fname, 'rb')
         return FileResponse(fsock)

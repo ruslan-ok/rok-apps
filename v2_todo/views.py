@@ -525,7 +525,7 @@ def todo_entity(request, name, pk):
 
 #----------------------------------
 def get_file_storage_path(user, item):
-    return storage_path.format(user.id) + 'v2_todo/task_{}/'.format(item.id)
+    return storage_path.format(user.id) + 'todo/task_{}/'.format(item.id)
 
 def handle_uploaded_file(f, user, item):
     path = get_file_storage_path(user, item)
@@ -542,7 +542,7 @@ def task_get_doc(request, name):
         fsock = open(path + name, 'rb')
         return FileResponse(fsock)
     except IOError:
-        response = HttpResponseNotFound()
+        return HttpResponseNotFound()
 
 def delete_file(user, item, name):
     path = get_file_storage_path(user, item)

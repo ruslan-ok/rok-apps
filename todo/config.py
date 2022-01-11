@@ -43,10 +43,12 @@ app_config = {
             'icon': 'infinity',
             'title': 'all tasks',
             'use_sub_groups': True,
-       },
+            'hide_qty': True,
+      },
         'completed': {
             'icon': 'check2-circle',
             'title': 'completed tasks',
+            'hide_qty': True,
         },
     }
 }

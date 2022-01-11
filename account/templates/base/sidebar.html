@@ -34,10 +34,10 @@
                                     <i class="bi-journals level-{{ node.level }}"></i>
                                     <span class="">{{ node.name }}</span>
                                 </div>
-                                <span class="">{{ node.qty }}</span>
+                                <span class="">{{ node.act_items_qty }}</span>
                             </a>
                         {% else %}
-                            <a role="button" href="#" class="sidebar__group-hidden" onclick="toggleGroup({{ node.id|escape }})"
+                            <a role="button" class="sidebar__group-hidden" onclick="toggleGroup({{ node.id|escape }})"
                                     data-id="{{ node.id|escape }}" data-parent="{{ node.node.id|escape }}" id="task_group_{{ node.id|escape }}">
                                 <div>
                                     <i class="bi-folder2 level-{{ node.level }}"></i>

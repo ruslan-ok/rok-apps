@@ -188,6 +188,9 @@ class TaskViewSet(viewsets.ModelViewSet):
             return Response({'task_id': 0, 'mess': message})
         if group and ((group.determinator == 'group') or (group.determinator == None)):
             TaskGroup.objects.create(task=task, group=group, role=role)
+            if not task.completed:
+                group.act_items_qty += 1
+                group.save()
         self._get_info(task)
         return Response({'task_id': task.id})
 
@@ -289,7 +292,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         role = self.request.query_params['role']
         fname = self.request.query_params['fname']
         task = self.get_object()
-        path = storage_path.format(self.request.user.id) + '{}/{}_{}/'.format(app, role, task.id)
+        path = storage_path.format(self.request.user.id) + 'attachments/{}/{}_{}/'.format(app, role, task.id)
         if not os.path.isfile(path + fname[4:]):
             return Response({'Error': "The specified file does not exist."},
                             status=status.HTTP_400_BAD_REQUEST)
