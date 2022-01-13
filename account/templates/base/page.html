@@ -12,14 +12,9 @@
     <link rel="icon" type="image/png" href="/static/favicon.ico">
     <link href="{% static 'scss/custom.css' %}" rel="stylesheet">
     <link href="{% static 'css/docs.css' %}" rel="stylesheet">
-    <link href="{% static 'css/common.css' %}" rel="stylesheet">
+    <link href="{% static 'scss/common.css' %}" rel="stylesheet">
     <link href="{% static 'css/header.css' %}" rel="stylesheet">
     <link href="{% static 'scss/title.css' %}" rel="stylesheet">
-    <link href="{% static 'scss/tune.css' %}" rel="stylesheet">
-    <link href="{% static 'scss/list.css' %}" rel="stylesheet">
-    <link href="{% static 'scss/sidebar.css' %}" rel="stylesheet">
-    <link href="{% static 'scss/form.css' %}" rel="stylesheet">
-    <link href="{% static 'scss/widgets.css' %}" rel="stylesheet">
     <link href="{% static 'font/bootstrap-icons.css' %}" rel="stylesheet">
       {% block extrastyle %}{% endblock %}
   </head>
@@ -38,13 +33,6 @@
 
     {% block content %}{% endblock %}
 
-    <script src="{% static 'js/build-tree.js' %}"></script>
-    <script src="{% static 'js/manage-groups.js' %}"></script>
-    <script src="{% static 'js/form.js' %}"></script>
-    <script src="{% static 'js/getRateOnDate.js' %}"></script>
-    <script>
-        buildTree('groups-tree');
-      </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" 
       integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" 
       crossorigin="anonymous"></script>

@@ -36,3 +36,7 @@
   </form>
 {% endblock %}
 
+{% block extrascript %}
+  {{ block.super }}
+    <script src="{% static 'js/manage-groups.js' %}"></script>
+{% endblock %}

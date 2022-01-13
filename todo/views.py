@@ -1,6 +1,6 @@
 from datetime import datetime, date, timedelta
 from django.utils.translation import gettext_lazy as _
-from task.const import APP_TODO, ROLE_TODO, NUM_ROLE_TODO
+from task.const import APP_TODO, ROLE_TODO
 from task.models import Task, Step
 from rusel.files import get_app_doc
 from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView

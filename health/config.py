@@ -14,6 +14,7 @@ app_config = {
             'sort': [
                 ('event', 'event date'),
             ],
+            'hide_qty': True,
         },
         'incident': {
             'role': ROLE_INCIDENT,
@@ -23,6 +24,7 @@ app_config = {
                 ('name', 'name'),
                 ('start', 'period'),
             ],
+            'hide_qty': True,
         },
         'weight': {
             'role': ROLE_CHART_WEIGHT,

@@ -1,4 +1,4 @@
-from django.views.generic.edit import FormView
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.template import loader
 from task.const import ROLE_STORE, ROLE_APP
@@ -59,16 +59,16 @@ class DetailView(BaseDetailView, TuneData):
             params += 128
         context['default_len'] = store_params.ln
         context['default_params'] = params
-        this_entry = None
-        if Entry.objects.filter(user=self.request.user.id, task=self.object.id, actual=1).exists():
-            this_entry = Entry.objects.filter(user=self.request.user.id, task=self.object.id, actual=1)[0]
-        else:
-            if Entry.objects.filter(user=self.request.user.id, task=self.object.id).exists():
-                this_entry = Entry.objects.filter(user=self.request.user.id, task=self.object.id)[0]
-        if this_entry:
-            hist = Entry.objects.filter(user=self.request.user, task=this_entry.task.id).exclude(id=this_entry.id)
-            context['history'] = hist
-            context['history_qty'] = len(hist)
+        # this_entry = None
+        # if Entry.objects.filter(user=self.request.user.id, task=self.object.id, actual=1).exists():
+        #     this_entry = Entry.objects.filter(user=self.request.user.id, task=self.object.id, actual=1)[0]
+        # else:
+        #     if Entry.objects.filter(user=self.request.user.id, task=self.object.id).exists():
+        #         this_entry = Entry.objects.filter(user=self.request.user.id, task=self.object.id)[0]
+        # if this_entry:
+        #     hist = Entry.objects.filter(user=self.request.user, task=this_entry.task.id).exclude(id=this_entry.id)
+        #     context['history'] = hist
+        #     context['history_qty'] = len(hist)
         return context
 
     def form_valid(self, form):
@@ -92,6 +92,7 @@ class ParamsView(Context, TuneData):
         self.set_config(app_config, ROLE_STORE)
         self.config.set_view(request)
 
+@login_required(login_url='account:login')
 def params(request):
     form = None
     params = get_store_params(request.user)

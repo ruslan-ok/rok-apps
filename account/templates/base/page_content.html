@@ -1,6 +1,10 @@
 {% extends "base/page.html" %}
 {% load static i18n %}
 
+{% block extrastyle %}
+    <link href="{% static 'scss/sidebar.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block header_content %}
   {% include 'base/header.html' %}
 {% endblock %}
@@ -15,4 +19,12 @@
       {% block main %}{% endblock %}
     </main>
   </div>
+{% endblock %}
+
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'js/build-tree.js' %}"></script>
+  <script>
+    buildTree('groups-tree');
+  </script>
 {% endblock %}

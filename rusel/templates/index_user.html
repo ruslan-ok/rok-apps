@@ -1,6 +1,10 @@
 {% extends "base/page_content.html" %}
 {% load static i18n %}
 
+{% block extrastyle %}
+  <link href="{% static 'scss/home.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block main %}
   <div class="container-fluid">
         <h3>

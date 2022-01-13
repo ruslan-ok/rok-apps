@@ -1,6 +1,12 @@
 {% extends "base/page_content.html" %}
 {% load static i18n %}
 
+{% block extrastyle %}
+  {{ block.super }}
+    <link href="{% static 'scss/tune.css' %}" rel="stylesheet">
+    <link href="{% static 'scss/list.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block main %}
 <div class="list-content{% if theme_id %} theme-{{theme_id}}{% endif %}">
   <form method="post" class="d-none">{% csrf_token %}</form>
@@ -47,3 +53,7 @@
 </div>
 {% endblock %}
 
+{% block extrascript %}
+  {{ block.super }}
+    <script src="{% static 'js/list.js' %}"></script>
+{% endblock %}

@@ -1,5 +1,6 @@
 import os, json
 from datetime import date
+from django.http import Http404
 from django.http.response import HttpResponseRedirect
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
@@ -7,6 +8,7 @@ from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView
 from django.db.models import Q
 from django.core.exceptions import FieldError
+from django.contrib.auth.mixins import LoginRequiredMixin
 from rusel.apps import get_related_roles
 from rusel.context import get_base_context
 from rusel.files import storage_path, get_files_list
@@ -298,7 +300,7 @@ class Context:
                 })
         return ret
 
-class BaseListView(ListView, Context):
+class BaseListView(ListView, Context, LoginRequiredMixin):
 
     def __init__(self, config, cur_role, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -306,6 +308,8 @@ class BaseListView(ListView, Context):
         self.template_name = 'base/list.html'
 
     def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            raise Http404
         ret = super().get(request, *args, **kwargs)
         nav_role = Task.get_nav_role(self.config.app)
         if nav_role and (nav_role != self.config.get_cur_role()):
@@ -545,12 +549,18 @@ class BaseListView(ListView, Context):
             self.config.cur_view_group.save()
         return response
     
-class BaseDetailView(UpdateView, Context):
+class BaseDetailView(UpdateView, Context, LoginRequiredMixin):
 
     def __init__(self, config, cur_role, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.set_config(config, cur_role)
         self.template_name = config['name'] + '/' + self.config.get_cur_role() + '.html'
+
+    def get_object(self, *args, **kwargs):
+        obj = super().get_object(*args, **kwargs)
+        if obj.user != self.request.user:
+            raise Http404
+        return obj
 
     def get_success_url(self):
         if (self.config.get_cur_role() == self.config.base_role):
@@ -629,7 +639,7 @@ class BaseDetailView(UpdateView, Context):
             for chunk in f.chunks():
                 destination.write(chunk)
 
-class BaseGroupView(UpdateView, Context):
+class BaseGroupView(UpdateView, Context, LoginRequiredMixin):
     model = Group
     template_name = 'base/group_detail.html'
     form_class = GroupForm
@@ -638,10 +648,18 @@ class BaseGroupView(UpdateView, Context):
         super().__init__(*args, **kwargs)
         self.set_config(config, cur_role)
 
+    def get_object(self, *args, **kwargs):
+        obj = super().get_object(*args, **kwargs)
+        if obj.user != self.request.user:
+            raise Http404
+        return obj
+
     def get_success_url(self):
         return reverse(self.config.app + ':group', args=(self.object.id,)) + extract_get_params(self.request, self.config.group_entity)
 
     def get_context_data(self, **kwargs):
+        if not self.request.user.is_authenticated:
+            raise Http404
         self.config.set_view(self.request, detail=True)
         context = super().get_context_data(**kwargs)
         context.update(self.get_app_context(self.request.user.id, None, icon='journals'))

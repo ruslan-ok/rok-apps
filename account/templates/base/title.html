@@ -12,10 +12,10 @@
                     <a href="{% url group.edit_url group.id|escape %}?ret={{ group_return|escape }}" class="content-title__href">
                         {{ group.name }}
                     </a>
-                    {% if group != group_path|first %} <span class="content-title__separator">/</span> {% endif %}
+                    {% if group != group_path|first %} <h3 class="content-title__separator">/</h3> {% endif %}
                 {% endfor %}
             {% else %}
-                <span class="content-title__text">{{ title }}</span>
+                <h3 class="content-title__text">{{ title }}</h3>
             {% endif %}
         </div>
 

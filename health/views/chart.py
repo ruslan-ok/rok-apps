@@ -1,5 +1,7 @@
 import json
+from django.http import Http404
 from django.views.generic import TemplateView
+from django.utils.translation import gettext_lazy as _
 from rusel.base.views import Context
 from health.config import app_config
 from task.const import NUM_ROLE_MARKER, ROLE_CHART_WEIGHT, ROLE_CHART_WAIST, ROLE_CHART_TEMP
@@ -13,12 +15,15 @@ class WeightView(TemplateView, Context):
         self.set_config(app_config, ROLE_CHART_WEIGHT)
 
     def get_context_data(self, **kwargs):
+        if not self.request.user.is_authenticated:
+            raise Http404
         self.config.set_view(self.request)
         context = super().get_context_data(**kwargs)
         context.update(self.get_app_context(self.request.user.id, None, icon=self.config.role_icon, nav_items=self.get_nav_items()))
         data = build_weight_chart(self.request.user)
         s_data = json.dumps(data)
         context['chart_data'] = s_data
+        context['title'] = _('waist measurement chart').capitalize()
         return context
 
 class WaistView(TemplateView, Context):
@@ -29,12 +34,15 @@ class WaistView(TemplateView, Context):
         self.set_config(app_config, ROLE_CHART_WAIST)
 
     def get_context_data(self, **kwargs):
+        if not self.request.user.is_authenticated:
+            raise Http404
         self.config.set_view(self.request)
         context = super().get_context_data(**kwargs)
         context.update(self.get_app_context(self.request.user.id, None, icon=self.config.role_icon, nav_items=self.get_nav_items()))
         data = build_waist_chart(self.request.user)
         s_data = json.dumps(data)
         context['chart_data'] = s_data
+        context['title'] = _('waist measurement chart').capitalize()
         return context
 
 class TempView(TemplateView, Context):
@@ -45,12 +53,15 @@ class TempView(TemplateView, Context):
         self.set_config(app_config, ROLE_CHART_TEMP)
 
     def get_context_data(self, **kwargs):
+        if not self.request.user.is_authenticated:
+            raise Http404
         self.config.set_view(self.request)
         context = super().get_context_data(**kwargs)
         context.update(self.get_app_context(self.request.user.id, None, icon=self.config.role_icon, nav_items=self.get_nav_items()))
         data = build_temp_chart(self.request.user)
         s_data = json.dumps(data, default=str)
         context['chart_data'] = s_data
+        context['title'] = _('temperature chart').capitalize()
         return context
 
 #----------------------------------

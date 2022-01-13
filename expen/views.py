@@ -38,12 +38,12 @@ class DetailView(BaseDetailView, TuneData):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         title = context['title'] 
-        if not title and self.object.kontr:
-            title = self.object.kontr
+        if not title and self.object.expen_kontr:
+            title = self.object.expen_kontr
         if not title and self.object.info:
             title = self.object.info.split('\n')[0]
-        if not title and self.object.qty and self.object.price:
-            title = str(self.object.qty*self.object.price)
+        if not title and self.object.qty and self.object.expen_price:
+            title = str(self.object.qty*self.object.expen_price)
         if not title:
             title = self.object.event.strftime('%d %b %Y')
 

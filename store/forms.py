@@ -65,15 +65,15 @@ class EditForm(BaseEditForm):
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
         self.fields['actual'].initial = not self.instance.completed
-        if Entry.objects.filter(task=self.instance, hist=None).exists():
-            entry = Entry.objects.filter(task=self.instance, hist=None)[0]
-            self.fields['username'].initial = entry.username
-            self.fields['value'].initial = entry.value
-            self.fields['params'].initial = entry.params
-        else:
-            self.fields['username'].initial = ''
-            self.fields['value'].initial = ''
-            self.fields['params'].initial = ''
+        # if Entry.objects.filter(task=self.instance, hist=None).exists():
+        #     entry = Entry.objects.filter(task=self.instance, hist=None)[0]
+        #     self.fields['username'].initial = entry.username
+        #     self.fields['value'].initial = entry.value
+        #     self.fields['params'].initial = entry.params
+        # else:
+        #     self.fields['username'].initial = ''
+        #     self.fields['value'].initial = ''
+        #     self.fields['params'].initial = ''
 
 #----------------------------------
 class ParamsForm(BaseEditForm):
