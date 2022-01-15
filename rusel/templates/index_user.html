@@ -67,11 +67,13 @@
             <h4>{% trans 'software versions'|capfirst %}</h4>
             <table class="table table-striped fs-13">
               <tr> <th>{% trans 'product'|capfirst %}</th> <th>{% trans 'version'|capfirst %}</th> <th>{% trans 'check new version'|capfirst %}</th></tr>
-              <tr> <td> Python </td> <td> {{ python_version }} </td> <td><a href="https://www.python.org/downloads/">python.org</a></td> </tr>
-              <tr> <td> Django </td> <td> {{ django_version }} </td> <td><a href="https://www.djangoproject.com/download/">djangoproject.com</a></td> </tr>
-              <tr> <td> Apache </td> <td> {{ apache_version }} </td> <td><a href="https://httpd.apache.org/download.cgi">apache.org</a></td> </tr>
-              <tr> <td> MySQL  </td> <td> {{ mysql_version }} </td> <td><a href="https://dev.mysql.com/downloads/mysql/">dev.mysql.com</a></td> </tr>
               <tr> <td> SSL-certificate </td> <td> {{ cert_termin }} </td> <td><a href="https://letsencrypt.org/ru/docs/">letsencrypt.org</a></td> </tr>
+              <tr> <td> Apache </td> <td> {{ apache_version }} </td> <td><a href="https://httpd.apache.org/download.cgi">apache.org</a></td> </tr>
+              <tr> <td> OpenSSL </td> <td> {{ openssl_version }} </td> <td><a href="https://www.openssl.org/news/newslog.html">openssl.org</a></td> </tr>
+              <tr> <td> Python </td> <td> {{ python_version }} </td> <td><a href="https://www.python.org/downloads/">python.org</a></td> </tr>
+              <tr> <td> mod_wsgi </td> <td> {{ mod_wsgi_version }} </td> <td><a href="https://modwsgi.readthedocs.io/en/master/release-notes.html">mod_wsgi</a></td> </tr>
+              <tr> <td> Django </td> <td> {{ django_version }} </td> <td><a href="https://www.djangoproject.com/download/">djangoproject.com</a></td> </tr>
+              <tr> <td> MySQL  </td> <td> {{ mysql_version }} </td> <td><a href="https://dev.mysql.com/downloads/mysql/">dev.mysql.com</a></td> </tr>
               <tr> <td> hMailServer  </td> <td> {{ hmail_version }} </td> <td><a href="https://www.hmailserver.com/download">hmailserver.com</a></td> </tr>
             </table>
 
