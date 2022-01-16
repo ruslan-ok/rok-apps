@@ -197,17 +197,6 @@ function delAvatar() {
     runAPI(api, callback);
 }
 
-function toggleCompleted(item_id) {
-    const redirect_url = window.location.href;
-    const api = '/api/tasks/' + item_id + '/completed/?format=json';
-    const callback = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            window.location.href = redirect_url;
-        }
-    };
-    runAPI(api, callback);
-}
-
 function toggleImportant(item_id, redirect=true) {
     const redirect_url = window.location.href;
     const api = '/api/tasks/' + item_id + '/important/?format=json';
@@ -219,7 +208,6 @@ function toggleImportant(item_id, redirect=true) {
     };
     runAPI(api, callback);
 }
-
 
 function toggleFormImportant() {
     const item_id = window.location.pathname.match( /\d+/ )[0];

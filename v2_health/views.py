@@ -91,7 +91,7 @@ def main(request):
     context['hide_important'] = True
     if (app_param.restriction == CHRONO):
         context['hide_add_item_input'] = True
-        min_value, max_value, min_date, max_date, last_value = build_chart(request.user, 'weight', 73)
+        min_value, max_value, min_date, max_date, last_value = build_chart(request.user, 'weight', 70)
         context['weight_min_value'] = min_value
         context['weight_min_date'] = min_date
         context['weight_max_value'] = max_value

@@ -39,7 +39,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     pagination_class = pagination.PageNumberPagination
 
     def get_queryset(self):
-        data = Task.objects.filter(user=self.request.user).order_by('-created')
+        data = Task.objects.filter(user=self.request.user.id).order_by('-created')
         if 'app' in self.request.query_params and 'role' in self.request.query_params:
             app = self.request.query_params['app']
             role = self.request.query_params['role']
@@ -622,7 +622,7 @@ class TaskViewSet(viewsets.ModelViewSet):
                 Bill.objects.filter(task=task.id).delete()
             task.app_apart = NONE
         
-        if (role in [ROLE_MARKER, ROLE_INCIDENT, ROLE_CHART]):
+        if (role in [ROLE_MARKER, ROLE_INCIDENT]):
             task.app_health = NONE
         
         if (role in [ROLE_PERIOD, ROLE_DEPARTMENT, ROLE_DEP_HIST, ROLE_POST, ROLE_EMPLOYEE, ROLE_FIO_HIST,

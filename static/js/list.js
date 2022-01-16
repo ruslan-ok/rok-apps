@@ -87,3 +87,62 @@ function toggleSubGroups(group_id) {
     };
     runAPI(api, callback);
 }
+
+function toggleCompleted(item_id) {
+    const redirect_url = window.location.href;
+    const api = '/api/tasks/' + item_id + '/completed/?format=json';
+    const callback = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            window.location.href = redirect_url;
+        }
+    };
+    runAPI(api, callback);
+}
+
+function toggleImportant(item_id, redirect=true) {
+    const redirect_url = window.location.href;
+    const api = '/api/tasks/' + item_id + '/important/?format=json';
+    const callback = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            if (redirect)
+                window.location.href = redirect_url;
+        }
+    };
+    runAPI(api, callback);
+}
+
+function addItem(app, role, group_id) {
+    const name = document.getElementById('id_add_item_name');
+    let param_name = '';
+    if (name)
+        param_name = '&name=' + name.value;
+    param_group = '&group_id=' + group_id;
+    const api = '/api/tasks/add_item/?format=json&app=' + app + '&role=' + role + param_name + param_group;
+    const callback = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            let resp = JSON.parse(this.responseText);
+            if (!resp || !resp.task_id) {
+                let mess = 'Unknown Error';
+                if (resp.mess)
+                    mess = resp.mess;
+                showInfo(mess);
+                return;
+            }
+            let item_id_arr = window.location.pathname.match( /\d+/ );
+            let item_id = 0;
+            if (item_id_arr && item_id_arr.length > 0)
+                item_id = item_id_arr[0];
+            let url_parts = window.location.href.split('?');
+            let redirect_url = url_parts[0];
+            if ((item_id != 0) && redirect_url.includes(item_id))
+                redirect_url = redirect_url.replace(item_id, resp.task_id);
+            else
+                redirect_url = redirect_url + resp.task_id + '/';
+            if (url_parts.length > 1)
+                redirect_url += '?' + url_parts[1];
+            window.location.href = redirect_url;
+        }
+    };
+    runAPI(api, callback);
+}
+

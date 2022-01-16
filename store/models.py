@@ -45,7 +45,6 @@ class Entry(models.Model):
     categories = models.CharField(_('categories'), max_length = 2000, blank = True, default = '', null = True)
     params = models.IntegerField(_('generator parameters used'), default = 0, null = True)
     lst = models.ForeignKey(Lst, on_delete = models.CASCADE, verbose_name = _('list'), blank = True, null = True)
-    hist = models.DateTimeField(_('when archived'), null=True)
 
     @classmethod
     def get_new_value(cls, user):

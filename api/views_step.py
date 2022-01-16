@@ -14,7 +14,7 @@ class StepViewSet(viewsets.ModelViewSet):
     pagination_class = pagination.PageNumberPagination
 
     def get_queryset(self):
-        return Step.objects.filter(user=self.request.user).order_by('-created')
+        return Step.objects.filter(user=self.request.user.id).order_by('-created')
 
     def perform_create(self, serializer):
         if 'sort' in self.request.POST:

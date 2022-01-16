@@ -80,6 +80,8 @@ class NumberInput(widgets.Input):
     template_name = 'widgets/input.html'
 
     def get_context(self, name, value, attrs):
+        if (value == None):
+            value = 0
         context = super().get_context(name, value, attrs)
         return context
 

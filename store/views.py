@@ -73,15 +73,15 @@ class DetailView(BaseDetailView, TuneData):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        form.instance.set_item_attr(app, get_info(form.instance))
         form.instance.completed = not form.cleaned_data['actual']
         form.instance.save()
-        if Entry.objects.filter(task=form.instance, hist=None).exists():
-            entry = Entry.objects.filter(task=form.instance, hist=None)[0]
-            entry.username = form.cleaned_data['username']
-            entry.value = form.cleaned_data['value']
-            entry.params = form.cleaned_data['params']
-            entry.save()
+        form.instance.set_item_attr(app, get_info(form.instance))
+        # if Entry.objects.filter(task=form.instance, hist=None).exists():
+        #     entry = Entry.objects.filter(task=form.instance, hist=None)[0]
+        #     entry.username = form.cleaned_data['username']
+        #     entry.value = form.cleaned_data['value']
+        #     entry.params = form.cleaned_data['params']
+        #     entry.save()
         return response
 
 class ParamsView(Context, TuneData):
