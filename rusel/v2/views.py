@@ -2,6 +2,7 @@ import datetime
 import django
 import OpenSSL
 import ssl, socket
+import urllib.request
 from platform import python_version
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
@@ -18,6 +19,7 @@ from hier.models import Param, Folder
 from trip.models import trip_summary
 from v2_hier.site_stat import get_site_stat
 from v2_hier.params import get_search_info
+from .mysql_ver import get_mysql_ver
 
 from note.search import search as note_search
 from todo.search import search as todo_search
@@ -76,13 +78,14 @@ def index_user(request):
             context['trip_summary'] = trip_summary(request.user.id)
             context['python_version'] = python_version()
             context['django_version'] = '{}.{}.{} {}'.format(*django.VERSION)
-            context['apache_version'] = '2.4.41 (Win64)'
+            response = urllib.request.urlopen('https://rusel.by')
+            context['apache_version'] = response.headers['Server'].split(' Python')[0]
             context['hmail_version'] = '5.6.7 - Build 2425'
         
             #cursor = connection.cursor()
             #cursor.execute('SHOW VARIABLES LIKE "version"')
             #context['mysql_version'] = cursor.fetchone()
-            context['mysql_version'] = '8.0.19'
+            context['mysql_version'] = get_mysql_ver()
         
             try:
                 cert = ssl.get_server_certificate(('rusel.by', 443))
@@ -121,5 +124,15 @@ def get_search_data(user, app_param, query):
     data.sort(reverse=True, key=get_si_date)
     return data
 
+
+#----------------------------------
+# Feedback
+#----------------------------------
+@login_required(login_url='account:login')
+#----------------------------------
+def feedback(request):
+    context = get_base_context(request, 0, 0, _('feedback'))
+    template = loader.get_template('v2/feedback.html')
+    return HttpResponse(template.render(context, request))
 
 

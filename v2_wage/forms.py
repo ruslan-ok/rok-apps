@@ -34,9 +34,9 @@ class PeriodForm(forms.ModelForm):
     class Meta:
         model = Period
         fields = ['planDays', 'DebtInRate', 'AvansDate', 'AvansRate', 'PaymentDate', 'PaymentRate', 'Part2Date', 'Part2Rate']
-        widgets = { 'AvansDate':   DateInput(attrs = {'onchange': 'afterCalendarChanged(0,1)'}),
-                    'PaymentDate': DateInput(attrs = {'onchange': 'afterCalendarChanged(0,2)'}),
-                    'Part2Date':   DateInput(attrs = {'onchange': 'afterCalendarChanged(0,3)'}) }
+        widgets = { 'AvansDate':   DateInput(attrs = {'onchange': 'AfterCalendarChanged(0,1)'}),
+                    'PaymentDate': DateInput(attrs = {'onchange': 'AfterCalendarChanged(0,2)'}),
+                    'Part2Date':   DateInput(attrs = {'onchange': 'AfterCalendarChanged(0,3)'}) }
 
 class EmployeeForm(forms.ModelForm):
     class Meta:

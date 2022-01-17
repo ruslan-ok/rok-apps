@@ -44,6 +44,7 @@ def ripe():
     ----------
     True if a new piece of data is ready for processing.
     """
+    #print('logs.ripe()')
     prev_log_sz = read_log_sz()
     new_log_sz = Path(apache_log).stat().st_size
     return (new_log_sz > prev_log_sz)
@@ -57,6 +58,7 @@ def process(log):
         Method for logging processed data.
     """
     try:
+        #print('logs.process()')
         mgr = Manager(log)
         mgr.process()
         mgr.done()

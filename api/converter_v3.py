@@ -38,7 +38,7 @@ STAGES = {
     APP_TODO:   0,
     APP_NOTE:   0,
     APP_NEWS:   0,
-    APP_STORE:  1,
+    APP_STORE:  0,
     APP_EXPEN:  0,
     APP_TRIP:   0,
     APP_FUEL:   0,

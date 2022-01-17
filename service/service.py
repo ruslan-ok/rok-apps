@@ -30,6 +30,7 @@ class Checker():
         self.log('Started')
 
     def check(self):
+        #print('check()')
         try:
             if stat_ripe():
                 stat_process(self.log)

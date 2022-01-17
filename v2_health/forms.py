@@ -21,8 +21,8 @@ class IncidentForm(forms.ModelForm):
         model = Incident
         exclude = ['user']
         widgets = {
-            'beg': DateInput(attrs = {'onchange': 'afterCalendarChanged(0,1)'}),
-            'end': DateInput(attrs = {'onchange': 'afterCalendarChanged(0,2)'}),
+            'beg': DateInput(attrs = {'onchange': 'AfterCalendarChanged(0,1)'}),
+            'end': DateInput(attrs = {'onchange': 'AfterCalendarChanged(0,2)'}),
             'info': forms.Textarea(attrs={'rows': 10, 'cols': 30, 'placeholder': _('add description').capitalize(), 'data-autoresize': ''}),
         }
 

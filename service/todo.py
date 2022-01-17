@@ -18,11 +18,11 @@ def ripe():
     ----------
     True if any.
     """
+    #print('todo.ripe()')
     from db import DB
     db = DB()
     db.open()
-    params = (datetime.now().strftime('%Y-%m-%d %H:%M:%S'),)
-    ret = db.execute('SELECT COUNT(id) FROM %d.todo_task WHERE completed = FALSE AND remind IS NOT NULL AND remind < ?', params)
+    ret = db.execute('SELECT COUNT(id) FROM %d.task_task WHERE completed = FALSE AND remind IS NOT NULL AND remind < CURRENT_TIMESTAMP()')
     db.close()
     return ret and ret[0] and ret[0][0] and (ret[0][0] > 0)
 
@@ -35,11 +35,11 @@ def process(log):
         Method for logging processed data.
     """
     try:
+        #print('todo.process()')
         from db import DB
         db = DB()
         db.open()
-        params = (datetime.now().strftime('%Y-%m-%d %H:%M:%S'),)
-        ret = db.execute('SELECT id, user_id, name, important, remind FROM %d.todo_task WHERE completed = FALSE AND remind IS NOT NULL AND remind < ? ORDER BY remind', params)
+        ret = db.execute('SELECT id, user_id, name, important, remind FROM task_task WHERE completed = FALSE AND remind IS NOT NULL AND remind < CURRENT_TIMESTAMP() ORDER BY remind')
         for x in ret:
             task = {}
             task['id'] = x[0]
@@ -111,5 +111,5 @@ def remind_one_task(log, db, task):
     
     log('[TODO] Remind task ID: {}, ok: {}, err: {}, resp: {}, name: "{}"'.format(task['id'], r.success_count, r.failure_count, ret_resp, task['name']))
 
-    db.execute('UPDATE %d.todo_task SET last_remind = ?, remind = NULL WHERE id = ?', (datetime.now(), task['id']))
+    db.execute('UPDATE %d.task_task SET last_remind = ?, remind = NULL WHERE id = ?', (datetime.now(), task['id']))
 
