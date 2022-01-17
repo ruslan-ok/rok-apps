@@ -1,6 +1,12 @@
 {% extends "base/page_content.html" %}
 {% load static i18n %}
 
+{% block extrastyle %}
+  {{ block.super }}
+  <link href="{% static 'scss/form.css' %}" rel="stylesheet">
+  <link href="{% static 'scss/widgets.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block main %}
   <form method="post" class="item-form px-2" enctype="multipart/form-data" id="article_form" data-item_id="{{ ed_item.id|cut:" " }}">{% csrf_token %}
     {% include "base/title.html" %}
@@ -33,3 +39,7 @@
   </form>
 {% endblock %}
 
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'js/form.js' %}"></script>
+{% endblock %}

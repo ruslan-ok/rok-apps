@@ -38,7 +38,7 @@ class ListView(BaseListView, TuneData):
         if (self.request.method == 'GET'):
             query = self.request.GET.get('q')
         if query:
-            super().get(self, request, *args, **kwargs)
+            super().get(request, *args, **kwargs)
             context = self.get_context_data(**kwargs)
             template = loader.get_template('base/list.html')
             return HttpResponse(template.render(context, request))

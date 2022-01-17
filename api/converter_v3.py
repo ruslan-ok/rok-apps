@@ -35,19 +35,19 @@ from rusel.secret import storage_dvlp #, storage_prod, service_dvlp, service_pro
 storage_path = storage_dvlp
 
 STAGES = {
-    APP_TODO:   1,
-    APP_NOTE:   1,
-    APP_NEWS:   1,
+    APP_TODO:   0,
+    APP_NOTE:   0,
+    APP_NEWS:   0,
     APP_STORE:  1,
-    APP_EXPEN:  1,
-    APP_TRIP:   1,
-    APP_FUEL:   1,
-    APP_APART:  1,
-    APP_WORK:   1,
-    APP_HEALTH: 1,
-    APP_DOCS:   1,
-    APP_WARR:   1,
-    APP_PHOTO:  1,
+    APP_EXPEN:  0,
+    APP_TRIP:   0,
+    APP_FUEL:   0,
+    APP_APART:  0,
+    APP_WORK:   0,
+    APP_HEALTH: 0,
+    APP_DOCS:   0,
+    APP_WARR:   0,
+    APP_PHOTO:  0,
 }
 
 def convert_v3():
@@ -182,7 +182,17 @@ def done(result):
 def transfer_grp(result, app, role, grp_node, task_grp_node):
     grps = Grp.objects.filter(app=app, node=grp_node)
     for grp in grps:
-        task_grp = Group.objects.create(user=grp.user, app=grp.app, role=grp.app, node=task_grp_node, name=grp.name, sort=grp.sort, created=grp.created, last_mod=grp.last_mod, act_items_qty=0)
+        task_grp = Group.objects.create(user=grp.user, 
+                                        app=grp.app, 
+                                        role=grp.app, 
+                                        node=task_grp_node, 
+                                        name=grp.name, 
+                                        sort=grp.sort, 
+                                        created=grp.created, 
+                                        last_mod=grp.last_mod, 
+                                        act_items_qty=0,
+                                        use_sub_groups=True,
+                                        )
         inc(result, app, role, 'Group', 'added')
         transfer_grp(result, app, role, grp, task_grp)
         transfer_lst(result, app, role, grp, task_grp)
@@ -200,6 +210,7 @@ def transfer_lst(result, app, role, grp, task_grp):
                                          created=lst.created, 
                                          last_mod=lst.last_mod,
                                          act_items_qty=0,
+                                         use_sub_groups=True,
                                          )
         inc(result, app, role, 'Group', 'added')
         if (role == ROLE_TODO):
@@ -428,6 +439,7 @@ def transfer_store(result, lst, task_grp):
 
     items = Entry.objects.filter(lst=lst, actual=0)
     for item in items:
+        parent_task = None
         if task_grp:
             atasks = Task.objects.filter(user=item.user.id, name=item.title, app_store=NUM_ROLE_STORE, store_hist=None, groups__id=task_grp.id)
         else:
@@ -437,43 +449,62 @@ def transfer_store(result, lst, task_grp):
             raise Exception('Duplication of Store items')
 
         if (len(atasks) == 1):
-            atask = atasks[0]
+            parent_task = atasks[0]
             if item.url:
                 Urls.objects.create(task=atask, num=2, href=item.url)
                 inc(result, APP_STORE, ROLE_STORE, 'Urls', 'added')
-        hist = item.last_mod
-        if not hist:
-            hist = item.created
-        if not hist:
-            hist = datetime.now()
+        hist_dt = item.last_mod
+        if not hist_dt:
+            hist_dt = item.created
+        if not hist_dt:
+            hist_dt = datetime.now()
 
-        atask = Task.objects.create(user=item.user,
-                                    src_id=item.id,
-                                    app_store=NUM_ROLE_STORE,
-                                    name=item.title,
-                                    categories=item.categories,
-                                    info=str(item.notes).replace('\\r\\n', '\n') if item.notes else '',
-                                    completed=(item.actual==0),
-                                    store_username=item.username,
-                                    store_value=item.value,
-                                    store_uuid=item.uuid,
-                                    store_params=item.params,
-                                    store_hist=hist,
-                                    )
-        inc(result, APP_STORE, ROLE_STORE, 'Task', 'added_broken_Entry')
+        if parent_task:
+            atask = Task.objects.create(user=item.user,
+                                        src_id=item.id,
+                                        app_store=NUM_ROLE_STORE_HIST,
+                                        name=item.title,
+                                        categories=item.categories,
+                                        info=str(item.notes).replace('\\r\\n', '\n') if item.notes else '',
+                                        completed=(item.actual==0),
+                                        store_username=item.username,
+                                        store_value=item.value,
+                                        store_uuid=item.uuid,
+                                        store_params=item.params,
+                                        store_hist=hist_dt,
+                                        task_1=parent_task,
+                                        )
+            inc(result, APP_STORE, ROLE_STORE_HIST, 'Task', 'added_hist_Entry')
+            if item.url:
+                Urls.objects.create(task=parent_task, num=2, href=item.url)
+                inc(result, APP_STORE, ROLE_STORE, 'Urls', 'added')
+        else:
+            atask = Task.objects.create(user=item.user,
+                                        src_id=item.id,
+                                        app_store=NUM_ROLE_STORE,
+                                        name=item.title,
+                                        categories=item.categories,
+                                        info=str(item.notes).replace('\\r\\n', '\n') if item.notes else '',
+                                        completed=(item.actual==0),
+                                        store_username=item.username,
+                                        store_value=item.value,
+                                        store_uuid=item.uuid,
+                                        store_params=item.params,
+                                        store_hist=hist_dt,
+                                        )
+            inc(result, APP_STORE, ROLE_STORE, 'Task', 'added_broken_Entry')
+            if item.url:
+                Urls.objects.create(task=atask, num=1, href=item.url)
+                inc(result, APP_STORE, ROLE_STORE, 'Urls', 'added')
+
+            atask.set_item_attr(APP_STORE, store_get_info(atask))
         
-        if task_grp:
-            TaskGroup.objects.create(task=atask, group=task_grp, role=task_grp.role)
-            if not atask.completed:
-                task_grp.act_items_qty += 1
-                task_grp.save()
-            inc(result, APP_STORE, ROLE_STORE, 'TaskGroup', 'added')
-
-        if item.url:
-            Urls.objects.create(task=atask, num=1, href=item.url)
-            inc(result, APP_STORE, ROLE_STORE, 'Urls', 'added')
-
-        atask.set_item_attr(APP_STORE, store_get_info(atask))
+        # if task_grp:
+        #     TaskGroup.objects.create(task=atask, group=task_grp, role=task_grp.role)
+        #     if not atask.completed:
+        #         task_grp.act_items_qty += 1
+        #         task_grp.save()
+        #     inc(result, APP_STORE, ROLE_STORE, 'TaskGroup', 'added')
 
 
 def transfer_expen_proj(result):
@@ -491,6 +522,7 @@ def transfer_expen_proj(result):
                             expen_usd=item.tot_usd,
                             expen_eur=item.tot_eur,
                             act_items_qty=0,
+                            use_sub_groups=True,
                             )
         inc(result, APP_EXPEN, ROLE_EXPENSE, 'Group', 'added')
 

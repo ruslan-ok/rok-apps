@@ -2,6 +2,7 @@
 
     <div class="termin-block-expandable">
       <!-- Task.stop VIEW -->
+      {{ form.stop.errors }} 
       <div class="termin-block" id="termin-view">
         <button type="button" class="termin-block__content" onclick="ToggleSelectField('termin')">
           <i class="bi-check2-square termin-block__icon"></i>
@@ -45,7 +46,6 @@
           <div class="c004">{{ termin_next_week_info }}</div>
         </button>
         <div class="section-inner">
-          {{ form.stop.errors }} 
           <div class="section-content">
             <div class="section-title"></div>
             {{ form.stop }}
@@ -57,6 +57,9 @@
     </div>
       
     <div class="termin-block-expandable">
+      {{ form.repeat_num.errors }}
+      {{ form.repeat.errors }}
+      {{ form.repeat_days.errors }}
       <!-- Task.repeat VIEW -->
       <div class="termin-block" id="repeat-view">
         <button type="button" class="termin-block__content" onclick="ToggleSelectField('repeat')">
@@ -139,6 +142,7 @@
 
       <!-- Task.remind VIEW -->
       <div class="termin-block" id="remind-view">
+        {{ form.remind.errors }}
         <button type="button" class="termin-block__content" onclick="ToggleSelectField('remind')">
           <i class="bi-bell termin-block__icon"></i>
           <div id="id_remind_title" class="termin-block__title">

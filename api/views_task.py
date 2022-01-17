@@ -13,7 +13,6 @@ from task.models import Task, Group, TaskGroup
 from rusel.files import storage_path
 from api.serializers import TaskSerializer
 from apart.models import Apart, Price, Meter, Bill
-from store.models import Entry
 
 from apart.views.meter import add_meter
 from apart.views.price import add_price
@@ -22,10 +21,12 @@ from fuel.views.fuel import add_fuel
 from fuel.views.part import add_part
 from fuel.views.serv import add_serv
 from health.views.marker import add_item as add_marker
+from store.views import add_item as add_store
 
 from todo.get_info import get_info as todo_get_info
 from note.get_info import get_info as note_get_info
 from news.get_info import get_info as news_get_info
+from store.get_info import get_info as store_get_info
 from apart.views.apart import get_info as apart_get_info
 from apart.views.price import get_info as price_get_info
 from apart.views.meter import get_info as meter_get_info
@@ -61,6 +62,8 @@ class TaskViewSet(viewsets.ModelViewSet):
             task.set_item_attr(APP_NOTE, note_get_info(task))
         if (task.app_news == NUM_ROLE_NEWS):
             task.set_item_attr(APP_NEWS, news_get_info(task))
+        if (task.app_store == NUM_ROLE_STORE):
+            task.set_item_attr(APP_STORE, store_get_info(task))
         if (task.app_apart == NUM_ROLE_APART):
             task.set_item_attr(APP_APART, apart_get_info(task))
         if (task.app_apart == NUM_ROLE_PRICE):
@@ -117,15 +120,13 @@ class TaskViewSet(viewsets.ModelViewSet):
                 important = True
             if group and (group.determinator == 'view') and (group.view_id == 'planned'):
                 stop = datetime.now().replace(hour=9, minute=0, second=0) + timedelta(1)
-            task = Task.objects.create(user=request.user, app_task=NUM_ROLE_TODO, name=name, in_my_day=in_my_day, important=important, stop=stop)
+            task = Task.objects.create(user=request.user, app_task=NUM_ROLE_TODO, name=name, in_my_day=in_my_day, important=important, stop=stop, repeat_days=0)
         if (app == APP_NOTE) and (role == ROLE_NOTE):
             task = Task.objects.create(user=request.user, app_note=NUM_ROLE_NOTE, name=name, event=datetime.now())
         if (app == APP_NEWS) and (role == ROLE_NEWS):
             task = Task.objects.create(user=request.user, app_news=NUM_ROLE_NEWS, name=name, event=datetime.now())
         if (app == APP_STORE) and (role == ROLE_STORE):
-            task = Task.objects.create(user=request.user, app_store=NUM_ROLE_STORE, name=name, event=datetime.now())
-            params, username, value = Entry.get_new_value(request.user)
-            Entry.objects.create(user=request.user, title=name, username=username, value=value, actual=1, params=params, task=task)
+            task = add_store(request.user, name)
         if (app == APP_DOCS) and (role == ROLE_DOC):
             task = Task.objects.create(user=request.user, app_doc=NUM_ROLE_DOC, name=name, event=datetime.now())
         if (app == APP_WARR) and (role == ROLE_WARR):
@@ -594,7 +595,6 @@ class TaskViewSet(viewsets.ModelViewSet):
         
         if (role == ROLE_STORE):
             task.app_store = NONE
-            Entry.objects.filter(task=task).delete()
         
         if (role == ROLE_DOC):
             task.app_doc = NONE
@@ -633,8 +633,11 @@ class TaskViewSet(viewsets.ModelViewSet):
             task.app_photo = NONE
         
         tgs = TaskGroup.objects.filter(task=task.id, role=role)
-        if (len(tgs) > 0):
-            tgs.delete()
+        if (len(tgs) == 1):
+            if (not task.completed) and (tgs[0].group.act_items_qty > 0):
+                tgs[0].group.act_items_qty -= 1
+                tgs[0].group.save()
+            tgs[0].delete()
 
         if ((task.app_task + task.app_note + task.app_news + task.app_store + task.app_doc + task.app_warr + task.app_expen + 
             task.app_trip + task.app_fuel + task.app_apart + task.app_health + task.app_work + task.app_photo) == 0):

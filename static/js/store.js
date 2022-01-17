@@ -3,7 +3,7 @@ valueEditCheck();
 
 function valueEditCheck()
 {
-  element = document.getElementById('id_value');
+  element = document.getElementById('id_store_value');
   var generator = !protectedValue || (element.value == '')
   element.readOnly = !generator;
   if (generator)
@@ -99,7 +99,7 @@ function buildValue()
     var randomPoz = Math.floor(Math.random() * allowed_chars.length);
     randomString += allowed_chars.substring(randomPoz, randomPoz + 1);
   }
-  document.getElementById('id_value').value = randomString;
+  document.getElementById('id_store_value').value = randomString;
 
   var params = 0;
   if (uc)

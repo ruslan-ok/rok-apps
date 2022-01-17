@@ -161,7 +161,8 @@ def detect_group(user, app, determinator, view_id, name):
             determinator=determinator, 
             view_id=view_id,
             name=name,
-            act_items_qty=0,)
+            act_items_qty=0,
+            use_sub_groups=True,)
     return group
 
 class Context:
@@ -338,7 +339,7 @@ class BaseListView(ListView, Context, LoginRequiredMixin):
         strong = '<strong>' + query + '</strong>'
         if query in task.name:
             task.name = strong.join(task.name.split(query))
-        if query in task.info:
+        if task.info and query in task.info:
             if (len(task.info) < 200):
                 fnd_info = task.info
             else:

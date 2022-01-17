@@ -137,11 +137,13 @@ NUM_ROLE_PHOTO = 34
 NUM_ROLE_ACCOUNT = 35
 NUM_ROLE_CHART_WAIST = 36
 NUM_ROLE_CHART_TEMP = 37
+NUM_ROLE_STORE_HIST = 38
 
 ROLE_TODO        = 'todo'            
 ROLE_NOTE        = 'note'            
 ROLE_NEWS        = 'news'            
 ROLE_STORE       = 'store'           
+ROLE_STORE_HIST  = 'store_hist'
 ROLE_DOC         = 'doc'             
 ROLE_WARR        = 'warr'            
 ROLE_EXPENSE     = 'expense'           
@@ -181,7 +183,8 @@ ALL_ROLES = (
     ROLE_TODO,             
     ROLE_NOTE,             
     ROLE_NEWS,             
-    ROLE_STORE,            
+    ROLE_STORE,
+    ROLE_STORE_HIST,
     ROLE_DOC,              
     ROLE_WARR,             
     ROLE_EXPENSE,            
@@ -222,7 +225,7 @@ ROLES_IDS = {
     APP_TODO: { ROLE_TODO: NUM_ROLE_TODO },
     APP_NOTE: { ROLE_NOTE: NUM_ROLE_NOTE },
     APP_NEWS: { ROLE_NEWS: NUM_ROLE_NEWS },
-    APP_STORE: { ROLE_STORE: NUM_ROLE_STORE },
+    APP_STORE: { ROLE_STORE: NUM_ROLE_STORE, ROLE_STORE_HIST: NUM_ROLE_STORE_HIST, },
     APP_DOCS: { ROLE_DOC: NUM_ROLE_DOC },
     APP_WARR: { ROLE_WARR: NUM_ROLE_WARR },
     APP_EXPEN: { ROLE_EXPENSE: NUM_ROLE_EXPENSE },
@@ -244,7 +247,7 @@ There are Available Roles for each Application
 TASK_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_TODO, _('task'))]
 NOTE_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_NOTE, _('note'))]
 NEWS_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_NEWS, _('news'))] 
-STORE_ROLE_CHOICE  = [(NONE, '--------'), (NUM_ROLE_STORE, _('store'))]
+STORE_ROLE_CHOICE  = [(NONE, '--------'), (NUM_ROLE_STORE, _('store')), (NUM_ROLE_STORE_HIST, _('store history')), ]
 DOC_ROLE_CHOICE    = [(NONE, '--------'), (NUM_ROLE_DOC, _('doc'))]
 WARR_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_WARR, _('warranty'))]
 EXPEN_ROLE_CHOICE  = [(NONE, '--------'), (NUM_ROLE_EXPENSE, _('operation'))]
@@ -263,6 +266,7 @@ ROLE_BY_NUM = {
     NUM_ROLE_NOTE         : ROLE_NOTE        , 
     NUM_ROLE_NEWS         : ROLE_NEWS        , 
     NUM_ROLE_STORE        : ROLE_STORE       , 
+    NUM_ROLE_STORE_HIST   : ROLE_STORE_HIST  , 
     NUM_ROLE_DOC          : ROLE_DOC         , 
     NUM_ROLE_WARR         : ROLE_WARR        , 
     NUM_ROLE_EXPENSE      : ROLE_EXPENSE     , 
@@ -303,6 +307,7 @@ ROLE_ICON = {
     ROLE_NOTE: 'sticky',
     ROLE_NEWS: 'newspaper',
     ROLE_STORE: 'key',
+    ROLE_STORE_HIST: 'clock-history',
     ROLE_DOC: 'file-text',
     ROLE_WARR: 'award',
     ROLE_EXPENSE: 'piggy-bank',
@@ -369,6 +374,7 @@ ROLE_APP = {
     ROLE_NOTE: APP_NOTE,
     ROLE_NEWS: APP_NEWS,
     ROLE_STORE: APP_STORE,
+    ROLE_STORE_HIST: APP_STORE,
     ROLE_DOC: APP_DOCS,
     ROLE_WARR: APP_WARR,
     ROLE_EXPENSE: APP_EXPEN,

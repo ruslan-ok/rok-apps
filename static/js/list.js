@@ -111,9 +111,12 @@ function toggleImportant(item_id, redirect=true) {
     runAPI(api, callback);
 }
 
-function addItem(app, role, group_id) {
-    const name = document.getElementById('id_add_item_name');
+function addItem(app, role, group_id, screen_size='') {
     let param_name = '';
+    let id = 'id_add_item_name';
+    if (screen_size != '')
+        id += '_' + screen_size;
+    var name = document.getElementById(id);
     if (name)
         param_name = '&name=' + name.value;
     param_group = '&group_id=' + group_id;

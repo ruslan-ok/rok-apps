@@ -39,26 +39,26 @@ class EditForm(BaseEditForm):
         required=False,
         queryset=Group.objects.filter(role=role).order_by('sort'), 
         widget=forms.Select(attrs={'class': 'form-control select mb-3'}))
-    url = forms.CharField(
-        label=_('URLs'),
-        required=False,
-        widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add link').capitalize()}))
     categories = forms.CharField(
         label=_('categories').capitalize(),
         required=False,
         widget=CategoriesInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add category').capitalize()}))
+    url = forms.CharField(
+        label=_('URLs'),
+        required=False,
+        widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add link').capitalize()}))
 
     
     class Meta:
         model = Task
-        fields = ['completed', 'name', 'add_step', 'remind', 'stop', 'repeat', 'repeat_num', 'repeat_days', 
-                'categories', 'url', 'info', 'grp', 'upload']
+        fields = ['completed', 'name', 'add_step', 'stop', 'repeat', 'repeat_num', 'repeat_days', 'remind', 
+                    'info', 'grp', 'categories', 'url', 'upload']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
-            'remind': forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime d-inline-block mb-3 me-3', 'type': 'datetime-local'}),
             'repeat': forms.Select(attrs={'class': 'form-control-sm'}),
             'repeat_num': forms.NumberInput(attrs={'class': 'form-control-sm d-inline-block'}),
             'repeat_days': forms.NumberInput(attrs={'class': 'form-control d-inline-block'}),
+            'remind': forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime d-inline-block mb-3 me-3', 'type': 'datetime-local'}),
             'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),
         }
 

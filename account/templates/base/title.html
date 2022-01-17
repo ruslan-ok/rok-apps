@@ -38,14 +38,14 @@
                         onclick="addRole('{{ role.name }}')" title="Possible related role is '{{ role.name }}'"></button>
                 {% endfor %}
             </div>
-            {% include "base/tune.html" %}
+            {% include "base/tune.html" with screen_size="big" %}
         </div>
     </div>
 
     <div class="content-title d-md-none d-flex justify-content-between">
         <div class="title"></div>
         <div class="actions d-flex">
-            {% include "base/tune.html" %}
+            {% include "base/tune.html" with screen_size="small" %}
         </div>
     </div>
 {% endblock %}

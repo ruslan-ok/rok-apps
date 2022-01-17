@@ -46,9 +46,12 @@ function runAPI(api, callback, method='GET') {
     xhttp.send();
 }
 
-function addItem(app, role, group_id) {
-    const name = document.getElementById('id_add_item_name');
+function addItem(app, role, group_id, screen_size='') {
     let param_name = '';
+    let id = 'id_add_item_name';
+    if (screen_size != '')
+        id += '_' + screen_size;
+    var name = document.getElementById(id);
     if (name)
         param_name = '&name=' + name.value;
     param_group = '&group_id=' + group_id;
@@ -111,7 +114,13 @@ function delItem(role) {
         redirect_url = window.location.href.split('/' + item_id + '/')[0] + '/?group=' + grp.value;
     const api = '/api/tasks/' + item_id + '/role_delete/?format=json&role=' + role;
     const callback = function() {
+        if (this.readyState == 3 && this.status == 400) {
+            let resp = JSON.parse(this.response);
+            if (resp && resp.Error)
+                alert(resp.Error);
+        }
         if (this.readyState == 4 && this.status == 200) {
+            // alert('redirected to: ' + redirect_url);
             window.location.href = redirect_url;
         }
     };

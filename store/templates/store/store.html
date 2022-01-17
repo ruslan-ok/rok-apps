@@ -4,11 +4,11 @@
 {% block item_detail %}
     <div class="row mb-3">
       <div class="col-sm">{{ form.name.errors }}{{ form.name.label_tag }}{{ form.name }}</div>
-      <div class="col-sm">{{ form.username.errors }}{{ form.username.label_tag }}{{ form.username }}</div>
-      <div class="col-sm">{{ form.value.errors }}{{ form.value.label_tag }}{{ form.value }}</div>
+      <div class="col-sm">{{ form.store_username.errors }}{{ form.store_username.label_tag }}{{ form.store_username }}</div>
+      <div class="col-sm">{{ form.store_value.errors }}{{ form.store_value.label_tag }}{{ form.store_value }}</div>
       <input type="hidden" name="default_len" value="{{ default_len }}" id="id_default_len">
       <input type="hidden" name="default_params" value="{{ default_params }}" id="id_default_params">
-      <input type="hidden" name="params" value="{{ form.params.value }}" required="" id="id_params">
+      <input type="hidden" name="params" value="{{ form.store_params.value }}" required="" id="id_params">
     </div>
 
     <div>
@@ -36,10 +36,10 @@
           <tbody>
             {% for item in history %}
               <tr>
-                <th scope="row">{{ item.last_mod|date:'d.m.Y' }}</th>
-                <td>{{ item.username }}</td>
-                <td>{{ item.value }}</td>
-                <td>{{ item.notes }}</td>
+                <th scope="row">{{ item.completed|date:'d.m.Y' }}</th>
+                <td>{{ item.store_username }}</td>
+                <td>{{ item.store_value }}</td>
+                <td>{{ item.info }}</td>
               </tr>
             {% endfor %}
             </tbody>
