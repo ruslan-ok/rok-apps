@@ -1,0 +1,50 @@
+{% load static i18n %}
+
+    <div class="col {{ widget.attrs.class }}">
+      {% if form.value.errors %}
+        <div class="row">
+          <div class="field-error">{{ form.value.errors }} - value</div>
+        </div>
+      {% endif %}
+      {% if form.params.errors %}
+        <div class="row">
+          <div class="field-error">{{ form.params.errors }} - params</div>
+        </div>
+      {% endif %}
+      <div class="row">
+        {% if widget.attrs.label %}<label for="{{ widget.attrs.id }}" class="form-label">{{ widget.attrs.label }}</label>{% endif %}
+      </div>
+      <div class="d-flex">
+        <div class="input-group">
+          <div class="input-group-append">
+            <div class="btn btn-outline-secondary bi-files" id="id_copy" onclick="copyToClipboard(this, 'value')"></div>
+          </div>
+          <input type="{{ widget.type }}" name="{{ widget.name }}" class="form-control {{ widget.attrs.class_input }}" 
+                id="{{ widget.attrs.id }}" value="{{ widget.value }}"
+                {% for name, value in widget.attrs.items %}
+                    {% if value is not False %} {{ name }}
+                    {% if value is not True %}="{{ value|stringformat:'s' }}"{% endif %}{% endif %}
+                {% endfor %}>
+        </div>
+        <div class="btn btn-secondary d-none bi-pencil" id="id_edit" onclick="openParams()"></div>
+        <div class="btn btn-secondary bi-arrow-bar-up" id="id_close" onclick="closeParams()"></div>
+      </div>
+    </div>
+    <div class="row expandable-part" id="id_options">
+        <div class="col">
+          <div><label for="id_ln">Длина:</label> 
+            <input type="number" name="ln" value="15" min="5" max="100" required="" id="id_ln" class="field-control"> </div>
+          <div><input type="checkbox" name="uc" id="id_uc" checked="">  <label for="id_uc">Буквы в верхнем регистре</label> </div>
+          <div><input type="checkbox" name="lc" id="id_lc" checked="">  <label for="id_lc">Буквы в нижнем регистре</label>  </div>
+          <div><input type="checkbox" name="dg" id="id_dg" checked="">  <label for="id_dg">Цифры</label>                    </div>
+          <div><input type="checkbox" name="sp" id="id_sp">             <label for="id_sp">Специальные символы</label>      </div>
+          <div><input type="checkbox" name="br" id="id_br">             <label for="id_br">Скобки</label>                   </div>
+          <div><input type="checkbox" name="mi" id="id_mi">             <label for="id_mi">Минус</label>                    </div>
+          <div><input type="checkbox" name="ul" id="id_ul">             <label for="id_ul">Знак подчеркивания</label>       </div>
+          <div><input type="checkbox" name="ac" id="id_ac" checked="">  <label for="id_ac">Исключить путаницу</label>       </div>
+        </div>
+      <div class="d-flex justify-content-end" id="id_buttons">
+        <div class="btn btn-primary bi-lightbulb" id="id_execute" onclick="buildValue()"></div>
+      </div>
+    </div>
+    <div id="valueAlertPlaceholder"></div>

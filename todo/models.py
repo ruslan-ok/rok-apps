@@ -3,16 +3,17 @@ from datetime import datetime, date, timedelta
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
+from task.const import APP_TODO
 
-from hier.categories import get_categories_list
-from hier.files import get_files_list
-from .utils import nice_date, GRPS_PLANNED
+from v2_hier.categories import get_categories_list
+from v2_hier.files import get_files_list
+from v2_todo.utils import nice_date, GRPS_PLANNED
 
 app_name = 'todo'
 
 class Grp(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'))
-    app = models.CharField(_('application name'), max_length = 50, blank = False, default = 'todo', null = True)
+    app = models.CharField(_('application name'), max_length = 50, blank = False, default = APP_TODO, null = True)
     created = models.DateTimeField(_('creation time'), blank = True, auto_now_add = True)
     last_mod = models.DateTimeField(_('last modification time'), blank = True, auto_now = True)
     node = models.ForeignKey('self', on_delete = models.CASCADE, verbose_name = _('node'), blank = True, null = True)
@@ -30,7 +31,7 @@ class Grp(models.Model):
 
 class Lst(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'))
-    app = models.CharField(_('application name'), max_length = 50, blank = False, default = 'todo', null = True)
+    app = models.CharField(_('application name'), max_length = 50, blank = False, default = APP_TODO, null = True)
     created = models.DateTimeField(_('creation time'), blank = True, auto_now_add = True)
     last_mod = models.DateTimeField(_('last modification time'), blank = True, auto_now = True)
     grp = models.ForeignKey(Grp, on_delete = models.CASCADE, verbose_name = _('group'), blank = True, null = True)

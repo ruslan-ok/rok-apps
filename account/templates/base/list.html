@@ -1,0 +1,59 @@
+{% extends "base/page_content.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+  {{ block.super }}
+    <link href="{% static 'scss/tune.css' %}" rel="stylesheet">
+    <link href="{% static 'scss/list.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block main %}
+<div class="list-content{% if theme_id %} theme-{{theme_id}}{% endif %}">
+  <form method="post" class="d-none">{% csrf_token %}</form>
+  {% include "base/title.html" %}
+
+  {% if summary %}
+    <div>
+      {% for item in summary %}
+        <span class="sort">
+          <i class="sort__icon bi-star"></i>
+          <span class="sort__name">{{ item }}</span>
+        </span>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if sort_id %}
+    <div>
+      <span type="button" class="sort" onclick="reverseSort({{config.cur_view_group.id|escape}}, '{{sort_id|escape}}')">
+        <i class="sort__icon {% if sort_reverse %}bi-arrow-down{% else %}bi-arrow-up{%endif %}"></i>
+        <span class="sort__name">{{ sort_name }}</span>
+      </span>
+      <div type="button" class="sort-delete btn bi-x" onclick="delSort({{config.cur_view_group.id|escape}})"></div>
+    </div>
+  {% endif %}
+
+  {% if use_sub_groups %}
+    {% for sub_group in sub_groups %}
+      {% include "base/sub_group.html" %}
+      <ul id="id-sub-group-{{ sub_group.id|escape }}"{% if sub_group.qty == 0 or not sub_group.is_open %} class="d-none"{% endif %}>
+        {% for item in sub_group.items %}
+          {% include "base/item.html" %}
+        {% endfor %}
+      </ul>
+    {% endfor %}
+  {% else %}
+    <ul>
+      {% for item in object_list %}
+        {% include "base/item.html" %}
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'js/list.js' %}"></script>
+{% endblock %}

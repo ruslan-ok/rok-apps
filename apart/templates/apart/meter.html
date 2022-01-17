@@ -1,0 +1,26 @@
+{% extends "base/item_detail.html" %}
+{% load static i18n %}
+
+{% block item_detail %}
+    <div class="row">
+        {{ form.start }}
+        {{ form.event }}
+        <div class="col"></div>
+        <div class="col"></div>
+    </div>
+    <div class="row">
+        {{ form.meter_el }}
+        {{ form.meter_hw }}
+        {{ form.meter_cw }}
+        {{ form.meter_ga }}
+    </div>
+    {{ form.info.label_tag }}{{ form.info }}
+    <div class="row">
+        <div class="col">{{ form.url.label_tag }} {{ form.url }}</div>
+        <div class="col">{{ form.upload }}</div>
+    </div>
+
+    {% include "widgets/url_list.html" %}
+    {% include "widgets/attachments.html" %}
+{% endblock %}
+

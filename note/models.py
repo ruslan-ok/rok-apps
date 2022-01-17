@@ -4,9 +4,9 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from todo.models import Lst
-from hier.files import get_files_list
+from v2_hier.files import get_files_list
 from hier.models import get_app_params
-from hier.categories import get_categories_list
+from v2_hier.categories import get_categories_list
 
 app_name = 'note'
 

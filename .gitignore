@@ -17,6 +17,10 @@ firebase-messaging-sw.js
 .project
 .pydevproject
 rusel-by-firebase-adminsdk-*.json
+static/scss/*.css
+static/scss/*.css.map
+static/backgrounds/*/*.*
+
 
 # Windows image file caches
 Thumbs.db

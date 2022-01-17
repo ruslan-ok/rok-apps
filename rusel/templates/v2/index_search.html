@@ -1,0 +1,87 @@
+{% extends "v2_hier/page.html" %}
+{% load static i18n %}
+
+{% block aside_conent %}
+  <div class="launcher-menu">
+    {% for app in apps %}
+      <a href="{{ app.href }}" class="launcher-button"><img src="{% static app.icon %}"><span class="marked">{{ app.name }}</span></a>
+    {% endfor %}
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="w3-container">
+        <h3>
+          {{ title|capfirst }}
+        </h3>
+  
+    <div class="w3-row w3-padding search">
+      {% if not search_data %}
+        <div class="search_info">
+          {% trans 'Nothing found for' %} <div class="query">{{ request.GET.q }}</div>
+          <form method="get">
+            <button type="submit" class="button" title="{% trans 'clear search'|capfirst %}"><img src="{% static 'v2/rok/icon/clear.png' %}"></button>
+          </form>
+        </div>
+      {% else %}
+        <div class="statistics">
+          <div class="">
+            <div class="search_info">
+              {% trans 'contained'|capfirst %} 
+              <div class="query">{{ search_info }}</div>
+              <form method="get">
+                <button type="submit" class="button" title="{% trans 'clear search'|capfirst %}"><img src="{% static 'v2/rok/icon/clear.png' %}"></button>
+              </form>
+            </div>
+          </div>
+          <div class="main-title-subline">
+            {% trans 'results'|capfirst %}: {{ search_qty }}
+          </div>
+        </div>
+
+        <ul class="results">
+          {% for item in search_data %}
+            <li class="element">
+              <a class="link" href="{{ item.app }}/entity/{{ item.entity }}/{{ item.id|safe }}/" id="autofocus">
+                <div class="determinant">
+                  <div class="app">
+                    <img class="icon" src="{% static item.app_icon %}">
+                    <div class="name">{{ item.app_name }}</div>
+                  </div>
+                  {% if not item.main %}
+                  <div class="entity">
+                    <img class="icon" src="{% static item.ent_icon %}">
+                    <div class="name">{{ item.ent_name }}</div>
+                  </div>
+                  {% endif %}
+                  {% if item.detail1 %}
+                  <div class="container">
+                    <img class="icon" src="{% static 'v2/rok/icon/inline/separator.png' %}">
+                    <div class="name">{{ item.detail1 }}</div>
+                  </div>
+                  {% endif %}
+                  {% if item.detail2 %}
+                  <div class="container">
+                    <img class="icon" src="{% static 'v2/rok/icon/inline/separator.png' %}">
+                    <div class="name">{{ item.detail2 }}</div>
+                  </div>
+                  {% endif %}
+                  {% if item.created %}
+                  <div class="container">
+                    <img class="icon" src="{% static 'v2/rok/icon/inline/separator.png' %}">
+                    <div class="name">{{ item.created|date:"d.m.Y" }}</div>
+                  </div>
+                  {% endif %}
+                </div>
+                <div class="value">
+                  <div class="name">{{ item.name }}</div>
+                </div>
+              </a> 
+              <div class="info">{{ item.info|safe }}</div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

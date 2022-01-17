@@ -1,0 +1,26 @@
+{% extends "base/item_detail.html" %}
+{% load static i18n %}
+
+{% block item_detail %}
+    {{ form.name.errors }}{{ form.name.label_tag }}{{ form.name }}
+    {{ form.info.errors }}{{ form.info.label_tag }}{{ form.info }}
+    <div class="row">
+      <div class="col">
+        {{ form.apart_has_el }}
+        {{ form.apart_has_hw }}
+        {{ form.apart_has_cw }}
+      </div>
+      <div class="col">
+        {{ form.apart_has_gas }}
+        {{ form.apart_has_tv }}
+        {{ form.apart_has_phone }}
+      </div>
+      <div class="col">
+        {{ form.apart_has_zkx }}
+        {{ form.apart_has_ppo }}
+      </div>
+    </div>
+
+    {% include "widgets/attachments.html" %}
+{% endblock %}
+

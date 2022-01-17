@@ -1,0 +1,50 @@
+{% load static i18n %}
+
+<!-- Task.remind VIEW -->
+<div class="section-item" id="remind-view">
+  <div class="section-inner">
+    <div class="section-inner button" onclick="toggleSelectField('remind')">
+      <div class="section-icon">
+        <img src="{% static 'v2/todo/icon/remind.png' %}">
+      </div>
+      <div class="section-content">
+        <div class="section-title">
+          <div class="{% if ed_item.remind_active %}actual{% endif %}"> {{ ed_item.remind_date }} </div>
+          <div class="section-description"> {{ ed_item.remind_time }} </div>
+        </div>
+      </div>
+    </div>
+    <button type="button" name="remind_delete" class="field-icon{% if not ed_item.remind %} hide{% endif %}" onclick="changeRemind(0)"><img src="{% static 'v2/rok/icon/delete.png' %}"></button>
+  </div>
+</div>
+
+<!-- Task.remind SELECT -->
+<div class="section-item hide-default" id="remind-select">
+  <div class="dropdown-content-separator"></div>
+  <button type="button" class="dropdown-content-item c001" name="remind_today" onclick="changeRemind(1)">
+    <div class="c002">
+      <img src="{% static 'v2/todo/icon/remind-today.png' %}">
+      <span class="c003">{% trans 'later'|capfirst %}</span>
+    </div>
+    <div class="c004">{{ remind_today_info }}</div>
+  </button>
+  <button type="button" class="dropdown-content-item c001" name="remind_tomorrow" onclick="changeRemind(2)">
+    <div class="c002">
+      <img src="{% static 'v2/todo/icon/remind-tomorrow.png' %}">
+      <span class="c003">{% trans 'tomorrow'|capfirst %}</span>
+    </div>
+    <div class="c004">{{ remind_tomorrow_info }}</div>
+  </button>
+  <button type="button" class="dropdown-content-item c001" name="remind_next_week" onclick="changeRemind(3)">
+    <div class="c002">
+      <img src="{% static 'v2/todo/icon/remind-next-week.png' %}">
+      <span class="c003">{% trans 'next week'|capfirst %}</span>
+    </div>
+    <div class="c004">{{ remind_next_week_info }}</div>
+  </button>
+  <div class="section-inner">
+    {{ form.remind.label_tag }}
+    {{ form.remind }}
+  </div>
+  <div class="dropdown-content-separator"></div>
+</div>

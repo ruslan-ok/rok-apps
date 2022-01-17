@@ -1,83 +1,52 @@
-from django.forms import ModelForm, DecimalField, Textarea, BooleanField, NumberInput
-from django.utils.translation import gettext, gettext_lazy as _
-from django.core.exceptions import ValidationError
+from django import forms
+from django.utils.translation import gettext_lazy as _
 
-from .models import Person, Trip
+from rusel.base.forms import BaseCreateForm, BaseEditForm
+from task.models import Task, Group
+from task.const import ROLE_TRIP
+from trip.config import app_config
+from rusel.widgets import UrlsInput, CategoriesInput, SwitchInput
+from rusel.base.forms import GroupForm
 
-class TripFormBase(ModelForm):
-    summa = DecimalField(label = _('summa').capitalize(), widget=NumberInput(attrs={"step":"0.01", "class":"summa-style"}))
+role = ROLE_TRIP
 
-    class Meta:
-        model = Trip
-        fields = ['year', 'week', 'days', 'oper', 'price', 'driver', 'passenger', 'text', 'summa']
-
-
-class TripForm(TripFormBase):
-    day_11 = BooleanField(label = 'day_11', required = False)
-    day_12 = BooleanField(label = 'day_12', required = False)
-    day_13 = BooleanField(label = 'day_13', required = False)
-    day_14 = BooleanField(label = 'day_14', required = False)
-    day_15 = BooleanField(label = 'day_15', required = False)
-    day_16 = BooleanField(label = 'day_16', required = False)
-    day_17 = BooleanField(label = 'day_17', required = False)
-    day_21 = BooleanField(label = 'day_21', required = False)
-    day_22 = BooleanField(label = 'day_22', required = False)
-    day_23 = BooleanField(label = 'day_23', required = False)
-    day_24 = BooleanField(label = 'day_24', required = False)
-    day_25 = BooleanField(label = 'day_25', required = False)
-    day_26 = BooleanField(label = 'day_26', required = False)
-    day_27 = BooleanField(label = 'day_27', required = False)
-
-    class Meta(TripFormBase.Meta):
-        fields = TripFormBase.Meta.fields + ['text',
-                                             'day_11', 'day_12', 'day_13', 'day_14', 'day_15', 'day_16', 'day_17',
-                                             'day_21', 'day_22', 'day_23', 'day_24', 'day_25', 'day_26', 'day_27',
-                                             ]
-        widgets = { 'week': NumberInput(attrs={"class":"week-style"}),
-                    'year': NumberInput(attrs={"class":"year-style"}),
-                    'price': NumberInput(attrs={"step":"0.01", "class":"price-style"}),
-                    'text': Textarea(attrs={'rows':3, 'cols':10, 'placeholder':_('add note').capitalize()}) }
-
-    def __init__(self, user, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['driver'].queryset = Person.objects.filter(user = user).order_by('name')
-        self.fields['passenger'].queryset = Person.objects.filter(user = user).order_by('name')
-
-    def clean_year(self):
-        data = self.cleaned_data['year']
-        if (data < 2000) or (data > 2100):
-            self.add_error('year', 'Ожидался год в диапазоне от 2000 до 2100')
-        return data
-            
-    def clean_week(self):
-        data = self.cleaned_data['week']
-        if (data < 1) or (data > 53):
-            self.add_error('week', 'Ожидался номер недели в диапазоне от 1 до 53')
-        return data
-            
-    def clean_price(self):
-        data = self.cleaned_data['price']
-        if (data == 0):
-            self.add_error('price', 'Цена должна быть указана')
-        return data
-            
-    def clean(self):
-        super().clean()
-        if (self.cleaned_data['driver'] == self.cleaned_data['passenger']):
-            self.add_error('passenger', 'Укажите другого пассажира')
-            raise  ValidationError('Водитель и Пассажир должны отличаться')
-
-        self.cleaned_data['days'] = 0
-        for i in range(2):
-            for j in range(7):
-                if self.cleaned_data['day_' + str(i+1) + str(j+1)]:
-                    self.cleaned_data['days'] = self.cleaned_data['days'] + (1 << (i+j*2))
-        if (self.cleaned_data['oper'] == 0) and (self.cleaned_data['days'] == 0):
-            raise  ValidationError('Не отмечены дни недели')
-
-
-class PersonForm(ModelForm):
+#----------------------------------
+class CreateForm(BaseCreateForm):
 
     class Meta:
-        model = Person
-        exclude = ('user', 'me')
+        model = Task
+        fields = ['name']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(app_config, role, *args, **kwargs)
+        
+#----------------------------------
+class EditForm(BaseEditForm):
+    url = forms.CharField(
+        label=_('URLs'),
+        required=False,
+        widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add link').capitalize()}))
+    categories = forms.CharField(
+        label=_('categories').capitalize(),
+        required=False,
+        widget=CategoriesInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add category').capitalize()}))
+
+    class Meta:
+        model = Task
+        fields = ['name', 'info', 'url', 'categories', 'upload']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
+            'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(app_config, role, *args, **kwargs)
+
+#----------------------------------
+class PersonForm(GroupForm):
+    class Meta:
+        model = Group
+        fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control mb-2'}),
+        }

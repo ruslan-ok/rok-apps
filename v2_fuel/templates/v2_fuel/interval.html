@@ -1,0 +1,55 @@
+{% extends "v2_hier/list.html" %}
+{% load static %}
+
+{% block extrastyle %}
+  <link rel="stylesheet" type="text/css" href="{% static 'v2/fuel/css/fuel.css' %}">
+{% endblock %}
+
+{% block article_content %}
+  <div class="header">
+    <div class="section-item">
+      {{ form.name.errors }}
+    </div>
+
+    <div class="field-group">
+      <div class="section-item">
+        <div class="editable-content full-width main-element">
+          {{ form.name }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <div class="section">
+      <div class="section-item">
+        <div class="editable-content">
+          {{ form.chg_km.errors }} 
+          <div class="half-width">{{ form.chg_km.label_tag }}</div>
+          <div class="half-width">{{ form.chg_km }}</div>
+        </div>
+      </div>
+
+      <div class="section-item">
+        <div class="editable-content">
+          {{ form.chg_mo.errors }} 
+          <div class="half-width">{{ form.chg_mo.label_tag }}</div>
+          <div class="half-width">{{ form.chg_mo }}</div>
+        </div>
+      </div>
+    </div>
+    <!-- Part.comment -->
+    <div class="section-item">
+      <div class="section-inner">
+        <div class="field-error">{{ form.comment.errors }}</div>
+        <div class="editable-content full-width">
+          <div class="labeled-input">
+            <div class="label">{{ form.comment.label_tag }}</div>
+            <div class="input">{{ form.comment }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> <!-- section -->
+{% endblock %}

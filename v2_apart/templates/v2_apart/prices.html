@@ -1,0 +1,112 @@
+{% extends "v2_hier/tree.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+  <link rel="stylesheet" type="text/css" href="{% static 'apart/css/apart.css' %}">
+{% endblock %}
+
+{% block actions %}
+  <button type="submit" name="item-add"><img class="img-20_20" src="{% static 'v2/rok/icon/add-gray.png' %}">{% trans 'add new price'|capfirst %}</button>
+{% endblock %}
+
+{% block article_content %}
+  <div class="header">
+    <div class="field-group">
+      <div class="article-name">
+        <div class="section-item">
+          <div class="editable-content">
+            {{ form.start.errors }} 
+            <div class="">{{ form.start.label_tag }}</div>
+            {{ form.start }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="body">
+
+    <div class="section">
+      <div class="section-item">
+        {% if form.serv.errors %}
+          <div class="field-error">{{ form.serv.errors }}</div>
+        {% endif %}
+        <div class="section-inner">
+          <div class="section-icon">
+            <img src="{% static 'v2/rok/icon/group.png' %}">
+          </div>
+          {{ form.serv }}
+        </div>
+      </div>
+
+      <div class="section-item">
+        {% if form.unit.errors %}
+          <div class="field-error">{{ form.unit.errors }}</div>
+        {% endif %}
+        <div class="section-inner">
+          {{ form.unit.label_tag }}
+          {{ form.unit }}
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-item">
+        <div class="editable-content">
+          {{ form.tarif.errors }} 
+          <div class="half-width">{{ form.tarif.label_tag }}</div>
+          {{ form.tarif }}
+        </div>
+      </div>
+
+      <div class="section-item">
+        <div class="editable-content">
+          {{ form.border.errors }} 
+          <div class="half-width">{{ form.border.label_tag }}</div>
+          {{ form.border }}
+        </div>
+      </div>
+
+      <div class="section-item">
+        <div class="editable-content">
+          {{ form.tarif2.errors }} 
+          <div class="half-width">{{ form.tarif2.label_tag }}</div>
+          {{ form.tarif2 }}
+        </div>
+      </div>
+
+      <div class="section-item">
+        <div class="editable-content">
+          {{ form.border2.errors }} 
+          <div class="half-width">{{ form.border2.label_tag }}</div>
+          {{ form.border2 }}
+        </div>
+      </div>
+
+      <div class="section-item">
+        <div class="editable-content">
+          {{ form.tarif3.errors }} 
+          <div class="half-width">{{ form.tarif3.label_tag }}</div>
+          {{ form.tarif3 }}
+        </div>
+      </div>
+
+    </div>
+  
+    <div class="section">
+        <div class="section-item section-item-note">
+          <div class="field-error">{{ form.info.errors }}</div>
+          <div class="section-inner">
+            {{ form.info }}
+          </div>
+        </div>
+    </div>
+
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  <script src="{% static 'v2/rok/js/resize.js' %}"></script>
+{% endblock %}
+

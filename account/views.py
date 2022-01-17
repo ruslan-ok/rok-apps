@@ -5,6 +5,7 @@ from django.shortcuts import resolve_url
 from django.shortcuts import get_object_or_404, Http404
 from django.conf import settings
 from django.urls import reverse_lazy
+from django.db.models.fields.files import ImageFieldFile
 
 from django.utils.decorators import method_decorator
 from django.utils.http import (url_has_allowed_host_and_scheme, urlsafe_base64_decode,)
@@ -20,11 +21,10 @@ from django.views import generic
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import (REDIRECT_FIELD_NAME, get_user_model, login as auth_login, logout as auth_logout,)
-from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.decorators import login_required
 
-from account.forms import (RegisterForm, PasswordResetForm, SetPasswordForm, PasswordChangeForm, ProfileForm, )
+from account.forms import (LoginForm, RegisterForm, PasswordResetForm, SetPasswordForm, PasswordChangeForm, ProfileForm, AvatarForm,)
 
 from django.core.mail import send_mail
 from django.core.exceptions import ValidationError
@@ -32,8 +32,9 @@ from django.contrib.auth.models import User
 
 import hashlib
 from django.utils.crypto import get_random_string
- 
-from hier.utils import get_base_context, get_base_context_ext
+
+from task.const import ROLE_ACCOUNT
+from rusel.context import get_base_context
 from account.models import UserExt
 from .secret import demouserpassword
 
@@ -51,7 +52,7 @@ class LoginView(SuccessURLAllowedHostsMixin, FormView):
     """
     Display the login form and handle the login action.
     """
-    form_class = AuthenticationForm
+    form_class = LoginForm
     authentication_form = None
     redirect_field_name = REDIRECT_FIELD_NAME
     template_name = 'account/login.html'
@@ -62,7 +63,7 @@ class LoginView(SuccessURLAllowedHostsMixin, FormView):
     @method_decorator(csrf_protect)
     @method_decorator(never_cache)
     def dispatch(self, request, *args, **kwargs):
-        self.extra_context = get_base_context(request, 0, 0, gettext('Log in'), 'dialog')
+        self.extra_context = get_base_context(request, 'home', ROLE_ACCOUNT, None, False, gettext('Log in'))
         if self.redirect_authenticated_user and self.request.user.is_authenticated:
             redirect_to = self.get_success_url()
             if redirect_to == self.request.path:
@@ -122,7 +123,7 @@ class LogoutView(SuccessURLAllowedHostsMixin, TemplateView):
 
     @method_decorator(never_cache)
     def dispatch(self, request, *args, **kwargs):
-        self.extra_context = get_base_context(request, 0, 0, gettext('Logged out'), 'dialog')
+        self.extra_context = get_base_context(request, 'home', ROLE_ACCOUNT, None, True, gettext('Logged out'))
         auth_logout(request)
         next_page = self.get_next_page()
         if next_page:
@@ -174,33 +175,32 @@ def generate_activation_key(username):
 
 
 def register(request):
-    show_form = True
     title = _('Register')
     if request.method == 'POST':
         f = RegisterForm(request.POST)
         if f.is_valid():
             # send email verification now
             activation_key = generate_activation_key(username=request.POST['username'])
- 
- 
+
+
             title = subject = _('Account Verification')
- 
+
             message = '\n' + gettext('Please visit the following link to verify your account') + ' \n\n' + \
-                      '{}://{}/account/activate/?key={}'.format(request.scheme, request.get_host(), activation_key)            
- 
+                    '{}://{}/account/activate/?key={}'.format(request.scheme, request.get_host(), activation_key)            
+
             error = False
- 
+
             try:
                 send_mail(subject, message, settings.SERVER_EMAIL, [request.POST['email']])
                 send_mail('Регистрация нового пользователя', 'Зарегистрировался новый пользователь "' + request.POST['username'] + '" ' + \
-                          'с электронной почтой ' + str(request.POST['email']) + '.', 'admin@rusel.by', ['ok@rusel.by'])
+                        'с электронной почтой ' + str(request.POST['email']) + '.', 'admin@rusel.by', ['ok@rusel.by'])
                 messages.add_message(request, messages.INFO, _('Account created. Click on the link sent to your email to activate the account.'))
- 
+
             except:
                 error = True
                 messages.add_message(request, messages.WARNING, _('Unable to send email verification. Please try again.') + ' ' + str(sys.exc_info()[0]))
                 title = _('Register')
- 
+
             if not error:
                 u = User.objects.create_user(
                         request.POST['username'],
@@ -208,33 +208,33 @@ def register(request):
                         request.POST['password1'],
                         is_active = 0
                 )
- 
+
                 newUser = UserExt()
                 newUser.activation_key = activation_key
                 newUser.user = u
                 newUser.save()
-                show_form = False
+                return HttpResponseRedirect(reverse_lazy('account:login'))
     else:
         f = RegisterForm()
- 
-    context = get_base_context(request, 0, 0, title, 'dialog', form = f)
-    context['show_form'] = show_form
+
+    context = get_base_context(request, 'home', ROLE_ACCOUNT, None, False, title)
+    context['form'] = f
     return render(request, 'account/register.html', context)
 
 
- 
+
 def activate_account(request):
     key = request.GET.get('key')
     if not key:
         raise Http404()
- 
+
     r = get_object_or_404(UserExt, activation_key=key, email_validated=False)
     r.user.is_active = True
     r.user.save()
     r.email_validated = True
     r.save()
- 
-    context = get_base_context(request, 0, 0, gettext('Account activated'), 'dialog')
+
+    context = get_base_context(request, 'home', ROLE_ACCOUNT, None, False, gettext('Account activated'))
     return render(request, 'account/activated.html', context)
 
 class PasswordContextMixin:
@@ -405,21 +405,21 @@ class PasswordChangeDoneView(PasswordContextMixin, TemplateView):
         return super().dispatch(*args, **kwargs)
 
 def user_data_changed(user, data, request):
-    if user.username == data['username'] and user.first_name == data['first_name'] and user.last_name == data['last_name'] and user.email == data['email']:
+    if user.username == data['username'] and user.first_name == data['first_name'] and user.last_name == data['last_name'] and user.email == data['email'] and (('avatar' not in data) or (user.userext.avatar == data['avatar'])):
         messages.add_message(request, messages.INFO, 'User information is not changed.')
         return False
     return True
 
 
 def service(request):
-    context = get_base_context(request, 0, 0, gettext('Profile service'), 'dialog')
+    context = get_base_context(request, 'home', ROLE_ACCOUNT, None, False, gettext('Profile service'))
     return render(request, 'account/service.html', context)
 
 
 def profile(request):
     if request.method == 'POST':
         usr = User.objects.get(id=request.user.id)
-        form = ProfileForm(request.POST, instance = request.user)
+        form = ProfileForm(request.POST, request.FILES, instance = request.user)
         if form.is_valid() and user_data_changed(usr, form.cleaned_data, request):
             usr.username = form.cleaned_data['username']
             usr.first_name = form.cleaned_data['first_name']
@@ -427,22 +427,50 @@ def profile(request):
             usr.email = form.cleaned_data['email']
             usr.is_active = True
             usr.save()
+            if ('avatar' in form.cleaned_data):
+                avatar = form.cleaned_data['avatar']
+                ue = UserExt.objects.filter(user=usr.id).get()
+                ue.avatar = avatar
+                #transform = Image.open(avatar.file)
+                #ue.avatar_mini = transform.resize((50,50))
+                ue.save()
+
             messages.add_message(request, messages.SUCCESS, 'The user `%s` was changed successfully.' % (usr.username))
     else:
         form = ProfileForm(instance = request.user)
 
-    app_param, context = get_base_context_ext(request, 'rusel', '', ('profile',))
+    context = get_base_context(request, 'home', ROLE_ACCOUNT, None, '', (_('profile').capitalize(),))
     context['form'] = form
-    context['fieldset1_name'] = _('Personal info')
-    context['fieldset2_name'] = _('Important dates')
-    context['aside_disabled'] = True
+    avatar = request.user.userext.avatar
+    context['avatar_url'] = avatar.url if avatar and type(avatar) == ImageFieldFile else '/static/Default-avatar.jpg'
+    if request.user.userext.avatar_mini and type(request.user.userext.avatar_mini) == ImageFieldFile:
+        context['avatar_mini_url'] = request.user.userext.avatar_mini.url
+    else:
+        context['avatar_mini_url'] = '/static/Default-avatar.jpg'
+    context['hide_add_item_input'] = True
+
     return render(request, 'account/profile.html', context)
+
+def avatar(request):
+    if request.method != 'POST':
+        form = AvatarForm(instance=request.user.userext)
+    else:
+        form = AvatarForm(request.POST, request.FILES, instance=request.user.userext)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse_lazy('account:avatar'))
+
+    context = get_base_context(request, 'home', ROLE_ACCOUNT, None, '', (_('avatar').capitalize(),))
+    context['form'] = form
+    context['avatar_url'] = request.user.userext.avatar.url if request.user.userext.avatar and type(request.user.userext.avatar) == ImageFieldFile else '/static/Default-avatar.jpg'
+    context['hide_add_item_input'] = True
+    return render(request, 'account/avatar.html', context)
 
 def demo(request):
     if not User.objects.filter(username = 'demouser').exists():
         User.objects.create_user('demouser', 'demouser@rusel.by', demouserpassword)
     user = authenticate(username = 'demouser', password = demouserpassword)
     if user is not None:
-         login(request, user)
+        login(request, user)
     return HttpResponseRedirect(reverse_lazy('index'))
 

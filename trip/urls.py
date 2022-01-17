@@ -1,11 +1,11 @@
 from django.urls import path
-from . import views
+from trip.config import app_config
+from trip import views
 
-app_name = 'trip'
+app_name = app_config['name']
 urlpatterns = [
-    path('',          views.main,       name='main'),
-    path('<int:pk>/', views.item_form,  name='item_form'),
-    path('persons/',  views.go_persons, name='go_persons'),
-    path('trips/',    views.go_trips,   name='go_trips'),
-    path('entity/<str:name>/<int:pk>/', views.trip_entity, name = 'trip_entity'),
+    path('', views.ListView.as_view(), name='list'),
+    path('<int:pk>/', views.DetailView.as_view(), name='item'),
+    path('<int:pk>/doc/<str:fname>', views.get_doc, name='doc'),
+    path(app_config['group_entity'] + '/<int:pk>/', views.PersonView.as_view(), name='group'),
 ]

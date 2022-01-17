@@ -12,7 +12,7 @@ Exported functions:
 ripe()
 process(log)
 """
-import re, datetime, requests
+import re, datetime, requests, sys
 from pathlib import Path
 from db import DB
 from secret import apache_log, log_sz_file
@@ -56,9 +56,13 @@ def process(log):
     log: method
         Method for logging processed data.
     """
-    mgr = Manager(log)
-    mgr.process()
-    mgr.done()
+    try:
+        mgr = Manager(log)
+        mgr.process()
+        mgr.done()
+    except:
+        log('[x] process() [service/logs.py] Exception: ' + str(sys.exc_info()[0]))
+
 
 def read_log_sz():
     log_sz = 0

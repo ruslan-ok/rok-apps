@@ -1,0 +1,7 @@
+<div class="form-check form-switch {{ widget.attrs.class }}">
+    <input type="{{ widget.type }}" name="{{ widget.name }}" id="{{ widget.attrs.id }}" class="form-check-input {{ widget.attrs.class_input }}" 
+	{% if widget.attrs.checked %} checked{% endif %}{% if widget.attrs.disabled %} disabled{% endif %}>
+    <label for="{{ widget.attrs.id }}" class="form-check-label {{ widget.attrs.class_label }}">
+        {{ widget.attrs.label }}
+    </label>
+</div>

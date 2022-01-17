@@ -1,0 +1,51 @@
+{% load static i18n %}
+
+{% block item_content %}
+    <div class="content-title d-none d-md-flex justify-content-between">
+        <div class="title">
+            {% if icon %}
+                <i class="bi-{{ icon }} content-title__icon"></i>
+            {% endif %}
+
+            {% if group_path %}
+                {% for group in group_path reversed %}
+                    <a href="{% url group.edit_url group.id|escape %}?ret={{ group_return|escape }}" class="content-title__href">
+                        {{ group.name }}
+                    </a>
+                    {% if group != group_path|first %} <h3 class="content-title__separator">/</h3> {% endif %}
+                {% endfor %}
+            {% else %}
+                <h3 class="content-title__text">{{ title }}</h3>
+            {% endif %}
+        </div>
+
+        <div class="d-flex mx-2">
+            <div class="related">
+                {% for role in related_roles %}
+                    <div class="dropdown">
+                        <a class="btn dropdown-toggle" href="{{ role.href }}" role="button" id="relRoleLink_{{ role.name }}" 
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi-{{ role.icon }}" title="Related role is '{{ role.name }}'"></i>
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="relRoleLink_{{ role.name }}">
+                            <li><a class="dropdown-item" href="{{ role.href }}">{% trans 'go to linked role'|capfirst %}</a></li>
+                            <li><button type="button" class="dropdown-item" onclick="delRole('{{ role.name }}')">{% trans 'remove relation'|capfirst %}</button></li>
+                        </ul>
+                    </div>
+                {% endfor %}
+                {% for role in possible_related %}
+                    <button class="btn bi-{{ role.icon }}" type="button" id="addRole_{{ role.name }}" 
+                        onclick="addRole('{{ role.name }}')" title="Possible related role is '{{ role.name }}'"></button>
+                {% endfor %}
+            </div>
+            {% include "base/tune.html" with screen_size="big" %}
+        </div>
+    </div>
+
+    <div class="content-title d-md-none d-flex justify-content-between">
+        <div class="title"></div>
+        <div class="actions d-flex">
+            {% include "base/tune.html" with screen_size="small" %}
+        </div>
+    </div>
+{% endblock %}

@@ -5,8 +5,8 @@ from django.db import models
 from django.utils.translation import gettext, gettext_lazy as _
 from django.urls import reverse
 
-from .utils import get_new_period
-from hier.files import get_files_list
+from v2_apart.utils import get_new_period
+from v2_hier.files import get_files_list
 
 
 app_name = 'apart'
@@ -50,7 +50,7 @@ class Apart(models.Model):
             return ''
 
     def get_absolute_url(self):
-        return reverse('apart:apart_form', args = ['0', str(self.id)])
+        return reverse('v2_apart:apart_form', args = ['0', str(self.id)])
 
 def deactivate_all(user_id, apart_id):
     for apart in Apart.objects.filter(user = user_id, active = True).exclude(id = apart_id):

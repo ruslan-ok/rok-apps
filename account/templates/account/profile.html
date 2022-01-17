@@ -1,124 +1,40 @@
-{% extends "hier/page.html" %}
+{% extends "base/page_content.html" %}
 {% load i18n static %}
-{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}">{% endblock %}
 
-{% block aside_conent %}
-  <div class="launcher-menu">
-    {% for app in apps %}
-      <a href="{{ app.href }}" class="launcher-button"><img src="{% static app.icon %}"><span class="marked">{{ app.name }}</span></a>
-    {% endfor %}
-  </div>
+{% block extrastyle %}
+  {{ block.super }}
+  <link href="{% static 'scss/form.css' %}" rel="stylesheet">
+  <link href="{% static 'scss/widgets.css' %}" rel="stylesheet">
 {% endblock %}
 
-{% block content %}
-  <form method="post">{% csrf_token %}
-    <div>
-      {% if form.errors %}
-        <p class="errornote">
-          {% if form.errors.items|length == 1 %}{{ please_correct_one }}{% else %}{{ please_correct_all }}{% endif %}
-        </p>
-      {% endif %}
+{% block main %}
+  <form method="post" class="item-form px-2" enctype="multipart/form-data" id="article_form">{% csrf_token %}
+    {% include "base/title.html" %}
+    {% include "base/form_errors.html" %}
 
-      <fieldset class="module aligned wide">
+    {{ form }}
 
-        <div class="w3-row">
-          <div class="w3-quarter"><div class="w3-margin rok-field">
-          {{ form.username.errors }}
-          {{ form.username.label_tag }} {{ form.username }}
-          {% if form.username.help_text %}
-          <div class="help">{{ form.username.help_text|safe }}</div>
-          {% endif %}
-          </div></div>
-
-          <div class="w3-rest"><div class="w3-margin rok-field">
-          {{ form.password.errors }}
-          {{ form.password.label_tag }} {{ form.password }}
-          {% if form.password.help_text %}
-          <div class="help">{{ form.password.help_text|safe }}</div>
-          {% endif %}
-          </div></div>
-        </div>
-      
-        <h2>{{ fieldset1_name }}</h2>
-      
-        <div class="w3-row">
-          <div class="w3-quarter"><div class="w3-margin rok-field">
-          {{ form.first_name.errors }}
-          {{ form.first_name.label_tag }} {{ form.first_name }}
-          {% if form.first_name.help_text %}
-          <div class="help">{{ form.first_name.help_text|safe }}</div>
-          {% endif %}
-          </div></div>
-
-          <div class="w3-quarter"><div class="w3-margin rok-field">
-          {{ form.last_name.errors }}
-          {{ form.last_name.label_tag }} {{ form.last_name }}
-          {% if form.last_name.help_text %}
-          <div class="help">{{ form.last_name.help_text|safe }}</div>
-          {% endif %}
-          </div></div>
-
-          <div class="w3-quarter"><div class="w3-margin rok-field">
-          {{ form.phone.errors }}
-          {{ form.phone.label_tag }} {{ form.phone }}
-          {% if form.phone.help_text %}
-          <div class="help">{{ form.phone.help_text|safe }}</div>
-          {% endif %}
-          </div></div>
-
-          <div class="w3-quarter"><div class="w3-margin rok-field">
-          {{ form.email.errors }}
-          {{ form.email.label_tag }} {{ form.email }}
-          {% if form.email.help_text %}
-          <div class="help">{{ form.email.help_text|safe }}</div>
-          {% endif %}
-          </div></div>
-        </div>
-      
-        <div class="w3-row">
-          <div class="w3-rest"><div class="w3-margin rok-field">
-          {{ form.email_validated.errors }}
-          {{ form.email_validated }} {{ form.email_validated.label_tag }}
-          {% if form.email_validated.help_text %}
-          <div class="help">{{ form.email_validated.help_text|safe }}</div>
-          {% endif %}
-          </div></div>
-        </div>
-      
-        <h2>{{ fieldset2_name }}</h2>
-      
-        <div class="w3-row">
-          <div class="w3-quarter"><div class="w3-margin rok-field">
-          {{ form.date_joined.errors }}
-          {{ form.date_joined.label_tag }} {{ form.date_joined }}
-          {% if form.date_joined.help_text %}
-          <div class="help">{{ form.date_joined.help_text|safe }}</div>
-          {% endif %}
-          </div></div>
-
-          <div class="w3-quarter"><div class="w3-margin rok-field">
-          {{ form.last_login.errors }}
-          {{ form.last_login.label_tag }} {{ form.last_login }}
-          {% if form.last_login.help_text %}
-          <div class="help">{{ form.last_login.help_text|safe }}</div>
-          {% endif %}
-          </div></div>
-
-          <div class="w3-quarter"><div class="w3-margin rok-field">
-          {{ form.id.errors }}
-          {{ form.id.label_tag }} {{ form.id }}
-          {% if form.id.help_text %}
-          <div class="help">{{ form.id.help_text|safe }}</div>
-          {% endif %}
-          </div></div>
-        </div>
-      
-      </fieldset>
-
-      <div class="w3-row w3-padding w3-center">
-        <button type="submit" class="dialog default">{% trans 'Save' %}</button>
+    <div class="d-flex justify-content-evenly align-items-center">
+      <a href="{% url 'account:avatar' %}" class=" mb-3">
+        <img src="{{ avatar_url }}" class="avatar-preview" title="{% trans 'change avatar'|capfirst %}">
+      </a>
+  
+      <div class="d-flex flex-wrap justify-content-evenly mt-3 pb-5">
+        <button type="button" name="password_change" class="btn btn-warning bi-key m-1" onclick="changePassword()" title="{% trans 'change password'|capfirst %}">
+          {% trans 'change password'|capfirst %}
+        </button>
+        <button type="submit" name="item_save" id="id_submit" class="btn btn-primary bi-save m-1" title="{% trans 'save changes'|capfirst %}">
+          {% trans 'save'|capfirst %}
+        </button>
+        <a name="form_close" class="btn btn-secondary bi-x my-1" href="{% url 'index' %}" title="{% trans 'close profile form'|capfirst %}">
+          {% trans 'close'|capfirst %}
+        </a>
       </div>
-
     </div>
   </form>
+{% endblock %}
+
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'js/form.js' %}"></script>
 {% endblock %}

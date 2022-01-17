@@ -1,13 +1,17 @@
 from django.urls import path
-from . import views
+from health.config import app_config
+from health.views import incident, marker, chart
 
-app_name = 'health'
+app_name = app_config['name']
 urlpatterns = [
-    path('',            views.main,       name = 'main'),
-    path('chrono/',     views.chrono,     name = 'chrono'),
-    path('biomark/',    views.biomark,    name = 'biomark'),
-    path('incident/',   views.incident,   name = 'incident'),
-    path('<int:pk>/',   views.item_form,  name = 'item_form'),
-    path('import/',     views.imp_weight, name = 'imp_weight'),
-    path('chart/<nm>/', views.chart,      name = 'chart'),
+    path('', marker.ListView.as_view(), name='list'),
+    path('<int:pk>/', marker.DetailView.as_view(), name='item'),
+
+    path('incident/', incident.ListView.as_view(), name='incident-list'),
+    path('incident/<int:pk>/', incident.DetailView.as_view(), name='incident-item'),
+    path('incident/<int:pk>/doc/<str:fname>', incident.get_doc, name='incident-doc'),
+
+    path('weight/', chart.WeightView.as_view(), name='chart-weight'),
+    path('waist/', chart.WaistView.as_view(), name='chart-waist'),
+    path('temp/', chart.TempView.as_view(), name='chart-temp'),
 ]

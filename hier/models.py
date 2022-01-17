@@ -44,7 +44,7 @@ class Folder(models.Model):
             return True
         return False
 
-# Параметры сайта в целом
+# ????????? ????? ? ?????
 # deprecated
 class Param(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
@@ -67,7 +67,7 @@ class Param(models.Model):
         return self.user.username + ' - ' + self.cur_view
 
 
-# Параметры приложений
+# ????????? ??????????
 class AppParam(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'params_user')
     app = models.CharField(_('application'), max_length = 50)
@@ -99,14 +99,15 @@ def get_app_params(user, app):
     return AppParam.objects.filter(user = user.id, app = app).get()
 
 
-# Параметры приложений
+# ????????? ??????????
 class VisitedHistory(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'visit_user')
-    stamp = models.DateTimeField(_('visit time'), null = False)
-    url = models.CharField(_('visited url'), max_length=200, blank = True)
-    app = models.CharField(_('visited application'), max_length=200, blank = True)
-    page = models.CharField(_('visited page'), max_length=200, blank = True)
-    info = models.CharField(_('page info'), max_length=200, blank = True)
+    stamp = models.DateTimeField(_('visit time'), null=False)
+    url = models.CharField(_('visited url'), max_length=200, blank=True)
+    app = models.CharField(_('visited application'), max_length=200, blank=True)
+    page = models.CharField(_('visited page'), max_length=200, blank=True)
+    info = models.CharField(_('page info'), max_length=200, blank=True)
+    icon = models.CharField(_('page icon'), max_length=30, blank=True, null=True)
 
     class Meta:
         verbose_name = _('visited page')
@@ -119,11 +120,11 @@ class VisitedHistory(models.Model):
         if not self.page and not self.info:
             title = ''
         if self.page and not self.info:
-            title = _(self.page).capitalize()
+            title = self.page
         if not self.page and self.info:
             title = self.info
         if self.page and self.info:
-            title = '{} [{}]'.format(_(self.page).capitalize(), self.info)
+            title = '{} [{}]'.format(self.page, self.info)
         if not title:
             return _(self.app).capitalize()
         else:
@@ -132,7 +133,7 @@ class VisitedHistory(models.Model):
     def reverse_url(self):
         return self.url
         
-# Группы записей контента приложения
+# ?????? ??????? ???????? ??????????
 class ContentGroup(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'content_groups_user')
     app = models.CharField(_('application'), max_length=200, blank = True)

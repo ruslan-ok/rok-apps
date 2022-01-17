@@ -1,0 +1,41 @@
+{% load static i18n %}
+
+<div class="section">
+  <div class="file-list">
+    {% for file in files %}
+      <!-- LIST TaskFiles -->
+      <div class="file-item">
+        <a href="{{ file.url }}" class="clickable-item">
+          <div class="thumbnail-wrapper" style="background-color: {{ file.design }}">
+            <div class="thumbnail">{{ file.ext }}</div>
+          </div>
+          <div class="file-content">
+            <div class="file-title">{{ file.name }}</div>
+            <div class="file-metadata">{{ file.size }}</div>
+          </div>
+        </a>
+        <button type="submit" name="file_delete" value="{{ file.url }}" class="field-icon"><img src="{% static 'v2/rok/icon/delete.png' %}"></button>
+      </div>
+    {% endfor %}
+  </div> <!-- file-list -->
+
+  <!-- ADD TaskFiles -->
+  <div class="file-add">
+    <div class="section-item">
+      <button type="button" name="task-file_upload" class="section-inner-click" onclick="uploadFile()">
+        <div class="section-inner">
+          <div class="section-icon">
+            <img src="{% static 'v2/todo/icon/file.png' %}">
+          </div>
+          <div class="section-content">
+            <div class="section-title">
+              <div id="loadFile" type="button">{% trans 'add file'|capfirst %}</div>
+              <input type="file" style="display:none;" id="id_upload" name="upload" onchange="fileSelected()">
+            </div>
+          </div>
+        </div>
+      </button>
+      <button type="submit" id="id_submit" name="file_upload"></button>
+    </div>
+  </div> <!-- file-add -->
+</div>

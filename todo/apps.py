@@ -1,5 +1,5 @@
 from django.apps import AppConfig
-
+from todo.config import app_config
 
 class TodoConfig(AppConfig):
-    name = 'todo'
+    name = app_config['name']

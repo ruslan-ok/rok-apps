@@ -1,18 +1,12 @@
 from django.urls import path
-from . import views
+from store.config import app_config
+from store import views
 
-app_name = 'store'
+app_name = app_config['name']
 urlpatterns = [
-    path('',          views.entry_list, name='entry_list'),
-    path('<int:pk>/', views.entry_form, name='entry_form'),
-    path('actual/',   views.actual,     name='actual'),
-    path('waste/',    views.waste,      name='waste'),
-    path('all/',      views.all,        name='all'),
-    path('params/',   views.params,     name='param_list'),
-    path('entity/<str:name>/<int:pk>/', views.store_entity, name = 'store_entity'),
-
-    path('list/<int:pk>/',         views.list_items,   name='list_items'),
-    path('list_form/<int:pk>/',    views.list_form,    name='list_form'),
-    path('group/<int:pk>/',        views.group_form,   name='group_form'),
-    path('toggle_group/<int:pk>/', views.toggle_group, name='toggle_group'),
+    path('', views.ListView.as_view(), name='list'),
+    path('group/<int:pk>/', views.GroupView.as_view(), name='group'),
+    path('<int:pk>/', views.DetailView.as_view(), name='item'),
+    path('<int:pk>/doc/<str:fname>', views.get_doc, name='doc'),
+    path('params/', views.params, name='params'),
 ]

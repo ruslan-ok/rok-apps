@@ -1,0 +1,10 @@
+{% load i18n %}
+
+<div class="add-price d-flex align-items-end">
+    <div>{{ form.new_service }}</div>
+    <div class="ms-2">
+        <button type="button" class="btn btn-primary" onclick="addPrice({{ config.cur_view_group.id|escape }})">
+            {% trans 'add'|capfirst %}
+        </button>
+    </div>
+</div>

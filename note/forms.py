@@ -1,28 +1,48 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
-from django.contrib.admin.widgets import AdminSplitDateTime
 
-from todo.models import Lst
-from .models import app_name, Note
+from rusel.base.forms import BaseCreateForm, BaseEditForm
+from task.models import Task, Group
+from task.const import ROLE_NOTE
+from note.config import app_config
+from rusel.widgets import UrlsInput, CategoriesInput
 
+role = ROLE_NOTE
 
 #----------------------------------
-class NoteForm(forms.ModelForm):
-    publ = forms.SplitDateTimeField(widget = AdminSplitDateTime(), label = _('publication date').capitalize(), required = False)
-    category = forms.CharField(label = _('categories').capitalize(), widget = forms.TextInput(attrs = {'placeholder': _('add category').capitalize()}), required = False)
+class CreateForm(BaseCreateForm):
+
     class Meta:
-        model = Note
-        fields = ['name', 'descr', 'publ', 'url', 'lst']
+        model = Task
+        fields = ['name']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(app_config, role, *args, **kwargs)
+        
+#----------------------------------
+class EditForm(BaseEditForm):
+    grp = forms.ModelChoiceField(
+        label=_('group').capitalize(),
+        required=False,
+        queryset=Group.objects.filter(role=role).order_by('sort'), 
+        widget=forms.Select(attrs={'class': 'form-control select mb-3'}))
+    url = forms.CharField(
+        label=_('URLs'),
+        required=False,
+        widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add link').capitalize()}))
+    categories = forms.CharField(
+        label=_('categories').capitalize(),
+        required=False,
+        widget=CategoriesInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add category').capitalize()}))
+
+    class Meta:
+        model = Task
+        fields = ['name', 'event', 'info', 'grp', 'url', 'categories', 'upload']
         widgets = {
-            'descr': forms.Textarea(attrs={'rows': 10, 'placeholder': _('add description').capitalize(), 'data-autoresize': ''}),
+            'name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
+            'event': forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime mb-3', 'type': 'datetime-local'}),
+            'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),
         }
 
-    def __init__(self, user, app, *args, **kwargs):
-        self.user = user
-        super().__init__(*args, **kwargs)
-        self.fields['lst'].queryset = Lst.objects.filter(user = user, app = app).order_by('name')
-
-#----------------------------------
-class FileForm(forms.Form):
-    upload = forms.FileField()
-
+    def __init__(self, *args, **kwargs):
+        super().__init__(app_config, role, *args, **kwargs)

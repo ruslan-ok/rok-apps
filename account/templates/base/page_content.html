@@ -1,0 +1,30 @@
+{% extends "base/page.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+    <link href="{% static 'scss/sidebar.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block header_content %}
+  {% include 'base/header.html' %}
+{% endblock %}
+
+{% block content %}
+  {% include 'base/sidebar_top.html' %}
+
+  <div class="container-xxl my-md-2 gap-0 px-0 bd-layout">
+    {% include 'base/sidebar.html' %}
+
+    <main>
+      {% block main %}{% endblock %}
+    </main>
+  </div>
+{% endblock %}
+
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'js/build-tree.js' %}"></script>
+  <script>
+    buildTree('groups-tree');
+  </script>
+{% endblock %}

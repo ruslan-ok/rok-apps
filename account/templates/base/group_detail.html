@@ -1,0 +1,42 @@
+{% extends "base/page_content.html" %}
+{% load static i18n %}
+
+{% block main %}
+  <form method="post" class="item-form px-2">{% csrf_token %}
+    {% include "base/title.html" %}
+    {% include "base/form_errors.html" %}
+
+    <div class="form-control-100 mb-3">{{ form.name.label_tag }}{{ form.name }}</div>
+
+    <div class="input-group flex-wrap justify-content-start mb-3">
+      <div class="col-sm">
+        <div class="form-control-100 form-control-sm mx-1">{{ form.sort.label_tag }}{{ form.sort }}</div>
+        <div class="form-control-100 mx-1">{{ form.completed }}</div>
+      </div>
+      <div class="col-sm">
+        <div class="form-control-100 form-control-sm mx-1">
+          {{ form.node.errors }}
+          {{ form.node.label_tag }}
+          {{ form.node }}
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-evenly mt-3 pb-5">
+      <button type="submit" name="item_save" class="btn btn-primary bi-save" title="{% trans 'save changes'|capfirst %}">
+        {% trans 'save'|capfirst %}
+      </button>
+      <button type="button" name="form_close" class="btn btn-secondary bi-x" onclick="closeGroupForm('{{ config.group_entity }}')" title="{% trans 'close edit form'|capfirst %}">
+        {% trans 'close'|capfirst %}
+      </button>
+      <button type="button" name="item_delete" class="btn btn-danger bi-trash" onclick="delGroupConfirm('{{ban_on_deletion}}', '{{delete_question}} {{title}}?')" title="{% trans 'delete record'|capfirst %}">
+        {% trans 'delete'|capfirst %}
+      </button>
+    </div>
+  </form>
+{% endblock %}
+
+{% block extrascript %}
+  {{ block.super }}
+    <script src="{% static 'js/manage-groups.js' %}"></script>
+{% endblock %}

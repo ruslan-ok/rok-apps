@@ -4,8 +4,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Task, Subscription
-from .views import complete_task
+from task.models import Task
+from todo.models import Subscription
+#from .views import complete_task
 
 #----------------------------------
 @login_required(login_url='account:login')
@@ -54,7 +55,7 @@ def fcm_postpone(request, pk):
 
 def fcm_done(request, pk):
     task = get_object_or_404(Task.objects.filter(id = pk))
-    complete_task(task)
+    #complete_task(task)
     return HttpResponse('ok')
 
 

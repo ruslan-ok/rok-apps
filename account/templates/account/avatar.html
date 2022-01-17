@@ -1,0 +1,32 @@
+{% extends "base/page_content.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link href="{% static 'scss/form.css' %}" rel="stylesheet">
+  <link href="{% static 'scss/widgets.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block main %}
+    <form method="post" class="item-form px-2" enctype="multipart/form-data" id="article_form">{% csrf_token %}
+        {% include "base/title.html" %}
+
+        <div class="d-flex justify-content-evenly align-items-center flex-wrap">
+            {% include "base/form_errors.html" %}
+
+            {{ form }}
+
+            <div class="d-flex flex-wrap justify-content-evenly mt-3 pb-5">
+                <button type="submit" name="item_save" id="id_submit" class="d-none"></button>
+                <a name="form_close" class="btn btn-secondary bi-x my-1" href="{% url 'account:profile' %}" title="{% trans 'close edit form'|capfirst %}">
+                    {% trans 'close'|capfirst %}
+                </a>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'js/form.js' %}"></script>
+{% endblock %}

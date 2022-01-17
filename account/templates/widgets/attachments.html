@@ -1,0 +1,18 @@
+{% load static i18n %}
+
+<div id="file-list-src" style="display: none;">
+    {% for file in files %}
+        <div class="file-item" id="id_file_{{ file.id }}">
+            <a href="{{ file.url }}">
+                <div class="thumbnail-wrapper" style="background-color: {{ file.design }}">
+                    <div class="thumbnail">{{ file.ext }}</div>
+                </div>
+                <div class="file-content">
+                    <div class="file-title">{{ file.name }}</div>
+                    <div class="file-metadata">{{ file.size }}</div>
+                </div>
+            </a>
+            <button type="button" name="file_delete" value="{{ file.url }}" class="bi-x" onclick="delFile('{{ config.app }}', '{{ config.get_cur_role }}', '{{ file.url }}', '{{ file.id }}')"></button>
+        </div>
+    {% endfor %}
+</div>
