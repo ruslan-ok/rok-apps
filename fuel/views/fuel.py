@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from task.const import ROLE_FUEL, ROLE_APP, NUM_ROLE_FUEL
 from task.models import Task, Urls
 from django.utils.translation import gettext_lazy as _
@@ -13,7 +13,7 @@ app = ROLE_APP[role]
 
 class TuneData:
     def tune_dataset(self, data, group):
-        return data;
+        return data
 
 class ListView(BaseListView, TuneData):
     model = Task

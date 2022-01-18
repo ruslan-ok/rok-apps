@@ -122,6 +122,18 @@ function addItem(app, role, group_id, screen_size='') {
     param_group = '&group_id=' + group_id;
     const api = '/api/tasks/add_item/?format=json&app=' + app + '&role=' + role + param_name + param_group;
     const callback = function() {
+        if (this.readyState == 4 && this.status == 400) {
+            if (this.response) {
+                console.log(this.response);
+                let resp = JSON.parse(this.response);
+                if (resp && resp.Error)
+                    alert(resp.Error);
+                else
+                    alert('Error 400');
+                }
+            else
+                alert('Error 400');
+        }
         if (this.readyState == 4 && this.status == 200) {
             let resp = JSON.parse(this.responseText);
             if (!resp || !resp.task_id) {

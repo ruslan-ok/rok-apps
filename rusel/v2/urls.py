@@ -37,7 +37,7 @@ urlpatterns = i18n_patterns(
 
     path('apart/',  include('apart.urls')),
     path('fuel/',   include('fuel.urls')),
-    path('v2_proj/',   include('v2_proj.urls')),
+    path('proj/',   include('proj.urls')),
     path('trip/',   include('trip.urls')),
     path('wage/',   include('wage.urls')),
     path('todo/',   include('todo.urls')),

@@ -11,7 +11,7 @@ app = ROLE_APP[role]
 
 class TuneData:
     def tune_dataset(self, data, group):
-        return data;
+        return data
 
 class ListView(BaseListView, TuneData):
     model = Task

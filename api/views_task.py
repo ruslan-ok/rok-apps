@@ -97,7 +97,9 @@ class TaskViewSet(viewsets.ModelViewSet):
             name = self.request.query_params['name']
         if Task.use_name(app, role):
             if (not name):
-                return Response({'task_id': 0})
+                return Response({"Error": "For application '" + app + "' and role '" + role + "' expected parameter 'name'.\n" + 
+                                    "Check Task.use_name() method"},
+                                status=status.HTTP_400_BAD_REQUEST)
         group = None
         group_id = None
         if 'group_id' in self.request.query_params:

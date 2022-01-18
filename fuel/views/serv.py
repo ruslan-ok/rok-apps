@@ -1,7 +1,7 @@
 from datetime import datetime
 from django.utils.translation import gettext_lazy as _
 from task.const import NUM_ROLE_PART, NUM_ROLE_SERVICE, ROLE_SERVICE, ROLE_APP
-from task.models import Task, Urls, TaskGroup
+from task.models import Task, Urls
 from rusel.files import get_files_list, get_app_doc
 from rusel.categories import get_categories_list
 from rusel.base.views import BaseListView, BaseDetailView

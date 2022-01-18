@@ -286,6 +286,8 @@ class Task(models.Model):
         ret = True
         if (app == APP_APART):
             ret = (role != ROLE_METER) and (role != ROLE_PRICE) and (role != ROLE_BILL)
+        if (app == APP_FUEL):
+            ret = (role != ROLE_FUEL) and (role != ROLE_SERVICE)
         return ret
         
     @classmethod

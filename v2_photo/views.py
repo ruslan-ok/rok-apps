@@ -202,14 +202,14 @@ def do_main(request, restriction, pk = None, art_vis = False):
     context['gps_data'] = gps_data
 
     fixes = []
-    fixes.append(Fix('main', _('thumbnails').capitalize(), 'v2/rok/icon/all.png', '/v2_photo/', len(data)))
-    fixes.append(Fix('map', _('on the map').capitalize(), 'v2/todo/icon/map.png', '/v2_photo/map/', len(gps_data)))
+    fixes.append(Fix('main', _('thumbnails').capitalize(), 'v2/rok/icon/all.png', '/photo/', len(data)))
+    fixes.append(Fix('map', _('on the map').capitalize(), 'v2/todo/icon/map.png', '/photo/map/', len(gps_data)))
     context['fix_list'] = fixes
 
     bread_crumbs = []
     crumbs = app_param.content.split('/')
     if ((len(crumbs) > 0) and crumbs[0]) or (restriction == 'one'):
-        bread_crumbs.append({ 'url': '/v2_photo/rise/0/', 'name': '[{}]'.format(_('photobank').capitalize()) })
+        bread_crumbs.append({ 'url': '/photo/rise/0/', 'name': '[{}]'.format(_('photobank').capitalize()) })
 
     level = 1
     for crumb in crumbs:
@@ -218,7 +218,7 @@ def do_main(request, restriction, pk = None, art_vis = False):
         if (level == len(crumbs)) and (restriction != 'one'):
             context['title'] = crumb
         else:
-            url = '/v2_photo/rise/{}/'.format(level)
+            url = '/photo/rise/{}/'.format(level)
             bread_crumbs.append({ 'url': url, 'name': crumb })
         level += 1
     context['bread_crumbs'] = bread_crumbs
@@ -227,7 +227,7 @@ def do_main(request, restriction, pk = None, art_vis = False):
     page_obj = paginator.get_page(page_number)
     context['page_obj'] = paginator.get_page(page_number)
 
-    template_name = 'v2_photo/' + restriction + '.html'
+    template_name = 'photo/' + restriction + '.html'
     template = loader.get_template(template_name)
     return HttpResponse(template.render(context, request))
 

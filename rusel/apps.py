@@ -9,14 +9,14 @@ APPS = {
     APP_NEWS:    ('newspaper',     '/news/'),
     APP_STORE:   ('key',           '/store/'),
     APP_EXPEN:   ('piggy-bank',    '/expen/'),
-    #APP_TRIP:    ('truck',         '/trip/'),
+    APP_TRIP:    ('truck',         '/trip/'),
     APP_FUEL:    ('droplet',       '/fuel/'),
     APP_APART:   ('building',      '/apart/'),
-    #APP_WORK:    ('briefcase',     '/work/'),
     APP_HEALTH:  ('heart',         '/health/'),
     APP_DOCS:    ('file-text',     '/docs/'),
     APP_WARR:    ('award',         '/warr/'),
     APP_PHOTO:   ('image',         '/photo/'),
+    APP_WORK:    ('briefcase',     '/work/'),
     APP_ADMIN:   ('people',        '/admin/'),
 }
 
