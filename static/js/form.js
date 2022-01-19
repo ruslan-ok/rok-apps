@@ -139,19 +139,29 @@ function delCategory(category) {
     runAPI(api, callback);
 }
 
-function delURL(url_id) {
+function delURLconfirmed(url_id) {
+    const redirect_url = window.location.href;
     const api = '/api/urls/' + url_id + '/?format=json';
     const callback = function() {
         if (this.readyState == 4 && this.status == 204) {
-            console.log('URL deleted successfully.');
+            window.location.href = redirect_url;
+            //console.log('URL deleted successfully.');
         }
     };
     runAPI(api, callback, 'DELETE');
 
-    let el = document.getElementById('id_url_' + url_id);
+    /*let el = document.getElementById('id_url_' + url_id);
     if (el) {
         el.parentElement.removeChild(el);
-    }
+    }*/
+}
+
+function delURL(url_id) {
+    let el = document.getElementById('delModal');
+    el.querySelectorAll('div.modal-body')[0].innerText = 'Delete this URL?';
+    el.querySelectorAll('button.btn-danger')[0].onclick = function() {return delURLconfirmed(url_id);}
+    let conf = new bootstrap.Modal(document.getElementById('delModal'), {});
+    conf.show();
 }
 
 function uploadFile()
@@ -330,7 +340,6 @@ function delStepConfirm(step_id, text) {
 
     let conf = new bootstrap.Modal(document.getElementById('delModal'), {});
     conf.show();
-    
 }
 
 function editStep(step_id, value) {
