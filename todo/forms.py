@@ -1,11 +1,12 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 
 from rusel.base.forms import BaseCreateForm, BaseEditForm
 from task.const import ROLE_TODO
 from task.models import Task, Group
 from todo.config import app_config
-from rusel.widgets import UrlsInput, CategoriesInput, CheckboxInput, CompletedInput #, ImportantInput
+from rusel.widgets import UrlsInput, CategoriesInput, CompletedInput
 
 role = ROLE_TODO
 
@@ -65,6 +66,10 @@ class EditForm(BaseEditForm):
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
-    def is_valid(self):
-        """Return True if the form has no errors, or False otherwise."""
-        return self.is_bound and not self.errors
+    def clean_grp(self):
+        grp_ok = self.cleaned_data['grp']
+        if grp_ok:
+            parent = Group.objects.filter(node=grp_ok)
+            if (len(parent) > 0):
+                raise  ValidationError(_('a group must not have subgroups').capitalize())
+        return grp_ok

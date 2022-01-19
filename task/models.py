@@ -29,7 +29,7 @@ class Group(models.Model):
     last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now=True)
     completed = models.BooleanField(_('display completed records'), null=True)
     theme = models.IntegerField(_('theme id'), blank=True, null=True)
-    sub_groups = models.CharField(_('content items sub groups'), max_length=1000, blank=True, null=True)
+    sub_groups = models.CharField(_('content items sub groups'), max_length=10000, blank=True, null=True)
     use_sub_groups = models.BooleanField(_('using content items sub groups'), null=True)
     determinator = models.CharField(_('group category: "group", "role" or "view"'), max_length=10, blank=True, null=True)
     view_id = models.CharField(_('view identificator for "role" and "view"'), max_length=50, blank=True, null=True)

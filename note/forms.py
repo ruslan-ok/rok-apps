@@ -1,5 +1,6 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 
 from rusel.base.forms import BaseCreateForm, BaseEditForm
 from task.models import Task, Group
@@ -46,3 +47,11 @@ class EditForm(BaseEditForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
+
+    def clean_grp(self):
+        grp_ok = self.cleaned_data['grp']
+        if grp_ok:
+            parent = Group.objects.filter(node=grp_ok)
+            if (len(parent) > 0):
+                raise  ValidationError(_('a group must not have subgroups').capitalize())
+        return grp_ok

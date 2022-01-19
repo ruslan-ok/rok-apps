@@ -1,6 +1,12 @@
 {% extends "base/page_content.html" %}
 {% load static i18n %}
 
+{% block extrastyle %}
+  {{ block.super }}
+  <link href="{% static 'scss/form.css' %}" rel="stylesheet">
+  <link href="{% static 'scss/widgets.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block main %}
   <form method="post" class="item-form px-2">{% csrf_token %}
     {% include "base/title.html" %}
@@ -11,7 +17,6 @@
     <div class="input-group flex-wrap justify-content-start mb-3">
       <div class="col-sm">
         <div class="form-control-100 form-control-sm mx-1">{{ form.sort.label_tag }}{{ form.sort }}</div>
-        <div class="form-control-100 mx-1">{{ form.completed }}</div>
       </div>
       <div class="col-sm">
         <div class="form-control-100 form-control-sm mx-1">
@@ -38,5 +43,6 @@
 
 {% block extrascript %}
   {{ block.super }}
-    <script src="{% static 'js/manage-groups.js' %}"></script>
+  <script src="{% static 'js/manage-groups.js' %}"></script>
+  <script src="{% static 'js/form.js' %}"></script>
 {% endblock %}

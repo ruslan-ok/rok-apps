@@ -20,6 +20,7 @@ class GroupViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.validated_data['name'] = urllib.parse.unquote(serializer.initial_data['name'])
+        serializer.validated_data['act_items_qty'] = 0
         serializer.save(user=self.request.user)
 
     def perform_destroy(self, instance):
