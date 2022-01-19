@@ -35,11 +35,11 @@ class EditForm(BaseEditForm):
         label=_('termin').capitalize(),
         required=False,
         widget=forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime d-inline-block mb-3 me-3', 'type': 'datetime-local'}))
-    grp = forms.ModelChoiceField(
+    grp = forms.ChoiceField(
         label=_('group').capitalize(),
-        required=False,
-        queryset=Group.objects.filter(role=role).order_by('sort'), 
-        widget=forms.Select(attrs={'class': 'form-control select mb-3'}))
+        widget=forms.Select(attrs={'class': 'form-control mb-3'}),
+        choices=[(0, '------'),]
+    )
     categories = forms.CharField(
         label=_('categories').capitalize(),
         required=False,
@@ -65,11 +65,30 @@ class EditForm(BaseEditForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
+        if ('grp' in self.fields):
+            self.fields['grp'].choices = self.get_groups_hier(self.instance.user.id, role)
+
+    def get_groups_hier(self, user_id, role):
+        groups = [(0, '----------'),]
+        self.get_sorted_groups(groups, user_id, role)
+        return groups
+
+    def get_sorted_groups(self, groups, user_id, role, node=None, level=0):
+        node_id = None
+        if node:
+            node_id = node.id
+        items = Group.objects.filter(user=user_id, role=role, node=node_id).order_by('sort')
+        for item in items:
+            if (item.determinator != 'role') and (item.determinator != 'view'):
+                groups.append((item.id, level * '—' + '  ' + item.name),)
+                self.get_sorted_groups(groups, user_id, role, item, level+1)
 
     def clean_grp(self):
+        ret = None
         grp_ok = self.cleaned_data['grp']
         if grp_ok:
             parent = Group.objects.filter(node=grp_ok)
             if (len(parent) > 0):
                 raise  ValidationError(_('a group must not have subgroups').capitalize())
-        return grp_ok
+            ret = Group.objects.filter(id=grp_ok).get()
+        return ret
