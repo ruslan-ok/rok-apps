@@ -634,6 +634,7 @@ class TaskViewSet(viewsets.ModelViewSet):
 
         if ((task.app_task + task.app_note + task.app_news + task.app_store + task.app_doc + task.app_warr + task.app_expen + 
             task.app_trip + task.app_fuel + task.app_apart + task.app_health + task.app_work + task.app_photo) == 0):
+            task.delete_linked_items()
             task.delete()
         else:
             self.save(task)

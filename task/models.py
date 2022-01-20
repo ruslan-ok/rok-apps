@@ -719,6 +719,13 @@ class Task(models.Model):
                 return True
         return False
 
+    def delete_linked_items(self):
+        for tg in TaskGroup.objects.filter(task=self.id):
+            self.correct_groups_qty(GIQ_DEL_TASK, tg.group.role)
+        Step.objects.filter(task=self.id).delete()
+        Urls.objects.filter(task=self.id).delete()
+
+
 GIQ_ADD_TASK = 1 # Task created
 GIQ_DEL_TASK = 2 # Task deleted
 
