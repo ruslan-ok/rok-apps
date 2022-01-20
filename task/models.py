@@ -511,7 +511,7 @@ class Task(models.Model):
             return False
 
         if self.stop:
-            return (self.stop < datetime.now())
+            return (self.stop < datetime.now()) and ((self.stop.date() != date.today()) or (self.stop.hour != 0) or (self.stop.minute != 0))
         return False
 
     def task_actual(self):
@@ -519,7 +519,7 @@ class Task(models.Model):
             return False
 
         if self.stop:
-            return (self.stop > datetime.now())
+            return (self.stop > datetime.now()) or ((self.stop.date() == date.today()) and (self.stop.hour == 0) and (self.stop.minute == 0))
         return False
 
     def termin_date(self):

@@ -146,7 +146,7 @@ def only_nice_date(d):
         ret = str(_('yesterday')).capitalize()
 
     match d:
-        case datetime() if ret:
+        case datetime() if ret and (d.strftime('%H:%M') != '00:00'):
             ret += d.strftime(' %H:%M')
 
     return ret
@@ -159,17 +159,18 @@ def nice_date(d):
         return ret
     
     match d:
+        case date() | datetime() if d.minute == 0 and d.hour == 0:
+            if (d.year == date.today().year):
+                return d.strftime('%a, %d %b')
+            else:
+                return d.strftime('%a, %d %b %Y')
         case datetime():
             if (d.year == date.today().year):
                 return d.strftime('%a, %d %b %H:%M')
             else:
                 return d.strftime('%a, %d %b %Y %H:%M')
-        case date():
-            if (d.year == date.today().year):
-                return d.strftime('%a, %d %b')
-            else:
-                return d.strftime('%a, %d %b %Y')
-
+        case _:
+            return ''
 
 def sort_data(data, sort, reverse):
     if not data:
