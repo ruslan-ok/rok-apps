@@ -2,7 +2,7 @@ import os, shutil
 from datetime import datetime
 from todo.models import Grp, Lst, Task as OldTask, Step as OldStep
 from note.models import Note
-from task.models import Task, Step, Group, TaskGroup, Urls
+from task.models import Task, Step, Group, TaskGroup, Urls, GIQ_ADD_TASK
 from apart.models import Apart, Meter, Bill, Price
 from store.models import Entry
 from proj.models import Projects, Expenses
@@ -249,10 +249,7 @@ def transfer_task(result, lst, task_grp):
             inc(result, APP_TODO, ROLE_TODO, 'Step', 'added')
         
         if task_grp:
-            TaskGroup.objects.create(task=atask, group=task_grp, role=task_grp.role)
-            if not atask.completed:
-                task_grp.act_items_qty += 1
-                task_grp.save()
+            atask.correct_groups_qty(GIQ_ADD_TASK, task_grp.id)
             inc(result, APP_TODO, ROLE_TODO, 'TaskGroup', 'added')
         
         if task.url:
@@ -288,10 +285,7 @@ def transfer_note(result, app, role, lst, task_grp):
         inc(result, app, role, 'Task', 'added')
         
         if task_grp:
-            TaskGroup.objects.create(task=atask, group=task_grp, role=task_grp.role)
-            if not atask.completed:
-                task_grp.act_items_qty += 1
-                task_grp.save()
+            atask.correct_groups_qty(GIQ_ADD_TASK, task_grp.id)
             inc(result, app, role, 'TaskGroup', 'added')
 
         if note.url:
@@ -425,10 +419,7 @@ def transfer_store(result, lst, task_grp):
         inc(result, APP_STORE, ROLE_STORE, 'Task', 'added')
         
         if task_grp:
-            TaskGroup.objects.create(task=atask, group=task_grp, role=task_grp.role)
-            if not atask.completed:
-                task_grp.act_items_qty += 1
-                task_grp.save()
+            atask.correct_groups_qty(GIQ_ADD_TASK, task_grp.id)
             inc(result, APP_STORE, ROLE_STORE, 'TaskGroup', 'added')
 
         if item.url:
@@ -499,12 +490,9 @@ def transfer_store(result, lst, task_grp):
 
             atask.set_item_attr(APP_STORE, store_get_info(atask))
         
-        # if task_grp:
-        #     TaskGroup.objects.create(task=atask, group=task_grp, role=task_grp.role)
-        #     if not atask.completed:
-        #         task_grp.act_items_qty += 1
-        #         task_grp.save()
-        #     inc(result, APP_STORE, ROLE_STORE, 'TaskGroup', 'added')
+        if task_grp:
+            atask.correct_groups_qty(GIQ_ADD_TASK, task_grp.id)
+            inc(result, APP_STORE, ROLE_STORE, 'TaskGroup', 'added')
 
 
 def transfer_expen_proj(result):
@@ -546,7 +534,10 @@ def transfer_expenses(result):
                                     expen_kontr=item.kontr,
                                     )
         inc(result, APP_EXPEN, ROLE_EXPENSE, 'Task', 'added')
-        link_group(result, atask.user_id, APP_EXPEN, ROLE_EXPENSE, item.direct.id, atask)
+        if Group.objects.filter(user=atask.user_id, app=APP_EXPEN, src_id=ROLE_EXPENSE).exists():
+            task_grp = Group.objects.filter(user=atask.user_id, app=APP_EXPEN, src_id=ROLE_EXPENSE).get()
+            if atask.correct_groups_qty(GIQ_ADD_TASK, task_grp.id):
+                inc(result, APP_EXPEN, ROLE_EXPENSE, 'TaskGroup', 'added')
         atask.set_item_attr(APP_EXPEN, expen_get_info(atask))
 
 def transfer_person(result):
@@ -690,15 +681,6 @@ def transfer_biomarker(result):
         atask.set_item_attr(APP_HEALTH, marker_get_info(atask))
 
 
-
-def link_group(result, user_id, app, role, todo_grp_id, task):
-    if Group.objects.filter(user=user_id, app=app, src_id=todo_grp_id).exists():
-        task_grp = Group.objects.filter(user=user_id, app=app, src_id=todo_grp_id).get()
-        TaskGroup.objects.create(task=task, group=task_grp, role=role)
-        if not task.completed:
-            task_grp.act_items_qty += 1
-            task_grp.save()
-        inc(result, app, role, 'TaskGroup', 'added')
 
 def link_task(user_id, todo_grp_id, role_trip=NONE, role_fuel=NONE, role_apart=NONE):
     if Task.objects.filter(user=user_id, app_trip=role_trip, app_fuel=role_fuel, app_apart=role_apart, src_id=todo_grp_id).exists():

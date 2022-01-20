@@ -150,6 +150,18 @@ class Group(models.Model):
         except NoReverseMatch:
             return '/'
 
+    def check_items_qty(self):
+        if (self.determinator == None) or (self.determinator == 'group'):
+            tgs = TaskGroup.objects.filter(group=self.id)
+            qnt = 0
+            for tg in tgs:
+                if not tg.task.completed:
+                    qnt += 1
+            if (self.act_items_qty != qnt):
+                self.act_items_qty = qnt
+                self.save()
+
+
 class Task(models.Model):
     """
     An Entity that can be a Task or something else
@@ -686,7 +698,29 @@ class Task(models.Model):
             else:
                 res.append(currency_repr(byn, ' BYN'))
         return res
+    
+    def correct_groups_qty(self, mode, group_id=None, role=None):
+        if (mode == GIQ_ADD_TASK) and Group.objects.filter(id=group_id).exists():
+            group = Group.objects.filter(id=group_id).get()
+            if (group.determinator == 'group') or (group.determinator == None):
+                TaskGroup.objects.create(task=self, group=group, role=group.role)
+                if not self.completed:
+                    group.act_items_qty += 1
+                    group.save()
+                    return True
+        if (mode == GIQ_DEL_TASK) and role:
+            tgs = TaskGroup.objects.filter(task=self.id, role=role)
+            if (len(tgs) == 1):
+                group = tgs[0].group
+                if (not self.completed) and (group.act_items_qty > 0):
+                    group.act_items_qty -= 1
+                    group.save()
+                tgs[0].delete()
+                return True
+        return False
 
+GIQ_ADD_TASK = 1 # Task created
+GIQ_DEL_TASK = 2 # Task deleted
 
 def add_months(sourcedate, months):
     month = sourcedate.month - 1 + months

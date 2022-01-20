@@ -15,8 +15,6 @@ class BaseCreateForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.config = config
         self.role = role
-        #self.fields['grp'].initial = get_cur_grp(self.request)
-        #self.fields['grp'].queryset = Group.objects.filter(role=role).order_by('sort')
         
     def save(self, commit=True):
         ret = super().save(commit=False)
@@ -54,8 +52,7 @@ class BaseEditForm(forms.ModelForm):
         if (len(tgs) > 0):
             tg = tgs[0]
             grp = tg.group
-            grp_id = grp.id
-            return grp_id
+            return grp.id
         return None
 
 #----------------------------------
@@ -109,7 +106,7 @@ class GroupForm(forms.ModelForm):
         node_ok = self.cleaned_data['node']
         if node_ok:
             inst_id = self.instance.id
-            node_id = node_ok
+            node_id = node_ok.id
             test = Group.objects.filter(id=node_id).get()
             ret = test
             if (test.id == inst_id):

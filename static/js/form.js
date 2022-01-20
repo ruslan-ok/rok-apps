@@ -108,10 +108,10 @@ function delItemConfirm(role, ban, text) {
 
 function delItem(role) {
     const item_id = window.location.pathname.match( /\d+/ )[0];
-    let redirect_url = window.location.href.split('/' + item_id + '/')[0] + '/';
-    let grp = document.getElementById("id_grp");
-    if (grp && grp.value)
-        redirect_url = window.location.href.split('/' + item_id + '/')[0] + '/?group=' + grp.value;
+    let url_params = '';
+    if (window.location.href.split('?').length == 2)
+        url_params = '?' + window.location.href.split('?')[1];
+    let redirect_url = window.location.href.split('/' + item_id + '/')[0] + '/' + url_params;
     const api = '/api/tasks/' + item_id + '/role_delete/?format=json&role=' + role;
     const callback = function() {
         if (this.readyState == 3 && this.status == 400) {

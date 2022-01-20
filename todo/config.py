@@ -10,15 +10,23 @@ app_config = {
     'use_selector': True,
     'use_important': True,
     'sort': [
-        ('important', 'important'),
         ('stop', 'termin'),
         ('name', 'name'),
         ('created', 'create date'),
+        ('completion', 'completion date'),
+        ('important', 'important'),
+        ('in_my_day', 'my day'),
     ],
     'views': {
         'myday': {
             'icon': 'sun',
             'title': 'my day',
+            'sort': [
+                ('stop', 'termin'),
+                ('name', 'name'),
+                ('created', 'create date'),
+                ('important', 'important'),
+            ],
         },
         'important': {
             'icon': 'star',
@@ -27,6 +35,7 @@ app_config = {
                 ('stop', 'termin'),
                 ('name', 'name'),
                 ('created', 'create date'),
+                ('in_my_day', 'my day'),
             ],
         },
         'planned': {
@@ -34,9 +43,11 @@ app_config = {
             'title': 'planned tasks',
             'use_sub_groups': True,
             'sort': [
-                ('important', 'important'),
+                ('stop', 'termin'),
                 ('name', 'name'),
                 ('created', 'create date'),
+                ('important', 'important'),
+                ('in_my_day', 'my day'),
             ],
         },
         'all': {
@@ -44,11 +55,24 @@ app_config = {
             'title': 'all tasks',
             'use_sub_groups': True,
             'hide_qty': True,
+            'sort': [
+                ('stop', 'termin'),
+                ('name', 'name'),
+                ('created', 'create date'),
+                ('important', 'important'),
+                ('in_my_day', 'my day'),
+            ],
       },
         'completed': {
             'icon': 'check2-circle',
             'title': 'completed tasks',
             'hide_qty': True,
+            'sort': [
+                ('completion', 'completion date'),
+                ('name', 'name'),
+                ('created', 'create date'),
+                ('important', 'important'),
+            ],
         },
     }
 }

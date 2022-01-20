@@ -9,7 +9,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from task.const import *
-from task.models import Task, Group, TaskGroup
+from task.models import Task, Group, GIQ_ADD_TASK, GIQ_DEL_TASK
 from rusel.files import storage_path
 from api.serializers import TaskSerializer
 from apart.models import Apart, Price, Meter, Bill
@@ -189,11 +189,7 @@ class TaskViewSet(viewsets.ModelViewSet):
             task = Task.objects.create(user=request.user, app_photo=NUM_ROLE_PHOTO, name=name, event=datetime.now())
         if not task:
             return Response({'task_id': 0, 'mess': message})
-        if group and ((group.determinator == 'group') or (group.determinator == None)):
-            TaskGroup.objects.create(task=task, group=group, role=role)
-            if not task.completed:
-                group.act_items_qty += 1
-                group.save()
+        task.correct_groups_qty(GIQ_ADD_TASK, group.id)
         self._get_info(task)
         return Response({'task_id': task.id})
 
@@ -634,12 +630,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         if (role == ROLE_PHOTO):
             task.app_photo = NONE
         
-        tgs = TaskGroup.objects.filter(task=task.id, role=role)
-        if (len(tgs) == 1):
-            if (not task.completed) and (tgs[0].group.act_items_qty > 0):
-                tgs[0].group.act_items_qty -= 1
-                tgs[0].group.save()
-            tgs[0].delete()
+        task.correct_groups_qty(GIQ_DEL_TASK, role=role)
 
         if ((task.app_task + task.app_note + task.app_news + task.app_store + task.app_doc + task.app_warr + task.app_expen + 
             task.app_trip + task.app_fuel + task.app_apart + task.app_health + task.app_work + task.app_photo) == 0):

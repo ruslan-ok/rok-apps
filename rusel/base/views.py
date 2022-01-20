@@ -15,7 +15,7 @@ from rusel.files import storage_path, get_files_list
 from rusel.utils import extract_get_params, get_search_mode
 from rusel.base.forms import GroupForm, CreateGroupForm
 from task.const import *
-from task.models import Task, Group, TaskGroup, Urls
+from task.models import Task, Group, TaskGroup, Urls, GIQ_ADD_TASK, GIQ_DEL_TASK
 from apart.forms.price import APART_SERVICE
 
 BG_IMAGES = [
@@ -544,10 +544,6 @@ class BaseListView(ListView, Context, LoginRequiredMixin):
         form.instance.user = self.request.user
         response = super().form_valid(form)
         self.config.set_view(self.request)
-        if (self.config.cur_view_group):
-            TaskGroup.objects.create(task=self.object, group=self.config.cur_view_group, role=self.config.app)
-            self.config.cur_view_group.act_items_qty += 1
-            self.config.cur_view_group.save()
         return response
     
 class BaseDetailView(UpdateView, Context, LoginRequiredMixin):
@@ -592,6 +588,9 @@ class BaseDetailView(UpdateView, Context, LoginRequiredMixin):
     def form_valid(self, form):
         self.config.set_view(self.request, detail=True)
         item = form.instance
+        role = self.config.get_cur_role()
+        old_item = Task.objects.filter(id=item.id).get()
+        old_item.correct_groups_qty(GIQ_DEL_TASK, role=role)
         if ('url' in form.changed_data):
             url = form.cleaned_data['url']
             qty = len(Urls.objects.filter(task=item.id))
@@ -599,38 +598,12 @@ class BaseDetailView(UpdateView, Context, LoginRequiredMixin):
         if ('upload' in self.request.FILES):
             self.handle_uploaded_file(self.request.FILES['upload'], self.request.user, item.id)
         ret = super().form_valid(form)
-        role = self.config.get_cur_role()
-        old_completed = item.completed 
-        if ('completed' in form.changed_data):
-            old_completed = not old_completed
-            if TaskGroup.objects.filter(task=item.id, role=role).exists():
-                tg = TaskGroup.objects.filter(task=item.id, role=role).get()
-                if tg.group:
-                    if item.completed:
-                        tg.group.act_items_qty -= 1
-                    else:
-                        tg.group.act_items_qty += 1
-                    tg.group.save()
+        grp_id = None
         if ('grp' in form.changed_data):
             grp = form.cleaned_data['grp']
-            if TaskGroup.objects.filter(task=item.id, role=role).exists():
-                tg = TaskGroup.objects.filter(task=item.id, role=role).get()
-                if not old_completed and tg.group and (tg.group.act_items_qty > 0):
-                    tg.group.act_items_qty -= 1
-                    tg.group.save()
-                if not grp:
-                    tg.delete()
             if grp:
-                if not item.completed:
-                    grp.act_items_qty += 1
-                    grp.save()
-                if not TaskGroup.objects.filter(task=item.id, role=role).exists():
-                    TaskGroup.objects.create(task=item, group=grp, role=grp.role)
-                else:
-                    tg = TaskGroup.objects.filter(task=item.id, role=role).get()
-                    if (tg.group != grp):
-                        tg.group = grp
-                        tg.save()
+                grp_id = grp.id
+        item.correct_groups_qty(GIQ_ADD_TASK, grp_id)
         return ret
 
     def handle_uploaded_file(self, f, user, item_id):
@@ -653,6 +626,7 @@ class BaseGroupView(UpdateView, Context, LoginRequiredMixin):
         obj = super().get_object(*args, **kwargs)
         if obj.user != self.request.user:
             raise Http404
+        obj.check_items_qty()
         return obj
 
     def get_success_url(self):
