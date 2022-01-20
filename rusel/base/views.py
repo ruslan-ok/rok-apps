@@ -456,7 +456,7 @@ class BaseListView(ListView, Context, LoginRequiredMixin):
             grp_id = GRP_PLANNED_NONE
         else:
             today = date.today()
-            if (task.stop == today):
+            if (task.stop.date() == today):
                 grp_id = GRP_PLANNED_TODAY
             else:
                 days = (task.stop.date() - today).days
