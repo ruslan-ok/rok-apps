@@ -159,7 +159,12 @@ def nice_date(d):
         return ret
     
     match d:
-        case date() | datetime() if d.minute == 0 and d.hour == 0:
+        case date():
+            if (d.year == date.today().year):
+                return d.strftime('%a, %d %b')
+            else:
+                return d.strftime('%a, %d %b %Y')
+        case datetime() if d.minute == 0 and d.hour == 0:
             if (d.year == date.today().year):
                 return d.strftime('%a, %d %b')
             else:

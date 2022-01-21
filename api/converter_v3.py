@@ -415,6 +415,8 @@ def transfer_store(result, lst, task_grp):
                                     store_value=item.value,
                                     store_uuid=item.uuid,
                                     store_params=item.params,
+                                    created=item.created,
+                                    last_mod=item.last_mod,
                                     )
         inc(result, APP_STORE, ROLE_STORE, 'Task', 'added')
         
@@ -464,6 +466,8 @@ def transfer_store(result, lst, task_grp):
                                         store_params=item.params,
                                         store_hist=hist_dt,
                                         task_1=parent_task,
+                                        created=item.created,
+                                        last_mod=item.last_mod,
                                         )
             inc(result, APP_STORE, ROLE_STORE_HIST, 'Task', 'added_hist_Entry')
             if item.url:
@@ -482,6 +486,8 @@ def transfer_store(result, lst, task_grp):
                                         store_uuid=item.uuid,
                                         store_params=item.params,
                                         store_hist=hist_dt,
+                                        created=item.created,
+                                        last_mod=item.last_mod,
                                         )
             inc(result, APP_STORE, ROLE_STORE, 'Task', 'added_broken_Entry')
             if item.url:

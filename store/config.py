@@ -10,6 +10,7 @@ app_config = {
     'use_selector': True,
     'sort': [
         ('name', 'name'),
+        ('created', 'create date'),
     ],
     'views': {
         'actual': {

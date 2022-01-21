@@ -25,7 +25,7 @@ class Group(models.Model):
     node = models.ForeignKey('self', on_delete=models.CASCADE, verbose_name=_('node'), blank=True, null=True)
     name = models.CharField(_('group name'), max_length=200, blank=False)
     sort = models.CharField(_('sort code'), max_length=50, blank=True)
-    created = models.DateTimeField(_('creation time'), blank=True, auto_now_add=True)
+    created = models.DateTimeField(_('creation time'), blank=True, default=datetime.now)
     last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now=True)
     completed = models.BooleanField(_('display completed records'), null=True)
     theme = models.IntegerField(_('theme id'), blank=True, null=True)
@@ -196,7 +196,7 @@ class Task(models.Model):
     app_health = models.IntegerField('Role in application Health', choices=HEALTH_ROLE_CHOICE, default=NONE, null=True)
     app_work = models.IntegerField('Role in application Work', choices=WORK_ROLE_CHOICE, default=NONE, null=True)
     app_photo = models.IntegerField('Role in application Photo Bank', choices=PHOTO_ROLE_CHOICE, default=NONE, null=True)
-    created = models.DateTimeField(_('creation time').capitalize(), auto_now_add=True)
+    created = models.DateTimeField(_('creation time').capitalize(), default=datetime.now)
     last_mod = models.DateTimeField(_('last modification time').capitalize(), blank=True, auto_now=True)
     groups = models.ManyToManyField(Group, through='TaskGroup')
     active = models.BooleanField(_('is active navigation item').capitalize(), null=True)
@@ -741,8 +741,8 @@ def add_months(sourcedate, months):
 class Step(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'), related_name='task_step')
     task = models.ForeignKey(Task, on_delete = models.CASCADE, verbose_name = _('step task'))
-    created = models.DateTimeField(_('creation time'), blank=True, auto_now_add = True)
-    last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now = True)
+    created = models.DateTimeField(_('creation time'), blank=True, default=datetime.now)
+    last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now=True)
     name = models.CharField(_('step name'), max_length=200, blank=False)
     sort = models.CharField(_('sort code'), max_length=50, blank=True)
     completed = models.BooleanField(_('step is completed'), default=False)
@@ -765,8 +765,8 @@ class TaskGroup(models.Model):
     group = models.ForeignKey(Group, on_delete=models.CASCADE, verbose_name=_('group'), blank=True, null=True)
     task = models.ForeignKey(Task, on_delete = models.CASCADE, verbose_name = _('task'))
     role = models.CharField(_('role name'), max_length=50, blank=False, default='todo', null=True)
-    created = models.DateTimeField(_('creation time'), blank=True, auto_now_add = True)
-    last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now = True)
+    created = models.DateTimeField(_('creation time'), blank=True, default=datetime.now)
+    last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now=True)
 
 class Urls(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, verbose_name=_('task'), related_name = 'task_urlsr')
@@ -775,8 +775,8 @@ class Urls(models.Model):
     status = models.IntegerField(_('status'), default=0, null=True)
     hostname = models.CharField(_('hostname'), max_length=200, blank=True, null=True)
     title = models.CharField(_('page title'), max_length=200, blank=True, null=True)
-    created = models.DateTimeField(_('creation time'), blank=True, auto_now_add = True)
-    last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now = True)
+    created = models.DateTimeField(_('creation time'), blank=True, default=datetime.now)
+    last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now=True)
 
     def name(self):
         if (self.status == 0):
