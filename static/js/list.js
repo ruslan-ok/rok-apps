@@ -125,14 +125,12 @@ function addItem(app, role, group_id, screen_size='') {
         if (this.readyState == 4 && this.status == 400) {
             if (this.response) {
                 console.log(this.response);
+                let mess = 'Unknown error'
                 let resp = JSON.parse(this.response);
                 if (resp && resp.Error)
-                    alert(resp.Error);
-                else
-                    alert('Error 400');
-                }
-            else
-                alert('Error 400');
+                    mess = resp.Error;
+                iziToast.error({title: 'Error', message: mess, position: 'bottomRight'});
+            }
         }
         if (this.readyState == 4 && this.status == 200) {
             let resp = JSON.parse(this.responseText);
@@ -140,7 +138,7 @@ function addItem(app, role, group_id, screen_size='') {
                 let mess = 'Unknown Error';
                 if (resp.mess)
                     mess = resp.mess;
-                showInfo(mess);
+                iziToast.error({title: 'Error', message: mess, position: 'bottomRight'});
                 return;
             }
             let item_id_arr = window.location.pathname.match( /\d+/ );

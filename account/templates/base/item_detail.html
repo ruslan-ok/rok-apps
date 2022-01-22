@@ -6,6 +6,7 @@
   <link href="{% static 'scss/form.css' %}" rel="stylesheet">
   <link href="{% static 'scss/category.css' %}" rel="stylesheet">
   <link href="{% static 'scss/widgets.css' %}" rel="stylesheet">
+  <link href="{% static 'iziToast/css/iziToast.min.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block main %}
@@ -38,6 +39,7 @@
 
 {% block extrascript %}
   {{ block.super }}
+  <script src="{% static 'iziToast/js/iziToast.min.js' %}"></script>
   <script src="{% static 'js/form.js' %}"></script>
   <script src="{% static 'js/getRateOnDate.js' %}"></script>
 {% endblock %}

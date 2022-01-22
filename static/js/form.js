@@ -63,7 +63,7 @@ function addItem(app, role, group_id, screen_size='') {
                 let mess = 'Unknown Error';
                 if (resp.mess)
                     mess = resp.mess;
-                showInfo(mess);
+                iziToast.error({title: 'Error', message: mess, position: 'bottomRight'});
                 return;
             }
             let item_id_arr = window.location.pathname.match( /\d+/ );
@@ -115,12 +115,13 @@ function delItem(role) {
     const api = '/api/tasks/' + item_id + '/role_delete/?format=json&role=' + role;
     const callback = function() {
         if (this.readyState == 3 && this.status == 400) {
+            let mess = 'Unknown Error';
             let resp = JSON.parse(this.response);
             if (resp && resp.Error)
-                alert(resp.Error);
+                mess = resp.Error;
+            iziToast.error({title: 'Error', message: mess, position: 'bottomRight'});
         }
         if (this.readyState == 4 && this.status == 200) {
-            // alert('redirected to: ' + redirect_url);
             window.location.href = redirect_url;
         }
     };
