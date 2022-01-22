@@ -2,6 +2,7 @@
 {% load static i18n %}
 
 {% block extrastyle %}
+  {{ block.super }}
   <link href="{% static 'scss/home.css' %}" rel="stylesheet">
 {% endblock %}
 

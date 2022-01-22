@@ -1,6 +1,11 @@
 {% extends "base/item_detail.html" %}
 {% load static i18n %}
 
+{% block extrastyle %}
+  {{ block.super }}
+  <link href="{% static 'iziToast/css/iziToast.min.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block item_detail %}
     <div class="row mb-3">
       <div class="col-sm">{{ form.name.errors }}{{ form.name.label_tag }}{{ form.name }}</div>
@@ -62,6 +67,10 @@
 
     {% include "widgets/url_list.html" %}
     {% include "widgets/attachments.html" %}
-  <script src="{% static 'js/store.js' %}"></script>
 {% endblock %}
 
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'iziToast/js/iziToast.min.js' %}"></script>
+  <script src="{% static 'js/store.js' %}"></script>
+{% endblock %}
