@@ -93,6 +93,14 @@ function toggleCompleted(item_id) {
     const api = '/api/tasks/' + item_id + '/completed/?format=json';
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
+            let info = '';
+            if (this.response) {
+                let resp = JSON.parse(this.response);
+                if (resp && resp.info)
+                    info = resp.info;
+            }
+            if (info != '')
+                iziToast.info({message: info, position: 'bottomRight'});
             window.location.href = redirect_url;
         }
     };

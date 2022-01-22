@@ -460,17 +460,18 @@ class Task(models.Model):
         else:
             self.completion = None
         self.save()
-        for tg in TaskGroup.objects.filter(task_id=self.id):
-            if self.completed:
-                tg.group.act_items_qty -= 1
-            else:
-                tg.group.act_items_qty += 1
-            tg.group.save()
+        self.correct_groups_qty(GIQ_CMP_TASK)
         if self.completed and next: # Completed a stage of a recurring task and set a deadline for the next iteration
-            if not Task.objects.filter(user = self.user, name = self.name, completed = False).exists():
-                Task.objects.create(user = self.user, name = self.name, start = self.start, stop = next, important = self.important, \
-                    remind = self.next_remind_time(), repeat = self.repeat, repeat_num = self.repeat_num, \
-                    repeat_days = self.repeat_days, categories = self.categories, info = self.info)
+            if not Task.objects.filter(user=self.user, name=self.name, completed=False).exists():
+                next_task = Task.objects.create(user=self.user, app_task=self.app_task, name=self.name, 
+                    start=self.start, stop=next, important=self.important,
+                    remind=self.next_remind_time(), repeat=self.repeat, repeat_num=self.repeat_num,
+                    repeat_days=self.repeat_days, categories=self.categories, info=self.info)
+                if TaskGroup.objects.filter(task=self.id, role=ROLE_TODO).exists():
+                    group = TaskGroup.objects.filter(task=self.id, role=ROLE_TODO).get().group
+                    next_task.correct_groups_qty(GIQ_ADD_TASK, group.id)
+                    return next_task
+        return None
 
     def next_iteration(self):
         next = None
@@ -705,6 +706,8 @@ class Task(models.Model):
             if (group.determinator == 'group') or (group.determinator == None):
                 TaskGroup.objects.create(task=self, group=group, role=group.role)
                 if not self.completed:
+                    if group.act_items_qty == None:
+                        group.act_items_qty = 0
                     group.act_items_qty += 1
                     group.save()
                     return True
@@ -717,6 +720,13 @@ class Task(models.Model):
                     group.save()
                 tgs[0].delete()
                 return True
+        if (mode == GIQ_CMP_TASK):
+            for tg in TaskGroup.objects.filter(task_id=self.id):
+                if self.completed:
+                    tg.group.act_items_qty -= 1
+                else:
+                    tg.group.act_items_qty += 1
+                tg.group.save()
         return False
 
     def delete_linked_items(self):
@@ -728,6 +738,7 @@ class Task(models.Model):
 
 GIQ_ADD_TASK = 1 # Task created
 GIQ_DEL_TASK = 2 # Task deleted
+GIQ_CMP_TASK = 3 # Task.completed changed
 
 def add_months(sourcedate, months):
     month = sourcedate.month - 1 + months

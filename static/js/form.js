@@ -544,6 +544,24 @@ function remindNextWeek() {
     runAPI(api, callback);
 }
 
+function toggleCompleted() {
+    const item_id = window.location.pathname.match( /\d+/ )[0];
+    const api = '/api/tasks/' + item_id + '/completed/?format=json';
+    const callback = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            let info = '';
+            if (this.response) {
+                let resp = JSON.parse(this.response);
+                if (resp && resp.info)
+                    info = resp.info;
+            }
+            if (info != '')
+                iziToast.info({message: info, position: 'bottomRight'});
+        }
+    };
+    runAPI(api, callback);
+}
+
 function checkCompleted(mode) {
     cf = document.getElementById('id_completed');
     nf = document.getElementById('id_name');
@@ -554,7 +572,9 @@ function checkCompleted(mode) {
             nf.classList.add('completed');
         else
             nf.classList.remove('completed');
-    if (mode == 1)
+    if (mode == 1) {
         nf.classList.toggle('completed');
+        toggleCompleted()
+    }
 }
 

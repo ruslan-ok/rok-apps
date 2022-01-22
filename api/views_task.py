@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from task.const import *
 from task.models import Task, Group, GIQ_ADD_TASK, GIQ_DEL_TASK
 from rusel.files import storage_path
+from rusel.utils import nice_date
 from api.serializers import TaskSerializer
 from apart.models import Apart, Price, Meter, Bill
 
@@ -228,10 +229,14 @@ class TaskViewSet(viewsets.ModelViewSet):
     @action(detail=True)
     def completed(self, request, pk=None):
         task = self.get_object()
-        task.toggle_completed()
+        next_task = task.toggle_completed()
         self.save(task)
+        mess = None
+        if next_task:
+            next_task.set_item_attr(APP_TODO, todo_get_info(next_task))
+            mess = _('replanned to ' + nice_date(next_task.stop))
         serializer = TaskSerializer(instance=task, context={'request': request})
-        return Response(serializer.data)
+        return Response({'data': serializer.data, 'info': mess})
 
 
     # OK
