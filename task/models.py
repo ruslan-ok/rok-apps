@@ -86,6 +86,11 @@ class Group(models.Model):
         self.theme = theme_id
         self.save()
 
+    def dark_theme(self):
+        if not self.theme:
+            return False
+        return (self.theme < 8) or (self.theme > 14)
+
     def set_sort(self, sort_id):
         if self.items_sort.replace('-', '') == sort_id:
             if self.items_sort.replace('-', '') == self.items_sort:
@@ -461,8 +466,9 @@ class Task(models.Model):
             self.completion = None
         self.save()
         self.correct_groups_qty(GIQ_CMP_TASK)
+        next_task = None
         if self.completed and next: # Completed a stage of a recurring task and set a deadline for the next iteration
-            if not Task.objects.filter(user=self.user, name=self.name, completed=False).exists():
+            if not Task.objects.filter(user=self.user, app_task=self.app_task, name=self.name, completed=False).exists():
                 next_task = Task.objects.create(user=self.user, app_task=self.app_task, name=self.name, 
                     start=self.start, stop=next, important=self.important,
                     remind=self.next_remind_time(), repeat=self.repeat, repeat_num=self.repeat_num,
@@ -470,8 +476,7 @@ class Task(models.Model):
                 if TaskGroup.objects.filter(task=self.id, role=ROLE_TODO).exists():
                     group = TaskGroup.objects.filter(task=self.id, role=ROLE_TODO).get().group
                     next_task.correct_groups_qty(GIQ_ADD_TASK, group.id)
-                    return next_task
-        return None
+        return next_task
 
     def next_iteration(self):
         next = None
