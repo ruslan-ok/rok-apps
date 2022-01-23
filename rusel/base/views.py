@@ -397,6 +397,7 @@ class BaseListView(ListView, Context, LoginRequiredMixin):
 
         if self.config.cur_view_group and self.config.cur_view_group.theme:
             context['theme_id'] = self.config.cur_view_group.theme
+            context['dark_theme'] = self.config.cur_view_group.dark_theme
 
         if self.config.cur_view_group.items_sort:
             context['sort_id'] = self.config.cur_view_group.items_sort
