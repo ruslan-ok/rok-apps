@@ -39,7 +39,7 @@
             <div class="section-title full-width">
               {{ form.oper.errors }}
               <div class="section-inner">
-                <select name="oper" id="id_oper" onChange="OperTest()">
+                <select name="oper" id="id_oper" onChange="operTest()">
                   <option value="0"{% if form.oper.value == 0 %} selected{% endif %}>проезд</option>
                   <option value="1"{% if form.oper.value == 1 %} selected{% endif %}>оплата</option>
                 </select>

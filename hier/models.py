@@ -44,7 +44,7 @@ class Folder(models.Model):
             return True
         return False
 
-# ????????? ????? ? ?????
+# Параметры сайта в целом
 # deprecated
 class Param(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
@@ -67,7 +67,7 @@ class Param(models.Model):
         return self.user.username + ' - ' + self.cur_view
 
 
-# ????????? ??????????
+# Параметры приложений
 class AppParam(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'params_user')
     app = models.CharField(_('application'), max_length = 50)
@@ -99,7 +99,7 @@ def get_app_params(user, app):
     return AppParam.objects.filter(user = user.id, app = app).get()
 
 
-# ????????? ??????????
+# Параметры приложений
 class VisitedHistory(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'visit_user')
     stamp = models.DateTimeField(_('visit time'), null=False)
@@ -133,7 +133,7 @@ class VisitedHistory(models.Model):
     def reverse_url(self):
         return self.url
         
-# ?????? ??????? ???????? ??????????
+# Группы записей контента приложения
 class ContentGroup(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'content_groups_user')
     app = models.CharField(_('application'), max_length=200, blank = True)

@@ -18,7 +18,7 @@
     {% endif %}
     <div class="row editable-content full-width main-element" id="id_publ_view">
       <div class="full-width">{{ form.publ.value|date:'d.m.Y G:i' }}</div>
-      <div class="button field-icon" id="id_edit" onclick="OpenPublEdit()"><img src="{% static 'v2/rok/icon/edit.png' %}"></div>
+      <div class="button field-icon" id="id_edit" onclick="openPublEdit()"><img src="{% static 'v2/rok/icon/edit.png' %}"></div>
     </div>
     <div class="row" id="id_publ_edit">
       {{ form.publ }}
@@ -111,8 +111,8 @@
 
 {% block scripts %}
   {{ block.super }}
-  <script src="{% static 'v2/rok/js/resize.js' %}"></script>
-  <script src="{% static 'note/js/OpenPublEdit.js' %}"></script>
+  <script src="{% static 'v2/rok/js/addAutoResize.js' %}"></script>
+  <script src="{% static 'note/js/openPublEdit.js' %}"></script>
 {% endblock %}
 
 

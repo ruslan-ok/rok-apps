@@ -67,6 +67,10 @@ button.grp-add {
   margin: 0px 15px;
 }
 
+main .tree ul .task .icon {
+  margin: 0px 15px;
+}
+
 .task .info {
   height: 49px;
   overflow: hidden;
@@ -310,21 +314,9 @@ button.grp-add {
 
 .button.day {
   color: black;
-  min-height: 30px;
-  min-width: 30px;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-style: solid;
-  border-width: 1px;
 }
 
 .button.day.selected {
 	background-color: #bbb;
 }
 
-.section-item.hide-default {
-  display: none;
-}
-}

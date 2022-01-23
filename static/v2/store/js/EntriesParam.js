@@ -1,7 +1,7 @@
 let protectedValue = true;
-ValueEditCheck();
+valueEditCheck();
 
-function ValueEditCheck()
+function valueEditCheck()
 {
   element = document.getElementById('id_value');
   let generator = !protectedValue || (element.value == '')
@@ -39,19 +39,19 @@ function ValueEditCheck()
   }
 }
 
-function OpenParams()
+function openParams()
 {
   protectedValue = false;
   ValueEditCheck();
 }
 
-function CloseParams()
+function closeParams()
 {
   protectedValue = true;
   ValueEditCheck();
 }
 
-function BuildValue()
+function buildValue()
 {
   let ln = document.getElementById('id_ln').value;
   let uc = document.getElementById('id_uc').checked;

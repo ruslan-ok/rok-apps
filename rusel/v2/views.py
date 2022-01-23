@@ -123,16 +123,3 @@ def get_search_data(user, app_param, query):
     data += store_search(user, query)
     data.sort(reverse=True, key=get_si_date)
     return data
-
-
-#----------------------------------
-# Feedback
-#----------------------------------
-@login_required(login_url='account:login')
-#----------------------------------
-def feedback(request):
-    context = get_base_context(request, 0, 0, _('feedback'))
-    template = loader.get_template('v2/feedback.html')
-    return HttpResponse(template.render(context, request))
-
-

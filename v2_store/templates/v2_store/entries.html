@@ -71,8 +71,8 @@
       <div class="row">
         <div class="editable-content full-width">
           {{ form.value }}
-          <div class="button field-icon" id="id_edit" onclick="OpenParams()"><img src="{% static 'v2/rok/icon/edit.png' %}"></div>
-          <div class="button field-icon" id="id_execute" onclick="BuildValue()"><img src="{% static 'v2/rok/icon/execute.png' %}"></div>
+          <div class="button field-icon" id="id_edit" onclick="openParams()"><img src="{% static 'v2/rok/icon/edit.png' %}"></div>
+          <div class="button field-icon" id="id_execute" onclick="buildValue()"><img src="{% static 'v2/rok/icon/execute.png' %}"></div>
         </div>
       </div>
       <div class="row" id="id_options">
@@ -90,7 +90,7 @@
       </div>
       <div class="row" id="id_buttons">
           <div class="button field-icon full-width flex-row"></div>
-          <div class="button field-icon" onclick="CloseParams()"><img src="{% static 'v2/rok/icon/close-top.png' %}"></div>
+          <div class="button field-icon" onclick="closeParams()"><img src="{% static 'v2/rok/icon/close-top.png' %}"></div>
       </div>
       <input type="hidden" name="default_len" value="{{ default_len }}" id="id_default_len">
       <input type="hidden" name="default_params" value="{{ default_params }}" id="id_default_params">
@@ -157,8 +157,8 @@
 
 {% block scripts %}
   {{ block.super }}
-  <script src="{% static 'v2/rok/js/resize.js' %}"></script>
-  <script src="{% static 'v2/rok/js/categories.js' %}"></script>
-  <script src="{% static 'v2/store/js/EntriesParam.js' %}"></script>
+  <script src="{% static 'v2/rok/js/addAutoResize.js' %}"></script>
+  <script src="{% static 'v2/rok/js/categoryDelete.js' %}"></script>
+  <script src="{% static 'v2/store/js/entriesParam.js' %}"></script>
 {% endblock %}
 

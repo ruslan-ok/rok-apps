@@ -1,11 +1,13 @@
-function launcherOpen() {
+function launcher_open()
+{
   document.getElementById("launcher").style.display = "flex";
 }
 
-function launcherClose() {
+function launcher_close()
+{
   document.getElementById("launcher").style.display = "none";
 }
 
-let element = document.getElementById("autofocus");
+var element = document.getElementById("autofocus");
 if (element)
   element.focus();

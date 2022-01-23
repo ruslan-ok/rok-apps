@@ -75,7 +75,7 @@
       </div>
       <div class="row" id="id_publ_view">
         <div class="full-width">{{ form.publ.value|date:'d.m.Y G:i' }}</div>
-        <div class="button field-icon" id="id_edit" onclick="OpenPublEdit()"><img src="{% static 'v2/rok/icon/edit.png' %}"></div>
+        <div class="button field-icon" id="id_edit" onclick="openPublEdit()"><img src="{% static 'v2/rok/icon/edit.png' %}"></div>
       </div>
       <div class="row" id="id_publ_edit">
         {{ form.publ }}
@@ -130,9 +130,9 @@
 
 {% block scripts %}
   {{ block.super }}
-  <script src="{% static 'v2/rok/js/resize.js' %}"></script>
-  <script src="{% static 'v2/rok/js/uploads.js' %}"></script>
-  <script src="{% static 'v2/rok/js/categories.js' %}"></script>
-  <script src="{% static 'v2/note/js/OpenPublEdit.js' %}"></script>
+  <script src="{% static 'v2/rok/js/addAutoResize.js' %}"></script>
+  <script src="{% static 'v2/rok/js/uploadFile.js' %}"></script>
+  <script src="{% static 'v2/rok/js/categoryDelete.js' %}"></script>
+  <script src="{% static 'v2/note/js/openPublEdit.js' %}"></script>
 {% endblock %}
 
