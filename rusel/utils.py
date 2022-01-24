@@ -158,24 +158,16 @@ def nice_date(d):
     if (ret != ''):
         return ret
     
-    match d:
-        case date():
-            if (d.year == date.today().year):
-                return d.strftime('%a, %d %b')
-            else:
-                return d.strftime('%a, %d %b %Y')
-        case datetime() if d.minute == 0 and d.hour == 0:
-            if (d.year == date.today().year):
-                return d.strftime('%a, %d %b')
-            else:
-                return d.strftime('%a, %d %b %Y')
-        case datetime():
-            if (d.year == date.today().year):
-                return d.strftime('%a, %d %b %H:%M')
-            else:
-                return d.strftime('%a, %d %b %Y %H:%M')
-        case _:
-            return ''
+    if (type(d) == date) or ((type(d) == datetime) and (d.minute == 0) and (d.hour == 0)):
+        if (d.year == date.today().year):
+            return d.strftime('%a, %d %b')
+        else:
+            return d.strftime('%a, %d %b %Y')
+    else:
+        if (d.year == date.today().year):
+            return d.strftime('%a, %d %b %H:%M')
+        else:
+            return d.strftime('%a, %d %b %Y %H:%M')
 
 def sort_data(data, sort, reverse):
     if not data:
