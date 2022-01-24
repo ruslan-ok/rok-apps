@@ -1,6 +1,5 @@
 const task_api = "http://localhost:8000/en/api/tasks/";
 const step_api = "http://localhost:8000/en/api/steps/";
-const group_api = "http://localhost:8000/en/api/groups/";
 const postfix = "format=json";
 
 document.getElementById('remind-select').style.display = "none";

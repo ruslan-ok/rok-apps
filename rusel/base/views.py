@@ -196,6 +196,8 @@ class Context:
 
         if (self.config.group_entity in self.request.GET):
             context['current_group'] = self.request.GET[self.config.group_entity]
+        elif ('ret' in self.request.GET):
+            context['current_group'] = self.request.GET['ret']
 
         return context
 
