@@ -3,7 +3,7 @@
 A service for checking tasks that require reminders and for collecting statistics on site visits."""
 import time, os, errno, sys
 from datetime import datetime
-from secret import log_path, timer_interval_sec
+from rusel.secret import log_path, timer_interval_sec
 from logs import ripe as stat_ripe, process as stat_process
 from todo import ripe as todo_ripe, process as todo_process
 

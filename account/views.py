@@ -36,7 +36,7 @@ from django.utils.crypto import get_random_string
 from task.const import ROLE_ACCOUNT
 from rusel.context import get_base_context
 from account.models import UserExt
-from .secret import demouserpassword
+from rusel.secret import demouserpassword
 
 UserModel = get_user_model()
 

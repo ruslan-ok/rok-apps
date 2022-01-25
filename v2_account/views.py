@@ -35,7 +35,7 @@ from django.utils.crypto import get_random_string
  
 from v2_hier.utils import get_base_context, get_base_context_ext
 from account.models import UserExt
-from .secret import demouserpassword
+from rusel.secret import demouserpassword
 
 UserModel = get_user_model()
 

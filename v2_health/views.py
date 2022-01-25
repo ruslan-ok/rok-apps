@@ -19,7 +19,7 @@ from v2_hier.files import service_path
 from health.models import app_name, Biomarker, Incident, Anamnesis
 from .forms import BiomarkerForm, IncidentForm
 from .plot import Plot
-from .secret import imp_file
+from rusel.secret import weight_imp_file
 
 items_in_page = 20
 
@@ -418,7 +418,7 @@ def chart_storage(user):
 
 #----------------------------------
 def do_import_weight(user):
-    with open(imp_file, 'r') as f:
+    with open(weight_imp_file, 'r') as f:
         while True:
             s = f.readline()
             if (s == ''):

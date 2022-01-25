@@ -1,6 +1,6 @@
 """Module for interacting with the SQLite database"""
 import requests, json, datetime, sqlite3, mysql.connector
-from secret import use_mysql, db_file, host, user, password, database, auth_plugin
+from rusel.secret import use_mysql, db_file, host, user, password, database, auth_plugin
 
 debug = False
 

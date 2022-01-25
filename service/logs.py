@@ -15,7 +15,7 @@ process(log)
 import re, datetime, requests, sys
 from pathlib import Path
 from db import DB
-from secret import apache_log, log_sz_file
+from rusel.secret import apache_log, log_sz_file
 
 record_parts = [
     r'(?P<host>\S+)',      # host %h
@@ -45,8 +45,11 @@ def ripe():
     True if a new piece of data is ready for processing.
     """
     prev_log_sz = read_log_sz()
-    new_log_sz = Path(apache_log).stat().st_size
-    return (new_log_sz > prev_log_sz)
+    try:
+        new_log_sz = Path(apache_log).stat().st_size
+        return (new_log_sz > prev_log_sz)
+    except:
+        return False
 
 def process(log):
     """Parsing new lines of the log file and saving the received data in the database.

@@ -1,5 +1,5 @@
 import mysql.connector
-from service.secret import host, user, password, database, auth_plugin
+from rusel.secret import host, user, password, database, auth_plugin
 
 def get_mysql_ver():
     con = mysql.connector.connect(host=host, user=user, password=password, database=database, auth_plugin=auth_plugin)

@@ -9,7 +9,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from task.const import *
-from task.models import Task, Group, GIQ_ADD_TASK, GIQ_DEL_TASK
+from task.models import Task, Group, TaskGroup, GIQ_ADD_TASK, GIQ_DEL_TASK
+from todo.models import Subscription
 from rusel.files import storage_path
 from rusel.utils import nice_date
 from api.serializers import TaskSerializer
@@ -651,4 +652,67 @@ class TaskViewSet(viewsets.ModelViewSet):
         task.save()
         task.set_item_attr(APP_TODO, todo_get_info(task))
 
+    @action(detail=False)
+    def reminder_ripe(self, request, pk=None):
+        now = datetime.now()
+        tasks = Task.objects.filter(completed=False, remind__lt=now).exclude(remind=None)
+        return Response({'result': (len(tasks) > 0)})
 
+    @action(detail=False)
+    def reminder_process(self, request, pk=None):
+        now = datetime.now()
+        tasks = Task.objects.filter(completed=False, remind__lt=now).exclude(remind=None)
+        result = []
+        for task in tasks:
+            group_path = ''
+            group = None
+            if TaskGroup.objects.filter(task=task.id, role=ROLE_TODO).exists():
+                group = TaskGroup.objects.filter(task=task.id, role=ROLE_TODO).get().group
+            while group:
+                if group_path:
+                    group_path = '/' + group_path
+                group_path = group.name + group_path
+                group = group.node
+            result.append({
+                'id': task.id, 
+                'name': task.name, 
+                'user_id': task.user.id, 
+                'important': task.important, 
+                'term': task.s_termin(), 
+                'group': group_path
+                })
+        return Response({'result': result})
+    
+    @action(detail=False)
+    def get_tokens(self, request, pk=None):
+        if 'user_id' not in self.request.query_params:
+            return Response({'Error': "Expected parameter 'user_id'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        user_id = self.request.query_params['user_id']
+        subs = Subscription.objects.filter(user_id=user_id)
+        tokens = []
+        for s in subs:
+            tokens.append(s.token)
+        return Response({'result': tokens})
+    
+    @action(detail=False)
+    def del_token(self, request, pk=None):
+        if 'user_id' not in self.request.query_params:
+            return Response({'Error': "Expected parameter 'user_id'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        user_id = self.request.query_params['user_id']
+        if 'token' not in self.request.query_params:
+            return Response({'Error': "Expected parameter 'token'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        token = self.request.query_params['token']
+        ret = Subscription.objects.filter(user_id=user_id, token=token).delete()
+        return Response({'result': (len(ret) > 0)})
+    
+    @action(detail=False)
+    def reminded(self, request, pk=None):
+        if 'task_id' not in self.request.query_params:
+            return Response({'Error': "Expected parameter 'task_id'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        task_id = self.request.query_params['task_id']
+        ret = Task.objects.filter(id=task_id).delete()
+        return Response({'result': (len(ret) > 0)})
