@@ -11,7 +11,7 @@ APPS = {
     APP_EXPEN:   ('piggy-bank',    '/expen/'),
     APP_TRIP:    ('truck',         '/trip/'),
     APP_FUEL:    ('droplet',       '/fuel/'),
-    APP_APART:   ('building',      '/apart/'),
+    APP_APART:   ('building',      '/bill/'),
     APP_HEALTH:  ('heart',         '/health/'),
     APP_DOCS:    ('file-text',     '/docs/'),
     APP_WARR:    ('award',         '/warr/'),

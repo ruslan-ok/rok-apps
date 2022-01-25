@@ -209,6 +209,7 @@ class Task(models.Model):
     task_2 = models.ForeignKey('self', on_delete=models.SET_NULL, verbose_name=_('linked task #2'), related_name='task_link_2', blank=True, null=True)
     task_3 = models.ForeignKey('self', on_delete=models.SET_NULL, verbose_name=_('linked task #3'), related_name='task_link_3', blank=True, null=True)
     item_attr = models.CharField(_('item attributes').capitalize(), max_length=2000, blank=True, null=True)
+    sort = models.CharField(_('sort code'), max_length=50, blank=True)
     #------------ Expenses ------------
     expen_qty = models.DecimalField(_('quantity').capitalize(), blank=True, null=True, max_digits=15, decimal_places=3)
     expen_price = models.DecimalField(_('Price in NC'), blank=True, null=True, max_digits=15, decimal_places=2)
@@ -320,10 +321,13 @@ class Task(models.Model):
     def set_active_nav_item(cls, user_id, app, active_nav_item_id):
         nav_role = cls.get_nav_role(app)
         if (not nav_role or not active_nav_item_id):
-            return
+            return None
         nav_items = Task.get_role_tasks(user_id, app, nav_role)
         nav_items.update(active=False)
-        nav_items.filter(id=active_nav_item_id).update(active=True)
+        nav_item = nav_items.filter(id=active_nav_item_id).get()
+        nav_item.active = True
+        nav_item.save()
+        return nav_item
 
     @classmethod
     def get_active_nav_item(cls, user_id, app):

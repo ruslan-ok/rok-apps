@@ -315,14 +315,12 @@ class BaseListView(ListView, Context, LoginRequiredMixin):
             raise Http404
         ret = super().get(request, *args, **kwargs)
         nav_role = Task.get_nav_role(self.config.app)
-        if nav_role and (nav_role != self.config.get_cur_role()):
-            if (self.config.group_entity in request.GET):
-                active_nav_item_id = request.GET[self.config.group_entity]
-                Task.set_active_nav_item(request.user.id, self.config.app, active_nav_item_id)
-            else:
-                ani = Task.get_active_nav_item(request.user.id, self.config.app)
-                if ani:
-                    return HttpResponseRedirect(request.path + '?' + self.config.group_entity + '=' + str(ani.id))
+        cur_role = self.config.get_cur_role()
+        if nav_role and (nav_role != cur_role):
+            if (self.config.group_entity not in request.GET):
+                nav_item = Task.get_active_nav_item(request.user.id, self.config.app)
+                if nav_item:
+                    return HttpResponseRedirect(request.path + '?' + self.config.group_entity + '=' + str(nav_item.id))
         return ret
 
     def get_queryset(self):
@@ -501,6 +499,16 @@ class BaseListView(ListView, Context, LoginRequiredMixin):
         if (self.request.method == 'GET'):
             query = self.request.GET.get('q')
         nav_item = None
+
+        nav_role = Task.get_nav_role(self.config.app)
+        cur_role = self.config.get_cur_role()
+        if nav_role and (nav_role != cur_role):
+            if (self.config.group_entity in self.request.GET):
+                active_nav_item_id = self.request.GET[self.config.group_entity]
+                nav_item = Task.set_active_nav_item(self.request.user.id, self.config.app, active_nav_item_id)
+            else:
+                nav_item = Task.get_active_nav_item(self.request.user.id, self.config.app)
+
         if nav_role and (nav_role != self.config.get_cur_role()):
             nav_item = Task.get_active_nav_item(self.request.user.id, self.config.app)
         return self.get_dataset(self.config.cur_view_group, query, nav_item)

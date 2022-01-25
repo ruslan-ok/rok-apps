@@ -25,7 +25,7 @@ urlpatterns = i18n_patterns(
     path('todo/',   include('todo.urls')),
     path('note/',   include('note.urls')),
     path('news/',   include('news.urls')),
-    path('apart/',  include('apart.urls')),
+    path('bill/',  include('apart.urls')),
     path('docs/',   include('docs.urls')),
     path('store/',  include('store.urls')),
     path('expen/',  include('expen.urls')),

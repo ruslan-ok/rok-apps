@@ -4,9 +4,9 @@ from apart.views import apart, meter, price, bill
 
 app_name = app_config['name']
 urlpatterns = [
-    path('', apart.ListView.as_view(), name='list'),
-    path('<int:pk>/', apart.DetailView.as_view(), name='item'),
-    path('<int:pk>/doc/<str:fname>', apart.get_doc, name='doc'),
+    path('', bill.ListView.as_view(), name='list'),
+    path('<int:pk>/', bill.DetailView.as_view(), name='item'),
+    path('<int:pk>/doc/<str:fname>', bill.get_doc, name='doc'),
 
     path('meter/', meter.ListView.as_view(), name='meter-list'),
     path('meter/<int:pk>/', meter.DetailView.as_view(), name='meter-item'),
@@ -16,7 +16,7 @@ urlpatterns = [
     path('price/<int:pk>/', price.DetailView.as_view(), name='price-item'),
     path('price/<int:pk>/doc/<str:fname>', price.get_doc, name='price-doc'),
 
-    path('bill/', bill.ListView.as_view(), name='bill-list'),
-    path('bill/<int:pk>/', bill.DetailView.as_view(), name='bill-item'),
-    path('bill/<int:pk>/doc/<str:fname>', bill.get_doc, name='bill-doc'),
+    path('apart/', apart.ListView.as_view(), name='apart-list'),
+    path('apart/<int:pk>/', apart.DetailView.as_view(), name='apart-item'),
+    path('apart/<int:pk>/doc/<str:fname>', apart.get_doc, name='apart-doc'),
 ]
