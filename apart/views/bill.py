@@ -6,7 +6,6 @@ from rusel.files import get_files_list, get_app_doc
 from rusel.base.views import BaseListView, BaseDetailView
 from apart.forms.bill import CreateForm, EditForm
 from apart.config import app_config
-from apart.models import Apart, Meter, Bill
 from apart.views.meter import next_period
 from rusel.files import get_files_list
 from apart.calc_tarif import HSC, INTERNET, PHONE, get_bill_info
