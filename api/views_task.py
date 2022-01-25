@@ -14,7 +14,6 @@ from todo.models import Subscription
 from rusel.files import storage_path
 from rusel.utils import nice_date
 from api.serializers import TaskSerializer
-from apart.models import Apart, Price, Meter, Bill
 
 from apart.views.meter import add_meter
 from apart.views.price import add_price
@@ -616,14 +615,6 @@ class TaskViewSet(viewsets.ModelViewSet):
             task.app_fuel = NONE
 
         if (role in [ROLE_APART, ROLE_METER, ROLE_PRICE, ROLE_BILL]):
-            if (task.app_apart == NUM_ROLE_APART):
-                Apart.objects.filter(task=task.id).delete()
-            if (task.app_apart == NUM_ROLE_METER):
-                Meter.objects.filter(task=task.id).delete()
-            if (task.app_apart == NUM_ROLE_PRICE):
-                Price.objects.filter(task=task.id).delete()
-            if (task.app_apart == NUM_ROLE_BILL):
-                Bill.objects.filter(task=task.id).delete()
             task.app_apart = NONE
         
         if (role in [ROLE_MARKER, ROLE_INCIDENT]):

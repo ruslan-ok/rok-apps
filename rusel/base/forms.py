@@ -106,7 +106,7 @@ class GroupForm(forms.ModelForm):
         node_ok = self.cleaned_data['node']
         if node_ok:
             inst_id = self.instance.id
-            node_id = node_ok.id
+            node_id = node_ok
             test = Group.objects.filter(id=node_id).get()
             ret = test
             if (test.id == inst_id):
