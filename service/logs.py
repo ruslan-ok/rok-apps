@@ -15,7 +15,7 @@ process(log)
 import re, datetime, requests, sys
 from pathlib import Path
 from db import DB
-from rusel.secret import apache_log, log_sz_file
+from secret import apache_log, log_sz_file
 
 record_parts = [
     r'(?P<host>\S+)',      # host %h

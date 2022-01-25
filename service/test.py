@@ -1,7 +1,7 @@
 import firebase_admin
 from firebase_admin import credentials, messaging
 from firebase_admin.exceptions import FirebaseError
-from rusel.secret import cred_cert
+from secret import cred_cert
 
 def test_firebase_call():
     print('1')

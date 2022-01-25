@@ -6,10 +6,10 @@ ripe()
 process(log)
 """
 from datetime import datetime
-import firebase_admin, sys, requests
+import firebase_admin, sys, requests, json
 from firebase_admin import credentials, messaging
 from firebase_admin.exceptions import FirebaseError
-from rusel.secret import cred_cert, service_user_token
+from secret import cred_cert, service_user_token
 
 HOST_PROD = 'https://rusel.by'
 HOST_DEV = 'http://localhost:8000'
@@ -22,7 +22,7 @@ TASK_API_DEL_TOKEN = HOST + '/api/tasks/del_token/?format=json&user_id={}&token=
 TASK_API_REMINDED  = HOST + '/api/tasks/reminded/?format=json&task_id={}'
 headers = {'Authorization': 'Token ' + service_user_token}
 
-def ripe():
+def ripe(log):
     """Are there any tasks that need to be reminded.
     
     Returns
@@ -33,6 +33,7 @@ def ripe():
     data = resp.json()
     if ('result' in data):
         return data['result']
+    log('todo.py: ripe(): ' + json.dumps(data))
     return False
 
 def process(log):
