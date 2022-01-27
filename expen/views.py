@@ -99,6 +99,7 @@ def get_info(item):
 
 class ProjectView(BaseGroupView, TuneData):
     form_class = ProjectForm
+    template_name = 'expen/project.html'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)

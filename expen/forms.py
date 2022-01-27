@@ -56,23 +56,25 @@ class EditForm(BaseEditForm):
 
 #----------------------------------
 class ProjectForm(GroupForm):
-    tot_byn = forms.BooleanField(
+    name = forms.CharField(
+        label=_('project name').capitalize(),
+        widget=forms.TextInput(attrs={'class': 'form-control mb-2'}),)
+    expen_byn = forms.BooleanField(
         label=False, 
         required=False, 
         widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('calculate totals in national currency').capitalize()}))
-    tot_usd = forms.BooleanField(
+    expen_usd = forms.BooleanField(
         label=False, 
         required=False, 
         widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('calculate totals in dollars').capitalize()}))
-    tot_eur = forms.BooleanField(
+    expen_eur = forms.BooleanField(
         label=False, 
         required=False, 
         widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('calculate totals in euro').capitalize()}))
     class Meta:
         model = Group
-        fields = ['node', 'name', 'sort', 'tot_byn', 'tot_usd', 'tot_eur']
+        fields = ['node', 'name', 'sort', 'expen_byn', 'expen_usd', 'expen_eur']
         widgets = {
             'node': forms.Select(attrs={'class': 'form-control mb-2'}),
-            'name': forms.TextInput(attrs={'class': 'form-control mb-2'}),
             'sort': forms.TextInput(attrs={'class': 'form-control mb-2'}),
         }

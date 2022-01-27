@@ -58,7 +58,7 @@ function closeGroupForm(group_entity) {
   const urlParams = new URLSearchParams(window.location.search);
   const group_id = urlParams.get('ret');
   if (group_id)
-    redirect_url += '?group=' + group_id;
+    redirect_url += '?' + group_entity + '=' + group_id;
   else
     redirect_url += group_entity + '/';
   window.location.href = redirect_url;

@@ -66,8 +66,7 @@ class GroupForm(forms.ModelForm):
     node = forms.ChoiceField(
         label=_('node').capitalize(),
         widget=forms.Select(attrs={'class': 'form-control mb-2'}),
-        choices=[(0, '------'),]
-    )
+        choices=[(0, '------'),])
     completed = forms.BooleanField(
         label=False, 
         required=False, 
@@ -103,7 +102,7 @@ class GroupForm(forms.ModelForm):
 
     def clean_node(self):
         ret = None
-        node_ok = self.cleaned_data['node']
+        node_ok = int(self.cleaned_data['node'])
         if node_ok:
             inst_id = self.instance.id
             node_id = node_ok
