@@ -120,7 +120,6 @@ function buildValue()
     params += 128;
 
   document.getElementById('id_params').value = params;
-  document.getElementById('id_item_save').click();
 }
 
 function copyToClipboard(fld, kind) {

@@ -1,6 +1,6 @@
 from rusel.files import get_files_list
 from rusel.categories import get_categories_list
-from task.models import TaskGroup, Urls
+from task.models import TaskGroup, Urls, Hist
 from task.const import APP_STORE, ROLE_STORE
 
 app = APP_STORE
@@ -12,7 +12,12 @@ def get_info(item):
     if TaskGroup.objects.filter(task=item.id, role=role).exists():
         ret['group'] = TaskGroup.objects.filter(task=item.id, role=role).get().group.name
 
-    ret['attr'].append({'text': '{} - {}'.format(item.store_username, '*'*len(item.store_value))})
+    ret['attr'].append({'text': '{} {}'.format(item.store_username, '*'*len(item.store_value))})
+
+    hist = Hist.objects.filter(task=item.id)
+    if hist:
+        ret['attr'].append({'icon': 'separator'})
+        ret['attr'].append({'text': '[{}]'.format(len(hist))})
 
     
     links = len(Urls.objects.filter(task=item.id)) > 0

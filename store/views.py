@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.template import loader
 from task.const import ROLE_STORE, ROLE_APP, NUM_ROLE_STORE
-from task.models import Task
+from task.models import Task, Hist
 from rusel.files import get_app_doc
 from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView, Context
 from store.forms import CreateForm, EditForm, ParamsForm
@@ -60,23 +60,23 @@ class DetailView(BaseDetailView, TuneData):
             params += 128
         context['default_len'] = store_params.ln
         context['default_params'] = params
-        hist = Task.objects.filter(user=self.request.user.id, app_store=NUM_ROLE_STORE, task_1=self.get_object().id)
-        context['history'] = hist
-        context['history_qty'] = len(hist)
-        # this_entry = None
-        # if Entry.objects.filter(user=self.request.user.id, task=self.object.id, actual=1).exists():
-        #     this_entry = Entry.objects.filter(user=self.request.user.id, task=self.object.id, actual=1)[0]
-        # else:
-        #     if Entry.objects.filter(user=self.request.user.id, task=self.object.id).exists():
-        #         this_entry = Entry.objects.filter(user=self.request.user.id, task=self.object.id)[0]
-        # if this_entry:
-        #     hist = Entry.objects.filter(user=self.request.user, task=this_entry.task.id).exclude(id=this_entry.id)
-        #     context['history'] = hist
-        #     context['history_qty'] = len(hist)
+        hist = Hist.objects.filter(task=self.get_object().id).order_by('-valid_until')
+        context['store_history'] = hist
+        context['store_history_qty'] = len(hist)
         return context
 
     def form_valid(self, form):
         response = super().form_valid(form)
+        if (('store_username' in form.changed_data) or ('store_value' in form.changed_data)) and (
+                (form.instance.store_username != form.initial['store_username']) or
+                (form.instance.store_value != form.initial['store_value'])):
+            Hist.objects.create(
+                task=form.instance, 
+                store_username=form.initial['store_username'],
+                store_value=form.initial['store_value'],
+                store_params=form.initial['store_params'],
+                info=form.initial['info'],
+                )
         form.instance.completed = not form.cleaned_data['actual']
         form.instance.save()
         form.instance.set_item_attr(app, get_info(form.instance))

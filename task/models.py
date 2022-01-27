@@ -227,9 +227,7 @@ class Task(models.Model):
     #------------- Store --------------
     store_username = models.CharField(_('username'), max_length=150, blank=True, null=True)
     store_value = models.CharField(_('value'), max_length=128, null=True)
-    store_uuid = models.CharField(_('UUID'), max_length=100, blank=True, null=True)
     store_params = models.IntegerField(_('generator parameters used'), null=True)
-    store_hist = models.DateTimeField(_('when archived'), null=True)
     #------------- Apart --------------
     apart_has_el = models.BooleanField(_('has electricity'), null=True)
     apart_has_hw = models.BooleanField(_('has hot water'), null=True)
@@ -743,6 +741,7 @@ class Task(models.Model):
             self.correct_groups_qty(GIQ_DEL_TASK, tg.group.role)
         Step.objects.filter(task=self.id).delete()
         Urls.objects.filter(task=self.id).delete()
+        Hist.objects.filter(task=self.id).delete()
 
 
 GIQ_ADD_TASK = 1 # Task created
@@ -825,8 +824,10 @@ class Urls(models.Model):
                     if (self.status > 0):
                         self.status = 3
                         al = n.text
-                        self.title = al[al.find('<title>') + 7 : al.find('</title>')]
-                        if self.title:
+                        start = al.find('<title>')
+                        stop = al.find('</title>')
+                        if (start > 0) and (stop > start) and (stop < 190):
+                            self.title = al[start+7:stop]
                             self.ststus = 4
             self.save()
         if (self.hostname and self.title):
@@ -843,4 +844,11 @@ def currency_repr(value, currency):
     return '{:,.0f}{}'.format(value, currency).replace(',', '`')
 
 
-
+class Hist(models.Model):
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, verbose_name=_('task'), related_name = 'task_hist')
+    valid_until = models.DateTimeField(_('valid until date').capitalize(), blank=True, default=datetime.now)
+    store_username = models.CharField(_('username'), max_length=150, blank=True, null=True)
+    store_value = models.CharField(_('value'), max_length=128, null=True)
+    store_params = models.IntegerField(_('generator parameters used'), null=True)
+    info = models.TextField(_('information').capitalize(), blank=True, null=True)
+    store_uuid = models.CharField(_('UUID'), max_length=100, blank=True, null=True)

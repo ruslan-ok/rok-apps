@@ -66,7 +66,7 @@ class EditForm(BaseEditForm):
 
     def clean_grp(self):
         ret = None
-        grp_ok = self.cleaned_data['grp']
+        grp_ok = int(self.cleaned_data['grp'])
         if grp_ok:
             parent = Group.objects.filter(node=grp_ok)
             if (len(parent) > 0):

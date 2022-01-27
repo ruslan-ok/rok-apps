@@ -17,31 +17,30 @@
     </div>
 
     <div>
-      <div>{{ form.actual.errors }}{{ form.actual }}</div>
-      {% if history %}
+      {% if store_history %}
         <span type="button" class="sub-group" onclick="toggleHistory(this)">
           <i class="sub-group__icon bi-chevron-right"></i>
           <span class="sub-group__name">{% trans 'history'|capfirst %}</span>
-          <span class="sub-group__qty">{{ history_qty }}</span>
+          <span class="sub-group__qty">{{ store_history_qty }}</span>
         </span>
       {% endif %}
     </div>
 
-    {% if history %}
+    {% if store_history %}
       <div class="overflow-auto d-none" id="id_history">
         <table class="table">
           <thead>
             <tr>
-              <th scope="col">{% trans 'date'|capfirst %}</th>
+              <th scope="col">{% trans 'valid until'|capfirst %}</th>
               <th scope="col">{% trans 'username'|capfirst %}</th>
               <th scope="col">{% trans 'value'|capfirst %}</th>
-              <th scope="col">{% trans 'notes'|capfirst %}</th>
+              <th scope="col">{% trans 'information'|capfirst %}</th>
             </tr>
           </thead>
           <tbody>
-            {% for item in history %}
+            {% for item in store_history %}
               <tr>
-                <th scope="row">{{ item.completed|date:'d.m.Y' }}</th>
+                <td>{{ item.valid_until|date:'d.m.Y - G:i' }}</td>
                 <td>{{ item.store_username }}</td>
                 <td>{{ item.store_value }}</td>
                 <td>{{ item.info }}</td>
@@ -57,6 +56,7 @@
       <div class="col-sm">
         <div class="col-item">{{ form.info.errors }}{{ form.info.label_tag }}{{ form.info }}</div>
         <div class="col-item">{{ form.url.errors }}{{ form.url.label_tag }}{{ form.url }}</div>
+        <div class="col-item">{{ form.actual.errors }}{{ form.actual }}</div>
       </div>
       <div class="col-sm">
         <div class="col-item">{{ form.grp.errors }}{{ form.grp.label_tag }}{{ form.grp }}</div>

@@ -2,7 +2,7 @@ import os, shutil
 from datetime import datetime
 from todo.models import Grp, Lst, Task as OldTask, Step as OldStep
 from note.models import Note
-from task.models import Task, Step, Group, TaskGroup, Urls, GIQ_ADD_TASK
+from task.models import Task, Step, Group, TaskGroup, Urls, Hist, GIQ_ADD_TASK
 from apart.models import Apart, Meter, Bill, Price
 from store.models import Entry
 from proj.models import Projects, Expenses
@@ -122,6 +122,7 @@ def delete_task_role(app, role, result):
                         app_fuel=NONE, app_apart=NONE, app_health=NONE, app_work=NONE, app_photo=NONE)
     set(result, app, role, 'Step', 'delete', Step.objects.filter(task__in=to_kill).delete()[0])
     set(result, app, role, 'Urls', 'delete', Urls.objects.filter(task__in=to_kill).delete()[0])
+    set(result, app, role, 'Hist', 'delete', Hist.objects.filter(task__in=to_kill).delete()[0])
     set(result, app, role, 'Task', 'delete', to_kill.delete()[0])
 
 def init(result):
@@ -180,6 +181,8 @@ def done(result):
     print(result)
 
 def transfer_grp(result, app, role, grp_node, task_grp_node):
+    if (app != role):
+        return
     grps = Grp.objects.filter(app=app, node=grp_node)
     for grp in grps:
         task_grp = Group.objects.create(user=grp.user, 
@@ -198,6 +201,8 @@ def transfer_grp(result, app, role, grp_node, task_grp_node):
         transfer_lst(result, app, role, grp, task_grp)
 
 def transfer_lst(result, app, role, grp, task_grp):
+    if (app != role):
+        return
     lsts = Lst.objects.filter(app=app, grp=grp)
     for lst in lsts:
         task_grp_ = Group.objects.create(user=lst.user, 
@@ -248,14 +253,8 @@ def transfer_task(result, lst, task_grp):
             Step.objects.create(user=step.task.user, task=atask, name=step.name, sort=step.sort, completed=step.completed)
             inc(result, APP_TODO, ROLE_TODO, 'Step', 'added')
         
-        if task_grp:
-            atask.correct_groups_qty(GIQ_ADD_TASK, task_grp.id)
-            inc(result, APP_TODO, ROLE_TODO, 'TaskGroup', 'added')
-        
-        if task.url:
-            Urls.objects.create(task=atask, num=1, href=task.url)
-            inc(result, APP_TODO, ROLE_TODO, 'Urls', 'added')
-        
+        check_grp(result, APP_TODO, ROLE_TODO, atask, task_grp)
+        check_url(result, APP_TODO, ROLE_TODO, task, task.url)
         copy_attachments(task.user.id, 'todo', 'task', task.id, APP_TODO, ROLE_TODO, atask.id)
         atask.set_item_attr(APP_TODO, todo_get_info(atask))
 
@@ -283,15 +282,8 @@ def transfer_note(result, app, role, lst, task_grp):
                                     created=note.publ,
                                     last_mod=note.last_mod)
         inc(result, app, role, 'Task', 'added')
-        
-        if task_grp:
-            atask.correct_groups_qty(GIQ_ADD_TASK, task_grp.id)
-            inc(result, app, role, 'TaskGroup', 'added')
-
-        if note.url:
-            Urls.objects.create(task=atask, num=1, href=note.url)
-            inc(result, app, role, 'Urls', 'added')
-
+        check_grp(result, app, role, atask, task_grp)
+        check_url(result, app, role, atask, note.url)
         copy_attachments(note.user.id, 'note', note.kind, note.id, APP_NOTE, ROLE_NOTE, atask.id)
         if note.kind == 'note':
             atask.set_item_attr(APP_NOTE, note_get_info(atask))
@@ -394,58 +386,50 @@ def transfer_bill(result):
                                     )
         inc(result, APP_APART, ROLE_BILL, 'Task', 'added')
         
-        if item.url:
-            Urls.objects.create(task=atask, num=1, href=item.url)
-            inc(result, APP_APART, ROLE_BILL, 'Urls', 'added')
-
+        check_url(result, APP_APART, ROLE_BILL, atask, item.url)
         copy_attachments(item.apart.user.id, 'apart', 'bill', item.id, APP_APART, ROLE_BILL, atask.id)
         atask.set_item_attr(APP_APART, bill_get_info(atask))
 
 def transfer_store(result, lst, task_grp):
     items = Entry.objects.filter(lst=lst, actual=1)
     for item in items:
+        item_info = str(item.notes).replace('\\r\\n', '\n') if item.notes else ''
+        if item.uuid:
+            if item_info:
+                item_info += '\n\n'
+            item_info += 'UUID: ' + item.uuid
         atask = Task.objects.create(user=item.user,
                                     src_id=item.id,
                                     app_store=NUM_ROLE_STORE,
                                     name=item.title,
                                     categories=item.categories,
-                                    info=str(item.notes).replace('\\r\\n', '\n') if item.notes else '',
+                                    info=item_info,
                                     completed=(item.actual==0),
                                     store_username=item.username,
                                     store_value=item.value,
-                                    store_uuid=item.uuid,
                                     store_params=item.params,
                                     created=item.created,
                                     last_mod=item.last_mod,
                                     )
         inc(result, APP_STORE, ROLE_STORE, 'Task', 'added')
-        
-        if task_grp:
-            atask.correct_groups_qty(GIQ_ADD_TASK, task_grp.id)
-            inc(result, APP_STORE, ROLE_STORE, 'TaskGroup', 'added')
-
-        if item.url:
-            Urls.objects.create(task=atask, num=1, href=item.url)
-            inc(result, APP_STORE, ROLE_STORE, 'Urls', 'added')
-
+        check_grp(result, APP_STORE, ROLE_STORE, atask, task_grp)
+        check_url(result, APP_STORE, ROLE_STORE, atask, item.url)
         atask.set_item_attr(APP_STORE, store_get_info(atask))
 
     items = Entry.objects.filter(lst=lst, actual=0)
     for item in items:
         parent_task = None
         if task_grp:
-            atasks = Task.objects.filter(user=item.user.id, name=item.title, app_store=NUM_ROLE_STORE, store_hist=None, groups__id=task_grp.id)
+            atasks = Task.objects.filter(user=item.user.id, name=item.title, app_store=NUM_ROLE_STORE, groups__id=task_grp.id)
         else:
-            atasks = Task.objects.filter(user=item.user.id, name=item.title, app_store=NUM_ROLE_STORE, store_hist=None, groups__id=None)
+            atasks = Task.objects.filter(user=item.user.id, name=item.title, app_store=NUM_ROLE_STORE, groups__id=None)
 
         if (len(atasks) > 1):
             raise Exception('Duplication of Store items')
 
         if (len(atasks) == 1):
             parent_task = atasks[0]
-            if item.url:
-                Urls.objects.create(task=atask, num=2, href=item.url)
-                inc(result, APP_STORE, ROLE_STORE, 'Urls', 'added')
+            check_url(result, APP_STORE, ROLE_STORE, atask, item.url)
         hist_dt = item.last_mod
         if not hist_dt:
             hist_dt = item.created
@@ -453,52 +437,40 @@ def transfer_store(result, lst, task_grp):
             hist_dt = datetime.now()
 
         if parent_task:
-            atask = Task.objects.create(user=item.user,
-                                        src_id=item.id,
-                                        app_store=NUM_ROLE_STORE_HIST,
-                                        name=item.title,
-                                        categories=item.categories,
-                                        info=str(item.notes).replace('\\r\\n', '\n') if item.notes else '',
-                                        completed=(item.actual==0),
-                                        store_username=item.username,
-                                        store_value=item.value,
-                                        store_uuid=item.uuid,
-                                        store_params=item.params,
-                                        store_hist=hist_dt,
-                                        task_1=parent_task,
-                                        created=item.created,
-                                        last_mod=item.last_mod,
-                                        )
-            inc(result, APP_STORE, ROLE_STORE_HIST, 'Task', 'added_hist_Entry')
-            if item.url:
-                Urls.objects.create(task=parent_task, num=2, href=item.url)
-                inc(result, APP_STORE, ROLE_STORE, 'Urls', 'added')
+            Hist.objects.create(task=parent_task,
+                                valid_until=hist_dt,
+                                store_username=item.username,
+                                store_value=item.value,
+                                store_params=item.params,
+                                info=str(item.notes).replace('\\r\\n', '\n') if item.notes else '',
+                                store_uuid=item.uuid,
+                                )
+            inc(result, APP_STORE, ROLE_STORE_HIST, 'Hist', 'added_hist_Entry')
+            check_url(result, APP_STORE, ROLE_STORE, parent_task, item.url)
+            parent_task.set_item_attr(APP_STORE, store_get_info(parent_task))
         else:
+            item_info = str(item.notes).replace('\\r\\n', '\n') if item.notes else ''
+            if item.uuid:
+                if item_info:
+                    item_info += '\n\n'
+                item_info += 'UUID: ' + item.uuid
             atask = Task.objects.create(user=item.user,
                                         src_id=item.id,
                                         app_store=NUM_ROLE_STORE,
                                         name=item.title,
                                         categories=item.categories,
-                                        info=str(item.notes).replace('\\r\\n', '\n') if item.notes else '',
-                                        completed=(item.actual==0),
+                                        info=item_info,
+                                        completed=True,
                                         store_username=item.username,
                                         store_value=item.value,
-                                        store_uuid=item.uuid,
                                         store_params=item.params,
-                                        store_hist=hist_dt,
                                         created=item.created,
                                         last_mod=item.last_mod,
                                         )
-            inc(result, APP_STORE, ROLE_STORE, 'Task', 'added_broken_Entry')
-            if item.url:
-                Urls.objects.create(task=atask, num=1, href=item.url)
-                inc(result, APP_STORE, ROLE_STORE, 'Urls', 'added')
-
+            inc(result, APP_STORE, ROLE_STORE, 'Task', 'added_archive_Entry')
+            check_url(result, APP_STORE, ROLE_STORE, atask, item.url)
+            check_grp(result, APP_STORE, ROLE_STORE, atask, task_grp)
             atask.set_item_attr(APP_STORE, store_get_info(atask))
-        
-        if task_grp:
-            atask.correct_groups_qty(GIQ_ADD_TASK, task_grp.id)
-            inc(result, APP_STORE, ROLE_STORE, 'TaskGroup', 'added')
 
 
 def transfer_expen_proj(result):
@@ -542,8 +514,7 @@ def transfer_expenses(result):
         inc(result, APP_EXPEN, ROLE_EXPENSE, 'Task', 'added')
         if Group.objects.filter(user=atask.user_id, app=APP_EXPEN, src_id=ROLE_EXPENSE).exists():
             task_grp = Group.objects.filter(user=atask.user_id, app=APP_EXPEN, src_id=ROLE_EXPENSE).get()
-            if atask.correct_groups_qty(GIQ_ADD_TASK, task_grp.id):
-                inc(result, APP_EXPEN, ROLE_EXPENSE, 'TaskGroup', 'added')
+            check_grp(result, APP_EXPEN, ROLE_EXPENSE, atask, task_grp)
         atask.set_item_attr(APP_EXPEN, expen_get_info(atask))
 
 def transfer_person(result):
@@ -692,6 +663,17 @@ def link_task(user_id, todo_grp_id, role_trip=NONE, role_fuel=NONE, role_apart=N
     if Task.objects.filter(user=user_id, app_trip=role_trip, app_fuel=role_fuel, app_apart=role_apart, src_id=todo_grp_id).exists():
         return Task.objects.filter(user=user_id, app_trip=role_trip, app_fuel=role_fuel, app_apart=role_apart, src_id=todo_grp_id).get()
     return None
+
+def check_grp(result, app, role, task, task_grp):
+    if task_grp:
+        task.correct_groups_qty(GIQ_ADD_TASK, task_grp.id)
+        inc(result, app, role, 'TaskGroup', 'added')
+
+def check_url(result, app, role, task, href):
+    if href and not Urls.objects.filter(task=task, href=href).exists():
+        num = len(Urls.objects.filter(task=task)) + 1
+        Urls.objects.create(task=task, num=num, href=href)
+        inc(result, app, role, 'Urls', 'added')
 
 def copy_attachments(user_id, src_app, src_role, src_item_id, dst_app, dst_role, dst_item_id):
     src_path = storage_path.format(user_id) + '{}/{}_{}/'.format(src_app, src_role, src_item_id)

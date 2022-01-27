@@ -20,7 +20,7 @@
             <div class="btn btn-outline-secondary bi-files" id="id_copy" onclick="copyToClipboard(this, 'value')"></div>
           </div>
           <input type="{{ widget.type }}" name="{{ widget.name }}" class="form-control {{ widget.attrs.class_input }}" 
-                id="{{ widget.attrs.id }}" value="{{ widget.value }}"
+                id="{{ widget.attrs.id }}" value="{% if widget.value %}{{ widget.value }}{% endif %}"
                 {% for name, value in widget.attrs.items %}
                     {% if value is not False %} {{ name }}
                     {% if value is not True %}="{{ value|stringformat:'s' }}"{% endif %}{% endif %}
@@ -33,7 +33,7 @@
     <div class="row expandable-part" id="id_options">
         <div class="col">
           <div><label for="id_ln">Длина:</label> 
-            <input type="number" name="ln" value="15" min="5" max="100" required="" id="id_ln" class="field-control"> </div>
+            <input type="number" name="ln" value="15" min="1" max="100" required="" id="id_ln" class="field-control"> </div>
           <div><input type="checkbox" name="uc" id="id_uc" checked="">  <label for="id_uc">Буквы в верхнем регистре</label> </div>
           <div><input type="checkbox" name="lc" id="id_lc" checked="">  <label for="id_lc">Буквы в нижнем регистре</label>  </div>
           <div><input type="checkbox" name="dg" id="id_dg" checked="">  <label for="id_dg">Цифры</label>                    </div>
