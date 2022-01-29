@@ -227,7 +227,7 @@ def do_main(request, restriction, pk = None, art_vis = False):
     page_obj = paginator.get_page(page_number)
     context['page_obj'] = paginator.get_page(page_number)
 
-    template_name = 'photo/' + restriction + '.html'
+    template_name = 'v2_photo/' + restriction + '.html'
     template = loader.get_template(template_name)
     return HttpResponse(template.render(context, request))
 
