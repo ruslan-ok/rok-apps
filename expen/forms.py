@@ -5,7 +5,7 @@ from rusel.base.forms import BaseCreateForm, BaseEditForm
 from task.models import Task, Group
 from task.const import ROLE_EXPENSE
 from expen.config import app_config
-from rusel.widgets import UrlsInput, CategoriesInput, SwitchInput
+from rusel.widgets import UrlsInput, CategoriesInput, SwitchInput, DateInput
 from rusel.base.forms import GroupForm
 
 role = ROLE_EXPENSE
@@ -22,13 +22,17 @@ class CreateForm(BaseCreateForm):
         
 #----------------------------------
 class EditForm(BaseEditForm):
+    event = forms.DateTimeField(
+        label=False,
+        required=True,
+        widget=DateInput(format='%Y-%m-%dT%H:%M', attrs={'label': _('date of payment').capitalize(), 'type': 'datetime-local'}))
     name = forms.CharField(
         label=_('operation').capitalize(),
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add operation name').capitalize()}))
     grp = forms.ChoiceField(
         label=_('group').capitalize(),
-        widget=forms.Select(attrs={'class': 'form-control mb-3'}),
+        widget=forms.HiddenInput(attrs={'class': 'form-control mb-3'}),
         choices=[(0, '------'),])
     url = forms.CharField(
         label=_('URLs'),

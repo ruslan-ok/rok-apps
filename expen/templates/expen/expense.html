@@ -13,37 +13,42 @@
       </div>
     {% endif %}
 
+    {{ form.grp }}
     <div class="input-group flex-wrap justify-content-start mb-3">
       <div class="col-sm-4">{{ form.event.label_tag }}{{ form.event }}</div>
       <div class="col-sm-8">{{ form.name.label_tag }}{{ form.name }}</div>
     </div>
     <div class="input-group flex-wrap mb-3">
-      <div class="col-sm me-2">{{ form.expen_qty.label_tag }}{{ form.expen_qty }}</div>
+      <div class="col-sm me-2">{{ form.expen_qty.errors }}{{ form.expen_qty.label_tag }}{{ form.expen_qty }}</div>
       {% if config.cur_view_group.expen_byn %}
-        <div class="col-sm me-2">{{ form.expen_price.label_tag }}{{ form.expen_price }}</div>
+        <div class="col-sm me-2">{{ form.expen_price.errors }}{{ form.expen_price.label_tag }}{{ form.expen_price }}</div>
         <div class="col-sm me-2">
           <label for="id_amount_nc">{% trans 'Amount in NC:' %}</label>
           <input type="text" name="amount_nc" value="{{ amount_nc|escape }}" class="form-control" readonly id="id_amount_nc">
         </div>
       {% endif %}
       {% if config.cur_view_group.expen_usd %}
-        <div class="col-sm">{{ form.expen_rate.label_tag }}{{ form.expen_rate }}</div>
-        <div class="col-sm me-2">{{ form.expen_usd.label_tag }}{{ form.expen_usd }}</div>
+        <div class="col-sm">{{ form.expen_rate.errors }}{{ form.expen_rate.label_tag }}{{ form.expen_rate }}</div>
+        <div class="col-sm me-2">{{ form.expen_usd.errors }}{{ form.expen_usd.label_tag }}{{ form.expen_usd }}</div>
       {% endif %}
       {% if config.cur_view_group.expen_eur %}
-        <div class="col-sm me-2">{{ form.expen_rate_2.label_tag }}{{ form.expen_rate_2 }}</div>
-        <div class="col-sm me-2">{{ form.expen_eur.label_tag }}{{ form.expen_eur }}</div>
+        <div class="col-sm me-2">{{ form.expen_rate_2.errors }}{{ form.expen_rate_2.label_tag }}{{ form.expen_rate_2 }}</div>
+        <div class="col-sm me-2">{{ form.expen_eur.errors }}{{ form.expen_eur.label_tag }}{{ form.expen_eur }}</div>
       {% endif %}
     </div>
     <div class="input-group flex-wrap mb-3">
-      <div class="col-sm-4 mx-1">{{ form.expen_kontr.label_tag }}{{ form.expen_kontr }}</div>
-      <div class="col-sm-5 mx-1">{{ form.info.label_tag }}{{ form.info }}</div>
-      <div class="col-sm-2 mx-1">{{ form.categories.label_tag }}{{ form.categories }}</div>
+      <div class="col-sm-4 mx-1">{{ form.expen_kontr.errors }}{{ form.expen_kontr.label_tag }}{{ form.expen_kontr }}</div>
+      <div class="col-sm-5 mx-1">{{ form.info.errors }}{{ form.info.label_tag }}{{ form.info }}</div>
+      <div class="col-sm-2 mx-1">{{ form.categories.errors }}{{ form.categories.label_tag }}{{ form.categories }}</div>
     </div>
-    <div>{{ form.url.label_tag }}{{ form.url }}</div>
-    <div>{{ form.upload.label_tag }}{{ form.upload }}</div>
+    <div>{{ form.url.errors }}{{ form.url.label_tag }}{{ form.url }}</div>
+    <div>{{ form.upload.errors }}{{ form.upload.label_tag }}{{ form.upload }}</div>
 
     {% include "widgets/url_list.html" %}
     {% include "widgets/attachments.html" %}
 {% endblock %}
 
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'js/expen.js' %}"></script>
+{% endblock %}
