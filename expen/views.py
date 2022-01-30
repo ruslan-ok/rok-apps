@@ -1,4 +1,5 @@
-from task.const import ROLE_EXPENSE, NUM_ROLE_EXPENSE, ROLE_APP
+from django.shortcuts import get_object_or_404
+from task.const import ROLE_EXPENSE, ROLE_APP
 from task.models import Task, Urls, TaskGroup
 from rusel.files import get_files_list, get_app_doc
 from rusel.categories import get_categories_list
@@ -42,8 +43,8 @@ class DetailView(BaseDetailView, TuneData):
             title = self.object.expen_kontr
         if not title and self.object.info:
             title = self.object.info.split('\n')[0]
-        if not title and self.object.qty and self.object.expen_price:
-            title = str(self.object.qty*self.object.expen_price)
+        if not title and self.object.expen_qty and self.object.expen_price:
+            title = str(self.object.expen_qty*self.object.expen_price)
         if not title:
             title = self.object.event.strftime('%d %b %Y')
 

@@ -26,6 +26,10 @@ class EditForm(BaseEditForm):
         label=_('operation').capitalize(),
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add operation name').capitalize()}))
+    grp = forms.ChoiceField(
+        label=_('group').capitalize(),
+        widget=forms.Select(attrs={'class': 'form-control mb-3'}),
+        choices=[(0, '------'),])
     url = forms.CharField(
         label=_('URLs'),
         required=False,
@@ -37,7 +41,7 @@ class EditForm(BaseEditForm):
 
     class Meta:
         model = Task
-        fields = ['event', 'name', 'expen_qty', 'expen_price', 'expen_rate', 'expen_rate_2', 'expen_usd', 'expen_eur', 'expen_kontr', 'info', 
+        fields = ['event', 'name', 'grp', 'expen_qty', 'expen_price', 'expen_rate', 'expen_rate_2', 'expen_usd', 'expen_eur', 'expen_kontr', 'info', 
         'url', 'categories', 'upload']
         widgets = {
             'event': forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime mb-3', 'type': 'datetime-local'}),

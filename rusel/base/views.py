@@ -564,6 +564,12 @@ class BaseDetailView(UpdateView, Context, LoginRequiredMixin):
         self.set_config(config, cur_role)
         self.template_name = config['name'] + '/' + self.config.get_cur_role() + '.html'
 
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            raise Http404
+        ret = super().get(request, *args, **kwargs)
+        return ret
+
     def get_object(self, *args, **kwargs):
         obj = super().get_object(*args, **kwargs)
         if obj.user != self.request.user:

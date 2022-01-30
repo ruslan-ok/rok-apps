@@ -40,11 +40,7 @@ class BaseEditForm(forms.ModelForm):
         self.role = role
         if ('grp' in self.fields):
             self.fields['grp'].initial = self.get_group_id()
-            self.fields['grp'].queryset = Group.objects.filter(user=self.instance.user.id, role=role, determinator=None).order_by('sort')
-
-    def clean_categories(self):
-        self.cleaned_data['categories'] = ' '.join([self.data['categories_1'], self.data['categories_2']]).strip()
-        return self.cleaned_data['categories']
+            self.fields['grp'].choices = self.get_groups_hier(self.instance.user.id, role)
 
     def get_group_id(self):
         task_id = self.instance.id
@@ -54,6 +50,36 @@ class BaseEditForm(forms.ModelForm):
             grp = tg.group
             return grp.id
         return None
+
+    def get_groups_hier(self, user_id, role):
+        groups = [(0, '----------'),]
+        self.get_sorted_groups(groups, user_id, role)
+        return groups
+
+    def get_sorted_groups(self, groups, user_id, role, node=None, level=0):
+        node_id = None
+        if node:
+            node_id = node.id
+        items = Group.objects.filter(user=user_id, role=role, node=node_id).order_by('sort')
+        for item in items:
+            if (item.determinator != 'role') and (item.determinator != 'view'):
+                groups.append((item.id, level * '—' + '  ' + item.name),)
+                self.get_sorted_groups(groups, user_id, role, item, level+1)
+
+    def clean_grp(self):
+        ret = None
+        grp_ok = int(self.cleaned_data['grp'])
+        if grp_ok:
+            parent = Group.objects.filter(node=grp_ok)
+            if (len(parent) > 0):
+                raise  ValidationError(_('a group must not have subgroups').capitalize())
+            ret = Group.objects.filter(id=grp_ok).get()
+        return ret
+
+    def clean_categories(self):
+        self.cleaned_data['categories'] = ' '.join([self.data['categories_1'], self.data['categories_2']]).strip()
+        return self.cleaned_data['categories']
+
 
 #----------------------------------
 class CreateGroupForm(forms.ModelForm):

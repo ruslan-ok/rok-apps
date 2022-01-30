@@ -19,15 +19,21 @@
     </div>
     <div class="input-group flex-wrap mb-3">
       <div class="col-sm me-2">{{ form.expen_qty.label_tag }}{{ form.expen_qty }}</div>
-      <div class="col-sm me-2">{{ form.expen_price.label_tag }}{{ form.expen_price }}</div>
-      <div class="col-sm me-2">
-        <label for="id_amount_nc">{% trans 'Amount in NC:' %}</label>
-        <input type="text" name="amount_nc" value="{{ amount_nc|escape }}" class="form-control" readonly id="id_amount_nc">
-      </div>
-      <div class="col-sm">{{ form.expen_rate.label_tag }}{{ form.expen_rate }}</div>
-      <div class="col-sm me-2">{{ form.expen_rate_2.label_tag }}{{ form.expen_rate_2 }}</div>
-      <div class="col-sm me-2">{{ form.expen_usd.label_tag }}{{ form.expen_usd }}</div>
-      <div class="col-sm me-2">{{ form.expen_eur.label_tag }}{{ form.expen_eur }}</div>
+      {% if config.cur_view_group.expen_byn %}
+        <div class="col-sm me-2">{{ form.expen_price.label_tag }}{{ form.expen_price }}</div>
+        <div class="col-sm me-2">
+          <label for="id_amount_nc">{% trans 'Amount in NC:' %}</label>
+          <input type="text" name="amount_nc" value="{{ amount_nc|escape }}" class="form-control" readonly id="id_amount_nc">
+        </div>
+      {% endif %}
+      {% if config.cur_view_group.expen_usd %}
+        <div class="col-sm">{{ form.expen_rate.label_tag }}{{ form.expen_rate }}</div>
+        <div class="col-sm me-2">{{ form.expen_usd.label_tag }}{{ form.expen_usd }}</div>
+      {% endif %}
+      {% if config.cur_view_group.expen_eur %}
+        <div class="col-sm me-2">{{ form.expen_rate_2.label_tag }}{{ form.expen_rate_2 }}</div>
+        <div class="col-sm me-2">{{ form.expen_eur.label_tag }}{{ form.expen_eur }}</div>
+      {% endif %}
     </div>
     <div class="input-group flex-wrap mb-3">
       <div class="col-sm-4 mx-1">{{ form.expen_kontr.label_tag }}{{ form.expen_kontr }}</div>
