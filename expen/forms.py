@@ -23,25 +23,24 @@ class CreateForm(BaseCreateForm):
 #----------------------------------
 class EditForm(BaseEditForm):
     event = forms.DateTimeField(
-        label=False,
         required=True,
-        widget=DateInput(format='%Y-%m-%dT%H:%M', attrs={'label': _('date of payment').capitalize(), 'type': 'datetime-local'}))
+        widget=DateInput(format='%Y-%m-%dT%H:%M', attrs={'label': _('event date').capitalize(), 'type': 'datetime-local'}))
     name = forms.CharField(
         label=_('operation').capitalize(),
         required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add operation name').capitalize()}))
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': _('add operation name').capitalize()}))
     grp = forms.ChoiceField(
         label=_('group').capitalize(),
-        widget=forms.HiddenInput(attrs={'class': 'form-control mb-3'}),
+        widget=forms.HiddenInput(attrs={'class': 'form-control'}),
         choices=[(0, '------'),])
     url = forms.CharField(
         label=_('URLs'),
         required=False,
-        widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add link').capitalize()}))
+        widget=UrlsInput(attrs={'class': 'form-control', 'placeholder': _('add link').capitalize()}))
     categories = forms.CharField(
         label=_('categories').capitalize(),
         required=False,
-        widget=CategoriesInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add category').capitalize()}))
+        widget=CategoriesInput(attrs={'class': 'form-control', 'placeholder': _('add category').capitalize()}))
 
     class Meta:
         model = Task

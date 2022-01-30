@@ -31,7 +31,7 @@
     {% block footer_detail %}
       <div class="row">
         <div class="col">{% trans 'created'|capfirst %}: {{ item.created }}</div>
-        <div class="col">{% if item.completed %}{% trans 'completed'|capfirst %}: {{ item.completion }}{% endif %}</div>
+        {% if item.completed %}<div class="col">{% trans 'completed'|capfirst %}: {{ item.completion }}</div>{% endif %}
       </div>
     {% endblock %}
   </form>

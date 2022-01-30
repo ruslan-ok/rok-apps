@@ -49,9 +49,19 @@ class DetailView(BaseDetailView, TuneData):
             title = self.object.event.strftime('%d %b %Y')
 
         context['title'] = title
+        grp = self.get_group()
+        context['expen_byn'] = grp.expen_byn
+        context['expen_usd'] = grp.expen_usd
+        context['expen_eur'] = grp.expen_eur
         context['summary'] = self.object.expen_summary()
         context['amount_nc'] = currency_repr(self.object.expen_amount('BYN'))
         return context
+
+    def get_group(self):
+        tgs = TaskGroup.objects.filter(task=self.object.id)
+        if (len(tgs) > 0):
+            return tgs[0].group
+        return None
 
     def form_valid(self, form):
         response = super().form_valid(form)
