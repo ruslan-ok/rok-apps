@@ -705,5 +705,8 @@ class TaskViewSet(viewsets.ModelViewSet):
             return Response({'Error': "Expected parameter 'task_id'"},
                             status=status.HTTP_400_BAD_REQUEST)
         task_id = self.request.query_params['task_id']
-        ret = Task.objects.filter(id=task_id).delete()
-        return Response({'result': (len(ret) > 0)})
+        task = Task.objects.filter(id=task_id).get()
+        task.last_remind = datetime.now()
+        task.remind = None
+        task.save()
+        return Response({'result': 'ok'})

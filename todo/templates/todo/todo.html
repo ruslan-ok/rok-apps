@@ -22,8 +22,10 @@
     <div class="col-sm">{{ form.grp.errors }}{{ form.grp.label_tag }}{{ form.grp }}</div>
     <div class="col-sm">{{ form.categories.errors }}{{ form.categories.label_tag }}{{ form.categories }}</div>
   </div>
-  <div>{{ form.url.errors }}{{ form.url.label_tag }}{{ form.url }}</div>
-  <div>{{ form.upload.errors }}{{ form.upload.label_tag }}{{ form.upload }}</div>
+  <div class="row">
+    <div class="col">{{ form.url.errors }}{{ form.url.label_tag }}{{ form.url }}</div>
+    <div class="col">{{ form.upload.errors }}{{ form.upload.label_tag }}{{ form.upload }}</div>
+  </div>
   {% include "widgets/url_list.html" %}
   {% include "widgets/attachments.html" %}
 {% endblock %}
