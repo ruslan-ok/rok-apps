@@ -4,6 +4,7 @@ from task.models import Task
 from rusel.base.views import BaseListView, BaseDetailView
 from fuel.forms.car import CreateForm, EditForm
 from fuel.config import app_config
+from rusel.files import get_files_list, get_app_doc
 
 role = ROLE_CAR
 app = ROLE_APP[role]
@@ -38,13 +39,18 @@ def get_info(item):
     if item.car_plate:
         attr.append({'text': item.car_plate})
 
-    if item.info:
+    files = (len(get_files_list(item.user, app, role, item.id)) > 0)
+
+    if item.info or files:
         if (len(attr) > 0):
             attr.append({'icon': 'separator'})
-        info_descr = item.info[:80]
-        if len(item.info) > 80:
-            info_descr += '...'
-        attr.append({'icon': 'notes', 'text': info_descr})
+        if files:
+            attr.append({'icon': 'attach'})
+        if item.info:
+            info_descr = item.info[:80]
+            if len(item.info) > 80:
+                info_descr += '...'
+            attr.append({'icon': 'notes', 'text': info_descr})
 
     ret = {'attr': attr}
     return ret
@@ -65,4 +71,7 @@ def get_new_odometr(user, car, event):
         per_days = (event - last[0].event).days
         new_odo = last[0].car_odometr + (last[0].car_odometr - last[-1:].car_odometr) / fix_days * per_days
     return new_odo
+
+def get_doc(request, pk, fname):
+    return get_app_doc(app_config['name'], role, request, pk, fname)
 

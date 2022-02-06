@@ -18,4 +18,5 @@ urlpatterns = [
 
     path('car/', car.ListView.as_view(), name='car-list'),
     path('car/<int:pk>/', car.DetailView.as_view(), name='car-item'),
+    path('car/<int:pk>/doc/<str:fname>', car.get_doc, name='car-doc'),
 ]
