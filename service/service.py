@@ -2,7 +2,7 @@
 
 A service for checking tasks that require reminders and for collecting statistics on site visits."""
 import time, os, errno, sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from secret import log_path, timer_interval_sec
 from logs import ripe as stat_ripe, process as stat_process
 from todo import ripe as todo_ripe, process as todo_process
@@ -41,6 +41,10 @@ class Checker():
 if (__name__ == '__main__'):
     checker = Checker()
     checker.start()
+    last_log = None
     while True:
         checker.check()
         time.sleep(timer_interval_sec)
+        if not last_log or ((datetime.now() - last_log) >= timedelta(hours=1)):
+            last_log = datetime.now()
+            checker.log('[i] Service is working.')
