@@ -67,7 +67,7 @@ def set_restriction_and_redirect(request, restriction, save_context = False):
     if save_context:
         add = extract_get_params(request)
     set_restriction(request.user, app_name, restriction)
-    return HttpResponseRedirect(reverse('wage:main') + add)
+    return HttpResponseRedirect(reverse('v2_wage:main') + add)
 
 def periods(request):
     return set_restriction_and_redirect(request, PER)
@@ -116,7 +116,7 @@ def reports(request):
 
 def toggle(request, pk):
     toggle_content_group(request.user.id, app_name, pk)
-    return HttpResponseRedirect(reverse('wage:main') + extract_get_params(request))
+    return HttpResponseRedirect(reverse('v2_wage:main') + extract_get_params(request))
 
 def item_form(request, pk):
     app_param = get_app_params(request.user, app_name)
@@ -135,7 +135,7 @@ def item_form(request, pk):
         set_article_kind(request.user, app_name, '', pk)
     else:
         set_article_kind(request.user, app_name, '', pk)
-    return HttpResponseRedirect(reverse('wage:main') + extract_get_params(request))
+    return HttpResponseRedirect(reverse('v2_wage:main') + extract_get_params(request))
 
 def item2_form(request, pk):
     app_param = get_app_params(request.user, app_name)
@@ -144,7 +144,7 @@ def item2_form(request, pk):
     if (app_param.restriction == DEP_HIST):
         set_article_kind(request.user, app_name, '', pk)
         set_restriction(request.user, app_name, DEP_INFO)
-    return HttpResponseRedirect(reverse('wage:main') + extract_get_params(request))
+    return HttpResponseRedirect(reverse('v2_wage:main') + extract_get_params(request))
 
 def wage_entity(request, name, pk):
     if (name == EMPL_LIST):
@@ -154,7 +154,7 @@ def wage_entity(request, name, pk):
     else:
         set_restriction(request.user, app_name, name)
     set_article_kind(request.user, app_name, '', pk)
-    return HttpResponseRedirect(reverse('wage:main'))
+    return HttpResponseRedirect(reverse('v2_wage:main'))
 
 #----------------------------------
 # Index
@@ -191,7 +191,7 @@ def main(request):
         depart = Depart.objects.filter(user = request.user.id, active = True).get()
 
     if process_common_commands(request, app_name):
-        return HttpResponseRedirect(reverse('wage:main') + extract_get_params(request))
+        return HttpResponseRedirect(reverse('v2_wage:main') + extract_get_params(request))
 
     # For converting the string representation of dates, in particular in item_info
     locale.setlocale(locale.LC_CTYPE, request.LANGUAGE_CODE)
@@ -223,12 +223,12 @@ def main(request):
                 item_id = add_child(request, period, employee)
             if (app_param.restriction == SUR):
                 item_id = add_surname(request, period, employee)
-            return HttpResponseRedirect(reverse('wage:item_form', args = [item_id]))
+            return HttpResponseRedirect(reverse('v2_wage:item_form', args = [item_id]))
         if ('item-in-list-select' in request.POST) and (app_param.restriction == PER):
             pk = request.POST['item-in-list-select']
             if pk:
                 set_active(request.user.id, pk)
-                return HttpResponseRedirect(reverse('wage:item_form', args = [pk]) + extract_get_params(request))
+                return HttpResponseRedirect(reverse('v2_wage:item_form', args = [pk]) + extract_get_params(request))
 
     app_param, context = get_base_context_ext(request, app_name, 'main', get_title(app_param.restriction, employee, depart))
 
@@ -323,7 +323,7 @@ def main(request):
         check_empl_per(request.user, context, app_param, period, employee)
 
     if redirect:
-        return HttpResponseRedirect(reverse('wage:main') + extract_get_params(request))
+        return HttpResponseRedirect(reverse('v2_wage:main') + extract_get_params(request))
 
     fixes = []
     if (app_param.restriction in EMPL_ASIDE):
