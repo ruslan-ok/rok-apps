@@ -64,7 +64,7 @@ def get_app_human_name(app):
 def get_apps_list(user, current):
     apps = []
     for app in APPS:
-        if (app in ('store', 'trip', 'apart', 'work', 'health', 'warr')) and (user.username != 'ruslan.ok'):
+        if (app in (APP_STORE, APP_TRIP, APP_APART, APP_WORK, APP_HEALTH, APP_WARR, APP_DOCS, APP_PHOTO)) and (user.username != 'ruslan.ok'):
             continue
         if (app == APP_ADMIN) and (user.username != 'admin'):
             continue

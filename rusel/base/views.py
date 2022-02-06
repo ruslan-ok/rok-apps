@@ -388,8 +388,8 @@ class BaseListView(ListView, Context, LoginRequiredMixin):
             context['sorts'] = self.get_sorts(self.config.app_sorts)
 
         themes = []
-        for x in range(23):
-            if (x < 14):
+        for x in range(24):
+            if (x < 14) or (x == 23):
                 themes.append({'id': x+1, 'style': 'theme-' + str(x+1)})
             else:
                 themes.append({'id': x+1, 'img': self.get_bg_img(x)})

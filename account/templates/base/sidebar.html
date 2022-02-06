@@ -20,6 +20,28 @@
         {% endfor %}
 
         {% if config.use_groups %}
+
+            {% if dir_tree %}
+                <hr>
+                <div id="dirs-tree" class="dirs">
+                    {% for dir in dir_tree %}
+                        <div class="item{% if dir.active %} active{% endif %} hidden"
+                            {% if dir.active %}aria-current="true"{% endif %}
+                            data-parent="{{ dir.node|escape }}"
+                            data-name="{{ dir.name|escape }}">
+                            <div>
+                                <i class="level-{{ dir.level }}">&nbsp;</i>
+                                <i type="button" role="button" class="bi-dot icon invisible"></i>
+                                <i class="bi-folder2"></i>
+                                <a href="/docs/?folder={{ dir.node }}{% if dir.node %}/{% endif %}{{ dir.name }}">
+                                    {{ dir.name }}</a>
+                            </div>
+                            <span class="qty">{% if dir.qty %}{{ dir.qty }}{% endif %}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
             {% if groups %}
                 <hr>
 
