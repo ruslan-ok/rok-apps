@@ -103,7 +103,7 @@ function toggleCompleted(item_id) {
                 window.location.href = redirect_url;
             else {
                 iziToast.info({message: info, position: 'bottomRight'});
-                setTimeout(function(){window.location.href = redirect_url;}, 3000);
+                setTimeout(function(){window.location.href = redirect_url;}, 1000);
             }
         }
     };
