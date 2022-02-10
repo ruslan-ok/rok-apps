@@ -1,0 +1,42 @@
+{% extends "base/page_content.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link href="{% static 'scss/tune.css' %}" rel="stylesheet">
+  <link href="{% static 'scss/home.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block main %}
+<div class="list-content{% if theme_id %} theme-{{theme_id}}{% endif %}">
+  {% include "base/title.html" %}
+
+  {% if file_list %}
+  <table class="info-table">
+    <tr> 
+      <th>{% trans 'name'|capfirst %}</th> 
+      <th>{% trans 'date modified'|capfirst %}</th> 
+      <th>{% trans 'type'|capfirst %}</th>
+      <th>{% trans 'size'|capfirst %}</th>
+    </tr>
+    {% for file in file_list %}
+      <tr> 
+        <td> {{ file.name }} </td> 
+        <td> {{ file.date }} </td> 
+        <td> {{ file.type }} </td> 
+        <td> {{ file.size }} </td> 
+      </tr>
+    {% endfor %}
+  </table>
+
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'js/docs.js' %}"></script>
+  <script>
+    buildDirTree('dirs-tree');
+  </script>
+{% endblock %}

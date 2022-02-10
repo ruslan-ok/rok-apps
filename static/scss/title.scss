@@ -1,0 +1,35 @@
+.dark-theme, .dark-theme:hover {
+    color: white;
+}
+
+h3.dark-theme {
+    color: rgb(216, 216, 216);
+}
+
+a.dark-theme, a.dark-theme:hover {
+    color: rgb(200, 237, 253);
+}
+
+.content-title {
+    font-size: 1.5rem;
+    display: flex;
+    .title {
+        display: flex;
+    }
+
+    &__icon {
+        padding: 10px 20px;
+    }
+
+    &__href {
+        margin: 10px 0;  
+    }
+
+    &__text {
+        margin: 10px 0;  
+    }
+
+    &__separator {
+        margin: 10px 5px;
+    }
+}

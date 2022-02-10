@@ -1,0 +1,76 @@
+{% extends "base/item_detail.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link href="{% static 'iziToast/css/iziToast.min.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block item_detail %}
+    <div class="row mb-3">
+      <div class="col-sm">{{ form.name.errors }}{{ form.name.label_tag }}{{ form.name }}</div>
+      <div class="col-sm">{{ form.store_username.errors }}{{ form.store_username.label_tag }}{{ form.store_username }}</div>
+      <div class="col-sm">{{ form.store_value.errors }}{{ form.store_value.label_tag }}{{ form.store_value }}</div>
+      <input type="hidden" name="default_len" value="{{ default_len }}" id="id_default_len">
+      <input type="hidden" name="default_params" value="{{ default_params }}" id="id_default_params">
+      <input type="hidden" name="params" value="{{ form.store_params.value }}" required="" id="id_params">
+    </div>
+
+    <div>
+      {% if store_history %}
+        <span type="button" class="sub-group" onclick="toggleHistory(this)">
+          <i class="sub-group__icon bi-chevron-right"></i>
+          <span class="sub-group__name">{% trans 'history'|capfirst %}</span>
+          <span class="sub-group__qty">{{ store_history_qty }}</span>
+        </span>
+      {% endif %}
+    </div>
+
+    {% if store_history %}
+      <div class="overflow-auto d-none" id="id_history">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">{% trans 'valid until'|capfirst %}</th>
+              <th scope="col">{% trans 'username'|capfirst %}</th>
+              <th scope="col">{% trans 'value'|capfirst %}</th>
+              <th scope="col">{% trans 'information'|capfirst %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in store_history %}
+              <tr>
+                <td>{{ item.valid_until|date:'d.m.Y - G:i' }}</td>
+                <td>{{ item.store_username }}</td>
+                <td>{{ item.store_value }}</td>
+                <td>{{ item.info }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+      </div>
+    {% endif %}
+
+
+    <div class="row">
+      <div class="col-sm">
+        <div class="col-item">{{ form.info.errors }}{{ form.info.label_tag }}{{ form.info }}</div>
+        <div class="col-item">{{ form.url.errors }}{{ form.url.label_tag }}{{ form.url }}</div>
+        <div class="col-item">{{ form.actual.errors }}{{ form.actual }}</div>
+      </div>
+      <div class="col-sm">
+        <div class="col-item">{{ form.grp.errors }}{{ form.grp.label_tag }}{{ form.grp }}</div>
+        <div class="col-item">{{ form.categories.errors }}{{ form.categories.label_tag }}{{ form.categories }}</div>
+        <div class="col-item">{{ form.upload.errors }}{{ form.upload.label_tag }}{{ form.upload }}</div>
+      </div>
+    </div>
+
+    {% include "widgets/url_list.html" %}
+    {% include "widgets/attachments.html" %}
+{% endblock %}
+
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'iziToast/js/iziToast.min.js' %}"></script>
+  <script src="{% static 'js/store.js' %}"></script>
+{% endblock %}

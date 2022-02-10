@@ -1,0 +1,51 @@
+.bd-navbar {
+    background-color: #417690 !important;
+  }
+  
+  .bd-links a {
+    margin-top: 0;
+    margin-bottom: 0.125rem;
+  }
+  
+  .bd-placeholder-img {
+    font-size: 1.125rem;
+    text-anchor: middle;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+  }
+  
+  @media (min-width: 768px) {
+    .bd-placeholder-img-lg {
+      font-size: 3.5rem;
+    }
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-weight: 400;
+    margin: 10px 0;
+    color: #666;
+  }
+  
+  a:link, a:visited {
+    text-decoration: none;
+  }
+  
+  .nav-link:hover {
+    background-color: #d7e3eb;
+  }
+  
+  .inp-300 {
+    width: 300px; 
+    border: 0; 
+    padding: 5px;
+    margin-top: 5px;
+  }
+  
+  .add-item-name {
+    border: 1px solid #aeaeae;
+    border-radius: 0.25rem;
+  }
+  
+  

@@ -1,0 +1,20 @@
+{% extends "base/page_content.html" %}
+{% load static %}
+
+{% block main %}
+    {% include 'base/title.html' %}
+    <div class="chart-container" style="width: 100%;">
+        <canvas id="healthChart"></canvas>
+    </div>        
+{% endblock %}
+
+{% block extrascript %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-adapter-moment/1.0.0/chartjs-adapter-moment.min.js"></script>
+<script src="{% static 'js/health.js' %}"></script>
+<script>
+    let data = String.raw`{{ chart_data|safe }}`
+    buildChart(data);
+</script>
+{% endblock %}

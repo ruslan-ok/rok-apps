@@ -1,48 +1,123 @@
-{% extends "hier/page.html" %}
+{% extends "base/page.html" %}
 {% load static i18n %}
 
-{% block window %}
-  <div class="wrapper">
-    <header>
-      <div class="header-left">
-        <div class="site-label">rusel.by</div>
-      </div>
-      <div class="header-left">
-        <a href="{% url 'account:demo' %}"><div class="button centered">{% trans 'demo'|capfirst %}</div></a>
-        <a href="{% url 'account:login' %}"><div class="button centered">{% trans 'log in'|capfirst %}</div></a>
-      </div>
-    </header>
-    <div id="page" class="with_header">
-      <aside class="desktop-only">
-      </aside>
-      <main class="{% if article_visible %}with_article{% else %}without_article{% endif %}">
-        <div class="w3-container apps-info">
-          <p>{% trans 'This site provides the following functionality:' %}</p>
-          <p><img class="app-icon" src="{% static 'rok/icon/application.png' %}">{% trans '"Tasks" - task scheduler. Capabilities:' %}</p>
-          <ul>
-            <li>{% trans 'Combining tasks into lists, and lists into groups.' %}</li>
-            <li>{% trans 'Search by name, task description and task categories.' %}</li>
-            <li>{% trans 'Reminder of tasks by pop-up messages of the browser on the computer and in the phone.' %}</li>
-            <li>{% trans 'For each task, execution stages can be set, tracking of the execution of both the task itself and its stages is available.' %}</li>
-            <li>{% trans 'For a task, a due date, frequency of repetition, date and time of reminder can be set.' %}</li>
-            <li>{% trans 'A task can be marked as "important" or as added to the "My Day" view.' %}</li>
-            <li>{% trans 'Each task can be assigned an arbitrary number of "categories" and filter the list of tasks by them.' %}</li>
-            <li>{% trans 'In the task, you can specify a hyperlink to an external Internet resource.' %}</li>
-            <li>{% trans 'You can attach an arbitrary number of files to the task.' %}</li>
-          </ul>
-          
-          <p><img class="app-icon" src="{% static 'rok/icon/note.png' %}">{% trans '"Notes" - personal notes about everything. For each note, in addition to the description, you can specify a hyperlink to an external Internet resource, an arbitrary number of categories, attach files. Notes, like tasks, are combined into lists, and lists into groups. Notes can be searched by title, description, and category.' %}</p>
-          <p><img class="app-icon" src="{% static 'rok/icon/news.png' %}">{% trans '"News" - similar to a list of notes, but the emphasis is on the date-time of publication.' %}</p>
-          <p><img class="app-icon" src="{% static 'rok/icon/cost.png' %}">{% trans '"Expenses" - allows you to track costs for several projects. Multiple currencies can be selected for accounting and totals.' %}</p>
-          <p><img class="app-icon" src="{% static 'rok/icon/photo.png' %}">{% trans '"Photobank" - photo storage. Photos can be grouped into folders that can be structured in a hierarchy (like folders in a file system). Geotagged photos can be displayed on the map as markers indicating shooting locations.' %}</p>
-          <p><img class="app-icon" src="{% static 'rok/icon/gas.png' %}">{% trans '"Fueling" - for the car owner the ability to control fuel consumption, as well as the frequency of service maintenance and replacement of consumable materials.' %}</p>
-          
-          
-          <p>{% trans 'Use the "Demo" button in the top right corner to explore this functionality.' %}</p>
-        </div>
-      </main>
-      <article class="desktop-only">
-      </article>
+{% block header_content %}
+  <nav class="container-xxl flex-wrap flex-md-nowrap" aria-label="Main navigation">
+    <div class="d-flex">
+      <img class="my-auto" src="{% static 'rusel.png' %}">
+      <span class="ms-3 fs-3 text-warning">rusel.by</span>
     </div>
-  </div>
+    <div>
+      <a class="btn btn-bd-download d-lg-inline-block my-md-0 ms-md-3" href="{% url 'account:demo' %}">{% trans 'demo'|capfirst %}</a>
+      <a class="btn btn-bd-download d-lg-inline-block my-md-0 ms-md-3" href="{% url 'account:login' %}">{% trans 'log in'|capfirst %}</a>
+    </div>
+  </nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column p-3 mx-auto" style="max-width: 1200px;">
+  <main class="px-3">
+    <p class="lead">{% trans 'This site provides the following functionality:' %}</p>
+
+    <div class="accordion" id="accordeonIntro">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingTask">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTask" aria-expanded="true" aria-controls="collapseTask">
+            <i class="bi-check2-square me-2"></i>
+            {% trans 'tasks'|capfirst %}
+          </button>
+        </h2>
+        <div id="collapseTask" class="accordion-collapse collapse show" aria-labelledby="headingTask" data-bs-parent="#accordeonIntro">
+          <div class="accordion-body">
+            <p>{% trans 'capabilities'|capfirst %}:</p>
+            <ul>
+              <li>{% trans 'Combining tasks into lists, and lists into groups.' %}</li>
+              <li>{% trans 'Search by name, task description and task categories.' %}</li>
+              <li>{% trans 'Reminder of tasks by pop-up messages of the browser on the computer and in the phone.' %}</li>
+              <li>{% trans 'For each task, execution stages can be set, tracking of the execution of both the task itself and its stages is available.' %}</li>
+              <li>{% trans 'For a task, a due date, frequency of repetition, date and time of reminder can be set.' %}</li>
+              <li>{% trans 'A task can be marked as "important" or as added to the "My Day" view.' %}</li>
+              <li>{% trans 'Each task can be assigned an arbitrary number of "categories" and filter the list of tasks by them.' %}</li>
+              <li>{% trans 'In the task, you can specify a hyperlink to an external Internet resource.' %}</li>
+              <li>{% trans 'You can attach an arbitrary number of files to the task.' %}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingNote">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNote" aria-expanded="false" aria-controls="collapseNote">
+            <i class="bi-sticky me-2"></i>
+            {% trans 'notes'|capfirst %}
+          </button>
+        </h2>
+        <div id="collapseNote" class="accordion-collapse collapse" aria-labelledby="headingNote" data-bs-parent="#accordeonIntro">
+          <div class="accordion-body">
+            {% trans 'Personal notes about everything. For each note, in addition to the description, you can specify a hyperlink to an external Internet resource, an arbitrary number of categories, attach files. Notes, like tasks, are combined into lists, and lists into groups. Notes can be searched by title, description, and category.' %}
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingNews">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNews" aria-expanded="false" aria-controls="collapseNews">
+            <i class="bi-newspaper me-2"></i>
+            {% trans 'news'|capfirst %}
+          </button>
+        </h2>
+        <div id="collapseNews" class="accordion-collapse collapse" aria-labelledby="headingNews" data-bs-parent="#accordeonIntro">
+          <div class="accordion-body">
+            {% trans 'Similar to a list of notes, but the emphasis is on the date-time of publication.' %}
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingProj">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseProj" aria-expanded="false" aria-controls="collapseProj">
+            <i class="bi-piggy-bank me-2"></i>
+            {% trans 'expenses'|capfirst %}
+          </button>
+        </h2>
+        <div id="collapseProj" class="accordion-collapse collapse" aria-labelledby="headingProj" data-bs-parent="#accordeonIntro">
+          <div class="accordion-body">
+            {% trans 'Allows you to track costs for several projects. Multiple currencies can be selected for accounting and totals.' %}
+          </div>
+        </div>
+      </div>
+      <!-- <div class="accordion-item">
+        <h2 class="accordion-header" id="headingPhoto">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePhoto" aria-expanded="false" aria-controls="collapsePhoto">
+            <i class="bi-image me-2"></i>
+            {% trans 'photobank'|capfirst %}
+          </button>
+        </h2>
+        <div id="collapsePhoto" class="accordion-collapse collapse" aria-labelledby="headingPhoto" data-bs-parent="#accordeonIntro">
+          <div class="accordion-body">
+            {% trans 'This is a photo storage. Photos can be grouped into folders that can be structured in a hierarchy (like folders in a file system). Geotagged photos can be displayed on the map as markers indicating shooting locations.' %}
+          </div>
+        </div>
+      </div> -->
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingFuel">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFuel" aria-expanded="false" aria-controls="collapseFuel">
+            <i class="bi-droplet me-2"></i>
+            {% trans 'fueling'|capfirst %}
+          </button>
+        </h2>
+        <div id="collapseFuel" class="accordion-collapse collapse" aria-labelledby="headingFuel" data-bs-parent="#accordeonIntro">
+          <div class="accordion-body">
+            {% trans 'For the car owner the ability to control fuel consumption, as well as the frequency of service maintenance and replacement of consumable materials.' %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex mt-4">
+      <div class="lead">
+        {% trans 'Try demo-mode without registration:' %}
+      </div>
+      <a href="{% url 'account:demo' %}" class="btn btn-secondary mx-3">Demo</a>
+    </div>
+  
+  </main>
+</div>
 {% endblock %}

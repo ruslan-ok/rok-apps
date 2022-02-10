@@ -1,0 +1,22 @@
+{% if categories %}
+    <div class="categories">
+        {% for categ in categories %}
+            <div class="category category-design-{{ categ.design }}">
+                <div class="label">
+                    <div class="value">
+                        {{ categ.name }}
+                    </div>
+                </div>
+                <div class="icon" onclick="delCategory('{{categ.name}}')">
+                    <div class="delete">
+                        <svg height="8" width="8" style="fill: currentcolor;">
+                            <path d="M4.46607 4L8 7.53905L7.53905 8L4 4.46607L0.460948 8L0 7.53905L3.53393 4L0 0.460948L0.460948 0L4 3.53393L7.53905 0L8 0.460948L4.46607 4Z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+<input type="hidden" name="{{ widget.name }}_1"{% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}>
+<input type="{{ widget.type }}" name="{{ widget.name }}_2"{% include "django/forms/widgets/attrs.html" %}>

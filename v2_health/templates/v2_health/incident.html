@@ -1,0 +1,15 @@
+{% extends "v2_hier/list.html" %}
+{% load static i18n %}
+
+{% block article_info %}
+  {{ item_info }}
+{% endblock %}
+
+{% block article_content %}
+  <div class="fields">
+    {{ form.as_table }}
+  </div>
+{% endblock %}
+
+
+

@@ -1,0 +1,70 @@
+{% load static i18n %}
+
+<nav class="container-xxl flex-wrap flex-md-nowrap" aria-label="Main navigation">
+  <img class="my-auto mx-3" src="{% static 'rusel.png' %}">
+
+  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#bdNavbar" aria-controls="bdNavbar" aria-expanded="false" aria-label="Toggle navigation">
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" class="bi" fill="currentColor" viewBox="0 0 16 16">
+      <path fill-rule="evenodd" d="M2.5 11.5A.5.5 0 0 1 3 11h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 7h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 3h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"></path>
+    </svg>
+  </button>
+
+  <div class="collapse navbar-collapse" id="bdNavbar">
+    <ul class="navbar-nav flex-row flex-wrap bd-navbar-nav pt-2 py-md-0">
+      {% for app in apps %}
+        <li class="nav-item col-6 col-md-auto">
+          <a class="nav-link p-2{% if app.active %} active{% endif %}" href="{{ app.href }}"{% if app.active %} aria-current="true"{% endif %}>
+            <i class="bi-{{app.icon}}"></i>
+            {% if app.active %}
+              <span>{{ app.name }}</span>
+            {% else %}
+              <span class="d-md-none">{{ app.name }}</span>
+            {% endif %}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+
+    <hr class="d-md-none text-white-50">
+    <form action="" method="GET" class="bd-search position-relative ms-md-auto me-auto">
+      <span class="algolia-autocomplete" style="position: relative; display: inline-block; direction: ltr;">
+        <input type="hidden" name="view" value="{{request.GET.view}}">
+        <input type="hidden" name="group" value="{{request.GET.group}}">
+        <input type="search" class="form-control ds-input" id="search-input" placeholder="Search..." aria-label="Search info for..." autocomplete="off" 
+              data-bd-docs-version="5.1" spellcheck="false" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-owns="algolia-autocomplete-listbox-0" 
+              dir="auto" style="position: relative; vertical-align: top;" name="q" value="{{request.GET.q}}">
+        <pre aria-hidden="true" style="position: absolute; visibility: hidden; white-space: pre; font-family: system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;,
+                                      Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, 
+                                      &quot;Noto Color Emoji&quot;; font-size: 16px; font-style: normal; font-variant: normal; font-weight: 400; word-spacing: 0px; letter-spacing: normal; 
+                                      text-indent: 0px; text-rendering: auto; text-transform: none;">
+        </pre>
+        <span class="ds-dropdown-menu" role="listbox" id="algolia-autocomplete-listbox-0" style="position: absolute; top: 100%; z-index: 100; display: none; left: 0px; right: auto;">
+          <div class="ds-dataset-1"></div>
+        </span>
+      </span>
+    </form>
+
+    <hr class="d-md-none text-white-50">
+
+    <div class="s-f-container dropdown mx-4">
+      <a href="{{request.GET.path}}" class="d-flex align-items-center justify-content-center link-light text-decoration-none dropdown-toggle" id="dropdownUser2" data-bs-toggle="dropdown" aria-expanded="false">
+        <img src="{{ avatar }}" alt="" width="32" height="32" class="rounded-circle me-2">
+        <span>{{ user.username }}</span>
+      </a>
+      <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser2">
+        {% if user.username != 'demouser' %}
+          <li><a class="dropdown-item d-flex justify-content-between" href="/account/profile/">
+            <span>{% trans 'profile'|capfirst %}</span>
+            <i class="bi-person"></i>
+          </a></li>
+          <li><hr class="dropdown-divider"></li>
+        {% endif %}
+        <li><a class="dropdown-item d-flex justify-content-between" href="/account/logout/">
+          <span>{% trans 'sign out'|capfirst %}</span>
+          <i class="bi-box-arrow-right"></i>
+        </a></li>
+      </ul>
+    </div>
+
+  </div>
+</nav>

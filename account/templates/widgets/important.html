@@ -1,0 +1,7 @@
+    <button type="button" onclick="toggleFormImportant()" id="toggle-important" class="btn-important" {% if item.important %}checked{% endif %}>
+        {% if item.important %}
+          <i class="bi-star-fill"></i>
+        {% else %}
+          <i class="bi-star"></i>
+        {% endif %}
+    </button>

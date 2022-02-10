@@ -1,0 +1,7 @@
+{% extends "base/list.html" %}
+{% load static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link href="{% static 'scss/fuel.css' %}" rel="stylesheet">
+{% endblock %}

@@ -1,7 +1,6 @@
 from django.apps import AppConfig
-from django.utils.translation import gettext_lazy as _
+from trip.config import app_config
 
 
 class TripConfig(AppConfig):
-    name = 'trip'
-    verbose_name = _('trips')
+    name = app_config['name']

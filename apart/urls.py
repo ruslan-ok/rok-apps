@@ -1,16 +1,22 @@
 from django.urls import path
-from . import views
+from apart.config import app_config
+from apart.views import apart, meter, price, bill
 
-app_name = 'apart'
+app_name = app_config['name']
 urlpatterns = [
-    path('',                 views.main,     name = 'main'),
-    path('<int:pk>/',        views.item,     name = 'item'),
-    path('aparts/',          views.aparts,   name = 'aparts'),
-    path('services/',        views.services, name = 'services'),
-    path('meters/',          views.meters,   name = 'meters'),
-    path('prices/',          views.prices,   name = 'prices'),
-    path('bills/',           views.bills,    name = 'bills'),
-    path('toggle/<int:pk>/', views.toggle,   name = 'toggle'),
-    path('doc/<str:name>',   views.doc,      name = 'doc'),
-    path('entity/<str:name>/<int:pk>/', views.apart_entity, name = 'apart_entity'),
+    path('', bill.ListView.as_view(), name='list'),
+    path('<int:pk>/', bill.DetailView.as_view(), name='item'),
+    path('<int:pk>/doc/<str:fname>', bill.get_doc, name='doc'),
+
+    path('meter/', meter.ListView.as_view(), name='meter-list'),
+    path('meter/<int:pk>/', meter.DetailView.as_view(), name='meter-item'),
+    path('meter/<int:pk>/doc/<str:fname>', meter.get_doc, name='meter-doc'),
+
+    path('price/', price.ListView.as_view(), name='price-list'),
+    path('price/<int:pk>/', price.DetailView.as_view(), name='price-item'),
+    path('price/<int:pk>/doc/<str:fname>', price.get_doc, name='price-doc'),
+
+    path('apart/', apart.ListView.as_view(), name='apart-list'),
+    path('apart/<int:pk>/', apart.DetailView.as_view(), name='apart-item'),
+    path('apart/<int:pk>/doc/<str:fname>', apart.get_doc, name='apart-doc'),
 ]

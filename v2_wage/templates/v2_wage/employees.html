@@ -1,0 +1,133 @@
+{% extends "v2_hier/tree.html" %}
+{% load static i18n %}
+
+{% block article_content %}
+  <div class="header">
+    <div class="field-group">
+      <!-- Employee.fio -->
+      {% if form.fio.errors %}
+        <div class="row">
+          <div class="field-error">{{ form.fio.errors }}</div>
+        </div>
+      {% endif %}
+      <div class="article-name">
+        <div class="section-item">
+          <div class="editable-content main-element">
+            {{ form.fio }}
+          </div>
+          <div class="editable-content auxiliary-element">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <div class="section">
+
+      <!-- Employee.login -->
+      {% if form.login.errors %}
+        <div class="row">
+          <div class="field-error">{{ form.login.errors }}</div>
+        </div>
+      {% endif %}
+      <div class="row">
+        {{ form.login.label_tag }}
+        {{ form.login }}
+      </div>
+
+      <!-- Employee.email -->
+      {% if form.email.errors %}
+        <div class="row">
+          <div class="field-error">{{ form.email.errors }}</div>
+        </div>
+      {% endif %}
+      <div class="row">
+        {{ form.email.label_tag }}
+      </div>
+      <div class="row full-width">
+        {{ form.email }}
+      </div>
+
+      <!-- Employee.sort -->
+      {% if form.sort.errors %}
+        <div class="row">
+          <div class="field-error">{{ form.sort.errors }}</div>
+        </div>
+      {% endif %}
+      <div class="row">
+        {{ form.sort.label_tag }}
+        {{ form.sort }}
+      </div>
+
+      <!-- Employee.born -->
+      {% if form.born.errors %}
+        <div class="row">
+          <div class="field-error">{{ form.born.errors }}</div>
+        </div>
+      {% endif %}
+      <div class="row">
+        {{ form.born.label_tag }}
+        {{ form.born }}
+      </div>
+
+      <!-- Employee.phone -->
+      {% if form.phone.errors %}
+        <div class="row">
+          <div class="field-error">{{ form.phone.errors }}</div>
+        </div>
+      {% endif %}
+      <div class="row">
+        {{ form.phone.label_tag }}
+      </div>
+      <div class="row full-width">
+        {{ form.phone }}
+      </div>
+
+      <!-- Employee.addr -->
+      {% if form.addr.errors %}
+        <div class="row">
+          <div class="field-error">{{ form.addr.errors }}</div>
+        </div>
+      {% endif %}
+      <div class="row">
+        {{ form.addr.label_tag }}
+      </div>
+      <div class="row full-width">
+        {{ form.addr }}
+      </div>
+
+      <!-- Employee.passw -->
+      {% if form.passw.errors %}
+        <div class="row">
+          <div class="field-error">{{ form.passw.errors }}</div>
+        </div>
+      {% endif %}
+      <div class="row">
+        {{ form.passw.label_tag }}
+        {{ form.passw }}
+      </div>
+
+      <!-- Employee.info -->
+      {% if form.info.errors %}
+        <div class="row">
+          <div class="field-error">{{ form.info.errors }}</div>
+        </div>
+      {% endif %}
+      <div class="row">
+        {{ form.info.label_tag }}
+      </div>
+      <div class="row">
+        {{ form.info }}
+      </div>
+    </div>
+
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  <script src="{% static 'v2/rok/js/addAutoResize.js' %}"></script>
+{% endblock %}
+

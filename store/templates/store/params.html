@@ -1,38 +1,45 @@
-{% extends "hier/page.html" %}
+{% extends "base/page_content.html" %}
 {% load static i18n %}
 
-{% block content %}
-  <div class="top">
-    <div class="main-top-headline">
-      <h3>
-        {{ form_title }}
-      </h3>
-    </div>
-  </div>
-  
-  <form method="post">{% csrf_token %}
-    <div class="section">
-      {% if form.ln.errors %}
-        <div class="field-error">{{ form.ln.errors }} - ln</div>
-      {% endif %}
-      <div id="id_options" class="row">
-        {{ form.ln.label_tag }} {{ form.ln }}
-        <button type="submit" name="param-save" class="field-icon"><img src="{% static 'rok/icon/save.png' %}"></button>
+{% block extrastyle %}
+  {{ block.super }}
+  <link href="{% static 'scss/form.css' %}" rel="stylesheet">
+  <link href="{% static 'scss/widgets.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block main %}
+  <form method="post" class="item-form px-2" enctype="multipart/form-data" id="article_form" data-item_id="{{ ed_item.id|cut:" " }}">{% csrf_token %}
+    {% include "base/title.html" %}
+    {% include "base/form_errors.html" %}
+
+    <div class="row">
+      <div class="col">
+        <div class="">{{ form.ln.label_tag }}{{ form.ln }}</div>
+        <div class="">{{ form.un.label_tag }}{{ form.un }}</div>
       </div>
-      <div class="row">{{ form.uc }} {{ form.uc.label_tag }}</div>
-      <div class="row">{{ form.lc }} {{ form.lc.label_tag }}</div>
-      <div class="row">{{ form.dg }} {{ form.dg.label_tag }}</div>
-      <div class="row">{{ form.sp }} {{ form.sp.label_tag }}</div>
-      <div class="row">{{ form.br }} {{ form.br.label_tag }}</div>
-      <div class="row">{{ form.mi }} {{ form.mi.label_tag }}</div>
-      <div class="row">{{ form.ul }} {{ form.ul.label_tag }}</div>
-      <div class="row">{{ form.ac }} {{ form.ac.label_tag }}</div>
-      <input type="hidden" name="default_params" value="{{ default_params }}" id="id_default_params">
-    </div> <!-- section -->
+      <div class="col">
+        <div class="">{{ form.uc.label_tag }}{{ form.uc }}</div>
+        <div class="">{{ form.lc.label_tag }}{{ form.lc }}</div>
+        <div class="">{{ form.dg.label_tag }}{{ form.dg }}</div>
+        <div class="">{{ form.sp.label_tag }}{{ form.sp }}</div>
+          </div>
+      <div class="col">
+        <div class="">{{ form.br.label_tag }}{{ form.br }}</div>
+        <div class="">{{ form.mi.label_tag }}{{ form.mi }}</div>
+        <div class="">{{ form.ul.label_tag }}{{ form.ul }}</div>
+        <div class="">{{ form.ac.label_tag }}{{ form.ac }}</div>
+          </div>
+    </div>
+
+    <div class="d-flex justify-content-evenly mt-3 pb-5">
+      <button type="submit" name="item_save" class="btn btn-primary bi-save" title="{% trans 'save changes'|capfirst %}">
+        {% trans 'save'|capfirst %}
+      </button>
+    </div>
   </form>
 {% endblock %}
 
-{% block article_content %}
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'js/form.js' %}"></script>
 {% endblock %}
-
-

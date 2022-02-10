@@ -1,5 +1,5 @@
 from django.apps import AppConfig
-
+from health.config import app_config
 
 class HealthConfig(AppConfig):
-    name = 'health'
+    name = app_config['name']

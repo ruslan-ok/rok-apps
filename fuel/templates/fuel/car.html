@@ -1,25 +1,18 @@
-{% extends "hier/list.html" %}
-{% load static %}
+{% extends "base/item_detail.html" %}
 
-{% block article_content %}
-  <div class="header">
-    <div class="section-item"> {{ form.name.errors }} </div>
-    <div class="field-group">
-      <div class="section-item">
-        <div class="editable-content full-width main-element">
-          {{ form.name }}
-        </div>
-      </div>
+{% block item_detail %}
+    <div class="row mb-3">
+        <div class="col">{{ form.name.label_tag }}{{ form.name }}</div>
+        <div class="col">{{ form.start }}</div>
     </div>
-  </div>
-
-  <div class="body">
-    <div class="section">
-      <div class="section-item">
-        <div class="editable-content full-width auxiliary-element">
-          {{ form.plate }}
-        </div>
-      </div>
+    <div class="row mb-3">
+        <div class="col">{{ form.car_plate.label_tag }}{{ form.car_plate }}</div>
+        <div class="col">{{ form.stop }}</div>
     </div>
-  </div>
+    <div class="row mb-3">
+        <div class="col">{{ form.info.label_tag }}{{ form.info }}</div>
+        <div class="col">{{ form.upload.label_tag }}{{ form.upload }}</div>
+    </div>
+    {% include "widgets/attachments.html" %}
 {% endblock %}
+

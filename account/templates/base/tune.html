@@ -1,0 +1,50 @@
+{% load static i18n %}
+
+{% if not hide_add_item_input %}
+    <div class="dropdown mx-3">
+        <button class="btn bi-plus-lg{% if dark_theme %} dark-theme{% endif %}" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false"></button>
+        <ul class="dropdown-menu shadow-lg" aria-labelledby="dropdownMenuButton1">
+            <div class="d-flex py-2">
+                {% include add_item_template %}
+            </div>
+        </ul>
+    </div>
+{% endif %}
+
+{% if sorts %}
+    <div class="dropdown">
+        <button class="btn bi-sort-alpha-down{% if dark_theme %} dark-theme{% endif %}" type="button" id="dropdownMenuButton1" 
+            data-bs-toggle="dropdown" aria-expanded="false"></button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+            {% for sort in sorts %}
+                <button type="button" class="btn dropdown-item" 
+                    onclick="setSort({{config.cur_view_group.id|escape}}, '{{ sort.id }}')">{{ sort.name }}</button>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+
+{% if themes %}
+    <div class="dropdown mx-3">
+        <button class="btn bi-gear{% if dark_theme %} dark-theme{% endif %}" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" 
+            data-bs-auto-close="false" aria-expanded="false"></button>
+        <ul class="dropdown-menu wide" aria-labelledby="dropdownMenuButton1">
+            <p>Theme</p>
+            {% for theme in themes %}
+                <button type="button" class="btn theme{% if theme.style %} {{ theme.style }}{% endif %}" 
+                    onclick="setTheme({{config.cur_view_group.id|escape}}, {{ theme.id|escape }})">
+                    {% if theme.img %}<img src="/static/backgrounds/{{ theme.img }}/thumb.jpg">{% endif %}
+                </button>
+            {% endfor %}
+            {% if config.use_sub_groups %}
+            <div class="form-check form-switch my-1 mx-1">
+                <input type="checkbox" name="use_sub_groups" id="id_use_sub_groups" class="form-check-input" 
+                {% if config.cur_view_group.use_sub_groups %} checked{% endif %} onclick="toggleSubGroups({{config.cur_view_group.id|escape}})">
+                <label for="id_use_sub_groups" class="form-check-label">
+                    {% trans 'use groups'|capfirst %}
+                </label>
+            </div>
+            {% endif %}
+        </ul>
+    </div>
+{% endif %}

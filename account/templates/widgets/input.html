@@ -1,0 +1,9 @@
+<div class="col {{ widget.attrs.class }}">
+    {% if widget.attrs.label %}<label for="{{ widget.attrs.id }}" class="form-label">{{ widget.attrs.label }}</label>{% endif %}
+    <input type="{{ widget.type }}" name="{{ widget.name }}" class="form-control {{ widget.attrs.class_input }}" 
+            id="{{ widget.attrs.id }}" value="{% if widget.value %}{{ widget.value }}{% endif %}"
+            {% for name, value in widget.attrs.items %}
+                {% if value is not False %} {{ name }}
+                {% if value is not True %}="{{ value|stringformat:'s' }}"{% endif %}{% endif %}
+            {% endfor %}>
+</div>

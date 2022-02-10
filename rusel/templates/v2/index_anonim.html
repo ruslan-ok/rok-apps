@@ -1,0 +1,48 @@
+{% extends "v2_hier/page.html" %}
+{% load static i18n %}
+
+{% block window %}
+  <div class="wrapper">
+    <header>
+      <div class="header-left">
+        <div class="site-label">rusel.by</div>
+      </div>
+      <div class="header-left">
+        <a href="{% url 'account:demo' %}"><div class="button centered">{% trans 'demo'|capfirst %}</div></a>
+        <a href="{% url 'account:login' %}"><div class="button centered">{% trans 'log in'|capfirst %}</div></a>
+      </div>
+    </header>
+    <div id="page" class="with_header">
+      <aside class="desktop-only">
+      </aside>
+      <main class="{% if article_visible %}with_article{% else %}without_article{% endif %}">
+        <div class="w3-container apps-info">
+          <p>{% trans 'This site provides the following functionality:' %}</p>
+          <p><img class="app-icon" src="{% static 'v2/rok/icon/application.png' %}">{% trans '"Tasks" - task scheduler. Capabilities:' %}</p>
+          <ul>
+            <li>{% trans 'Combining tasks into lists, and lists into groups.' %}</li>
+            <li>{% trans 'Search by name, task description and task categories.' %}</li>
+            <li>{% trans 'Reminder of tasks by pop-up messages of the browser on the computer and in the phone.' %}</li>
+            <li>{% trans 'For each task, execution stages can be set, tracking of the execution of both the task itself and its stages is available.' %}</li>
+            <li>{% trans 'For a task, a due date, frequency of repetition, date and time of reminder can be set.' %}</li>
+            <li>{% trans 'A task can be marked as "important" or as added to the "My Day" view.' %}</li>
+            <li>{% trans 'Each task can be assigned an arbitrary number of "categories" and filter the list of tasks by them.' %}</li>
+            <li>{% trans 'In the task, you can specify a hyperlink to an external Internet resource.' %}</li>
+            <li>{% trans 'You can attach an arbitrary number of files to the task.' %}</li>
+          </ul>
+          
+          <p><img class="app-icon" src="{% static 'v2/rok/icon/note.png' %}">{% trans '"Notes" - personal notes about everything. For each note, in addition to the description, you can specify a hyperlink to an external Internet resource, an arbitrary number of categories, attach files. Notes, like tasks, are combined into lists, and lists into groups. Notes can be searched by title, description, and category.' %}</p>
+          <p><img class="app-icon" src="{% static 'v2/rok/icon/news.png' %}">{% trans '"News" - similar to a list of notes, but the emphasis is on the date-time of publication.' %}</p>
+          <p><img class="app-icon" src="{% static 'v2/rok/icon/cost.png' %}">{% trans '"Expenses" - allows you to track costs for several projects. Multiple currencies can be selected for accounting and totals.' %}</p>
+          <p><img class="app-icon" src="{% static 'v2/rok/icon/photo.png' %}">{% trans '"Photobank" - photo storage. Photos can be grouped into folders that can be structured in a hierarchy (like folders in a file system). Geotagged photos can be displayed on the map as markers indicating shooting locations.' %}</p>
+          <p><img class="app-icon" src="{% static 'v2/rok/icon/gas.png' %}">{% trans '"Fueling" - for the car owner the ability to control fuel consumption, as well as the frequency of service maintenance and replacement of consumable materials.' %}</p>
+          
+          
+          <p>{% trans 'Use the "Demo" button in the top right corner to explore this functionality.' %}</p>
+        </div>
+      </main>
+      <article class="desktop-only">
+      </article>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "v2_hier/content_top.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+  <link rel="stylesheet" type="text/css" href="{% static 'v2/photo/css/photo.css' %}">
+{% endblock %}
+
+{% block actions %}
+  {% for crumb in bread_crumbs %}
+    {% if crumb.url %}
+      <a href="{{ crumb.url }}">{{ crumb.name }}</a>&nbsp;&nbsp;/&nbsp;&nbsp;
+    {% else %}
+      {{ crumb.name }}
+    {% endif %}
+  {% endfor %}
+  <button type="submit" name="item-add"><img class="img-20_20" src="{% static 'v2/rok/icon/add-gray.png' %}">{% trans 'add photo'|capfirst %}</button>
+{% endblock %}
+
+{% block items_content %}
+  {{ item.info }}
+  <a href="{% url 'v2_photo:form' %}"><img class="photo" src="{% url 'v2_photo:get_photo' item.id %}" alt="{{ item.name }}"></a>
+{% endblock %}
+
+{% block article_content %}
+  {% include "v2_hier/categories.html" %}
+  {{ form.info.errors }}
+  {{ form.info.label_tag }}
+  {{ form.info }}
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  <script src="{% static 'v2/rok/js/addAutoResize.js' %}"></script>
+  <script src="{% static 'v2/rok/js/categoryDelete.js' %}"></script>
+{% endblock %}
+

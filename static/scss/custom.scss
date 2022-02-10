@@ -1,0 +1,58 @@
+$primary: #447e9b;
+
+.btn-primary, .btn-primary:active, .btn-primary:visited {
+  color: #fff !important;
+  background-color: #417690 !important;
+  border: #417690 !important;
+}
+
+.btn-primary:hover {
+  color: #fff !important; 
+  background-color: #314d61 !important;
+  border: #314d61 !important;
+}
+
+.nav-link:hover {
+  background-color: #afc6d7 !important;
+}
+
+.bd-navbar .navbar-nav .nav-link.active {
+  font-weight: 600;
+  color: #def176;
+  i {
+    font-size: 1rem;
+    color: #def176;
+  }
+}
+
+@import "../../../bootstrap/scss/functions";
+@import "../../../bootstrap/scss/variables";
+@import "../../../bootstrap/scss/mixins";
+@import "../../../bootstrap/scss/utilities";
+
+.main-content {
+  background-color: $green-100 !important;
+}
+
+@import "../../../bootstrap/scss/bootstrap";
+
+main {
+  width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+@media (min-width: 768px) {
+  main {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+@media (min-width: 1200px) {
+  main {
+    padding-right: var(--bs-gutter-x, 0.75rem);
+    padding-left: var(--bs-gutter-x, 0.75rem);
+  }
+}
+

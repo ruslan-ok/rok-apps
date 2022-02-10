@@ -1,0 +1,149 @@
+{% extends "v2_hier/list.html" %}
+{% load static i18n %}
+
+
+{% block extrastyle %}
+  <link rel="stylesheet" type="text/css" href="{% static 'v2/trip/css/trip.css' %}">
+{% endblock %}
+
+{% block actions %}
+  <button type="submit" name="item-add"><img class="img-20_20" src="{% static 'v2/rok/icon/add-gray.png' %}">{% trans 'add new trip'|capfirst %}</button>
+  <button type="submit" name="trip-count"><img class="img-20_20" src="{% static 'v2/todo/icon/myday.png' %}">{% trans 'count saldo'|capfirst %}</button>
+{% endblock %}
+
+{% block article_content %}
+  <div class="header">
+    <div class="field-group">
+      <div class="section-item">
+        <div class="editable-content main-element">
+          {{ form.week.errors }}
+          {{ form.week.label }}
+          {{ form.week }}
+          {{ form.year.errors }}
+          {{ form.year.label }}
+          {{ form.year }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="section">
+      <div class="section-item">
+        <div class="field-error">{{ form_lst.lst.errors }}</div>
+        <div class="section-52">
+          <div class="section-icon">
+            <img class="img-20_20" src="{% static 'v2/rok/icon/list.png' %}">
+          </div>
+          <div class="section-content">
+            <div class="section-title full-width">
+              {{ form.oper.errors }}
+              <div class="section-inner">
+                <select name="oper" id="id_oper" onChange="operTest()">
+                  <option value="0"{% if form.oper.value == 0 %} selected{% endif %}>проезд</option>
+                  <option value="1"{% if form.oper.value == 1 %} selected{% endif %}>оплата</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-item">
+        <div class="section-inner">
+          {{ form.driver.errors }}
+          {{ form.driver.label_tag }} 
+          <div class="full-width">{{ form.driver }}</div>
+        </div>
+      </div>
+    
+      <div class="section-item">
+        <div class="section-inner">
+          {{ form.passenger.errors }}
+          {{ form.passenger.label_tag }} 
+          <div class="full-width">{{ form.passenger }}</div>
+        </div>
+      </div>
+    
+      <div id="price_field" class="section-item">
+        <div class="section-inner">
+          {{ form.price.errors }}
+          {{ form.price.label_tag }} 
+          <div>{{ form.price }}</div>
+        </div>
+      </div>
+    
+      <div id="summa_field" class="section-item">
+        <div class="section-inner">
+          {{ form.summa.errors }}
+          {{ form.summa.label_tag }} 
+          <div>{{ form.summa }}</div>
+        </div>
+      </div>
+    </div>
+
+    
+    <div id="days_field" class="section">
+      <div class="section-item">
+        {{ form.days.errors }}
+        <input type="hidden" name="days" value="{{form.days.value|escape}}">
+      
+        <div>
+          Дни:
+          <table>
+            <thead>
+              <tr>
+                <th class="day-th{% if today == 1 %} today{% endif %}">пн</th>
+                <th class="day-th{% if today == 2 %} today{% endif %}">вт</th>
+                <th class="day-th{% if today == 3 %} today{% endif %}">ср</th>
+                <th class="day-th{% if today == 4 %} today{% endif %}">чт</th>
+                <th class="day-th{% if today == 5 %} today{% endif %}">пт</th>
+                <th class="day-th{% if today == 6 %} today{% endif %}">сб</th>
+                <th class="day-th{% if today == 7 %} today{% endif %}">вс</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{ form.day_11 }}</td>
+                <td>{{ form.day_12 }}</td>
+                <td>{{ form.day_13 }}</td>
+                <td>{{ form.day_14 }}</td>
+                <td>{{ form.day_15 }}</td>
+                <td>{{ form.day_16 }}</td>
+                <td>{{ form.day_17 }}</td>
+              </tr>                                                              
+              <tr>
+                <td>{{ form.day_21 }}</td>
+                <td>{{ form.day_22 }}</td>
+                <td>{{ form.day_23 }}</td>
+                <td>{{ form.day_24 }}</td>
+                <td>{{ form.day_25 }}</td>
+                <td>{{ form.day_26 }}</td>
+                <td>{{ form.day_27 }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-item section-item-note">
+        <div class="field-error">{{ form.text.errors }}</div>
+        <div class="section-inner">
+          {{ form.text }}
+        </div>
+      </div>
+    </div>
+
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  <script src="{% static 'v2/trip/js/trip.js' %}"></script>
+{% endblock %}
+
+

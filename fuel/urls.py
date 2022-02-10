@@ -1,13 +1,22 @@
 from django.urls import path
-from . import views
+from fuel.config import app_config
+from fuel.views import fuel, part, serv, car
 
-app_name = 'fuel'
+app_name = app_config['name']
 urlpatterns = [
-    path('',           views.main,         name = 'main'),
-    path('<int:pk>/',  views.item_form,    name = 'item_form'),
-    path('cars/',      views.go_cars,      name = 'go_cars'),
-    path('fuels/',     views.go_fuels,     name = 'go_fuels'),
-    path('intervals/', views.go_intervals, name = 'go_intervals'),
-    path('services/',  views.go_services,  name = 'go_services'),
-    path('entity/<str:name>/<int:pk>/', views.fuel_entity, name = 'fuel_entity'),
+    path('', fuel.ListView.as_view(), name='list'),
+    path('<int:pk>/', fuel.DetailView.as_view(), name='item'),
+    path('<int:pk>/doc/<str:fname>', fuel.get_doc, name='doc'),
+
+    path('part/', part.ListView.as_view(), name='part-list'),
+    path('part/<int:pk>/', part.DetailView.as_view(), name='part-item'),
+    path('part/<int:pk>/doc/<str:fname>', part.get_doc, name='part-doc'),
+
+    path('service/', serv.ListView.as_view(), name='service-list'),
+    path('service/<int:pk>/', serv.DetailView.as_view(), name='service-item'),
+    path('service/<int:pk>/doc/<str:fname>', serv.get_doc, name='service-doc'),
+
+    path('car/', car.ListView.as_view(), name='car-list'),
+    path('car/<int:pk>/', car.DetailView.as_view(), name='car-item'),
+    path('car/<int:pk>/doc/<str:fname>', car.get_doc, name='car-doc'),
 ]

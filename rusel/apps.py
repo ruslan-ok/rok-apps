@@ -1,98 +1,122 @@
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from task.models import Task
+from task.const import *
 
 APPS = {
-    'home':    ('home',        '/'),
-    'todo':    ('application', '/todo/'),
-    'note':    ('note',        '/note/'),
-    'news':    ('news',        '/news/'),
-    'store':   ('key',         '/store/'),
-    'proj':    ('cost',        '/proj/'),
-    'trip':    ('car',         '/trip/'),
-    'fuel':    ('gas',         '/fuel/'),
-    'apart':   ('apartment',   '/apart/'),
-    'wage':    ('work',        '/wage/'),
-    'photo':   ('photo',       '/photo/'),
-    'health':  ('health',      '/health/'),
-    'admin':   ('admin',       '/admin/'),
-    'profile': ('user',        '/account/profile/'),
-    'logout':  ('exit',        '/account/logout/'),
+    APP_HOME:    ('house-door',    '/'),
+    APP_TODO:    ('check2-square', '/todo/'),
+    APP_NOTE:    ('sticky',        '/note/'),
+    APP_NEWS:    ('newspaper',     '/news/'),
+    APP_STORE:   ('key',           '/store/'),
+    APP_EXPEN:   ('piggy-bank',    '/expen/'),
+    APP_TRIP:    ('truck',         '/trip/'),
+    APP_FUEL:    ('droplet',       '/fuel/'),
+    APP_APART:   ('building',      '/bill/'),
+    APP_HEALTH:  ('heart',         '/health/'),
+    APP_DOCS:    ('file-text',     '/docs/'),
+    APP_WARR:    ('award',         '/warr/'),
+    APP_PHOTO:   ('image',         '/photo/'),
+    APP_WORK:    ('briefcase',     '/work/'),
+    APP_ADMIN:   ('people',        '/admin/'),
 }
 
-def get_app_name(app):
-    if (app == 'rusel'):
+def _get_app_human_name(app):
+    if (app == APP_HOME):
         return 'rusel.by'
-    if (app == 'apart'):
-        return _('communal')
-    if (app == 'fuel'):
-        return _('fuelings')
-    if (app == 'note'):
+    if (app == APP_TODO):
+        return _('tasks')
+    if (app == APP_NOTE):
         return _('notes')
-    if (app == 'news'):
+    if (app == APP_NEWS):
         return _('news')
-    if (app == 'proj'):
-        return _('expenses')
-    if (app == 'store'):
+    if (app == APP_STORE):
         return _('passwords')
-    if (app == 'todo'):
-        return _('tasks').capitalize()
-    if (app == 'trip'):
+    if (app == APP_DOCS):
+        return _('documents')
+    if (app == APP_WARR):
+        return _('warranties')
+    if (app == APP_EXPEN):
+        return _('expenses')
+    if (app == APP_TRIP):
         return _('trips')
-    if (app == 'wage'):
+    if (app == APP_FUEL):
+        return _('fuelings')
+    if (app == APP_APART):
+        return _('communal')
+    if (app == APP_WORK):
         return _('work')
-    if (app == 'photo'):
+    if (app == APP_PHOTO):
         return _('photobank')
-    if (app == 'health'):
+    if (app == APP_HEALTH):
         return _('health')
+    if (app == APP_ADMIN):
+        return _('administrative tools')
     return None
 
-def get_apps_list(user):
-    beta = get_beta(user)
-    apps = []
-    for app in APPS:
-        if (app in ('store', 'trip', 'apart', 'wage', 'health')) and (user.username != 'ruslan.ok'):
-            continue
-        if (app == 'admin') and (user.username != 'admin'):
-            continue
-        if (app == 'profile') and (user.username == 'demouser'):
-            continue
-        href = APPS[app][1]
-        if beta and (app != 'home'):
-            href = 'beta' + APPS[app][1]
-        apps.append({'href': href, 'icon': 'rok/icon/' + APPS[app][0] + '.png', 'name': get_main_menu_item(app)})
-    return apps
-
-def _get_app_name(app):
-    name = get_app_name(app)
+def get_app_human_name(app):
+    name = _get_app_human_name(app)
+    if (app == APP_HOME):
+        return name
     if name:
         return _(name).capitalize()
     return None
 
+def get_apps_list(user, current):
+    apps = []
+    for app in APPS:
+        if (app in (APP_STORE, APP_TRIP, APP_APART, APP_WORK, APP_HEALTH, APP_WARR, APP_DOCS, APP_PHOTO)) and (user.username != 'ruslan.ok'):
+            continue
+        if (app == APP_ADMIN) and (user.username != 'admin'):
+            continue
+        apps.append({'icon': APPS[app][0], 'href': APPS[app][1], 'name': get_main_menu_item(app), 'active': current==app})
+    return apps
+
 def get_main_menu_item(app):
-    name = _get_app_name(app)
-    if name:
+    name = get_app_human_name(app)
+    if name and (app != 'home'):
         return name
-    if (app == 'home'):
+    if (app == APP_HOME):
         return _('home').capitalize()
-    if (app == 'news'):
+    if (app == APP_NEWS):
         return _('news').capitalize()
-    if (app == 'admin'):
+    if (app == APP_ADMIN):
         return _('admin').capitalize()
-    if (app == 'profile'):
-        return _('profile').capitalize()
-    if (app == 'logout'):
-        return _('log out').capitalize()
     return None
 
-def switch_beta(user):
-    if Task.objects.filter(user=user.id, name='beta-testing').exists():
-        Task.objects.filter(user=user.id, name='beta-testing').delete()
-    else:
-        Task.objects.create(user=user, name='beta-testing')
+def get_app_icon(app):
+    return APPS[app][0]
 
-def get_beta(user):
-    return Task.objects.filter(user=user.id, name='beta-testing').exists()
+def get_related_roles(task, config):
+    related_roles = []
+    possible_related = []
+    """
+    if (config.cur_view_group.determinator != 'group'):
+        if (config.cur_view_group.view_id in config.views) and ('relate' in config.views[config.cur_view_group.view_id]):
+            for role in config.views[config.cur_view_group.view_id]['relate']:
+                possible_related.append({'name': role, 'icon': ROLE_ICON[role], 'href': get_role_href(role, task.id)})
+    for app_role in (task.app_task, task.app_note, task.app_news, task.app_store, #task.app_doc, 
+                    task.app_expen, task.app_apart, #task.app_warr, task.app_trip, task.app_fuel, 
+                    #task.app_health, task.app_work, task.app_photo
+                    ):
+        check_role(related_roles, possible_related, app_role, config, task.id)
+    """
+    return related_roles, possible_related
 
+"""
+def check_role(related_roles, possible_related, num_role, config, task_id):
+    if (num_role != NONE):
+        role = ROLE_BY_NUM[num_role]
+        if (role != config.get_cur_role()):
+            related_role = {'name': role}
+            related_role['icon'] = ROLE_ICON[role]
+            related_role['href'] = get_role_href(role, task_id)
+            if (related_role in possible_related):
+                possible_related.remove(related_role)
+            related_roles.append(related_role)
 
-
-
+def get_role_href(role, task_id):
+    app = ROLE_APP[role]
+    if role in ROLE_BASE:
+        return reverse(app + ':' + role + '-item', args=[task_id])
+    return reverse(app + ':' + 'item', args=[task_id])
+"""

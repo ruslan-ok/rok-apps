@@ -1,0 +1,72 @@
+{% extends "v2_hier/list.html" %}
+{% load static i18n %}
+
+{% block actions %}
+  <button type="submit" name="item-add"><img class="img-20_20" src="{% static 'v2/rok/icon/add-gray.png' %}">{% trans 'add new fueling'|capfirst %}</button>
+{% endblock %}
+
+{% block article_content %}
+  <div class="header">
+    <div class="section-item">
+      {{ form.odometr.errors }}
+    </div>
+
+    <div class="field-group">
+      <div class="section-item">
+        <div class="editable-content full-width main-element">
+          {{ form.odometr.label_tag }}
+          {{ form.odometr }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <div class="section">
+
+      <!-- Fuel.pub_date -->
+      <div class="section-item" id="remind-select">
+        <div class="section-inner">
+          {{ form.pub_date.label_tag }}
+          {{ form.pub_date }}
+        </div>
+      </div>
+
+      <!-- Fuel.volume -->
+      <div class="section-item" id="remind-select">
+        <div class="section-inner">
+          {{ form.volume.label_tag }}
+          {{ form.volume }}
+        </div>
+      </div>
+
+      <!-- Fuel.price -->
+      <div class="section-item" id="remind-select">
+        <div class="section-inner">
+          {{ form.price.label_tag }}
+          {{ form.price }}
+        </div>
+      </div>
+
+      <!-- Fuel.comment -->
+      <div class="section-item">
+        <div class="section-inner">
+          <div class="field-error">{{ form.comment.errors }}</div>
+          <div class="editable-content full-width">
+            <div class="labeled-input">
+              <div class="label">{{ form.comment.label_tag }}</div>
+              <div class="input">{{ form.comment }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> <!-- section -->
+
+  </div> <!-- body -->
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  <script src="{% static 'v2/rok/js/addAutoResize.js' %}"></script>
+{% endblock %}

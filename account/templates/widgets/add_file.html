@@ -1,0 +1,15 @@
+{% load static i18n %}
+
+<div class="files-area">
+    <div class="file-list" id="file-list-dst"></div>
+    <div class="file-add">
+        <button type="button" name="file_upload" class="section-inner-click" onclick="uploadFile()">
+            <div class="bi-paperclip"></div>
+            <div class="section-content">
+                <div id="loadFile" type="button">{% trans 'add file'|capfirst %}</div>
+                <input type="file" style="display:none;" id="id_upload" name="upload" onchange="fileSelected()">
+            </div>
+        </button>
+        <button type="submit" id="id_submit" name="file_upload" class="file-upload"></button>
+    </div>
+</div>

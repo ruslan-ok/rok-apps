@@ -1,0 +1,99 @@
+{% load static i18n %}
+
+<aside class="bd-sidebar">
+    <nav class="bd-links collapse sidebar" id="bd-docs-nav" aria-label="Groups navigation">
+        {% for fix in fix_list %}
+            <a href="{{ fix.url }}" class="sidebar__fix-item{% if fix.active %} active{% endif %}">
+                <div class="">
+                    <i class="bi-{{fix.icon}}"></i>
+                    <span class="">{{ fix.title }}</span>
+                </div>
+                <span class="">
+                    {% if fix.active and fix.search_qty != None %}
+                        {{ fix.search_qty }} / 
+                    {% endif %}
+                    {% if fix.qty != None %}
+                        {{ fix.qty }}
+                    {% endif %}
+                </span>
+            </a>
+        {% endfor %}
+
+        {% if config.use_groups %}
+
+            {% if dir_tree %}
+                <hr>
+                <div id="dirs-tree" class="dirs">
+                    {% for dir in dir_tree %}
+                        <div class="item{% if dir.active %} active{% endif %} hidden"
+                            {% if dir.active %}aria-current="true"{% endif %}
+                            data-parent="{{ dir.node|escape }}"
+                            data-name="{{ dir.name|escape }}">
+                            <div>
+                                <i type="button" role="button" class="bi-dot icon invisible level-{{ dir.level }}"></i>
+                                <i class="bi-folder2"></i>
+                                <a href="{{ list_href }}?folder={{ dir.node }}{% if dir.node %}/{% endif %}{{ dir.name }}">
+                                    {{ dir.name }}</a>
+                            </div>
+                            <span class="qty">{% if dir.qty %}{{ dir.qty }}{% endif %}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% if groups %}
+                <hr>
+
+                <div id="groups-tree" class="sidebar__groups">
+                    {% for node in groups %}
+                        {% if node.is_leaf %}
+                            <a href="/{{ config.app }}/?{{ config.group_entity }}={{ node.id|escape }}" 
+                                class="{% if current_group == node.s_id %}active{% endif %}"
+                                {% if current_group == node.s_id %}aria-current="true"{% endif %}
+                                data-id="{{ node.id|escape }}" data-parent="{{ node.node.id|escape }}" id="task_group_{{ node.id|escape }}">
+                                <div>
+                                    <i class="bi-journals level-{{ node.level }}"></i>
+                                    <span class="">{{ node.name }}</span>
+                                </div>
+                                <span class="">{{ node.act_items_qty }}</span>
+                            </a>
+                        {% else %}
+                            <a role="button" class="sidebar__group-hidden" onclick="toggleGroup({{ node.id|escape }})"
+                                    data-id="{{ node.id|escape }}" data-parent="{{ node.node.id|escape }}" id="task_group_{{ node.id|escape }}">
+                                <div>
+                                    <i class="bi-folder2 level-{{ node.level }}"></i>
+                                    <span class="">{{ node.name }}</span>
+                                </div>
+                                <i class="bi-chevron-left"></i>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <hr>
+            <div class="add-form position-sticky bottom-0 px-3 py-3">
+                <button type="button" class="btn btn-primary bi-plus-lg add-form__button" id="add_group_btn_id" onclick="addGroup('{{ config.app }}','{{ config.get_cur_role }}','{{ config.group_entity }}')"></button>
+                <input type="text" class="add-form__input" placeholder="{% trans 'create '|capfirst %}{{ config.group_entity }}" name="name" id="new_group_id">
+            </div>
+        {% endif %}
+
+        {% if nav_items %}
+            <hr>
+
+            <div id="groups-tree" class="sidebar__groups">
+                {% for node in nav_items %}
+                    <a href="{{ node.href }}?{{ config.group_entity }}={{ node.id|escape }}" 
+                        class="{% if nav_item.id == node.id %}active{% endif %}"
+                        {% if nav_item.id == node.id %}aria-current="true"{% endif %}
+                        data-id="{{ node.id|escape }}" id="task_group_{{ node.id|escape }}">
+                        <div>
+                            <i class="bi-journals"></i>
+                            <span class="">{{ node.name }}</span>
+                        </div>
+                        <span class="">{{ node.qty }}</span>
+                    </a>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </nav>
+</aside>

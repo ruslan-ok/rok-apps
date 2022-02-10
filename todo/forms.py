@@ -1,70 +1,66 @@
 from django import forms
-from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 
-from django.contrib.admin.widgets import AdminSplitDateTime
+from rusel.base.forms import BaseCreateForm, BaseEditForm
+from task.const import ROLE_TODO
+from task.models import Task, Group
+from todo.config import app_config
+from rusel.widgets import UrlsInput, CategoriesInput, CompletedInput
 
-from hier.forms import DateInput
-from .models import app_name, Grp, Lst, Task, Step
-
-#----------------------------------
-class GrpForm(forms.ModelForm):
-    class Meta:
-        model = Grp
-        fields = ['name', 'node', 'sort']
-
-    def __init__(self, user, app_name, *args, **kwargs):
-        self.user = user
-        super().__init__(*args, **kwargs)
-        self.fields['node'].queryset = Grp.objects.filter(user = user, app = app_name).order_by('name')
-
-    def clean_node(self):
-        node_ok = self.cleaned_data['node']
-        if node_ok:
-            inst_id = self.instance.id
-            node_id = node_ok.id
-            test = Grp.objects.filter(id = node_id).get()
-            if (test.id == inst_id):
-                raise  ValidationError(_('self reference'))
-            
-            while test.node:
-                node_id = test.node.id
-                test = Grp.objects.filter(id = node_id).get()
-                if (test.id == inst_id):
-                    raise  ValidationError(_('loop link'))
-
-        return node_ok
+role = ROLE_TODO
 
 #----------------------------------
-class LstForm(forms.ModelForm):
-
-    class Meta:
-        model = Lst
-        fields = ['name', 'grp', 'sort']
-
-    def __init__(self, user, app_name, *args, **kwargs):
-        self.user = user
-        super().__init__(*args, **kwargs)
-        self.fields['grp'].queryset = Grp.objects.filter(user = user, app = app_name).order_by('name')
-
-#----------------------------------
-class TaskForm(forms.ModelForm):
-    add_step = forms.CharField(widget = forms.TextInput(attrs = {'placeholder': _('next step').capitalize()}), required = False)
-    remind = forms.SplitDateTimeField(widget = AdminSplitDateTime(), label = _('remind').capitalize(), required = False)
-    url = forms.CharField(widget = forms.TextInput(attrs = {'placeholder': _('add link').capitalize()}), required = False)
-    category = forms.CharField(widget = forms.TextInput(attrs = {'placeholder': _('add category').capitalize()}), required = False)
+class CreateForm(BaseCreateForm):
 
     class Meta:
         model = Task
-        fields = ['name', 'add_step', 'lst', 'stop', 'remind', 'repeat', 'repeat_num', 'repeat_days', 'info', 'url', 'category']
+        fields = ['name']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(app_config, role, *args, **kwargs)
+        
+#----------------------------------
+class EditForm(BaseEditForm):
+    completed = forms.BooleanField(label=False, required=False, 
+        widget=CompletedInput(
+            attrs={'class': '', 
+                'label': _('completed').capitalize()}))
+    add_step = forms.CharField(
+        widget=forms.TextInput(
+            attrs={'class': 'form-control-sm form-control small-input', 
+            'placeholder': _('next step').capitalize()}), 
+        required=False)
+    stop = forms.DateTimeField(
+        label=_('termin').capitalize(),
+        required=False,
+        widget=forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime d-inline-block mb-3 me-3', 'type': 'datetime-local'}))
+    grp = forms.ChoiceField(
+        label=_('group').capitalize(),
+        widget=forms.Select(attrs={'class': 'form-control mb-3'}),
+        choices=[(0, '------'),])
+    categories = forms.CharField(
+        label=_('categories').capitalize(),
+        required=False,
+        widget=CategoriesInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add category').capitalize()}))
+    url = forms.CharField(
+        label=_('URLs'),
+        required=False,
+        widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add link').capitalize()}))
+
+    
+    class Meta:
+        model = Task
+        fields = ['completed', 'name', 'add_step', 'stop', 'repeat', 'repeat_num', 'repeat_days', 'remind', 
+                    'info', 'grp', 'categories', 'url', 'upload']
         widgets = {
-            'stop': DateInput(),
-            'info': forms.Textarea(attrs={'rows':3, 'cols':10, 'placeholder': _('add note').capitalize(), 'data-autoresize':''}),
+            'name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
+            'repeat': forms.Select(attrs={'class': 'form-control-sm'}),
+            'repeat_num': forms.NumberInput(attrs={'class': 'form-control-sm d-inline-block'}),
+            'repeat_days': forms.NumberInput(attrs={'class': 'form-control d-inline-block'}),
+            'remind': forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime d-inline-block mb-3 me-3', 'type': 'datetime-local'}),
+            'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),
         }
 
-    def __init__(self, user, *args, **kwargs):
-        self.user = user
-        super().__init__(*args, **kwargs)
-        self.fields['lst'].queryset = Lst.objects.filter(user = user, app = app_name).order_by('name')
-
-
+    def __init__(self, *args, **kwargs):
+        super().__init__(app_config, role, *args, **kwargs)

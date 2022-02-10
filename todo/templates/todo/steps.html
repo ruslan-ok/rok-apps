@@ -1,0 +1,19 @@
+{% load static %}
+
+<div class="input-group flex-wrap mb-3">
+  {% for step in steps %}
+    <div class="field-group mx-2">
+      <div class="form-check small-completed-checkbox">
+        <input type="checkbox" name="step_completed_{{ step.id|escape }}" id="step_completed_{{ step.id|escape }}"
+          class="form-check-input small-checkbox" {% if step.completed %} checked{% endif %} 
+          onclick="completeStep({{ step.id|escape }})">
+      </div>
+      <input type="text" name="step_edit_name_{{ step.id|escape }}" value="{{ step.name }}" maxlength="200" required="" 
+             id="step_edit_name_{{ step.id|escape }}" onchange="editStep({{ step.id|escape }}, this.value)" 
+             class="form-control form-control-sm small-input{% if step.completed %} completed{% endif %}">
+      <div type="button" name="step_delete_{{ step.id|escape }}" class="bi-x del-item-icon"
+         value="{{ step.id|escape }}" onclick="delStepConfirm({{ step.id|escape }}, '{{ del_step_text }}')"></div>
+    </div>
+  {% endfor %}
+  <div>{{ form.add_step }}</div>
+</div>

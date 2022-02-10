@@ -1,0 +1,35 @@
+{% extends "base/item_detail.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link href="{% static 'scss/apart.css' %}" rel="stylesheet">
+  <link href="{% static 'iziToast/css/iziToast.min.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block item_detail %}
+    <div class="row">
+        <div class="col">{{ form.start }}</div>
+        <div class="col">{{ form.service_name.label_tag }}{{ form.service_name }}</div>
+        <div class="col-sm"></div>
+    </div>
+    <div class="row">
+        <div class="col">{{ form.price_tarif }}</div>
+        <div class="col">{{ form.price_border }}</div>
+        <div class="col">{{ form.price_tarif2 }}</div>
+        <div class="col">{{ form.price_border2 }}</div>
+        <div class="col">{{ form.price_tarif3 }}</div>
+    </div>
+    <div class="row">
+        <div class="col-sm">{{ form.url.label_tag }} {{ form.url }}</div>
+        <div class="col-sm">{{ form.upload }}</div>
+    </div>
+    {% include "widgets/url_list.html" %}
+    {% include "widgets/attachments.html" %}
+{% endblock %}
+
+{% block extrascript %}
+    {{ block.super }}
+    <script src="{% static 'iziToast/js/iziToast.min.js' %}"></script>
+    <script src="{% static 'js/apart.js' %}"></script>
+{% endblock %}

@@ -1,7 +1,6 @@
 from django.apps import AppConfig
-from django.utils.translation import gettext_lazy as _
+from fuel.config import app_config
 
 
 class FuelConfig(AppConfig):
-    name = 'fuel'
-    verbose_name = _('fuelings')
+    name = app_config['name']
