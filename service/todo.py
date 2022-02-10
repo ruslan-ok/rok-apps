@@ -9,7 +9,7 @@ from datetime import datetime
 import firebase_admin, sys, requests, json
 from firebase_admin import credentials, messaging
 from firebase_admin.exceptions import FirebaseError
-from secret import cred_cert, service_user_token
+from secret import cred_cert, service_user_token, certfile_path
 
 HOST_PROD = 'https://rusel.by'
 HOST_DEV = 'http://localhost:8000'
@@ -20,7 +20,9 @@ TASK_API_PROCESS   = HOST + '/api/tasks/reminder_process/?format=json'
 TASK_API_TOKENS    = HOST + '/api/tasks/get_tokens/?format=json&user_id={}'
 TASK_API_DEL_TOKEN = HOST + '/api/tasks/del_token/?format=json&user_id={}&token={}'
 TASK_API_REMINDED  = HOST + '/api/tasks/reminded/?format=json&task_id={}'
-headers = {'Authorization': 'Token ' + service_user_token}
+headers = {'Authorization': 'Token ' + service_user_token, 'User-Agent': 'Mozilla/5.0'}
+verify = certfile_path
+exc_pref = '[x] process() [service/todo.py] '
 
 def ripe(log):
     """Are there any tasks that need to be reminded.
@@ -29,11 +31,14 @@ def ripe(log):
     ----------
     True if any.
     """
-    resp = requests.get(TASK_API_RIPE, headers=headers)
+    #log('headers: ' + json.dumps(headers))
+    #log('verify: ' + verify)
+    resp = requests.get(TASK_API_RIPE, headers=headers, verify=verify)
+    #log('resp: ' + resp.text)
     data = resp.json()
     if ('result' in data):
         return data['result']
-    log('todo.py: ripe(): ' + json.dumps(data))
+    #log('todo.py: ripe(): ' + json.dumps(data))
     return False
 
 def process(log):
@@ -45,14 +50,21 @@ def process(log):
         Method for logging processed data.
     """
     try:
-        resp = requests.get(TASK_API_PROCESS, headers=headers)
+        resp = requests.get(TASK_API_PROCESS, headers=headers, verify=verify)
+        resp.raise_for_status()
         data = resp.json()
         if ('result' not in data):
             return
         for task in data['result']:
             remind_one_task(log, task)
-    except:
-        log('[x] process() [service/todo.py] Exception: ' + str(sys.exc_info()[0]))
+    except requests.exceptions.HTTPError as errh:
+        log(exc_pref + 'Http Error: ' + str(errh))
+    except requests.exceptions.ConnectionError as errc:
+        log(exc_pref + 'Error Connecting: ' + str(errc))
+    except requests.exceptions.Timeout as errt:
+        log(exc_pref + 'Timeout Error: ' + str(errt))
+    except requests.exceptions.RequestException as err:
+        log(exc_pref + 'OOps: Something Else ' + str(err))
 
 def remind_one_task(log, task):
     if not firebase_admin._apps:
@@ -83,7 +95,7 @@ def remind_one_task(log, task):
     messaging.WebpushFCMOptions(click_action)
     wc = messaging.WebpushConfig(headers=None, data=None, notification=wn, fcm_options=None)
     
-    resp = requests.get(TASK_API_TOKENS.format(task['user_id']), headers=headers)
+    resp = requests.get(TASK_API_TOKENS.format(task['user_id']), headers=headers, verify=verify)
     data = resp.json()
     if ('result' not in data) or (len(data['result']) == 0):
         log('[TODO] No tokens for user_id = ' + str(task['user_id']))
@@ -108,11 +120,11 @@ def remind_one_task(log, task):
         log('       {}. {}{}{}'.format(npp, status, error_desc, msg))
         log('       token "' + tokens[npp-1] + '"')
         if (not z.success) and (z.exception.code == 'NOT_FOUND'):
-            resp = requests.get(TASK_API_DEL_TOKEN.format(task['user_id'], tokens[npp-1]), headers=headers)
+            resp = requests.get(TASK_API_DEL_TOKEN.format(task['user_id'], tokens[npp-1]), headers=headers, verify=verify)
             data = resp.json()
             if ('result' not in data) and data['result']:
                 log('       [!] Token deleted.')
         npp += 1
 
-    requests.get(TASK_API_REMINDED.format(task['id']), headers=headers)
+    requests.get(TASK_API_REMINDED.format(task['id']), headers=headers, verify=verify)
 
