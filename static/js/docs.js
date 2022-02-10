@@ -45,7 +45,7 @@ function buildDirTree(tree_id) {
             parent_node.children.push(node);
             if (parent_node.is_leaf) {
                 parent_node.is_leaf = false;
-                let icon = document.getElementById('id_dir_' + parent_node.id).children[0].children[1];
+                let icon = document.getElementById('id_dir_' + parent_node.id).children[0].children[0];
                 icon.setAttribute('onclick', 'toggleDir(' + parent_node.id + ')');
                 icon.classList.remove('bi-dot');
                 icon.classList.remove('invisible');
@@ -77,7 +77,7 @@ function initLi(node, visible) {
     toggleClasses(li, visible, 'visible', 'hidden');
 
     if (!node.is_leaf) {
-        toggleClasses(li.children[0].children[1], node.is_open, 'bi-chevron-down', 'bi-chevron-right');
+        toggleClasses(li.children[0].children[0], node.is_open, 'bi-chevron-down', 'bi-chevron-right');
     }
     for (let i = 0; i < node.children.length; i++)
         initLi(node.children[i], visible && node.is_open);
@@ -99,7 +99,7 @@ function toggleDir(dir_id) {
     node.is_open = !node.is_open;
     setOpen(dir_id, node.is_open);
     let li = document.getElementById('id_dir_' + dir_id);
-    toggleClasses(li.children[0].children[1], node.is_open, 'bi-chevron-down', 'bi-chevron-right');
+    toggleClasses(li.children[0].children[0], node.is_open, 'bi-chevron-down', 'bi-chevron-right');
     let i;
     for (i = 0; i < node.children.length; i += 1)
         toggleLi(node.children[i].id, node.is_open);

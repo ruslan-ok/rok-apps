@@ -30,10 +30,9 @@
                             data-parent="{{ dir.node|escape }}"
                             data-name="{{ dir.name|escape }}">
                             <div>
-                                <i class="level-{{ dir.level }}">&nbsp;</i>
-                                <i type="button" role="button" class="bi-dot icon invisible"></i>
+                                <i type="button" role="button" class="bi-dot icon invisible level-{{ dir.level }}"></i>
                                 <i class="bi-folder2"></i>
-                                <a href="/docs/?folder={{ dir.node }}{% if dir.node %}/{% endif %}{{ dir.name }}">
+                                <a href="{{ list_href }}?folder={{ dir.node }}{% if dir.node %}/{% endif %}{{ dir.name }}">
                                     {{ dir.name }}</a>
                             </div>
                             <span class="qty">{% if dir.qty %}{{ dir.qty }}{% endif %}</span>

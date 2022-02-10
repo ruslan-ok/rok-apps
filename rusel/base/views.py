@@ -1,5 +1,5 @@
-import os, json
-from datetime import date
+import os, json, time, mimetypes, glob
+from datetime import date, datetime
 from django.http import Http404
 from django.http.response import HttpResponseRedirect
 from django.utils.translation import gettext_lazy as _
@@ -174,7 +174,10 @@ class Context:
         if hasattr(self, 'object') and self.object:
             title = self.object.name
         else:
-            title = _(self.config.title).capitalize()
+            if 'title' in kwargs:
+                title = kwargs['title']
+            else:
+                title = _(self.config.title).capitalize()
         nav_item = None
         if (Task.get_nav_role(self.config.app) != self.config.get_cur_role()):
             nav_item = Task.get_active_nav_item(user_id, self.config.app)
@@ -303,6 +306,7 @@ class Context:
                 })
         return ret
 
+#----------------------------------------------------------------------
 class BaseListView(ListView, Context, LoginRequiredMixin):
 
     def __init__(self, config, cur_role, *args, **kwargs):
@@ -380,7 +384,9 @@ class BaseListView(ListView, Context, LoginRequiredMixin):
             query = self.request.GET.get('q')
         if query:
             search_qty = len(self.object_list)
-        context.update(self.get_app_context(self.request.user.id, search_qty, icon=self.config.view_icon, nav_items=self.get_nav_items()))
+        nav_items = self.get_nav_items()
+        upd_context = self.get_app_context(self.request.user.id, search_qty, icon=self.config.view_icon, nav_items=nav_items, **kwargs)
+        context.update(upd_context)
 
         if self.config.view_sorts:
             context['sorts'] = self.get_sorts(self.config.view_sorts)
@@ -557,6 +563,144 @@ class BaseListView(ListView, Context, LoginRequiredMixin):
         self.config.set_view(self.request)
         return response
     
+#----------------------------------------------------------------------
+class BaseDirListView(BaseListView):
+    model = Task
+
+    def __init__(self, app_config, role, *args, **kwargs):
+        super().__init__(app_config, role, *args, **kwargs)
+        self.template_name = 'docs/folder.html'
+
+    def get_context_data(self, **kwargs):
+        self.config.set_view(self.request)
+        self.object = None
+        cur_folder = ''
+        page_title = ''
+        title = ''
+        if ('folder' in self.request.GET):
+            cur_folder = self.request.GET['folder']
+            page_title = cur_folder.split('/')[-1:][0]
+            title = cur_folder
+        if not cur_folder:
+            page_title = _(self.config.app_title)
+            title = page_title
+        kwargs.update({'title': page_title})
+        context = super().get_context_data(**kwargs)
+        context['title'] = title
+        start = datetime.now()
+        dir_list = []
+        file_list = []
+        dir_tree = []
+        self.walk_dir_tree(dir_list, file_list, cur_folder)
+        stop = datetime.now()
+        context['stage_1'] = (stop - start).seconds
+        start = datetime.now()
+        self.dir_list_to_tree(dir_list, dir_tree, '')
+        stop = datetime.now()
+        context['stage_2'] = (stop - start).seconds
+        start = datetime.now()
+        dir_tree = []
+        self.scan_dir_tree(dir_tree, cur_folder, self.store_dir.rstrip('/'))
+        stop = datetime.now()
+        context['stage_3'] = (stop - start).seconds
+        start = datetime.now()
+        context['dir_tree'] = dir_tree
+        context['file_list'] = file_list
+        context['theme_id'] = 24
+        return context
+
+    def scan_dir_tree(self, dir_tree, cur_folder, path, parent=None):
+        ld = glob.glob(path + '/*/')
+        if not len(ld):
+            return
+        node = ''
+        level = 0
+        if parent:
+            node = parent['node']
+            if node:
+                node += '/'
+            node += parent['name']
+            level = parent['level'] + 1
+        s_node = node
+        if node:
+            s_node = node + '/'
+        p = path
+        for d in ld:
+            dd = d.replace('\\', '/')
+            name = dd.split(p)[1].strip('/')
+            x = {
+                'node': node, 
+                'name': name, 
+                'active': (cur_folder == s_node + name), 
+                'level': level, 
+                'qty': 0,
+                }
+            dir_tree.append(x)
+            self.scan_dir_tree(dir_tree, cur_folder, path + '/' + name, x)
+
+
+    def sizeof_fmt(self, num, suffix='B'):
+        for unit in ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z']:
+            if abs(num) < 1024.0:
+                return f'{num:3.1f}{unit}{suffix}'
+            num /= 1024.0
+        return f'{num:.1f}Yi{suffix}'
+    
+    def walk_dir_tree(self, dir_list, file_list, cur_folder):
+        for root, dirs, files in os.walk(self.store_dir):
+            node = root.split(self.store_dir)[1].replace('\\', '/').lstrip('/')
+            s_node = node
+            if node:
+                s_node = node + '/'
+            node_level = -1
+            node_item = None
+            if node and (len(dirs) or len(files)):
+                node_name = node.split('/')[-1:][0]
+                for x in dir_list:
+                    if (x['name'] == node_name):
+                        node_level = x['level']
+                        node_item = x
+                        break
+            for name in dirs:
+                dir_list.append({
+                    'node': node, 
+                    'name': name, 
+                    'active': (cur_folder == s_node + name), 
+                    'level': node_level+1, 
+                    'qty': 0,
+                    })
+            if node_item and len(files):
+                node_item['qty'] = len(files)
+            if (root.replace('\\', '/') == self.store_dir + cur_folder):
+                for dir in dirs:
+                    file_list.append({
+                        'name': dir, 
+                        'type': _('file folder').capitalize(), 
+                        'date': time.ctime(os.path.getmtime(root + '/' + dir)),
+                        })
+                for name in files:
+                    mt = mimetypes.guess_type(root + '/' + name)
+                    file_type = ''
+                    if mt and mt[0]:
+                        file_type = mt[0]
+                    file_list.append({
+                        'name': name, 
+                        'date': time.ctime(os.path.getmtime(root + '/' + name)),
+                        'type': file_type,
+                        'size': self.sizeof_fmt(os.path.getsize(root + '/' + name)),
+                        })
+
+    def dir_list_to_tree(self, dir_list, dir_tree, cur_node):
+        for x in dir_list:
+            if (x['node'] == cur_node):
+                dir_tree.append(x)
+                if cur_node:
+                    node = cur_node + '/' + x['name']
+                else:
+                    node = x['name']
+                self.dir_list_to_tree(dir_list, dir_tree, node)
+
+#----------------------------------------------------------------------
 class BaseDetailView(UpdateView, Context, LoginRequiredMixin):
 
     def __init__(self, config, cur_role, *args, **kwargs):

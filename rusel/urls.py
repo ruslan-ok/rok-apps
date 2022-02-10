@@ -32,7 +32,7 @@ urlpatterns = i18n_patterns(
     path('fuel/',   include('fuel.urls')),
     path('health/', include('health.urls')),
     path('warr/',   include('warr.urls')),
-    path('v3_photo/',  include('photo.urls')),
+    path('photo/',  include('photo.urls')),
     path('account/', include('account.urls')),
     #path('admin/',   admin.site.urls, name='admin'),
     path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
@@ -48,6 +48,6 @@ urlpatterns = i18n_patterns(
     path('v2_store/',  include('v2_store.urls')),
     path('v2_note/',   include('v2_note.urls')),
     path('v2_news/',   include('v2_note.urls_news')),
-    path('photo/',     include('v2_photo.urls')),
+    path('v2_photo/',     include('v2_photo.urls')),
     path('v2_health/', include('v2_health.urls')),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
