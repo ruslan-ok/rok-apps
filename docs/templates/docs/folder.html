@@ -12,23 +12,22 @@
   {% include "base/title.html" %}
 
   {% if file_list %}
-  <table class="info-table">
-    <tr> 
-      <th>{% trans 'name'|capfirst %}</th> 
-      <th>{% trans 'date modified'|capfirst %}</th> 
-      <th>{% trans 'type'|capfirst %}</th>
-      <th>{% trans 'size'|capfirst %}</th>
-    </tr>
-    {% for file in file_list %}
+    <table class="info-table">
       <tr> 
-        <td> {{ file.name }} </td> 
-        <td> {{ file.date }} </td> 
-        <td> {{ file.type }} </td> 
-        <td> {{ file.size }} </td> 
+        <th>{% trans 'name'|capfirst %}</th> 
+        <th>{% trans 'date modified'|capfirst %}</th> 
+        <th>{% trans 'type'|capfirst %}</th>
+        <th>{% trans 'size'|capfirst %}</th>
       </tr>
-    {% endfor %}
-  </table>
-
+      {% for file in file_list %}
+        <tr> 
+          <td> {{ file.name }} </td> 
+          <td> {{ file.date }} </td> 
+          <td> {{ file.type }} </td> 
+          <td> {{ file.size }} </td> 
+        </tr>
+      {% endfor %}
+    </table>
   {% endif %}
 </div>
 {% endblock %}
