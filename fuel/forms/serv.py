@@ -5,19 +5,28 @@ from rusel.base.forms import BaseCreateForm, BaseEditForm
 from task.models import Task
 from task.const import NUM_ROLE_PART, ROLE_SERVICE
 from fuel.config import app_config
-from rusel.widgets import DateInput, UrlsInput, CategoriesInput
+from rusel.widgets import DateInput, UrlsInput, CategoriesInput, Select
 
 role = ROLE_SERVICE
 
 #----------------------------------
 class CreateForm(BaseCreateForm):
 
+    new_part = forms.ChoiceField(
+        label=False,
+        required=True,
+        widget=Select(attrs={'label': _('car part').capitalize(), 'class': 'col-md-3'}))
+
     class Meta:
         model = Task
-        fields = ['name']
+        fields = ['new_part']
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, nav_item, user_id, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
+        part_choices = []
+        for part in Task.objects.filter(user=user_id, app_fuel=NUM_ROLE_PART, task_1=nav_item.id):
+            part_choices.append((part.id, part.name),)
+        self.fields['new_part'].choices = part_choices
         
 #----------------------------------
 class EditForm(BaseEditForm):

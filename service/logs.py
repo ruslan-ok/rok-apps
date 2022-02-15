@@ -63,8 +63,8 @@ def process(log):
         mgr = Manager(log)
         mgr.process()
         mgr.done()
-    except:
-        log('[x] process() [service/logs.py] Exception: ' + str(sys.exc_info()[0]))
+    except Exception as e:
+        log('[x] process() [service/logs.py] Exception: ' + str(e)) #str(sys.exc_info()[0]))
 
 
 def read_log_sz():

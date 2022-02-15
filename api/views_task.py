@@ -111,6 +111,10 @@ class TaskViewSet(viewsets.ModelViewSet):
         if 'service_id' in self.request.query_params:
             service_id = int(self.request.query_params['service_id'])
         task = None
+        part_id = 0
+        if 'part_id' in self.request.query_params:
+            part_id = int(self.request.query_params['part_id'])
+        task = None
         message = ''
         ani = Task.get_active_nav_item(request.user.id, app)
         if (app == APP_TODO) and (role == ROLE_TODO):
@@ -147,9 +151,9 @@ class TaskViewSet(viewsets.ModelViewSet):
         if (app == APP_FUEL) and (role == ROLE_FUEL):
             task = add_fuel(request.user, ani)
         if (app == APP_FUEL) and (role == ROLE_PART):
-            task = add_part(request.user, ani)
+            task = add_part(request.user, ani, name)
         if (app == APP_FUEL) and (role == ROLE_SERVICE):
-            task = add_serv(request.user, ani)
+            task = add_serv(request.user, ani, part_id)
         if (app == APP_APART) and (role == ROLE_APART):
             task = Task.objects.create(user=request.user, app_apart=NUM_ROLE_APART, name=name, event=datetime.now())
         if (app == APP_APART) and (role == ROLE_METER):

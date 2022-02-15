@@ -196,9 +196,9 @@ def register(request):
                           'с электронной почтой ' + str(request.POST['email']) + '.', 'admin@rusel.by', ['ok@rusel.by'])
                 messages.add_message(request, messages.INFO, _('Account created. Click on the link sent to your email to activate the account.'))
  
-            except:
+            except Exception as e:
                 error = True
-                messages.add_message(request, messages.WARNING, _('Unable to send email verification. Please try again.') + ' ' + str(sys.exc_info()[0]))
+                messages.add_message(request, messages.WARNING, _('Unable to send email verification. Please try again.') + ' ' + str(e)) #str(sys.exc_info()[0]))
                 title = _('Register')
  
             if not error:
