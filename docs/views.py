@@ -12,7 +12,7 @@ class ListView(BaseDirListView):
         super().__init__(app_config, role, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        self.store_dir = storage_path.format(self.request.user.id) + 'docs/'
+        self.store_dir = storage_path.format(self.request.user.username) + 'docs/'
         context = super().get_context_data(**kwargs)
         context['list_href'] = '/docs/'
         return context

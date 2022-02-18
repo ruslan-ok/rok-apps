@@ -19,7 +19,7 @@ class ListView(BaseDirListView):
         self.template_name = 'photo/folder.html'
 
     def get_context_data(self, **kwargs):
-        self.store_dir = photo_storage(self.request.user.id)
+        self.store_dir = photo_storage(self.request.user)
         context = super().get_context_data(**kwargs)
         context['list_href'] = '/photo/'
         context['cur_folder'] = self.cur_folder
@@ -67,22 +67,22 @@ class Entry:
         
 # Служебные адреса для отображения фото
 #----------------------------------
-def get_storage(user_id: int, folder, service=False):
+def get_storage(user: int, folder, service=False):
     if service:
-        path = service_path.format(user_id) + '{}/'.format(folder)
+        path = service_path.format(user.id) + '{}/'.format(folder)
     else:
-        path = storage_path.format(user_id) + '{}/'.format(folder)
+        path = storage_path.format(user.username) + '{}/'.format(folder)
     pathlib.Path(path).mkdir(parents=True, exist_ok=True)
     return path
 
-def photo_storage(user_id: int):
-    return get_storage(user_id, 'photo')
+def photo_storage(user):
+    return get_storage(user, 'photo')
 
 def thumb_storage(user_id: int):
-    return get_storage(user_id, 'thumbnails', True)
+    return get_storage(user, 'thumbnails', True)
 
 def mini_storage(user_id: int):
-    return get_storage(user_id, 'photo_mini', True)
+    return get_storage(user, 'photo_mini', True)
 
 def get_name_from_request(request, param='file'):
     query = ''
@@ -94,7 +94,7 @@ def get_name_from_request(request, param='file'):
 
 def get_photo(request, pk): # Для отображения полноразмерного фото
     item = get_object_or_404(Photo.objects.filter(id=pk, user=request.user.id))
-    fsock = open(photo_storage(request.user.id) + item.subdir() + item.name, 'rb')
+    fsock = open(photo_storage(request.user) + item.subdir() + item.name, 'rb')
     return FileResponse(fsock)
 
 def get_thumb(request): # Для отображения миниатюры по имени файла
@@ -111,7 +111,7 @@ def get_thumb(request): # Для отображения миниатюры по 
 
 def get_mini(request, pk): # Для оторажения миниатюры на метке карты
     item = get_object_or_404(Photo.objects.filter(id=pk, user=request.user.id))
-    build_mini(request.user.id, item)
+    build_mini(request.user, item)
     fsock = open(mini_storage(request.user.id) + item.subdir() + item.name, 'rb')
     return FileResponse(fsock)
 
@@ -137,12 +137,12 @@ def build_thumb(user, folder, name):
 
     if not os.path.exists(path + name):
         try:
-            image = Image.open(photo_storage(user_id) + folder + name)
+            image = Image.open(photo_storage(user) + folder + name)
             exif_data = get_exif_data(image)
             if exif_data:
                 lat, lon = get_lat_lon(exif_data)
                 if lat and lon:
-                    size = os.path.getsize(photo_storage(user_id) + folder + name)
+                    size = os.path.getsize(photo_storage(user) + folder + name)
                     get_photo_id(user, folder, name, size, lat, lon)
             image.thumbnail((240, 240), Image.ANTIALIAS)
             if ('exif' in image.info):
@@ -154,19 +154,19 @@ def build_thumb(user, folder, name):
             pass
 
 #----------------------------------
-def build_mini(user_id: int, item):
-    if not os.path.exists(mini_storage(user_id) + item.path):
-        os.makedirs(mini_storage(user_id) + item.path)
+def build_mini(user, item):
+    if not os.path.exists(mini_storage(user.id) + item.path):
+        os.makedirs(mini_storage(user.id) + item.path)
     
-    if not os.path.exists(mini_storage(user_id) + item.subdir() + item.name):
+    if not os.path.exists(mini_storage(user.id) + item.subdir() + item.name):
         try:
-            image = Image.open(photo_storage(user_id) + item.subdir() + item.name)
+            image = Image.open(photo_storage(user) + item.subdir() + item.name)
             image.thumbnail((100, 100), Image.ANTIALIAS)
             if ('exif' in image.info):
                 exif = image.info['exif']
-                image.save(mini_storage(user_id) + item.subdir() + item.name, exif = exif)
+                image.save(mini_storage(user.id) + item.subdir() + item.name, exif = exif)
             else:
-                image.save(mini_storage(user_id) + item.subdir() + item.name)
+                image.save(mini_storage(user.id) + item.subdir() + item.name)
         except UnidentifiedImageError as e:
             pass
 

@@ -15,7 +15,7 @@ from hier.models import get_app_params, toggle_content_group
 from v2_hier.params import set_restriction, set_article_kind, set_article_visible, set_sort_mode, toggle_sort_dir, get_search_mode, get_search_info
 from v2_hier.categories import get_categories_list
 from v2_hier.grp_lst import group_add, group_details, group_toggle, list_add, list_details, build_tree
-from v2_hier.files import storage_path, get_files_list
+from v2_hier.files import storage_path_v2, get_files_list
 from v2_hier.aside import Fix, Sort
 from v2_hier.content import find_group
 from todo.models import app_name, Lst, Task, Param, Step, DAILY, WORKDAYS, WEEKLY, MONTHLY, ANNUALLY#, PerGrp
@@ -531,7 +531,7 @@ def todo_entity(request, name, pk):
 
 #----------------------------------
 def get_file_storage_path(user, item):
-    return storage_path.format(user.id) + 'todo/task_{}/'.format(item.id)
+    return storage_path_v2.format(user.id) + 'todo/task_{}/'.format(item.id)
 
 def handle_uploaded_file(f, user, item):
     path = get_file_storage_path(user, item)

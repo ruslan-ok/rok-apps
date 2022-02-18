@@ -11,7 +11,7 @@ from django.core.exceptions import FieldError
 from django.contrib.auth.mixins import LoginRequiredMixin
 from rusel.apps import get_related_roles
 from rusel.context import get_base_context
-from rusel.files import storage_path, get_files_list
+from rusel.files import get_files_list, get_attach_path
 from rusel.utils import extract_get_params, get_search_mode
 from rusel.base.forms import GroupForm, CreateGroupForm
 from task.const import *
@@ -721,7 +721,7 @@ class BaseDetailView(UpdateView, Context, LoginRequiredMixin):
         return ret
 
     def handle_uploaded_file(self, f, user, item_id):
-        path = storage_path.format(user.id) + 'attachments/' + self.config.app + '/' + self.config.get_cur_role() + '_{}/'.format(item_id)
+        path = get_attach_path(user, self.config.app, self.config.get_cur_role(), item_id, 3)
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path + f.name, 'wb+') as destination:
             for chunk in f.chunks():

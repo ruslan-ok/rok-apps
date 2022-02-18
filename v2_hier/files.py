@@ -1,9 +1,9 @@
 import os
 from django.core.files.storage import FileSystemStorage
-from rusel.secret import storage_dvlp, storage_prod, service_dvlp, service_prod, folder_dvlp, folder_prod
+from rusel.secret import storage_dvlp_v2, storage_prod_v2, service_dvlp, service_prod, folder_dvlp, folder_prod
 
 folder_path  = folder_dvlp
-storage_path = storage_dvlp
+storage_path_v2 = storage_dvlp_v2
 service_path = service_dvlp
 
 file_storage_url = 'doc/'
@@ -78,7 +78,7 @@ class File():
 
 def get_files_list(user, app_name, path):
     ret = []
-    fss_path = storage_path.format(user.id) + app_name + '/' + path + '/'
+    fss_path = storage_path_v2.format(user.id) + app_name + '/' + path + '/'
     fs = FileSystemStorage(location = fss_path, base_url = file_storage_url)
     try:
         npp = 1

@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from task.const import *
 from task.models import Task, Group, TaskGroup, GIQ_ADD_TASK, GIQ_DEL_TASK
 from todo.models import Subscription
-from rusel.files import storage_path
+from rusel.files import get_attach_path
 from rusel.utils import nice_date
 from api.serializers import TaskSerializer
 
@@ -300,7 +300,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         role = self.request.query_params['role']
         fname = self.request.query_params['fname']
         task = self.get_object()
-        path = storage_path.format(self.request.user.id) + 'attachments/{}/{}_{}/'.format(app, role, task.id)
+        path = get_attach_path(self.request.user, app, role, task.id, 3)
         if not os.path.isfile(path + fname[4:]):
             return Response({'Error': "The specified file does not exist."},
                             status=status.HTTP_400_BAD_REQUEST)
