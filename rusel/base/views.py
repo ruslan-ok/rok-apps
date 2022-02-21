@@ -588,7 +588,7 @@ class BaseDirListView(BaseListView):
         context = super().get_context_data(**kwargs)
         context['title'] = title
         dir_tree = []
-        demo = True
+        demo = False
         self.scan_dir_tree(dir_tree, self.cur_folder, self.store_dir.rstrip('/'), demo=demo)
         file_list = []
         self.scan_files(file_list, self.store_dir + self.cur_folder)
@@ -721,7 +721,7 @@ class BaseDetailView(UpdateView, Context, LoginRequiredMixin):
         return ret
 
     def handle_uploaded_file(self, f, user, item_id):
-        path = get_attach_path(user, self.config.app, self.config.get_cur_role(), item_id, 3)
+        path = get_attach_path(user, self.config.app, self.config.get_cur_role(), item_id)
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path + f.name, 'wb+') as destination:
             for chunk in f.chunks():

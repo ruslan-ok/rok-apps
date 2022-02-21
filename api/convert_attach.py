@@ -13,9 +13,10 @@ class AttachChecker():
         self.skipped = []
 
     def copy_attach(self, user, app, role, item, path, file):
-        dest_path = get_attach_path(user, app, role, item.id, 3)
+        dest_path = get_attach_path(user, app, role, item.id)
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)
         shutil.copy(path + '\\' + file, dest_path)
+        os.remove(path + '\\' + file)
         self.copied.append(dest_path + file)
 
     def copy_bill_attach(self, user, apart, year, month, path, file):
@@ -25,13 +26,14 @@ class AttachChecker():
         if month and Task.objects.filter(user=user.id, app_apart=const.NUM_ROLE_BILL, start__year=year, start__month=month, task_1=apart.id).exists():
             bill = Task.objects.filter(user=user.id, app_apart=const.NUM_ROLE_BILL, start__year=year, start__month=month, task_1=apart.id).get()
         if bill:
-            dest_path = get_attach_path(user, const.APP_APART, const.ROLE_BILL, bill.id, 3)
+            dest_path = get_attach_path(user, const.APP_APART, const.ROLE_BILL, bill.id)
         else:
             dest_path = storage_path.format(user.username) + 'attachments/' + const.APP_APART + '/' + apart.name + '/bill/' + str(year) + '/'
             if month:
                 dest_path += str(month).zfill(2) + '/'
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)
         shutil.copy(path + '\\' + file, dest_path)
+        os.remove(path + '\\' + file)
         self.copied.append(dest_path + file)
 
     def skip_attach(self, user, app, role, item_id, path, file):
@@ -46,15 +48,15 @@ class AttachChecker():
             case const.APP_NOTE: 
                 matched = (role == const.ROLE_NOTE and item.app_note == const.NUM_ROLE_NOTE)
             case const.APP_NEWS: 
-                matched = (role == const.ROLE_NEWS and item.app_note == const.NUM_ROLE_NEWS)
+                matched = (role == const.ROLE_NEWS and item.app_news == const.NUM_ROLE_NEWS)
             case const.APP_TODO: 
-                matched = (role == const.ROLE_TODO and item.app_note == const.NUM_ROLE_TODO)
+                matched = (role == const.ROLE_TODO and item.app_task == const.NUM_ROLE_TODO)
             case const.APP_STORE: 
-                matched = (role == const.ROLE_STORE and item.app_note == const.NUM_ROLE_STORE)
+                matched = (role == const.ROLE_STORE and item.app_store == const.NUM_ROLE_STORE)
             case const.APP_EXPEN: 
-                matched = (role == const.ROLE_EXPENSE and item.app_note == const.NUM_ROLE_EXPENSE)
+                matched = (role == const.ROLE_EXPENSE and item.app_expen == const.NUM_ROLE_EXPENSE)
             case const.APP_HEALTH: 
-                matched = (role == const.ROLE_INCIDENT and item.app_note == const.NUM_ROLE_INCIDENT)
+                matched = (role == const.ROLE_INCIDENT and item.app_health == const.NUM_ROLE_INCIDENT)
             case const.APP_APART:
                 match (role, item.app_apart):
                     case (const.ROLE_APART, const.NUM_ROLE_APART):
@@ -210,7 +212,8 @@ class AttachChecker():
                 if user_dir.name == 'version':
                     continue
                 if '_' not in user_dir.name:
-                    raise Exception('[x] expected symbol "_" in directory name: ' + path + '\\' + user_dir.name)
+                    continue
+                    # raise Exception('[x] expected symbol "_" in directory name: ' + path + '\\' + user_dir.name)
                 prefix = user_dir.name.split('_')[0]
                 user_id = int(user_dir.name.split('_')[1])
                 if (prefix != 'user'):

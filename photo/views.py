@@ -1,4 +1,4 @@
-import os, pathlib, glob, urllib.parse
+import os, pathlib, urllib.parse, mimetypes
 from PIL import Image, UnidentifiedImageError
 from PIL.ExifTags import TAGS, GPSTAGS
 from django.shortcuts import get_object_or_404
@@ -25,6 +25,15 @@ class ListView(BaseDirListView):
         context['cur_folder'] = self.cur_folder
         return context
 
+    def is_image(self, path):
+        mt = mimetypes.guess_type(path)
+        file_type = '???'
+        if mt and mt[0]:
+            file_type = mt[0]
+        if '/' in file_type and (file_type.split('/')[0] == 'image' or file_type.split('/')[0] == 'video'):
+            return True
+        return False
+
     def scan_files(self, file_list, path):
         gps_data = []
         with os.scandir(path) as it:
@@ -33,19 +42,10 @@ class ListView(BaseDirListView):
                     continue
                 if entry.is_dir():
                     continue
+                if not self.is_image(entry.path):
+                    continue
                 item = Entry(entry.name, entry.stat().st_size)
                 file_list.append(item)
-
-        # fd = glob.glob(path + '/*')
-        # if not len(fd):
-        #     return gps_data
-        # for f in fd:
-        #     ff = f.replace('\\', '/')
-        #     name = ff.split(path)[1].strip('/')
-        #     if (name.upper() == 'Thumbs.db'.upper()):
-        #         continue
-        #     item = Entry(name, self.sizeof_fmt(os.path.getsize(ff)))
-        #     file_list.append(item)
         return gps_data
 
 #----------------------------------
@@ -67,7 +67,7 @@ class Entry:
         
 # Служебные адреса для отображения фото
 #----------------------------------
-def get_storage(user: int, folder, service=False):
+def get_storage(user, folder, service=False):
     if service:
         path = service_path.format(user.id) + '{}/'.format(folder)
     else:
@@ -78,10 +78,10 @@ def get_storage(user: int, folder, service=False):
 def photo_storage(user):
     return get_storage(user, 'photo')
 
-def thumb_storage(user_id: int):
+def thumb_storage(user):
     return get_storage(user, 'thumbnails', True)
 
-def mini_storage(user_id: int):
+def mini_storage(user):
     return get_storage(user, 'photo_mini', True)
 
 def get_name_from_request(request, param='file'):
@@ -92,42 +92,36 @@ def get_name_from_request(request, param='file'):
         return ''
     return urllib.parse.unquote_plus(query)
 
-def get_photo(request, pk): # Для отображения полноразмерного фото
-    item = get_object_or_404(Photo.objects.filter(id=pk, user=request.user.id))
-    fsock = open(photo_storage(request.user) + item.subdir() + item.name, 'rb')
+def get_photo(request): # Для отображения полноразмерного фото
+    folder = get_name_from_request(request, 'folder')
+    file = get_name_from_request(request, 'file')
+    path = photo_storage(request.user) + folder
+    if folder:
+        path += '/'
+    fsock = open(path + file, 'rb')
     return FileResponse(fsock)
 
 def get_thumb(request): # Для отображения миниатюры по имени файла
     folder = get_name_from_request(request, 'folder')
-    name = get_name_from_request(request, 'file')
-    if not name:
+    file = get_name_from_request(request, 'file')
+    if not file:
         return None
-    build_thumb(request.user, folder, name)
-    path = thumb_storage(request.user.id) + folder
+    build_thumb(request.user, folder, file)
+    path = thumb_storage(request.user) + folder
     if folder:
         path += '/'
-    fsock = open(path + name, 'rb')
+    fsock = open(path + file, 'rb')
     return FileResponse(fsock)
 
 def get_mini(request, pk): # Для оторажения миниатюры на метке карты
     item = get_object_or_404(Photo.objects.filter(id=pk, user=request.user.id))
     build_mini(request.user, item)
-    fsock = open(mini_storage(request.user.id) + item.subdir() + item.name, 'rb')
+    fsock = open(mini_storage(request.user) + item.subdir() + item.name, 'rb')
     return FileResponse(fsock)
 
 #----------------------------------
 def build_thumb(user, folder, name):
-    user_id = user.id
-    # if os.path.exists(photo_storage(user_id) + name) and os.path.isdir(photo_storage(user_id) + name):
-    #     return
-
-    # dirs = folder.split('/')
-    # sub_dir = ''
-    # sub_name = dirs[-1:][0]
-    # if (len(dirs) > 1):
-    #     sub_dir = name[:len(name)-len(sub_name)-1]
-    
-    path = thumb_storage(user_id) + folder
+    path = thumb_storage(user) + folder
     if not os.path.exists(path):
         os.makedirs(path)
 
@@ -155,18 +149,18 @@ def build_thumb(user, folder, name):
 
 #----------------------------------
 def build_mini(user, item):
-    if not os.path.exists(mini_storage(user.id) + item.path):
-        os.makedirs(mini_storage(user.id) + item.path)
+    if not os.path.exists(mini_storage(user) + item.path):
+        os.makedirs(mini_storage(user) + item.path)
     
-    if not os.path.exists(mini_storage(user.id) + item.subdir() + item.name):
+    if not os.path.exists(mini_storage(user) + item.subdir() + item.name):
         try:
             image = Image.open(photo_storage(user) + item.subdir() + item.name)
             image.thumbnail((100, 100), Image.ANTIALIAS)
             if ('exif' in image.info):
                 exif = image.info['exif']
-                image.save(mini_storage(user.id) + item.subdir() + item.name, exif = exif)
+                image.save(mini_storage(user) + item.subdir() + item.name, exif = exif)
             else:
-                image.save(mini_storage(user.id) + item.subdir() + item.name)
+                image.save(mini_storage(user) + item.subdir() + item.name)
         except UnidentifiedImageError as e:
             pass
 

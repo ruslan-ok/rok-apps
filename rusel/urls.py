@@ -39,15 +39,7 @@ urlpatterns = i18n_patterns(
     path('api/', include(api_router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
-    path('v2_apart/',  include('v2_apart.urls')),
-    path('v2_fuel/',   include('v2_fuel.urls')),
-    path('v2_proj/',   include('v2_proj.urls')),
     path('trip/',      include('v2_trip.urls')),
     path('work/',      include('v2_wage.urls')),
-    path('v2_todo/',   include('v2_todo.urls')),
-    path('v2_store/',  include('v2_store.urls')),
-    path('v2_note/',   include('v2_note.urls')),
-    path('v2_news/',   include('v2_note.urls_news')),
     path('v2_photo/',     include('v2_photo.urls')),
-    path('v2_health/', include('v2_health.urls')),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

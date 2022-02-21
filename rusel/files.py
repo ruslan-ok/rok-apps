@@ -4,11 +4,10 @@ from django.http import FileResponse, HttpResponseNotFound
 from django.shortcuts import get_object_or_404
 from task import const
 from task.models import Task
-from rusel.secret import storage_dvlp, storage_dvlp_v2, storage_prod, storage_prod_v2, service_dvlp, service_prod, folder_dvlp, folder_prod
+from rusel.secret import storage_dvlp, storage_prod, service_dvlp, service_prod, folder_dvlp, folder_prod
 from apart.forms.price import APART_SERVICE
 
 folder_path  = folder_dvlp
-storage_path_v2 = storage_dvlp_v2
 storage_path = storage_dvlp
 service_path = service_dvlp
 
@@ -82,10 +81,7 @@ class File():
             num /= 1024.0
         return "%.1f%s%s" % (num, 'Yi', suffix)
 
-def get_attach_path(user, app, role, item_id, version):
-    if version == 2:
-        return storage_path_v2.format(user.id) + 'attachments/' + app + '/' + role + '_' + str(item_id) + '/'
-
+def get_attach_path(user, app, role, item_id):
     item = get_object_or_404(Task.objects.filter(user=user.id, id=item_id))
     ret = app + '/' + role + '_' + str(item_id)
     if (app == const.APP_APART):
@@ -127,20 +123,12 @@ def get_files_list_by_path(ret, path):
 
 def get_files_list(user, app, role, item_id):
     ret = []
-    fss_path = get_attach_path(user, app, role, item_id, 3)
-    get_files_list_by_path(ret, fss_path)
-    fss_path = get_attach_path(user, app, role, item_id, 2)
+    fss_path = get_attach_path(user, app, role, item_id)
     get_files_list_by_path(ret, fss_path)
     return ret
 
 def get_app_doc(app, role, request, pk, fname):
-    path = get_attach_path(request.user, app, role, pk, 3)
-    try:
-        fsock = open(path + fname, 'rb')
-        return FileResponse(fsock)
-    except IOError:
-        pass
-    path = get_attach_path(request.user, app, role, pk, 2)
+    path = get_attach_path(request.user, app, role, pk)
     try:
         fsock = open(path + fname, 'rb')
         return FileResponse(fsock)

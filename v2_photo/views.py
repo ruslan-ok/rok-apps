@@ -14,7 +14,7 @@ from django.shortcuts import get_object_or_404
 from v2_hier.aside import Fix
 from v2_hier.utils import get_base_context_ext, process_common_commands, extract_get_params
 from v2_hier.params import get_search_info, get_search_mode, set_article_kind, set_article_visible, set_restriction, set_content
-from v2_hier.files import storage_path_v2, service_path, folder_path
+from v2_hier.files import storage_path, service_path, folder_path
 from hier.models import get_app_params
 from v2_hier.categories import get_categories_list
 
@@ -244,9 +244,11 @@ def get_name_from_request(request):
 #----------------------------------
 def get_storage(user, folder, service = False):
     if service:
-        path = service_path.format(user.id) + '{}/'.format(folder)
+        path = service_path.format(user.username) + '{}/'.format(folder)
     else:
-        path = storage_path_v2.format(user.id) + '{}/'.format(folder)
+        path = storage_path.format(user.username) + '{}/'.format(folder)
+        if (service_path[0] == 'z'):
+            path = path.replace('c:/web', 'z:')
     pathlib.Path(path).mkdir(parents=True, exist_ok=True)
     return path
 

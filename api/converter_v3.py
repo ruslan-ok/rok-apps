@@ -29,18 +29,13 @@ from health.views.marker import get_info as marker_get_info
 from fuel.views.fuel import get_item_name as get_fuel_name
 from fuel.views.serv import get_item_name as get_serv_name
 from health.views.marker import get_item_name as get_marker_name
-
-from rusel.secret import storage_dvlp, storage_dvlp_v2
-from rusel.files import get_attach_path
-
-storage_path_v2 = storage_dvlp_v2
-storage_path = storage_dvlp
+from rusel.files import storage_path, get_attach_path
 
 STAGES = {
     APP_TODO:   0,
     APP_NOTE:   0,
     APP_NEWS:   0,
-    APP_STORE:  1,
+    APP_STORE:  0,
     APP_EXPEN:  0,
     APP_TRIP:   0,
     APP_FUEL:   0,
@@ -678,10 +673,10 @@ def check_url(result, app, role, task, href):
         inc(result, app, role, 'Urls', 'added')
 
 def copy_attachments(user, src_app, src_role, src_item_id, dst_app, dst_role, dst_item):
-    src_path = storage_path_v2.format(user.id) + '{}/{}_{}/'.format(src_app, src_role, src_item_id)
+    src_path = storage_path.format('user_' + str(user.id)) + '{}/{}_{}/'.format(src_app, src_role, src_item_id)
     if not os.path.exists(src_path):
         return
-    dst_path = get_attach_path(user, dst_app, dst_role, dst_item, 3)
+    dst_path = get_attach_path(user, dst_app, dst_role, dst_item)
     os.makedirs(os.path.dirname(dst_path), exist_ok=True)
     src_files = os.listdir(src_path)
     for file_name in src_files:
