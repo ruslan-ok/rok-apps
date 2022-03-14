@@ -659,12 +659,16 @@ class Task(models.Model):
 
         if (currency == 'USD'):
             if self.expen_usd:
+                if self.expen_qty:
+                    return self.expen_usd * self.expen_qty
                 return self.expen_usd
             if byn and self.expen_rate:
                 return byn / self.expen_rate
 
         if (currency == 'EUR'):
             if self.expen_eur:
+                if self.expen_qty:
+                    return self.expen_eur * self.expen_qty
                 return self.expen_eur
             if byn and self.expen_rate_2:
                 return byn / self.expen_rate_2
@@ -674,9 +678,13 @@ class Task(models.Model):
                 return byn
 
             if self.expen_usd and self.expen_rate:
+                if self.expen_qty:
+                    return self.expen_usd * self.expen_qty * self.expen_rate
                 return self.expen_usd * self.expen_rate
 
             if self.expen_eur and self.expen_rate_2:
+                if self.expen_qty:
+                    return self.expen_eur * self.expen_qty * self.expen_rate
                 return self.expen_eur * self.expen_rate_2
 
         return 0

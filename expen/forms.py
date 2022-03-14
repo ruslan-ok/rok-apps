@@ -5,7 +5,7 @@ from rusel.base.forms import BaseCreateForm, BaseEditForm
 from task.models import Task, Group
 from task.const import ROLE_EXPENSE
 from expen.config import app_config
-from rusel.widgets import UrlsInput, CategoriesInput, SwitchInput, DateInput
+from rusel.widgets import UrlsInput, CategoriesInput, SwitchInput, DateInput, NegativeNumberInput
 from rusel.base.forms import GroupForm
 
 role = ROLE_EXPENSE
@@ -29,6 +29,10 @@ class EditForm(BaseEditForm):
         label=_('operation').capitalize(),
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': _('add operation name').capitalize()}))
+    expen_qty = forms.DecimalField(
+        label=_('quantity').capitalize(),
+        required=False,
+        widget=NegativeNumberInput(attrs={'step': '0.001'}))
     grp = forms.ChoiceField(
         label=_('group').capitalize(),
         widget=forms.HiddenInput(attrs={'class': 'form-control'}),
@@ -49,7 +53,6 @@ class EditForm(BaseEditForm):
         widgets = {
             'event': forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime mb-3', 'type': 'datetime-local'}),
             'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),
-            'expen_qty': forms.NumberInput(attrs={'class': 'form-control'}),
             'expen_price': forms.NumberInput(attrs={'class': 'form-control'}),
             'expen_rate': forms.NumberInput(attrs={'class': 'form-control'}),
             'expen_rate_2': forms.NumberInput(attrs={'class': 'form-control'}),

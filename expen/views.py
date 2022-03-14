@@ -1,4 +1,3 @@
-from django.shortcuts import get_object_or_404
 from task.const import ROLE_EXPENSE, ROLE_APP
 from task.models import Task, Urls, TaskGroup
 from rusel.files import get_files_list, get_app_doc
