@@ -1,12 +1,12 @@
 from task.const import ROLE_DOC, ROLE_APP
-from rusel.base.views import BaseDirListView
+from rusel.base.dir_views import BaseDirView
 from rusel.files import storage_path
 from docs.config import app_config
 
 role = ROLE_DOC
 app = ROLE_APP[role]
 
-class ListView(BaseDirListView):
+class ListView(BaseDirView):
     def __init__(self, *args, **kwargs):
         self.template_name = 'docs/folder.html'
         super().__init__(app_config, role, *args, **kwargs)

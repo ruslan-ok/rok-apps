@@ -5,6 +5,7 @@ from task.const import ROLE_PHOTO
 from rusel.base.forms import BaseCreateForm, BaseEditForm
 from task.models import Task, Group
 from photo.config import app_config
+from photo.models import Photo
 from rusel.base.forms import GroupForm
 
 role = ROLE_PHOTO
@@ -35,6 +36,17 @@ class EditForm(BaseEditForm):
 class FolderForm(GroupForm):
     class Meta:
         model = Group
+        fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+#----------------------------------
+class UploadForm(forms.Form):
+    upload = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
+
+class PhotoForm(forms.Form):
+    class Meta:
+        model = Photo
         fields = ['name']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),

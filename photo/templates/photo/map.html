@@ -1,0 +1,40 @@
+{% extends "base/page_content.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link href="{% static 'scss/tune.css' %}" rel="stylesheet">
+  <link href="{% static 'scss/home.css' %}" rel="stylesheet">
+  <link href="{% static 'scss/photo.css' %}" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+{% endblock %}
+
+{% block actions %}
+  {% for crumb in bread_crumbs %}
+    {% if crumb.url %}
+      <a href="{{ crumb.url }}">{{ crumb.name }}</a>&nbsp;&nbsp;/&nbsp;&nbsp;
+    {% else %}
+      {{ crumb.name }}
+    {% endif %}
+  {% endfor %}
+  <button type="submit" name="item-add"><img class="img-20_20" src="{% static 'v2/rok/icon/add-gray.png' %}">{% trans 'add photo'|capfirst %}</button>
+{% endblock %}
+
+{% block main %}
+  <div class="list-content{% if theme_id %} theme-{{theme_id}}{% endif %}">
+    {% include "base/title.html" %}
+    <input type="hidden" value="{{ gps_data|safe }}" id="id_data">
+    <div id="mapid"></div>
+  </div>
+{% endblock %}
+
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'js/docs.js' %}"></script>
+  <script>
+    buildDirTree('dirs-tree');
+  </script>
+  <script src="{% static 'js/photo.js' %}"></script>
+  <script src="{% static 'js/uploadFile.js' %}"></script>
+{% endblock %}

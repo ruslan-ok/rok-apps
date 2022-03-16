@@ -1,3 +1,10 @@
-<button type="button" class="btn bi-plus-lg" onclick="addItem('{{ config.app }}', '{{ config.get_cur_role }}', {{ config.cur_view_group.id|escape }})">
-  {{ add_item_placeholder }}
-</button>
+<div class="dropdown mx-3">
+  <button class="btn bi-plus-lg{% if dark_theme %} dark-theme{% endif %}" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false"></button>
+  <ul class="dropdown-menu shadow-lg" aria-labelledby="dropdownMenuButton1">
+      <div class="d-flex py-2">
+        <button type="button" class="btn bi-plus-lg" onclick="addItem('{{ config.app }}', '{{ config.get_cur_role }}', {{ config.cur_view_group.id|escape }})">
+          {{ add_item_placeholder }}
+        </button>
+      </div>
+  </ul>
+</div>

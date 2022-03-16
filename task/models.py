@@ -166,6 +166,27 @@ class Group(models.Model):
                 self.act_items_qty = qnt
                 self.save()
 
+def detect_group(user, app, determinator, view_id, name):
+    group = None
+    if (determinator == 'group'):
+        if Group.objects.filter(user=user.id, app=app, id=int(view_id)).exists():
+            group = Group.objects.filter(user=user.id, app=app, id=int(view_id)).get()
+    if (determinator == 'role'):
+        if Group.objects.filter(user=user.id, app=app, determinator='role', view_id=view_id).exists():
+            group = Group.objects.filter(user=user.id, app=app, determinator='role', view_id=view_id).get()
+    if (determinator == 'view'):
+        if Group.objects.filter(user=user.id, app=app, determinator='view', view_id=view_id).exists():
+            group = Group.objects.filter(user=user.id, app=app, determinator='view', view_id=view_id).get()
+    if not group and (determinator != 'group'):
+        group = Group.objects.create(
+            user=user, 
+            app=app, 
+            determinator=determinator, 
+            view_id=view_id,
+            name=name,
+            act_items_qty=0,
+            use_sub_groups=True,)
+    return group
 
 class Task(models.Model):
     """
@@ -475,10 +496,66 @@ class Task(models.Model):
                     start=self.start, stop=next, important=self.important,
                     remind=self.next_remind_time(), repeat=self.repeat, repeat_num=self.repeat_num,
                     repeat_days=self.repeat_days, categories=self.categories, info=self.info)
+                next_task.set_item_attr(APP_TODO, next_task.get_info(ROLE_TODO))
                 if TaskGroup.objects.filter(task=self.id, role=ROLE_TODO).exists():
                     group = TaskGroup.objects.filter(task=self.id, role=ROLE_TODO).get().group
                     next_task.correct_groups_qty(GIQ_ADD_TASK, group.id)
         return next_task
+
+    def get_info(self, role):
+        ret = {'attr': []}
+        
+        if TaskGroup.objects.filter(task=self.id, role=role).exists():
+            ret['group'] = TaskGroup.objects.filter(task=self.id, role=role).get().group.name
+
+        if self.in_my_day:
+            ret['attr'].append({'myday': True})
+
+        step_total = 0
+        step_completed = 0
+        for step in Step.objects.filter(task=self.id):
+            step_total += 1
+            if step.completed:
+                step_completed += 1
+        if (step_total > 0):
+            if (len(ret['attr']) > 0):
+                ret['attr'].append({'icon': 'separator'})
+            ret['attr'].append({'text': '{} {} {}'.format(step_completed, _('out of'), step_total)})
+
+        if self.stop:
+            ret['attr'].append({'termin': True})
+
+        links = len(Urls.objects.filter(task=self.id)) > 0
+        files = False #(len(get_files_list(self.user, app, role, self.id)) > 0)
+
+        if (self.remind != None) or self.info or links or files:
+            if (len(ret['attr']) > 0):
+                ret['attr'].append({'icon': 'separator'})
+            if (self.remind != None):
+                ret['attr'].append({'icon': 'remind'})
+            if links:
+                ret['attr'].append({'icon': 'url'})
+            if files:
+                ret['attr'].append({'icon': 'attach'})
+            if self.info:
+                info_descr = self.info[:80]
+                if len(self.info) > 80:
+                    info_descr += '...'
+                ret['attr'].append({'icon': 'notes', 'text': info_descr})
+
+        if self.categories:
+            if (len(ret['attr']) > 0):
+                ret['attr'].append({'icon': 'separator'})
+            categs = [] #get_categories_list(self.categories)
+            for categ in categs:
+                ret['attr'].append({'icon': 'category', 'text': categ.name, 'color': 'category-design-' + categ.design})
+
+        if self.completed:
+            if (len(ret['attr']) > 0):
+                ret['attr'].append({'icon': 'separator'})
+            ret['attr'].append({'text': '{}: {}'.format(_('completion').capitalize(), self.completion.strftime('%d.%m.%Y') if self.completion else '')})
+
+        return ret
 
     def next_iteration(self):
         next = None

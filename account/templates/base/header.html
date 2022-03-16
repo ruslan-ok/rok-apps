@@ -13,12 +13,12 @@
     <ul class="navbar-nav flex-row flex-wrap bd-navbar-nav pt-2 py-md-0">
       {% for app in apps %}
         <li class="nav-item col-6 col-md-auto">
-          <a class="nav-link p-2{% if app.active %} active{% endif %}" href="{{ app.href }}"{% if app.active %} aria-current="true"{% endif %}>
+          <a class="nav-link d-flex p-2{% if app.active %} active{% endif %}" href="{{ app.href }}"{% if app.active %} aria-current="true"{% endif %}>
             <i class="bi-{{app.icon}}"></i>
             {% if app.active %}
-              <span>{{ app.name }}</span>
+              <span class="d-md-none d-lg-block ms-1">{{ app.name }}</span>
             {% else %}
-              <span class="d-md-none">{{ app.name }}</span>
+              <span class="d-md-none ms-1">{{ app.name }}</span>
             {% endif %}
           </a>
         </li>
@@ -49,7 +49,7 @@
     <div class="s-f-container dropdown mx-4">
       <a href="{{request.GET.path}}" class="d-flex align-items-center justify-content-center link-light text-decoration-none dropdown-toggle" id="dropdownUser2" data-bs-toggle="dropdown" aria-expanded="false">
         <img src="{{ avatar }}" alt="" width="32" height="32" class="rounded-circle me-2">
-        <span>{{ user.username }}</span>
+        <span class="d-none d-lg-block">{{ user.username }}</span>
       </a>
       <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser2">
         {% if user.username != 'demouser' %}

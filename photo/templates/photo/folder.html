@@ -5,7 +5,7 @@
   {{ block.super }}
   <link href="{% static 'scss/tune.css' %}" rel="stylesheet">
   <link href="{% static 'scss/home.css' %}" rel="stylesheet">
-  <link href="{% static 'v2/photo/css/photo.css' %}" rel="stylesheet">
+  <link href="{% static 'scss/photo.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block main %}
@@ -16,7 +16,7 @@
     {% for item in file_list %}
       <div>
         <div class="gallery">
-          <a href="one/?folder={{ cur_folder }}&file={{ item.url }}">  
+          <a href="slider/?folder={{ cur_folder }}#photo-{{ item.num }}">
             <img src="get_thumb/?folder={{ cur_folder }}&file={{ item.url }}" alt="{{ item.name }}">  </a>
           <div class="desc">{{ item.name }}</div>
         </div>
@@ -32,4 +32,5 @@
   <script>
     buildDirTree('dirs-tree');
   </script>
+  <script src="{% static 'js/uploadFile.js' %}"></script>
 {% endblock %}
