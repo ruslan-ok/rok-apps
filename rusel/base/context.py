@@ -76,6 +76,16 @@ class Context:
                             url += value['page_url'] + '/'
                         else:
                             url += '?view=' + key
+            if (self.config.app in FOLDER_NAV_APPS):
+                folder = ''
+                if ('folder' in self.request.GET):
+                    folder = self.request.GET['folder']
+                if folder:
+                    if ('?' in url):
+                        url += '&'
+                    else:
+                        url += '?'
+                    url += 'folder=' + folder
             hide_qty = False
             if ('hide_qty' in value):
                 hide_qty = value['hide_qty']

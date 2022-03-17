@@ -42,6 +42,8 @@ APP_NAME = {
     APP_ALL: 'all applications',
 }
 
+FOLDER_NAV_APPS = [APP_PHOTO, APP_DOCS, APP_WARR]
+
 """
 Kinds of Entities that can be combined into Group
 """

@@ -66,7 +66,7 @@ class FolderView(BaseDirView):
                 else:
                     p = Photo.objects.filter(user=self.request.user.id, path=files_path, name=entry.name).get()
                 if (p.lat and p.lon):
-                    self.gps_data.append({ 'id': p.id, 'lat': str(p.lat), 'lon': str(p.lon), 'name': p.name })
+                    self.gps_data.append({ 'id': p.id, 'num': num-1, 'lat': str(p.lat), 'lon': str(p.lon), 'name': p.name })
         return self.gps_data
 
     def get_success_url(self, **kwargs):

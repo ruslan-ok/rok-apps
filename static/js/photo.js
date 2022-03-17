@@ -15,6 +15,19 @@ function showLondon(err) {
   showMap(51.505, -0.09);
 }
 
+function getQueryVariable(variable) {
+  var query = window.location.search.substring(1);
+  var vars = query.split('&');
+  for (var i = 0; i < vars.length; i++) {
+      var pair = vars[i].split('=');
+      if (decodeURIComponent(pair[0]) == variable) {
+          return decodeURIComponent(pair[1]);
+      }
+  }
+  console.log('Query variable %s not found', variable);
+  return '';
+}
+
 function showMap(latitude, longitude)
 {
   mymap = L.map('mapid');
@@ -48,8 +61,10 @@ function showMap(latitude, longitude)
     accessToken: 'pk.eyJ1IjoicnVzbGFuLW9rIiwiYSI6ImNrYmlkYjZ2NzBjMTYydHFpOWZqbm1lbDEifQ.dIV9rLOkKDBE7GzJplVzRA'
   }).addTo(mymap);
 
+  const folder = getQueryVariable('folder');
+
   for (i = 0; i < photos.length; i++) {
     let marker = L.marker([photos[i]["lat"], photos[i]["lon"]]).addTo(mymap);
-    marker.bindPopup(photos[i]["name"] + "<br><a href='/photo/by_id/" + photos[i]["id"] + "/'><img src='/photo/get_mini/" + photos[i]["id"] + "/'>").openPopup();
+    marker.bindPopup(photos[i]["name"] + '<br><a href="/photo/image/?folder=' + folder + '&photo_num=' + photos[i]["num"] + '"><img src="/photo/get_mini/' + photos[i]["id"] + '">').openPopup();
   }
 }
