@@ -4,7 +4,7 @@ from task.models import Task
 from rusel.base.views import BaseListView, BaseDetailView
 from fuel.forms.car import CreateForm, EditForm
 from fuel.config import app_config
-from rusel.files import get_files_list, get_app_doc
+from rusel.app_doc import get_app_doc
 
 role = ROLE_CAR
 app = ROLE_APP[role]
@@ -39,7 +39,7 @@ def get_info(item):
     if item.car_plate:
         attr.append({'text': item.car_plate})
 
-    files = (len(get_files_list(item.user, app, role, item.id)) > 0)
+    files = (len(item.get_files_list(app, role)) > 0)
 
     if item.info or files:
         if (len(attr) > 0):

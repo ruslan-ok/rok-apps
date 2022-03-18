@@ -2,7 +2,7 @@ from datetime import datetime
 from task.const import ROLE_FUEL, ROLE_APP, NUM_ROLE_FUEL
 from task.models import Task, Urls
 from django.utils.translation import gettext_lazy as _
-from rusel.files import get_files_list, get_app_doc
+from rusel.app_doc import get_app_doc
 from rusel.categories import get_categories_list
 from rusel.base.views import BaseListView, BaseDetailView
 from fuel.forms.fuel import CreateForm, EditForm
@@ -84,7 +84,7 @@ def get_info(item):
     attr.append({'text': _('summa: ') + '{:.2f}'.format(item.fuel_volume * item.fuel_price)})
 
     links = len(Urls.objects.filter(task=item.id)) > 0
-    files = (len(get_files_list(item.user, app, role, item.id)) > 0)
+    files = (len(item.get_files_list(app, role)) > 0)
 
     if item.info or links or files:
         if (len(attr) > 0):

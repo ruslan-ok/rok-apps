@@ -2,7 +2,7 @@ from datetime import datetime
 from django.utils.translation import gettext_lazy as _
 from task.const import NUM_ROLE_PART, NUM_ROLE_SERVICE, ROLE_SERVICE, ROLE_APP, APP_FUEL
 from task.models import Task, Urls
-from rusel.files import get_files_list, get_app_doc
+from rusel.app_doc import get_app_doc
 from rusel.categories import get_categories_list
 from rusel.base.views import BaseListView, BaseDetailView
 from fuel.forms.serv import CreateForm, EditForm
@@ -62,7 +62,7 @@ def get_info(item):
         attr.append({'text': item.repl_descr})
 
     links = len(Urls.objects.filter(task=item.id)) > 0
-    files = (len(get_files_list(item.user, app, role, item.id)) > 0)
+    files = (len(item.get_files_list(app, role)) > 0)
 
     if item.info or links or files:
         if (len(attr) > 0):

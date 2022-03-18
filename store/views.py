@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.template import loader
 from task.const import ROLE_STORE, ROLE_APP, NUM_ROLE_STORE
 from task.models import Task, Hist
-from rusel.files import get_app_doc
+from rusel.app_doc import get_app_doc
 from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView, Context
 from store.forms import CreateForm, EditForm, ParamsForm
 from store.config import app_config

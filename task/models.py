@@ -14,6 +14,12 @@ from rest_framework.reverse import reverse
 
 from task.const import *
 from rusel.utils import nice_date
+from rusel.categories import get_categories_list
+from rusel.files import get_files_list_by_path
+from rusel.secret import storage_dvlp
+
+storage_path = storage_dvlp
+
 
 class Group(models.Model):
     """
@@ -502,7 +508,35 @@ class Task(models.Model):
                     next_task.correct_groups_qty(GIQ_ADD_TASK, group.id)
         return next_task
 
-    def get_info(self, role):
+    def get_attach_path(self, app, role):
+        ret = app + '/' + role + '_' + str(self.id)
+        if (app == APP_APART):
+            match (role, self.app_apart):
+                case (ROLE_APART, NUM_ROLE_APART):
+                    ret = APP_APART + '/' + self.name
+                case (ROLE_PRICE, NUM_ROLE_PRICE):
+                    ret = APP_APART + '/' + self.task_1.name + '/price/' + APART_SERVICE[self.price_service] + '/' + self.start.strftime('%Y.%m.%d')
+                case (ROLE_METER, NUM_ROLE_METER):
+                    ret = APP_APART + '/' + self.task_1.name + '/meter/' + str(self.start.year) + '/' + str(self.start.month).zfill(2)
+                case (ROLE_BILL, NUM_ROLE_BILL):
+                    ret = APP_APART + '/' + self.task_1.name + '/bill/' + str(self.start.year) + '/' + str(self.start.month).zfill(2)
+        if (app == APP_FUEL):
+            match (role, self.app_fuel):
+                case (ROLE_CAR, NUM_ROLE_CAR):
+                    ret = APP_FUEL + '/' + self.name + '/car'
+                case (ROLE_PART, NUM_ROLE_PART):
+                    ret = APP_FUEL + '/' + self.task_1.name + '/part/' + self.name
+                case (ROLE_SERVICE, NUM_ROLE_SERVICE):
+                    ret = APP_FUEL + '/' + self.task_1.name + '/service/' + self.task_2.name + '/' + self.event.strftime('%Y.%m.%d')
+                case (ROLE_FUEL, NUM_ROLE_FUEL):
+                    ret = APP_FUEL + '/' + self.task_1.name + '/fuel/' + self.event.strftime('%Y.%m.%d')
+        return storage_path.format(self.user.username) + 'attachments/' + ret + '/'
+
+    def get_files_list(self, app, role):
+        fss_path = self.get_attach_path(app, role)
+        return get_files_list_by_path(fss_path)
+
+    def get_info(self, role=ROLE_TODO):
         ret = {'attr': []}
         
         if TaskGroup.objects.filter(task=self.id, role=role).exists():
@@ -526,7 +560,7 @@ class Task(models.Model):
             ret['attr'].append({'termin': True})
 
         links = len(Urls.objects.filter(task=self.id)) > 0
-        files = False #(len(get_files_list(self.user, app, role, self.id)) > 0)
+        files = (len(self.get_files_list(APP_TODO, role)) > 0)
 
         if (self.remind != None) or self.info or links or files:
             if (len(ret['attr']) > 0):
@@ -546,7 +580,7 @@ class Task(models.Model):
         if self.categories:
             if (len(ret['attr']) > 0):
                 ret['attr'].append({'icon': 'separator'})
-            categs = [] #get_categories_list(self.categories)
+            categs = get_categories_list(self.categories)
             for categ in categs:
                 ret['attr'].append({'icon': 'category', 'text': categ.name, 'color': 'category-design-' + categ.design})
 

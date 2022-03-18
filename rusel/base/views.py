@@ -10,13 +10,11 @@ from django.db.models import Q
 from django.core.exceptions import FieldError
 from django.contrib.auth.mixins import LoginRequiredMixin
 from rusel.apps import get_related_roles
-from rusel.files import get_files_list, get_attach_path
 from rusel.utils import extract_get_params, get_search_mode
 from rusel.base.forms import GroupForm
 from rusel.base.context import Context
 from task.const import *
 from task.models import Task, Group, TaskGroup, Urls, GIQ_ADD_TASK, GIQ_DEL_TASK
-from apart.forms.price import APART_SERVICE
 
 BG_IMAGES = [
     'beach',
@@ -326,7 +324,7 @@ class BaseDetailView(UpdateView, Context, LoginRequiredMixin):
                 fake_url.href = '#'
                 urls.append(fake_url)
         context['urls'] = urls
-        context['files'] = get_files_list(self.request.user, self.config.app, self.config.get_cur_role(), self.object.id)
+        context['files'] = self.object.get_files_list(self.config.app, self.config.get_cur_role())
         context['item'] = self.object
         related_roles, possible_related = get_related_roles(self.get_object(), self.config)
         context['related_roles'] = related_roles
@@ -344,7 +342,7 @@ class BaseDetailView(UpdateView, Context, LoginRequiredMixin):
             qty = len(Urls.objects.filter(task=item.id))
             Urls.objects.create(task=item, num=qty, href=url)
         if ('upload' in self.request.FILES):
-            self.handle_uploaded_file(self.request.FILES['upload'], self.request.user, item.id)
+            self.handle_uploaded_file(self.request.FILES['upload'], item)
         ret = super().form_valid(form)
         grp_id = None
         if ('grp' in form.changed_data):
@@ -354,8 +352,8 @@ class BaseDetailView(UpdateView, Context, LoginRequiredMixin):
         item.correct_groups_qty(GIQ_ADD_TASK, grp_id)
         return ret
 
-    def handle_uploaded_file(self, f, user, item_id):
-        path = get_attach_path(user, self.config.app, self.config.get_cur_role(), item_id)
+    def handle_uploaded_file(self, f, item):
+        path = item.get_attach_path(self.config.app, self.config.get_cur_role())
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path + f.name, 'wb+') as destination:
             for chunk in f.chunks():

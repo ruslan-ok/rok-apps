@@ -29,12 +29,12 @@ class BaseDirView(DirContext, FormView, LoginRequiredMixin):
         files = request.FILES.getlist('upload')
         if form.is_valid():
             for f in files:
-                self.handle_uploaded_file(f, request.user, folder)
+                self.handle_uploaded_file(f, folder)
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
     
-    def handle_uploaded_file(self, f, user, folder):
+    def handle_uploaded_file(self, f, folder):
         path = self.store_dir + folder
         with open(path + f.name, 'wb+') as destination:
             for chunk in f.chunks():

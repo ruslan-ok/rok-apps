@@ -1,6 +1,6 @@
 from task.const import ROLE_TRIP, ROLE_APP
 from task.models import Task, Urls, TaskGroup
-from rusel.files import get_files_list, get_app_doc
+from rusel.app_doc import get_app_doc
 from rusel.categories import get_categories_list
 from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView
 from trip.forms import CreateForm, EditForm, PersonForm
@@ -38,7 +38,7 @@ def get_info(item):
     attr.append({'text': ', '.join(item.expen_summary())})
 
     links = len(Urls.objects.filter(task=item.id)) > 0
-    files = (len(get_files_list(item.user, app, role, item.id)) > 0)
+    files = (len(item.get_files_list(app, role)) > 0)
 
     if item.info or links or files:
         if (len(attr) > 0):

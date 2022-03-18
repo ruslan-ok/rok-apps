@@ -2,7 +2,7 @@ import os, shutil
 from django.contrib.auth.models import User
 from task import const
 from task.models import Task
-from rusel.files import get_attach_path, storage_path
+from rusel.files import storage_path
 
 path = 'Z:\\apps\\docs'
 
@@ -13,7 +13,7 @@ class AttachChecker():
         self.skipped = []
 
     def copy_attach(self, user, app, role, item, path, file):
-        dest_path = get_attach_path(user, app, role, item.id)
+        dest_path = item.get_attach_path(app, role)
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)
         shutil.copy(path + '\\' + file, dest_path)
         os.remove(path + '\\' + file)
@@ -26,7 +26,7 @@ class AttachChecker():
         if month and Task.objects.filter(user=user.id, app_apart=const.NUM_ROLE_BILL, start__year=year, start__month=month, task_1=apart.id).exists():
             bill = Task.objects.filter(user=user.id, app_apart=const.NUM_ROLE_BILL, start__year=year, start__month=month, task_1=apart.id).get()
         if bill:
-            dest_path = get_attach_path(user, const.APP_APART, const.ROLE_BILL, bill.id)
+            dest_path = bill.get_attach_path(const.APP_APART, const.ROLE_BILL)
         else:
             dest_path = storage_path.format(user.username) + 'attachments/' + const.APP_APART + '/' + apart.name + '/bill/' + str(year) + '/'
             if month:

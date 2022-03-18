@@ -1,10 +1,8 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
-from django.core.exceptions import ValidationError
-
 from rusel.base.forms import BaseCreateForm, BaseEditForm
 from task.const import ROLE_TODO
-from task.models import Task, Group
+from task.models import Task
 from todo.config import app_config
 from rusel.widgets import UrlsInput, CategoriesInput, CompletedInput
 

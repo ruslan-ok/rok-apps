@@ -1,4 +1,3 @@
-from rusel.files import get_files_list
 from rusel.categories import get_categories_list
 from task.models import TaskGroup, Urls, Hist
 from task.const import APP_STORE, ROLE_STORE
@@ -22,7 +21,7 @@ def get_info(item):
     
     links = len(Urls.objects.filter(task=item.id)) > 0
 
-    files = (len(get_files_list(item.user, app, role, item.id)) > 0)
+    files = (len(item.get_files_list(app, role)) > 0)
 
     if item.info or links or files:
         if links:
