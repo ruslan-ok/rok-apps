@@ -316,6 +316,8 @@ class Task(models.Model):
     bio_systolic = models.IntegerField(_('systolic blood pressure'), blank=True, null=True)
     bio_diastolic = models.IntegerField(_('diastolic blood pressure'), blank=True, null=True)
     bio_pulse = models.IntegerField(_('the number of heartbeats per minute'), blank=True, null=True)
+    #------------- Warranty --------------
+    months = models.IntegerField(_('warranty termin, months'), blank=True, null=True, default=12)
     # -------------
     class Meta:
         verbose_name = _('task')
@@ -530,6 +532,11 @@ class Task(models.Model):
                     ret = APP_FUEL + '/' + self.task_1.name + '/service/' + self.task_2.name + '/' + self.event.strftime('%Y.%m.%d')
                 case (ROLE_FUEL, NUM_ROLE_FUEL):
                     ret = APP_FUEL + '/' + self.task_1.name + '/fuel/' + self.event.strftime('%Y.%m.%d')
+        if (app == APP_WARR):
+            match (role, self.app_warr):
+                case (ROLE_WARR, NUM_ROLE_WARR):
+                    ret = APP_WARR + '/' + self.name.replace('/', '_').replace('\\', '_').replace(':', '_').replace('*', '_').replace('?', '_').replace('«', '_').replace('<', '_').replace('>', '_').replace('|', '_')
+                    
         return storage_path.format(self.user.username) + 'attachments/' + ret + '/'
 
     def get_files_list(self, app, role):

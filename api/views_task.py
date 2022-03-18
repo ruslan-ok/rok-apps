@@ -31,6 +31,7 @@ from apart.views.price import get_info as price_get_info
 from apart.views.meter import get_info as meter_get_info
 from apart.views.bill import get_info as bill_get_info
 from health.views.incident import get_info as incident_get_info
+from warr.views import get_info as warr_get_info
 
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
@@ -73,6 +74,8 @@ class TaskViewSet(viewsets.ModelViewSet):
             task.set_item_attr(APP_APART, bill_get_info(task))
         if (task.app_apart == NUM_ROLE_INCIDENT):
             task.set_item_attr(APP_HEALTH, incident_get_info(task))
+        if (task.app_warr == NUM_ROLE_WARR):
+            task.set_item_attr(APP_WARR, warr_get_info(task))
     
     @action(detail=False)
     def get_info(self, request, pk=None):
