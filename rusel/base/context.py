@@ -226,22 +226,24 @@ class DirContext(Context):
     def scan_files(self):
         self.gps_data = []
         self.file_list = []
-        fd = glob.glob(self.store_dir + self.cur_folder + '/*')
-        if not len(fd):
-            return self.gps_data
-        for f in fd:
-            ff = f.replace('\\', '/')
-            name = ff.split(self.store_dir + self.cur_folder)[1].strip('/')
-            mt = mimetypes.guess_type(ff)
-            file_type = ''
-            if mt and mt[0]:
-                file_type = mt[0]
-            self.file_list.append({
-                'name': name, 
-                'date': time.ctime(os.path.getmtime(ff)),
-                'type': file_type,
-                'size': self.sizeof_fmt(os.path.getsize(ff)),
-                })
+        with os.scandir(self.store_dir + self.cur_folder) as it:
+            for entry in it:
+                if (entry.name.upper() == 'Thumbs.db'.upper()):
+                    continue
+                if entry.is_dir():
+                    continue
+                ff = self.store_dir + self.cur_folder + '/' + entry.name
+                mt = mimetypes.guess_type(ff)
+                file_type = ''
+                if mt and mt[0]:
+                    file_type = mt[0]
+                self.file_list.append({
+                    'name': entry.name, 
+                    'href': 'file/?folder=' + self.cur_folder + '&file=' + entry.name,
+                    'date': time.ctime(os.path.getmtime(ff)),
+                    'type': file_type,
+                    'size': self.sizeof_fmt(os.path.getsize(ff)),
+                    })
         return self.gps_data
 
     def sizeof_fmt(self, num, suffix='B'):

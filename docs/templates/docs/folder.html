@@ -21,7 +21,7 @@
       </tr>
       {% for file in file_list %}
         <tr> 
-          <td> {{ file.name }} </td> 
+          <td> <a href="{{ file.href }}">{{ file.name }}</a> </td> 
           <td> {{ file.date }} </td> 
           <td> {{ file.type }} </td> 
           <td> {{ file.size }} </td> 
@@ -38,4 +38,5 @@
   <script>
     buildDirTree('dirs-tree');
   </script>
+  <script src="{% static 'js/uploadFile.js' %}"></script>
 {% endblock %}
