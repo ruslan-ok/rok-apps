@@ -3,11 +3,11 @@ from PIL import Image, UnidentifiedImageError
 from PIL.ExifTags import TAGS, GPSTAGS
 from django.utils.translation import gettext_lazy as _
 from django.shortcuts import get_object_or_404
-from django.http import FileResponse
+from django.http import FileResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic.edit import FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from task.const import ROLE_PHOTO, ROLE_APP
+from task.const import APP_PHOTO, ROLE_PHOTO, ROLE_APP
 from rusel.base.dir_views import BaseDirView
 from rusel.files import storage_path, service_path
 from photo.config import app_config
@@ -22,6 +22,20 @@ class FolderView(BaseDirView):
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
         self.template_name = 'photo/folder.html'
+
+    def get(self, request, *args, **kwargs):
+        query = None
+        folder = ''
+        if (self.request.method == 'GET'):
+            query = self.request.GET.get('q')
+            folder = self.request.GET.get('folder')
+        if query:
+            if folder:
+                folder = '&folder=' + folder
+            else:
+                folder = ''
+            return HttpResponseRedirect(reverse('index') + '?app=' + APP_PHOTO + folder + '&q=' + query)
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         self.store_dir = photo_storage(self.request.user)

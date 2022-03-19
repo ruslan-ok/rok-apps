@@ -1,7 +1,7 @@
 import urllib.parse, mimetypes
-from django.http import FileResponse, HttpResponseNotFound
+from django.http import FileResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.urls import reverse
-from task.const import ROLE_DOC, ROLE_APP
+from task.const import APP_DOCS, ROLE_DOC, ROLE_APP
 from rusel.base.dir_views import BaseDirView
 from rusel.files import storage_path
 from docs.config import app_config
@@ -13,6 +13,20 @@ class FolderView(BaseDirView):
     def __init__(self, *args, **kwargs):
         self.template_name = 'docs/folder.html'
         super().__init__(app_config, role, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        query = None
+        folder = ''
+        if (self.request.method == 'GET'):
+            query = self.request.GET.get('q')
+            folder = self.request.GET.get('folder')
+        if query:
+            if folder:
+                folder = '&folder=' + folder
+            else:
+                folder = ''
+            return HttpResponseRedirect(reverse('index') + '?app=' + APP_DOCS + folder + '&q=' + query)
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         self.store_dir = storage_path.format(self.request.user.username) + 'docs/'

@@ -13,6 +13,7 @@ from rusel.apps import get_related_roles
 from rusel.utils import extract_get_params, get_search_mode
 from rusel.base.forms import GroupForm
 from rusel.base.context import Context
+from rusel.search import search_in_files
 from task.const import *
 from task.models import Task, Group, TaskGroup, Urls, GIQ_ADD_TASK, GIQ_DEL_TASK
 
@@ -53,6 +54,9 @@ class BaseListView(ListView, Context, LoginRequiredMixin):
         query = None
         if (self.request.method == 'GET'):
             query = self.request.GET.get('q')
+            app = self.request.GET.get('app')
+            if (app == APP_DOCS or app == APP_PHOTO):
+                return query
         data = self.get_sorted_items(query)
         if self.config.limit_list:
             data = data[:self.config.limit_list]
@@ -102,10 +106,20 @@ class BaseListView(ListView, Context, LoginRequiredMixin):
 
         search_qty = None
         query = None
+        folder = ''
         if (self.request.method == 'GET'):
             query = self.request.GET.get('q')
+            app = self.request.GET.get('app')
+            folder = self.request.GET.get('folder')
         if query:
-            search_qty = len(self.object_list)
+            search_in_files_result = search_in_files(self.request.user, app, folder, query)
+            context['files_list'] = search_in_files_result
+            search_qty = 0
+            if not app:
+                search_qty += len(self.object_list)
+            else:
+                self.object_list = []
+            search_qty += len(search_in_files_result)
         nav_items = self.get_nav_items()
         upd_context = self.get_app_context(self.request.user.id, search_qty, icon=self.config.view_icon, nav_items=nav_items, **kwargs)
         context.update(upd_context)
