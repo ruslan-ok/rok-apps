@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="rusel.by applications">
     <meta name="author" content="Ruslan Akunevich">
-    <title>
+    <input type="hidden" id="id_init_title" value="{% if config.app_title %}{{ config.app_title }}{% if title %} - {% endif %}{% endif %}{% if title %}{{ title }}{% endif %}">
+    <title id="id_page_title">
       {% if config.app_title %}{{ config.app_title }}{% if title %} - {% endif %}{% endif %}{% if title %}{{ title }}{% endif %}
     </title>
     <link rel="icon" type="image/png" href="/static/favicon.ico">
@@ -20,7 +21,7 @@
         <div class="wrapper">
             <header>
                 <button type="button" class="fullscreen" onclick="fullscreen()"><i class="btn bi-fullscreen"></i></button>
-                <h2 class="title">{{ title }}</h2>
+                <h2  id="id_slide_title" class="title">{{ title }}</h2>
                 <button type="button" class="close-slider" onclick="closeSlider('{{ cur_folder }}')"><i class="btn bi-x-lg"></i></button>
             </header>
             <div class="block">

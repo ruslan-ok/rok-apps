@@ -83,7 +83,6 @@ class FolderView(BaseDirView):
                     self.gps_data.append({ 'id': p.id, 'num': num-1, 'lat': str(p.lat), 'lon': str(p.lon), 'name': p.name })
         return self.gps_data
 
-
     def get_view_qty(self, group, nav_item):
         if (group.view_id == 'preview'):
             return len(self.file_list)
