@@ -12,6 +12,7 @@ from api import views_task as api_task
 from api import views_step as api_step
 from api import views_urls as api_urls
 from api import views_profile as api_profile
+from api import views_genea as api_genea
 
 api_router = routers.DefaultRouter()
 api_router.register(r'groups', api_grp.GroupViewSet, basename='group')
@@ -19,6 +20,7 @@ api_router.register(r'tasks', api_task.TaskViewSet, basename='task')
 api_router.register(r'steps', api_step.StepViewSet, basename='step')
 api_router.register(r'urls', api_urls.UrlsViewSet, basename='urls')
 api_router.register(r'profile', api_profile.ProfileViewSet, basename='profile')
+api_router.register(r'genealogy', api_genea.GenealogyViewSet, basename='genealogy')
 
 urlpatterns = i18n_patterns(
     path('', views.ListView.as_view(), name='index'),
@@ -33,6 +35,7 @@ urlpatterns = i18n_patterns(
     path('health/', include('health.urls')),
     path('warr/',   include('warr.urls')),
     path('photo/',  include('photo.urls')),
+    path('genea/',  include('genea.urls')),
     path('account/', include('account.urls')),
     #path('admin/',   admin.site.urls, name='admin'),
     path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),

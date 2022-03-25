@@ -18,6 +18,7 @@ APP_HEALTH = 'health'
 APP_WORK = 'work'
 APP_PHOTO = 'photo'
 APP_ADMIN = 'admin'
+APP_GENEA = 'genea'
 
 APP_ALL = 'all'
 
@@ -38,6 +39,7 @@ APP_NAME = {
     APP_HEALTH: 'health',
     APP_WORK: 'work',
     APP_PHOTO: 'photobank',
+    APP_GENEA: 'genealogy',
     APP_ADMIN: 'administration',
     APP_ALL: 'all applications',
 }
