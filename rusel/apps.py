@@ -9,7 +9,6 @@ APPS = {
     APP_NEWS:    ('newspaper',     '/news/'),
     APP_STORE:   ('key',           '/store/'),
     APP_EXPEN:   ('piggy-bank',    '/expen/'),
-    APP_TRIP:    ('truck',         '/trip/'),
     APP_FUEL:    ('droplet',       '/fuel/'),
     APP_APART:   ('building',      '/bill/'),
     APP_HEALTH:  ('heart',         '/health/'),
@@ -17,6 +16,7 @@ APPS = {
     APP_WARR:    ('award',         '/warr/'),
     APP_PHOTO:   ('image',         '/photo/'),
     APP_WORK:    ('briefcase',     '/work/'),
+    APP_TRIP:    ('truck',         '/trip/'),
     APP_ADMIN:   ('people',        '/admin/'),
 }
 
@@ -89,7 +89,6 @@ def get_app_icon(app):
 def get_related_roles(task, config):
     related_roles = []
     possible_related = []
-    """
     if (config.cur_view_group.determinator != 'group'):
         if (config.cur_view_group.view_id in config.views) and ('relate' in config.views[config.cur_view_group.view_id]):
             for role in config.views[config.cur_view_group.view_id]['relate']:
@@ -99,10 +98,8 @@ def get_related_roles(task, config):
                     #task.app_health, task.app_work, task.app_photo
                     ):
         check_role(related_roles, possible_related, app_role, config, task.id)
-    """
     return related_roles, possible_related
 
-"""
 def check_role(related_roles, possible_related, num_role, config, task_id):
     if (num_role != NONE):
         role = ROLE_BY_NUM[num_role]
@@ -119,4 +116,3 @@ def get_role_href(role, task_id):
     if role in ROLE_BASE:
         return reverse(app + ':' + role + '-item', args=[task_id])
     return reverse(app + ':' + 'item', args=[task_id])
-"""

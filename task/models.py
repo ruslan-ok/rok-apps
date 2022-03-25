@@ -12,6 +12,7 @@ from django.urls import NoReverseMatch
 
 from rest_framework.reverse import reverse
 
+from task import const
 from task.const import *
 from rusel.utils import nice_date
 from rusel.categories import get_categories_list
@@ -514,27 +515,27 @@ class Task(models.Model):
         ret = app + '/' + role + '_' + str(self.id)
         if (app == APP_APART):
             match (role, self.app_apart):
-                case (ROLE_APART, NUM_ROLE_APART):
+                case (const.ROLE_APART, const.NUM_ROLE_APART):
                     ret = APP_APART + '/' + self.name
-                case (ROLE_PRICE, NUM_ROLE_PRICE):
+                case (const.ROLE_PRICE, const.NUM_ROLE_PRICE):
                     ret = APP_APART + '/' + self.task_1.name + '/price/' + APART_SERVICE[self.price_service] + '/' + self.start.strftime('%Y.%m.%d')
-                case (ROLE_METER, NUM_ROLE_METER):
+                case (const.ROLE_METER, const.NUM_ROLE_METER):
                     ret = APP_APART + '/' + self.task_1.name + '/meter/' + str(self.start.year) + '/' + str(self.start.month).zfill(2)
-                case (ROLE_BILL, NUM_ROLE_BILL):
+                case (const.ROLE_BILL, const.NUM_ROLE_BILL):
                     ret = APP_APART + '/' + self.task_1.name + '/bill/' + str(self.start.year) + '/' + str(self.start.month).zfill(2)
         if (app == APP_FUEL):
             match (role, self.app_fuel):
-                case (ROLE_CAR, NUM_ROLE_CAR):
+                case (const.ROLE_CAR, const.NUM_ROLE_CAR):
                     ret = APP_FUEL + '/' + self.name + '/car'
-                case (ROLE_PART, NUM_ROLE_PART):
+                case (const.ROLE_PART, const.NUM_ROLE_PART):
                     ret = APP_FUEL + '/' + self.task_1.name + '/part/' + self.name
-                case (ROLE_SERVICE, NUM_ROLE_SERVICE):
+                case (const.ROLE_SERVICE, const.NUM_ROLE_SERVICE):
                     ret = APP_FUEL + '/' + self.task_1.name + '/service/' + self.task_2.name + '/' + self.event.strftime('%Y.%m.%d')
-                case (ROLE_FUEL, NUM_ROLE_FUEL):
+                case (const.ROLE_FUEL, const.NUM_ROLE_FUEL):
                     ret = APP_FUEL + '/' + self.task_1.name + '/fuel/' + self.event.strftime('%Y.%m.%d')
         if (app == APP_WARR):
             match (role, self.app_warr):
-                case (ROLE_WARR, NUM_ROLE_WARR):
+                case (const.ROLE_WARR, const.NUM_ROLE_WARR):
                     ret = APP_WARR + '/' + self.name.replace('/', '_').replace('\\', '_').replace(':', '_').replace('*', '_').replace('?', '_').replace('«', '_').replace('<', '_').replace('>', '_').replace('|', '_')
                     
         return storage_path.format(self.user.username) + 'attachments/' + ret + '/'
@@ -952,8 +953,11 @@ class Urls(models.Model):
                         al = n.text
                         start = al.find('<title>')
                         stop = al.find('</title>')
-                        if (start > 0) and (stop > start) and (stop < 190):
-                            self.title = al[start+7:stop]
+                        if (start > 0) and (stop > start):
+                            if ((stop - start) < 190):
+                                self.title = al[start+7:stop]
+                            else:
+                                self.title = al[start+7:start+190] + '...'
                             self.ststus = 4
             self.save()
         if (self.hostname and self.title):
