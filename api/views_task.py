@@ -11,7 +11,6 @@ from rest_framework.response import Response
 from task.const import *
 from task.models import Task, Group, TaskGroup, GIQ_ADD_TASK, GIQ_DEL_TASK
 from todo.models import Subscription
-from rusel.files import storage_path
 from rusel.utils import nice_date
 from api.serializers import TaskSerializer
 
@@ -24,7 +23,6 @@ from fuel.views.serv import add_serv
 from health.views.marker import add_item as add_marker
 from store.views import add_item as add_store
 
-from todo.get_info import get_info as todo_get_info
 from note.get_info import get_info as note_get_info
 from news.get_info import get_info as news_get_info
 from store.get_info import get_info as store_get_info
@@ -33,6 +31,7 @@ from apart.views.price import get_info as price_get_info
 from apart.views.meter import get_info as meter_get_info
 from apart.views.bill import get_info as bill_get_info
 from health.views.incident import get_info as incident_get_info
+from warr.views import get_info as warr_get_info
 
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
@@ -58,7 +57,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     
     def _get_info(self, task):
         if (task.app_task == NUM_ROLE_TODO):
-            task.set_item_attr(APP_TODO, todo_get_info(task))
+            task.set_item_attr(APP_TODO, task.get_info())
         if (task.app_note == NUM_ROLE_NOTE):
             task.set_item_attr(APP_NOTE, note_get_info(task))
         if (task.app_news == NUM_ROLE_NEWS):
@@ -75,6 +74,8 @@ class TaskViewSet(viewsets.ModelViewSet):
             task.set_item_attr(APP_APART, bill_get_info(task))
         if (task.app_apart == NUM_ROLE_INCIDENT):
             task.set_item_attr(APP_HEALTH, incident_get_info(task))
+        if (task.app_warr == NUM_ROLE_WARR):
+            task.set_item_attr(APP_WARR, warr_get_info(task))
     
     @action(detail=False)
     def get_info(self, request, pk=None):
@@ -110,6 +111,10 @@ class TaskViewSet(viewsets.ModelViewSet):
         service_id = 0
         if 'service_id' in self.request.query_params:
             service_id = int(self.request.query_params['service_id'])
+        task = None
+        part_id = 0
+        if 'part_id' in self.request.query_params:
+            part_id = int(self.request.query_params['part_id'])
         task = None
         message = ''
         ani = Task.get_active_nav_item(request.user.id, app)
@@ -147,9 +152,9 @@ class TaskViewSet(viewsets.ModelViewSet):
         if (app == APP_FUEL) and (role == ROLE_FUEL):
             task = add_fuel(request.user, ani)
         if (app == APP_FUEL) and (role == ROLE_PART):
-            task = add_part(request.user, ani)
+            task = add_part(request.user, ani, name)
         if (app == APP_FUEL) and (role == ROLE_SERVICE):
-            task = add_serv(request.user, ani)
+            task = add_serv(request.user, ani, part_id)
         if (app == APP_APART) and (role == ROLE_APART):
             task = Task.objects.create(user=request.user, app_apart=NUM_ROLE_APART, name=name, event=datetime.now())
         if (app == APP_APART) and (role == ROLE_METER):
@@ -233,7 +238,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         self.save(task)
         mess = None
         if next_task:
-            next_task.set_item_attr(APP_TODO, todo_get_info(next_task))
+            next_task.set_item_attr(APP_TODO, next_task.get_info())
             mess = _('replanned to ' + nice_date(next_task.stop))
         serializer = TaskSerializer(instance=task, context={'request': request})
         return Response({'data': serializer.data, 'info': mess})
@@ -296,7 +301,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         role = self.request.query_params['role']
         fname = self.request.query_params['fname']
         task = self.get_object()
-        path = storage_path.format(self.request.user.id) + 'attachments/{}/{}_{}/'.format(app, role, task.id)
+        path = task.get_attach_path(app, role)
         if not os.path.isfile(path + fname[4:]):
             return Response({'Error': "The specified file does not exist."},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -641,7 +646,7 @@ class TaskViewSet(viewsets.ModelViewSet):
 
     def save(self, task):
         task.save()
-        task.set_item_attr(APP_TODO, todo_get_info(task))
+        task.set_item_attr(APP_TODO, task.get_info())
 
     @action(detail=False)
     def reminder_ripe(self, request, pk=None):

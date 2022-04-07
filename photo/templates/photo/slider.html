@@ -1,0 +1,56 @@
+{% load static i18n %}
+<!doctype html>
+<html lang="en" class="h-100">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="rusel.by applications">
+    <meta name="author" content="Ruslan Akunevich">
+    <input type="hidden" id="id_init_title" value="{% if config.app_title %}{{ config.app_title }}{% if title %} - {% endif %}{% endif %}{% if title %}{{ title }}{% endif %}">
+    <title id="id_page_title">
+      {% if config.app_title %}{{ config.app_title }}{% if title %} - {% endif %}{% endif %}{% if title %}{{ title }}{% endif %}
+    </title>
+    <link rel="icon" type="image/png" href="/static/favicon.ico">
+    <link href="https://unpkg.com/swiper@8/swiper-bundle.min.css" rel="stylesheet">
+    <link href="{% static 'scss/photo_slider.css' %}" rel="stylesheet">
+    <link href="{% static 'font/bootstrap-icons.css' %}" rel="stylesheet">
+    {% block extrastyle %}{% endblock %}
+  </head>
+  <body>
+    {% block content %}
+        <div class="wrapper">
+            <header>
+                <button type="button" class="fullscreen" onclick="fullscreen()"><i class="btn bi-fullscreen"></i></button>
+                <h2  id="id_slide_title" class="title">{{ title }}</h2>
+                <button type="button" class="close-slider" onclick="closeSlider('{{ cur_folder }}')"><i class="btn bi-x-lg"></i></button>
+            </header>
+            <div class="block">
+                <!-- <div class="block__side"></div> -->
+                <div class="block__body">
+                    <div class="image-slider swiper-container">
+                        <div class="image-slider__wrapper swiper-wrapper">
+                            {% for file in file_list %}
+                                <div data-hash="photo-{{ forloop.counter0 }}" class="image-slider__slide swiper-slide">
+                                    <div class="image-slider__image">
+                                        <img src="/photo/image/?folder={{ cur_folder }}&file={{ file }}" alt="{{ file }}">
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="swiper-button-next"></div>
+                        <div class="swiper-button-prev"></div>
+                        <div class="swiper-pagination"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" 
+      integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" 
+      crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
+    <script src="{% static 'js/photo_slider.js' %}"></script>
+    {% block extrascript %}{% endblock %}
+  </body>
+</html>

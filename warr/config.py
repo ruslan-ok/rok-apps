@@ -4,16 +4,25 @@ app_config = {
     'name': APP_WARR,
     'app_title': 'warranties',
     'icon': 'award',
-    'main_view': 'all',
+    'main_view': 'active',
     'use_groups': True,
+    'role': ROLE_WARR,
     'sort': [
+        ('stop', 'termin'),
         ('name', 'name'),
     ],
     'views': {
-        'all': {
-            'role': ROLE_WARR,
+        'active': {
             'icon': 'award', 
-            'title': 'warranties',
+            'title': 'active warranties',
+        },
+        'expired': {
+            'icon': 'award', 
+            'title': 'expired warranties',
+        },
+        'all': {
+            'icon': 'award', 
+            'title': 'all warranties',
         },
     }
 }

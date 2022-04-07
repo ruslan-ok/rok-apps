@@ -35,8 +35,8 @@ class Checker():
                 stat_process(self.log)
             if todo_ripe(self.log):
                 todo_process(self.log)
-        except:
-            self.log('[x] Checker.check() [service.py] Exception: ' + str(sys.exc_info()[0]))
+        except Exception as e:
+            self.log('[x] Checker.check() [service.py] Exception: ' + str(e)) #str(sys.exc_info()[0]))
 
 if (__name__ == '__main__'):
     checker = Checker()

@@ -5,3 +5,8 @@
   {{ block.super }}
   <link href="{% static 'scss/fuel.css' %}" rel="stylesheet">
 {% endblock %}
+
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'js/fuel.js' %}"></script>
+{% endblock %}

@@ -1,6 +1,5 @@
 import os
 from django.core.files.storage import FileSystemStorage
-from django.http import FileResponse, HttpResponseNotFound
 from rusel.secret import storage_dvlp, storage_prod, service_dvlp, service_prod, folder_dvlp, folder_prod
 
 folder_path  = folder_dvlp
@@ -77,30 +76,19 @@ class File():
             num /= 1024.0
         return "%.1f%s%s" % (num, 'Yi', suffix)
 
-def get_files_list(user, app, role, item_id):
-    ret = []
-    fss_path = storage_path.format(user.id) + 'attachments/' + app + '/' + role + '_' + str(item_id) + '/'
-    fs = FileSystemStorage(location = fss_path, base_url = file_storage_url)
+def get_files_list_by_path(path):
+    fs = FileSystemStorage(location=path, base_url=file_storage_url)
     try:
+        ret = []
         npp = 1
         for fname in fs.listdir('')[1]:
             name = os.path.splitext(fname)[0]
             ext = os.path.splitext(fname)[1][1:]
-            size = os.path.getsize(fss_path + fname)
+            size = os.path.getsize(path + fname)
             url = file_storage_url + fname
             fl = File(npp, name, ext, size, url)
             npp += 1
             ret.append(fl)
+        return ret
     except FileNotFoundError:
-        pass
-    return ret
-
-def get_app_doc(app, role, request, pk, fname):
-    path = storage_path.format(request.user.id) + 'attachments/' + app + '/' + role + '_{}/'.format(pk)
-    try:
-        fsock = open(path + fname, 'rb')
-        return FileResponse(fsock)
-    except IOError:
-        return HttpResponseNotFound()
-
-
+        return []

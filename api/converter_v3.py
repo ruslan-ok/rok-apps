@@ -10,7 +10,6 @@ from fuel.models import Car, Fuel, Part, Repl
 from trip.models import Person, Trip
 from health.models import Biomarker, Incident
 from task.const import *
-from todo.get_info import get_info as todo_get_info
 from note.get_info import get_info as note_get_info
 from news.get_info import get_info as news_get_info
 from apart.views.apart import get_info as apart_get_info
@@ -29,16 +28,13 @@ from health.views.marker import get_info as marker_get_info
 from fuel.views.fuel import get_item_name as get_fuel_name
 from fuel.views.serv import get_item_name as get_serv_name
 from health.views.marker import get_item_name as get_marker_name
-
-from rusel.secret import storage_dvlp #, storage_prod, service_dvlp, service_prod, folder_dvlp, folder_prod
-
-storage_path = storage_dvlp
+from rusel.files import storage_path
 
 STAGES = {
     APP_TODO:   0,
     APP_NOTE:   0,
     APP_NEWS:   0,
-    APP_STORE:  1,
+    APP_STORE:  0,
     APP_EXPEN:  0,
     APP_TRIP:   0,
     APP_FUEL:   0,
@@ -255,8 +251,8 @@ def transfer_task(result, lst, task_grp):
         
         check_grp(result, APP_TODO, ROLE_TODO, atask, task_grp)
         check_url(result, APP_TODO, ROLE_TODO, task, task.url)
-        copy_attachments(task.user.id, 'todo', 'task', task.id, APP_TODO, ROLE_TODO, atask.id)
-        atask.set_item_attr(APP_TODO, todo_get_info(atask))
+        copy_attachments(task.user.id, 'todo', 'task', task.id, APP_TODO, ROLE_TODO, atask)
+        atask.set_item_attr(APP_TODO, atask.get_info())
 
 def transfer_note(result, app, role, lst, task_grp):
     notes = Note.objects.filter(lst=lst)
@@ -284,7 +280,7 @@ def transfer_note(result, app, role, lst, task_grp):
         inc(result, app, role, 'Task', 'added')
         check_grp(result, app, role, atask, task_grp)
         check_url(result, app, role, atask, note.url)
-        copy_attachments(note.user.id, 'note', note.kind, note.id, APP_NOTE, ROLE_NOTE, atask.id)
+        copy_attachments(note.user.id, 'note', note.kind, note.id, APP_NOTE, ROLE_NOTE, atask)
         if note.kind == 'note':
             atask.set_item_attr(APP_NOTE, note_get_info(atask))
         else:
@@ -387,7 +383,7 @@ def transfer_bill(result):
         inc(result, APP_APART, ROLE_BILL, 'Task', 'added')
         
         check_url(result, APP_APART, ROLE_BILL, atask, item.url)
-        copy_attachments(item.apart.user.id, 'apart', 'bill', item.id, APP_APART, ROLE_BILL, atask.id)
+        copy_attachments(item.apart.user.id, 'apart', 'bill', item.id, APP_APART, ROLE_BILL, atask)
         atask.set_item_attr(APP_APART, bill_get_info(atask))
 
 def transfer_store(result, lst, task_grp):
@@ -675,11 +671,11 @@ def check_url(result, app, role, task, href):
         Urls.objects.create(task=task, num=num, href=href)
         inc(result, app, role, 'Urls', 'added')
 
-def copy_attachments(user_id, src_app, src_role, src_item_id, dst_app, dst_role, dst_item_id):
-    src_path = storage_path.format(user_id) + '{}/{}_{}/'.format(src_app, src_role, src_item_id)
+def copy_attachments(user, src_app, src_role, src_item_id, dst_app, dst_role, dst_item):
+    src_path = storage_path.format('user_' + str(user.id)) + '{}/{}_{}/'.format(src_app, src_role, src_item_id)
     if not os.path.exists(src_path):
         return
-    dst_path = storage_path.format(user_id) + 'attachments/{}/{}_{}/'.format(dst_app, dst_role, dst_item_id)
+    dst_path = dst_item.get_attach_path(dst_app, dst_role)
     os.makedirs(os.path.dirname(dst_path), exist_ok=True)
     src_files = os.listdir(src_path)
     for file_name in src_files:

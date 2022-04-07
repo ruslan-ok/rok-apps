@@ -4,7 +4,6 @@ from rest_framework.response import Response
 
 from task.models import Step
 from api.serializers import StepSerializer
-from todo.get_info import get_info as todo_get_info
 from task.const import *
 
 class StepViewSet(viewsets.ModelViewSet):
@@ -28,14 +27,14 @@ class StepViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         task = instance.task
         instance.delete()
-        task.set_item_attr(APP_TODO, todo_get_info(task))
+        task.set_item_attr(APP_TODO, task.get_info())
     
     @action(detail=True)
     def complete(self, request, pk=None):
         step = self.get_object()
         step.completed = not step.completed
         step.save()
-        step.task.set_item_attr(APP_TODO, todo_get_info(step.task))
+        step.task.set_item_attr(APP_TODO, step.task.get_info())
         serializer = StepSerializer(instance=step, context={'request': request})
         return Response(serializer.data)
     

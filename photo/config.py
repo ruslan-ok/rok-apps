@@ -4,16 +4,20 @@ app_config = {
     'name': APP_PHOTO,
     'app_title': 'photo bank',
     'icon': 'image',
-    'main_view': 'root',
+    'main_view': 'preview',
     'use_groups': True,
+    'role': ROLE_PHOTO,
     'sort': [
         ('name', 'name'),
     ],
     'views': {
-        'root': {
-            'role': ROLE_PHOTO,
-            'icon': 'image', 
-            'title': 'all photos',
+        'preview': {
+            'icon': 'images', 
+            'title': 'photo preview',
+        },
+        'map': {
+            'icon': 'geo-alt', 
+            'title': 'on the map',
         },
     }
 }

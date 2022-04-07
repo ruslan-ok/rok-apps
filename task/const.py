@@ -18,6 +18,7 @@ APP_HEALTH = 'health'
 APP_WORK = 'work'
 APP_PHOTO = 'photo'
 APP_ADMIN = 'admin'
+APP_GENEA = 'genea'
 
 APP_ALL = 'all'
 
@@ -38,9 +39,12 @@ APP_NAME = {
     APP_HEALTH: 'health',
     APP_WORK: 'work',
     APP_PHOTO: 'photobank',
+    APP_GENEA: 'genealogy',
     APP_ADMIN: 'administration',
     APP_ALL: 'all applications',
 }
+
+FOLDER_NAV_APPS = [APP_PHOTO, APP_DOCS, APP_WARR]
 
 """
 Kinds of Entities that can be combined into Group
@@ -410,3 +414,27 @@ ROLE_APP = {
     ROLE_ACCOUNT: APP_HOME,
     ROLE_SEARCH_RESULTS: NONE,
 }
+
+APART_SERVICE = [
+    'не задано',
+    'электроснабжение',
+    'газоснабжение',
+    'вода',
+    'водоснабжение',
+    'водоотведение',
+    'не задано',
+    '!?-7',
+    '!?-8',
+    'kill',
+    'электроснабжение',
+    '!?-11',
+    'kill-1',
+    'kill-3',
+    'kill-2',
+    '!?-15',
+    'членские взносы',
+    '!?-17',
+    '!?-18',
+    '!?-19',
+    '!?-20',
+]

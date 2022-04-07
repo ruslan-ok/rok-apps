@@ -15,11 +15,11 @@
 
     {% if config.get_cur_role == 'search' %}
       {% for role in item.get_roles %}
-        <a href="{{ role.href|escape }}{{ params }}" class="left-icon"><i class="bi-{{ role.icon }}"></i></a>
+        <a href="{{ role.href|escape }}{% if not role.hide_params %}{{ params }}{% endif %}" class="left-icon"><i class="bi-{{ role.icon }}"></i></a>
       {% endfor %}
     {% endif %}
 
-    <a href="{{ item.get_absolute_url|escape }}{{ params }}" class="container">
+    <a href="{{ item.get_absolute_url|escape }}{% if not item.hide_params %}{{ params }}{% endif %}" class="container">
       <div class="info">
         <span class="name{% if item.completed %} completed{% endif %}">
           {% if config.event_in_name %}{{ item.event|date:"j M Y" }}{% if item.name %} - {% endif %}{% endif %}
@@ -31,7 +31,7 @@
               {% if config.cur_view_group.determinator == 'role' or config.cur_view_group.determinator == 'view' %}
                 {% if v.group %}
                   <div class="inline">
-                    <div class="label"><span>{{ v.group }}</span></div>
+                    <div class="label"><span>{{ v.group|safe }}</span></div>
                     {% if v.attr %}
                       <i class="bi-dot"></i>
                     {% endif %}
@@ -46,6 +46,8 @@
                     <i class="bi-circle"></i>
                   {% elif attr.icon == "notes" %}
                     <i class="bi-sticky"></i>
+                  {% elif attr.icon == "folder" %}
+                    <i class="bi-folder2"></i>
                   {% elif attr.icon == "remind" %}
                     {% if item.remind_active %}
                       <i class="bi-bell"></i>

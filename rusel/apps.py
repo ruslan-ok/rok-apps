@@ -9,14 +9,15 @@ APPS = {
     APP_NEWS:    ('newspaper',     '/news/'),
     APP_STORE:   ('key',           '/store/'),
     APP_EXPEN:   ('piggy-bank',    '/expen/'),
-    APP_TRIP:    ('truck',         '/trip/'),
     APP_FUEL:    ('droplet',       '/fuel/'),
     APP_APART:   ('building',      '/bill/'),
     APP_HEALTH:  ('heart',         '/health/'),
     APP_DOCS:    ('file-text',     '/docs/'),
     APP_WARR:    ('award',         '/warr/'),
     APP_PHOTO:   ('image',         '/photo/'),
+    APP_GENEA:   ('diagram-3',     '/genea/'),
     APP_WORK:    ('briefcase',     '/work/'),
+    APP_TRIP:    ('truck',         '/trip/'),
     APP_ADMIN:   ('people',        '/admin/'),
 }
 
@@ -47,6 +48,8 @@ def _get_app_human_name(app):
         return _('work')
     if (app == APP_PHOTO):
         return _('photobank')
+    if (app == APP_GENEA):
+        return _('family tree')
     if (app == APP_HEALTH):
         return _('health')
     if (app == APP_ADMIN):
@@ -64,7 +67,7 @@ def get_app_human_name(app):
 def get_apps_list(user, current):
     apps = []
     for app in APPS:
-        if (app in (APP_STORE, APP_TRIP, APP_APART, APP_WORK, APP_HEALTH, APP_WARR, APP_DOCS, APP_PHOTO)) and (user.username != 'ruslan.ok'):
+        if (app in (APP_STORE, APP_TRIP, APP_APART, APP_WORK, APP_HEALTH, APP_WARR, APP_DOCS, APP_PHOTO, APP_GENEA)) and (user.username != 'ruslan.ok'):
             continue
         if (app == APP_ADMIN) and (user.username != 'admin'):
             continue
@@ -89,7 +92,6 @@ def get_app_icon(app):
 def get_related_roles(task, config):
     related_roles = []
     possible_related = []
-    """
     if (config.cur_view_group.determinator != 'group'):
         if (config.cur_view_group.view_id in config.views) and ('relate' in config.views[config.cur_view_group.view_id]):
             for role in config.views[config.cur_view_group.view_id]['relate']:
@@ -99,10 +101,8 @@ def get_related_roles(task, config):
                     #task.app_health, task.app_work, task.app_photo
                     ):
         check_role(related_roles, possible_related, app_role, config, task.id)
-    """
     return related_roles, possible_related
 
-"""
 def check_role(related_roles, possible_related, num_role, config, task_id):
     if (num_role != NONE):
         role = ROLE_BY_NUM[num_role]
@@ -119,4 +119,3 @@ def get_role_href(role, task_id):
     if role in ROLE_BASE:
         return reverse(app + ':' + role + '-item', args=[task_id])
     return reverse(app + ':' + 'item', args=[task_id])
-"""

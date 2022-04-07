@@ -62,7 +62,7 @@ app_config = {
                 ('important', 'important'),
                 ('in_my_day', 'my day'),
             ],
-      },
+        },
         'completed': {
             'icon': 'check2-circle',
             'title': 'completed tasks',

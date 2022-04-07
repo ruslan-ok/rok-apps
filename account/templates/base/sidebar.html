@@ -32,7 +32,7 @@
                             <div>
                                 <i type="button" role="button" class="bi-dot icon invisible level-{{ dir.level }}"></i>
                                 <i class="bi-folder2"></i>
-                                <a href="{{ list_href }}?folder={{ dir.node }}{% if dir.node %}/{% endif %}{{ dir.name }}">
+                                <a href="{{ list_href }}?{% if cur_view %}view={{ cur_view }}&{% endif %}folder={{ dir.node }}{% if dir.node %}/{% endif %}{{ dir.name }}">
                                     {{ dir.name }}</a>
                             </div>
                             <span class="qty">{% if dir.qty %}{{ dir.qty }}{% endif %}</span>
@@ -71,7 +71,7 @@
                 </div>
             {% endif %}
             <hr>
-            <div class="add-form position-sticky bottom-0 px-3 py-3">
+            <div class="add-form position-sticky bottom-0 px-3 py-3 d-flex flex-nowrap">
                 <button type="button" class="btn btn-primary bi-plus-lg add-form__button" id="add_group_btn_id" onclick="addGroup('{{ config.app }}','{{ config.get_cur_role }}','{{ config.group_entity }}')"></button>
                 <input type="text" class="add-form__input" placeholder="{% trans 'create '|capfirst %}{{ config.group_entity }}" name="name" id="new_group_id">
             </div>

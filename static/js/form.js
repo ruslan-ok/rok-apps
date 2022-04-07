@@ -578,3 +578,10 @@ function checkCompleted(mode) {
     }
 }
 
+function toggleNegative(fieldId) {
+    fld = document.getElementById(fieldId);
+    if (!fld.value)
+        fld.value = '-1';
+    else
+        fld.value = (-1 * Number(fld.value)).toFixed(3);
+}

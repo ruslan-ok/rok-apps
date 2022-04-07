@@ -53,6 +53,9 @@
       {% for item in object_list %}
         {% include "base/item.html" %}
       {% endfor %}
+      {% for item in files_list %}
+        {% include "base/item.html" %}
+      {% endfor %}
     </ul>
   {% endif %}
 

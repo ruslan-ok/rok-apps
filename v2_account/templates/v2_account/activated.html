@@ -1,9 +1,0 @@
-{% extends "base_dialog.html" %}
-{% load i18n %}
-{% block content %}
- 
-  <div class="logout">
-    <p>{% trans 'Account activated! Please ' %}<a href="{% url 'v2_account:login' %}">{% trans 'login' %}</a>.</p>
-  </div>
- 
-{% endblock %}

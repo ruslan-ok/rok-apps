@@ -202,14 +202,14 @@ def do_main(request, restriction, pk = None, art_vis = False):
     context['gps_data'] = gps_data
 
     fixes = []
-    fixes.append(Fix('main', _('thumbnails').capitalize(), 'v2/rok/icon/all.png', '/photo/', len(data)))
-    fixes.append(Fix('map', _('on the map').capitalize(), 'v2/todo/icon/map.png', '/photo/map/', len(gps_data)))
+    fixes.append(Fix('main', _('thumbnails').capitalize(), 'v2/rok/icon/all.png', '/v2_photo/', len(data)))
+    fixes.append(Fix('map', _('on the map').capitalize(), 'v2/todo/icon/map.png', '/v2_photo/map/', len(gps_data)))
     context['fix_list'] = fixes
 
     bread_crumbs = []
     crumbs = app_param.content.split('/')
     if ((len(crumbs) > 0) and crumbs[0]) or (restriction == 'one'):
-        bread_crumbs.append({ 'url': '/photo/rise/0/', 'name': '[{}]'.format(_('photobank').capitalize()) })
+        bread_crumbs.append({ 'url': '/v2_photo/rise/0/', 'name': '[{}]'.format(_('photobank').capitalize()) })
 
     level = 1
     for crumb in crumbs:
@@ -218,7 +218,7 @@ def do_main(request, restriction, pk = None, art_vis = False):
         if (level == len(crumbs)) and (restriction != 'one'):
             context['title'] = crumb
         else:
-            url = '/photo/rise/{}/'.format(level)
+            url = '/v2_photo/rise/{}/'.format(level)
             bread_crumbs.append({ 'url': url, 'name': crumb })
         level += 1
     context['bread_crumbs'] = bread_crumbs
@@ -244,9 +244,11 @@ def get_name_from_request(request):
 #----------------------------------
 def get_storage(user, folder, service = False):
     if service:
-        path = service_path.format(user.id) + '{}/'.format(folder)
+        path = service_path.format(user.username) + '{}/'.format(folder)
     else:
-        path = storage_path.format(user.id) + '{}/'.format(folder)
+        path = storage_path.format(user.username) + '{}/'.format(folder)
+        if (service_path[0] == 'z'):
+            path = path.replace('c:/web', 'z:')
     pathlib.Path(path).mkdir(parents=True, exist_ok=True)
     return path
 

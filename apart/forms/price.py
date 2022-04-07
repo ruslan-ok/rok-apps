@@ -3,35 +3,11 @@ from django.utils.translation import gettext_lazy as _
 
 from rusel.base.forms import BaseCreateForm, BaseEditForm
 from rusel.widgets import DateInput, Select, NumberInput, UrlsInput
-from task.const import NUM_ROLE_SERVICE
+from task.const import NUM_ROLE_SERVICE, APART_SERVICE
 from task.models import Task
 from apart.config import app_config
 
 role = 'price'
-
-APART_SERVICE = [
-    'не задано',
-    'электроснабжение',
-    'газоснабжение',
-    'вода',
-    'водоснабжение',
-    'водоотведение',
-    'не задано',
-    '!?-7',
-    '!?-8',
-    'kill',
-    'электроснабжение',
-    '!?-11',
-    'kill-1',
-    'kill-3',
-    'kill-2',
-    '!?-15',
-    'членские взносы',
-    '!?-17',
-    '!?-18',
-    '!?-19',
-    '!?-20',
-]
 
 #----------------------------------
 class CreateForm(BaseCreateForm):

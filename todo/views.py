@@ -2,12 +2,11 @@ from datetime import datetime, date, timedelta
 from django.utils.translation import gettext_lazy as _
 from task.const import APP_TODO, ROLE_TODO
 from task.models import Task, Step
-from rusel.files import get_app_doc
+from rusel.app_doc import get_app_doc
 from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView
 from rusel.utils import nice_date
 from todo.forms import CreateForm, EditForm
 from todo.config import app_config
-from todo.get_info import get_info
 
 app = APP_TODO
 role = ROLE_TODO
@@ -73,7 +72,7 @@ class DetailView(BaseDetailView, TuneData):
         response = super().form_valid(form)
         if ('add_step' in form.changed_data):
             step = Step.objects.create(user = form.instance.user, name = self.request.POST['add_step'], task = form.instance)
-        form.instance.set_item_attr(app, get_info(form.instance))
+        form.instance.set_item_attr(app, form.instance.get_info())
         return response
 
 

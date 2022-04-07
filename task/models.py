@@ -12,8 +12,15 @@ from django.urls import NoReverseMatch
 
 from rest_framework.reverse import reverse
 
+from task import const
 from task.const import *
 from rusel.utils import nice_date
+from rusel.categories import get_categories_list
+from rusel.files import get_files_list_by_path
+from rusel.secret import storage_dvlp
+
+storage_path = storage_dvlp
+
 
 class Group(models.Model):
     """
@@ -166,6 +173,27 @@ class Group(models.Model):
                 self.act_items_qty = qnt
                 self.save()
 
+def detect_group(user, app, determinator, view_id, name):
+    group = None
+    if (determinator == 'group'):
+        if Group.objects.filter(user=user.id, app=app, id=int(view_id)).exists():
+            group = Group.objects.filter(user=user.id, app=app, id=int(view_id)).get()
+    if (determinator == 'role'):
+        if Group.objects.filter(user=user.id, app=app, determinator='role', view_id=view_id).exists():
+            group = Group.objects.filter(user=user.id, app=app, determinator='role', view_id=view_id).get()
+    if (determinator == 'view'):
+        if Group.objects.filter(user=user.id, app=app, determinator='view', view_id=view_id).exists():
+            group = Group.objects.filter(user=user.id, app=app, determinator='view', view_id=view_id).get()
+    if not group and (determinator != 'group'):
+        group = Group.objects.create(
+            user=user, 
+            app=app, 
+            determinator=determinator, 
+            view_id=view_id,
+            name=name,
+            act_items_qty=0,
+            use_sub_groups=True,)
+    return group
 
 class Task(models.Model):
     """
@@ -289,6 +317,8 @@ class Task(models.Model):
     bio_systolic = models.IntegerField(_('systolic blood pressure'), blank=True, null=True)
     bio_diastolic = models.IntegerField(_('diastolic blood pressure'), blank=True, null=True)
     bio_pulse = models.IntegerField(_('the number of heartbeats per minute'), blank=True, null=True)
+    #------------- Warranty --------------
+    months = models.IntegerField(_('warranty termin, months'), blank=True, null=True, default=12)
     # -------------
     class Meta:
         verbose_name = _('task')
@@ -475,10 +505,99 @@ class Task(models.Model):
                     start=self.start, stop=next, important=self.important,
                     remind=self.next_remind_time(), repeat=self.repeat, repeat_num=self.repeat_num,
                     repeat_days=self.repeat_days, categories=self.categories, info=self.info)
+                next_task.set_item_attr(APP_TODO, next_task.get_info(ROLE_TODO))
                 if TaskGroup.objects.filter(task=self.id, role=ROLE_TODO).exists():
                     group = TaskGroup.objects.filter(task=self.id, role=ROLE_TODO).get().group
                     next_task.correct_groups_qty(GIQ_ADD_TASK, group.id)
         return next_task
+
+    def get_attach_path(self, app, role):
+        ret = app + '/' + role + '_' + str(self.id)
+        if (app == APP_APART):
+            match (role, self.app_apart):
+                case (const.ROLE_APART, const.NUM_ROLE_APART):
+                    ret = APP_APART + '/' + self.name
+                case (const.ROLE_PRICE, const.NUM_ROLE_PRICE):
+                    ret = APP_APART + '/' + self.task_1.name + '/price/' + APART_SERVICE[self.price_service] + '/' + self.start.strftime('%Y.%m.%d')
+                case (const.ROLE_METER, const.NUM_ROLE_METER):
+                    ret = APP_APART + '/' + self.task_1.name + '/meter/' + str(self.start.year) + '/' + str(self.start.month).zfill(2)
+                case (const.ROLE_BILL, const.NUM_ROLE_BILL):
+                    ret = APP_APART + '/' + self.task_1.name + '/bill/' + str(self.start.year) + '/' + str(self.start.month).zfill(2)
+        if (app == APP_FUEL):
+            match (role, self.app_fuel):
+                case (const.ROLE_CAR, const.NUM_ROLE_CAR):
+                    ret = APP_FUEL + '/' + self.name + '/car'
+                case (const.ROLE_PART, const.NUM_ROLE_PART):
+                    ret = APP_FUEL + '/' + self.task_1.name + '/part/' + self.name
+                case (const.ROLE_SERVICE, const.NUM_ROLE_SERVICE):
+                    ret = APP_FUEL + '/' + self.task_1.name + '/service/' + self.task_2.name + '/' + self.event.strftime('%Y.%m.%d')
+                case (const.ROLE_FUEL, const.NUM_ROLE_FUEL):
+                    ret = APP_FUEL + '/' + self.task_1.name + '/fuel/' + self.event.strftime('%Y.%m.%d')
+        if (app == APP_WARR):
+            match (role, self.app_warr):
+                case (const.ROLE_WARR, const.NUM_ROLE_WARR):
+                    ret = APP_WARR + '/' + self.name.replace('/', '_').replace('\\', '_').replace(':', '_').replace('*', '_').replace('?', '_').replace('«', '_').replace('<', '_').replace('>', '_').replace('|', '_')
+                    
+        return storage_path.format(self.user.username) + 'attachments/' + ret + '/'
+
+    def get_files_list(self, app, role):
+        fss_path = self.get_attach_path(app, role)
+        return get_files_list_by_path(fss_path)
+
+    def get_info(self, role=ROLE_TODO):
+        ret = {'attr': []}
+        
+        if TaskGroup.objects.filter(task=self.id, role=role).exists():
+            ret['group'] = TaskGroup.objects.filter(task=self.id, role=role).get().group.name
+
+        if self.in_my_day:
+            ret['attr'].append({'myday': True})
+
+        step_total = 0
+        step_completed = 0
+        for step in Step.objects.filter(task=self.id):
+            step_total += 1
+            if step.completed:
+                step_completed += 1
+        if (step_total > 0):
+            if (len(ret['attr']) > 0):
+                ret['attr'].append({'icon': 'separator'})
+            ret['attr'].append({'text': '{} {} {}'.format(step_completed, _('out of'), step_total)})
+
+        if self.stop:
+            ret['attr'].append({'termin': True})
+
+        links = len(Urls.objects.filter(task=self.id)) > 0
+        files = (len(self.get_files_list(APP_TODO, role)) > 0)
+
+        if (self.remind != None) or self.info or links or files:
+            if (len(ret['attr']) > 0):
+                ret['attr'].append({'icon': 'separator'})
+            if (self.remind != None):
+                ret['attr'].append({'icon': 'remind'})
+            if links:
+                ret['attr'].append({'icon': 'url'})
+            if files:
+                ret['attr'].append({'icon': 'attach'})
+            if self.info:
+                info_descr = self.info[:80]
+                if len(self.info) > 80:
+                    info_descr += '...'
+                ret['attr'].append({'icon': 'notes', 'text': info_descr})
+
+        if self.categories:
+            if (len(ret['attr']) > 0):
+                ret['attr'].append({'icon': 'separator'})
+            categs = get_categories_list(self.categories)
+            for categ in categs:
+                ret['attr'].append({'icon': 'category', 'text': categ.name, 'color': 'category-design-' + categ.design})
+
+        if self.completed:
+            if (len(ret['attr']) > 0):
+                ret['attr'].append({'icon': 'separator'})
+            ret['attr'].append({'text': '{}: {}'.format(_('completion').capitalize(), self.completion.strftime('%d.%m.%Y') if self.completion else '')})
+
+        return ret
 
     def next_iteration(self):
         next = None
@@ -659,12 +778,16 @@ class Task(models.Model):
 
         if (currency == 'USD'):
             if self.expen_usd:
+                if self.expen_qty:
+                    return self.expen_usd * self.expen_qty
                 return self.expen_usd
             if byn and self.expen_rate:
                 return byn / self.expen_rate
 
         if (currency == 'EUR'):
             if self.expen_eur:
+                if self.expen_qty:
+                    return self.expen_eur * self.expen_qty
                 return self.expen_eur
             if byn and self.expen_rate_2:
                 return byn / self.expen_rate_2
@@ -674,9 +797,13 @@ class Task(models.Model):
                 return byn
 
             if self.expen_usd and self.expen_rate:
+                if self.expen_qty:
+                    return self.expen_usd * self.expen_qty * self.expen_rate
                 return self.expen_usd * self.expen_rate
 
             if self.expen_eur and self.expen_rate_2:
+                if self.expen_qty:
+                    return self.expen_eur * self.expen_qty * self.expen_rate
                 return self.expen_eur * self.expen_rate_2
 
         return 0
@@ -826,8 +953,11 @@ class Urls(models.Model):
                         al = n.text
                         start = al.find('<title>')
                         stop = al.find('</title>')
-                        if (start > 0) and (stop > start) and (stop < 190):
-                            self.title = al[start+7:stop]
+                        if (start > 0) and (stop > start):
+                            if ((stop - start) < 190):
+                                self.title = al[start+7:stop]
+                            else:
+                                self.title = al[start+7:start+190] + '...'
                             self.ststus = 4
             self.save()
         if (self.hostname and self.title):
