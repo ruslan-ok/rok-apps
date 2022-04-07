@@ -1,4 +1,5 @@
-from genea.models import GenDate, GenTree, GenAlbum, Person, PersBio, PersContact, PersFact, PersSourceCitation, Family, FamilyFact, FamilyChild, Media
+"""
+from genea.models import GenDate, GenTree, GenAlbum, Person, PersBio, PersContact, PersFact, SrcCitation, Family, FamilyFact, FamilyChild, Media
 from genea.const import *
 from genea.secret import *
 
@@ -24,8 +25,8 @@ class GenExpImp:
             ret['contact'] = len(PersContact.objects.all())
         if (len(PersFact.objects.all()) > 0):
             ret['p_fact'] = len(PersFact.objects.all())
-        if (len(PersSourceCitation.objects.all()) > 0):
-            ret['citat'] = len(PersSourceCitation.objects.all())
+        if (len(SrcCitation.objects.all()) > 0):
+           ret['citat'] = len(SrcCitation.objects.all())
         if (len(Family.objects.all()) > 0):
             ret['family'] = len(Family.objects.all())
         if (len(FamilyFact.objects.all()) > 0):
@@ -75,7 +76,7 @@ class GenExpImp:
 
     def read_tree(self, fname):
         self.f = open(WORK_PATH + '\\' + fname, 'r', encoding='utf-8-sig')
-        self.create_append('TREE', self.res, 'trees', self.read_fam_tree())
+        self.create _append('TREE', self.res, 'trees', self.read_fam_tree())
         self.f.close()
 
     def next_line(self):
@@ -714,14 +715,14 @@ class GenExpImp:
                 tree_id = src[1]
                 break
         tree = GenTree.objects.filter(id=tree_id).get()
-        PersSourceCitation.objects.create(
-            person = person,
-            tree = tree,
-            citation = get_attr(item, 'data', 'text'),
-            page = get_attr(item, 'page'),
-            confidence = int(get_attr(item, 'confidence')),
-            date = get_date(item, 'data', 'date'),
-            event = get_attr(item, 'event'),
+        SrcCitation.objects.create(
+           person = person,
+           tree = tree,
+           citation = get_attr(item, 'data', 'text'),
+           page = get_attr(item, 'page'),
+           confidence = int(get_attr(item, 'confidence')),
+           date = get_date(item, 'data', 'date'),
+           event = get_attr(item, 'event'),
         )
 
     def db_add_pers_note(self, person, root_item):
@@ -1148,4 +1149,4 @@ def category_by_type(type):
         for t in v:
             if type == t:
                 return k
-
+"""

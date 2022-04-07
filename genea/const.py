@@ -61,29 +61,29 @@ GENE = 12 # General
 ALLF = 13 # All facts
 """
 
-MARR = 1
-DIVO = 2
-SEPA = 3
-WIDO = 4
-ENGA = 5
-PRTN = 6
-FRIE = 7
-ANNU = 8
-UNKN = 9
-OTHE = 10
+# MARR = 1
+# DIVO = 2
+# SEPA = 3
+# WIDO = 4
+# ENGA = 5
+# PRTN = 6
+# FRIE = 7
+# ANNU = 8
+# UNKN = 9
+# OTHE = 10
 
-RELATIONSHIP_MODE = [
-    (MARR, _('married')),
-    (DIVO, _('divorced')),
-    (SEPA, _('separated')),
-    (WIDO, _('widowed')),
-    (ENGA, _('engaged')),
-    (PRTN, _('partner')),
-    (FRIE, _('friends')),
-    (ANNU, _('annulment')),
-    (UNKN, _('unknown')),
-    (OTHE, _('other')),
-]
+# RELATIONSHIP_MODE = [
+#     (MARR, _('married')),
+#     (DIVO, _('divorced')),
+#     (SEPA, _('separated')),
+#     (WIDO, _('widowed')),
+#     (ENGA, _('engaged')),
+#     (PRTN, _('partner')),
+#     (FRIE, _('friends')),
+#     (ANNU, _('annulment')),
+#     (UNKN, _('unknown')),
+#     (OTHE, _('other')),
+# ]
 
 NONE= 0
 UNRELI = 1
@@ -105,7 +105,7 @@ EVENT_TYPES = {
     'Death': ['Alternate Burial', 'Alternate Death', 'Burial', 'Commemoration', 'Cremation', 'Death', 'Funeral', 'Misscariage', 'Will', 'Will Dated', 'Will Proved',],
     'Christian': ['Adult Christening', 'Alternate Baptism', 'Alternate Christening', 'Baptism', 'Christening', 'Church', 'Confirmation', 'First Communion', 'Mission', 'Ordination',],
     'Jewish': ['Baby naming', 'Bar Mitzvah', 'Bat Mitzvah', 'Circumcision', 'Hassidism', 'Lineage', 'Pidyon haben', 'Zeved habat',],
-    'Family': ['Alternate Marriage Info', 'Anecdote', 'Annulment', 'Civil Marriage', 'Comment', 'Divorce', 'Divorce filed', 'Engagement', 'Fact 1', 'Fact 2', 'Fact 3', 'Fact 4', 'Fact 5', 'Fact 6', 'Fact 7', 'Fact 8', 'Fact 9', 'Family Address', 'Friends', 'Known Number of Children', 'Marriage', 'Marriage Bann', 'Marriage contract', 'Marriage Settlement', 'Misc', 'Partners', 'Separation', 'Unknown',],
+    'Family': ['Alternate Marriage Info', 'Anecdote', 'Annulment', 'Civil Marriage', 'Comment', 'Divorce', 'Divorce filed', 'Engagement', 'Fact 1', 'Fact 2', 'Fact 3', 'Fact 4', 'Fact 5', 'Fact 6', 'Fact 7', 'Fact 8', 'Fact 9', 'Family Address', 'Friends', 'Known Number of Children', 'Marriage', 'Marriage Bann', 'Marriage contract', 'Marriage License', 'Marriage Settlement', 'Misc', 'Partners', 'Separation', 'Unknown',],
     'Residence': ['Census', 'Emigration', 'Immigration', 'Move', 'Nationality', 'Naturalization', 'Passenger list', 'Settlement',],
     'Legal': ['Census', 'Crime', 'Deed', 'Election', 'ID Number', 'Nationality', 'Naturalization', 'Probate', 'Property', 'Social Security Number', 'Will', 'Will Dated', 'Will Proved',],
     'Education': ['Award', 'Degree', 'Education', 'Graduation',],
@@ -114,3 +114,36 @@ EVENT_TYPES = {
     'General': ['Anecdote', 'Comment', 'Fact 1', 'Fact 2', 'Fact 3', 'Fact 4', 'Fact 5', 'Fact 6', 'Fact 7', 'Fact 8', 'Fact 9', 'Misc',],
     'All facts': [],
 }
+
+UNKN_PL = 0
+ADOP_PL = 1
+BIRT_PL = 2
+FOST_PL = 3
+# SEAL_PL = 4
+
+PEDIGREE_LINK_MODE = [
+    (UNKN_PL, _('-------')),   # unknown
+    (ADOP_PL, _('adopted')),   # indicates adoptive parents
+    (BIRT_PL, _('birth')),     # indicates birth parents
+    (FOST_PL, _('foster')),    # indicates child was included in a foster or guardian family
+    # (SEAL_PL, _('sealing')),   # indicates child was sealed to parents other than birth parents
+]
+
+CHAL_CL = 1
+DISP_CL = 2
+PROV_CL = 3
+
+# A status code that allows passing on the users opinion of the status of a child to family link.
+CHILD_LINK_MODE = [
+    (CHAL_CL, _('challenged')), # linking this child to this family is suspect, but the linkage has been neither proven nor disproven
+    (DISP_CL, _('disproven')),  # there has been a claim by some that this child belongs to this family, but the linkage has been disproven
+    (PROV_CL, _('proven')),     # there has been a claim by some that this child does not belongs to this family, but the linkage has been proven
+]
+
+# Object type fo Media record
+MO_SOURCE = 1
+MO_PERS = 2
+MO_FAMI = 3
+MO_PERS_FACT = 4
+MO_FAMI_FACT = 5
+MO_CITAT = 6
