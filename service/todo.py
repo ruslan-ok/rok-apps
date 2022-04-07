@@ -13,7 +13,7 @@ from secret import cred_cert, service_user_token, certfile_path
 
 HOST_PROD = 'https://rusel.by'
 HOST_DEV = 'http://localhost:8000'
-HOST = HOST_DEV
+HOST = HOST_PROD
 
 TASK_API_RIPE      = HOST + '/api/tasks/reminder_ripe/?format=json'
 TASK_API_PROCESS   = HOST + '/api/tasks/reminder_process/?format=json'

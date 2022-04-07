@@ -4,7 +4,7 @@ from task import const
 from task.models import Task
 from rusel.files import storage_path
 
-path = 'Z:\\apps\\docs'
+path = 'C:\\Web\\apps\\docs'
 
 class AttachChecker():
     def __init__(self):

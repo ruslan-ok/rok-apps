@@ -1,6 +1,6 @@
 import os
 from django.core.files.storage import FileSystemStorage
-from rusel.secret import storage_dvlp, service_dvlp, service_prod, folder_dvlp, folder_prod
+from rusel.secret import storage_prod, service_prod, folder_prod
 
 folder_path  = folder_prod
 storage_path = storage_prod
