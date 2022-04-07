@@ -2,9 +2,11 @@
 {% load static %}
 
 {% block extrastyle %}
+  {{ block.super }}
   <link href="{% static 'scss/apart.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block extrascript %}
-    <script src="{% static 'js/apart.js' %}"></script>
+  {{ block.super }}
+  <script src="{% static 'js/apart.js' %}"></script>
 {% endblock %}

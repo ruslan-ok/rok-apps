@@ -53,6 +53,6 @@ function showMap(latitude, longitude)
 
   for (i = 0; i < photos.length; i++) {
     let marker = L.marker([photos[i]["lat"], photos[i]["lon"]]).addTo(mymap);
-    marker.bindPopup(photos[i]["name"] + "<br><a href='/photo/by_id/" + photos[i]["id"] + "/'><img src='/photo/get_mini/" + photos[i]["id"] + "/'>").openPopup();
+    marker.bindPopup(photos[i]["name"] + "<br><a href='/v2_photo/by_id/" + photos[i]["id"] + "/'><img src='/v2_photo/get_mini/" + photos[i]["id"] + "/'>").openPopup();
   }
 }

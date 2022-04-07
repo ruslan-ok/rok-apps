@@ -15,8 +15,6 @@ class BaseCreateForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.config = config
         self.role = role
-        #self.fields['grp'].initial = get_cur_grp(self.request)
-        #self.fields['grp'].queryset = Group.objects.filter(role=role).order_by('sort')
         
     def save(self, commit=True):
         ret = super().save(commit=False)
@@ -42,12 +40,7 @@ class BaseEditForm(forms.ModelForm):
         self.role = role
         if ('grp' in self.fields):
             self.fields['grp'].initial = self.get_group_id()
-            # TODO: set "user" field
-            self.fields['grp'].queryset = Group.objects.filter(role=role, determinator=None).order_by('sort')
-
-    def clean_categories(self):
-        self.cleaned_data['categories'] = ' '.join([self.data['categories_1'], self.data['categories_2']]).strip()
-        return self.cleaned_data['categories']
+            self.fields['grp'].choices = self.get_groups_hier(self.instance.user.id, role)
 
     def get_group_id(self):
         task_id = self.instance.id
@@ -55,9 +48,38 @@ class BaseEditForm(forms.ModelForm):
         if (len(tgs) > 0):
             tg = tgs[0]
             grp = tg.group
-            grp_id = grp.id
-            return grp_id
+            return grp.id
         return None
+
+    def get_groups_hier(self, user_id, role):
+        groups = [(0, '----------'),]
+        self.get_sorted_groups(groups, user_id, role)
+        return groups
+
+    def get_sorted_groups(self, groups, user_id, role, node=None, level=0):
+        node_id = None
+        if node:
+            node_id = node.id
+        items = Group.objects.filter(user=user_id, role=role, node=node_id).order_by('sort')
+        for item in items:
+            if (item.determinator != 'role') and (item.determinator != 'view'):
+                groups.append((item.id, level * '—' + '  ' + item.name),)
+                self.get_sorted_groups(groups, user_id, role, item, level+1)
+
+    def clean_grp(self):
+        ret = None
+        grp_ok = int(self.cleaned_data['grp'])
+        if grp_ok:
+            parent = Group.objects.filter(node=grp_ok)
+            if (len(parent) > 0):
+                raise  ValidationError(_('a group must not have subgroups').capitalize())
+            ret = Group.objects.filter(id=grp_ok).get()
+        return ret
+
+    def clean_categories(self):
+        self.cleaned_data['categories'] = ' '.join([self.data['categories_1'], self.data['categories_2']]).strip()
+        return self.cleaned_data['categories']
+
 
 #----------------------------------
 class CreateGroupForm(forms.ModelForm):
@@ -67,6 +89,10 @@ class CreateGroupForm(forms.ModelForm):
 
 #----------------------------------
 class GroupForm(forms.ModelForm):
+    node = forms.ChoiceField(
+        label=_('node').capitalize(),
+        widget=forms.Select(attrs={'class': 'form-control mb-2'}),
+        choices=[(0, '------'),])
     completed = forms.BooleanField(
         label=False, 
         required=False, 
@@ -83,14 +109,31 @@ class GroupForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if ('node' in self.fields):
-            self.fields['node'].queryset = Group.objects.filter(user=self.instance.user.id, role=self.instance.role).order_by('sort')
+            self.fields['node'].choices = self.get_node_hier(self.instance)
+
+    def get_node_hier(self, group):
+        groups = [(0, '----------'),]
+        self.get_sorted_groups(groups, group.user.id, group.role, group.id)
+        return groups
+
+    def get_sorted_groups(self, groups, user_id, role, curr_id, node=None, level=0):
+        node_id = None
+        if node:
+            node_id = node.id
+        items = Group.objects.filter(user=user_id, role=role, node=node_id).order_by('sort')
+        for item in items:
+            if (item.id != curr_id) and (item.determinator != 'role') and (item.determinator != 'view'):
+                groups.append((item.id, level * '—' + '  ' + item.name),)
+                self.get_sorted_groups(groups, user_id, role, curr_id, item, level+1)
 
     def clean_node(self):
-        node_ok = self.cleaned_data['node']
+        ret = None
+        node_ok = int(self.cleaned_data['node'])
         if node_ok:
             inst_id = self.instance.id
-            node_id = node_ok.id
+            node_id = node_ok
             test = Group.objects.filter(id=node_id).get()
+            ret = test
             if (test.id == inst_id):
                 raise  ValidationError(_('self reference').capitalize())
             
@@ -104,5 +147,5 @@ class GroupForm(forms.ModelForm):
             if (len(gts) > 0):
                 raise  ValidationError(_('not empty node group').capitalize())
 
-        return node_ok
+        return ret
 

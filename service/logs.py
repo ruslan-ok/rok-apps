@@ -44,10 +44,12 @@ def ripe():
     ----------
     True if a new piece of data is ready for processing.
     """
-    #print('logs.ripe()')
     prev_log_sz = read_log_sz()
-    new_log_sz = Path(apache_log).stat().st_size
-    return (new_log_sz > prev_log_sz)
+    try:
+        new_log_sz = Path(apache_log).stat().st_size
+        return (new_log_sz > prev_log_sz)
+    except:
+        return False
 
 def process(log):
     """Parsing new lines of the log file and saving the received data in the database.
@@ -58,12 +60,11 @@ def process(log):
         Method for logging processed data.
     """
     try:
-        #print('logs.process()')
         mgr = Manager(log)
         mgr.process()
         mgr.done()
-    except:
-        log('[x] process() [service/logs.py] Exception: ' + str(sys.exc_info()[0]))
+    except Exception as e:
+        log('[x] process() [service/logs.py] Exception: ' + str(e)) #str(sys.exc_info()[0]))
 
 
 def read_log_sz():

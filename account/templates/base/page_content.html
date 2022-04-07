@@ -23,6 +23,7 @@
 
 {% block extrascript %}
   {{ block.super }}
+  <script src="{% static 'js/manage-groups.js' %}"></script>
   <script src="{% static 'js/build-tree.js' %}"></script>
   <script>
     buildTree('groups-tree');

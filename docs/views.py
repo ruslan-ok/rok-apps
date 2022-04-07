@@ -1,33 +1,64 @@
-from task.const import ROLE_DOC, ROLE_APP
-from task.models import Task
-from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView
-from docs.forms import CreateForm, EditForm, FolderForm
+import urllib.parse, mimetypes
+from django.http import FileResponse, HttpResponseRedirect, HttpResponseNotFound
+from django.urls import reverse
+from task.const import APP_DOCS, ROLE_DOC, ROLE_APP
+from rusel.base.dir_views import BaseDirView
+from rusel.files import storage_path
 from docs.config import app_config
 
 role = ROLE_DOC
 app = ROLE_APP[role]
 
-class TuneData:
-    def tune_dataset(self, data, group):
-        return data
-
-class ListView(BaseListView, TuneData):
-    model = Task
-    form_class = CreateForm
-
+class FolderView(BaseDirView):
     def __init__(self, *args, **kwargs):
+        self.template_name = 'docs/folder.html'
         super().__init__(app_config, role, *args, **kwargs)
 
-class DetailView(BaseDetailView, TuneData):
-    model = Task
-    form_class = EditForm
+    def get(self, request, *args, **kwargs):
+        query = None
+        folder = ''
+        if (self.request.method == 'GET'):
+            query = self.request.GET.get('q')
+            folder = self.request.GET.get('folder')
+        if query:
+            if folder:
+                folder = '&folder=' + folder
+            else:
+                folder = ''
+            return HttpResponseRedirect(reverse('index') + '?app=' + APP_DOCS + folder + '&q=' + query)
+        return super().get(request, *args, **kwargs)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+    def get_context_data(self, **kwargs):
+        self.store_dir = storage_path.format(self.request.user.username) + 'docs/'
+        context = super().get_context_data(**kwargs)
+        context['list_href'] = '/docs/'
+        context['add_item_template'] = 'base/add_item_upload.html'
+        return context
 
-class FolderView(BaseGroupView, TuneData):
-    form_class = FolderForm
+    def get_success_url(self, **kwargs):
+        folder = ''
+        if ('folder' in self.request.GET):
+            folder = self.request.GET['folder']
+        return reverse('docs:list') + '?folder=' + folder
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+def get_name_from_request(request, param='file'):
+    query = ''
+    if (request.method == 'GET'):
+        query = request.GET.get(param)
+    if not query:
+        return ''
+    return urllib.parse.unquote_plus(query)
 
+def get_file(request):
+    try:
+        store_dir = storage_path.format(request.user.username) + 'docs/'
+        folder = get_name_from_request(request, 'folder')
+        file = get_name_from_request(request, 'file')
+        filepath = store_dir + folder + '/' + file
+        fsock = open(filepath, 'rb')
+        mime_type, _ = mimetypes.guess_type(filepath)
+        response = FileResponse(fsock, content_type=mime_type)
+        response['Content-Disposition'] = "attachment; filename=%s" % file
+        return response
+    except IOError:
+        return HttpResponseNotFound()

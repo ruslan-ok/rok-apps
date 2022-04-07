@@ -1,6 +1,6 @@
-OperTest();
+operTest();
 
-function OperTest()
+function operTest()
 {
   let sel = document.getElementById('id_oper');
   if (sel.value == 0)

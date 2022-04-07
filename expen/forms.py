@@ -5,7 +5,7 @@ from rusel.base.forms import BaseCreateForm, BaseEditForm
 from task.models import Task, Group
 from task.const import ROLE_EXPENSE
 from expen.config import app_config
-from rusel.widgets import UrlsInput, CategoriesInput, SwitchInput
+from rusel.widgets import UrlsInput, CategoriesInput, SwitchInput, DateInput, NegativeNumberInput
 from rusel.base.forms import GroupForm
 
 role = ROLE_EXPENSE
@@ -22,27 +22,37 @@ class CreateForm(BaseCreateForm):
         
 #----------------------------------
 class EditForm(BaseEditForm):
+    event = forms.DateTimeField(
+        required=True,
+        widget=DateInput(format='%Y-%m-%dT%H:%M', attrs={'label': _('event date').capitalize(), 'type': 'datetime-local'}))
     name = forms.CharField(
         label=_('operation').capitalize(),
         required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add operation name').capitalize()}))
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': _('add operation name').capitalize()}))
+    expen_qty = forms.DecimalField(
+        label=_('quantity').capitalize(),
+        required=False,
+        widget=NegativeNumberInput(attrs={'step': '0.001'}))
+    grp = forms.ChoiceField(
+        label=_('group').capitalize(),
+        widget=forms.HiddenInput(attrs={'class': 'form-control'}),
+        choices=[(0, '------'),])
     url = forms.CharField(
         label=_('URLs'),
         required=False,
-        widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add link').capitalize()}))
+        widget=UrlsInput(attrs={'class': 'form-control', 'placeholder': _('add link').capitalize()}))
     categories = forms.CharField(
         label=_('categories').capitalize(),
         required=False,
-        widget=CategoriesInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add category').capitalize()}))
+        widget=CategoriesInput(attrs={'class': 'form-control', 'placeholder': _('add category').capitalize()}))
 
     class Meta:
         model = Task
-        fields = ['event', 'name', 'expen_qty', 'expen_price', 'expen_rate', 'expen_rate_2', 'expen_usd', 'expen_eur', 'expen_kontr', 'info', 
+        fields = ['event', 'name', 'grp', 'expen_qty', 'expen_price', 'expen_rate', 'expen_rate_2', 'expen_usd', 'expen_eur', 'expen_kontr', 'info', 
         'url', 'categories', 'upload']
         widgets = {
             'event': forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime mb-3', 'type': 'datetime-local'}),
             'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),
-            'expen_qty': forms.NumberInput(attrs={'class': 'form-control'}),
             'expen_price': forms.NumberInput(attrs={'class': 'form-control'}),
             'expen_rate': forms.NumberInput(attrs={'class': 'form-control'}),
             'expen_rate_2': forms.NumberInput(attrs={'class': 'form-control'}),
@@ -56,23 +66,25 @@ class EditForm(BaseEditForm):
 
 #----------------------------------
 class ProjectForm(GroupForm):
-    tot_byn = forms.BooleanField(
+    name = forms.CharField(
+        label=_('project name').capitalize(),
+        widget=forms.TextInput(attrs={'class': 'form-control mb-2'}),)
+    expen_byn = forms.BooleanField(
         label=False, 
         required=False, 
         widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('calculate totals in national currency').capitalize()}))
-    tot_usd = forms.BooleanField(
+    expen_usd = forms.BooleanField(
         label=False, 
         required=False, 
         widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('calculate totals in dollars').capitalize()}))
-    tot_eur = forms.BooleanField(
+    expen_eur = forms.BooleanField(
         label=False, 
         required=False, 
         widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('calculate totals in euro').capitalize()}))
     class Meta:
         model = Group
-        fields = ['node', 'name', 'sort', 'tot_byn', 'tot_usd', 'tot_eur']
+        fields = ['node', 'name', 'sort', 'expen_byn', 'expen_usd', 'expen_eur']
         widgets = {
             'node': forms.Select(attrs={'class': 'form-control mb-2'}),
-            'name': forms.TextInput(attrs={'class': 'form-control mb-2'}),
             'sort': forms.TextInput(attrs={'class': 'form-control mb-2'}),
         }

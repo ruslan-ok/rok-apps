@@ -120,7 +120,6 @@ function buildValue()
     params += 128;
 
   document.getElementById('id_params').value = params;
-  document.getElementById('id_item_save').click();
 }
 
 function copyToClipboard(fld, kind) {
@@ -130,17 +129,10 @@ function copyToClipboard(fld, kind) {
         return;
       }
       navigator.clipboard.writeText(value).then(function() {
-        alert(kind, 'Copied to clipboard.', 'success');
+        iziToast.success({title: 'Succsess', message: 'Copied to clipboard.', position: 'bottomRight'});
       }, function(err) {
-        alert(kind, 'Could not copy text: ' + err, 'danger');
+        iziToast.error({title: 'Error', message: 'Could not copy text: ' + err, position: 'bottomRight'});
       });
-}
-
-function alert(kind, message, type) {
-    const alertPlaceholder = document.getElementById(kind + 'AlertPlaceholder');
-    const wrapper = document.createElement('div');
-    wrapper.innerHTML = '<div class="alert alert-' + type + ' alert-dismissible" role="alert">' + message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
-    alertPlaceholder.append(wrapper);
 }
 
 function toggleHistory(btn) {

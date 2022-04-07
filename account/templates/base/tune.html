@@ -1,19 +1,12 @@
 {% load static i18n %}
 
 {% if not hide_add_item_input %}
-    <div class="dropdown mx-3">
-        <button class="btn bi-plus-lg" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false"></button>
-        <ul class="dropdown-menu shadow-lg" aria-labelledby="dropdownMenuButton1">
-            <div class="d-flex py-2">
-                {% include add_item_template %}
-            </div>
-        </ul>
-    </div>
+    {% include add_item_template %}
 {% endif %}
 
 {% if sorts %}
     <div class="dropdown">
-        <button class="btn bi-sort-alpha-down" type="button" id="dropdownMenuButton1" 
+        <button class="btn bi-sort-alpha-down{% if dark_theme %} dark-theme{% endif %}" type="button" id="dropdownMenuButton1" 
             data-bs-toggle="dropdown" aria-expanded="false"></button>
         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
             {% for sort in sorts %}
@@ -26,7 +19,7 @@
 
 {% if themes %}
     <div class="dropdown mx-3">
-        <button class="btn bi-gear" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" 
+        <button class="btn bi-gear{% if dark_theme %} dark-theme{% endif %}" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" 
             data-bs-auto-close="false" aria-expanded="false"></button>
         <ul class="dropdown-menu wide" aria-labelledby="dropdownMenuButton1">
             <p>Theme</p>

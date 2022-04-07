@@ -1,9 +1,9 @@
 import math
-from datetime import datetime, date
+from datetime import datetime
 from django.utils.translation import gettext_lazy as _, to_locale, get_language, pgettext
-from task.const import NUM_ROLE_PART, NUM_ROLE_SERVICE, ROLE_PART, ROLE_APP, NUM_ROLE_FUEL
-from task.models import Task, Urls, TaskGroup
-from rusel.files import get_files_list, get_app_doc
+from task.const import NUM_ROLE_PART, NUM_ROLE_SERVICE, ROLE_PART, ROLE_APP
+from task.models import Task, Urls
+from rusel.app_doc import get_app_doc
 from rusel.categories import get_categories_list
 from rusel.base.views import BaseListView, BaseDetailView
 from fuel.forms.part import CreateForm, EditForm
@@ -168,7 +168,7 @@ def get_info(item):
         attr.append({'text': rest, 'color': 'rest-color-' + color})
     
     links = len(Urls.objects.filter(task=item.id)) > 0
-    files = (len(get_files_list(item.user, app, role, item.id)) > 0)
+    files = (len(item.get_files_list(app, role)) > 0)
 
     if item.info or links or files:
         if (len(attr) > 0):
@@ -191,9 +191,6 @@ def get_info(item):
             attr.append({'icon': 'category', 'text': categ.name, 'color': 'category-design-' + categ.design})
     
     ret = {'attr': attr}
-
-    if TaskGroup.objects.filter(task=item.id, role=role).exists():
-        ret['group'] = TaskGroup.objects.filter(task=item.id, role=role).get().group.name
 
     return ret
 

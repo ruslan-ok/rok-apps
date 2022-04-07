@@ -244,9 +244,11 @@ def get_name_from_request(request):
 #----------------------------------
 def get_storage(user, folder, service = False):
     if service:
-        path = service_path.format(user.id) + '{}/'.format(folder)
+        path = service_path.format(user.username) + '{}/'.format(folder)
     else:
-        path = storage_path.format(user.id) + '{}/'.format(folder)
+        path = storage_path.format(user.username) + '{}/'.format(folder)
+        if (service_path[0] == 'z'):
+            path = path.replace('c:/web', 'z:')
     pathlib.Path(path).mkdir(parents=True, exist_ok=True)
     return path
 

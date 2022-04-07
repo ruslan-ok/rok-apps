@@ -1,6 +1,6 @@
 from task.const import APP_NEWS, ROLE_NEWS
 from task.models import Task
-from rusel.files import get_app_doc
+from rusel.app_doc import get_app_doc
 from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView
 from news.forms import CreateForm, EditForm
 from news.config import app_config

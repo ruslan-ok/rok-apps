@@ -93,7 +93,18 @@ function toggleCompleted(item_id) {
     const api = '/api/tasks/' + item_id + '/completed/?format=json';
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
-            window.location.href = redirect_url;
+            let info = '';
+            if (this.response) {
+                let resp = JSON.parse(this.response);
+                if (resp && resp.info)
+                    info = resp.info;
+            }
+            if (info == '')
+                window.location.href = redirect_url;
+            else {
+                iziToast.info({message: info, position: 'bottomRight'});
+                setTimeout(function(){window.location.href = redirect_url;}, 1000);
+            }
         }
     };
     runAPI(api, callback);
@@ -122,13 +133,23 @@ function addItem(app, role, group_id, screen_size='') {
     param_group = '&group_id=' + group_id;
     const api = '/api/tasks/add_item/?format=json&app=' + app + '&role=' + role + param_name + param_group;
     const callback = function() {
+        if (this.readyState == 4 && this.status == 400) {
+            if (this.response) {
+                console.log(this.response);
+                let mess = 'Unknown error'
+                let resp = JSON.parse(this.response);
+                if (resp && resp.Error)
+                    mess = resp.Error;
+                iziToast.error({title: 'Error', message: mess, position: 'bottomRight'});
+            }
+        }
         if (this.readyState == 4 && this.status == 200) {
             let resp = JSON.parse(this.responseText);
             if (!resp || !resp.task_id) {
                 let mess = 'Unknown Error';
                 if (resp.mess)
                     mess = resp.mess;
-                showInfo(mess);
+                iziToast.error({title: 'Error', message: mess, position: 'bottomRight'});
                 return;
             }
             let item_id_arr = window.location.pathname.match( /\d+/ );

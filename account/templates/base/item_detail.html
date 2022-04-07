@@ -4,7 +4,9 @@
 {% block extrastyle %}
   {{ block.super }}
   <link href="{% static 'scss/form.css' %}" rel="stylesheet">
+  <link href="{% static 'scss/category.css' %}" rel="stylesheet">
   <link href="{% static 'scss/widgets.css' %}" rel="stylesheet">
+  <link href="{% static 'iziToast/css/iziToast.min.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block main %}
@@ -25,11 +27,19 @@
         {% trans 'delete'|capfirst %}
       </button>
     </div>
+
+    {% block footer_detail %}
+      <div class="row">
+        <div class="col">{% trans 'created'|capfirst %}: {{ item.created }}</div>
+        {% if item.completed %}<div class="col">{% trans 'completed'|capfirst %}: {{ item.completion }}</div>{% endif %}
+      </div>
+    {% endblock %}
   </form>
 {% endblock %}
 
 {% block extrascript %}
   {{ block.super }}
+  <script src="{% static 'iziToast/js/iziToast.min.js' %}"></script>
   <script src="{% static 'js/form.js' %}"></script>
   <script src="{% static 'js/getRateOnDate.js' %}"></script>
 {% endblock %}

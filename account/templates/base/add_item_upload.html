@@ -1,0 +1,8 @@
+{% load static i18n %}
+<form class="body" method="post" enctype="multipart/form-data" id="photo_form">{% csrf_token %}
+    {% include "base/form_errors.html" %}
+    {{ form.upload.errors }}
+    <input type="file" style="display:none;" id="id_upload" name="upload" onchange="fileSelected()">
+    <button type="button" class="btn bi-plus-lg" id="loadPhoto" onclick="uploadFile()">{{ add_item_placeholder }}</button>
+    <button type="submit" id="id_submit" name="file_upload" class="d-none"></button>
+</form>

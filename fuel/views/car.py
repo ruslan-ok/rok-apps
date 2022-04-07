@@ -4,13 +4,14 @@ from task.models import Task
 from rusel.base.views import BaseListView, BaseDetailView
 from fuel.forms.car import CreateForm, EditForm
 from fuel.config import app_config
+from rusel.app_doc import get_app_doc
 
 role = ROLE_CAR
 app = ROLE_APP[role]
 
 class TuneData:
     def tune_dataset(self, data, group):
-        return data;
+        return data
 
 class ListView(BaseListView, TuneData):
     model = Task
@@ -38,13 +39,18 @@ def get_info(item):
     if item.car_plate:
         attr.append({'text': item.car_plate})
 
-    if item.info:
+    files = (len(item.get_files_list(app, role)) > 0)
+
+    if item.info or files:
         if (len(attr) > 0):
             attr.append({'icon': 'separator'})
-        info_descr = item.info[:80]
-        if len(item.info) > 80:
-            info_descr += '...'
-        attr.append({'icon': 'notes', 'text': info_descr})
+        if files:
+            attr.append({'icon': 'attach'})
+        if item.info:
+            info_descr = item.info[:80]
+            if len(item.info) > 80:
+                info_descr += '...'
+            attr.append({'icon': 'notes', 'text': info_descr})
 
     ret = {'attr': attr}
     return ret
@@ -61,8 +67,12 @@ def get_new_odometr(user, car, event):
     if (len(last) == 1):
         new_odo = last[0].car_odometr
     elif (len(last) > 1):
-        fix_days = (last[0].event - last[-1:].event).days
+        qnt = len(last) - 1
+        fix_days = (last[0].event - last[qnt].event).days
         per_days = (event - last[0].event).days
-        new_odo = last[0].car_odometr + (last[0].car_odometr - last[-1:].car_odometr) / fix_days * per_days
+        new_odo = last[0].car_odometr + (last[0].car_odometr - last[qnt].car_odometr) / fix_days * per_days
     return new_odo
+
+def get_doc(request, pk, fname):
+    return get_app_doc(app_config['name'], role, request, pk, fname)
 

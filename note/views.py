@@ -1,6 +1,6 @@
 from task.const import ROLE_NOTE, ROLE_APP
 from task.models import Task
-from rusel.files import get_app_doc
+from rusel.app_doc import get_app_doc
 from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView
 from note.forms import CreateForm, EditForm
 from note.config import app_config

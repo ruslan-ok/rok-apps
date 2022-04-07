@@ -41,7 +41,7 @@ function addPrice(apart_id) {
                 let mess = 'Error';
                 if (resp.mess)
                     mess += '\n' + resp.mess;
-                alert(mess);
+                iziToast.error({title: 'Error', message: mess, position: 'bottomRight'});
                 return;
             }
             let item_id_arr = window.location.pathname.match( /\d+/ );

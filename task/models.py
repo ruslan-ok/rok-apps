@@ -12,8 +12,15 @@ from django.urls import NoReverseMatch
 
 from rest_framework.reverse import reverse
 
+from task import const
 from task.const import *
 from rusel.utils import nice_date
+from rusel.categories import get_categories_list
+from rusel.files import get_files_list_by_path
+from rusel.secret import storage_dvlp
+
+storage_path = storage_dvlp
+
 
 class Group(models.Model):
     """
@@ -25,11 +32,11 @@ class Group(models.Model):
     node = models.ForeignKey('self', on_delete=models.CASCADE, verbose_name=_('node'), blank=True, null=True)
     name = models.CharField(_('group name'), max_length=200, blank=False)
     sort = models.CharField(_('sort code'), max_length=50, blank=True)
-    created = models.DateTimeField(_('creation time'), blank=True, auto_now_add=True)
+    created = models.DateTimeField(_('creation time'), blank=True, default=datetime.now)
     last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now=True)
     completed = models.BooleanField(_('display completed records'), null=True)
     theme = models.IntegerField(_('theme id'), blank=True, null=True)
-    sub_groups = models.CharField(_('content items sub groups'), max_length=1000, blank=True, null=True)
+    sub_groups = models.CharField(_('content items sub groups'), max_length=10000, blank=True, null=True)
     use_sub_groups = models.BooleanField(_('using content items sub groups'), null=True)
     determinator = models.CharField(_('group category: "group", "role" or "view"'), max_length=10, blank=True, null=True)
     view_id = models.CharField(_('view identificator for "role" and "view"'), max_length=50, blank=True, null=True)
@@ -85,6 +92,11 @@ class Group(models.Model):
     def set_theme(self, theme_id):
         self.theme = theme_id
         self.save()
+
+    def dark_theme(self):
+        if not self.theme:
+            return False
+        return (self.theme < 8) or (self.theme > 14)
 
     def set_sort(self, sort_id):
         if self.items_sort.replace('-', '') == sort_id:
@@ -150,6 +162,39 @@ class Group(models.Model):
         except NoReverseMatch:
             return '/'
 
+    def check_items_qty(self):
+        if (self.determinator == None) or (self.determinator == 'group'):
+            tgs = TaskGroup.objects.filter(group=self.id)
+            qnt = 0
+            for tg in tgs:
+                if not tg.task.completed:
+                    qnt += 1
+            if (self.act_items_qty != qnt):
+                self.act_items_qty = qnt
+                self.save()
+
+def detect_group(user, app, determinator, view_id, name):
+    group = None
+    if (determinator == 'group'):
+        if Group.objects.filter(user=user.id, app=app, id=int(view_id)).exists():
+            group = Group.objects.filter(user=user.id, app=app, id=int(view_id)).get()
+    if (determinator == 'role'):
+        if Group.objects.filter(user=user.id, app=app, determinator='role', view_id=view_id).exists():
+            group = Group.objects.filter(user=user.id, app=app, determinator='role', view_id=view_id).get()
+    if (determinator == 'view'):
+        if Group.objects.filter(user=user.id, app=app, determinator='view', view_id=view_id).exists():
+            group = Group.objects.filter(user=user.id, app=app, determinator='view', view_id=view_id).get()
+    if not group and (determinator != 'group'):
+        group = Group.objects.create(
+            user=user, 
+            app=app, 
+            determinator=determinator, 
+            view_id=view_id,
+            name=name,
+            act_items_qty=0,
+            use_sub_groups=True,)
+    return group
+
 class Task(models.Model):
     """
     An Entity that can be a Task or something else
@@ -184,7 +229,7 @@ class Task(models.Model):
     app_health = models.IntegerField('Role in application Health', choices=HEALTH_ROLE_CHOICE, default=NONE, null=True)
     app_work = models.IntegerField('Role in application Work', choices=WORK_ROLE_CHOICE, default=NONE, null=True)
     app_photo = models.IntegerField('Role in application Photo Bank', choices=PHOTO_ROLE_CHOICE, default=NONE, null=True)
-    created = models.DateTimeField(_('creation time').capitalize(), auto_now_add=True)
+    created = models.DateTimeField(_('creation time').capitalize(), default=datetime.now)
     last_mod = models.DateTimeField(_('last modification time').capitalize(), blank=True, auto_now=True)
     groups = models.ManyToManyField(Group, through='TaskGroup')
     active = models.BooleanField(_('is active navigation item').capitalize(), null=True)
@@ -192,6 +237,7 @@ class Task(models.Model):
     task_2 = models.ForeignKey('self', on_delete=models.SET_NULL, verbose_name=_('linked task #2'), related_name='task_link_2', blank=True, null=True)
     task_3 = models.ForeignKey('self', on_delete=models.SET_NULL, verbose_name=_('linked task #3'), related_name='task_link_3', blank=True, null=True)
     item_attr = models.CharField(_('item attributes').capitalize(), max_length=2000, blank=True, null=True)
+    sort = models.CharField(_('sort code'), max_length=50, blank=True)
     #------------ Expenses ------------
     expen_qty = models.DecimalField(_('quantity').capitalize(), blank=True, null=True, max_digits=15, decimal_places=3)
     expen_price = models.DecimalField(_('Price in NC'), blank=True, null=True, max_digits=15, decimal_places=2)
@@ -209,9 +255,7 @@ class Task(models.Model):
     #------------- Store --------------
     store_username = models.CharField(_('username'), max_length=150, blank=True, null=True)
     store_value = models.CharField(_('value'), max_length=128, null=True)
-    store_uuid = models.CharField(_('UUID'), max_length=100, blank=True, null=True)
     store_params = models.IntegerField(_('generator parameters used'), null=True)
-    store_hist = models.DateTimeField(_('when archived'), null=True)
     #------------- Apart --------------
     apart_has_el = models.BooleanField(_('has electricity'), null=True)
     apart_has_hw = models.BooleanField(_('has hot water'), null=True)
@@ -273,6 +317,8 @@ class Task(models.Model):
     bio_systolic = models.IntegerField(_('systolic blood pressure'), blank=True, null=True)
     bio_diastolic = models.IntegerField(_('diastolic blood pressure'), blank=True, null=True)
     bio_pulse = models.IntegerField(_('the number of heartbeats per minute'), blank=True, null=True)
+    #------------- Warranty --------------
+    months = models.IntegerField(_('warranty termin, months'), blank=True, null=True, default=12)
     # -------------
     class Meta:
         verbose_name = _('task')
@@ -286,6 +332,8 @@ class Task(models.Model):
         ret = True
         if (app == APP_APART):
             ret = (role != ROLE_METER) and (role != ROLE_PRICE) and (role != ROLE_BILL)
+        if (app == APP_FUEL):
+            ret = (role != ROLE_FUEL) and (role != ROLE_SERVICE)
         return ret
         
     @classmethod
@@ -301,10 +349,13 @@ class Task(models.Model):
     def set_active_nav_item(cls, user_id, app, active_nav_item_id):
         nav_role = cls.get_nav_role(app)
         if (not nav_role or not active_nav_item_id):
-            return
+            return None
         nav_items = Task.get_role_tasks(user_id, app, nav_role)
         nav_items.update(active=False)
-        nav_items.filter(id=active_nav_item_id).update(active=True)
+        nav_item = nav_items.filter(id=active_nav_item_id).get()
+        nav_item.active = True
+        nav_item.save()
+        return nav_item
 
     @classmethod
     def get_active_nav_item(cls, user_id, app):
@@ -446,17 +497,107 @@ class Task(models.Model):
         else:
             self.completion = None
         self.save()
-        for tg in TaskGroup.objects.filter(task_id=self.id):
-            if self.completed:
-                tg.group.act_items_qty -= 1
-            else:
-                tg.group.act_items_qty += 1
-            tg.group.save()
+        self.correct_groups_qty(GIQ_CMP_TASK)
+        next_task = None
         if self.completed and next: # Completed a stage of a recurring task and set a deadline for the next iteration
-            if not Task.objects.filter(user = self.user, name = self.name, completed = False).exists():
-                Task.objects.create(user = self.user, name = self.name, start = self.start, stop = next, important = self.important, \
-                    remind = self.next_remind_time(), repeat = self.repeat, repeat_num = self.repeat_num, \
-                    repeat_days = self.repeat_days, categories = self.categories, info = self.info)
+            if not Task.objects.filter(user=self.user, app_task=self.app_task, name=self.name, completed=False).exists():
+                next_task = Task.objects.create(user=self.user, app_task=self.app_task, name=self.name, 
+                    start=self.start, stop=next, important=self.important,
+                    remind=self.next_remind_time(), repeat=self.repeat, repeat_num=self.repeat_num,
+                    repeat_days=self.repeat_days, categories=self.categories, info=self.info)
+                next_task.set_item_attr(APP_TODO, next_task.get_info(ROLE_TODO))
+                if TaskGroup.objects.filter(task=self.id, role=ROLE_TODO).exists():
+                    group = TaskGroup.objects.filter(task=self.id, role=ROLE_TODO).get().group
+                    next_task.correct_groups_qty(GIQ_ADD_TASK, group.id)
+        return next_task
+
+    def get_attach_path(self, app, role):
+        ret = app + '/' + role + '_' + str(self.id)
+        if (app == APP_APART):
+            match (role, self.app_apart):
+                case (const.ROLE_APART, const.NUM_ROLE_APART):
+                    ret = APP_APART + '/' + self.name
+                case (const.ROLE_PRICE, const.NUM_ROLE_PRICE):
+                    ret = APP_APART + '/' + self.task_1.name + '/price/' + APART_SERVICE[self.price_service] + '/' + self.start.strftime('%Y.%m.%d')
+                case (const.ROLE_METER, const.NUM_ROLE_METER):
+                    ret = APP_APART + '/' + self.task_1.name + '/meter/' + str(self.start.year) + '/' + str(self.start.month).zfill(2)
+                case (const.ROLE_BILL, const.NUM_ROLE_BILL):
+                    ret = APP_APART + '/' + self.task_1.name + '/bill/' + str(self.start.year) + '/' + str(self.start.month).zfill(2)
+        if (app == APP_FUEL):
+            match (role, self.app_fuel):
+                case (const.ROLE_CAR, const.NUM_ROLE_CAR):
+                    ret = APP_FUEL + '/' + self.name + '/car'
+                case (const.ROLE_PART, const.NUM_ROLE_PART):
+                    ret = APP_FUEL + '/' + self.task_1.name + '/part/' + self.name
+                case (const.ROLE_SERVICE, const.NUM_ROLE_SERVICE):
+                    ret = APP_FUEL + '/' + self.task_1.name + '/service/' + self.task_2.name + '/' + self.event.strftime('%Y.%m.%d')
+                case (const.ROLE_FUEL, const.NUM_ROLE_FUEL):
+                    ret = APP_FUEL + '/' + self.task_1.name + '/fuel/' + self.event.strftime('%Y.%m.%d')
+        if (app == APP_WARR):
+            match (role, self.app_warr):
+                case (const.ROLE_WARR, const.NUM_ROLE_WARR):
+                    ret = APP_WARR + '/' + self.name.replace('/', '_').replace('\\', '_').replace(':', '_').replace('*', '_').replace('?', '_').replace('«', '_').replace('<', '_').replace('>', '_').replace('|', '_')
+                    
+        return storage_path.format(self.user.username) + 'attachments/' + ret + '/'
+
+    def get_files_list(self, app, role):
+        fss_path = self.get_attach_path(app, role)
+        return get_files_list_by_path(fss_path)
+
+    def get_info(self, role=ROLE_TODO):
+        ret = {'attr': []}
+        
+        if TaskGroup.objects.filter(task=self.id, role=role).exists():
+            ret['group'] = TaskGroup.objects.filter(task=self.id, role=role).get().group.name
+
+        if self.in_my_day:
+            ret['attr'].append({'myday': True})
+
+        step_total = 0
+        step_completed = 0
+        for step in Step.objects.filter(task=self.id):
+            step_total += 1
+            if step.completed:
+                step_completed += 1
+        if (step_total > 0):
+            if (len(ret['attr']) > 0):
+                ret['attr'].append({'icon': 'separator'})
+            ret['attr'].append({'text': '{} {} {}'.format(step_completed, _('out of'), step_total)})
+
+        if self.stop:
+            ret['attr'].append({'termin': True})
+
+        links = len(Urls.objects.filter(task=self.id)) > 0
+        files = (len(self.get_files_list(APP_TODO, role)) > 0)
+
+        if (self.remind != None) or self.info or links or files:
+            if (len(ret['attr']) > 0):
+                ret['attr'].append({'icon': 'separator'})
+            if (self.remind != None):
+                ret['attr'].append({'icon': 'remind'})
+            if links:
+                ret['attr'].append({'icon': 'url'})
+            if files:
+                ret['attr'].append({'icon': 'attach'})
+            if self.info:
+                info_descr = self.info[:80]
+                if len(self.info) > 80:
+                    info_descr += '...'
+                ret['attr'].append({'icon': 'notes', 'text': info_descr})
+
+        if self.categories:
+            if (len(ret['attr']) > 0):
+                ret['attr'].append({'icon': 'separator'})
+            categs = get_categories_list(self.categories)
+            for categ in categs:
+                ret['attr'].append({'icon': 'category', 'text': categ.name, 'color': 'category-design-' + categ.design})
+
+        if self.completed:
+            if (len(ret['attr']) > 0):
+                ret['attr'].append({'icon': 'separator'})
+            ret['attr'].append({'text': '{}: {}'.format(_('completion').capitalize(), self.completion.strftime('%d.%m.%Y') if self.completion else '')})
+
+        return ret
 
     def next_iteration(self):
         next = None
@@ -497,7 +638,7 @@ class Task(models.Model):
             return False
 
         if self.stop:
-            return (self.stop < datetime.now())
+            return (self.stop < datetime.now()) and ((self.stop.date() != date.today()) or (self.stop.hour != 0) or (self.stop.minute != 0))
         return False
 
     def task_actual(self):
@@ -505,7 +646,7 @@ class Task(models.Model):
             return False
 
         if self.stop:
-            return (self.stop > datetime.now())
+            return (self.stop > datetime.now()) or ((self.stop.date() == date.today()) and (self.stop.hour == 0) and (self.stop.minute == 0))
         return False
 
     def termin_date(self):
@@ -637,12 +778,16 @@ class Task(models.Model):
 
         if (currency == 'USD'):
             if self.expen_usd:
+                if self.expen_qty:
+                    return self.expen_usd * self.expen_qty
                 return self.expen_usd
             if byn and self.expen_rate:
                 return byn / self.expen_rate
 
         if (currency == 'EUR'):
             if self.expen_eur:
+                if self.expen_qty:
+                    return self.expen_eur * self.expen_qty
                 return self.expen_eur
             if byn and self.expen_rate_2:
                 return byn / self.expen_rate_2
@@ -652,9 +797,13 @@ class Task(models.Model):
                 return byn
 
             if self.expen_usd and self.expen_rate:
+                if self.expen_qty:
+                    return self.expen_usd * self.expen_qty * self.expen_rate
                 return self.expen_usd * self.expen_rate
 
             if self.expen_eur and self.expen_rate_2:
+                if self.expen_qty:
+                    return self.expen_eur * self.expen_qty * self.expen_rate
                 return self.expen_eur * self.expen_rate_2
 
         return 0
@@ -684,7 +833,47 @@ class Task(models.Model):
             else:
                 res.append(currency_repr(byn, ' BYN'))
         return res
+    
+    def correct_groups_qty(self, mode, group_id=None, role=None):
+        if (mode == GIQ_ADD_TASK) and Group.objects.filter(id=group_id).exists():
+            group = Group.objects.filter(id=group_id).get()
+            if (group.determinator == 'group') or (group.determinator == None):
+                TaskGroup.objects.create(task=self, group=group, role=group.role)
+                if not self.completed:
+                    if group.act_items_qty == None:
+                        group.act_items_qty = 0
+                    group.act_items_qty += 1
+                    group.save()
+                    return True
+        if (mode == GIQ_DEL_TASK) and role:
+            tgs = TaskGroup.objects.filter(task=self.id, role=role)
+            if (len(tgs) == 1):
+                group = tgs[0].group
+                if (not self.completed) and (group.act_items_qty > 0):
+                    group.act_items_qty -= 1
+                    group.save()
+                tgs[0].delete()
+                return True
+        if (mode == GIQ_CMP_TASK):
+            for tg in TaskGroup.objects.filter(task_id=self.id):
+                if self.completed:
+                    tg.group.act_items_qty -= 1
+                else:
+                    tg.group.act_items_qty += 1
+                tg.group.save()
+        return False
 
+    def delete_linked_items(self):
+        for tg in TaskGroup.objects.filter(task=self.id):
+            self.correct_groups_qty(GIQ_DEL_TASK, tg.group.role)
+        Step.objects.filter(task=self.id).delete()
+        Urls.objects.filter(task=self.id).delete()
+        Hist.objects.filter(task=self.id).delete()
+
+
+GIQ_ADD_TASK = 1 # Task created
+GIQ_DEL_TASK = 2 # Task deleted
+GIQ_CMP_TASK = 3 # Task.completed changed
 
 def add_months(sourcedate, months):
     month = sourcedate.month - 1 + months
@@ -698,8 +887,8 @@ def add_months(sourcedate, months):
 class Step(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'), related_name='task_step')
     task = models.ForeignKey(Task, on_delete = models.CASCADE, verbose_name = _('step task'))
-    created = models.DateTimeField(_('creation time'), blank=True, auto_now_add = True)
-    last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now = True)
+    created = models.DateTimeField(_('creation time'), blank=True, default=datetime.now)
+    last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now=True)
     name = models.CharField(_('step name'), max_length=200, blank=False)
     sort = models.CharField(_('sort code'), max_length=50, blank=True)
     completed = models.BooleanField(_('step is completed'), default=False)
@@ -722,8 +911,8 @@ class TaskGroup(models.Model):
     group = models.ForeignKey(Group, on_delete=models.CASCADE, verbose_name=_('group'), blank=True, null=True)
     task = models.ForeignKey(Task, on_delete = models.CASCADE, verbose_name = _('task'))
     role = models.CharField(_('role name'), max_length=50, blank=False, default='todo', null=True)
-    created = models.DateTimeField(_('creation time'), blank=True, auto_now_add = True)
-    last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now = True)
+    created = models.DateTimeField(_('creation time'), blank=True, default=datetime.now)
+    last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now=True)
 
 class Urls(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, verbose_name=_('task'), related_name = 'task_urlsr')
@@ -732,8 +921,8 @@ class Urls(models.Model):
     status = models.IntegerField(_('status'), default=0, null=True)
     hostname = models.CharField(_('hostname'), max_length=200, blank=True, null=True)
     title = models.CharField(_('page title'), max_length=200, blank=True, null=True)
-    created = models.DateTimeField(_('creation time'), blank=True, auto_now_add = True)
-    last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now = True)
+    created = models.DateTimeField(_('creation time'), blank=True, default=datetime.now)
+    last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now=True)
 
     def name(self):
         if (self.status == 0):
@@ -762,8 +951,13 @@ class Urls(models.Model):
                     if (self.status > 0):
                         self.status = 3
                         al = n.text
-                        self.title = al[al.find('<title>') + 7 : al.find('</title>')]
-                        if self.title:
+                        start = al.find('<title>')
+                        stop = al.find('</title>')
+                        if (start > 0) and (stop > start):
+                            if ((stop - start) < 190):
+                                self.title = al[start+7:stop]
+                            else:
+                                self.title = al[start+7:start+190] + '...'
                             self.ststus = 4
             self.save()
         if (self.hostname and self.title):
@@ -780,4 +974,11 @@ def currency_repr(value, currency):
     return '{:,.0f}{}'.format(value, currency).replace(',', '`')
 
 
-
+class Hist(models.Model):
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, verbose_name=_('task'), related_name = 'task_hist')
+    valid_until = models.DateTimeField(_('valid until date').capitalize(), blank=True, default=datetime.now)
+    store_username = models.CharField(_('username'), max_length=150, blank=True, null=True)
+    store_value = models.CharField(_('value'), max_length=128, null=True)
+    store_params = models.IntegerField(_('generator parameters used'), null=True)
+    info = models.TextField(_('information').capitalize(), blank=True, null=True)
+    store_uuid = models.CharField(_('UUID'), max_length=100, blank=True, null=True)

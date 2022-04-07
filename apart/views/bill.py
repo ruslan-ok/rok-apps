@@ -2,13 +2,11 @@ from datetime import datetime
 from django.utils.translation import gettext_lazy as _
 from task.const import APP_APART, ROLE_BILL, NUM_ROLE_BILL, NUM_ROLE_METER
 from task.models import Task, Urls
-from rusel.files import get_files_list, get_app_doc
+from rusel.app_doc import get_app_doc
 from rusel.base.views import BaseListView, BaseDetailView
 from apart.forms.bill import CreateForm, EditForm
 from apart.config import app_config
-from apart.models import Apart, Meter, Bill
 from apart.views.meter import next_period
-from rusel.files import get_files_list
 from apart.calc_tarif import HSC, INTERNET, PHONE, get_bill_info
 
 app = APP_APART
@@ -97,7 +95,7 @@ def get_info(item):
     ret.append({'text': '{}: {}'.format(_('paid'), bill_info['total']['paid']) })
 
     links = len(Urls.objects.filter(task=item.id)) > 0
-    files = len(get_files_list(item.user, app, role, item.id)) > 0
+    files = len(item.get_files_list(app, role)) > 0
 
     if item.info or links or files:
         ret.append({'icon': 'separator'})

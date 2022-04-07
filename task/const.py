@@ -18,6 +18,7 @@ APP_HEALTH = 'health'
 APP_WORK = 'work'
 APP_PHOTO = 'photo'
 APP_ADMIN = 'admin'
+APP_GENEA = 'genea'
 
 APP_ALL = 'all'
 
@@ -38,9 +39,12 @@ APP_NAME = {
     APP_HEALTH: 'health',
     APP_WORK: 'work',
     APP_PHOTO: 'photobank',
+    APP_GENEA: 'genealogy',
     APP_ADMIN: 'administration',
     APP_ALL: 'all applications',
 }
+
+FOLDER_NAV_APPS = [APP_PHOTO, APP_DOCS, APP_WARR]
 
 """
 Kinds of Entities that can be combined into Group
@@ -231,7 +235,7 @@ ROLES_IDS = {
     APP_EXPEN: { ROLE_EXPENSE: NUM_ROLE_EXPENSE },
     APP_TRIP: { ROLE_PERSON: NUM_ROLE_PERSON, ROLE_TRIP: NUM_ROLE_TRIP, ROLE_SALDO: NUM_ROLE_SALDO },
     APP_FUEL: { ROLE_FUEL: NUM_ROLE_FUEL, ROLE_PART: NUM_ROLE_PART, ROLE_SERVICE: NUM_ROLE_SERVICE, ROLE_CAR: NUM_ROLE_CAR },
-    APP_APART: { ROLE_APART: NUM_ROLE_APART, ROLE_METER: NUM_ROLE_METER, ROLE_PRICE: NUM_ROLE_PRICE, ROLE_BILL: NUM_ROLE_BILL },
+    APP_APART: { ROLE_BILL: NUM_ROLE_BILL, ROLE_METER: NUM_ROLE_METER, ROLE_PRICE: NUM_ROLE_PRICE, ROLE_APART: NUM_ROLE_APART, },
     APP_HEALTH: { ROLE_MARKER: NUM_ROLE_MARKER, ROLE_INCIDENT: NUM_ROLE_INCIDENT, ROLE_CHART_WEIGHT: NUM_ROLE_CHART_WEIGHT, ROLE_CHART_WAIST: NUM_ROLE_CHART_WAIST, ROLE_CHART_TEMP: NUM_ROLE_CHART_TEMP },
     APP_WORK: { ROLE_PERIOD: NUM_ROLE_PERIOD, ROLE_DEPARTMENT: NUM_ROLE_DEPARTMENT, ROLE_DEP_HIST: NUM_ROLE_DEP_HIST, 
                 ROLE_POST: NUM_ROLE_POST, ROLE_EMPLOYEE: NUM_ROLE_EMPLOYEE, ROLE_FIO_HIST: NUM_ROLE_FIO_HIST, 
@@ -410,3 +414,27 @@ ROLE_APP = {
     ROLE_ACCOUNT: APP_HOME,
     ROLE_SEARCH_RESULTS: NONE,
 }
+
+APART_SERVICE = [
+    'не задано',
+    'электроснабжение',
+    'газоснабжение',
+    'вода',
+    'водоснабжение',
+    'водоотведение',
+    'не задано',
+    '!?-7',
+    '!?-8',
+    'kill',
+    'электроснабжение',
+    '!?-11',
+    'kill-1',
+    'kill-3',
+    'kill-2',
+    '!?-15',
+    'членские взносы',
+    '!?-17',
+    '!?-18',
+    '!?-19',
+    '!?-20',
+]

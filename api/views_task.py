@@ -9,10 +9,10 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from task.const import *
-from task.models import Task, Group, TaskGroup
-from rusel.files import storage_path
+from task.models import Task, Group, TaskGroup, GIQ_ADD_TASK, GIQ_DEL_TASK
+from todo.models import Subscription
+from rusel.utils import nice_date
 from api.serializers import TaskSerializer
-from apart.models import Apart, Price, Meter, Bill
 
 from apart.views.meter import add_meter
 from apart.views.price import add_price
@@ -23,7 +23,6 @@ from fuel.views.serv import add_serv
 from health.views.marker import add_item as add_marker
 from store.views import add_item as add_store
 
-from todo.get_info import get_info as todo_get_info
 from note.get_info import get_info as note_get_info
 from news.get_info import get_info as news_get_info
 from store.get_info import get_info as store_get_info
@@ -32,6 +31,7 @@ from apart.views.price import get_info as price_get_info
 from apart.views.meter import get_info as meter_get_info
 from apart.views.bill import get_info as bill_get_info
 from health.views.incident import get_info as incident_get_info
+from warr.views import get_info as warr_get_info
 
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
@@ -57,7 +57,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     
     def _get_info(self, task):
         if (task.app_task == NUM_ROLE_TODO):
-            task.set_item_attr(APP_TODO, todo_get_info(task))
+            task.set_item_attr(APP_TODO, task.get_info())
         if (task.app_note == NUM_ROLE_NOTE):
             task.set_item_attr(APP_NOTE, note_get_info(task))
         if (task.app_news == NUM_ROLE_NEWS):
@@ -74,6 +74,8 @@ class TaskViewSet(viewsets.ModelViewSet):
             task.set_item_attr(APP_APART, bill_get_info(task))
         if (task.app_apart == NUM_ROLE_INCIDENT):
             task.set_item_attr(APP_HEALTH, incident_get_info(task))
+        if (task.app_warr == NUM_ROLE_WARR):
+            task.set_item_attr(APP_WARR, warr_get_info(task))
     
     @action(detail=False)
     def get_info(self, request, pk=None):
@@ -97,7 +99,9 @@ class TaskViewSet(viewsets.ModelViewSet):
             name = self.request.query_params['name']
         if Task.use_name(app, role):
             if (not name):
-                return Response({'task_id': 0})
+                return Response({"Error": "For application '" + app + "' and role '" + role + "' expected parameter 'name'.\n" + 
+                                    "Check Task.use_name() method"},
+                                status=status.HTTP_400_BAD_REQUEST)
         group = None
         group_id = None
         if 'group_id' in self.request.query_params:
@@ -107,6 +111,10 @@ class TaskViewSet(viewsets.ModelViewSet):
         service_id = 0
         if 'service_id' in self.request.query_params:
             service_id = int(self.request.query_params['service_id'])
+        task = None
+        part_id = 0
+        if 'part_id' in self.request.query_params:
+            part_id = int(self.request.query_params['part_id'])
         task = None
         message = ''
         ani = Task.get_active_nav_item(request.user.id, app)
@@ -144,9 +152,9 @@ class TaskViewSet(viewsets.ModelViewSet):
         if (app == APP_FUEL) and (role == ROLE_FUEL):
             task = add_fuel(request.user, ani)
         if (app == APP_FUEL) and (role == ROLE_PART):
-            task = add_part(request.user, ani)
+            task = add_part(request.user, ani, name)
         if (app == APP_FUEL) and (role == ROLE_SERVICE):
-            task = add_serv(request.user, ani)
+            task = add_serv(request.user, ani, part_id)
         if (app == APP_APART) and (role == ROLE_APART):
             task = Task.objects.create(user=request.user, app_apart=NUM_ROLE_APART, name=name, event=datetime.now())
         if (app == APP_APART) and (role == ROLE_METER):
@@ -187,11 +195,7 @@ class TaskViewSet(viewsets.ModelViewSet):
             task = Task.objects.create(user=request.user, app_photo=NUM_ROLE_PHOTO, name=name, event=datetime.now())
         if not task:
             return Response({'task_id': 0, 'mess': message})
-        if group and ((group.determinator == 'group') or (group.determinator == None)):
-            TaskGroup.objects.create(task=task, group=group, role=role)
-            if not task.completed:
-                group.act_items_qty += 1
-                group.save()
+        task.correct_groups_qty(GIQ_ADD_TASK, group.id)
         self._get_info(task)
         return Response({'task_id': task.id})
 
@@ -230,10 +234,14 @@ class TaskViewSet(viewsets.ModelViewSet):
     @action(detail=True)
     def completed(self, request, pk=None):
         task = self.get_object()
-        task.toggle_completed()
+        next_task = task.toggle_completed()
         self.save(task)
+        mess = None
+        if next_task:
+            next_task.set_item_attr(APP_TODO, next_task.get_info())
+            mess = _('replanned to ' + nice_date(next_task.stop))
         serializer = TaskSerializer(instance=task, context={'request': request})
-        return Response(serializer.data)
+        return Response({'data': serializer.data, 'info': mess})
 
 
     # OK
@@ -293,7 +301,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         role = self.request.query_params['role']
         fname = self.request.query_params['fname']
         task = self.get_object()
-        path = storage_path.format(self.request.user.id) + 'attachments/{}/{}_{}/'.format(app, role, task.id)
+        path = task.get_attach_path(app, role)
         if not os.path.isfile(path + fname[4:]):
             return Response({'Error': "The specified file does not exist."},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -612,14 +620,6 @@ class TaskViewSet(viewsets.ModelViewSet):
             task.app_fuel = NONE
 
         if (role in [ROLE_APART, ROLE_METER, ROLE_PRICE, ROLE_BILL]):
-            if (task.app_apart == NUM_ROLE_APART):
-                Apart.objects.filter(task=task.id).delete()
-            if (task.app_apart == NUM_ROLE_METER):
-                Meter.objects.filter(task=task.id).delete()
-            if (task.app_apart == NUM_ROLE_PRICE):
-                Price.objects.filter(task=task.id).delete()
-            if (task.app_apart == NUM_ROLE_BILL):
-                Bill.objects.filter(task=task.id).delete()
             task.app_apart = NONE
         
         if (role in [ROLE_MARKER, ROLE_INCIDENT]):
@@ -632,15 +632,11 @@ class TaskViewSet(viewsets.ModelViewSet):
         if (role == ROLE_PHOTO):
             task.app_photo = NONE
         
-        tgs = TaskGroup.objects.filter(task=task.id, role=role)
-        if (len(tgs) == 1):
-            if (not task.completed) and (tgs[0].group.act_items_qty > 0):
-                tgs[0].group.act_items_qty -= 1
-                tgs[0].group.save()
-            tgs[0].delete()
+        task.correct_groups_qty(GIQ_DEL_TASK, role=role)
 
         if ((task.app_task + task.app_note + task.app_news + task.app_store + task.app_doc + task.app_warr + task.app_expen + 
             task.app_trip + task.app_fuel + task.app_apart + task.app_health + task.app_work + task.app_photo) == 0):
+            task.delete_linked_items()
             task.delete()
         else:
             self.save(task)
@@ -650,6 +646,72 @@ class TaskViewSet(viewsets.ModelViewSet):
 
     def save(self, task):
         task.save()
-        task.set_item_attr(APP_TODO, todo_get_info(task))
+        task.set_item_attr(APP_TODO, task.get_info())
 
+    @action(detail=False)
+    def reminder_ripe(self, request, pk=None):
+        now = datetime.now()
+        tasks = Task.objects.filter(completed=False, remind__lt=now).exclude(remind=None)
+        return Response({'result': (len(tasks) > 0)})
 
+    @action(detail=False)
+    def reminder_process(self, request, pk=None):
+        now = datetime.now()
+        tasks = Task.objects.filter(completed=False, remind__lt=now).exclude(remind=None)
+        result = []
+        for task in tasks:
+            group_path = ''
+            group = None
+            if TaskGroup.objects.filter(task=task.id, role=ROLE_TODO).exists():
+                group = TaskGroup.objects.filter(task=task.id, role=ROLE_TODO).get().group
+            while group:
+                if group_path:
+                    group_path = '/' + group_path
+                group_path = group.name + group_path
+                group = group.node
+            result.append({
+                'id': task.id, 
+                'name': task.name, 
+                'user_id': task.user.id, 
+                'important': task.important, 
+                'term': task.s_termin(), 
+                'group': group_path
+                })
+        return Response({'result': result})
+    
+    @action(detail=False)
+    def get_tokens(self, request, pk=None):
+        if 'user_id' not in self.request.query_params:
+            return Response({'Error': "Expected parameter 'user_id'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        user_id = self.request.query_params['user_id']
+        subs = Subscription.objects.filter(user_id=user_id)
+        tokens = []
+        for s in subs:
+            tokens.append(s.token)
+        return Response({'result': tokens})
+    
+    @action(detail=False)
+    def del_token(self, request, pk=None):
+        if 'user_id' not in self.request.query_params:
+            return Response({'Error': "Expected parameter 'user_id'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        user_id = self.request.query_params['user_id']
+        if 'token' not in self.request.query_params:
+            return Response({'Error': "Expected parameter 'token'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        token = self.request.query_params['token']
+        ret = Subscription.objects.filter(user_id=user_id, token=token).delete()
+        return Response({'result': (len(ret) > 0)})
+    
+    @action(detail=False)
+    def reminded(self, request, pk=None):
+        if 'task_id' not in self.request.query_params:
+            return Response({'Error': "Expected parameter 'task_id'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        task_id = self.request.query_params['task_id']
+        task = Task.objects.filter(id=task_id).get()
+        task.last_remind = datetime.now()
+        task.remind = None
+        task.save()
+        return Response({'result': 'ok'})

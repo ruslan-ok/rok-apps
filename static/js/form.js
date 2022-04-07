@@ -63,7 +63,7 @@ function addItem(app, role, group_id, screen_size='') {
                 let mess = 'Unknown Error';
                 if (resp.mess)
                     mess = resp.mess;
-                showInfo(mess);
+                iziToast.error({title: 'Error', message: mess, position: 'bottomRight'});
                 return;
             }
             let item_id_arr = window.location.pathname.match( /\d+/ );
@@ -108,19 +108,20 @@ function delItemConfirm(role, ban, text) {
 
 function delItem(role) {
     const item_id = window.location.pathname.match( /\d+/ )[0];
-    let redirect_url = window.location.href.split('/' + item_id + '/')[0] + '/';
-    let grp = document.getElementById("id_grp");
-    if (grp && grp.value)
-        redirect_url = window.location.href.split('/' + item_id + '/')[0] + '/?group=' + grp.value;
+    let url_params = '';
+    if (window.location.href.split('?').length == 2)
+        url_params = '?' + window.location.href.split('?')[1];
+    let redirect_url = window.location.href.split('/' + item_id + '/')[0] + '/' + url_params;
     const api = '/api/tasks/' + item_id + '/role_delete/?format=json&role=' + role;
     const callback = function() {
         if (this.readyState == 3 && this.status == 400) {
+            let mess = 'Unknown Error';
             let resp = JSON.parse(this.response);
             if (resp && resp.Error)
-                alert(resp.Error);
+                mess = resp.Error;
+            iziToast.error({title: 'Error', message: mess, position: 'bottomRight'});
         }
         if (this.readyState == 4 && this.status == 200) {
-            // alert('redirected to: ' + redirect_url);
             window.location.href = redirect_url;
         }
     };
@@ -139,19 +140,29 @@ function delCategory(category) {
     runAPI(api, callback);
 }
 
-function delURL(url_id) {
+function delURLconfirmed(url_id) {
+    const redirect_url = window.location.href;
     const api = '/api/urls/' + url_id + '/?format=json';
     const callback = function() {
         if (this.readyState == 4 && this.status == 204) {
-            console.log('URL deleted successfully.');
+            window.location.href = redirect_url;
+            //console.log('URL deleted successfully.');
         }
     };
     runAPI(api, callback, 'DELETE');
 
-    let el = document.getElementById('id_url_' + url_id);
+    /*let el = document.getElementById('id_url_' + url_id);
     if (el) {
         el.parentElement.removeChild(el);
-    }
+    }*/
+}
+
+function delURL(url_id) {
+    let el = document.getElementById('delModal');
+    el.querySelectorAll('div.modal-body')[0].innerText = 'Delete this URL?';
+    el.querySelectorAll('button.btn-danger')[0].onclick = function() {return delURLconfirmed(url_id);}
+    let conf = new bootstrap.Modal(document.getElementById('delModal'), {});
+    conf.show();
 }
 
 function uploadFile()
@@ -330,7 +341,6 @@ function delStepConfirm(step_id, text) {
 
     let conf = new bootstrap.Modal(document.getElementById('delModal'), {});
     conf.show();
-    
 }
 
 function editStep(step_id, value) {
@@ -534,6 +544,24 @@ function remindNextWeek() {
     runAPI(api, callback);
 }
 
+function toggleCompleted() {
+    const item_id = window.location.pathname.match( /\d+/ )[0];
+    const api = '/api/tasks/' + item_id + '/completed/?format=json';
+    const callback = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            let info = '';
+            if (this.response) {
+                let resp = JSON.parse(this.response);
+                if (resp && resp.info)
+                    info = resp.info;
+            }
+            if (info != '')
+                iziToast.info({message: info, position: 'bottomRight'});
+        }
+    };
+    runAPI(api, callback);
+}
+
 function checkCompleted(mode) {
     cf = document.getElementById('id_completed');
     nf = document.getElementById('id_name');
@@ -544,7 +572,16 @@ function checkCompleted(mode) {
             nf.classList.add('completed');
         else
             nf.classList.remove('completed');
-    if (mode == 1)
+    if (mode == 1) {
         nf.classList.toggle('completed');
+        toggleCompleted()
+    }
 }
 
+function toggleNegative(fieldId) {
+    fld = document.getElementById(fieldId);
+    if (!fld.value)
+        fld.value = '-1';
+    else
+        fld.value = (-1 * Number(fld.value)).toFixed(3);
+}

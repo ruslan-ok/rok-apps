@@ -1,11 +1,10 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
-
 from rusel.base.forms import BaseCreateForm, BaseEditForm
 from task.const import ROLE_TODO
-from task.models import Task, Group
+from task.models import Task
 from todo.config import app_config
-from rusel.widgets import UrlsInput, CategoriesInput, CheckboxInput, CompletedInput #, ImportantInput
+from rusel.widgets import UrlsInput, CategoriesInput, CompletedInput
 
 role = ROLE_TODO
 
@@ -34,11 +33,10 @@ class EditForm(BaseEditForm):
         label=_('termin').capitalize(),
         required=False,
         widget=forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime d-inline-block mb-3 me-3', 'type': 'datetime-local'}))
-    grp = forms.ModelChoiceField(
+    grp = forms.ChoiceField(
         label=_('group').capitalize(),
-        required=False,
-        queryset=Group.objects.filter(role=role).order_by('sort'), 
-        widget=forms.Select(attrs={'class': 'form-control select mb-3'}))
+        widget=forms.Select(attrs={'class': 'form-control mb-3'}),
+        choices=[(0, '------'),])
     categories = forms.CharField(
         label=_('categories').capitalize(),
         required=False,
@@ -64,7 +62,3 @@ class EditForm(BaseEditForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
-
-    def is_valid(self):
-        """Return True if the form has no errors, or False otherwise."""
-        return self.is_bound and not self.errors

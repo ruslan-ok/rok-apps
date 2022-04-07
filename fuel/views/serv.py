@@ -1,8 +1,8 @@
 from datetime import datetime
 from django.utils.translation import gettext_lazy as _
-from task.const import NUM_ROLE_PART, NUM_ROLE_SERVICE, ROLE_SERVICE, ROLE_APP
-from task.models import Task, Urls, TaskGroup
-from rusel.files import get_files_list, get_app_doc
+from task.const import NUM_ROLE_PART, NUM_ROLE_SERVICE, ROLE_SERVICE, ROLE_APP, APP_FUEL
+from task.models import Task, Urls
+from rusel.app_doc import get_app_doc
 from rusel.categories import get_categories_list
 from rusel.base.views import BaseListView, BaseDetailView
 from fuel.forms.serv import CreateForm, EditForm
@@ -22,7 +22,16 @@ class ListView(BaseListView, TuneData):
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
+        self.template_name = 'fuel/list.html'
 
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['add_item_template'] = 'fuel/add_service.html'
+        nav_item = Task.get_active_nav_item(self.request.user.id, APP_FUEL)
+        form = CreateForm(nav_item, self.request.user.id)
+        context['form'] = form
+        return context
 
 class DetailView(BaseDetailView, TuneData):
     model = Task
@@ -53,7 +62,7 @@ def get_info(item):
         attr.append({'text': item.repl_descr})
 
     links = len(Urls.objects.filter(task=item.id)) > 0
-    files = (len(get_files_list(item.user, app, role, item.id)) > 0)
+    files = (len(item.get_files_list(app, role)) > 0)
 
     if item.info or links or files:
         if (len(attr) > 0):
@@ -90,7 +99,7 @@ def add_serv(user, car, part_id):
         if Task.objects.filter(user=user.id, app_fuel=NUM_ROLE_PART, task_1=car.id, id=part_id).exists():
             part = Task.objects.filter(id=part_id).get()
     event = datetime.now()
-    odometr = get_new_odometr(car)
+    odometr = get_new_odometr(user, car, event)
     name = get_item_name(part, event)
     task = Task.objects.create(user=user, app_fuel=NUM_ROLE_SERVICE, name=name, event=event, task_1=car, task_2=part, car_odometr=odometr)
     return task

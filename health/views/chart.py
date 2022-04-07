@@ -24,6 +24,7 @@ class WeightView(TemplateView, Context):
         s_data = json.dumps(data)
         context['chart_data'] = s_data
         context['title'] = _('waist measurement chart').capitalize()
+        context['hide_add_item_input'] = True
         return context
 
 class WaistView(TemplateView, Context):
@@ -43,6 +44,7 @@ class WaistView(TemplateView, Context):
         s_data = json.dumps(data)
         context['chart_data'] = s_data
         context['title'] = _('waist measurement chart').capitalize()
+        context['hide_add_item_input'] = True
         return context
 
 class TempView(TemplateView, Context):
@@ -62,6 +64,7 @@ class TempView(TemplateView, Context):
         s_data = json.dumps(data, default=str)
         context['chart_data'] = s_data
         context['title'] = _('temperature chart').capitalize()
+        context['hide_add_item_input'] = True
         return context
 
 #----------------------------------
@@ -71,18 +74,18 @@ def get_data_from_db(user, name):
     min_value = max_value = min_date = max_date = last_value = None
 
     if (name == 'weight'):
-        data = Task.objects.filter(user=user.id, app_health=NUM_ROLE_MARKER).exclude(bio_weight=None).order_by('event')
+        data = Task.objects.filter(user=user.id, app_health=NUM_ROLE_MARKER).exclude(bio_weight=None).exclude(bio_weight=0).order_by('event')
         if (len(data) > 0):
-            values = Task.objects.filter(user=user.id, app_health=NUM_ROLE_MARKER).exclude(bio_weight=None).order_by('bio_weight')
+            values = Task.objects.filter(user=user.id, app_health=NUM_ROLE_MARKER).exclude(bio_weight=None).exclude(bio_weight=0).order_by('bio_weight')
             min_value = values[0].bio_weight
             max_value = values[len(values)-1].bio_weight
             min_date = values[0].event.date()
             max_date = values[len(values)-1].event.date()
             last_value = data[len(data)-1].bio_weight
     elif (name == 'waist'):
-        data = Task.objects.filter(user=user.id, app_health=NUM_ROLE_MARKER).exclude(bio_waist=None).order_by('event')
+        data = Task.objects.filter(user=user.id, app_health=NUM_ROLE_MARKER).exclude(bio_waist=None).exclude(bio_waist=0).order_by('event')
         if (len(data) > 0):
-            values = Task.objects.filter(user=user.id, app_health=NUM_ROLE_MARKER).exclude(bio_waist=None).order_by('bio_waist')
+            values = Task.objects.filter(user=user.id, app_health=NUM_ROLE_MARKER).exclude(bio_waist=None).exclude(bio_waist=0).order_by('bio_waist')
             min_value = values[0].bio_waist
             max_value = values[len(values)-1].bio_waist
             min_date = values[0].event.date()

@@ -96,6 +96,19 @@
     }
 }
 
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    margin-right: 1rem;
+    flex-wrap: wrap;
+    &__info {
+        margin-bottom: 0.5rem;
+    }
+    &__sort {
+        margin-bottom: 0.5rem;
+    }
+}
+
 .sub-group {
     border-radius: 5px;
     background-color: white;

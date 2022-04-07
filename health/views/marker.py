@@ -11,7 +11,7 @@ app = ROLE_APP[role]
 
 class TuneData:
     def tune_dataset(self, data, group):
-        return data;
+        return data
 
 class ListView(BaseListView, TuneData):
     model = Task
@@ -30,13 +30,32 @@ class DetailView(BaseDetailView, TuneData):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        form.instance.name = get_item_name(form.instance.event)
+        form.instance.name = get_item_name(self.request.user.id, form.instance.event, form.instance.id)
         form.instance.save()
         form.instance.set_item_attr(app, get_info(form.instance))
         return response
 
-def get_item_name(event):
+def get_item_name(user_id, event, id=None):
     name = event.strftime('%Y.%m.%d')
+    if id:
+        this_day = Task.objects.filter(user=user_id, 
+                                        app_health=NUM_ROLE_MARKER, 
+                                        event__year=event.year, 
+                                        event__month=event.month, 
+                                        event__day=event.day, 
+                                        ).exclude(id=id)
+    else:
+        this_day = Task.objects.filter(user=user_id, 
+                                        app_health=NUM_ROLE_MARKER, 
+                                        event__year=event.year, 
+                                        event__month=event.month, 
+                                        event__day=event.day, 
+                                        )
+    if len(this_day):
+        name = event.strftime('%Y.%m.%d - %H:%M')
+        for x in this_day:
+            x.name = x.event.strftime('%Y.%m.%d - %H:%M')
+            x.save()
     return name
 
 def get_info(item):
@@ -109,7 +128,7 @@ def add_item(user, value):
         height = n_value
 
     event = datetime.now()
-    name = get_item_name(event)
+    name = get_item_name(user.id, event)
     task = Task.objects.create(user=user, app_health=NUM_ROLE_MARKER, name=name, bio_height=height, bio_weight=weight, bio_temp=temp, bio_waist=waist, \
                                 bio_systolic=systolic, bio_diastolic=diastolic, bio_pulse=pulse, info=info, event=event)
     task.set_item_attr(app, get_info(task))

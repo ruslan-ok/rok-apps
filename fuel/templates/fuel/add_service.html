@@ -1,0 +1,17 @@
+{% load i18n %}
+
+<div class="dropdown mx-3">
+    <button class="btn bi-plus-lg{% if dark_theme %} dark-theme{% endif %}" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false"></button>
+    <ul class="dropdown-menu shadow-lg" aria-labelledby="dropdownMenuButton1">
+        <div class="d-flex py-2">
+            <div class="add-service d-flex align-items-end">
+                <div>{{ form.new_part }}</div>
+                <div class="ms-2">
+                    <button type="button" class="btn btn-primary" onclick="addService({{ config.cur_view_group.id|escape }})">
+                        {% trans 'add'|capfirst %}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </ul>
+</div>

@@ -3,8 +3,10 @@
 
 {% block extrastyle %}
   {{ block.super }}
-    <link href="{% static 'scss/tune.css' %}" rel="stylesheet">
-    <link href="{% static 'scss/list.css' %}" rel="stylesheet">
+  <link href="{% static 'scss/tune.css' %}" rel="stylesheet">
+  <link href="{% static 'scss/list.css' %}" rel="stylesheet">
+  <link href="{% static 'scss/category.css' %}" rel="stylesheet">
+  <link href="{% static 'iziToast/css/iziToast.min.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block main %}
@@ -12,27 +14,31 @@
   <form method="post" class="d-none">{% csrf_token %}</form>
   {% include "base/title.html" %}
 
-  {% if summary %}
-    <div>
-      {% for item in summary %}
-        <span class="sort">
-          <i class="sort__icon bi-star"></i>
-          <span class="sort__name">{{ item }}</span>
-        </span>
-      {% endfor %}
+  {% if sort_id or summary %}
+    <div class="list-header">
+
+      <div class="list-header__info">
+        {% for item in summary %}
+          <span class="sort">
+            <i class="sort__icon bi-star"></i>
+            <span class="sort__name">{{ item }}</span>
+          </span>
+        {% endfor %}
+      </div>
+
+      {% if sort_id %}
+        <div class="list-header__sort">
+          <span type="button" class="sort" onclick="reverseSort({{config.cur_view_group.id|escape}}, '{{sort_id|escape}}')">
+            <i class="sort__icon {% if sort_reverse %}bi-arrow-down{% else %}bi-arrow-up{%endif %}"></i>
+            <span class="sort__name">{{ sort_name }}</span>
+          </span>
+          <div type="button" class="sort-delete btn bi-x" onclick="delSort({{config.cur_view_group.id|escape}})"></div>
+        </div>
+      {% endif %}
+
     </div>
   {% endif %}
-
-  {% if sort_id %}
-    <div>
-      <span type="button" class="sort" onclick="reverseSort({{config.cur_view_group.id|escape}}, '{{sort_id|escape}}')">
-        <i class="sort__icon {% if sort_reverse %}bi-arrow-down{% else %}bi-arrow-up{%endif %}"></i>
-        <span class="sort__name">{{ sort_name }}</span>
-      </span>
-      <div type="button" class="sort-delete btn bi-x" onclick="delSort({{config.cur_view_group.id|escape}})"></div>
-    </div>
-  {% endif %}
-
+  
   {% if use_sub_groups %}
     {% for sub_group in sub_groups %}
       {% include "base/sub_group.html" %}
@@ -47,6 +53,9 @@
       {% for item in object_list %}
         {% include "base/item.html" %}
       {% endfor %}
+      {% for item in files_list %}
+        {% include "base/item.html" %}
+      {% endfor %}
     </ul>
   {% endif %}
 
@@ -55,5 +64,6 @@
 
 {% block extrascript %}
   {{ block.super }}
+  <script src="{% static 'iziToast/js/iziToast.min.js' %}"></script>
   <script src="{% static 'js/list.js' %}"></script>
 {% endblock %}

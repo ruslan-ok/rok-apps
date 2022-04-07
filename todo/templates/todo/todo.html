@@ -1,6 +1,11 @@
 {% extends "base/item_detail.html" %}
 {% load static i18n %}
 
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="manifest" href="{% static 'json/manifest.json' %}">
+{% endblock %}
+
 {% block item_detail %}
   <div class="input-group">
     {{ form.completed.errors }}{{ form.completed }}
@@ -17,9 +22,18 @@
     <div class="col-sm">{{ form.grp.errors }}{{ form.grp.label_tag }}{{ form.grp }}</div>
     <div class="col-sm">{{ form.categories.errors }}{{ form.categories.label_tag }}{{ form.categories }}</div>
   </div>
-  <div>{{ form.url.errors }}{{ form.url.label_tag }}{{ form.url }}</div>
-  <div>{{ form.upload.errors }}{{ form.upload.label_tag }}{{ form.upload }}</div>
+  <div class="row">
+    <div class="col">{{ form.url.errors }}{{ form.url.label_tag }}{{ form.url }}</div>
+    <div class="col">{{ form.upload.errors }}{{ form.upload.label_tag }}{{ form.upload }}</div>
+  </div>
   {% include "widgets/url_list.html" %}
   {% include "widgets/attachments.html" %}
 {% endblock %}
 
+{% block extrascript %}
+  {{ block.super }}
+  <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-analytics.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-messaging.js"></script>
+  <script src="{% static 'js/fcm.js' %}"></script>
+{% endblock %}

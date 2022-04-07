@@ -2,7 +2,9 @@
 {% load static i18n %}
 
 {% block extrastyle %}
+  {{ block.super }}
   <link href="{% static 'scss/apart.css' %}" rel="stylesheet">
+  <link href="{% static 'iziToast/css/iziToast.min.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block item_detail %}
@@ -27,5 +29,7 @@
 {% endblock %}
 
 {% block extrascript %}
+    {{ block.super }}
+    <script src="{% static 'iziToast/js/iziToast.min.js' %}"></script>
     <script src="{% static 'js/apart.js' %}"></script>
 {% endblock %}

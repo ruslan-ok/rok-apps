@@ -1,5 +1,36 @@
 {% extends "base/page_content.html" %}
 {% load static i18n %}
 
-{% block item_detail %}
+{% block extrastyle %}
+  {{ block.super }}
+  <link href="{% static 'scss/tune.css' %}" rel="stylesheet">
+  <link href="{% static 'scss/home.css' %}" rel="stylesheet">
+  <link href="{% static 'scss/photo.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block main %}
+<div class="list-content{% if theme_id %} theme-{{theme_id}}{% endif %}">
+  {% include "base/title.html" %}
+
+  <div class="bank">
+    {% for item in file_list %}
+      <div>
+        <div class="gallery">
+          <a href="slider/?folder={{ cur_folder }}#photo-{{ item.num }}">
+            <img src="get_thumb/?folder={{ cur_folder }}&file={{ item.url }}" alt="{{ item.name }}">  </a>
+          <div class="desc">{{ item.name }}</div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'js/docs.js' %}"></script>
+  <script>
+    buildDirTree('dirs-tree');
+  </script>
+  <script src="{% static 'js/uploadFile.js' %}"></script>
 {% endblock %}

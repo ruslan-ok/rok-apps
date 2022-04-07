@@ -4,7 +4,7 @@ from health.forms.incident import CreateForm, EditForm
 from task.const import ROLE_INCIDENT, ROLE_APP
 from task.models import Task, Urls
 from health.config import app_config
-from rusel.files import get_files_list, get_app_doc
+from rusel.app_doc import get_app_doc
 from rusel.categories import get_categories_list
 
 role = ROLE_INCIDENT
@@ -12,7 +12,7 @@ app = ROLE_APP[role]
 
 class TuneData:
     def tune_dataset(self, data, group):
-        return data;
+        return data
 
 class ListView(BaseListView, TuneData):
     model = Task
@@ -47,7 +47,7 @@ def get_info(item):
         attr.append({'text': item.diagnosis})
 
     links = len(Urls.objects.filter(task=item.id)) > 0
-    files = (len(get_files_list(item.user, app, role, item.id)) > 0)
+    files = (len(item.get_files_list(app, role)) > 0)
 
     if item.info or links or files:
         if (len(attr) > 0):

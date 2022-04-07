@@ -5,7 +5,47 @@
         &.active {
             background-color: rgba(112, 76, 167, 0.2);;
         }
-}
+    }
+    .dirs {
+        display: flex;
+        flex-direction: column;
+        .item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            padding: 2px 0;
+            margin-left: 0.25rem;
+            a:hover {
+                background-color: inherit;
+            }
+            .icon {
+                font-size: 0.6rem;
+            }
+            .qty {
+                padding: 0 4px;
+            }
+            &:hover {
+                background-color: rgba(121,82,179,0.1);
+            }
+            &.hidden {
+                display: none;
+            }
+            &.visible {
+                display: flex;
+                justify-content: space-between;
+            }
+            &.active {
+                background-color: rgba(112, 76, 167, 0.2);;
+            }
+            .level-0 { margin-left: 0px; }
+            .level-1 { margin-left: 10px; }
+            .level-2 { margin-left: 20px; }
+            .level-3 { margin-left: 30px; }
+            .level-4 { margin-left: 40px; }
+            .level-5 { margin-left: 50px; }
+            .level-6 { margin-left: 60px; }
+        }
+    }
     &__groups {
         display: flex !important;
         flex-direction: column;

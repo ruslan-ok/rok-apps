@@ -110,4 +110,10 @@ class EntryValueInput(widgets.Input):
         context = super().get_context(name, value, attrs)
         return context
 
-        
+class NegativeNumberInput(widgets.Input):
+    input_type = 'number'
+    template_name = 'widgets/negative_number.html'
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        return context
