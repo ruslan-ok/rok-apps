@@ -63,7 +63,7 @@ class Header(models.Model):
     dest = models.CharField(_('receiving system name'), max_length=20, blank=True, null=True)
     date = models.CharField(_('transmission date'), max_length=11, blank=True, null=True)
     time = models.CharField(_('time value'), max_length=12, blank=True, null=True)
-    subm = models.CharField(_('submitter reference'), max_length=22, blank=True, null=True)
+    subm_id = models.IntegerField(_('submitter reference'), blank=True, null=True)
     file = models.CharField(_('file name'), max_length=90, blank=True, null=True)
     copr = models.CharField(_('copyright gedcom file'), max_length=90, blank=True, null=True)
     gedc_vers = models.CharField(_('version number'), max_length=15, blank=True, null=True)

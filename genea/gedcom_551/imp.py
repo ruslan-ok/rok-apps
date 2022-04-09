@@ -86,6 +86,7 @@ class ImpGedcom551:
     def imp_tree(self, folder, file):
         self.result = 'ok'
         self.stat = {}
+        self.head_subm = 0
         with GedcomReader(folder + '\\' + file) as parser:
             for item in parser.records0():
                 match item.tag:
@@ -124,7 +125,10 @@ class ImpGedcom551:
                         match y.tag:
                             case 'TIME': head.time = y.value
                             case _: self.unexpected_tag(y)
-                case 'SUBM': head.subm = x.value
+                case 'SUBM':
+                    s_id = x.value.split('@U')[1].split('@')[0]
+                    if s_id:
+                        self.head_subm = int(s_id)
                 case 'FILE': head.file = x.value
                 case 'COPR': head.copr = x.value
                 case 'GEDC':
@@ -492,7 +496,11 @@ class ImpGedcom551:
             xref = '0'
         else:
             xref = item.xref_id.split('@U')[1].split('@')[0]
+        i_xref = int(xref)
         subm = SubmitterRecord.objects.create(head=head, xref=xref)
+        if (self.head_subm == i_xref):
+            head.subm_id = subm.id
+            head.save()
         self.stat['submitter'] = len(SubmitterRecord.objects.filter(head=head))
         for x in item.sub_tags(follow=False):
             match x.tag:

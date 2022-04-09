@@ -69,7 +69,8 @@ class ExpGedcom551:
         self.write_line(2, 'NAME', head.sour_name)
         self.write_line(2, 'CORP', head.sour_corp)
         self.write_line(2, '_RTLSAVE', head.mh_rtl)
-        self.write_line(1, 'SUBM', head.subm)
+        if (head.subm_id != None):
+            self.f.write('1 SUBM @U' + str(head.subm_id) + '@\n')
         self.write_line(1, 'DATE', head.date)
         self.write_line(2, 'TIME', head.time)
         self.write_line(1, 'LANG', head.lang)
