@@ -2,31 +2,22 @@ from task.const import *
 
 app_config = {
     'name': APP_GENEA,
+    'role': ROLE_STEMMA,
     'app_title': 'family tree',
     'icon': 'diagram-3',
-    'main_view': 'events',
-    'sort': [
-        ('name', 'name'),
-    ],
+    'main_view': 'stemma',
     'views': {
-        'events': {
+        'stemma': {
             'icon': 'diagram-3', 
-            'title': 'family tree',
-            'sort': [
-                ('event', 'event date'),
-            ],
+            'title': 'stemma',
         },
-        'statistics': {
+        'chart_family': {
             'icon': 'diagram-3', 
-            'title': 'family tree',
+            'title': 'family',
         },
-        'tree': {
+        'chart_ancestors': {
             'icon': 'diagram-3', 
-            'title': 'family tree',
-        },
-        'photo': {
-            'icon': 'diagram-3', 
-            'title': 'family tree',
+            'title': 'ancestors',
         },
     }
 }

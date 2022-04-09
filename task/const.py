@@ -142,6 +142,7 @@ NUM_ROLE_ACCOUNT = 35
 NUM_ROLE_CHART_WAIST = 36
 NUM_ROLE_CHART_TEMP = 37
 NUM_ROLE_STORE_HIST = 38
+NUM_ROLE_STEMMA = 39
 
 ROLE_TODO        = 'todo'            
 ROLE_NOTE        = 'note'            
@@ -182,6 +183,7 @@ ROLE_PAYMENT     = 'payment'
 ROLE_PHOTO       = 'photo'      
 ROLE_ACCOUNT     = 'account'     
 ROLE_SEARCH_RESULTS = 'search'
+ROLE_STEMMA      = 'stemma'
 
 ALL_ROLES = (
     ROLE_TODO,             
@@ -220,8 +222,9 @@ ALL_ROLES = (
     ROLE_PAY_TITLE,   
     ROLE_PAYMENT,     
     ROLE_PHOTO, 
-    ROLE_ACCOUNT,  
-    ROLE_SEARCH_RESULTS,         
+    ROLE_ACCOUNT,
+    ROLE_SEARCH_RESULTS,
+    ROLE_STEMMA,
     )
 
 ROLES_IDS = {
@@ -243,6 +246,7 @@ ROLES_IDS = {
                 ROLE_EMPLOYEE_PERIOD: NUM_ROLE_EMPL_PER, ROLE_PAY_TITLE: NUM_ROLE_PAY_TITLE, ROLE_PAYMENT: NUM_ROLE_PAYMENT },
     APP_PHOTO: { ROLE_PHOTO: NUM_ROLE_PHOTO },
     APP_ALL: { ROLE_SEARCH_RESULTS: NONE },
+    APP_GENEA: { ROLE_STEMMA: NUM_ROLE_STEMMA },
 }
 
 """

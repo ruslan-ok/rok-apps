@@ -8,6 +8,41 @@ from genea.models import (Header, AddressStructure, IndividualRecord, SubmitterR
     FamilyEventStructure, AlbumRecord, SourceRecord, SourceRecordData, UserReferenceNumber, NoteRecord)
 from genea.const import *
 
+COUNTRIES = [
+    ('Литва', 'Литва'),
+    ('Белоруссия', 'Беларусь'),
+    ('Беларусь', 'Беларусь'),
+    ('BY', 'Беларусь'),
+    ]
+
+CITIES = [
+    ('Вільнюс', 'Вильнюс'),
+    ('г. Жодина', 'Жодино'),
+    ('г.Жодина', 'Жодино'),
+    ('Жодино', 'Жодино'),
+    ('г. Волковыск', 'Волковыск'),
+    ('г.Волковыск', 'Волковыск'),
+    ('г.Волковыск.', 'Волковыск'),
+    ('г. Минск', 'Минск'),
+    ('г.Минск', 'Минск'),
+    ('Г Минск', 'Минск'),
+    ('Минск', 'Минск'),
+    ('Липецкая обл.,с.Боринское', 'Липецкая обл., с.Боринское'),
+    ('г. Брест', 'Брест'),
+    ]
+
+STREETS = [
+    'ул.Дзержинского, д.55', 
+    'ул.Якубова, д.66 , к.1, кв.207', 
+    ]
+
+POSTS = [
+    '220116', 
+    '220095', 
+    ]
+
+
+
 class ImpGedcom551:
     def __init__(self, request, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -33,8 +68,12 @@ class ImpGedcom551:
             'files': []
         }
 
-        self.db_del_trees()
+        # self.db_del_trees()
         for file in files:
+            if (len(Header.objects.filter(file=file)) == 1):
+                head = Header.objects.filter(file=file).get()
+                head.before_delete()
+                head.delete()
             ret['files'].append(self.imp_tree(folder, file))
         # self.db_del_trees()
         return ret
@@ -65,6 +104,7 @@ class ImpGedcom551:
             'result': self.result,
             'file': file,
             'stat': self.stat,
+            'header': len(Header.objects.all()),
             }
         if (self.result != 'ok'):
             ret['error'] = self.error_descr
@@ -74,19 +114,25 @@ class ImpGedcom551:
 
     def read_header(self, item):
         head = Header.objects.create()
-        self.stat['header'] = len(Header.objects.all())
         for x in item.sub_tags(follow=False):
             match x.tag:
                 case 'SOUR': self.header_source(head, x)
                 case 'DEST': head.dest = x.value
-                case 'DATE': pass
-                case 'TIME': pass
+                case 'DATE': 
+                    head.date = x.value
+                    for y in x.sub_tags(follow=False):
+                        match y.tag:
+                            case 'TIME': head.time = y.value
+                            case _: self.unexpected_tag(y)
                 case 'SUBM': head.subm = x.value
                 case 'FILE': head.file = x.value
                 case 'COPR': head.copr = x.value
-                case 'GEDC': pass
-                case 'VERS': head.gedc_vers = x.value
-                case 'FORM': head.gedc_form = x.value
+                case 'GEDC':
+                    for y in x.sub_tags(follow=False):
+                        match y.tag:
+                            case 'VERS': head.gedc_vers = y.value
+                            case 'FORM': head.gedc_form = y.value
+                            case _: self.unexpected_tag(y)
                 case 'VERS': head.gedc_form_vers = x.value
                 case 'CHAR': head.char = x.value
                 case 'LANG': head.lang = x.value
@@ -104,10 +150,10 @@ class ImpGedcom551:
         for x in item.sub_tags(follow=False):
             match x.tag:
                 case 'VERS': head.sour_vers = x.value
-                case 'NAME': head.sour_name = x.value
+                case 'NAME': head.sour_name = self.get_name(x.value)
                 case '_RTLSAVE': head.mh_rtl = x.value
                 case 'CORP': head.sour_corp = x.value
-                case 'ADDR'|'PHON'|'EMAIL'|'FAX'|'WWW': head.sour_corp_addr = self.address_struct(x, head.sour_corp_addr)
+                case 'ADDR'|'PHON'|'EMAIL'|'FAX'|'WWW': head.sour_corp_addr = self.address_struct(x, head.sour_corp_addr, 'Header_' + str(head.id))
                 case _: self.unexpected_tag(x)
         self.skip_next_read = True
 
@@ -115,7 +161,7 @@ class ImpGedcom551:
     def family_record(self, head, item):
         xref = int(item.xref_id.split('@F')[1].split('@')[0])
         family = FamRecord.objects.create(head=head, xref=xref)
-        self.stat['family'] = len(FamRecord.objects.all())
+        self.stat['family'] = len(FamRecord.objects.filter(head=head))
         for x in item.sub_tags(follow=False):
             match x.tag:
                 case '_UPD': family.updated = x.value
@@ -131,6 +177,7 @@ class ImpGedcom551:
                 case 'ENGA': self.family_fact(family, x)
                 case 'MARL': self.family_fact(family, x)
                 case 'OBJE': self.media_link(head, x, fam=family)
+                case 'CHAN': family.chan = self.change_date(x, 'FamRecord_' + str(family.id))
                 case '_MSTAT': family._mstat = x.value
                 case _: self.unexpected_tag(x)
         family.save()
@@ -153,12 +200,12 @@ class ImpGedcom551:
     def indi_record(self, head, item):
         xref = int(item.xref_id.split('@I')[1].split('@')[0])
         indi = IndividualRecord.objects.create(head=head, xref=xref)
-        self.stat['indi'] = len(IndividualRecord.objects.all())
+        self.stat['indi'] = len(IndividualRecord.objects.filter(head=head))
         for x in item.sub_tags(follow=False):
             match x.tag:
                 case 'SEX':  indi.sex = x.value
                 case 'RIN':  indi.rin = x.value
-                case 'CHAN': indi.chan = self.change_date(x)
+                case 'CHAN': indi.chan = self.change_date(x, 'IndividualRecord_' + str(indi.id))
                 case '_UPD': indi._upd = x.value
                 case '_UID': indi._uid = x.value
                 case 'NAME': self.person_name(x, indi)
@@ -200,7 +247,7 @@ class ImpGedcom551:
         famc.save()
 
     def person_name(self, item, indi):
-        name = PersonalNameStructure.objects.create(indi=indi, name=item.value)
+        name = PersonalNameStructure.objects.create(indi=indi) #, name=self.get_name(item.value))
         for x in item.sub_tags(follow=False):
             match x.tag:
                 case 'TYPE': name.type = x.value
@@ -259,7 +306,7 @@ class ImpGedcom551:
         even = IndividualEventStructure.objects.create(indi=indi, tag=item.tag, value=item.value)
         for x in item.sub_tags(follow=False):
             match x.tag:
-                case 'FAMC': even.famc = x.value
+                case 'FAMC': even.famc = self.find_family(x.value)
                 case 'ADOP': even.adop = x.value
                 case 'AGE':  even.age  = x.value
                 case _: even.deta = self.event_detail(indi.head, x, even.deta)
@@ -276,7 +323,7 @@ class ImpGedcom551:
                 obje = MultimediaRecord.objects.create(head=head, xref=xref)
         if not obje:
             obje = MultimediaRecord.objects.create(head=head)
-        self.stat['media'] = len(MultimediaRecord.objects.all())
+        self.stat['media'] = len(MultimediaRecord.objects.filter(head=head))
         for x in item.sub_tags(follow=False):
             match x.tag:
                 case 'FORM': obje.form = x.value
@@ -287,7 +334,7 @@ class ImpGedcom551:
                 case 'RIN':  obje.rin = x.value
                 case 'NOTE': self.note_struct(x, obje=obje)
                 case 'SOUR': self.source_citat(head, x, obje=obje)
-                case 'CHAN': obje.chan = self.change_date(x)
+                case 'CHAN': obje.chan = self.change_date(x, 'MultimediaRecord_' + str(obje.id))
                 case '_DATE': obje._date = x.value
                 case '_PLACE': obje._plac = x.value
                 case '_PRIM': obje._prim = x.value
@@ -336,7 +383,7 @@ class ImpGedcom551:
                 note = NoteRecord.objects.create(head=head, xref=xref)
         if not note:
             note = NoteRecord.objects.create(head=head)
-        self.stat['note'] = len(NoteRecord.objects.all())
+        self.stat['note'] = len(NoteRecord.objects.filter(head=head))
         for x in item.sub_tags(follow=False):
             match x.tag:
                 case _: self.unexpected_tag(x)
@@ -364,11 +411,11 @@ class ImpGedcom551:
             repo = RepositoryRecord.objects.filter(head=head, xref=xref).get()
         else:
             repo = RepositoryRecord.objects.create(head=head, xref=xref)
-        self.stat['repo'] = len(RepositoryRecord.objects.all())
+        self.stat['repo'] = len(RepositoryRecord.objects.filter(head=head))
         for x in item.sub_tags(follow=False):
             match x.tag:
                 case 'NAME': repo.name = x.value
-                case 'ADDR'|'PHON'|'EMAIL'|'FAX'|'WWW': repo.addr = self.address_struct(x, repo.addr)
+                case 'ADDR'|'PHON'|'EMAIL'|'FAX'|'WWW': repo.addr = self.address_struct(x, repo.addr, 'RepositoryRecord_' + str(repo.id))
                 case 'RIN':  repo.rin  = x.value
                 case 'CHAN': repo.chan = x.value
                 case _: self.unexpected_tag(x)
@@ -381,7 +428,7 @@ class ImpGedcom551:
             sour = SourceRecord.objects.filter(head=head, xref=xref).get()
         else:
             sour = SourceRecord.objects.create(head=head, xref=xref)
-        self.stat['source'] = len(SourceRecord.objects.all())
+        self.stat['source'] = len(SourceRecord.objects.filter(head=head))
         for x in item.sub_tags(follow=False):
             match x.tag:
                 case 'DATA': self.source_data(x, sour)
@@ -393,7 +440,7 @@ class ImpGedcom551:
                 case 'REPO': self.source_repo_link(x, sour)
                 case 'REFN': self.user_ref_num(x, sour=sour)
                 case 'RIN':  sour.rin = x.value
-                case 'CHAN': sour.chan = self.change_date(x)
+                case 'CHAN': sour.chan = self.change_date(x, 'SourceRecord_' + str(sour.id))
                 case 'NOTE': self.note_struct(x, sour=sour)
                 case 'OBJE': self.media_link(head, x, sour=sour)
                 case '_UPD': sour._upd = x.value
@@ -446,13 +493,14 @@ class ImpGedcom551:
         else:
             xref = item.xref_id.split('@U')[1].split('@')[0]
         subm = SubmitterRecord.objects.create(head=head, xref=xref)
-        self.stat['submitter'] = len(SubmitterRecord.objects.all())
+        self.stat['submitter'] = len(SubmitterRecord.objects.filter(head=head))
         for x in item.sub_tags(follow=False):
             match x.tag:
-                case 'NAME': subm.name = x.value
-                case 'ADDR'|'PHON'|'EMAIL'|'FAX'|'WWW': subm.addr = self.address_struct(x, subm.addr)
+                case 'NAME': subm.name = self.get_name(x.value)
+                case 'ADDR'|'PHON'|'EMAIL'|'FAX'|'WWW': subm.addr = self.address_struct(x, subm.addr, 'SubmitterRecord_' + str(subm.id))
                 case 'RIN':  subm.rin  = x.value
-                case 'CHAN': subm.chan = x.value
+                case 'CHAN': subm.chan = self.change_date(x, 'SubmitterRecord_' + str(subm.id))
+                case '_UID': subm._uid = x.value
                 case _: self.unexpected_tag(x)
         subm.save()
 
@@ -460,7 +508,7 @@ class ImpGedcom551:
     def album_record(self, head, item):
         xref = int(item.xref_id.split('@A')[1].split('@')[0])
         album = AlbumRecord.objects.create(head=head, xref=xref)
-        self.stat['album'] = len(AlbumRecord.objects.all())
+        self.stat['album'] = len(AlbumRecord.objects.filter(head=head))
         for x in item.sub_tags(follow=False):
             match x.tag:
                 case 'TITL': album.titl = x.value
@@ -471,13 +519,17 @@ class ImpGedcom551:
         album.save()
 
     # ------------- Tools ---------------
-    def address_struct(self, x, addr):
+    def address_struct(self, x, addr, owner):
         if not addr:
-            addr = AddressStructure.objects.create()
+            addr = AddressStructure.objects.create(owner=owner)
+        value = ''
         match x.tag:
             case 'ADDR':
+                if x.value:
+                    value = x.value
                 for y in x.sub_tags(follow=False):
                     match y.tag:
+                        case 'CONT': value += '\n' + y.value
                         case 'ADR1': addr.addr_adr1 = y.value
                         case 'ADR2': addr.addr_adr2 = y.value
                         case 'ADR3': addr.addr_adr3 = y.value
@@ -514,8 +566,42 @@ class ImpGedcom551:
                 else:
                     addr.www3 = x.value
             case _: self.unexpected_tag(x)
+        if value:
+            for ctry in COUNTRIES:
+                value = self.check_addr_ctry(addr, value, ctry)
+            for city in CITIES:
+                value = self.check_addr_city(addr, value, city)
+            for street in STREETS:
+                value = self.check_addr_street(addr, value, street)
+            for post in POSTS:
+                value = self.check_addr_post(addr, value, post)
+
         addr.save()
         return addr
+
+    def check_addr_ctry(self, addr, addr_value, value):
+        if (value[0] in addr_value and not addr.addr_ctry):
+            addr.addr_ctry = value[1]
+            addr_value.replace(value[0], '')
+        return addr_value
+
+    def check_addr_city(self, addr, addr_value, value):
+        if (value[0] in addr_value and not addr.addr_city):
+            addr.addr_city = value[1]
+            addr_value.replace(value[0], '')
+        return addr_value
+
+    def check_addr_street(self, addr, addr_value, value):
+        if (value in addr_value and not addr.addr_adr1):
+            addr.addr_adr1 = value
+            addr_value.replace(value, '')
+        return addr_value
+
+    def check_addr_post(self, addr, addr_value, value):
+        if (value in addr_value and not addr.addr_post):
+            addr.addr_post = value
+            addr_value.replace(value, '')
+        return addr_value
 
     def place_struct(self, item):
         plac = PlaceStructure.objects.create(name=item.value)
@@ -530,12 +616,18 @@ class ImpGedcom551:
         plac.save()
         return plac
         
-    def change_date(self, item, mark=''):
-        chan = ChangeDate.objects.create()
+    def change_date(self, item, owner):
+        chan = ChangeDate.objects.create(owner=owner)
+        if item.value:
+            chan.date = str(item.value)
         for x in item.sub_tags(follow=False):
             match x.tag:
-                case 'DATE': chan.date = str(x.value)
-                case 'TIME': chan.time = str(x.value)
+                case 'DATE': 
+                    chan.date = str(x.value)
+                    for y in x.sub_tags(follow=False):
+                        match y.tag:
+                            case 'TIME': chan.time = str(y.value)
+                            case _: self.unexpected_tag(y)
                 case 'NOTE': self.note_struct(x, chan=chan)
                 case _: self.unexpected_tag(x)
         try:
@@ -553,7 +645,7 @@ class ImpGedcom551:
             case 'AGE':  deta.age  = x.value
             case 'DATE': deta.date = x.value
             case 'PLAC': deta.plac = self.place_struct(x)
-            case 'ADDR'|'PHON'|'EMAIL'|'FAX'|'WWW': deta.addr = self.address_struct(x, deta.addr)
+            case 'ADDR'|'PHON'|'EMAIL'|'FAX'|'WWW': deta.addr = self.address_struct(x, deta.addr, 'EventDetail_' + str(deta.id))
             case 'AGNC': deta.agnc = x.value
             case 'RELI': deta.reli = x.value
             case 'CAUS': deta.caus = x.value
@@ -572,6 +664,12 @@ class ImpGedcom551:
     def find_pers_by_id(self, head, person_id):
         if IndividualRecord.objects.filter(head=head, id=person_id).exists():
             return IndividualRecord.objects.filter(head=head, id=person_id).get()
+        return None
+
+    def find_family(self, head, xref):
+        xref_id = int(xref.split('@F')[1].split('@')[0])
+        if FamRecord.objects.filter(head=head, xref=xref_id).exists():
+            return FamRecord.objects.filter(head=head, xref=xref_id)[0]
         return None
 
     def link_id(self, value, tag):
@@ -601,6 +699,11 @@ class ImpGedcom551:
             ret += ', value: ' + item.value
         self.raise_error('Unexpected tag. Offset: ' + ret)
 
+    def get_name(self, value):
+        if (type(value) == tuple) and (len(value) == 3) and (value[1] == '') and (value[2] == ''):
+            return value[0]
+        else:
+            return value
 
 
     """

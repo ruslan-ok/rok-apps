@@ -1,11 +1,12 @@
 from datetime import date, datetime
+from django.urls import reverse
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.models import User
 from genea.const import *
 
 #--------------------------------------------------
 class AddressStructure(models.Model):
+    addr = models.CharField(_('address value'), max_length=500, blank=True, null=True)
     addr_adr1 = models.CharField(_('address line 1'), max_length=60, blank=True, null=True)
     addr_adr2 = models.CharField(_('address line 2'), max_length=60, blank=True, null=True)
     addr_adr3 = models.CharField(_('address line 3'), max_length=60, blank=True, null=True)
@@ -25,6 +26,29 @@ class AddressStructure(models.Model):
     www = models.CharField(_('web page'), max_length=2047, blank=True, null=True)
     www2 = models.CharField(_('web page 2'), max_length=2047, blank=True, null=True)
     www3 = models.CharField(_('web page 3'), max_length=2047, blank=True, null=True)
+    owner = models.CharField(_('owner of this record'), max_length=20, blank=True, null=True)
+
+class ChangeDate(models.Model):
+    date_time = models.DateTimeField(_('change date-time'), blank=True, null=True)
+    date = models.CharField(_('date'), max_length=20, blank=True, null=True)
+    time = models.CharField(_('time'), max_length=20, blank=True, null=True)
+    owner = models.CharField(_('owner of this record'), max_length=20, blank=True, null=True)
+
+    def get_date(self):
+        if self.date_time:
+            return self.date_time.strftime('%d %b %Y')
+        else:
+            if self.date:
+                return self.date
+                # format_visitor = DateFormatter()
+                # return self.date.accept(format_visitor)
+        return None
+
+    def get_time(self):
+        if self.date_time:
+            return self.date_time.strftime('%H:%M:%S.%f')
+        else:
+            return self.time
 
 #--------------------------------------------------
 class Header(models.Model):
@@ -37,7 +61,8 @@ class Header(models.Model):
     sour_data_date = models.DateField(_('publication date'), blank=True, null=True)
     sour_data_corp = models.TextField(_('copyright source data'), blank=True, null=True)
     dest = models.CharField(_('receiving system name'), max_length=20, blank=True, null=True)
-    date = models.DateTimeField(_('transmission date-time'), blank=True, null=True)
+    date = models.CharField(_('transmission date'), max_length=11, blank=True, null=True)
+    time = models.CharField(_('time value'), max_length=12, blank=True, null=True)
     subm = models.CharField(_('submitter reference'), max_length=22, blank=True, null=True)
     file = models.CharField(_('file name'), max_length=90, blank=True, null=True)
     copr = models.CharField(_('copyright gedcom file'), max_length=90, blank=True, null=True)
@@ -54,6 +79,12 @@ class Header(models.Model):
     created = models.DateTimeField(_('creation time'), blank=True, default=datetime.now)
     last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now=True)
     mark = models.CharField(_('debug marker'), max_length=20, blank=True, null=True)
+
+    def name(self):
+        return self.sour_corp + ': ' + self.file
+
+    def get_absolute_url(self):
+        return reverse('genea:export', args=(self.id,))
 
     def before_delete(self):
         if self.sour_corp_addr:
@@ -74,13 +105,6 @@ class Header(models.Model):
             item.before_delete()
         for item in NoteRecord.objects.filter(head=self.id):
             item.before_delete()
-
-
-#--------------------------------------------------
-class ChangeDate(models.Model):
-    date_time = models.DateTimeField(_('change date-time'), blank=True, null=True)
-    date = models.CharField(_('date'), max_length=20, blank=True, null=True)
-    time = models.CharField(_('time'), max_length=20, blank=True, null=True)
 
 #--------------------------------------------------
 class IndividualRecord(models.Model):
@@ -172,39 +196,6 @@ class NameRomanizedVariation(models.Model):
         if self.piec:
             self.piec.delete()
 
-class IndividualEventStructure(models.Model):
-    indi = models.ForeignKey(IndividualRecord, on_delete=models.CASCADE, verbose_name=_('individual'), related_name='event_structure_individual')
-    tag = models.CharField(_('tag'), max_length=4, blank=True, null=True)
-    value = models.CharField(_('event descriptor'), max_length=90, blank=True, null=True)
-    age = models.CharField(_('age at event'), max_length=13, blank=True, null=True)
-    famc = models.ForeignKey(IndividualRecord, on_delete=models.SET_NULL, verbose_name=_('child'), related_name='event_structure_child', null=True)
-    adop = models.CharField(_('adopted by whith parent'), max_length=4, blank=True, null=True)
-    deta = models.ForeignKey(EventDetail, on_delete=models.SET_NULL, verbose_name=_('event_detail'), related_name='individual_event_event_detail', null=True)
-
-    def before_delete(self):
-        if self.deta:
-            self.deta.before_delete()
-            self.deta.delete()
-
-class IndividualAttributeStructure(models.Model):
-    indi = models.ForeignKey(IndividualRecord, on_delete=models.CASCADE, verbose_name=_('individual'), related_name='attributes_individual', null=True)
-    tag = models.CharField(_('tag'), max_length=4, blank=True, null=True)
-    value = models.CharField(_('event descriptor'), max_length=90, blank=True, null=True)
-    age = models.CharField(_('age at event'), max_length=13, blank=True, null=True)
-    type = models.CharField(_('user reference type'), max_length=40, blank=True, null=True)
-    dscr = models.TextField(_('physical description'), blank=True, null=True)
-    deta = models.ForeignKey(EventDetail, on_delete=models.SET_NULL, verbose_name=_('event_detail'), related_name='individual_attr_event_detail', null=True)
-
-    def before_delete(self):
-        if self.deta:
-            self.deta.before_delete()
-            self.deta.delete()
-
-class AssociationStructure(models.Model):
-    indi = models.ForeignKey(IndividualRecord, on_delete=models.CASCADE, verbose_name=_('individual'), related_name='association_individual', null=True)
-    asso = models.CharField(_('identifier in the source system'), max_length=22, blank=True, null=True)
-    asso_rela = models.CharField(_('relation is descriptor'), max_length=25, blank=True, null=True)
-
 #--------------------------------------------------
 class FamRecord(models.Model):
     head = models.ForeignKey(Header, on_delete=models.CASCADE, verbose_name=_('tree header'), related_name='family_tree_header', null=True)
@@ -241,6 +232,39 @@ class FamilyEventStructure(models.Model):
         if self.deta:
             self.deta.before_delete()
             self.deta.delete()
+
+class IndividualEventStructure(models.Model):
+    indi = models.ForeignKey(IndividualRecord, on_delete=models.CASCADE, verbose_name=_('individual'), related_name='event_structure_individual')
+    tag = models.CharField(_('tag'), max_length=4, blank=True, null=True)
+    value = models.CharField(_('event descriptor'), max_length=90, blank=True, null=True)
+    age = models.CharField(_('age at event'), max_length=13, blank=True, null=True)
+    famc = models.ForeignKey(FamRecord, on_delete=models.SET_NULL, verbose_name=_('child'), related_name='event_structure_child', null=True)
+    adop = models.CharField(_('adopted by whith parent'), max_length=4, blank=True, null=True)
+    deta = models.ForeignKey(EventDetail, on_delete=models.SET_NULL, verbose_name=_('event_detail'), related_name='individual_event_event_detail', null=True)
+
+    def before_delete(self):
+        if self.deta:
+            self.deta.before_delete()
+            self.deta.delete()
+
+class IndividualAttributeStructure(models.Model):
+    indi = models.ForeignKey(IndividualRecord, on_delete=models.CASCADE, verbose_name=_('individual'), related_name='attributes_individual', null=True)
+    tag = models.CharField(_('tag'), max_length=4, blank=True, null=True)
+    value = models.CharField(_('event descriptor'), max_length=90, blank=True, null=True)
+    age = models.CharField(_('age at event'), max_length=13, blank=True, null=True)
+    type = models.CharField(_('user reference type'), max_length=40, blank=True, null=True)
+    dscr = models.TextField(_('physical description'), blank=True, null=True)
+    deta = models.ForeignKey(EventDetail, on_delete=models.SET_NULL, verbose_name=_('event_detail'), related_name='individual_attr_event_detail', null=True)
+
+    def before_delete(self):
+        if self.deta:
+            self.deta.before_delete()
+            self.deta.delete()
+
+class AssociationStructure(models.Model):
+    indi = models.ForeignKey(IndividualRecord, on_delete=models.CASCADE, verbose_name=_('individual'), related_name='association_individual', null=True)
+    asso = models.CharField(_('identifier in the source system'), max_length=22, blank=True, null=True)
+    asso_rela = models.CharField(_('relation is descriptor'), max_length=25, blank=True, null=True)
 
 class NoteRecord(models.Model):
     head = models.ForeignKey(Header, on_delete=models.CASCADE, verbose_name=_('tree header'), related_name='note_tree_header', null=True)
@@ -304,6 +328,7 @@ class SubmitterRecord(models.Model):
     addr = models.ForeignKey(AddressStructure, on_delete=models.SET_NULL, verbose_name=_('address'), related_name='submitter_address', null=True)
     rin = models.CharField(_('RIN'), max_length=12, blank=True, null=True)
     chan = models.ForeignKey(ChangeDate, on_delete=models.SET_NULL, verbose_name=_('change_date'), related_name='submitter_change_date', null=True)
+    _uid = models.CharField(_('custom field: uid'), max_length=40, blank=True, null=True)
 
     def before_delete(self):
         if self.addr:
