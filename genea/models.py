@@ -59,7 +59,7 @@ class Header(models.Model):
     sour_corp_addr = models.ForeignKey(AddressStructure, on_delete=models.SET_NULL, verbose_name=_('business address'), related_name='business_address', null=True)
     sour_data = models.CharField(_('name of source data'), max_length=90, blank=True, null=True)
     sour_data_date = models.DateField(_('publication date'), blank=True, null=True)
-    sour_data_corp = models.TextField(_('copyright source data'), blank=True, null=True)
+    sour_data_copr = models.TextField(_('copyright source data'), blank=True, null=True)
     dest = models.CharField(_('receiving system name'), max_length=20, blank=True, null=True)
     date = models.CharField(_('transmission date'), max_length=11, blank=True, null=True)
     time = models.CharField(_('time value'), max_length=12, blank=True, null=True)
@@ -217,7 +217,7 @@ class FamRecord(models.Model):
 class ChildToFamilyLink(models.Model):
     fami = models.ForeignKey(FamRecord, on_delete=models.CASCADE, verbose_name=_('family'), related_name='family_children')
     chil = models.ForeignKey(IndividualRecord, on_delete=models.CASCADE, verbose_name=_('child'), related_name='family_child')
-    pedi = models.IntegerField(_('pedigree linkage type'), choices=PEDIGREE_LINK_MODE, null=True)
+    pedi = models.CharField(_('pedigree linkage type'), max_length=7, blank=True, null=True)
 
 class FamilyEventStructure(models.Model):
     fam = models.ForeignKey(FamRecord, on_delete=models.CASCADE, verbose_name=_('family'), related_name='event_structure_family')
@@ -293,6 +293,10 @@ class RepositoryRecord(models.Model):
 class SourceRecord(models.Model):
     head = models.ForeignKey(Header, on_delete=models.CASCADE, verbose_name=_('tree header'), related_name='source_tree_header', null=True)
     xref = models.CharField(_('identifier in the source system'), max_length=22, blank=True, null=True)
+    data_even = models.CharField(_('events recorded'), max_length=90, blank=True, null=True)
+    data_date = models.CharField(_('date period'), max_length=35, blank=True, null=True)
+    data_plac = models.CharField(_('source juridication place'), max_length=120, blank=True, null=True)
+    data_agnc = models.CharField(_('responsible agency'), max_length=120, blank=True, null=True)
     auth = models.TextField(_('source originator'), blank=True, null=True)
     titl = models.TextField(_('source descriptive title'), blank=True, null=True)
     abbr = models.CharField(_('source field by entry'), max_length=60, blank=True, null=True)
@@ -309,17 +313,11 @@ class SourceRecord(models.Model):
         if self.chan:
             self.chan.delete()
 
-class SourceRecordData(models.Model):
-    sour = models.ForeignKey(SourceRecord, on_delete=models.CASCADE, verbose_name=_('source'), related_name='source_record', null=True)
-    even = models.CharField(_('events recorded'), max_length=90, blank=True, null=True)
-    date = models.CharField(_('date period'), max_length=35, blank=True, null=True)
-    plac = models.CharField(_('source juridication place'), max_length=120, blank=True, null=True)
-    agnc = models.CharField(_('responsible agency'), max_length=120, blank=True, null=True)
-
 class SourceRepositoryCitation(models.Model):
-    repo = models.ForeignKey(RepositoryRecord, on_delete=models.CASCADE, verbose_name=_('repository record'), related_name='repository_record_citation', null=True)
+    repo = models.ForeignKey(RepositoryRecord, on_delete=models.CASCADE, verbose_name=_('citation repository'), related_name='citation_repository', null=True)
+    sour = models.ForeignKey(SourceRecord, on_delete=models.CASCADE, verbose_name=_('citation source'), related_name='citation_source', null=True)
     caln = models.CharField(_('source call number'), max_length=120, blank=True, null=True)
-    medi = models.CharField(_('source media type'), max_length=15, blank=True, null=True)
+    caln_medi = models.CharField(_('source media type'), max_length=15, blank=True, null=True)
 
 class SubmitterRecord(models.Model):
     head = models.ForeignKey(Header, on_delete=models.CASCADE, verbose_name=_('tree header'), related_name='submitter_tree_header', null=True)
@@ -381,7 +379,7 @@ class SourceCitation(models.Model):
     even = models.ForeignKey(EventDetail, on_delete=models.CASCADE, verbose_name=_('event_detail'), related_name='source_citation_event_detail', null=True)
     pnpi = models.ForeignKey(PersonalNamePieces, on_delete=models.CASCADE, verbose_name=_('personal_name_pieces'), related_name='source_citation_personal_name_pieces', null=True)
     note = models.ForeignKey(NoteRecord, on_delete=models.CASCADE, verbose_name=_('note'), related_name='source_citation_note', null=True)
-    sour = models.CharField(_('identifier in the source system'), max_length=22, blank=True, null=True)
+    sour = models.ForeignKey(SourceRecord, on_delete=models.CASCADE, verbose_name=_('source'), related_name='source_citation_source', null=True)
     sour_page = models.CharField(_('where within source'), max_length=248, blank=True, null=True)
     sour_even = models.CharField(_('event type cited from'), max_length=15, blank=True, null=True)
     sour_even_role = models.CharField(_('role in event'), max_length=27, blank=True, null=True)
@@ -417,7 +415,7 @@ class MultimediaLink(models.Model):
     obje = models.ForeignKey(MultimediaRecord, on_delete=models.CASCADE, verbose_name=_('multimedia'), related_name='multimedia_link', null=True)
     fam = models.ForeignKey(FamRecord, on_delete=models.CASCADE, verbose_name=_('family'), related_name='family_mm_link', null=True)
     indi = models.ForeignKey(IndividualRecord, on_delete=models.CASCADE, verbose_name=_('individual'), related_name='individual_mm_link', null=True)
-    sour_2 = models.ForeignKey(SourceCitation, on_delete=models.CASCADE, verbose_name=_('source citation'), related_name='source_citation_mm_link', null=True)
+    cita = models.ForeignKey(SourceCitation, on_delete=models.CASCADE, verbose_name=_('source citation'), related_name='source_citation_mm_link', null=True)
     sour = models.ForeignKey(SourceRecord, on_delete=models.CASCADE, verbose_name=_('source'), related_name='source_mm_link', null=True)
     subm = models.ForeignKey(SubmitterRecord, on_delete=models.CASCADE, verbose_name=_('submitter'), related_name='submitter_mm_link', null=True)
     even = models.ForeignKey(EventDetail, on_delete=models.CASCADE, verbose_name=_('event_detail'), related_name='event_detail_mm_link', null=True)
@@ -427,14 +425,13 @@ class NoteStructure(models.Model):
     head = models.ForeignKey(Header, on_delete=models.CASCADE, verbose_name=_('gedcom content description'), related_name='note_structure_tree_note', null=True)
     fam = models.ForeignKey(FamRecord, on_delete=models.CASCADE, verbose_name=_('family'), related_name='family_note', null=True)
     indi = models.ForeignKey(IndividualRecord, on_delete=models.CASCADE, verbose_name=_('individual'), related_name='individual_note', null=True)
-    sour_2 = models.ForeignKey(SourceCitation, on_delete=models.CASCADE, verbose_name=_('source citation'), related_name='source_citation_note', null=True)
+    cita = models.ForeignKey(SourceCitation, on_delete=models.CASCADE, verbose_name=_('source citation'), related_name='source_citation_note', null=True)
     asso = models.ForeignKey(AssociationStructure, on_delete=models.CASCADE, verbose_name=_('association'), related_name='association_note', null=True)
     chan = models.ForeignKey(ChangeDate, on_delete=models.CASCADE, verbose_name=_('change_date'), related_name='change_date_note', null=True)
     famc = models.ForeignKey(ChildToFamilyLink, on_delete=models.CASCADE, verbose_name=_('child to family link'), related_name='ctfl_date_note', null=True)
     obje = models.ForeignKey(MultimediaRecord, on_delete=models.CASCADE, verbose_name=_('multimedia'), related_name='multimedia_note', null=True)
     repo = models.ForeignKey(RepositoryRecord, on_delete=models.CASCADE, verbose_name=_('repository'), related_name='repository_note', null=True)
     sour = models.ForeignKey(SourceRecord, on_delete=models.CASCADE, verbose_name=_('source'), related_name='source_note', null=True)
-    soda = models.ForeignKey(SourceRecordData, on_delete=models.CASCADE, verbose_name=_('source_data'), related_name='source_data_note', null=True)
     srci = models.ForeignKey(SourceRepositoryCitation, on_delete=models.CASCADE, verbose_name=_('source repository citation'), related_name='source_repository_citation_note', null=True)
     subm = models.ForeignKey(SubmitterRecord, on_delete=models.CASCADE, verbose_name=_('submitter'), related_name='submitter_note', null=True)
     even = models.ForeignKey(EventDetail, on_delete=models.CASCADE, verbose_name=_('event_detail'), related_name='event_detail_note', null=True)
@@ -446,6 +443,7 @@ class NoteStructure(models.Model):
 
 class UserReferenceNumber(models.Model):
     indi = models.ForeignKey(IndividualRecord, on_delete=models.CASCADE, verbose_name=_('individual'), related_name='individual_refn', null=True)
+    fam  = models.ForeignKey(FamRecord, on_delete=models.CASCADE, verbose_name=_('family'), related_name='family_refn', null=True)
     obje = models.ForeignKey(MultimediaRecord, on_delete=models.CASCADE, verbose_name=_('multimedia record'), related_name='multimedia_record_refn', null=True)
     note = models.ForeignKey(NoteRecord, on_delete=models.CASCADE, verbose_name=_('note'), related_name='note_refn')
     repo = models.ForeignKey(RepositoryRecord, on_delete=models.CASCADE, verbose_name=_('repository'), related_name='repository_refn', null=True)

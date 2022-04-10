@@ -449,7 +449,7 @@ class DateValueBefore(DateValue):
         return visitor.visitBefore(self)
 
     def __str__(self):
-        return "BEFORE {}".format(self.date)
+        return "BEF {}".format(self.date)
 
     def __repr__(self):
         return "{}(date={})".format(self.__class__.__name__, self.date)
@@ -484,7 +484,7 @@ class DateValueAfter(DateValue):
         return visitor.visitAfter(self)
 
     def __str__(self):
-        return "AFTER {}".format(self.date)
+        return "AFT {}".format(self.date)
 
     def __repr__(self):
         return "{}(date={})".format(self.__class__.__name__, self.date)
@@ -527,7 +527,7 @@ class DateValueRange(DateValue):
         return visitor.visitRange(self)
 
     def __str__(self):
-        return "BETWEEN {} AND {}".format(self.date1, self.date2)
+        return "BET {} AND {}".format(self.date1, self.date2)
 
     def __repr__(self):
         return "{}(date1={}, date2={})".format(self.__class__.__name__, self.date1, self.date2)
