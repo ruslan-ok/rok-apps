@@ -562,7 +562,7 @@ class DateValueAbout(DateValue):
         return visitor.visitAbout(self)
 
     def __str__(self):
-        return "ABOUT {}".format(self.date)
+        return "ABT {}".format(self.date)
 
     def __repr__(self):
         return "{}(date={})".format(self.__class__.__name__, self.date)
@@ -715,7 +715,7 @@ class DateValuePhrase(DateValue):
         if self.phrase is None:
             return ""
         else:
-            return "({})".format(self.phrase)
+            return "{}".format(self.phrase)
 
     def __repr__(self):
         return "{}(phrase={})".format(self.__class__.__name__, self.phrase)

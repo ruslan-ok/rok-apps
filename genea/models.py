@@ -34,6 +34,11 @@ class ChangeDate(models.Model):
     time = models.CharField(_('time'), max_length=20, blank=True, null=True)
     owner = models.CharField(_('owner of this record'), max_length=20, blank=True, null=True)
 
+    def __str__(self):
+        d = self.get_date()
+        t = self.get_time()
+        return (d if d else '') + (' ' if d and t else '') + (t if t else '')
+
     def get_date(self):
         if self.date_time:
             return self.date_time.strftime('%d %b %Y')
@@ -109,12 +114,13 @@ class Header(models.Model):
 #--------------------------------------------------
 class IndividualRecord(models.Model):
     head = models.ForeignKey(Header, on_delete=models.CASCADE, verbose_name=_('tree header'), related_name='individual_tree_header', null=True)
-    xref = models.CharField(_('identifier in the source system'), max_length=22, blank=True, null=True)
+    xref = models.IntegerField(_('identifier in the source system'), null=True)
     sex = models.CharField(_('sex'), max_length=1, blank=True, null=True)
     rin = models.CharField(_('RIN'), max_length=12, blank=True, null=True)
     chan = models.ForeignKey(ChangeDate, on_delete=models.SET_NULL, verbose_name=_('change_date'), related_name='individual_change_date', null=True)
     _upd = models.CharField(_('custom field: update'), max_length=40, blank=True, null=True)
     _uid = models.CharField(_('custom field: uid'), max_length=40, blank=True, null=True)
+    _sort = models.IntegerField(_('sort order'), null=True)
 
     def before_delete(self):
         for item in IndividualEventStructure.objects.filter(indi=self.id):
@@ -125,6 +131,29 @@ class IndividualRecord(models.Model):
             item.before_delete()
         if self.chan:
             self.chan.delete()
+
+    def get_name(self):
+        ret = ''
+        if PersonalNameStructure.objects.filter(indi=self.id).exists():
+            pns = PersonalNameStructure.objects.filter(indi=self.id)[0]
+            if pns.piec:
+                if pns.piec.surn:
+                    ret = pns.piec.surn
+                if pns.piec.givn:
+                    if ret:
+                        ret += ' '
+                    ret += pns.piec.givn
+        return ret
+
+    def get_birth(self):
+        ret = ''
+        for x in IndividualEventStructure.objects.filter(indi=self.id):
+            if x.tag == 'BIRT' and x.deta and x.deta.date:
+                try:
+                    ret = datetime.strptime(str(x.deta.date), '%d %b %Y').strftime('%Y.%m.%d')
+                except ValueError:
+                    ret = str(x.deta.date)
+        return ret
 
 class PersonalNamePieces(models.Model):
     npfx = models.CharField(_('prefix'), max_length=30, blank=True, null=True)
@@ -140,6 +169,7 @@ class PersonalNameStructure(models.Model):
     name = models.CharField(_('name personal'), max_length=120, blank=True, null=True)
     type = models.CharField(_('name type'), max_length=30, blank=True, null=True)
     piec = models.ForeignKey(PersonalNamePieces, on_delete=models.SET_NULL, verbose_name=_('pieces'), related_name='pn_pnp', null=True)
+    _sort = models.IntegerField(_('sort order'), null=True)
 
     def before_delete(self):
         for item in NamePhoneticVariation.objects.filter(name=self.id):
@@ -199,14 +229,16 @@ class NameRomanizedVariation(models.Model):
 #--------------------------------------------------
 class FamRecord(models.Model):
     head = models.ForeignKey(Header, on_delete=models.CASCADE, verbose_name=_('tree header'), related_name='family_tree_header', null=True)
-    xref = models.CharField(_('identifier in the source system'), max_length=22, blank=True, null=True)
+    xref = models.IntegerField(_('identifier in the source system'), null=True)
     husb = models.ForeignKey(IndividualRecord, on_delete=models.SET_NULL, verbose_name=_('husband'), related_name='husband', null=True)
     wife = models.ForeignKey(IndividualRecord, on_delete=models.SET_NULL, verbose_name=_('wife'), related_name='wife', null=True)
     nchi = models.CharField(_('number of children'), max_length=3, blank=True, null=True)
     rin = models.CharField(_('RIN'), max_length=12, blank=True, null=True)
     chan = models.ForeignKey(ChangeDate, on_delete=models.SET_NULL, verbose_name=_('change_date'), related_name='family_change_date', null=True)
+    _uid = models.CharField(_('custom field: uid'), max_length=40, blank=True, null=True)
     _upd = models.CharField(_('custom field: update'), max_length=40, blank=True, null=True)
     _mstat = models.CharField(_('custom field: status'), max_length=40, blank=True, null=True)
+    _sort = models.IntegerField(_('sort order'), null=True)
 
     def before_delete(self):
         for item in FamilyEventStructure.objects.filter(fam=self.id):
@@ -214,10 +246,31 @@ class FamRecord(models.Model):
         if self.chan:
             self.chan.delete()
 
+    def marr_date(self):
+        ret = ''
+        for x in FamilyEventStructure.objects.filter(fam=self.id):
+            if x.tag == 'MARR' and x.deta and x.deta.date:
+                try:
+                    ret = datetime.strptime(str(x.deta.date), '%d %b %Y').strftime('%Y.%m.%d')
+                except ValueError:
+                    ret = str(x.deta.date)
+        return ret
+    
+    def husb_name(self):
+        if self.husb:
+            return self.husb.get_name()
+        return ''
+    
+    def wife_name(self):
+        if self.wife:
+            return self.wife.get_name()
+        return ''
+
 class ChildToFamilyLink(models.Model):
     fami = models.ForeignKey(FamRecord, on_delete=models.CASCADE, verbose_name=_('family'), related_name='family_children')
     chil = models.ForeignKey(IndividualRecord, on_delete=models.CASCADE, verbose_name=_('child'), related_name='family_child')
     pedi = models.CharField(_('pedigree linkage type'), max_length=7, blank=True, null=True)
+    _sort = models.IntegerField(_('sort order'), null=True)
 
 class FamilyEventStructure(models.Model):
     fam = models.ForeignKey(FamRecord, on_delete=models.CASCADE, verbose_name=_('family'), related_name='event_structure_family')
@@ -227,6 +280,7 @@ class FamilyEventStructure(models.Model):
     value = models.CharField(_('event value'), max_length=120, blank=True, null=True)
     husb_age = models.CharField(_('husband age at event'), max_length=13, blank=True, null=True)
     wife_age = models.CharField(_('wife age at event'), max_length=13, blank=True, null=True)
+    _sort = models.IntegerField(_('sort order'), null=True)
 
     def before_delete(self):
         if self.deta:
@@ -241,6 +295,7 @@ class IndividualEventStructure(models.Model):
     famc = models.ForeignKey(FamRecord, on_delete=models.SET_NULL, verbose_name=_('child'), related_name='event_structure_child', null=True)
     adop = models.CharField(_('adopted by whith parent'), max_length=4, blank=True, null=True)
     deta = models.ForeignKey(EventDetail, on_delete=models.SET_NULL, verbose_name=_('event_detail'), related_name='individual_event_event_detail', null=True)
+    _sort = models.IntegerField(_('sort order'), null=True)
 
     def before_delete(self):
         if self.deta:
@@ -255,6 +310,7 @@ class IndividualAttributeStructure(models.Model):
     type = models.CharField(_('user reference type'), max_length=40, blank=True, null=True)
     dscr = models.TextField(_('physical description'), blank=True, null=True)
     deta = models.ForeignKey(EventDetail, on_delete=models.SET_NULL, verbose_name=_('event_detail'), related_name='individual_attr_event_detail', null=True)
+    _sort = models.IntegerField(_('sort order'), null=True)
 
     def before_delete(self):
         if self.deta:
@@ -265,12 +321,15 @@ class AssociationStructure(models.Model):
     indi = models.ForeignKey(IndividualRecord, on_delete=models.CASCADE, verbose_name=_('individual'), related_name='association_individual', null=True)
     asso = models.CharField(_('identifier in the source system'), max_length=22, blank=True, null=True)
     asso_rela = models.CharField(_('relation is descriptor'), max_length=25, blank=True, null=True)
+    _sort = models.IntegerField(_('sort order'), null=True)
 
 class NoteRecord(models.Model):
     head = models.ForeignKey(Header, on_delete=models.CASCADE, verbose_name=_('tree header'), related_name='note_tree_header', null=True)
-    xref = models.CharField(_('identifier in the source system'), max_length=22, blank=True, null=True)
+    xref = models.IntegerField(_('identifier in the source system'), null=True)
+    note = models.TextField(_('description'), blank=True, null=True)
     rin = models.CharField(_('RIN'), max_length=12, blank=True, null=True)
     chan = models.ForeignKey(ChangeDate, on_delete=models.SET_NULL, verbose_name=_('change_date'), related_name='note_change_date', null=True)
+    _sort = models.IntegerField(_('sort order'), null=True)
 
     def before_delete(self):
         if self.chan:
@@ -278,11 +337,12 @@ class NoteRecord(models.Model):
 
 class RepositoryRecord(models.Model):
     head = models.ForeignKey(Header, on_delete=models.CASCADE, verbose_name=_('tree header'), related_name='repo_tree_header', null=True)
-    xref = models.CharField(_('identifier in the source system'), max_length=22, blank=True, null=True)
+    xref = models.IntegerField(_('identifier in the source system'), null=True)
     name = models.CharField(_('name of repository'), max_length=57, blank=True, null=True)
     addr = models.ForeignKey(AddressStructure, on_delete=models.SET_NULL, verbose_name=_('address'), related_name='repository_address', null=True)
     rin = models.CharField(_('RIN'), max_length=12, blank=True, null=True)
     chan = models.ForeignKey(ChangeDate, on_delete=models.SET_NULL, verbose_name=_('change_date'), related_name='repo_change_date', null=True)
+    _sort = models.IntegerField(_('sort order'), null=True)
 
     def before_delete(self):
         if self.addr:
@@ -292,7 +352,7 @@ class RepositoryRecord(models.Model):
 
 class SourceRecord(models.Model):
     head = models.ForeignKey(Header, on_delete=models.CASCADE, verbose_name=_('tree header'), related_name='source_tree_header', null=True)
-    xref = models.CharField(_('identifier in the source system'), max_length=22, blank=True, null=True)
+    xref = models.IntegerField(_('identifier in the source system'), null=True)
     data_even = models.CharField(_('events recorded'), max_length=90, blank=True, null=True)
     data_date = models.CharField(_('date period'), max_length=35, blank=True, null=True)
     data_plac = models.CharField(_('source juridication place'), max_length=120, blank=True, null=True)
@@ -308,6 +368,7 @@ class SourceRecord(models.Model):
     _type = models.CharField(_('custom field: type'), max_length=40, blank=True, null=True)
     _medi = models.CharField(_('custom field: media id'), max_length=40, blank=True, null=True)
     _uid = models.CharField(_('custom field: uid'), max_length=40, blank=True, null=True)
+    _sort = models.IntegerField(_('sort order'), null=True)
 
     def before_delete(self):
         if self.chan:
@@ -318,15 +379,17 @@ class SourceRepositoryCitation(models.Model):
     sour = models.ForeignKey(SourceRecord, on_delete=models.CASCADE, verbose_name=_('citation source'), related_name='citation_source', null=True)
     caln = models.CharField(_('source call number'), max_length=120, blank=True, null=True)
     caln_medi = models.CharField(_('source media type'), max_length=15, blank=True, null=True)
+    _sort = models.IntegerField(_('sort order'), null=True)
 
 class SubmitterRecord(models.Model):
     head = models.ForeignKey(Header, on_delete=models.CASCADE, verbose_name=_('tree header'), related_name='submitter_tree_header', null=True)
-    xref = models.CharField(_('identifier in the source system'), max_length=22, blank=True, null=True)
+    xref = models.IntegerField(_('identifier in the source system'), null=True)
     name = models.CharField(_('submitter name'), max_length=60, blank=True, null=True)
     addr = models.ForeignKey(AddressStructure, on_delete=models.SET_NULL, verbose_name=_('address'), related_name='submitter_address', null=True)
     rin = models.CharField(_('RIN'), max_length=12, blank=True, null=True)
     chan = models.ForeignKey(ChangeDate, on_delete=models.SET_NULL, verbose_name=_('change_date'), related_name='submitter_change_date', null=True)
     _uid = models.CharField(_('custom field: uid'), max_length=40, blank=True, null=True)
+    _sort = models.IntegerField(_('sort order'), null=True)
 
     def before_delete(self):
         if self.addr:
@@ -335,13 +398,26 @@ class SubmitterRecord(models.Model):
             self.chan.delete()
 
 #--------------------------------------------------
+class AlbumRecord(models.Model):
+    head = models.ForeignKey(Header, on_delete=models.CASCADE, verbose_name=_('tree header'), related_name='album_tree_header', null=True)
+    xref = models.IntegerField(_('identifier in the source system'), null=True)
+    rin = models.CharField(_('RIN'), max_length=12, blank=True, null=True)
+    chan = models.ForeignKey(ChangeDate, on_delete=models.SET_NULL, verbose_name=_('change_date'), related_name='album_change_date', null=True)
+    titl = models.CharField(_('title'), max_length=250, blank=True, null=True)
+    desc = models.CharField(_('title'), max_length=250, blank=True, null=True)
+    _upd = models.CharField(_('custom field: update'), max_length=40, blank=True, null=True)
+    _sort = models.IntegerField(_('sort order'), null=True)
+
+    def before_delete(self):
+        if self.chan:
+            self.chan.delete()
+
+#--------------------------------------------------
 class MultimediaRecord(models.Model):
     head = models.ForeignKey(Header, on_delete=models.CASCADE, verbose_name=_('tree header'), related_name='mm_tree_header', null=True)
-    xref = models.CharField(_('identifier in the source system'), max_length=22, blank=True, null=True)
+    xref = models.IntegerField(_('identifier in the source system'), null=True)
     rin = models.CharField(_('RIN'), max_length=12, blank=True, null=True)
     chan = models.ForeignKey(ChangeDate, on_delete=models.SET_NULL, verbose_name=_('change_date'), related_name='mfile_change_date', null=True)
-    form = models.CharField(_('multimedia format'), max_length=4, blank=True, null=True)
-    titl = models.CharField(_('descriptive title'), max_length=248, blank=True, null=True)
     _size = models.CharField(_('custom field: file size'), max_length=15, blank=True, null=True)
     _date = models.CharField(_('custom field: date'), max_length=15, blank=True, null=True)
     _plac = models.CharField(_('custom field: place'), max_length=250, blank=True, null=True)
@@ -353,12 +429,25 @@ class MultimediaRecord(models.Model):
     _pare = models.CharField(_('custom field: parent photo'), max_length=1, blank=True, null=True)
     _prin = models.CharField(_('custom field: parent RIN'), max_length=12, blank=True, null=True)
     _posi = models.CharField(_('custom field: position'), max_length=50, blank=True, null=True)
-    _albu = models.CharField(_('custom field: album id'), max_length=12, blank=True, null=True)
+    _albu = models.ForeignKey(AlbumRecord, on_delete=models.SET_NULL, verbose_name=_('album'), related_name='mfile_album', null=True)
     _uid = models.CharField(_('custom field: uid'), max_length=40, blank=True, null=True)
+    _sort = models.IntegerField(_('sort order'), null=True)
 
     def before_delete(self):
         if self.chan:
             self.chan.delete()
+
+    def get_info(self):
+        ret = ''
+        if MultimediaFile.objects.filter(obje=self.id).exists():
+            file = MultimediaFile.objects.filter(obje=self.id)[0]
+            if file.file:
+                ret = file.file.split('/')[-1:][0][:30]
+            if file.titl:
+                if ret:
+                    ret += ' '
+                ret += file.titl[:70]
+        return ret
 
 class MultimediaFile(models.Model):
     obje = models.ForeignKey(MultimediaRecord, on_delete=models.CASCADE, verbose_name=_('multimedia record'), related_name='multimedia_record_file', null=True)
@@ -369,6 +458,7 @@ class MultimediaFile(models.Model):
     titl = models.CharField(_('descriptive title'), max_length=248, blank=True, null=True)
     _fdte = models.CharField(_('custom field: fdte'), max_length=50, blank=True, null=True)
     _fplc = models.CharField(_('custom field: fplc'), max_length=250, blank=True, null=True)
+    _sort = models.IntegerField(_('sort order'), null=True)
 
 #--------------------------------------------------
 class SourceCitation(models.Model):
@@ -380,35 +470,22 @@ class SourceCitation(models.Model):
     pnpi = models.ForeignKey(PersonalNamePieces, on_delete=models.CASCADE, verbose_name=_('personal_name_pieces'), related_name='source_citation_personal_name_pieces', null=True)
     note = models.ForeignKey(NoteRecord, on_delete=models.CASCADE, verbose_name=_('note'), related_name='source_citation_note', null=True)
     sour = models.ForeignKey(SourceRecord, on_delete=models.CASCADE, verbose_name=_('source'), related_name='source_citation_source', null=True)
-    sour_page = models.CharField(_('where within source'), max_length=248, blank=True, null=True)
-    sour_even = models.CharField(_('event type cited from'), max_length=15, blank=True, null=True)
-    sour_even_role = models.CharField(_('role in event'), max_length=27, blank=True, null=True)
-    sour_data_date = models.CharField(_('entry recording date'), max_length=90, blank=True, null=True)
-    sour_data_text = models.TextField(_('text from source'), blank=True, null=True)
+    page = models.CharField(_('where within source'), max_length=248, blank=True, null=True)
+    even_even = models.CharField(_('event type cited from'), max_length=15, blank=True, null=True)
+    even_role = models.CharField(_('role in event'), max_length=27, blank=True, null=True)
+    data_date = models.CharField(_('entry recording date'), max_length=90, blank=True, null=True)
+    data_text = models.TextField(_('text from source'), blank=True, null=True)
     quay = models.CharField(_('certainty assessment'), max_length=1, blank=True, null=True)
     auth = models.CharField(_('author'), max_length=120, blank=True, null=True)
     titl = models.CharField(_('title'), max_length=250, blank=True, null=True)
     _upd = models.CharField(_('custom field: update'), max_length=40, blank=True, null=True)
     _type = models.CharField(_('custom field: type'), max_length=40, blank=True, null=True)
     _medi = models.CharField(_('custom field: media id'), max_length=40, blank=True, null=True)
+    _sort = models.IntegerField(_('sort order'), null=True)
 
 class FamilySourceCitation(models.Model):
     fami = models.ForeignKey(FamRecord, on_delete=models.CASCADE, verbose_name=_('family'), related_name='family_source_citation_family')
     soci = models.ForeignKey(SourceCitation, on_delete=models.CASCADE, verbose_name=_('source_citation'), related_name='family_source_citation')
-
-#--------------------------------------------------
-class AlbumRecord(models.Model):
-    head = models.ForeignKey(Header, on_delete=models.CASCADE, verbose_name=_('tree header'), related_name='album_tree_header', null=True)
-    xref = models.CharField(_('identifier in the source system'), max_length=22, blank=True, null=True)
-    rin = models.CharField(_('RIN'), max_length=12, blank=True, null=True)
-    chan = models.ForeignKey(ChangeDate, on_delete=models.SET_NULL, verbose_name=_('change_date'), related_name='album_change_date', null=True)
-    titl = models.CharField(_('title'), max_length=250, blank=True, null=True)
-    desc = models.CharField(_('title'), max_length=250, blank=True, null=True)
-    _upd = models.CharField(_('custom field: update'), max_length=40, blank=True, null=True)
-
-    def before_delete(self):
-        if self.chan:
-            self.chan.delete()
 
 #--------------------------------------------------
 class MultimediaLink(models.Model):
@@ -419,6 +496,7 @@ class MultimediaLink(models.Model):
     sour = models.ForeignKey(SourceRecord, on_delete=models.CASCADE, verbose_name=_('source'), related_name='source_mm_link', null=True)
     subm = models.ForeignKey(SubmitterRecord, on_delete=models.CASCADE, verbose_name=_('submitter'), related_name='submitter_mm_link', null=True)
     even = models.ForeignKey(EventDetail, on_delete=models.CASCADE, verbose_name=_('event_detail'), related_name='event_detail_mm_link', null=True)
+    _sort = models.IntegerField(_('sort order'), null=True)
 
 #--------------------------------------------------
 class NoteStructure(models.Model):
@@ -435,11 +513,11 @@ class NoteStructure(models.Model):
     srci = models.ForeignKey(SourceRepositoryCitation, on_delete=models.CASCADE, verbose_name=_('source repository citation'), related_name='source_repository_citation_note', null=True)
     subm = models.ForeignKey(SubmitterRecord, on_delete=models.CASCADE, verbose_name=_('submitter'), related_name='submitter_note', null=True)
     even = models.ForeignKey(EventDetail, on_delete=models.CASCADE, verbose_name=_('event_detail'), related_name='event_detail_note', null=True)
-    obje_2 = models.ForeignKey(MultimediaLink, on_delete=models.CASCADE, verbose_name=_('multimedia_link'), related_name='multimedia_link_note', null=True)
     pnpi = models.ForeignKey(PersonalNamePieces, on_delete=models.CASCADE, verbose_name=_('personal_name_pieces'), related_name='personal_name_pieces_note', null=True)
     plac = models.ForeignKey(PlaceStructure, on_delete=models.CASCADE, verbose_name=_('place'), related_name='place_note', null=True)
-    note = models.TextField(_('description'), blank=True, null=True)
+    note = models.ForeignKey(NoteRecord, on_delete=models.CASCADE, verbose_name=_('note'), related_name='note_structure_note', null=True)
     mode = models.IntegerField(_('wich part of noted structure'), default=0)
+    _sort = models.IntegerField(_('sort order'), null=True)
 
 class UserReferenceNumber(models.Model):
     indi = models.ForeignKey(IndividualRecord, on_delete=models.CASCADE, verbose_name=_('individual'), related_name='individual_refn', null=True)
@@ -450,4 +528,5 @@ class UserReferenceNumber(models.Model):
     sour = models.ForeignKey(SourceRecord, on_delete=models.CASCADE, verbose_name=_('source'), related_name='source_refn', null=True)
     refn = models.CharField(_('user reference number'), max_length=20, blank=True, null=True)
     type = models.CharField(_('user reference type'), max_length=40, blank=True, null=True)
+    _sort = models.IntegerField(_('sort order'), null=True)
 

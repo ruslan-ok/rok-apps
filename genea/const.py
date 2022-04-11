@@ -44,47 +44,6 @@ WORK_EDUCATION_MODE = [
     (EDUC, _('calculated')),
 ]
 
-"""
-# Person fact categories
-COMM = 1 # Common
-BIRT = 2 # Birth
-DEAT = 3 # Death
-CRIS = 4 # Cristian
-JEWI = 5 # Jewish
-FAMI = 6 # Family
-RESI = 7 # Residence
-LEGA = 8 # Legal
-EDUC = 9 # Education
-MILI = 10 # Military
-HIST = 11 # Personal history
-GENE = 12 # General
-ALLF = 13 # All facts
-"""
-
-# MARR = 1
-# DIVO = 2
-# SEPA = 3
-# WIDO = 4
-# ENGA = 5
-# PRTN = 6
-# FRIE = 7
-# ANNU = 8
-# UNKN = 9
-# OTHE = 10
-
-# RELATIONSHIP_MODE = [
-#     (MARR, _('married')),
-#     (DIVO, _('divorced')),
-#     (SEPA, _('separated')),
-#     (WIDO, _('widowed')),
-#     (ENGA, _('engaged')),
-#     (PRTN, _('partner')),
-#     (FRIE, _('friends')),
-#     (ANNU, _('annulment')),
-#     (UNKN, _('unknown')),
-#     (OTHE, _('other')),
-# ]
-
 NONE= 0
 UNRELI = 1
 QUESTI = 2
@@ -147,3 +106,49 @@ MO_FAMI = 3
 MO_PERS_FACT = 4
 MO_FAMI_FACT = 5
 MO_CITAT = 6
+
+COUNTRIES = [
+    ('Литва', 'Литва'),
+    ('Белоруссия', 'Беларусь'),
+    ('Беларусь', 'Беларусь'),
+    ('BY', 'Беларусь'),
+    ]
+
+CITIES = [
+    ('Вільнюс', 'Вильнюс'),
+    ('г. Жодина', 'Жодино'),
+    ('г.Жодина', 'Жодино'),
+    ('Жодино', 'Жодино'),
+    ('г. Волковыск', 'Волковыск'),
+    ('г.Волковыск', 'Волковыск'),
+    ('г.Волковыск.', 'Волковыск'),
+    ('г. Минск', 'Минск'),
+    ('г.Минск', 'Минск'),
+    ('Г Минск', 'Минск'),
+    ('Минск', 'Минск'),
+    ('Липецкая обл.,с.Боринское', 'Липецкая обл., с.Боринское'),
+    ('г. Брест', 'Брест'),
+    ]
+
+STREETS = [
+    'ул.Дзержинского, д.55', 
+    'ул.Якубова, д.66 , к.1, кв.207', 
+    ]
+
+POSTS = [
+    '220116', 
+    '220095', 
+    ]
+
+LITERS = {
+    'HEAD': 'H',
+    'FAM':  'F',
+    'INDI': 'I',
+    'OBJE': 'M',
+    'NOTE': 'N',
+    'REPO': 'R',
+    'SOUR': 'S',
+    'SUBM': 'U',
+    '_ALBUM': 'A',
+}
+

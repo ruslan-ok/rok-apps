@@ -5,43 +5,9 @@ from genea.models import (Header, AddressStructure, IndividualRecord, SubmitterR
     ChangeDate, NoteStructure, PersonalNameStructure, NamePhoneticVariation, NameRomanizedVariation, 
     PersonalNamePieces, IndividualAttributeStructure, IndividualEventStructure, EventDetail, PlaceStructure, 
     SourceCitation, MultimediaRecord, MultimediaLink, MultimediaFile, FamRecord, ChildToFamilyLink,
-    FamilyEventStructure, AlbumRecord, SourceRecord, UserReferenceNumber, NoteRecord, SourceRepositoryCitation)
+    FamilyEventStructure, AlbumRecord, SourceRecord, UserReferenceNumber, NoteRecord, SourceRepositoryCitation,
+    AssociationStructure)
 from genea.const import *
-
-COUNTRIES = [
-    ('Литва', 'Литва'),
-    ('Белоруссия', 'Беларусь'),
-    ('Беларусь', 'Беларусь'),
-    ('BY', 'Беларусь'),
-    ]
-
-CITIES = [
-    ('Вільнюс', 'Вильнюс'),
-    ('г. Жодина', 'Жодино'),
-    ('г.Жодина', 'Жодино'),
-    ('Жодино', 'Жодино'),
-    ('г. Волковыск', 'Волковыск'),
-    ('г.Волковыск', 'Волковыск'),
-    ('г.Волковыск.', 'Волковыск'),
-    ('г. Минск', 'Минск'),
-    ('г.Минск', 'Минск'),
-    ('Г Минск', 'Минск'),
-    ('Минск', 'Минск'),
-    ('Липецкая обл.,с.Боринское', 'Липецкая обл., с.Боринское'),
-    ('г. Брест', 'Брест'),
-    ]
-
-STREETS = [
-    'ул.Дзержинского, д.55', 
-    'ул.Якубова, д.66 , к.1, кв.207', 
-    ]
-
-POSTS = [
-    '220116', 
-    '220095', 
-    ]
-
-
 
 class ImpGedcom551:
     def __init__(self, request, *args, **kwargs):
@@ -66,8 +32,11 @@ class ImpGedcom551:
                 }
         ret = {
             'folder': folder,
+            'time': None,
             'files': []
         }
+
+        start = datetime.now()
 
         if self.only_clear:
             self.db_del_trees()
@@ -81,6 +50,7 @@ class ImpGedcom551:
 
         # self.db_del_trees()
 
+        ret['time'] = datetime.now() - start
         return ret
 
     def db_del_trees(self):
@@ -92,20 +62,31 @@ class ImpGedcom551:
         self.result = 'ok'
         self.stat = {}
         self.head_subm = 0
+        self.head = None
         with GedcomReader(folder + '\\' + file) as parser:
             for item in parser.records0():
                 match item.tag:
-                    case 'HEAD':  head = self.read_header(item, file)
-                    case 'FAM':   self.family_record(head, item)
-                    case 'INDI':  self.indi_record(head, item)
-                    case 'OBJE':  self.media_record(head, item)
-                    case 'NOTE':  self.note_record(head, item)
-                    case 'REPO':  self.repo_record(head, item)
-                    case 'SOUR':  self.source_record(head, item)
-                    case 'SUBM':  self.submit_record(head, item)
-                    case 'ALBUM': self.album_record(head, item)
+                    case 'HEAD':  self.read_header(item, file)
+                    case 'FAM':   self.family_record(item)
+                    case 'INDI':  self.indi_record(item)
+                    case 'OBJE':  self.media_record(item)
+                    case 'NOTE':  self.note_record(item)
+                    case 'REPO':  self.repo_record(item)
+                    case 'SOUR':  self.source_record(item)
+                    case 'SUBM':  self.submit_record(item)
+                    case 'ALBUM'|'_ALBUM': self.album_record(item)
                     case 'TRLR': pass
                     case _: self.unexpected_tag(item.tag)
+
+        self.stat['family'] = len(FamRecord.objects.filter(head=self.head))
+        self.stat['indi'] = len(IndividualRecord.objects.filter(head=self.head))
+        self.stat['media'] = len(MultimediaRecord.objects.filter(head=self.head))
+        self.stat['note'] = len(NoteRecord.objects.filter(head=self.head))
+        self.stat['repo'] = len(RepositoryRecord.objects.filter(head=self.head))
+        self.stat['source'] = len(SourceRecord.objects.filter(head=self.head))
+        self.stat['submitter'] = len(SubmitterRecord.objects.filter(head=self.head))
+        self.stat['album'] = len(AlbumRecord.objects.filter(head=self.head))
+
         ret = {
             'result': self.result,
             'file': file,
@@ -131,7 +112,7 @@ class ImpGedcom551:
                             case 'TIME': head.time = y.value
                             case _: self.unexpected_tag(y)
                 case 'SUBM':
-                    s_id = x.value.split('@U')[1].split('@')[0]
+                    s_id = self.extract_xref(x.tag, x.value)
                     if s_id:
                         self.head_subm = int(s_id)
                 case 'FILE': head.file = file
@@ -162,7 +143,7 @@ class ImpGedcom551:
         head.save()
         if (self.result != 'ok'):
             return None
-        return head
+        self.head = head
 
     def header_source(self, head, item):
         head.sour = item.value
@@ -196,89 +177,103 @@ class ImpGedcom551:
         self.skip_next_read = True
 
     # ------------- Family ---------------
-    def family_record(self, head, item):
-        xref = int(item.xref_id.split('@F')[1].split('@')[0])
-        if FamRecord.objects.filter(head=head, xref=xref).exists():
-            fam = FamRecord.objects.filter(head=head, xref=xref).get()
+    def family_record(self, item):
+        xref = self.extract_xref(item.tag, item.xref_id)
+        sort = len(FamRecord.objects.filter(head=self.head).exclude(_sort=None)) + 1
+        if FamRecord.objects.filter(head=self.head, xref=xref).exists():
+            fam = FamRecord.objects.filter(head=self.head, xref=xref).get()
+            if (not fam._sort):
+                fam._sort = sort
+                fam.save()
         else:
-            fam = FamRecord.objects.create(head=head, xref=xref)
-        self.stat['family'] = len(FamRecord.objects.filter(head=head))
+            fam = FamRecord.objects.create(head=self.head, xref=xref, _sort=sort)
         for x in item.sub_tags(follow=False):
             match x.tag:
-                case '_UPD': fam._upd = x.value
-                case 'HUSB': fam.husb = self.find_person(head, self.link_id(x.value, 'I'))
-                case 'WIFE': fam.wife = self.find_person(head, self.link_id(x.value, 'I'))
-                case 'CHIL': self.family_child(head, fam, self.link_id(x.value, 'I'))
-                case 'RIN':  fam.rin = x.value
-                case '_UID': fam.uid = x.value
-                case 'MARR': self.family_fact(fam, x)
-                case 'NCHI': self.family_fact(fam, x)
+                case 'MARR'|'DIV'|'EVEN'|'ENGA'|'MARL'|'NCHI': self.family_fact(fam, x)
+                case 'HUSB': fam.husb = self.find_person(self.extract_xref('INDI', x.value))
+                case 'WIFE': fam.wife = self.find_person(self.extract_xref('INDI', x.value))
+                case 'CHIL': self.family_child(fam, self.extract_xref('INDI', x.value))
                 case 'REFN': self.user_ref_num(x, fam=fam)
-                case 'DIV':  self.family_fact(fam, x)
-                case 'EVEN': self.family_fact(fam, x)
-                case 'ENGA': self.family_fact(fam, x)
-                case 'MARL': self.family_fact(fam, x)
-                case 'OBJE': self.media_link(head, x, fam=fam)
+                case 'RIN':  fam.rin = x.value
                 case 'CHAN': fam.chan = self.change_date(x, 'FamRecord_' + str(fam.id))
+                case 'NOTE': self.note_struct(x, fam=fam)
+                case 'SOUR': self.source_citat(x, fam=fam)
+                case 'OBJE': self.media_link(x, fam=fam)
+                case '_UID': fam._uid = x.value
+                case '_UPD': fam._upd = x.value
                 case '_MSTAT': fam._mstat = x.value
                 case _: self.unexpected_tag(x)
         fam.save()
 
-    def family_child(self, head, fam, child_id):
-        indi = self.find_person(head, child_id)
+    def family_child(self, fam, child_id):
+        indi = self.find_person(child_id)
         if not indi:
             return
         if not ChildToFamilyLink.objects.filter(fami=fam, chil=indi).exists():
-            ChildToFamilyLink.objects.create(fami=fam, chil=indi)
+            ChildToFamilyLink.objects.create(fami=fam, chil=indi, _sort=indi._sort)
 
     def family_fact(self, fam, item):
-        even = FamilyEventStructure.objects.create(fam=fam, tag=item.tag, value=item.value)
+        sort = len(FamilyEventStructure.objects.filter(fam=fam)) + 1
+        even = FamilyEventStructure.objects.create(fam=fam, tag=item.tag, value=item.value, _sort=sort)
+        age = None
+        empty = True
         for x in item.sub_tags(follow=False):
+            empty = False
             match x.tag:
                 case 'DESC': even.desc = x.value
-                case _: even.deta = self.event_detail(fam.head, x, even.deta)
+                case _: even.deta, age = self.event_detail(x, even.deta)
+        if item.tag == 'HUSB' and not even.husb_age and age:
+            even.husb_age = age
+        if item.tag == 'WIFE' and not even.wife_age and age:
+            even.wife_age = age
+        if item.tag == 'MARR' and not even.value and empty:
+            even.value = 'Y'
+        if item.tag in ('ANUL', 'CENS', 'DIV', 'DIVF',) and (even.value == 'Y'):
+            even.value = ''
         even.save()
 
     # ------------- Individual ---------------
-    def indi_record(self, head, item):
-        xref = int(item.xref_id.split('@I')[1].split('@')[0])
-        indi = IndividualRecord.objects.create(head=head, xref=xref)
-        self.stat['indi'] = len(IndividualRecord.objects.filter(head=head))
+    def indi_record(self, item):
+        xref = self.extract_xref(item.tag, item.xref_id)
+        sort = len(IndividualRecord.objects.filter(head=self.head)) + 1
+        indi = IndividualRecord.objects.create(head=self.head, xref=xref, _sort=sort)
         for x in item.sub_tags(follow=False):
             match x.tag:
-                case 'SEX':  indi.sex = x.value
-                case 'RIN':  indi.rin = x.value
-                case 'CHAN': indi.chan = self.change_date(x, 'IndividualRecord_' + str(indi.id))
-                case '_UPD': indi._upd = x.value
-                case '_UID': indi._uid = x.value
                 case 'NAME': self.person_name(x, indi)
+                case 'SEX':  indi.sex = x.value
                 case 'ADOP'|'BIRT'|'BAPM'|'BARM'|'BASM'|'BLES'|'BURI'|'CENS'|'CHR'|'CHRA'|'CONF'|'CREM'|'DEAT'|'EMIG'|'FCOM'|'GRAD'|'IMMI'|'NATU'|'ORDN'|'RETI'|'PROB'|'WILL'|'EVEN':
                     self.pers_event(indi, x)
                 case 'CAST'|'DSCR'|'EDUC'|'IDNO'|'NATI'|'NCHI'|'NMR'|'OCCU'|'PROP'|'RELI'|'RESI'|'TITL'|'FACT':
                     self.pers_attr(indi, x)
-                case 'SOUR': self.source_citat(head, x, indi=indi)
+                case 'FAMC': self.child_to_family(indi, x)
+                case 'FAMS': self.spouse_to_family(x)
+                case 'ASSO': self.association_struct(indi, x)
+                case 'REFN': self.user_ref_num(x, indi=indi)
+                case 'RIN':  indi.rin = x.value
+                case 'CHAN': indi.chan = self.change_date(x, 'IndividualRecord_' + str(indi.id))
                 case 'NOTE': self.note_struct(x, indi=indi)
-                case 'OBJE': self.media_link(head, x, indi=indi)
-                case 'FAMS': self.spouse_to_family(head, x)
-                case 'FAMC': self.child_to_family(head, indi, x)
+                case 'SOUR': self.source_citat(x, indi=indi)
+                case 'OBJE': self.media_link(x, indi=indi)
+                case '_UPD': indi._upd = x.value
+                case '_UID': indi._uid = x.value
                 case _: self.unexpected_tag(x)
         indi.save()
 
-    def spouse_to_family(self, head, item):
-        xref = int(item.value.split('@F')[1].split('@')[0])
-        if not FamRecord.objects.filter(head=head, xref=xref).exists():
-            FamRecord.objects.create(head=head, xref=xref)
+    def spouse_to_family(self, item):
+        xref = self.extract_xref('FAM', item.value)
+        if not FamRecord.objects.filter(head=self.head, xref=xref).exists():
+            FamRecord.objects.create(head=self.head, xref=xref)
 
-    def child_to_family(self, head, indi, item):
-        xref = int(item.value.split('@F')[1].split('@')[0])
-        if FamRecord.objects.filter(head=head, xref=xref).exists():
-            fam = FamRecord.objects.filter(head=head, xref=xref).get()
+    def child_to_family(self, indi, item):
+        xref = self.extract_xref('FAM', item.value)
+        if FamRecord.objects.filter(head=self.head, xref=xref).exists():
+            fam = FamRecord.objects.filter(head=self.head, xref=xref).get()
         else:
-            fam = FamRecord.objects.create(head=head, xref=xref)
+            fam = FamRecord.objects.create(head=self.head, xref=xref)
         if ChildToFamilyLink.objects.filter(fami=fam, chil=indi).exists():
             famc = ChildToFamilyLink.objects.filter(fami=fam, chil=indi).get()
         else:
-            famc = ChildToFamilyLink.objects.create(fami=fam, chil=indi)
+            famc = ChildToFamilyLink.objects.create(fami=fam, chil=indi, _sort=indi._sort)
         for x in item.sub_tags(follow=False):
             match x.tag:
                 case 'PEDI': famc.pedi = x.value
@@ -287,17 +282,23 @@ class ImpGedcom551:
         famc.save()
 
     def person_name(self, item, indi):
-        name = PersonalNameStructure.objects.create(indi=indi) #, name=self.get_name(item.value))
+        sort = len(PersonalNameStructure.objects.filter(indi=indi)) + 1
+        name = PersonalNameStructure.objects.create(indi=indi, _sort=sort)
+        empty = True
         for x in item.sub_tags(follow=False):
+            empty = False
             match x.tag:
                 case 'TYPE': name.type = x.value
                 case 'FONE': self.phonetic(x, name=name)
                 case 'ROMN': self.romanized(x, name=name)
                 case 'NPFX'|'GIVN'|'NICK'|'SPFX'|'SURN'|'NSFX'|'_MARNM': name.piec = self.name_pieces(x, name.piec)
-                case 'SOUR': self.source_citat(indi.head, x, pnpi=name)
+                case 'SOUR': self.source_citat(x, pnpi=name)
                 case 'NOTE': self.note_struct(x, pnpi=name)
                 case _: self.unexpected_tag(x)
-        name.save()
+        if empty:
+            name.delete()
+        else:
+            name.save()
 
     def phonetic(self, item, name=None, plac=None):
         vari = NamePhoneticVariation.objects.create(name=name, plac=plac, value=item.value)
@@ -333,48 +334,88 @@ class ImpGedcom551:
         return piec
 
     def pers_attr(self, indi, item):
-        attr = IndividualAttributeStructure.objects.create(indi=indi, tag=item.tag, value=item.value)
+        sort = len(IndividualAttributeStructure.objects.filter(indi=indi)) + 1
+        attr = IndividualAttributeStructure.objects.create(indi=indi, tag=item.tag, value=item.value, _sort=sort)
+        age = None
         for x in item.sub_tags(follow=False):
             match x.tag:
                 case 'AGE':  attr.age  = x.value
                 case 'TYPE': attr.type = x.value
                 case 'DSCR': attr.dscr = x.value
-                case _: attr.deta = self.event_detail(indi.head, x, attr.deta)
+                case _: attr.deta, age = self.event_detail(x, attr.deta)
+        if not attr.age and age:
+            attr.age = age
+        if (attr.tag == 'EDUC') and (not attr.value) and attr.deta and NoteStructure.objects.filter(even=attr.deta).exists():
+            note = NoteStructure.objects.filter(even=attr.deta).get()
+            if note.note and note.note.note and (len(note.note.note) <= 248):
+                attr.value = note.note.note
+                note.note.delete()
+                note.delete()
         attr.save()
         
     def pers_event(self, indi, item):
-        even = IndividualEventStructure.objects.create(indi=indi, tag=item.tag, value=item.value)
+        sort = len(IndividualEventStructure.objects.filter(indi=indi)) + 1
+        even = IndividualEventStructure.objects.create(indi=indi, tag=item.tag, value=item.value, _sort=sort)
+        age = None
+        empty = True
         for x in item.sub_tags(follow=False):
+            empty = False
             match x.tag:
                 case 'FAMC': even.famc = self.find_family(x.value)
                 case 'ADOP': even.adop = x.value
                 case 'AGE':  even.age  = x.value
-                case _: even.deta = self.event_detail(indi.head, x, even.deta)
+                case _: even.deta, age = self.event_detail(x, even.deta)
+        if not even.age and age:
+            even.age = age
+        if (even.tag == 'DEAT') and empty and (not even.value):
+            even.value = 'Y'
+        if (even.tag == 'DEAT') and (not empty) and (even.value == 'Y'):
+            even.value = ''
+        if (even.tag in ('BURI', 'CREM', 'ADOP', 'BAPM', 'BARM', 'BASM', 'BLES', 'CHRA', 'CONF', 'FCOM', 'ORDN', 'NATU', 'EMIG', 'IMMI', 'CENS', 'PROB', 'WILL', 'GRAD', 'RETI')) \
+            and even.value:
+            self.note_struct_for_value(even.value, even=even.deta)
+            even.value = ''
         even.save()
+        if (even.tag == 'BIRT') and empty:
+            even.delete()
 
-    # ------------- Media ---------------
-    def media_record(self, head, item):
-        obje = None
-        if item.xref_id and ('@M' in item.xref_id):
-            xref = int(item.xref_id.split('@M')[1].split('@')[0])
-            if MultimediaRecord.objects.filter(head=head, xref=xref).exists():
-                obje = MultimediaRecord.objects.filter(head=head, xref=xref).get()
-            else:
-                obje = MultimediaRecord.objects.create(head=head, xref=xref)
-        if not obje:
-            obje = MultimediaRecord.objects.create(head=head)
-        self.stat['media'] = len(MultimediaRecord.objects.filter(head=head))
+
+    def association_struct(self, indi, item):
+        xref = self.extract_xref('INDI', item.value)
+        link = self.find_person(xref)
+        sort = len(AssociationStructure.objects.filter(indi=indi)) + 1
+        asso = AssociationStructure.objects.create(indi=indi, asso=link, _sort=sort)
         for x in item.sub_tags(follow=False):
             match x.tag:
-                case 'FORM': obje.form = x.value
-                case 'FILE': self.media_file(x, obje)
-                case '_FILESIZE': obje._size = x.value
-                case 'TITL': obje.titl = x.value
+                case 'RELA': asso.rela = x.value
+                case 'SOUR': self.source_citat(x, asso=asso)
+                case 'NOTE': self.note_struct(x, asso=asso)
+                case _: self.unexpected_tag(x)
+        asso.save()
+
+    # ------------- Media ---------------
+    def media_record(self, item, xref=None):
+        if not xref:
+            xref = self.extract_xref(item.tag, item.xref_id)
+        if MultimediaRecord.objects.filter(head=self.head, xref=xref).exists():
+            obje = MultimediaRecord.objects.filter(head=self.head, xref=xref).get()
+        else:
+            sort = len(MultimediaRecord.objects.filter(head=self.head)) + 1
+            obje = MultimediaRecord.objects.create(head=self.head, xref=xref, _sort=sort)
+        file = None
+        form = ''
+        titl = ''
+        for x in item.sub_tags(follow=False):
+            match x.tag:
+                case 'FILE': file = self.media_file(x, obje)
+                case 'FORM': form = x.value
+                case 'TITL': titl = x.value.strip()
                 case 'REFN': self.user_ref_num(x, obje=obje)
                 case 'RIN':  obje.rin = x.value
                 case 'NOTE': self.note_struct(x, obje=obje)
-                case 'SOUR': self.source_citat(head, x, obje=obje)
+                case 'SOUR': self.source_citat(x, obje=obje)
                 case 'CHAN': obje.chan = self.change_date(x, 'MultimediaRecord_' + str(obje.id))
+                case '_FILESIZE': obje._size = x.value
                 case '_DATE': obje._date = x.value
                 case '_PLACE': obje._plac = x.value
                 case '_PRIM': obje._prim = x.value
@@ -385,14 +426,22 @@ class ImpGedcom551:
                 case '_PARENTPHOTO': obje._pare = x.value
                 case '_PHOTO_RIN': obje._prin = x.value
                 case '_POSITION': obje._posi = x.value
-                case '_ALBUM': obje._albu = self.link_id(x.value, 'A')
+                case '_ALBUM': 
+                    xref = self.extract_xref('_ALBUM', x.value)
+                    obje._albu = self.album_record(x, xref)
                 case '_UID': obje._uid = x.value
                 case _: self.unexpected_tag(x)
         obje.save()
+        #  5.5 structure, implemented in MyHeritage
+        if file and (form or titl):
+            file.form = form
+            file.titl = titl
+            file.save()
         return obje
 
     def media_file(self, item, obje):
-        file = MultimediaFile.objects.create(obje=obje, file=item.value)
+        sort = len(MultimediaFile.objects.filter(obje=obje)) + 1
+        file = MultimediaFile.objects.create(obje=obje, file=item.value, _sort=sort)
         for x in item.sub_tags(follow=False):
             match x.tag:
                 case 'FORM': 
@@ -408,67 +457,82 @@ class ImpGedcom551:
         file.save()
         return file
 
-    def media_link(self, head, item, fam=None, indi=None, sour_2=None, sour=None, subm=None, even=None):
-        obje = self.media_record(head, item)
-        MultimediaLink.objects.create(obje=obje, fam=fam, indi=indi, sour_2=sour_2, sour=sour, subm=subm, even=even)
-
+    def media_link(self, item, fam=None, indi=None, cita=None, sour=None, subm=None, even=None):
+        if item.value:
+            xref = self.extract_xref('OBJE', item.value)
+        else:
+            xref = len(MultimediaRecord.objects.filter(head=self.head)) + 1
+        obje = self.media_record(item, xref)
+        sort = len(MultimediaLink.objects.filter(obje=obje, fam=fam, indi=indi, cita=cita, sour=sour, subm=subm, even=even)) + 1
+        MultimediaLink.objects.create(obje=obje, fam=fam, indi=indi, cita=cita, sour=sour, subm=subm, even=even, _sort=sort)
+        
     # ------------- Note ---------------
-    def note_record(self, head, item):
-        note = None
-        if item.xref_id and ('@T' in item.xref_id):
-            xref = int(item.xref_id.split('@T')[1].split('@')[0])
-            if NoteRecord.objects.filter(head=head, xref=xref).exists():
-                note = NoteRecord.objects.filter(head=head, xref=xref).get()
+    def note_record(self, item, xref=None, value=None):
+        if not xref:
+            if not value and item.xref_id:
+                xref = self.extract_xref(item.tag, item.xref_id)
             else:
-                note = NoteRecord.objects.create(head=head, xref=xref)
-        if not note:
-            note = NoteRecord.objects.create(head=head)
-        self.stat['note'] = len(NoteRecord.objects.filter(head=head))
-        for x in item.sub_tags(follow=False):
-            match x.tag:
-                case _: self.unexpected_tag(x)
-        note.save()
-        return note
-
-    def note_struct(self, item, mode=0, head=None, fam=None, indi=None, sour_2=None, asso=None, chan=None, famc=None, obje=None, repo=None, sour=None, soda=None, srci=None, subm=None, even=None, obje_2=None, pnpi=None, plac=None):
-        note = NoteStructure.objects.create(mode=mode, head=head, fam=fam, indi=indi, sour_2=sour_2, asso=asso, chan=chan, famc=famc, obje=obje, repo=repo, sour=sour, soda=soda, srci=srci, subm=subm, even=even, obje_2=obje_2, pnpi=pnpi, plac=plac)
-        text = item.value
-        for x in item.sub_tags(follow=False):
-            match x.tag:
-                case 'NOTE': text += x.value
-                case 'CONC': text += x.value
-                case 'CONT': text += '\n' + x.value
-                case None: text += x.value.replace('\n', '')
-                case _: self.unexpected_tag(x)
+                xref = len(NoteRecord.objects.filter(head=self.head)) + 1
+        if NoteRecord.objects.filter(head=self.head, xref=xref).exists():
+            note = NoteRecord.objects.filter(head=self.head, xref=xref).get()
+        else:
+            sort = len(NoteRecord.objects.filter(head=self.head)) + 1
+            note = NoteRecord.objects.create(head=self.head, xref=xref, _sort=sort)
+        if value:
+            text = value
+        else:
+            text = item.value
+            for x in item.sub_tags(follow=False):
+                match x.tag:
+                    case 'NOTE': text += x.value
+                    case 'CONC': text += x.value
+                    case 'CONT': text += '\n' + x.value
+                    case None: text += x.value.replace('\n', '')
+                    case _: self.unexpected_tag(x)
         note.note = text
         note.save()
         return note
 
+    def note_struct(self, item, mode=0, fam=None, indi=None, cita=None, asso=None, chan=None, famc=None, obje=None, repo=None, sour=None, srci=None, subm=None, even=None, pnpi=None, plac=None):
+        xref = self.extract_xref('NOTE', item.value)
+        note = self.note_record(item, xref=xref)
+        sort = len(NoteStructure.objects.filter(mode=mode, head=self.head, fam=fam, indi=indi, cita=cita, asso=asso, chan=chan, famc=famc, obje=obje, repo=repo, sour=sour, srci=srci, subm=subm, even=even, pnpi=pnpi, plac=plac)) + 1
+        note_stru = NoteStructure.objects.create(mode=mode, head=self.head, note=note, fam=fam, indi=indi, cita=cita, asso=asso, chan=chan, famc=famc, obje=obje, repo=repo, sour=sour, srci=srci, subm=subm, even=even, pnpi=pnpi, plac=plac, _sort=sort)
+        return note_stru
+
+    def note_struct_for_value(self, value, mode=0, fam=None, indi=None, cita=None, asso=None, chan=None, famc=None, obje=None, repo=None, sour=None, srci=None, subm=None, even=None, pnpi=None, plac=None):
+        note = self.note_record(None, value=value)
+        sort = len(NoteStructure.objects.filter(mode=mode, head=self.head, fam=fam, indi=indi, cita=cita, asso=asso, chan=chan, famc=famc, obje=obje, repo=repo, sour=sour, srci=srci, subm=subm, even=even, pnpi=pnpi, plac=plac)) + 1
+        note_stru = NoteStructure.objects.create(mode=mode, head=self.head, note=note, fam=fam, indi=indi, cita=cita, asso=asso, chan=chan, famc=famc, obje=obje, repo=repo, sour=sour, srci=srci, subm=subm, even=even, pnpi=pnpi, plac=plac, _sort=sort)
+        return note_stru
+
     # ------------- Repo ---------------
-    def repo_record(self, head, item):
-        xref = int(item.xref_id.split('@R')[1].split('@')[0])
-        if RepositoryRecord.objects.filter(head=head, xref=xref).exists():
-            repo = RepositoryRecord.objects.filter(head=head, xref=xref).get()
+    def repo_record(self, item):
+        xref = self.extract_xref(item.tag, item.xref_id)
+        if RepositoryRecord.objects.filter(head=self.head, xref=xref).exists():
+            repo = RepositoryRecord.objects.filter(head=self.head, xref=xref).get()
         else:
-            repo = RepositoryRecord.objects.create(head=head, xref=xref)
-        self.stat['repo'] = len(RepositoryRecord.objects.filter(head=head))
+            sort = len(RepositoryRecord.objects.filter(head=self.head)) + 1
+            repo = RepositoryRecord.objects.create(head=self.head, xref=xref, _sort=sort)
         for x in item.sub_tags(follow=False):
             match x.tag:
                 case 'NAME': repo.name = self.get_name(x.value)
                 case 'ADDR'|'PHON'|'EMAIL'|'FAX'|'WWW': repo.addr = self.address_struct(x, repo.addr, 'RepositoryRecord_' + str(repo.id))
+                case 'NOTE': self.note_struct(x, repo=repo)
+                case 'REFN': self.user_ref_num(x, repo=repo)
                 case 'RIN':  repo.rin  = x.value
                 case 'CHAN': repo.chan = x.value
                 case _: self.unexpected_tag(x)
         repo.save()
 
     # ------------- Source ---------------
-    def source_record(self, head, item):
-        xref = int(item.xref_id.split('@S')[1].split('@')[0])
-        if SourceRecord.objects.filter(head=head, xref=xref).exists():
-            sour = SourceRecord.objects.filter(head=head, xref=xref).get()
+    def source_record(self, item):
+        xref = self.extract_xref(item.tag, item.xref_id)
+        if SourceRecord.objects.filter(head=self.head, xref=xref).exists():
+            sour = SourceRecord.objects.filter(head=self.head, xref=xref).get()
         else:
-            sour = SourceRecord.objects.create(head=head, xref=xref)
-        self.stat['source'] = len(SourceRecord.objects.filter(head=head))
+            sort = len(SourceRecord.objects.filter(head=self.head)) + 1
+            sour = SourceRecord.objects.create(head=self.head, xref=xref, _sort=sort)
         for x in item.sub_tags(follow=False):
             match x.tag:
                 case 'DATA': self.source_data(x, sour)
@@ -477,12 +541,12 @@ class ImpGedcom551:
                 case 'ABBR': sour.abbr = x.value
                 case 'PUBL': sour.publ = x.value
                 case 'TEXT': sour.text = x.value
-                case 'REPO': self.source_repo_link(x, head, sour)
+                case 'REPO': self.source_repo_link(x, sour)
                 case 'REFN': self.user_ref_num(x, sour=sour)
                 case 'RIN':  sour.rin = x.value
                 case 'CHAN': sour.chan = self.change_date(x, 'SourceRecord_' + str(sour.id))
                 case 'NOTE': self.note_struct(x, sour=sour)
-                case 'OBJE': self.media_link(head, x, sour=sour)
+                case 'OBJE': self.media_link(x, sour=sour)
                 case '_UPD': sour._upd = x.value
                 case '_TYPE': sour._type = x.value
                 case '_MEDI': sour._medi = x.value
@@ -503,13 +567,15 @@ class ImpGedcom551:
                 case 'AGNC': sour.data_agnc = x.value
                 case _: self.unexpected_tag(x)
 
-    def source_repo_link(self, item, head, sour):
-        xref = int(item.value.split('@R')[1].split('@')[0])
-        if RepositoryRecord.objects.filter(head=head, xref=xref).exists():
-            repo = RepositoryRecord.objects.filter(head=head, xref=xref).get()
+    def source_repo_link(self, item, sour):
+        xref = self.extract_xref('REPO', item.value)
+        if RepositoryRecord.objects.filter(head=self.head, xref=xref).exists():
+            repo = RepositoryRecord.objects.filter(head=self.head, xref=xref).get()
         else:
-            repo = RepositoryRecord.objects.create(head=head, xref=xref)
-        srci = SourceRepositoryCitation.objects.create(repo=repo, sour=sour)
+            sort = len(RepositoryRecord.objects.filter(head=self.head)) + 1
+            repo = RepositoryRecord.objects.create(head=self.head, xref=xref, _sort=sort)
+        sort = len(SourceRepositoryCitation.objects.filter(repo=repo, sour=sour)) + 1
+        srci = SourceRepositoryCitation.objects.create(repo=repo, sour=sour, _sort=sort)
         for x in item.sub_tags(follow=False):
             match x.tag:
                 case 'CALN': 
@@ -518,29 +584,39 @@ class ImpGedcom551:
                         match y.tag:
                             case 'MEDI': srci.caln_medi = y.value
                             case _: self.unexpected_tag(y)
+                case 'NOTE': self.note_struct(x, srci=srci)
                 case _: self.unexpected_tag(x)
         srci.save()
 
-    def source_citat(self, head, item, fam=None, indi=None, asso=None, obje=None, even=None, pnpi=None, note=None, ):
-        xref = int(item.value.split('@S')[1].split('@')[0])
-        if SourceRecord.objects.filter(head=head, xref=xref).exists():
-            sour = SourceRecord.objects.filter(head=head, xref=xref).get()
+    def source_citat(self, item, fam=None, indi=None, asso=None, obje=None, even=None, pnpi=None, note=None, ):
+        xref = self.extract_xref('SOUR', item.value)
+        if SourceRecord.objects.filter(head=self.head, xref=xref).exists():
+            sour = SourceRecord.objects.filter(head=self.head, xref=xref).get()
         else:
-            sour = SourceRecord.objects.create(head=head, xref=xref)
-        cita = SourceCitation.objects.create(sour=sour, fam=fam, indi=indi, asso=asso, obje=obje, even=even, pnpi=pnpi, note=note)
+            sort = len(SourceRecord.objects.filter(head=self.head)) + 1
+            sour = SourceRecord.objects.create(head=self.head, xref=xref, _sort=sort)
+        sort = len(SourceCitation.objects.filter(fam=fam, indi=indi, asso=asso, obje=obje, even=even, pnpi=pnpi, note=note)) + 1
+        cita = SourceCitation.objects.create(sour=sour, fam=fam, indi=indi, asso=asso, obje=obje, even=even, pnpi=pnpi, note=note, _sort=sort)
         for x in item.sub_tags(follow=False):
             match x.tag:
-                case 'PAGE': cita.sour_page = x.value
-                case 'QUAY': cita.sour_quay = x.value
-                case 'EVEN': cita.sour_even = x.value
-                case 'ROLE': cita.sour_even_role = x.value
-                case 'AUTH': cita.auth = x.value
-                case 'TITL': cita.titl = x.value
-                case 'DATA': pass
-                case 'DATE': cita.sour_data_date = x.value
-                case 'TEXT': cita.sour_data_text = x.value
-                case 'NOTE': self.note_struct(x, sour_2=cita)
-                case 'OBJE': self.media_link(head, x, sour_2=cita)
+                case 'PAGE': cita.page = x.value
+                case 'EVEN': 
+                    cita.even_even = x.value
+                    for y in x.sub_tags(follow=False):
+                        match y.tag:
+                            case 'ROLE': cita.even_role = y.value
+                            case _: self.unexpected_tag(y)
+                case 'DATA':
+                    for y in x.sub_tags(follow=False):
+                        match y.tag:
+                            case 'DATE': cita.data_date = y.value
+                            case 'TEXT': cita.data_text = y.value
+                            case _: self.unexpected_tag(y)
+                case 'OBJE': self.media_link(x, cita=cita)
+                case 'NOTE': self.note_struct(x, cita=cita)
+                case 'QUAY': cita.quay = x.value
+                case 'AUTH': cita.auth = x.value # ?
+                case 'TITL': cita.titl = x.value # ?
                 case '_UPD': cita._upd = x.value
                 case '_TYPE': cita._type = x.value
                 case '_MEDI': cita._medi = x.value
@@ -548,32 +624,34 @@ class ImpGedcom551:
         cita.save()
 
     # ------------- Submitter ---------------
-    def submit_record(self, head, item):
-        if (item.xref_id == '@U@'):
-            xref = '0'
-        else:
-            xref = item.xref_id.split('@U')[1].split('@')[0]
-        i_xref = int(xref)
-        subm = SubmitterRecord.objects.create(head=head, xref=xref)
-        if (self.head_subm == i_xref):
-            head.subm_id = subm.id
-            head.save()
-        self.stat['submitter'] = len(SubmitterRecord.objects.filter(head=head))
+    def submit_record(self, item):
+        xref = self.extract_xref(item.tag, item.xref_id)
+        sort = len(SubmitterRecord.objects.filter(head=self.head)) + 1
+        subm = SubmitterRecord.objects.create(head=self.head, xref=xref, _sort=sort)
+        if (self.head_subm == xref):
+            self.head.subm_id = subm.id
+            self.head.save()
         for x in item.sub_tags(follow=False):
             match x.tag:
                 case 'NAME': subm.name = self.get_name(x.value)
                 case 'ADDR'|'PHON'|'EMAIL'|'FAX'|'WWW': subm.addr = self.address_struct(x, subm.addr, 'SubmitterRecord_' + str(subm.id))
+                case 'OBJE': self.media_link(x, subm=subm)
                 case 'RIN':  subm.rin  = x.value
+                case 'NOTE': self.note_struct(x, subm=subm)
                 case 'CHAN': subm.chan = self.change_date(x, 'SubmitterRecord_' + str(subm.id))
                 case '_UID': subm._uid = x.value
                 case _: self.unexpected_tag(x)
         subm.save()
 
     # ------------- Album ---------------
-    def album_record(self, head, item):
-        xref = int(item.xref_id.split('@A')[1].split('@')[0])
-        album = AlbumRecord.objects.create(head=head, xref=xref)
-        self.stat['album'] = len(AlbumRecord.objects.filter(head=head))
+    def album_record(self, item, xref=None):
+        if not xref:
+            xref = self.extract_xref('_ALBUM', item.xref_id)
+        if AlbumRecord.objects.filter(head=self.head.id, xref=xref).exists():
+            album = AlbumRecord.objects.filter(head=self.head.id, xref=xref).get()
+        else:
+            sort = len(AlbumRecord.objects.filter(head=self.head)) + 1
+            album = AlbumRecord.objects.create(head=self.head, xref=xref, _sort=sort)
         for x in item.sub_tags(follow=False):
             match x.tag:
                 case 'TITL': album.titl = x.value
@@ -582,6 +660,7 @@ class ImpGedcom551:
                 case 'RIN':  album.rin  = x.value
                 case _: self.unexpected_tag(x)
         album.save()
+        return album
 
     # ------------- Tools ---------------
     def address_struct(self, x, addr, owner):
@@ -677,6 +756,7 @@ class ImpGedcom551:
                 case 'MAP':  pass
                 case 'LATI': plac.map_lati = x.value
                 case 'LONG': plac.map_long = x.value
+                case 'NOTE': self.note_struct(x, plac=plac)
                 case _: self.unexpected_tag(x)
         plac.save()
         return plac
@@ -702,46 +782,52 @@ class ImpGedcom551:
         chan.save()
         return chan
 
-    def event_detail(self, head, x, deta):
+    def event_detail(self, x, deta):
         if not deta:
             deta = EventDetail.objects.create()
+        age = None
         match x.tag:
             case 'TYPE': deta.type = x.value
-            case 'AGE':  deta.age  = x.value
-            case 'DATE': deta.date = x.value
+            case 'AGE':  age  = x.value
+            case 'DATE': 
+                if (str(x.value) not in (',,', '..', '.')) and ('неизв' not in str(x.value).replace(' ', '').lower()):
+                    deta.date = x.value
             case 'PLAC': deta.plac = self.place_struct(x)
             case 'ADDR'|'PHON'|'EMAIL'|'FAX'|'WWW': deta.addr = self.address_struct(x, deta.addr, 'EventDetail_' + str(deta.id))
             case 'AGNC': deta.agnc = x.value
             case 'RELI': deta.reli = x.value
             case 'CAUS': deta.caus = x.value
-            case 'SOUR': self.source_citat(head, x, even=deta)
+            case 'SOUR': self.source_citat(x, even=deta)
             case 'NOTE': self.note_struct(x, even=deta)
-            case 'OBJE': self.media_link(head, x, even=deta)
+            case 'OBJE': self.media_link(x, even=deta)
             case _: self.unexpected_tag(x)
         deta.save()
-        return deta
+        return deta, age
 
-    def find_person(self, head, xref):
-        if IndividualRecord.objects.filter(head=head, xref=xref).exists():
-            return IndividualRecord.objects.filter(head=head, xref=xref)[0]
+    def find_person(self, xref):
+        if IndividualRecord.objects.filter(head=self.head, xref=xref).exists():
+            return IndividualRecord.objects.filter(head=self.head, xref=xref)[0]
         return None
 
-    def find_pers_by_id(self, head, person_id):
-        if IndividualRecord.objects.filter(head=head, id=person_id).exists():
-            return IndividualRecord.objects.filter(head=head, id=person_id).get()
+    def find_pers_by_id(self, person_id):
+        if IndividualRecord.objects.filter(head=self.head, id=person_id).exists():
+            return IndividualRecord.objects.filter(head=self.head, id=person_id).get()
         return None
 
-    def find_family(self, head, xref):
-        xref_id = int(xref.split('@F')[1].split('@')[0])
-        if FamRecord.objects.filter(head=head, xref=xref_id).exists():
-            return FamRecord.objects.filter(head=head, xref=xref_id)[0]
+    def find_family(self, xref):
+        xref = self.extract_xref('FAM', xref)
+        if FamRecord.objects.filter(head=self.head, xref=xref).exists():
+            return FamRecord.objects.filter(head=self.head, xref=xref)[0]
         return None
 
-    def link_id(self, value, tag):
-        return int(value.split('@' + tag)[1].split('@')[0])
+    def extract_xref(self, tag, value):
+        liter = LITERS[tag]
+        if value and ('@' + liter) in value:
+            return int(value.split('@' + liter)[1].split('@')[0])
 
     def user_ref_num(self, item, indi=None, obje=None, note=None, repo=None, sour=None):
-        refn = UserReferenceNumber.objects.create(refn=item.value, indi=indi, obje=obje, note=note, repo=repo, sour=sour)
+        sort = len(UserReferenceNumber.objects.filter(indi=indi, obje=obje, note=note, repo=repo, sour=sour)) + 1
+        refn = UserReferenceNumber.objects.create(refn=item.value, indi=indi, obje=obje, note=note, repo=repo, sour=sour, _sort=sort)
         for x in item.sub_tags(follow=False):
             match x.tag:
                 case 'TYPE': refn.type = x.value
