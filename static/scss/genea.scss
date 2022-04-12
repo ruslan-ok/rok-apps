@@ -1,0 +1,20 @@
+.layer-1 {
+    background-color: azure;
+    display: flex;
+    flex-direction: column;
+    margin: 5px;
+    .layer-2 {
+        background-color: beige;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        margin: 5px;
+        .layer-3 {
+            background-color: honeydew;
+            display: flex;
+            flex-direction: row;
+            margin: 5px;
+            padding: 15px;
+        }
+    }
+}

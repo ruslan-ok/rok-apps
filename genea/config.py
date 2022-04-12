@@ -5,9 +5,9 @@ app_config = {
     'role': ROLE_STEMMA,
     'app_title': 'family tree',
     'icon': 'diagram-3',
-    'main_view': 'stemma',
+    'main_view': 'tree',
     'views': {
-        'stemma': {
+        'tree': {
             'icon': 'diagram-3', 
             'title': 'stemma',
         },

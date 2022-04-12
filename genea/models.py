@@ -88,6 +88,9 @@ class Header(models.Model):
     def name(self):
         return self.sour_corp + ': ' + self.file
 
+    def __str__(self):
+        return self.name()
+
     def get_absolute_url(self):
         return reverse('genea:export', args=(self.id,))
 
@@ -122,6 +125,9 @@ class IndividualRecord(models.Model):
     _uid = models.CharField(_('custom field: uid'), max_length=40, blank=True, null=True)
     _sort = models.IntegerField(_('sort order'), null=True)
 
+    def __str__(self):
+        return self.name()
+
     def before_delete(self):
         for item in IndividualEventStructure.objects.filter(indi=self.id):
             item.before_delete()
@@ -132,7 +138,7 @@ class IndividualRecord(models.Model):
         if self.chan:
             self.chan.delete()
 
-    def get_name(self):
+    def name(self):
         ret = ''
         if PersonalNameStructure.objects.filter(indi=self.id).exists():
             pns = PersonalNameStructure.objects.filter(indi=self.id)[0]
@@ -154,6 +160,9 @@ class IndividualRecord(models.Model):
                 except ValueError:
                     ret = str(x.deta.date)
         return ret
+
+    def get_absolute_url(self):
+        return reverse('genea:list') + '?indi=' + str(self.id)
 
 class PersonalNamePieces(models.Model):
     npfx = models.CharField(_('prefix'), max_length=30, blank=True, null=True)
@@ -258,12 +267,12 @@ class FamRecord(models.Model):
     
     def husb_name(self):
         if self.husb:
-            return self.husb.get_name()
+            return self.husb.name()
         return ''
     
     def wife_name(self):
         if self.wife:
-            return self.wife.get_name()
+            return self.wife.name()
         return ''
 
 class ChildToFamilyLink(models.Model):

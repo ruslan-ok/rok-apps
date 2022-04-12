@@ -1,0 +1,35 @@
+{% extends "base/page.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+    <link href="{% static 'scss/genea.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block header_content %}
+  {% include 'base/header.html' %}
+{% endblock %}
+
+{% block content %}
+    <!--div class="container-xxl my-md-2 gap-0 px-0 bd-layout"-->
+    <div class="layer-1">
+        <main>
+            {% block main %}
+            
+                {% for level in tree_levels %}
+                    <div class="layer-2">
+                        {% for item in level %}
+                            <a class="layer-3 btn" href="{{ item.get_absolute_url }}">
+                                {{ item.name }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+
+            {% endblock %}
+        </main>
+    </div>
+{% endblock %}
+
+{% block extrascript %}
+  {{ block.super }}
+{% endblock %}
