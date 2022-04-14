@@ -1,4 +1,5 @@
-from datetime import date, datetime
+from datetime import datetime
+from django.contrib.auth.models import User
 from django.urls import reverse
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -56,7 +57,7 @@ class ChangeDate(models.Model):
             return self.time
 
 #--------------------------------------------------
-class Header(models.Model):
+class FamTree(models.Model):
     sour = models.CharField(_('system ID'), max_length=50, blank=True, null=True)
     sour_vers = models.CharField(_('version number'), max_length=15, blank=True, null=True)
     sour_name = models.CharField(_('name of product'), max_length=90, blank=True, null=True)
@@ -84,9 +85,12 @@ class Header(models.Model):
     created = models.DateTimeField(_('creation time'), blank=True, default=datetime.now)
     last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now=True)
     mark = models.CharField(_('debug marker'), max_length=20, blank=True, null=True)
+    cur_indi = models.IntegerField(_('current individual id'), null=True)
+    name = models.CharField(_('family tree name'), max_length=200, blank=True, null=True)
+    depth = models.IntegerField(_('tree depth'), null=True)
 
-    def name(self):
-        return self.sour_corp + ': ' + self.file
+    # def name(self):
+    #     return self.sour_corp + ': ' + self.file
 
     def __str__(self):
         return self.name()
@@ -97,26 +101,26 @@ class Header(models.Model):
     def before_delete(self):
         if self.sour_corp_addr:
             self.sour_corp_addr.delete()
-        for item in SubmitterRecord.objects.filter(head=self.id):
+        for item in SubmitterRecord.objects.filter(tree=self.id):
             item.before_delete()
-        for item in AlbumRecord.objects.filter(head=self.id):
+        for item in AlbumRecord.objects.filter(tree=self.id):
             item.before_delete()
-        for item in IndividualRecord.objects.filter(head=self.id):
+        for item in IndividualRecord.objects.filter(tree=self.id):
             item.before_delete()
-        for item in FamRecord.objects.filter(head=self.id):
+        for item in FamRecord.objects.filter(tree=self.id):
             item.before_delete()
-        for item in MultimediaRecord.objects.filter(head=self.id):
+        for item in MultimediaRecord.objects.filter(tree=self.id):
             item.before_delete()
-        for item in SourceRecord.objects.filter(head=self.id):
+        for item in SourceRecord.objects.filter(tree=self.id):
             item.before_delete()
-        for item in RepositoryRecord.objects.filter(head=self.id):
+        for item in RepositoryRecord.objects.filter(tree=self.id):
             item.before_delete()
-        for item in NoteRecord.objects.filter(head=self.id):
+        for item in NoteRecord.objects.filter(tree=self.id):
             item.before_delete()
 
 #--------------------------------------------------
 class IndividualRecord(models.Model):
-    head = models.ForeignKey(Header, on_delete=models.CASCADE, verbose_name=_('tree header'), related_name='individual_tree_header', null=True)
+    tree = models.ForeignKey(FamTree, on_delete=models.CASCADE, verbose_name=_('tree header'), related_name='individual_tree_header', null=True)
     xref = models.IntegerField(_('identifier in the source system'), null=True)
     sex = models.CharField(_('sex'), max_length=1, blank=True, null=True)
     rin = models.CharField(_('RIN'), max_length=12, blank=True, null=True)
@@ -237,7 +241,7 @@ class NameRomanizedVariation(models.Model):
 
 #--------------------------------------------------
 class FamRecord(models.Model):
-    head = models.ForeignKey(Header, on_delete=models.CASCADE, verbose_name=_('tree header'), related_name='family_tree_header', null=True)
+    tree = models.ForeignKey(FamTree, on_delete=models.CASCADE, verbose_name=_('tree header'), related_name='family_tree_header', null=True)
     xref = models.IntegerField(_('identifier in the source system'), null=True)
     husb = models.ForeignKey(IndividualRecord, on_delete=models.SET_NULL, verbose_name=_('husband'), related_name='husband', null=True)
     wife = models.ForeignKey(IndividualRecord, on_delete=models.SET_NULL, verbose_name=_('wife'), related_name='wife', null=True)
@@ -333,7 +337,7 @@ class AssociationStructure(models.Model):
     _sort = models.IntegerField(_('sort order'), null=True)
 
 class NoteRecord(models.Model):
-    head = models.ForeignKey(Header, on_delete=models.CASCADE, verbose_name=_('tree header'), related_name='note_tree_header', null=True)
+    tree = models.ForeignKey(FamTree, on_delete=models.CASCADE, verbose_name=_('tree header'), related_name='note_tree_header', null=True)
     xref = models.IntegerField(_('identifier in the source system'), null=True)
     note = models.TextField(_('description'), blank=True, null=True)
     rin = models.CharField(_('RIN'), max_length=12, blank=True, null=True)
@@ -345,7 +349,7 @@ class NoteRecord(models.Model):
             self.chan.delete()
 
 class RepositoryRecord(models.Model):
-    head = models.ForeignKey(Header, on_delete=models.CASCADE, verbose_name=_('tree header'), related_name='repo_tree_header', null=True)
+    tree = models.ForeignKey(FamTree, on_delete=models.CASCADE, verbose_name=_('tree header'), related_name='repo_tree_header', null=True)
     xref = models.IntegerField(_('identifier in the source system'), null=True)
     name = models.CharField(_('name of repository'), max_length=57, blank=True, null=True)
     addr = models.ForeignKey(AddressStructure, on_delete=models.SET_NULL, verbose_name=_('address'), related_name='repository_address', null=True)
@@ -360,7 +364,7 @@ class RepositoryRecord(models.Model):
             self.chan.delete()
 
 class SourceRecord(models.Model):
-    head = models.ForeignKey(Header, on_delete=models.CASCADE, verbose_name=_('tree header'), related_name='source_tree_header', null=True)
+    tree = models.ForeignKey(FamTree, on_delete=models.CASCADE, verbose_name=_('tree header'), related_name='source_tree_header', null=True)
     xref = models.IntegerField(_('identifier in the source system'), null=True)
     data_even = models.CharField(_('events recorded'), max_length=90, blank=True, null=True)
     data_date = models.CharField(_('date period'), max_length=35, blank=True, null=True)
@@ -391,7 +395,7 @@ class SourceRepositoryCitation(models.Model):
     _sort = models.IntegerField(_('sort order'), null=True)
 
 class SubmitterRecord(models.Model):
-    head = models.ForeignKey(Header, on_delete=models.CASCADE, verbose_name=_('tree header'), related_name='submitter_tree_header', null=True)
+    tree = models.ForeignKey(FamTree, on_delete=models.CASCADE, verbose_name=_('tree header'), related_name='submitter_tree_header', null=True)
     xref = models.IntegerField(_('identifier in the source system'), null=True)
     name = models.CharField(_('submitter name'), max_length=60, blank=True, null=True)
     addr = models.ForeignKey(AddressStructure, on_delete=models.SET_NULL, verbose_name=_('address'), related_name='submitter_address', null=True)
@@ -408,7 +412,7 @@ class SubmitterRecord(models.Model):
 
 #--------------------------------------------------
 class AlbumRecord(models.Model):
-    head = models.ForeignKey(Header, on_delete=models.CASCADE, verbose_name=_('tree header'), related_name='album_tree_header', null=True)
+    tree = models.ForeignKey(FamTree, on_delete=models.CASCADE, verbose_name=_('tree header'), related_name='album_tree_header', null=True)
     xref = models.IntegerField(_('identifier in the source system'), null=True)
     rin = models.CharField(_('RIN'), max_length=12, blank=True, null=True)
     chan = models.ForeignKey(ChangeDate, on_delete=models.SET_NULL, verbose_name=_('change_date'), related_name='album_change_date', null=True)
@@ -423,7 +427,7 @@ class AlbumRecord(models.Model):
 
 #--------------------------------------------------
 class MultimediaRecord(models.Model):
-    head = models.ForeignKey(Header, on_delete=models.CASCADE, verbose_name=_('tree header'), related_name='mm_tree_header', null=True)
+    tree = models.ForeignKey(FamTree, on_delete=models.CASCADE, verbose_name=_('tree header'), related_name='mm_tree_header', null=True)
     xref = models.IntegerField(_('identifier in the source system'), null=True)
     rin = models.CharField(_('RIN'), max_length=12, blank=True, null=True)
     chan = models.ForeignKey(ChangeDate, on_delete=models.SET_NULL, verbose_name=_('change_date'), related_name='mfile_change_date', null=True)
@@ -509,7 +513,7 @@ class MultimediaLink(models.Model):
 
 #--------------------------------------------------
 class NoteStructure(models.Model):
-    head = models.ForeignKey(Header, on_delete=models.CASCADE, verbose_name=_('gedcom content description'), related_name='note_structure_tree_note', null=True)
+    tree = models.ForeignKey(FamTree, on_delete=models.CASCADE, verbose_name=_('gedcom content description'), related_name='note_structure_tree_note', null=True)
     fam = models.ForeignKey(FamRecord, on_delete=models.CASCADE, verbose_name=_('family'), related_name='family_note', null=True)
     indi = models.ForeignKey(IndividualRecord, on_delete=models.CASCADE, verbose_name=_('individual'), related_name='individual_note', null=True)
     cita = models.ForeignKey(SourceCitation, on_delete=models.CASCADE, verbose_name=_('source citation'), related_name='source_citation_note', null=True)
@@ -539,3 +543,6 @@ class UserReferenceNumber(models.Model):
     type = models.CharField(_('user reference type'), max_length=40, blank=True, null=True)
     _sort = models.IntegerField(_('sort order'), null=True)
 
+class Params(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'), related_name = 'genealogy_user')
+    cur_tree = models.ForeignKey(FamTree, on_delete=models.SET_NULL, verbose_name=_('current tree'), related_name='users_current_tree', null=True)

@@ -1,6 +1,6 @@
 import os
 from django.shortcuts import get_object_or_404
-from genea.models import (AssociationStructure, Header, IndividualRecord, FamRecord, MultimediaLink, MultimediaRecord, #PersonalNamePieces, 
+from genea.models import (AssociationStructure, FamTree, IndividualRecord, FamRecord, MultimediaLink, MultimediaRecord, #PersonalNamePieces, 
     PersonalNameStructure, SourceRecord, AlbumRecord, ChangeDate, SubmitterRecord, NoteStructure, NamePhoneticVariation, 
     NameRomanizedVariation, SourceCitation, IndividualEventStructure, IndividualAttributeStructure, ChildToFamilyLink, 
     UserReferenceNumber, FamilyEventStructure, NoteRecord, RepositoryRecord, SourceRepositoryCitation,
@@ -21,11 +21,11 @@ class ExpGedcom551:
                 'description': 'Folder does not exist.',
                 }
         if pk:
-            head = get_object_or_404(Header.objects.filter(id=pk))
+            head = get_object_or_404(FamTree.objects.filter(id=pk))
             if self.valid_tree(head):
                 self.exp_tree(folder, head)
         else:
-            for head in Header.objects.all():
+            for head in FamTree.objects.all():
                 if self.valid_tree(head):
                     self.exp_tree(folder, head)
         return {'result': 'ok'}

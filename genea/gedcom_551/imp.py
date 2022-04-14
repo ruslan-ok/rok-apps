@@ -1,7 +1,7 @@
 import os, glob
 from datetime import datetime
 from genea.ged4py.parser import GedcomReader
-from genea.models import (Header, AddressStructure, IndividualRecord, SubmitterRecord, RepositoryRecord, 
+from genea.models import (FamTree, AddressStructure, IndividualRecord, SubmitterRecord, RepositoryRecord, 
     ChangeDate, NoteStructure, PersonalNameStructure, NamePhoneticVariation, NameRomanizedVariation, 
     PersonalNamePieces, IndividualAttributeStructure, IndividualEventStructure, EventDetail, PlaceStructure, 
     SourceCitation, MultimediaRecord, MultimediaLink, MultimediaFile, FamRecord, ChildToFamilyLink,
@@ -42,8 +42,8 @@ class ImpGedcom551:
             self.db_del_trees()
         else:
             for file in files:
-                if (len(Header.objects.filter(file=file)) == 1):
-                    head = Header.objects.filter(file=file).get()
+                if (len(FamTree.objects.filter(file=file)) == 1):
+                    head = FamTree.objects.filter(file=file).get()
                     head.before_delete()
                     head.delete()
                 ret['files'].append(self.imp_tree(folder, file))
@@ -54,9 +54,9 @@ class ImpGedcom551:
         return ret
 
     def db_del_trees(self):
-        for tree in Header.objects.all():
+        for tree in FamTree.objects.all():
             tree.before_delete()
-        Header.objects.all().delete()
+        FamTree.objects.all().delete()
 
     def imp_tree(self, folder, file):
         self.result = 'ok'
@@ -91,16 +91,16 @@ class ImpGedcom551:
             'result': self.result,
             'file': file,
             'stat': self.stat,
-            'header': len(Header.objects.all()),
+            'header': len(FamTree.objects.all()),
             }
         if (self.result != 'ok'):
             ret['error'] = self.error_descr
         return ret
 
-    # ------------- Header ---------------
+    # ------------- FamTree ---------------
 
     def read_header(self, item, file):
-        head = Header.objects.create()
+        head = FamTree.objects.create()
         for x in item.sub_tags(follow=False):
             match x.tag:
                 case 'SOUR': self.header_source(head, x)
