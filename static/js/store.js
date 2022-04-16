@@ -45,6 +45,19 @@ function closeParams()
 
 function buildValue()
 {
+  const groups = {
+    uc: 'ABCDEFGHJKLMNPQRSTUVWXYZ',
+    uc_: 'IO',
+    lc: 'abcdefghjkmnpqrstuvwxyz',
+    lc_: 'io',
+    dg: '23456789',
+    dg_: '10',
+    sp: '!@#$%^&*=+',
+    br: '()[]{}<>',
+    mi: '-',
+    ul: '_',
+  };
+
   var ln = document.getElementById('id_ln').value;
   var uc = document.getElementById('id_uc').checked;
   var lc = document.getElementById('id_lc').checked;
@@ -55,51 +68,54 @@ function buildValue()
   var ul = document.getElementById('id_ul').checked;
   var ac = document.getElementById('id_ac').checked;
 
-  var allowed_chars = '';
-
-  if (uc)
-  {
-    allowed_chars += 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  let allowed_groups = [];
+  if (uc) {
+    allowed_groups.push('uc')
     if (!ac)
-        allowed_chars += 'IO';
+      allowed_groups.push('uc_')
   }
-
-  if (lc)
-  {
-    allowed_chars += 'abcdefghjkmnpqrstuvwxyz';
+  if (lc) {
+    allowed_groups.push('lc')
     if (!ac)
-        allowed_chars += 'io';
+      allowed_groups.push('lc_')
   }
-
-  if (dg)
-  {
-    allowed_chars += '23456789';
+  if (dg) {
+    allowed_groups.push('dg')
     if (!ac)
-        allowed_chars += '10';
+      allowed_groups.push('dg_')
   }
-
   if (sp)
-    allowed_chars += '!@#$%^&*=+';
-
+    allowed_groups.push('sp')
   if (br)
-    allowed_chars += '()[]{}<>';
-
+    allowed_groups.push('br')
   if (mi)
-    allowed_chars += '-';
-
+    allowed_groups.push('mi')
   if (ul)
-    allowed_chars += '_';
+    allowed_groups.push('ul')
+
+  let allowed_chars = '';
+  allowed_groups.forEach((x) => allowed_chars += groups[x]);
 
   if (allowed_chars == '')
     allowed_chars = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#$%^&*(-_=+)';
 
-  var randomString = '';
-  for (var i = 0; i < ln; i++)
+let ret = '';
+  for (let i = 0; i < ln; i++)
   {
-    var randomPoz = Math.floor(Math.random() * allowed_chars.length);
-    randomString += allowed_chars.substring(randomPoz, randomPoz + 1);
+    if (allowed_groups.length > 0) {
+      let pos = Math.floor(Math.random() * allowed_groups.length);
+      let grp = allowed_groups.splice(pos, 1)[0];
+      let wrk = groups[grp];
+      pos = Math.floor(Math.random() * wrk.length);
+      ret += wrk.substring(pos, pos + 1);
+    }
+    else {
+      let pos = Math.floor(Math.random() * allowed_chars.length);
+      ret += allowed_chars.substring(pos, pos + 1);
+    }
   }
-  document.getElementById('id_store_value').value = randomString;
+
+  document.getElementById('id_store_value').value = ret;
 
   var params = 0;
   if (uc)

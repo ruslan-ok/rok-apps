@@ -1,3 +1,4 @@
+import random
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
@@ -7,6 +8,19 @@ from todo.models import Lst
 from hier.models import Lst
 
 app_name = 'store'
+
+ALPHA_GROUPS = {
+    'uc': 'ABCDEFGHJKLMNPQRSTUVWXYZ',
+    'uc_': 'IO',
+    'lc': 'abcdefghjkmnpqrstuvwxyz',
+    'lc_': 'io',
+    'dg': '23456789',
+    'dg_': '10',
+    'sp': '!@#$%^&*=+',
+    'br': '()[]{}<>',
+    'mi': '-',
+    'ul': '_',
+}
 
 #----------------------------------
 # deprecated
@@ -43,34 +57,31 @@ class Entry(models.Model):
         else:
             params = Params.objects.create(user = user)
 
-        allowed_chars = ''
-        
+        allowed_groups = []
         if params.uc:
-            allowed_chars = allowed_chars + 'ABCDEFGHJKLMNPQRSTUVWXYZ'
+            allowed_groups.append('uc')
             if not params.ac:
-                allowed_chars = allowed_chars + 'IO'
-        
+                allowed_groups.append('uc_')
         if params.lc:
-            allowed_chars = allowed_chars + 'abcdefghjkmnpqrstuvwxyz'
+            allowed_groups.append('lc')
             if not params.ac:
-                allowed_chars = allowed_chars + 'io'
-
+                allowed_groups.append('lc_')
         if params.dg:
-            allowed_chars = allowed_chars + '23456789'
+            allowed_groups.append('dg')
             if not params.ac:
-                allowed_chars = allowed_chars + '10'
-
+                allowed_groups.append('dg_')
         if params.sp:
-            allowed_chars = allowed_chars + '!@#$%^&*=+'
-
+            allowed_groups.append('sp')
         if params.br:
-            allowed_chars = allowed_chars + '()[]{}<>'
-        
+            allowed_groups.append('br')
         if params.mi:
-            allowed_chars = allowed_chars + '-'
-        
+            allowed_groups.append('mi')
         if params.ul:
-            allowed_chars = allowed_chars + '_'
+            allowed_groups.append('ul')
+
+        allowed_chars = ''
+        for x in allowed_groups:
+            allowed_chars += ALPHA_GROUPS[x]
 
         if (allowed_chars == ''):
             allowed_chars = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#$%^&*(-_=+)'
@@ -93,7 +104,15 @@ class Entry(models.Model):
         if params.ac:
             ret_params += 128
 
-        ret_value = get_random_string(params.ln, allowed_chars)
+        ret_value = ''
+        len_rest = params.ln
+        for i in range(len(allowed_groups)):
+            grp = random.choice(allowed_groups)
+            allowed_groups.remove(grp)
+            wrk = ALPHA_GROUPS[grp]
+            ret_value += get_random_string(1, wrk)
+            len_rest -= 1
+        ret_value += get_random_string(len_rest, allowed_chars)
         return ret_params, params.un, ret_value
 
 #----------------------------------
