@@ -2,8 +2,8 @@ from rest_framework import viewsets, permissions, status, renderers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from api.genealogy import GenealogySerializer
-from genea.gedcom_551.exp import ExpGedcom551
-from genea.gedcom_551.imp import ImpGedcom551
+from family.gedcom_551.exp import ExpGedcom551
+from family.gedcom_551.imp import ImpGedcom551
 
 
 class GenealogyViewSet(viewsets.ModelViewSet):

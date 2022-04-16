@@ -19,7 +19,7 @@ top-level package as::
 
 """
 
-from genea.ged4py.parser import GedcomReader  # noqa: F401
+from family.ged4py.parser import GedcomReader  # noqa: F401
 
 # register ansel encoding
 import ansel as _ansel

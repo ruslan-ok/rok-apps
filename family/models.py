@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from genea.const import *
+from family.const import *
 
 #--------------------------------------------------
 class AddressStructure(models.Model):
@@ -89,14 +89,11 @@ class FamTree(models.Model):
     name = models.CharField(_('family tree name'), max_length=200, blank=True, null=True)
     depth = models.IntegerField(_('tree depth'), null=True)
 
-    # def name(self):
-    #     return self.sour_corp + ': ' + self.file
-
     def __str__(self):
         return self.name()
 
     def get_absolute_url(self):
-        return reverse('genea:export', args=(self.id,))
+        return reverse('family:export', args=(self.id,))
 
     def before_delete(self):
         if self.sour_corp_addr:
@@ -166,7 +163,7 @@ class IndividualRecord(models.Model):
         return ret
 
     def get_absolute_url(self):
-        return reverse('genea:list') + '?indi=' + str(self.id)
+        return reverse('family:list') + '?indi=' + str(self.id)
 
 class PersonalNamePieces(models.Model):
     npfx = models.CharField(_('prefix'), max_length=30, blank=True, null=True)

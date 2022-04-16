@@ -1,7 +1,7 @@
 from task.const import *
 
 app_config = {
-    'name': APP_GENEA,
+    'name': APP_FAMILY,
     'role': ROLE_STEMMA,
     'app_title': 'family tree',
     'icon': 'diagram-3',

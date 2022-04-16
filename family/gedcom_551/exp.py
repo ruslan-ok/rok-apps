@@ -1,11 +1,11 @@
 import os
 from django.shortcuts import get_object_or_404
-from genea.models import (AssociationStructure, FamTree, IndividualRecord, FamRecord, MultimediaLink, MultimediaRecord, #PersonalNamePieces, 
+from family.models import (AssociationStructure, FamTree, IndividualRecord, FamRecord, MultimediaLink, MultimediaRecord, #PersonalNamePieces, 
     PersonalNameStructure, SourceRecord, AlbumRecord, ChangeDate, SubmitterRecord, NoteStructure, NamePhoneticVariation, 
     NameRomanizedVariation, SourceCitation, IndividualEventStructure, IndividualAttributeStructure, ChildToFamilyLink, 
     UserReferenceNumber, FamilyEventStructure, NoteRecord, RepositoryRecord, SourceRepositoryCitation,
     MultimediaFile)
-from genea.const import *
+from family.const import *
 
 class ExpGedcom551:
     def __init__(self, request, *args, **kwargs):
@@ -21,84 +21,84 @@ class ExpGedcom551:
                 'description': 'Folder does not exist.',
                 }
         if pk:
-            head = get_object_or_404(FamTree.objects.filter(id=pk))
-            if self.valid_tree(head):
-                self.exp_tree(folder, head)
+            tree = get_object_or_404(FamTree.objects.filter(id=pk))
+            if self.valid_tree(tree):
+                self.exp_tree(folder, tree)
         else:
-            for head in FamTree.objects.all():
-                if self.valid_tree(head):
-                    self.exp_tree(folder, head)
+            for tree in FamTree.objects.all():
+                if self.valid_tree(tree):
+                    self.exp_tree(folder, tree)
         return {'result': 'ok'}
 
-    def valid_tree(self, head):
-        q1 = (len(IndividualRecord.objects.filter(head=head)) > 0)
-        q2 = (len(FamRecord.objects.filter(head=head)) > 0)
+    def valid_tree(self, tree):
+        q1 = (len(IndividualRecord.objects.filter(tree=tree)) > 0)
+        q2 = (len(FamRecord.objects.filter(tree=tree)) > 0)
         return (q1 or q2)
 
-    def exp_tree(self, folder, head):
-        fname = head.file
+    def exp_tree(self, folder, tree):
+        fname = tree.file
         if (fname[-4:] != '.ged' and fname[-4:] != '.GED'):
             fname += '.ged'
         self.f = open(folder + '\\' + fname, 'w', encoding='utf-8-sig')
-        self.write_header(head)
+        self.write_header(tree)
         print('header done')
-        for x in SubmitterRecord.objects.filter(head=head).order_by('_sort'):
+        for x in SubmitterRecord.objects.filter(tree=tree).order_by('_sort'):
             self.submitter_record(x)
         print('submitter done')
-        for x in AlbumRecord.objects.filter(head=head).order_by('_sort'):
+        for x in AlbumRecord.objects.filter(tree=tree).order_by('_sort'):
             self.album_record(x)
         print('album done')
-        for x in IndividualRecord.objects.filter(head=head).order_by('_sort'):
+        for x in IndividualRecord.objects.filter(tree=tree).order_by('_sort'):
             self.indi_record(x)
             #print('individual ' + str(x._sort))
         print('individual done')
-        for x in FamRecord.objects.filter(head=head).order_by('_sort'):
+        for x in FamRecord.objects.filter(tree=tree).order_by('_sort'):
             self.fam_record(x)
         print('family done')
-        for x in MultimediaRecord.objects.filter(head=head).order_by('_sort'):
+        for x in MultimediaRecord.objects.filter(tree=tree).order_by('_sort'):
             self.media_record(x)
         print('multimedia done')
-        for x in SourceRecord.objects.filter(head=head).order_by('_sort'):
+        for x in SourceRecord.objects.filter(tree=tree).order_by('_sort'):
             self.source_record(x)
         print('source done')
-        for x in RepositoryRecord.objects.filter(head=head).order_by('_sort'):
+        for x in RepositoryRecord.objects.filter(tree=tree).order_by('_sort'):
             self.repo_record(x)
         print('repository done')
-        for x in NoteRecord.objects.filter(head=head).order_by('_sort'):
+        for x in NoteRecord.objects.filter(tree=tree).order_by('_sort'):
             self.note_record(x)
         print('note done')
         self.write_required(0, 'TRLR')
         self.f.close()
 
     # TODO: print self values
-    def write_header(self, head):
+    def write_header(self, tree):
         self.write_required(0, 'HEAD')
-        self.write_required(1, 'SOUR', head.sour)
-        self.write_optional(2, 'VERS', head.sour_vers)
-        self.write_optional(2, 'NAME', head.sour_name)
-        self.write_optional(2, 'CORP', head.sour_corp)
-        self.write_address(3, head.sour_corp_addr)
-        self.write_custom(2, '_RTLSAVE', head.mh_rtl)
-        self.write_optional(2, 'DATA', head.sour_data)
-        self.write_optional(3, 'DATE', head.sour_data_date)
-        self.write_text(3, 'COPR', head.sour_data_copr)
-        self.write_optional(1, 'DEST', head.dest)
-        self.write_optional(1, 'DATE', head.date)
-        self.write_optional(2, 'TIME', head.time)
-        if head.subm_id:
-            subm = SubmitterRecord.objects.filter(id=head.subm_id).get()
+        self.write_required(1, 'SOUR', tree.sour)
+        self.write_optional(2, 'VERS', tree.sour_vers)
+        self.write_optional(2, 'NAME', tree.sour_name)
+        self.write_optional(2, 'CORP', tree.sour_corp)
+        self.write_address(3, tree.sour_corp_addr)
+        self.write_custom(2, '_RTLSAVE', tree.mh_rtl)
+        self.write_optional(2, 'DATA', tree.sour_data)
+        self.write_optional(3, 'DATE', tree.sour_data_date)
+        self.write_text(3, 'COPR', tree.sour_data_copr)
+        self.write_optional(1, 'DEST', tree.dest)
+        self.write_optional(1, 'DATE', tree.date)
+        self.write_optional(2, 'TIME', tree.time)
+        if tree.subm_id:
+            subm = SubmitterRecord.objects.filter(id=tree.subm_id).get()
             self.write_link(1, 'SUBM', subm._sort)
-        self.write_optional(1, 'FILE', head.file)
-        self.write_optional(1, 'COPR', head.copr)
+        self.write_optional(1, 'FILE', tree.file)
+        self.write_optional(1, 'COPR', tree.copr)
         self.write_required(1, 'GEDC')
-        self.write_optional(2, 'VERS', head.gedc_vers)
-        self.write_optional(2, 'FORM', head.gedc_form)
-        self.write_optional(3, 'VERS', head.gedc_form_vers)
-        self.write_optional(1, 'CHAR', head.char)
-        self.write_optional(1, 'LANG', head.lang)
-        self.write_text(1, 'NOTE', head.note)
-        self.write_custom(1, '_PROJECT_GUID', head.mh_prj_id)
-        self.write_custom(1, '_EXPORTED_FROM_SITE_ID', head.mh_id)
+        self.write_optional(2, 'VERS', tree.gedc_vers)
+        self.write_optional(2, 'FORM', tree.gedc_form)
+        self.write_optional(3, 'VERS', tree.gedc_form_vers)
+        self.write_optional(1, 'CHAR', tree.char)
+        self.write_optional(1, 'LANG', tree.lang)
+        self.write_text(1, 'NOTE', tree.note)
+        self.write_custom(1, '_PROJECT_GUID', tree.mh_prj_id)
+        self.write_custom(1, '_EXPORTED_FROM_SITE_ID', tree.mh_id)
 
     def submitter_record(self, subm):
         self.write_id('SUBM', subm._sort)

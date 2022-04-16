@@ -18,7 +18,7 @@ APP_HEALTH = 'health'
 APP_WORK = 'work'
 APP_PHOTO = 'photo'
 APP_ADMIN = 'admin'
-APP_GENEA = 'genea'
+APP_FAMILY = 'family'
 
 APP_ALL = 'all'
 
@@ -39,7 +39,7 @@ APP_NAME = {
     APP_HEALTH: 'health',
     APP_WORK: 'work',
     APP_PHOTO: 'photobank',
-    APP_GENEA: 'genealogy',
+    APP_FAMILY: 'family tree',
     APP_ADMIN: 'administration',
     APP_ALL: 'all applications',
 }
@@ -246,7 +246,7 @@ ROLES_IDS = {
                 ROLE_EMPLOYEE_PERIOD: NUM_ROLE_EMPL_PER, ROLE_PAY_TITLE: NUM_ROLE_PAY_TITLE, ROLE_PAYMENT: NUM_ROLE_PAYMENT },
     APP_PHOTO: { ROLE_PHOTO: NUM_ROLE_PHOTO },
     APP_ALL: { ROLE_SEARCH_RESULTS: NONE },
-    APP_GENEA: { ROLE_STEMMA: NUM_ROLE_STEMMA },
+    APP_FAMILY: { ROLE_STEMMA: NUM_ROLE_STEMMA },
 }
 
 """

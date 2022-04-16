@@ -3,8 +3,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.template import loader
 from rusel.base.context import Context
-from genea.config import app_config
-from genea.models import FamTree, IndividualRecord, FamRecord, ChildToFamilyLink, Params
+from family.config import app_config
+from family.models import FamTree, IndividualRecord, FamRecord, ChildToFamilyLink, Params
 
 class TreeContext(Context):
     def get_dataset(self, group, query=None, nav_item=None):
@@ -16,13 +16,13 @@ def no_data(request):
     ctx.set_config(app_config, 'tree')
     ctx.config.set_view(request)
     context = ctx.get_app_context(request.user.id)
-    template = loader.get_template('genea/no_data.html')
+    template = loader.get_template('family/no_data.html')
     return HttpResponse(template.render(context, request))
 
 def refresh(request):
     tree, indi = get_tree_indi(request)
     if not tree or not indi:
-        return HttpResponseRedirect(reverse('genea:no_data'))
+        return HttpResponseRedirect(reverse('family:no_data'))
     s_depth = request.GET.get('depth')
     try:
         depth = int(s_depth)
@@ -35,13 +35,13 @@ def refresh(request):
     if tree.depth != depth:
         tree.depth = depth
         tree.save()
-    return HttpResponseRedirect(reverse('genea:list') + '?tree=' + str(tree.id) + '&indi=' + str(indi.id) + '&depth=' + str(depth))
+    return HttpResponseRedirect(reverse('family:list') + '?tree=' + str(tree.id) + '&indi=' + str(indi.id) + '&depth=' + str(depth))
 
 def do_refresh(request):
     params = ''
     if request.GET:
         params = '?' + request.GET.urlencode()
-    return HttpResponseRedirect(reverse('genea:refresh') + params)
+    return HttpResponseRedirect(reverse('family:refresh') + params)
 
 def pedigree(request):
     if ('tree' not in request.GET) or ('indi' not in request.GET) or ('depth' not in request.GET):
@@ -81,7 +81,7 @@ def pedigree(request):
     ftv = FamTreeView(depth)
     ftv.build_tree(indi)
     context['tree_levels'] = ftv.levels
-    template = loader.get_template('genea/tree.html')
+    template = loader.get_template('family/tree.html')
     return HttpResponse(template.render(context, request))
 
 def get_tree_indi(request):
