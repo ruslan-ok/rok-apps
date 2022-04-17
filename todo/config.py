@@ -5,7 +5,7 @@ app_config = {
     'app_title': 'tasks',
     'icon': 'check2-square',
     'role': ROLE_TODO,
-    'main_view': 'myday',
+    'main_view': 'planned',
     'use_groups': True,
     'use_selector': True,
     'use_important': True,
