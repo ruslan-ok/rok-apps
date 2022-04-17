@@ -2,7 +2,7 @@ from django.urls import path
 from photo.config import app_config
 from photo import views
 
-app_name = 'photo_ns' # app_config['name']
+app_name = app_config['name']
 urlpatterns = [
     path('',      views.FolderView.as_view(), name='list'),
     path('slider/',  views.PhotoView.as_view(),  name='detail'), # Форма для просмотра слайдера изображений
