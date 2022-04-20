@@ -1,4 +1,4 @@
-import datetime, django, OpenSSL, ssl, urllib.request
+import datetime, django, rest_framework, OpenSSL, ssl, urllib.request
 from platform import python_version
 from django.http import HttpResponse
 from django.template import loader
@@ -58,6 +58,7 @@ class ListView(BaseListView, TuneData):
             #context['trip_summary'] = trip_summary(request.user.id)
             context['python_version'] = python_version()
             context['django_version'] = '{}.{}.{} {}'.format(*django.VERSION)
+            context['drf_version'] = '{}'.format(rest_framework.VERSION)
             response = urllib.request.urlopen('https://rusel.by')
             versions = response.headers['Server'].split(' ')
             for ver in versions:
