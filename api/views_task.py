@@ -383,7 +383,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     @action(detail=True)
     def termin_next_week(self, request, pk=None):
         task = self.get_object()
-        task.stop = datetime.now().replace(hour = 9, minute = 0, second = 0) + timedelta(5 - datetime.today().isoweekday())
+        task.stop = datetime.now().replace(hour = 9, minute = 0, second = 0) + timedelta(8 - datetime.today().isoweekday())
         self.save(task)
         return Response({'date': task.termin_date(), 'time': task.termin_time()})
 

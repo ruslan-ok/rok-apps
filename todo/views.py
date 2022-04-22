@@ -46,7 +46,7 @@ class DetailView(BaseDetailView, TuneData):
         context['add_due_date_text'] = _('add due date').capitalize()
         context['termin_today_info'] = get_remind_today(3).strftime('%H:%M')
         context['termin_tomorrow_info'] = get_remind_tomorrow().strftime('%a, %H:%M')
-        context['termin_next_week_info'] = get_remind_next_week(5).strftime('%a, %H:%M')
+        context['termin_next_week_info'] = get_remind_next_week(8).strftime('%a, %H:%M')
 
         context['repeat_text'] = _('repeat').capitalize()
         context['repeat_form_d1'] = get_week_day_name(1)
