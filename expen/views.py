@@ -49,9 +49,10 @@ class DetailView(BaseDetailView, TuneData):
 
         context['title'] = title
         grp = self.get_group()
-        context['expen_byn'] = grp.expen_byn
-        context['expen_usd'] = grp.expen_usd
-        context['expen_eur'] = grp.expen_eur
+        if grp:
+            context['expen_byn'] = grp.expen_byn
+            context['expen_usd'] = grp.expen_usd
+            context['expen_eur'] = grp.expen_eur
         context['summary'] = self.object.expen_summary()
         context['amount_nc'] = currency_repr(self.object.expen_amount('BYN'))
         return context
