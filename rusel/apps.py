@@ -15,7 +15,6 @@ APPS = {
     APP_DOCS:    ('file-text',     '/docs/'),
     APP_WARR:    ('award',         '/warr/'),
     APP_PHOTO:   ('image',         '/photo/'),
-    APP_GENEA:   ('diagram-3',     '/genea/'),
     APP_WORK:    ('briefcase',     '/work/'),
     APP_TRIP:    ('truck',         '/trip/'),
     APP_ADMIN:   ('people',        '/admin/'),
@@ -48,8 +47,6 @@ def _get_app_human_name(app):
         return _('work')
     if (app == APP_PHOTO):
         return _('photobank')
-    if (app == APP_GENEA):
-        return _('family tree')
     if (app == APP_HEALTH):
         return _('health')
     if (app == APP_ADMIN):
@@ -67,7 +64,7 @@ def get_app_human_name(app):
 def get_apps_list(user, current):
     apps = []
     for app in APPS:
-        if (app in (APP_STORE, APP_TRIP, APP_APART, APP_WORK, APP_HEALTH, APP_WARR, APP_DOCS, APP_PHOTO, APP_GENEA)) and (user.username != 'ruslan.ok'):
+        if (app in (APP_STORE, APP_TRIP, APP_APART, APP_WORK, APP_HEALTH, APP_WARR, APP_DOCS, APP_PHOTO)) and (user.username != 'ruslan.ok'):
             continue
         if (app == APP_ADMIN) and (user.username != 'admin'):
             continue
