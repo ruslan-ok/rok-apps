@@ -321,6 +321,8 @@ class BaseDetailView(UpdateView, Context, LoginRequiredMixin):
 
     def get_success_url(self):
         if (self.config.get_cur_role() == self.config.base_role):
+            if ('form_close' in self.request.POST):
+                return reverse(self.config.app + ':list') + extract_get_params(self.request, self.config.group_entity)
             return reverse(self.config.app + ':item', args=(self.object.id,)) + extract_get_params(self.request, self.config.group_entity)
         return reverse(self.config.app + ':' + self.config.get_cur_role() + '-item', args=(self.object.id,)) + extract_get_params(self.request, self.config.group_entity)
 

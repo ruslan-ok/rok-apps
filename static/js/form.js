@@ -28,12 +28,6 @@ function moveLists() {
         [...el_src.children].forEach((chl) => el_dst.appendChild(chl))
 }
 
-function closeForm() {
-    let item_id = window.location.pathname.match( /\d+/ )[0];
-    let redirect_url = window.location.href.replace('/' + item_id + '/', '/');
-    window.location.href = redirect_url;
-}
-
 function runAPI(api, callback, method='GET') {
     const url = window.location.protocol + '//' + window.location.host + api;
     let xhttp = new XMLHttpRequest();
