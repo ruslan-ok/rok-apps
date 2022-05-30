@@ -1,6 +1,7 @@
 import os, glob, mimetypes
 from django.urls import reverse
 from task.const import *
+from task.models import Task
 from rusel.files import storage_path
 
 class SearchResult:
@@ -22,6 +23,10 @@ class SearchResult:
             if self.is_folder:
                 return reverse('photo:list') + '?folder=' + self.folder
             return reverse('photo:detail') + '?folder=' + self.folder + '#photo-' + str(self.photo_num)
+        if (self.role == ROLE_WARR):
+            if Task.objects.filter(app_warr=NUM_ROLE_WARR, name=self.folder).exists():
+                task = Task.objects.filter(app_warr=NUM_ROLE_WARR, name=self.folder).get()
+                return reverse('warr:item', args=(task.id,))
         return reverse('docs:list') + '?folder=' + self.folder
 
     def name(self):
@@ -54,8 +59,15 @@ def search_in_files(user, app, start_folder, query):
         if start_folder:
             photo_dir += '/' + start_folder
 
+    warr_dir = None
+    if not app or app == APP_WARR:
+        warr_dir = storage_path.format(user.username) + 'attachments\\warr'
+        if start_folder:
+            warr_dir += '/' + start_folder
+
     process_dir(ret, query, ROLE_DOC, docs_dir, start_folder)
     process_dir(ret, query, ROLE_PHOTO, photo_dir, start_folder)
+    process_dir(ret, query, ROLE_WARR, warr_dir, start_folder)
     return ret
 
 def process_dir(ret, query, role, store_dir, start_folder):
