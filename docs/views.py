@@ -1,4 +1,4 @@
-import urllib.parse, mimetypes
+import urllib.parse
 from django.http import FileResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.urls import reverse
 from task.const import APP_DOCS, ROLE_DOC, ROLE_APP
@@ -56,9 +56,7 @@ def get_file(request):
         file = get_name_from_request(request, 'file')
         filepath = store_dir + folder + '/' + file
         fsock = open(filepath, 'rb')
-        mime_type, _ = mimetypes.guess_type(filepath)
-        response = FileResponse(fsock, content_type=mime_type)
-        response['Content-Disposition'] = "attachment; filename=%s" % file
+        response = FileResponse(fsock)
         return response
     except IOError:
         return HttpResponseNotFound()
