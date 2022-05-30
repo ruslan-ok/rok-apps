@@ -24,6 +24,9 @@ class SearchResult:
                 return reverse('photo:list') + '?folder=' + self.folder
             return reverse('photo:detail') + '?folder=' + self.folder + '#photo-' + str(self.photo_num)
         if (self.role == ROLE_WARR):
+            if Task.objects.filter(app_warr=NUM_ROLE_WARR, name=self.file).exists():
+                task = Task.objects.filter(app_warr=NUM_ROLE_WARR, name=self.file).get()
+                return reverse('warr:item', args=(task.id,))
             if Task.objects.filter(app_warr=NUM_ROLE_WARR, name=self.folder).exists():
                 task = Task.objects.filter(app_warr=NUM_ROLE_WARR, name=self.folder).get()
                 return reverse('warr:item', args=(task.id,))
