@@ -2,7 +2,6 @@ from datetime import date, datetime
 from django.utils.translation import gettext_lazy as _
 from task.const import APP_APART, ROLE_METER, NUM_ROLE_METER, NUM_ROLE_BILL
 from task.models import Task, Urls
-from rusel.app_doc import get_app_doc
 from rusel.base.views import BaseListView, BaseDetailView
 from apart.forms.meter import CreateForm, EditForm
 from apart.config import app_config
@@ -68,7 +67,7 @@ def get_info(item):
             ret.append({'icon': 'separator'})
         ret.append({'text': '{} {}'.format(_('ga:'), item.meter_ga)})
     links = len(Urls.objects.filter(task=item.id)) > 0
-    files = (len(item.get_files_list(app, role)) > 0)
+    files = (len(item.get_files_list(role)) > 0)
     if item.info or links or files:
         if ret:
             ret.append({'icon': 'separator'})
@@ -82,9 +81,6 @@ def get_info(item):
                 info_descr += '...'
             ret.append({'icon': 'notes', 'text': info_descr})
     return {'attr': ret}
-
-def get_doc(request, pk, fname):
-    return get_app_doc(app_config['name'], role, request, pk, fname)
 
 #----------------------------------
 def next_period(last=None):

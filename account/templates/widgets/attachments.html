@@ -4,9 +4,16 @@
     {% for file in files %}
         <div class="file-item" id="id_file_{{ file.id }}">
             <a href="{{ file.url }}">
-                <div class="thumbnail-wrapper" style="background-color: {{ file.design }}">
-                    <div class="thumbnail">{{ file.ext }}</div>
-                </div>
+                {% if file.is_image %}
+                    <!-- <div class="thumbnail-wrapper" style="background-color:{{ file.design }};background-position:center center;background-repeat:no-repeat;background-attachment:fixed;background-size:cover;background-image:url({{ file.tn_url }});"> -->
+                    <div class="thumbnail-wrapper" style="background-color:{{ file.design }};background-position:center center;background-repeat:no-repeat;background-image:url({{ file.tn_url }});">
+                        <div class="thumbnail"></div>
+                    </div>
+                {% else %}
+                    <div class="thumbnail-wrapper" style="background-color: {{ file.design }}">
+                        <div class="thumbnail">{{ file.ext }}</div>
+                    </div>
+                {% endif %}
                 <div class="file-content">
                     <div class="file-title">{{ file.name }}</div>
                     <div class="file-metadata">{{ file.size }}</div>

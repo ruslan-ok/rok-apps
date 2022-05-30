@@ -1,7 +1,6 @@
 from django.utils.translation import gettext_lazy as _
 from task.const import APP_APART, ROLE_APART, NUM_ROLE_SERVICE, NUM_ROLE_METER, NUM_ROLE_PRICE, NUM_ROLE_BILL
 from task.models import Task
-from rusel.app_doc import get_app_doc
 from rusel.base.views import BaseListView, BaseDetailView
 from apart.forms.apart import CreateForm, EditForm
 from apart.config import app_config
@@ -59,7 +58,7 @@ def get_info(item):
             info_descr += '...'
         ret['attr'].append({'icon': 'notes', 'text': info_descr})
 
-    files = (len(item.get_files_list(app, role)) > 0)
+    files = (len(item.get_files_list(role)) > 0)
     if files:
         if item.info:
             ret['attr'].append({'icon': 'separator'})
@@ -85,6 +84,3 @@ def get_info(item):
             ret['attr'].append({'text': 'ppo'})
 
     return ret
-
-def get_doc(request, pk, fname):
-    return get_app_doc(app_config['name'], role, request, pk, fname)

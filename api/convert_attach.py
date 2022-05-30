@@ -13,7 +13,7 @@ class AttachChecker():
         self.skipped = []
 
     def copy_attach(self, user, app, role, item, path, file):
-        dest_path = item.get_attach_path(app, role)
+        dest_path = item.get_attach_path(role)
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)
         shutil.copy(path + '\\' + file, dest_path)
         os.remove(path + '\\' + file)
@@ -26,7 +26,7 @@ class AttachChecker():
         if month and Task.objects.filter(user=user.id, app_apart=const.NUM_ROLE_BILL, start__year=year, start__month=month, task_1=apart.id).exists():
             bill = Task.objects.filter(user=user.id, app_apart=const.NUM_ROLE_BILL, start__year=year, start__month=month, task_1=apart.id).get()
         if bill:
-            dest_path = bill.get_attach_path(const.APP_APART, const.ROLE_BILL)
+            dest_path = bill.get_attach_path(const.ROLE_BILL)
         else:
             dest_path = storage_path.format(user.username) + 'attachments/' + const.APP_APART + '/' + apart.name + '/bill/' + str(year) + '/'
             if month:

@@ -511,7 +511,12 @@ class Task(models.Model):
                     next_task.correct_groups_qty(GIQ_ADD_TASK, group.id)
         return next_task
 
-    def get_attach_path(self, app, role):
+    def get_attach_path(self, role):
+        if role in ROLES_IDS.keys():
+            app = role
+            role = list(ROLES_IDS[app].keys())[0]
+        else:
+            app = ROLE_APP[role]
         ret = app + '/' + role + '_' + str(self.id)
         if (app == APP_APART):
             match (role, self.app_apart):
@@ -540,9 +545,9 @@ class Task(models.Model):
                     
         return storage_path.format(self.user.username) + 'attachments/' + ret + '/'
 
-    def get_files_list(self, app, role):
-        fss_path = self.get_attach_path(app, role)
-        return get_files_list_by_path(fss_path)
+    def get_files_list(self, role):
+        fss_path = self.get_attach_path(role)
+        return get_files_list_by_path(role, self.id, fss_path)
 
     def get_info(self, role=ROLE_TODO):
         ret = {'attr': []}
@@ -568,7 +573,7 @@ class Task(models.Model):
             ret['attr'].append({'termin': True})
 
         links = len(Urls.objects.filter(task=self.id)) > 0
-        files = (len(self.get_files_list(APP_TODO, role)) > 0)
+        files = (len(self.get_files_list(role)) > 0)
 
         if (self.remind != None) or self.info or links or files:
             if (len(ret['attr']) > 0):

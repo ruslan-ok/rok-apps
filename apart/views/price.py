@@ -2,7 +2,6 @@ from datetime import datetime
 from django.utils.translation import gettext_lazy as _
 from task.const import APP_APART, ROLE_PRICE, NUM_ROLE_PRICE, APART_SERVICE
 from task.models import Task, Urls
-from rusel.app_doc import get_app_doc
 from rusel.base.views import BaseListView, BaseDetailView
 from apart.forms.price import CreateForm, EditForm
 from apart.config import app_config
@@ -105,7 +104,7 @@ def get_info(item):
         ret.append({'text': p3})
 
     links = len(Urls.objects.filter(task=item.id)) > 0
-    files = (len(item.get_files_list(app, role)) > 0)
+    files = (len(item.get_files_list(role)) > 0)
     if item.info or links or files:
         if ret:
             ret.append({'icon': 'separator'})
@@ -129,6 +128,3 @@ def add_price(user, apart, service_id):
     name = get_price_name(start, service_id)
     task = Task.objects.create(user=user, app_apart=NUM_ROLE_PRICE, task_1=apart, start=start, name=name, price_service=service_id)
     return task
-
-def get_doc(request, pk, fname):
-    return get_app_doc(app_config['name'], role, request, pk, fname)

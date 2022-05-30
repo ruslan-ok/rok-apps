@@ -1,4 +1,5 @@
 import os
+from django.urls import reverse
 from django.core.files.storage import FileSystemStorage
 from rusel.secret import storage_dvlp, storage_prod, service_dvlp, service_prod, folder_dvlp, folder_prod
 
@@ -37,7 +38,9 @@ FILE_DESIGN = [
     'SteelBlue',
 ]
 
-def get_file_design(ext):
+def get_file_design(ext, is_image):
+    if (is_image):
+        return 'LightGray'
     if (ext.lower() == 'docx'):
         return 'RoyalBlue'
     if (ext.lower() == 'xlsx'):
@@ -57,13 +60,15 @@ def get_file_design(ext):
 
 class File():
     
-    def __init__(self, id, name, ext, size, url):
+    def __init__(self, role, task_id, id, name, ext, size):
         self.id = id
         self.name = name
         self.ext = ext
         self.size = size
-        self.url = url
-        self.design = get_file_design(ext)
+        self.url = reverse('doc', args=(role, task_id, name + '.' + ext))
+        self.tn_url = reverse('thumbnail', args=(role, task_id, name + '.' + ext))
+        self.is_image = (self.ext in ('png', 'jpg', 'jpeg', 'bmp'))
+        self.design = get_file_design(ext, self.is_image)
 
     def sizeof_fmt(self, suffix='b'):
         num = self.size
@@ -76,7 +81,7 @@ class File():
             num /= 1024.0
         return "%.1f%s%s" % (num, 'Yi', suffix)
 
-def get_files_list_by_path(path):
+def get_files_list_by_path(role, task_id, path):
     fs = FileSystemStorage(location=path, base_url=file_storage_url)
     try:
         ret = []
@@ -85,8 +90,7 @@ def get_files_list_by_path(path):
             name = os.path.splitext(fname)[0]
             ext = os.path.splitext(fname)[1][1:]
             size = os.path.getsize(path + fname)
-            url = file_storage_url + fname
-            fl = File(npp, name, ext, size, url)
+            fl = File(role, task_id, npp, name, ext, size)
             npp += 1
             ret.append(fl)
         return ret

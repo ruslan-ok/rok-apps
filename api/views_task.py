@@ -301,7 +301,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         role = self.request.query_params['role']
         fname = self.request.query_params['fname']
         task = self.get_object()
-        path = task.get_attach_path(app, role)
+        path = task.get_attach_path(role)
         if not os.path.isfile(path + fname[4:]):
             return Response({'Error': "The specified file does not exist."},
                             status=status.HTTP_400_BAD_REQUEST)

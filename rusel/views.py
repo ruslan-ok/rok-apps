@@ -16,6 +16,7 @@ from hier.models import VisitedHistory
 from rusel.base.views import BaseListView
 from rusel.config import app_config
 from rusel.context import MAX_LAST_VISITED
+from rusel.app_doc import get_app_doc, get_app_thumbnail
 
 class TuneData:
     def tune_dataset(self, data, group):
@@ -109,4 +110,11 @@ def get_swiper_ver():
 
 def get_firebase_ver():
     return '5.2.0'
+
+
+def get_doc(request, role, pk, fname):
+    return get_app_doc(request, role, pk, fname)
+
+def get_thumbnail(request, role, pk, fname):
+    return get_app_thumbnail(request, role, pk, fname)
 

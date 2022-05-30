@@ -338,7 +338,7 @@ class BaseDetailView(UpdateView, Context, LoginRequiredMixin):
                 fake_url.href = '#'
                 urls.append(fake_url)
         context['urls'] = urls
-        context['files'] = self.object.get_files_list(self.config.app, self.config.get_cur_role())
+        context['files'] = self.object.get_files_list(self.config.get_cur_role())
         context['item'] = self.object
         related_roles, possible_related = get_related_roles(self.get_object(), self.config)
         context['related_roles'] = related_roles
@@ -367,7 +367,7 @@ class BaseDetailView(UpdateView, Context, LoginRequiredMixin):
         return ret
 
     def handle_uploaded_file(self, f, item):
-        path = item.get_attach_path(self.config.app, self.config.get_cur_role())
+        path = item.get_attach_path(self.config.get_cur_role())
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path + f.name, 'wb+') as destination:
             for chunk in f.chunks():

@@ -1,6 +1,5 @@
 from task.const import ROLE_EXPENSE, ROLE_APP
 from task.models import Task, Urls, TaskGroup
-from rusel.app_doc import get_app_doc
 from rusel.categories import get_categories_list
 from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView
 from expen.forms import CreateForm, EditForm, ProjectForm
@@ -78,7 +77,7 @@ def get_info(item):
     attr.append({'text': ', '.join(item.expen_summary())})
 
     links = len(Urls.objects.filter(task=item.id)) > 0
-    files = (len(item.get_files_list(app, role)) > 0)
+    files = (len(item.get_files_list(role)) > 0)
 
     if item.info or links or files:
         if (len(attr) > 0):
@@ -114,7 +113,4 @@ class ProjectView(BaseGroupView, TuneData):
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
-
-def get_doc(request, pk, fname):
-    return get_app_doc(app_config['name'], role, request, pk, fname)
 

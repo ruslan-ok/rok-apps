@@ -9,7 +9,6 @@ urlpatterns = [
 
     path('incident/', incident.ListView.as_view(), name='incident-list'),
     path('incident/<int:pk>/', incident.DetailView.as_view(), name='incident-item'),
-    path('incident/<int:pk>/doc/<str:fname>', incident.get_doc, name='incident-doc'),
 
     path('weight/', chart.WeightView.as_view(), name='chart-weight'),
     path('waist/', chart.WaistView.as_view(), name='chart-waist'),

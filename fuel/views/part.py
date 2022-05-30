@@ -3,7 +3,6 @@ from datetime import datetime
 from django.utils.translation import gettext_lazy as _, to_locale, get_language, pgettext
 from task.const import NUM_ROLE_PART, NUM_ROLE_SERVICE, ROLE_PART, ROLE_APP
 from task.models import Task, Urls
-from rusel.app_doc import get_app_doc
 from rusel.categories import get_categories_list
 from rusel.base.views import BaseListView, BaseDetailView
 from fuel.forms.part import CreateForm, EditForm
@@ -168,7 +167,7 @@ def get_info(item):
         attr.append({'text': rest, 'color': 'rest-color-' + color})
     
     links = len(Urls.objects.filter(task=item.id)) > 0
-    files = (len(item.get_files_list(app, role)) > 0)
+    files = (len(item.get_files_list(role)) > 0)
 
     if item.info or links or files:
         if (len(attr) > 0):
@@ -197,7 +196,3 @@ def get_info(item):
 def add_part(user, car, name):
     task = Task.objects.create(user=user, app_fuel=NUM_ROLE_PART, name=name, event=datetime.now(), task_1=car)
     return task
-
-def get_doc(request, pk, fname):
-    return get_app_doc(app_config['name'], role, request, pk, fname)
-

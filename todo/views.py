@@ -2,7 +2,6 @@ from datetime import datetime, date, timedelta
 from django.utils.translation import gettext_lazy as _
 from task.const import APP_TODO, ROLE_TODO
 from task.models import Task, Step
-from rusel.app_doc import get_app_doc
 from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView
 from rusel.utils import nice_date
 from todo.forms import CreateForm, EditForm
@@ -79,9 +78,6 @@ class DetailView(BaseDetailView, TuneData):
 class GroupView(BaseGroupView, TuneData):
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
-
-def get_doc(request, pk, fname):
-    return get_app_doc(app_config['name'], role, request, pk, fname)
 
 def get_week_day_name(weekday_num):
     d = date(2020, 7, 13)

@@ -21,7 +21,7 @@ def get_info(item):
     
     links = len(Urls.objects.filter(task=item.id)) > 0
 
-    files = (len(item.get_files_list(app, role)) > 0)
+    files = (len(item.get_files_list(role)) > 0)
 
     if item.info or links or files:
         if links:

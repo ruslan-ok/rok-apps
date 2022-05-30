@@ -4,7 +4,6 @@ from task.models import Task, Urls, TaskGroup
 from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView
 from rusel.base.forms import GroupForm
 from rusel.categories import get_categories_list
-from rusel.app_doc import get_app_doc
 from warr.forms import CreateForm, EditForm
 from warr.config import app_config
 
@@ -59,7 +58,7 @@ def get_info(item):
     attr = []
 
     links = len(Urls.objects.filter(task=item.id)) > 0
-    files = (len(item.get_files_list(app, role)) > 0)
+    files = (len(item.get_files_list(role)) > 0)
 
     if item.info or links or files:
         if (len(attr) > 0):
@@ -89,6 +88,3 @@ def get_info(item):
         ret['group'] = TaskGroup.objects.filter(task=item.id, role=role).get().group.name
 
     return ret
-
-def get_doc(request, pk, fname):
-    return get_app_doc(app_config['name'], role, request, pk, fname)

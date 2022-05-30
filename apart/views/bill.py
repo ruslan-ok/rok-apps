@@ -2,7 +2,6 @@ from datetime import datetime
 from django.utils.translation import gettext_lazy as _
 from task.const import APP_APART, ROLE_BILL, NUM_ROLE_BILL, NUM_ROLE_METER
 from task.models import Task, Urls
-from rusel.app_doc import get_app_doc
 from rusel.base.views import BaseListView, BaseDetailView
 from apart.forms.bill import CreateForm, EditForm
 from apart.config import app_config
@@ -95,7 +94,7 @@ def get_info(item):
     ret.append({'text': '{}: {}'.format(_('paid'), bill_info['total']['paid']) })
 
     links = len(Urls.objects.filter(task=item.id)) > 0
-    files = len(item.get_files_list(app, role)) > 0
+    files = len(item.get_files_list(role)) > 0
 
     if item.info or links or files:
         ret.append({'icon': 'separator'})
@@ -152,6 +151,3 @@ def add_bill(user, apart):
         zkx = avg_accrual(user, apart, period, HSC)
     task = Task.objects.create(user=user, app_apart=NUM_ROLE_BILL, task_1=apart, task_2=prev, task_3=curr, start=period, name=get_bill_name(period), event=datetime.now(), bill_tv_bill=internet, bill_phone_bill=phone, bill_zhirovka=zkx)
     return task, ''
-
-def get_doc(request, pk, fname):
-    return get_app_doc(app_config['name'], role, request, pk, fname)

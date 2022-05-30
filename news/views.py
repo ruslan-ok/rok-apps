@@ -1,6 +1,5 @@
 from task.const import APP_NEWS, ROLE_NEWS
 from task.models import Task
-from rusel.app_doc import get_app_doc
 from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView
 from news.forms import CreateForm, EditForm
 from news.config import app_config
@@ -37,6 +36,3 @@ class DetailView(BaseDetailView, TuneData):
 class GroupView(BaseGroupView, TuneData):
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
-
-def get_doc(request, pk, fname):
-    return get_app_doc(app_config['name'], role, request, pk, fname)

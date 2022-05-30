@@ -675,7 +675,7 @@ def copy_attachments(user, src_app, src_role, src_item_id, dst_app, dst_role, ds
     src_path = storage_path.format('user_' + str(user.id)) + '{}/{}_{}/'.format(src_app, src_role, src_item_id)
     if not os.path.exists(src_path):
         return
-    dst_path = dst_item.get_attach_path(dst_app, dst_role)
+    dst_path = dst_item.get_attach_path(dst_role)
     os.makedirs(os.path.dirname(dst_path), exist_ok=True)
     src_files = os.listdir(src_path)
     for file_name in src_files:

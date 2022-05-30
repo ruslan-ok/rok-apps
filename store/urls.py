@@ -7,6 +7,5 @@ urlpatterns = [
     path('', views.ListView.as_view(), name='list'),
     path('group/<int:pk>/', views.GroupView.as_view(), name='group'),
     path('<int:pk>/', views.DetailView.as_view(), name='item'),
-    path('<int:pk>/doc/<str:fname>', views.get_doc, name='doc'),
     path('params/', views.params, name='params'),
 ]
