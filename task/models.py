@@ -808,7 +808,7 @@ class Task(models.Model):
 
             if self.expen_eur and self.expen_rate_2:
                 if self.expen_qty:
-                    return self.expen_eur * self.expen_qty * self.expen_rate
+                    return self.expen_eur * self.expen_qty * self.expen_rate_2
                 return self.expen_eur * self.expen_rate_2
 
         return 0
