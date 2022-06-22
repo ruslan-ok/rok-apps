@@ -12,7 +12,7 @@
     {% include "base/title.html" %}
     {% include "base/form_errors.html" %}
 
-    <div class="form-control-100 mb-3">{{ form.name.label_tag }}{{ form.name }}</div>
+    <div class="form-control-100 form-control-sm mb-3">{{ form.name.label_tag }}{{ form.name }}</div>
 
     <div class="input-group flex-wrap justify-content-start mb-3">
       <div class="col-sm">
@@ -31,7 +31,7 @@
       <button type="submit" name="item_save" class="btn btn-primary bi-save" title="{% trans 'save changes'|capfirst %}">
         {% trans 'save'|capfirst %}
       </button>
-      <button type="button" name="form_close" class="btn btn-secondary bi-x" onclick="closeGroupForm('{{ config.group_entity }}')" title="{% trans 'close edit form'|capfirst %}">
+      <button type="submit" name="form_close" class="btn btn-secondary bi-x" title="{% trans 'save changes and close edit form'|capfirst %}">
         {% trans 'close'|capfirst %}
       </button>
       <button type="button" name="item_delete" class="btn btn-danger bi-trash" onclick="delGroupConfirm('{{ban_on_deletion}}', '{{delete_question}} {{title}}?')" title="{% trans 'delete record'|capfirst %}">

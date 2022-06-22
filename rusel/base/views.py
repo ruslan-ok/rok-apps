@@ -1,4 +1,5 @@
 import os, json
+from urllib import parse
 from datetime import date
 from django.http import Http404
 from django.http.response import HttpResponseRedirect
@@ -324,6 +325,8 @@ class BaseDetailView(UpdateView, Context, LoginRequiredMixin):
             if ('form_close' in self.request.POST):
                 return reverse(self.config.app + ':list') + extract_get_params(self.request, self.config.group_entity)
             return reverse(self.config.app + ':item', args=(self.object.id,)) + extract_get_params(self.request, self.config.group_entity)
+        if ('form_close' in self.request.POST):
+            return reverse(self.config.app + ':' + self.config.get_cur_role() + '-list') + extract_get_params(self.request, self.config.group_entity)
         return reverse(self.config.app + ':' + self.config.get_cur_role() + '-item', args=(self.object.id,)) + extract_get_params(self.request, self.config.group_entity)
 
     def get_context_data(self, **kwargs):
@@ -392,6 +395,12 @@ class BaseGroupView(UpdateView, Context, LoginRequiredMixin):
         return obj
 
     def get_success_url(self):
+        if ('form_close' in self.request.POST):
+            url_params = extract_get_params(self.request, self.config.group_entity)
+            param_list = dict(parse.parse_qsl(parse.urlsplit(url_params).query))
+            group_id = param_list.get('ret')
+            if group_id:
+                return reverse(self.config.app + ':list') + '?' + self.config.group_entity + '=' + group_id
         return reverse(self.config.app + ':group', args=(self.object.id,)) + extract_get_params(self.request, self.config.group_entity)
 
     def get_context_data(self, **kwargs):
