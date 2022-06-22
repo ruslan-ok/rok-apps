@@ -1,28 +1,30 @@
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 from task.const import *
 
 app_config = {
     'name': APP_WARR,
-    'app_title': 'warranties',
+    'app_title': _('warranties'),
     'icon': 'award',
     'main_view': 'active',
     'use_groups': True,
     'role': ROLE_WARR,
+    'role_loc': pgettext_lazy('add ...', 'warranty'),
     'sort': [
-        ('stop', 'termin'),
-        ('name', 'name'),
+        ('stop', _('termin')),
+        ('name', _('name')),
     ],
     'views': {
         'active': {
             'icon': 'award', 
-            'title': 'active warranties',
+            'title': _('active warranties'),
         },
         'expired': {
             'icon': 'award', 
-            'title': 'expired warranties',
+            'title': _('expired warranties'),
         },
         'all': {
             'icon': 'award', 
-            'title': 'all warranties',
+            'title': _('all warranties'),
         },
     }
 }

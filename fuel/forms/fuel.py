@@ -22,17 +22,21 @@ class CreateForm(BaseCreateForm):
 #----------------------------------
 class EditForm(BaseEditForm):
     car_odometr = forms.IntegerField(
-        label=_('odometer').capitalize(),
+        label=_('Odometer'),
         required=False,
-        widget=forms.NumberInput(attrs={'class': 'form-control mb-3', 'placeholder': _('odometer value').capitalize()}))
+        widget=forms.NumberInput(attrs={'class': 'form-control mb-3', 'placeholder': _('Odometer value')}))
+    fuel_price = forms.DecimalField(
+        label=_('Price'),
+        required=False,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}))
     url = forms.CharField(
         label=_('URLs'),
         required=False,
-        widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add link').capitalize()}))
+        widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('Add link')}))
     categories = forms.CharField(
-        label=_('categories').capitalize(),
+        label=_('Categories'),
         required=False,
-        widget=CategoriesInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add category').capitalize()}))
+        widget=CategoriesInput(attrs={'class': 'form-control mb-3', 'placeholder': _('Add category')}))
 
     class Meta:
         model = Task
@@ -40,7 +44,6 @@ class EditForm(BaseEditForm):
         widgets = {
             'event': forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime mb-3', 'type': 'datetime-local'}),
             'fuel_volume': forms.NumberInput(attrs={'class': 'form-control'}),
-            'fuel_price': forms.NumberInput(attrs={'class': 'form-control'}),
             'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),
         }
 

@@ -62,25 +62,6 @@ class DetailView(BaseDetailView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        # if Bill.objects.filter(task=form.instance.id).exists():
-        #     bill = Bill.objects.filter(task=form.instance.id).get()
-        #     bill.period = form.cleaned_data['period']
-        #     bill.payment = form.cleaned_data['payment']
-        #     bill.rate = form.cleaned_data['rate']
-        #     bill.el_pay = form.cleaned_data['el_pay']
-        #     bill.tv_bill = form.cleaned_data['tv_bill']
-        #     bill.tv_pay = form.cleaned_data['tv_pay']
-        #     bill.phone_bill = form.cleaned_data['phone_bill']
-        #     bill.phone_pay = form.cleaned_data['phone_pay']
-        #     bill.zhirovka = form.cleaned_data['zhirovka']
-        #     bill.hot_pay = form.cleaned_data['hot_pay']
-        #     bill.repair_pay = form.cleaned_data['repair_pay']
-        #     bill.ZKX_pay = form.cleaned_data['ZKX_pay']
-        #     bill.water_pay = form.cleaned_data['water_pay']
-        #     bill.gas_pay = form.cleaned_data['gas_pay']
-        #     bill.PoO = form.cleaned_data['PoO']
-        #     bill.PoO_pay = form.cleaned_data['PoO_pay']
-        #     bill.save()
         form.instance.name = get_bill_name(form.instance.start)
         form.instance.save()
         form.instance.set_item_attr(app, get_info(form.instance))

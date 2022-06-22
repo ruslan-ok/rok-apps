@@ -23,28 +23,28 @@ class EditForm(BaseEditForm):
     completed = forms.BooleanField(label=False, required=False, 
         widget=CompletedInput(
             attrs={'class': '', 
-                'label': _('completed').capitalize()}))
+                'label': _('Completed')}))
     add_step = forms.CharField(
         widget=forms.TextInput(
             attrs={'class': 'form-control-sm form-control small-input', 
-            'placeholder': _('next step').capitalize()}), 
+            'placeholder': _('Next step')}), 
         required=False)
     stop = forms.DateTimeField(
-        label=_('termin').capitalize(),
+        label=_('Termin'),
         required=False,
         widget=forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime d-inline-block mb-3 me-3', 'type': 'datetime-local'}))
     grp = forms.ChoiceField(
-        label=_('group').capitalize(),
+        label=_('Group'),
         widget=forms.Select(attrs={'class': 'form-control mb-3'}),
         choices=[(0, '------'),])
     categories = forms.CharField(
-        label=_('categories').capitalize(),
+        label=_('Categories'),
         required=False,
-        widget=CategoriesInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add category').capitalize()}))
+        widget=CategoriesInput(attrs={'class': 'form-control mb-3', 'placeholder': _('Add category')}))
     url = forms.CharField(
         label=_('URLs'),
         required=False,
-        widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add link').capitalize()}))
+        widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('Add link')}))
 
     
     class Meta:

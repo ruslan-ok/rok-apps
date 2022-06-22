@@ -64,32 +64,32 @@ def get_info(item):
     if item.bio_height:
         if (len(attr) > 0):
             attr.append({'icon': 'separator'})
-        attr.append({'icon': 'myday', 'text': '{}: {} {}'.format(_('height').capitalize(), item.bio_height, _('cm')) })
+        attr.append({'icon': 'myday', 'text': '{}: {} {}'.format(_('Height'), item.bio_height, _('cm')) })
 
     if item.bio_weight:
         if (len(attr) > 0):
             attr.append({'icon': 'separator'})
-        attr.append({'icon': 'myday', 'text': '{}: {} {}'.format(_('weight').capitalize(), item.bio_weight, _('kg')) })
+        attr.append({'icon': 'myday', 'text': '{}: {} {}'.format(_('Weight'), item.bio_weight, _('kg')) })
 
     if item.bio_temp:
         if (len(attr) > 0):
             attr.append({'icon': 'separator'})
-        attr.append({'icon': 'myday', 'text': '{}: {}'.format(_('temperature').capitalize(), item.bio_temp) })
+        attr.append({'icon': 'myday', 'text': '{}: {}'.format(_('Temperature'), item.bio_temp) })
 
     if item.bio_waist:
         if (len(attr) > 0):
             attr.append({'icon': 'separator'})
-        attr.append({'icon': 'myday', 'text': '{}: {} {}'.format(_('waist').capitalize(), item.bio_waist, _('cm')) })
+        attr.append({'icon': 'myday', 'text': '{}: {} {}'.format(_('Waist'), item.bio_waist, _('cm')) })
 
     if item.bio_systolic or item.bio_diastolic:
         if (len(attr) > 0):
             attr.append({'icon': 'separator'})
-        attr.append({'icon': 'myday', 'text': '{}: {}/{}'.format(_('pressure').capitalize(), item.bio_systolic, item.bio_diastolic) })
+        attr.append({'icon': 'myday', 'text': '{}: {}/{}'.format(_('Pressure'), item.bio_systolic, item.bio_diastolic) })
 
     if item.bio_pulse:
         if (len(attr) > 0):
             attr.append({'icon': 'separator'})
-        attr.append({'icon': 'myday', 'text': '{}: {}'.format(_('pulse').capitalize(), item.bio_pulse) })
+        attr.append({'icon': 'myday', 'text': '{}: {}'.format(_('Pulse'), item.bio_pulse) })
 
     if item.info:
         if (len(attr) > 0):

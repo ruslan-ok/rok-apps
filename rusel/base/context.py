@@ -20,7 +20,7 @@ class Context:
             if 'title' in kwargs:
                 title = kwargs['title']
             else:
-                title = _(self.config.title).capitalize()
+                title = self.config.title.capitalize()
         nav_item = None
         if (Task.get_nav_role(self.config.app) != self.config.get_cur_role()):
             nav_item = Task.get_active_nav_item(user_id, self.config.app)
@@ -34,7 +34,6 @@ class Context:
         context['params'] = extract_get_params(self.request, self.config.group_entity)
         if nav_items:
             context['nav_items'] = nav_items
-        context['add_item_placeholder'] = '{} {}'.format(_('add').capitalize(), self.config.item_name if self.config.item_name else self.config.get_cur_role())
         if self.config.add_button:
             context['add_item_template'] = 'base/add_item_button.html'
         else:
@@ -50,7 +49,7 @@ class Context:
     def get_sorts(self, sorts):
         ret = []
         for sort in sorts:
-            ret.append({'id': sort[0], 'name': _(sort[1]).capitalize()})
+            ret.append({'id': sort[0], 'name': sort[1].capitalize()})
         return ret
 
     def get_fixes(self, views, search_qty):
@@ -96,7 +95,7 @@ class Context:
                     _nav_item = None
                 else:
                     _nav_item = nav_item
-                fix_group = detect_group(self.request.user, self.config.app, determinator, view_id, _(value['title']).capitalize())
+                fix_group = detect_group(self.request.user, self.config.app, determinator, view_id, value['title'].capitalize())
                 qty = self.get_view_qty(fix_group, _nav_item)
             active = (self.config.cur_view_group.determinator == determinator) and (self.config.cur_view_group.view_id == view_id)
             fix = {
@@ -104,7 +103,7 @@ class Context:
                 'id': view_id, 
                 'url': url, 
                 'icon': value['icon'], 
-                'title': _(value['title']).capitalize(), 
+                'title': _(value['title']).capitalize(),
                 'qty': qty,
                 'active': active,
                 'search_qty': search_qty,
@@ -173,7 +172,7 @@ class DirContext(Context):
             page_title = self.cur_folder.split('/')[-1:][0]
             title = self.cur_folder
         if not self.cur_folder:
-            page_title = _(self.config.app_title)
+            page_title = self.config.app_title
             title = page_title
         kwargs.update({'title': page_title})
         dir_tree = []

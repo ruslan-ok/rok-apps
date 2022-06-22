@@ -21,29 +21,29 @@ class CreateForm(BaseCreateForm):
 #----------------------------------
 class EditForm(BaseEditForm):
     name = forms.CharField(
-        label=_('title').capitalize(),
+        label=_('Title'),
         required=True,
         widget=forms.TextInput(attrs={'class': 'form-control mb-3'}))
     info = forms.CharField(
-        label=_('address').capitalize(),
+        label=_('Address'),
         required=False,
         widget=forms.Textarea(attrs={'class': 'form-control mb-3'}))
     apart_has_el = forms.BooleanField(
         label=False, 
         required=False, 
-        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('has electricity').capitalize()}))
+        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('Has electricity')}))
     apart_has_hw = forms.BooleanField(
         label=False, 
         required=False, 
-        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('has hot water').capitalize()}))
+        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('Has hot water')}))
     apart_has_cw = forms.BooleanField(
         label=False, 
         required=False, 
-        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('has cold water').capitalize()}))
+        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('Has cold water')}))
     apart_has_gas = forms.BooleanField(
         label=False, 
         required=False, 
-        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('has gas').capitalize()}))
+        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('Has gas')}))
     apart_has_tv = forms.BooleanField(
         label=False, 
         required=False, 

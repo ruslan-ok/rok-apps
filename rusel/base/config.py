@@ -1,4 +1,5 @@
-from django.utils.translation import gettext_lazy as _
+from gettext import pgettext
+from django.utils.translation import gettext_lazy as _, pgettext
 from django.urls import reverse
 from task.const import *
 from task.models import Task, Group, detect_group
@@ -8,18 +9,21 @@ class Config:
         super().__init__(*args, **kwargs)
         self.cur_view_group = None
         self.app = config['name']
-        self.app_title = _(config['app_title']).capitalize()
+        self.app_title = config['app_title'].capitalize()
         self.title = config['app_title']
         self.app_icon = config['icon']
         self.view_icon = config['icon']
         self.role_icon = config['icon']
         self.views = config['views']
         self.base_role = self.check_property(config, 'role', None)
+        self.base_role_loc = self.check_property(config, 'role_loc', None)
         self.main_view = self.check_property(config, 'main_view', None)
         if self.main_view:
             self.base_role = self.check_property(config['views'][self.main_view], 'role', self.base_role)
+            self.base_role_loc = self.check_property(config['views'][self.main_view], 'role_loc', self.base_role_loc)
         self.use_groups = self.check_property(config, 'use_groups', False)
         self.group_entity = self.check_property(config, 'group_entity', 'group')
+        self.group_entity_loc = self.check_property(config, 'group_entity_loc', pgettext('create ...', 'group'))
         self.use_selector = self.check_property(config, 'use_selector', False)
         self.use_important = self.check_property(config, 'use_important', False)
         self.add_button = self.check_property(config, 'add_button', False)
@@ -43,6 +47,7 @@ class Config:
             return
         self.cur_view_group = None
         self.nav_item = None
+        self.role_loc = None
         determinator = 'view'
         view_id = ''
         if (self.app == APP_ALL):
@@ -84,6 +89,7 @@ class Config:
             if (determinator == 'role')  and ('role' in self.views[view_id]):
                 self.role_icon = self.check_property(self.views[view_id], 'icon', self.role_icon)
                 self.view_icon = self.check_property(self.views[view_id], 'icon', self.view_icon)
+                self.role_loc = self.check_property(self.views[view_id], 'role_loc', self.role_loc)
             else:
                 self.role_icon = self.app_icon
             if (determinator == 'view'):
@@ -115,4 +121,11 @@ class Config:
         if (self.cur_view_group and self.cur_view_group.determinator and self.cur_view_group.determinator == 'role'):
             return self.cur_view_group.view_id
         return self.base_role
+
+    def get_cur_role_loc(self):
+        if self.role_loc:
+            return self.role_loc
+        if (self.cur_view_group and self.cur_view_group.determinator and self.cur_view_group.determinator == 'role'):
+            return self.cur_view_group.view_id
+        return self.base_role_loc
 

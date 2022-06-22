@@ -405,7 +405,7 @@ class PasswordChangeDoneView(PasswordContextMixin, TemplateView):
         return super().dispatch(*args, **kwargs)
 
 def user_data_changed(user, data, request):
-    if user.username == data['username'] and user.first_name == data['first_name'] and user.last_name == data['last_name'] and user.email == data['email'] and (('avatar' not in data) or (user.userext.avatar == data['avatar'])):
+    if user.username == data['username'] and user.first_name == data['first_name'] and user.last_name == data['last_name'] and user.email == data['email'] and user.userext.phone == data['phone'] and (('avatar' not in data) or (user.userext.avatar == data['avatar'])):
         messages.add_message(request, messages.INFO, 'User information is not changed.')
         return False
     return True

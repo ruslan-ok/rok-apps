@@ -53,17 +53,6 @@ function addGroup(app, role, group_entity) {
     xhttp.send(JSON.stringify(data));
 }
 
-function closeGroupForm(group_entity) {
-  let redirect_url = window.location.href.split('/' + group_entity + '/')[0] + '/';
-  const urlParams = new URLSearchParams(window.location.search);
-  const group_id = urlParams.get('ret');
-  if (group_id)
-    redirect_url += '?' + group_entity + '=' + group_id;
-  else
-    redirect_url += group_entity + '/';
-  window.location.href = redirect_url;
-}
-
 function showInfo(text) {
   let el = document.getElementById('infoModal');
   el.querySelectorAll('div.modal-body')[0].innerText = text;

@@ -15,7 +15,7 @@ class CreateForm(BaseCreateForm):
     new_part = forms.ChoiceField(
         label=False,
         required=True,
-        widget=Select(attrs={'label': _('car part').capitalize(), 'class': 'col-md-3'}))
+        widget=Select(attrs={'label': _('Car part'), 'class': 'col-md-3'}))
 
     class Meta:
         model = Task
@@ -31,33 +31,42 @@ class CreateForm(BaseCreateForm):
 #----------------------------------
 class EditForm(BaseEditForm):
     car_odometr = forms.IntegerField(
-        label=_('odometer').capitalize(),
+        label=_('Odometer'),
         required=False,
-        widget=forms.NumberInput(attrs={'class': 'form-control mb-3', 'placeholder': _('odometer value').capitalize()}))
+        widget=forms.NumberInput(attrs={'class': 'form-control mb-3', 'placeholder': _('Odometer value')}))
     event = forms.DateTimeField(
         required=True,
-        widget=DateInput(format='%Y-%m-%dT%H:%M', attrs={'label': _('event date').capitalize(), 'type': 'datetime-local'}))
+        widget=DateInput(format='%Y-%m-%dT%H:%M', attrs={'label': _('Event date'), 'type': 'datetime-local'}))
     task_2 = forms.ModelChoiceField(
-        label=_('spare part').capitalize(),
+        label=_('Spare part'),
         required=True,
         queryset=Task.objects.filter(app_fuel=NUM_ROLE_PART).order_by('name'),
         widget=forms.Select(attrs={'class': 'form-control select mb-3'}))
+    repl_manuf = forms.CharField(
+        label=_('Manufacturer'),
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control mb-3'}))
+    repl_part_num = forms.CharField(
+        label=_('Catalog number'),
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control mb-3'}))
+    repl_descr = forms.CharField(
+        label=_('Name'),
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control mb-3'}))
     url = forms.CharField(
         label=_('URLs'),
         required=False,
-        widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add link').capitalize()}))
+        widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('Add link')}))
     categories = forms.CharField(
-        label=_('categories').capitalize(),
+        label=_('Categories'),
         required=False,
-        widget=CategoriesInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add category').capitalize()}))
+        widget=CategoriesInput(attrs={'class': 'form-control mb-3', 'placeholder': _('Add category')}))
 
     class Meta:
         model = Task
         fields = ['car_odometr', 'event', 'task_2', 'repl_manuf', 'repl_part_num', 'repl_descr', 'info', 'url', 'categories', 'upload']
         widgets = {
-            'repl_manuf': forms.TextInput(attrs={'class': 'form-control mb-3'}),
-            'repl_part_num': forms.TextInput(attrs={'class': 'form-control mb-3'}),
-            'repl_descr': forms.TextInput(attrs={'class': 'form-control mb-3'}),
             'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),
         }
 

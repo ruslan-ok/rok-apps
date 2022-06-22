@@ -23,7 +23,7 @@ class WeightView(TemplateView, Context):
         data = build_weight_chart(self.request.user)
         s_data = json.dumps(data)
         context['chart_data'] = s_data
-        context['title'] = _('waist measurement chart').capitalize()
+        context['title'] = _('Weight measurement chart')
         context['hide_add_item_input'] = True
         return context
 
@@ -43,7 +43,7 @@ class WaistView(TemplateView, Context):
         data = build_waist_chart(self.request.user)
         s_data = json.dumps(data)
         context['chart_data'] = s_data
-        context['title'] = _('waist measurement chart').capitalize()
+        context['title'] = _('Waist measurement chart')
         context['hide_add_item_input'] = True
         return context
 
@@ -63,7 +63,7 @@ class TempView(TemplateView, Context):
         data = build_temp_chart(self.request.user)
         s_data = json.dumps(data, default=str)
         context['chart_data'] = s_data
-        context['title'] = _('temperature chart').capitalize()
+        context['title'] = _('Temperature chart')
         context['hide_add_item_input'] = True
         return context
 

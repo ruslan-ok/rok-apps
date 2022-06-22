@@ -23,18 +23,18 @@ class CreateForm(BaseCreateForm):
 #----------------------------------
 class EditForm(BaseEditForm):
     grp = forms.ChoiceField(
-        label=_('group').capitalize(),
+        label=_('Group'),
         widget=forms.Select(attrs={'class': 'form-control mb-3'}),
         choices=[(0, '------'),]
     )
     url = forms.CharField(
         label=_('URLs'),
         required=False,
-        widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add link').capitalize()}))
+        widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('Add link')}))
     categories = forms.CharField(
-        label=_('categories').capitalize(),
+        label=_('Categories'),
         required=False,
-        widget=CategoriesInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add category').capitalize()}))
+        widget=CategoriesInput(attrs={'class': 'form-control mb-3', 'placeholder': _('Add category')}))
 
     class Meta:
         model = Task
@@ -71,6 +71,6 @@ class EditForm(BaseEditForm):
         if grp_ok:
             parent = Group.objects.filter(node=grp_ok)
             if (len(parent) > 0):
-                raise  ValidationError(_('a group must not have subgroups').capitalize())
+                raise  ValidationError(_('A group must not have subgroups'))
             ret = Group.objects.filter(id=grp_ok).get()
         return ret

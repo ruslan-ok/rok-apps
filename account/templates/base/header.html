@@ -31,7 +31,7 @@
         {% if request.GET.view %}<input type="hidden" name="view" value="{{request.GET.view}}">{% endif %}
         {% if request.GET.group %}<input type="hidden" name="group" value="{{request.GET.group}}">{% endif %}
         {% if request.GET.folder %}<input type="hidden" name="folder" value="{{request.GET.folder}}">{% endif %}
-        <input type="search" class="form-control ds-input" id="search-input" placeholder="Search..." aria-label="Search info for..." autocomplete="off" 
+        <input type="search" class="form-control ds-input" id="search-input" placeholder="{{ search_placeholder }}..." aria-label="Search info for..." autocomplete="off" 
               data-bd-docs-version="5.1" spellcheck="false" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-owns="algolia-autocomplete-listbox-0" 
               dir="auto" style="position: relative; vertical-align: top;" name="q" value="{{request.GET.q}}">
         <pre aria-hidden="true" style="position: absolute; visibility: hidden; white-space: pre; font-family: system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;,

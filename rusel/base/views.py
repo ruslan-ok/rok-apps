@@ -3,7 +3,7 @@ from urllib import parse
 from datetime import date
 from django.http import Http404
 from django.http.response import HttpResponseRedirect
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 from django.urls import reverse
 from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView
@@ -153,6 +153,7 @@ class BaseListView(ListView, Context, LoginRequiredMixin):
                 if (sort[0] == self.config.cur_view_group.items_sort.replace('-', '')):
                     context['sort_name'] = _(sort[1]).capitalize()
                     break
+        context['add_item_placeholder'] = '{} {}'.format(_('add').capitalize(), self.config.item_name if self.config.item_name else self.config.get_cur_role_loc())
 
         return context
 
@@ -348,6 +349,7 @@ class BaseDetailView(UpdateView, Context, LoginRequiredMixin):
         related_roles, possible_related = get_related_roles(self.get_object(), self.config)
         context['related_roles'] = related_roles
         context['possible_related'] = possible_related
+        context['add_item_placeholder'] = '{} {}'.format(_('add').capitalize(), self.config.item_name if self.config.item_name else self.config.get_cur_role_loc())
         return context
 
     def form_valid(self, form):
@@ -419,6 +421,7 @@ class BaseGroupView(UpdateView, Context, LoginRequiredMixin):
                 context['ban_on_deletion'] = _('deletion is prohibited because the group contains items').capitalize()
             else:
                 context['ban_on_deletion'] = ''
+        context['add_item_placeholder'] = '{} {}'.format(_('create new').capitalize(), pgettext_lazy('create new ... ', 'group'))
         return context
 
 

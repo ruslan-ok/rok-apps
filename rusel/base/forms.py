@@ -26,7 +26,7 @@ class BaseEditForm(forms.ModelForm):
     role = None
 
     upload = forms.FileField(
-        label=_('attachments').capitalize(), 
+        label=_('Attachments'), 
         required=False, 
         widget=FileUpload())
 
@@ -72,7 +72,7 @@ class BaseEditForm(forms.ModelForm):
         if grp_ok:
             parent = Group.objects.filter(node=grp_ok)
             if (len(parent) > 0):
-                raise  ValidationError(_('a group must not have subgroups').capitalize())
+                raise  ValidationError(_('A group must not have subgroups'))
             ret = Group.objects.filter(id=grp_ok).get()
         return ret
 
@@ -89,20 +89,23 @@ class CreateGroupForm(forms.ModelForm):
 
 #----------------------------------
 class GroupForm(forms.ModelForm):
+    name = forms.CharField(
+        label=_('Group name'),
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control mb-2'}),)
     node = forms.ChoiceField(
-        label=_('node').capitalize(),
+        label=_('Node'),
         widget=forms.Select(attrs={'class': 'form-control mb-2'}),
         choices=[(0, '------'),])
     completed = forms.BooleanField(
         label=False, 
         required=False, 
-        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('display completed records').capitalize()}))
+        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('Display completed records')}))
     class Meta:
         model = Group
         fields = ['name', 'sort', 'node', 'completed']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control mb-2', 'id': 'id_grp_name'}),
-            'node': forms.Select(attrs={'class': 'form-control mb-2'}),
             'sort': forms.TextInput(attrs={'class': 'form-control mb-2'}),
         }
 
@@ -135,17 +138,17 @@ class GroupForm(forms.ModelForm):
             test = Group.objects.filter(id=node_id).get()
             ret = test
             if (test.id == inst_id):
-                raise  ValidationError(_('self reference').capitalize())
+                raise  ValidationError(_('Self reference'))
             
             while test.node:
                 node_id = test.node.id
                 test = Group.objects.filter(id=node_id).get()
                 if (test.id == inst_id):
-                    raise  ValidationError(_('loop link').capitalize())
+                    raise  ValidationError(_('Loop link'))
 
             gts = TaskGroup.objects.filter(group=node_ok)
             if (len(gts) > 0):
-                raise  ValidationError(_('not empty node group').capitalize())
+                raise  ValidationError(_('Not empty node group'))
 
         return ret
 

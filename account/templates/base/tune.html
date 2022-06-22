@@ -22,7 +22,7 @@
         <button class="btn bi-gear{% if dark_theme %} dark-theme{% endif %}" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" 
             data-bs-auto-close="false" aria-expanded="false"></button>
         <ul class="dropdown-menu wide" aria-labelledby="dropdownMenuButton1">
-            <p>Theme</p>
+            <p>{% trans 'Theme' %}</p>
             {% for theme in themes %}
                 <button type="button" class="btn theme{% if theme.style %} {{ theme.style }}{% endif %}" 
                     onclick="setTheme({{config.cur_view_group.id|escape}}, {{ theme.id|escape }})">

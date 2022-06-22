@@ -37,6 +37,7 @@ def get_base_context(request, app, role, group, detail, title, icon=None):
     if title_1 and title_2:
         context['title'] = '{} [{}]'.format(_(title_1), title_2)
 
+    context['search_placeholder'] = _('Search')
     context['please_correct_one'] = _('Please correct the error below.')
     context['please_correct_all'] = _('Please correct the errors below.')
     context['delete_question'] = _('delete').capitalize()

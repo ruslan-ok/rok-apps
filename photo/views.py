@@ -45,6 +45,7 @@ class FolderView(BaseDirView):
         context['list_href'] = '/photo/'
         context['cur_folder'] = self.cur_folder
         context['add_item_template'] = 'base/add_item_upload.html'
+        context['add_item_placeholder'] = '{}'.format(_('Upload photo'))
         return context
 
     def is_image(self, path):
@@ -129,7 +130,7 @@ class PhotoView(FormView, LoginRequiredMixin):
             page_title = self.cur_folder.split('/')[-1:][0]
             title = self.cur_folder
         if not self.cur_folder:
-            page_title = _('photo bank').capitalize()
+            page_title = _('Photo bank')
             title = page_title
         context['title'] = title
 

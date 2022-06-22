@@ -21,22 +21,28 @@ class CreateForm(BaseCreateForm):
         
 #----------------------------------
 class EditForm(BaseEditForm):
+    part_chg_km = forms.CharField(
+        label=_('Replacement interval, km'),
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control mb-3'}))
+    part_chg_mo = forms.CharField(
+        label=_('Replacement interval, months'),
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control mb-3'}))
     url = forms.CharField(
         label=_('URLs'),
         required=False,
-        widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add link').capitalize()}))
+        widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('Add link')}))
     categories = forms.CharField(
-        label=_('categories').capitalize(),
+        label=_('Categories'),
         required=False,
-        widget=CategoriesInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add category').capitalize()}))
+        widget=CategoriesInput(attrs={'class': 'form-control mb-3', 'placeholder': _('Add category')}))
 
     class Meta:
         model = Task
         fields = ['name', 'part_chg_km', 'part_chg_mo', 'info', 'url', 'categories', 'upload']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
-            'part_chg_km': forms.NumberInput(attrs={'class': 'form-control mb-3'}),
-            'part_chg_mo': forms.NumberInput(attrs={'class': 'form-control mb-3'}),
             'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),
         }
 

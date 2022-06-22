@@ -1,47 +1,49 @@
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 from task.const import *
 
 app_config = {
     'name': APP_FUEL,
-    'app_title': 'fueling',
+    'app_title': _('fueling'),
     'icon': 'truck',
     'main_view': 'fuel',
     'group_entity': 'car',
+    'group_entity_loc': pgettext_lazy('create ...', 'car'),
     'views': {
         'fuel': {
             'role': ROLE_FUEL,
             'icon': 'droplet', 
-            'title': 'fuelings',
-            'item_name': 'fueling',
+            'title': _('fuelings'),
+            'item_name': _('fueling'),
             'add_button': True,
             'sort': [
-                ('event', 'fueling date'),
+                ('event', _('fueling date')),
             ],
         },
         'part': {
             'role': ROLE_PART,
             'icon': 'cart', 
-            'title': 'itnervals',
-            'item_name': 'service interval',
+            'title': _('itnervals'),
+            'item_name': _('service interval'),
         },
         'service': {
             'role': ROLE_SERVICE,
             'icon': 'tools', 
-            'title': 'services',
-            'item_name': 'service',
+            'title': _('services'),
+            'item_name': _('service'),
             'add_button': True,
             'use_sub_groups': True,
             'sort': [
-                ('event', 'due date'),
+                ('event', _('due date')),
             ],
         },
         'car': {
             'role': ROLE_CAR,
             'icon': 'truck', 
-            'title': 'cars',
-            'item_name': 'car',
+            'title': _('cars'),
+            'item_name': _('car'),
             'sort': [
-                ('name', 'name'),
-                ('start', 'date of commencement'),
+                ('name', _('name')),
+                ('start', _('date of commencement')),
             ],
         },
     }

@@ -22,25 +22,25 @@ class CreateForm(BaseCreateForm):
 #----------------------------------
 class EditForm(BaseEditForm):
     name = forms.CharField(
-        label=_('model').capitalize(),
+        label=_('Model'),
         required=True,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': _('car model').capitalize()}),
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': _('Car model')}),
     )
     car_plate = forms.CharField(
-        label=_('plate').capitalize(),
+        label=_('Plate'),
         required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': _('car plate').capitalize()}),
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': _('Car plate')}),
     )
     start = forms.DateField(
         required=False,
-        widget=DateInput(format='%Y-%m-%d', attrs={'label': _('begin').capitalize(), 'placeholder': _('date of commencement of operation').capitalize()}),
+        widget=DateInput(format='%Y-%m-%d', attrs={'label': _('Begin'), 'placeholder': _('Date of commencement of operation')}),
     )
     stop = forms.DateField(
         required=False,
-        widget=DateInput(format='%Y-%m-%d', attrs={'label': _('end').capitalize(), 'placeholder': _('end date').capitalize()}),
+        widget=DateInput(format='%Y-%m-%d', attrs={'label': _('End'), 'placeholder': _('End date')}),
     )
     info = forms.CharField(
-        label=_('information').capitalize(),
+        label=_('Information'),
         required=False,
         widget=forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),
     )

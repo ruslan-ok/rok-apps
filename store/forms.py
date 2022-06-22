@@ -24,15 +24,15 @@ class CreateForm(BaseCreateForm):
 #----------------------------------
 class EditForm(BaseEditForm):
     name = forms.CharField(
-        label=_('title').capitalize(),
+        label=_('Title'),
         required=True,
         widget=forms.TextInput(attrs={'class': 'form-control'}))
     store_username = forms.CharField(
-        label=_('user name').capitalize(),
+        label=_('User name'),
         required=False,
         widget=EntryUsernameInput(attrs={'class': ''}))
     store_value = forms.CharField(
-        label=_('value').capitalize(),
+        label=_('Value'),
         required=False,
         widget=EntryValueInput(attrs={'class': ''}))
     store_params = forms.IntegerField(
@@ -41,20 +41,20 @@ class EditForm(BaseEditForm):
     actual = forms.BooleanField(
         label=False, 
         required=False, 
-        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('actual').capitalize()}))
+        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('Actual')}))
     url = forms.CharField(
         label=_('URLs'),
         required=False,
-        widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add link').capitalize()}))
+        widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('Add link')}))
     grp = forms.ChoiceField(
-        label=_('group').capitalize(),
+        label=_('Group'),
         widget=forms.Select(attrs={'class': 'form-control mb-3'}),
         choices=[(0, '------'),]
     )
     categories = forms.CharField(
-        label=_('categories').capitalize(),
+        label=_('Categories'),
         required=False,
-        widget=CategoriesInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add category').capitalize()}))
+        widget=CategoriesInput(attrs={'class': 'form-control mb-3', 'placeholder': _('Add category')}))
 
     class Meta:
         model = Task
@@ -90,20 +90,56 @@ class EditForm(BaseEditForm):
         if grp_ok:
             parent = Group.objects.filter(node=grp_ok)
             if (len(parent) > 0):
-                raise  ValidationError(_('a group must not have subgroups').capitalize())
+                raise  ValidationError(_('A group must not have subgroups'))
             ret = Group.objects.filter(id=grp_ok).get()
         return ret
 
 #----------------------------------
 class ParamsForm(BaseEditForm):
+    ln = forms.IntegerField(
+        label=_('Length'),
+        required=True,
+        widget=forms.NumberInput(attrs={'class': 'form-control'}))
+    un = forms.CharField(
+        label=_('Default username'),
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control'}))
+    uc = forms.BooleanField(
+        label=False, 
+        required=False, 
+        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('Upper case')}))
+    lc = forms.BooleanField(
+        label=False, 
+        required=False, 
+        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('Lower case')}))
+    dg = forms.BooleanField(
+        label=False, 
+        required=False, 
+        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('Digits')}))
+    sp = forms.BooleanField(
+        label=False, 
+        required=False, 
+        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('Special symbols')}))
+    br = forms.BooleanField(
+        label=False, 
+        required=False, 
+        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('Brackets')}))
+    mi = forms.BooleanField(
+        label=False, 
+        required=False, 
+        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('Minus')}))
+    ul = forms.BooleanField(
+        label=False, 
+        required=False, 
+        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('Underline')}))
+    ac = forms.BooleanField(
+        label=False, 
+        required=False, 
+        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('Avoid confusion')}))
 
     class Meta:
         model = Params
         fields = ['ln', 'un', 'uc', 'lc', 'dg', 'sp', 'br', 'mi', 'ul', 'ac']
-        widgets = {
-            'ln': forms.NumberInput(attrs={'class': 'form-control'}),
-            'un': forms.TextInput(attrs={'class': 'form-control'}),
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)

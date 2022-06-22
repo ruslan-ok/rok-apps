@@ -23,19 +23,23 @@ class CreateForm(BaseCreateForm):
 class EditForm(BaseEditForm):
     start = forms.DateField(
         required=True,
-        widget=DateInput(format='%Y-%m-%d', attrs={'label': _('warranty start date').capitalize(), 'type': 'date'}))
+        widget=DateInput(format='%Y-%m-%d', attrs={'label': _('Warranty start date'), 'type': 'date'}))
+    months = forms.IntegerField(
+        label=_('Warranty termin, months'),
+        required=False,
+        widget=forms.NumberInput(attrs={'class': 'form-control mb-3', 'step': '1'}),)
     grp = forms.ChoiceField(
-        label=_('group').capitalize(),
+        label=_('Group'),
         widget=forms.Select(attrs={'class': 'form-control mb-3'}),
         choices=[(0, '------'),])
     categories = forms.CharField(
-        label=_('categories').capitalize(),
+        label=_('Categories'),
         required=False,
-        widget=CategoriesInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add category').capitalize()}))
+        widget=CategoriesInput(attrs={'class': 'form-control mb-3', 'placeholder': _('Add category')}))
     url = forms.CharField(
         label=_('URLs'),
         required=False,
-        widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add link').capitalize()}))
+        widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('Add link')}))
 
     class Meta:
         model = Task

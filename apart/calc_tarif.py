@@ -195,7 +195,7 @@ def get_bill_info(bill):
     total_accrued += accrued
     total_paid += paid
     ret['poo'] = {
-        'title': _('PoO'), # pay to the Partnersheep of Owners
+        'title': _('PoO'), # pay to the Partnership of Owners
         'used': used,
         }
     used, tarif, accrued, paid = get_service_amount(bill, ELECTRICITY)

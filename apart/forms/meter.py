@@ -25,38 +25,39 @@ class EditForm(BaseEditForm):
     start = forms.DateField(
         label=False,
         required=True,
-        widget=DateInput(format='%Y-%m-%d', attrs={'label': _('period').capitalize()}))
+        widget=DateInput(format='%Y-%m-%d', attrs={'label': _('Period')}))
     event = forms.DateTimeField(
         label=False,
         required=True,
-        widget=DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'label': _('meters reading date').capitalize()}))
+        widget=DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'label': _('Meters reading date')}))
     meter_el = forms.IntegerField(
         label=False,
         required=False,
-        widget=NumberInput(attrs={'label': _('electricity').capitalize()}))
+        widget=NumberInput(attrs={'label': _('Electricity')}))
     meter_hw = forms.IntegerField(
         label=False,
         required=False,
-        widget=NumberInput(attrs={'label': _('hot water').capitalize()}))
+        widget=NumberInput(attrs={'label': _('Hot water')}))
     meter_cw = forms.IntegerField(
         label=False,
         required=False,
-        widget=NumberInput(attrs={'label': _('cold water').capitalize()}))
+        widget=NumberInput(attrs={'label': _('Cold water')}))
     meter_ga = forms.IntegerField(
         label=False,
         required=False,
-        widget=NumberInput(attrs={'label': _('gas').capitalize()}))
+        widget=NumberInput(attrs={'label': _('Gas')}))
     url = forms.CharField(
         label=_('URLs'),
         required=False,
-        widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add link').capitalize()}))
+        widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('Add link')}))
+    info = forms.CharField(
+        label=_('Infofmation'),
+        required=False,
+        widget=forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize': ''}))
 
     class Meta:
         model = Task
         fields = ['start', 'event', 'meter_el', 'meter_hw', 'meter_cw', 'meter_ga', 'info', 'url']
-        widgets = {
-            'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)

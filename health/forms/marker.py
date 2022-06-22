@@ -25,14 +25,14 @@ class EditForm(BaseEditForm):
         fields = ['event', 'bio_height', 'bio_weight', 'bio_temp', 'bio_waist', 'bio_systolic', 'bio_diastolic', 'bio_pulse', 'info']
 
         widgets = {
-            'event': DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'label': _('event date').capitalize(), 'type': 'datetime-local'}),
-            'bio_height': NumberInput(attrs={'label':_('height, cm').capitalize(), 'step': '1'}),
-            'bio_weight': NumberInput(attrs={'label':_('weight, kg').capitalize(), 'step': '0.1'}),
+            'event': DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'label': _('Event date'), 'type': 'datetime-local'}),
+            'bio_height': NumberInput(attrs={'label':_('Height, cm'), 'step': '1'}),
+            'bio_weight': NumberInput(attrs={'label':_('Weight, kg'), 'step': '0.1'}),
             'bio_temp': NumberInput(attrs={'label':_('Temperature, °C'), 'step': '0.01'}),
-            'bio_waist': NumberInput(attrs={'label':_('waist circumference, cm').capitalize(), 'step': '1'}),
-            'bio_systolic': NumberInput(attrs={'label':_('systolic blood pressure').capitalize(), 'step': '1'}),
-            'bio_diastolic': NumberInput(attrs={'label':_('diastolic blood pressure').capitalize(), 'step': '1'}),
-            'bio_pulse': NumberInput(attrs={'label':_('the number of heartbeats per minute').capitalize(), 'step': '1'}),
+            'bio_waist': NumberInput(attrs={'label':_('Waist circumference, cm'), 'step': '1'}),
+            'bio_systolic': NumberInput(attrs={'label':_('Systolic blood pressure'), 'step': '1'}),
+            'bio_diastolic': NumberInput(attrs={'label':_('Diastolic blood pressure'), 'step': '1'}),
+            'bio_pulse': NumberInput(attrs={'label':_('The number of heartbeats per minute'), 'step': '1'}),
             'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),
         }
 

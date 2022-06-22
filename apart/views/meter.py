@@ -65,7 +65,7 @@ def get_info(item):
     if (item.task_1.apart_has_gas):
         if ret:
             ret.append({'icon': 'separator'})
-        ret.append({'text': '{} {}'.format(_('ga:'), item.meter_ga)})
+        ret.append({'text': '{} {}'.format(_('gas:'), item.meter_ga)})
     links = len(Urls.objects.filter(task=item.id)) > 0
     files = (len(item.get_files_list(role)) > 0)
     if item.info or links or files:

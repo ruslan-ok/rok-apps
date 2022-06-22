@@ -256,7 +256,7 @@ EXPEN_ROLE_CHOICE  = [(NONE, '--------'), (NUM_ROLE_EXPENSE, _('operation'))]
 TRIP_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_PERSON, _('person')), (NUM_ROLE_TRIP, _('trip')), (NUM_ROLE_SALDO, _('saldo'))]
 FUEL_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_CAR, _('cars')), (NUM_ROLE_FUEL, _('fueling')), (NUM_ROLE_PART, _('car part service interval')), (NUM_ROLE_SERVICE, _('service'))]
 APART_ROLE_CHOICE  = [(NONE, '--------'), (NUM_ROLE_APART, _('apartment')), (NUM_ROLE_SERVICE, _('service')), (NUM_ROLE_METER, _('meter')), (NUM_ROLE_PRICE, _('price')), (NUM_ROLE_BILL, _('bill'))]
-HEALTH_ROLE_CHOICE = [(NONE, '--------'), (NUM_ROLE_MARKER, _('marker')), (NUM_ROLE_INCIDENT, _('incident')), (NUM_ROLE_CHART_WEIGHT, _('chart_weight')), (NUM_ROLE_CHART_WAIST, _('chart_waist')), (NUM_ROLE_CHART_TEMP, _('chart_temp'))]
+HEALTH_ROLE_CHOICE = [(NONE, '--------'), (NUM_ROLE_MARKER, _('marker')), (NUM_ROLE_INCIDENT, _('incident')), (NUM_ROLE_CHART_WEIGHT, _('weight chart')), (NUM_ROLE_CHART_WAIST, _('waist chart')), (NUM_ROLE_CHART_TEMP, _('temperature chart'))]
 WORK_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_PERIOD, _('period')), (NUM_ROLE_DEPARTMENT, _('department')), (NUM_ROLE_DEP_HIST, _('department history')), 
                         (NUM_ROLE_POST, _('post')), (NUM_ROLE_EMPLOYEE, _('employee')), (NUM_ROLE_FIO_HIST, _('surname history')), (NUM_ROLE_CHILD, _('child')), 
                         (NUM_ROLE_APPOINTMENT, _('appointment')), (NUM_ROLE_EDUCATION, _('education')), (NUM_ROLE_EMPL_PER, _('periods for employee')),

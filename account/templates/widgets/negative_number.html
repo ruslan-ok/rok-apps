@@ -1,7 +1,7 @@
 {% load static i18n %}
 
     <div class="col {{ widget.attrs.class }}">
-        {% if widget.attrs.label %}<label for="{{ widget.attrs.id }}" class="form-label">{{ widget.attrs.label }}</label>{% endif %}
+        {% if widget.attrs.label %}<label for="{{ widget.attrs.id }}" class="form-label">{{ widget.attrs.label }}:</label>{% endif %}
         <div class="input-group flex-nowrap">
           <div class="input-group-append">
             <div class="btn btn-outline-secondary bi-dash" id="id_copy" onclick="toggleNegative('{{ widget.attrs.id }}')"></div>

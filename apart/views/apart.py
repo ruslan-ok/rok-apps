@@ -63,7 +63,7 @@ def get_info(item):
         if item.info:
             ret['attr'].append({'icon': 'separator'})
         ret['attr'].append({'icon': 'attach'})
-    if item.apart_has_el or item.apart_has_hw or item.apart_has_cw or item.apart_has_gas or item.apart_has_ppo:
+    if item.apart_has_el or item.apart_has_hw or item.apart_has_cw or item.apart_has_gas or item.apart_has_tv or item.apart_has_phone or item.apart_has_zkx or item.apart_has_ppo:
         if item.info or files:
             ret['attr'].append({'icon': 'separator'})
         if item.apart_has_el:

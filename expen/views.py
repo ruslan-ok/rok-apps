@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 from task.const import ROLE_EXPENSE, ROLE_APP
 from task.models import Task, Urls, TaskGroup
 from rusel.categories import get_categories_list
@@ -114,3 +115,7 @@ class ProjectView(BaseGroupView, TuneData):
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['add_item_placeholder'] = '{} {}'.format(_('create new').capitalize(), pgettext_lazy('create new ... ', 'project'))
+        return context

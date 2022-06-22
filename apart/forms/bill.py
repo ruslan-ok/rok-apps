@@ -1,5 +1,5 @@
 from django import forms
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, gettext
 
 from rusel.base.forms import BaseCreateForm, BaseEditForm
 from rusel.widgets import DateInput, NumberInput, UrlsInput
@@ -23,11 +23,11 @@ class EditForm(BaseEditForm):
     start = forms.DateField(
         label=False,
         required=True,
-        widget=DateInput(format='%Y-%m-%d', attrs={'label': _('period').capitalize(), 'type': 'date'}))
+        widget=DateInput(format='%Y-%m-%d', attrs={'label': _('Period'), 'type': 'date'}))
     event = forms.DateTimeField(
         label=False,
         required=True,
-        widget=DateInput(format='%Y-%m-%dT%H:%M', attrs={'label': _('date of payment').capitalize(), 'type': 'datetime-local'}))
+        widget=DateInput(format='%Y-%m-%dT%H:%M', attrs={'label': _('Date of payment'), 'type': 'datetime-local'}))
     bill_rate = forms.DecimalField(
         label=False,
         required=False,
@@ -35,7 +35,7 @@ class EditForm(BaseEditForm):
     bill_residents = forms.IntegerField(
         label=False,
         required=True,
-        widget=NumberInput(attrs={'label': _('number of residents').capitalize(), 'step': '1'}))
+        widget=NumberInput(attrs={'label': _('Number of residents'), 'step': '1'}))
     bill_tv_bill = forms.DecimalField(label=False, required=False, widget=forms.NumberInput(attrs={'step': '0.01'}))
     bill_tv_pay = forms.DecimalField(label=False, required=False, widget=forms.NumberInput(attrs={'step': '0.01'}))
     bill_phone_bill = forms.DecimalField(label=False, required=False, widget=forms.NumberInput(attrs={'step': '0.01'}))
@@ -48,19 +48,19 @@ class EditForm(BaseEditForm):
     bill_gas_pay = forms.DecimalField(label=False, required=False, widget=forms.NumberInput(attrs={'step': '0.01'}))
     bill_water_pay = forms.DecimalField(label=False, required=False, widget=forms.NumberInput(attrs={'step': '0.01'}))
     info = forms.CharField(
-        label=_('comment').capitalize(),
+        label=_('Comment'),
         required=False,
-        widget=forms.Textarea(attrs={'label': _('comment').capitalize(), 'class': 'form-control mb-1', 'data-autoresize':''}))
+        widget=forms.Textarea(attrs={'label': _('Comment'), 'class': 'form-control mb-1', 'data-autoresize':''}))
     url = forms.CharField(
         label=_('URLs'),
         required=False,
-        widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('add link').capitalize()}))
+        widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('Add link')}))
 
     class Meta:
         model = Task
         fields = ['start', 'event', 'bill_rate', 'bill_residents', 
                   'bill_tv_bill', 'bill_tv_pay', 'bill_phone_bill', 'bill_phone_pay', 'bill_zhirovka', 'bill_zkx_pay', 
-                  'bill_poo', 'bill_poo_pay', 'bill_el_pay', 'bill_water_pay', 'bill_gas_pay',
+                  'bill_poo', 'bill_poo_pay', 'bill_el_pay', 'bill_water_pay', 'bill_gas_pay', 'info', 'url',
                  ]
 
     def __init__(self, *args, **kwargs):
