@@ -2,6 +2,7 @@
     &__fix-item {
         display: flex !important;
         justify-content: space-between !important;
+        overflow-x: auto;
         &.active {
             background-color: rgba(112, 76, 167, 0.2);;
         }
@@ -9,12 +10,14 @@
     .dirs {
         display: flex;
         flex-direction: column;
+        max-width: 270px;
         .item {
             display: flex;
             justify-content: space-between;
             font-size: 0.8rem;
             padding: 2px 0;
             margin-left: 0.25rem;
+            white-space: nowrap;
             a:hover {
                 background-color: inherit;
             }
@@ -84,8 +87,8 @@
 }
 
 .bd-links {
-      font-weight: 400;
-      font-size: 0.9rem;
+    font-weight: 400;
+    font-size: 0.9rem;
 }
 
 @media (min-width: 768px) {
