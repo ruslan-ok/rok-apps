@@ -420,24 +420,31 @@ def profile(request):
     if request.method == 'POST':
         usr = User.objects.get(id=request.user.id)
         form = ProfileForm(request.POST, request.FILES, instance = request.user)
-        if form.is_valid() and user_data_changed(usr, form.cleaned_data, request):
-            usr.username = form.cleaned_data['username']
-            usr.first_name = form.cleaned_data['first_name']
-            usr.last_name = form.cleaned_data['last_name']
-            usr.email = form.cleaned_data['email']
-            usr.is_active = True
-            usr.save()
-            if ('avatar' in form.cleaned_data):
-                avatar = form.cleaned_data['avatar']
-                ue = UserExt.objects.filter(user=usr.id).get()
-                ue.avatar = avatar
-                #transform = Image.open(avatar.file)
-                #ue.avatar_mini = transform.resize((50,50))
-                ue.save()
+        if form.is_valid():
+            if user_data_changed(usr, form.cleaned_data, request):
+                usr.username = form.cleaned_data['username']
+                usr.first_name = form.cleaned_data['first_name']
+                usr.last_name = form.cleaned_data['last_name']
+                usr.email = form.cleaned_data['email']
+                usr.is_active = True
+                usr.save()
+                if ('avatar' in form.cleaned_data or 'phone' in form.cleaned_data):
+                    ue = UserExt.objects.filter(user=usr.id).get()
+                    if ('avatar' in form.cleaned_data):
+                        avatar = form.cleaned_data['avatar']
+                        ue.avatar = avatar
+                    if ('phone' in form.cleaned_data):
+                        ue.phone = form.cleaned_data['phone']
+                    #transform = Image.open(avatar.file)
+                    #ue.avatar_mini = transform.resize((50,50))
+                    ue.save()
 
-            messages.add_message(request, messages.SUCCESS, 'The user `%s` was changed successfully.' % (usr.username))
+                messages.add_message(request, messages.SUCCESS, 'The user `%s` was changed successfully.' % (usr.username))
+            if ('form_close' in request.POST):
+                return HttpResponseRedirect(reverse_lazy('index'))
     else:
         form = ProfileForm(instance = request.user)
+        form.initial['phone'] = request.user.userext.phone
 
     context = get_base_context(request, 'home', ROLE_ACCOUNT, None, '', (_('profile').capitalize(),))
     context['form'] = form
