@@ -3,12 +3,11 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.template import loader
 from task.const import ROLE_STORE, ROLE_APP, NUM_ROLE_STORE
-from task.models import Task, Hist
+from task.models import Task, Hist, PassParams
 from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView, Context
 from store.forms import CreateForm, EditForm, ParamsForm
 from store.config import app_config
 from store.get_info import get_info
-from store.models import Entry, Params
 
 role = ROLE_STORE
 app = ROLE_APP[role]
@@ -114,13 +113,13 @@ class GroupView(BaseGroupView, TuneData):
         super().__init__(app_config, role, *args, **kwargs)
 
 def get_store_params(user):
-    if Params.objects.filter(user = user.id).exists():
-        return Params.objects.filter(user = user.id).get()
+    if PassParams.objects.filter(user = user.id).exists():
+        return PassParams.objects.filter(user = user.id).get()
     else:
-        return Params.objects.create(user = user, ln = 30, uc = True, lc = True, dg = True, sp = True, br = True, mi = True, ul = True, ac = False)
+        return PassParams.objects.create(user = user, ln = 30, uc = True, lc = True, dg = True, sp = True, br = True, mi = True, ul = True, ac = False)
 
 def add_item(user, name):
-    params, username, value = Entry.get_new_value(user)
+    params, username, value = PassParams.get_new_value(user)
     task = Task.objects.create(user=user, app_store=NUM_ROLE_STORE, name=name, event=datetime.now(), 
                                 store_username=username, store_value=value, store_params=params)
     return task

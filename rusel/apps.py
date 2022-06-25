@@ -15,8 +15,6 @@ APPS = {
     APP_DOCS:    ('file-text',     '/docs/'),
     APP_WARR:    ('award',         '/warr/'),
     APP_PHOTO:   ('image',         '/photo/'),
-    APP_WORK:    ('briefcase',     '/work/'),
-    APP_TRIP:    ('truck',         '/trip/'),
     APP_ADMIN:   ('people',        '/admin/'),
 }
 

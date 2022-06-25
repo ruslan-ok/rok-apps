@@ -1,5 +1,6 @@
-import calendar, json
+import calendar, json, urllib
 from urllib.parse import urlparse
+from django.utils.crypto import get_random_string
 import requests
 
 from datetime import date, time, datetime, timedelta
@@ -41,7 +42,7 @@ class Group(models.Model):
     determinator = models.CharField(_('group category: "group", "role" or "view"'), max_length=10, blank=True, null=True)
     view_id = models.CharField(_('view identificator for "role" and "view"'), max_length=50, blank=True, null=True)
     items_sort = models.CharField(_('items sorting orders'), max_length=500, blank=True)
-    info = models.TextField(_('information').capitalize(), blank=True, null=True)
+    info = models.TextField(_('information'), blank=True, null=True)
     src_id = models.IntegerField(_('ID in source table'), blank=True, null=True)
     act_items_qty = models.IntegerField(_('items in group'), blank=True, null=True)
     #------------- Expen --------------
@@ -200,21 +201,21 @@ class Task(models.Model):
     An Entity that can be a Task or something else
     """
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'), related_name = 'task_user')
-    name = models.CharField(_('name').capitalize(), max_length=200, blank=False)
-    event = models.DateTimeField(_('event date').capitalize(), blank=True, null=True)
-    start = models.DateField(_('start date').capitalize(), blank=True, null=True)
-    stop = models.DateTimeField(_('termin').capitalize(), blank=True, null=True)
-    completed = models.BooleanField(_('completed').capitalize(), default=False)
-    completion = models.DateTimeField(_('completion time').capitalize(), blank=True, null=True)
-    in_my_day = models.BooleanField(_('in my day').capitalize(), default=False)
-    important = models.BooleanField(_('important').capitalize(), default=False)
-    remind = models.DateTimeField(_('remind').capitalize(), blank=True, null=True)
-    last_remind = models.DateTimeField(_('last remind').capitalize(), blank=True, null=True)
-    repeat = models.IntegerField(_('repeat').capitalize(), blank=True, null=True, choices=REPEAT_SELECT, default=NONE)
-    repeat_num = models.IntegerField(_('repeat num').capitalize(), blank=True, null=True)
-    repeat_days = models.IntegerField(_('repeat days').capitalize(), blank=True, null=True)
-    categories = models.TextField(_('categories').capitalize(), blank=True, null=True)
-    info = models.TextField(_('information').capitalize(), blank=True, null=True)
+    name = models.CharField(_('Name'), max_length=200, blank=False)
+    event = models.DateTimeField(_('Event date'), blank=True, null=True)
+    start = models.DateField(_('Start date'), blank=True, null=True)
+    stop = models.DateTimeField(_('Termin'), blank=True, null=True)
+    completed = models.BooleanField(_('Completed'), default=False)
+    completion = models.DateTimeField(_('Completion time'), blank=True, null=True)
+    in_my_day = models.BooleanField(_('In My day'), default=False)
+    important = models.BooleanField(_('Important'), default=False)
+    remind = models.DateTimeField(_('Remind'), blank=True, null=True)
+    last_remind = models.DateTimeField(_('Last remind'), blank=True, null=True)
+    repeat = models.IntegerField(_('Repeat'), blank=True, null=True, choices=REPEAT_SELECT, default=NONE)
+    repeat_num = models.IntegerField(_('Repeat num'), blank=True, null=True)
+    repeat_days = models.IntegerField(_('Repeat days'), blank=True, null=True)
+    categories = models.TextField(_('Categories'), blank=True, null=True)
+    info = models.TextField(_('Information'), blank=True, null=True)
     src_id = models.IntegerField(_('ID in source table'), blank=True, null=True)
     app_task = models.IntegerField('Role in application Task', choices=TASK_ROLE_CHOICE, default=NONE, null=True)
     app_note = models.IntegerField('Role in application Note', choices=NOTE_ROLE_CHOICE, default=NONE, null=True)
@@ -229,23 +230,23 @@ class Task(models.Model):
     app_health = models.IntegerField('Role in application Health', choices=HEALTH_ROLE_CHOICE, default=NONE, null=True)
     app_work = models.IntegerField('Role in application Work', choices=WORK_ROLE_CHOICE, default=NONE, null=True)
     app_photo = models.IntegerField('Role in application Photo Bank', choices=PHOTO_ROLE_CHOICE, default=NONE, null=True)
-    created = models.DateTimeField(_('creation time').capitalize(), default=datetime.now)
-    last_mod = models.DateTimeField(_('last modification time').capitalize(), blank=True, auto_now=True)
+    created = models.DateTimeField(_('Creation time'), default=datetime.now)
+    last_mod = models.DateTimeField(_('Last modification time'), blank=True, auto_now=True)
     groups = models.ManyToManyField(Group, through='TaskGroup')
-    active = models.BooleanField(_('is active navigation item').capitalize(), null=True)
+    active = models.BooleanField(_('Is active navigation item'), null=True)
     task_1 = models.ForeignKey('self', on_delete=models.SET_NULL, verbose_name=_('linked task #1'), related_name='task_link_1', blank=True, null=True)
     task_2 = models.ForeignKey('self', on_delete=models.SET_NULL, verbose_name=_('linked task #2'), related_name='task_link_2', blank=True, null=True)
     task_3 = models.ForeignKey('self', on_delete=models.SET_NULL, verbose_name=_('linked task #3'), related_name='task_link_3', blank=True, null=True)
-    item_attr = models.CharField(_('item attributes').capitalize(), max_length=2000, blank=True, null=True)
+    item_attr = models.CharField(_('Item attributes'), max_length=2000, blank=True, null=True)
     sort = models.CharField(_('sort code'), max_length=50, blank=True)
     #------------ Expenses ------------
-    expen_qty = models.DecimalField(_('quantity').capitalize(), blank=True, null=True, max_digits=15, decimal_places=3)
+    expen_qty = models.DecimalField(_('Quantity'), blank=True, null=True, max_digits=15, decimal_places=3)
     expen_price = models.DecimalField(_('Price in NC'), blank=True, null=True, max_digits=15, decimal_places=2)
     expen_rate = models.DecimalField(_('USD exchange rate'), blank=True, null=True, max_digits=15, decimal_places=4)
     expen_rate_2 = models.DecimalField(_('EUR exchange rate'), blank=True, null=True, max_digits=15, decimal_places=4)
     expen_usd = models.DecimalField(_('amount in USD'), blank=True, null=True, max_digits=15, decimal_places=2)
     expen_eur = models.DecimalField(_('amount in EUR'), blank=True, null=True, max_digits=15, decimal_places=2)
-    expen_kontr = models.CharField(_('manufacturer').capitalize(), max_length=1000, blank=True, null=True)
+    expen_kontr = models.CharField(_('Manufacturer'), max_length=1000, blank=True, null=True)
     #------------ Person --------------
     pers_dative = models.CharField(_('dative'), max_length=500, null=True)
     #------------- Trip ---------------
@@ -600,7 +601,7 @@ class Task(models.Model):
         if self.completed:
             if (len(ret['attr']) > 0):
                 ret['attr'].append({'icon': 'separator'})
-            ret['attr'].append({'text': '{}: {}'.format(_('completion').capitalize(), self.completion.strftime('%d.%m.%Y') if self.completion else '')})
+            ret['attr'].append({'text': '{}: {}'.format(_('Completion'), self.completion.strftime('%d.%m.%Y') if self.completion else '')})
 
         return ret
 
@@ -657,11 +658,11 @@ class Task(models.Model):
     def termin_date(self):
         d = self.stop
         if not d:
-            return _('set due date').capitalize()
+            return _('Set due date')
         if self.b_expired():
-            s = str(_('expired')).capitalize() + ', '
+            s = str(_('Expired')) + ', '
         else:
-            s = str(_('termin')).capitalize() + ': '
+            s = str(_('Termin')) + ': '
         return s + str(nice_date(d))
             
     def termin_time(self):
@@ -677,11 +678,11 @@ class Task(models.Model):
     def remind_date(self):
         if self.remind:
             return nice_date(self.remind.date())
-        return _('to remind').capitalize()
+        return _('To remind')
     
     def remind_time(self):
         if self.remind:
-            return _('remind at').capitalize() + ' ' + self.remind.strftime('%H:%M')
+            return _('Remind at') + ' ' + self.remind.strftime('%H:%M')
         return ''
     
     def s_termin(self):
@@ -691,9 +692,9 @@ class Task(models.Model):
             return ''
 
         if self.b_expired():
-            s = str(_('expired')).capitalize() + ', '
+            s = _('Expired') + ', '
         else:
-            s = str(_('termin')).capitalize() + ': '
+            s = _('Termin') + ': '
         return s + str(nice_date(d))
             
     def s_repeat(self):
@@ -707,14 +708,14 @@ class Task(models.Model):
         rn = ''
         if self.repeat:
             rn = REPEAT_NAME[self.repeat]
-        return '{} {} {}'.format(_('once every').capitalize(), self.repeat_num, rn)
+        return '{} {} {}'.format(_('Once every'), self.repeat_num, rn)
     
     def repeat_s_days(self):
         if (self.repeat == WEEKLY):
             if (self.repeat_days == 0):
                 return self.stop.strftime('%a')
             if (self.repeat_days == 1+2+4+8+16):
-                return str(_('work days')).capitalize()
+                return str(_('Work days'))
             ret = ''
             monday = datetime(2020, 7, 6, 0, 0)
             for i in range(7):
@@ -727,23 +728,23 @@ class Task(models.Model):
     
     def repeat_title(self):
         if (not self.repeat) or (self.repeat == NONE):
-            return _('repeat').capitalize()
+            return _('Repeat')
         if (self.repeat_num == 1):
             if (self.repeat == WORKDAYS):
-                return REPEAT[WEEKLY][1].capitalize()
-            return REPEAT[self.repeat][1].capitalize()
+                return REPEAT[WEEKLY][1]
+            return REPEAT[self.repeat][1]
         
         rn = ''
         if self.repeat:
             rn = REPEAT_NAME[self.repeat]
-        return '{} {} {}'.format(_('once every').capitalize(), self.repeat_num, rn)
+        return '{} {} {}'.format(_('Once every'), self.repeat_num, rn)
     
     def repeat_info(self):
         if (self.repeat == WEEKLY):
             if (self.repeat_days == 0):
                 return self.stop.strftime('%A')
             if (self.repeat_days == 1+2+4+8+16):
-                return str(_('work days')).capitalize()
+                return str(_('Work days'))
             ret = ''
             monday = datetime(2020, 7, 6, 0, 0)
             for i in range(7):
@@ -981,9 +982,149 @@ def currency_repr(value, currency):
 
 class Hist(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, verbose_name=_('task'), related_name = 'task_hist')
-    valid_until = models.DateTimeField(_('valid until date').capitalize(), blank=True, default=datetime.now)
+    valid_until = models.DateTimeField(_('Valid until date'), blank=True, default=datetime.now)
     store_username = models.CharField(_('username'), max_length=150, blank=True, null=True)
     store_value = models.CharField(_('value'), max_length=128, null=True)
     store_params = models.IntegerField(_('generator parameters used'), null=True)
-    info = models.TextField(_('information').capitalize(), blank=True, null=True)
+    info = models.TextField(_('Information'), blank=True, null=True)
     store_uuid = models.CharField(_('UUID'), max_length=100, blank=True, null=True)
+
+# Browsing History
+class VisitedHistory(models.Model):
+    user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'visit_user')
+    stamp = models.DateTimeField(_('visit time'), null=False)
+    url = models.CharField(_('visited url'), max_length=200, blank=True)
+    app = models.CharField(_('visited application'), max_length=200, blank=True)
+    page = models.CharField(_('visited page'), max_length=200, blank=True)
+    info = models.CharField(_('page info'), max_length=200, blank=True)
+    icon = models.CharField(_('page icon'), max_length=30, blank=True, null=True)
+
+    class Meta:
+        verbose_name = _('visited page')
+        verbose_name_plural = _('visited pages')
+
+    def __str__(self):
+        return self.app + ' - ' + self.page
+    
+    def title(self):
+        if not self.page and not self.info:
+            title = ''
+        if self.page and not self.info:
+            title = self.page
+        if not self.page and self.info:
+            title = self.info
+        if self.page and self.info:
+            title = '{} [{}]'.format(self.page, self.info)
+        if not title:
+            return _(self.app).capitalize()
+        else:
+            return _(self.app).capitalize() + ' - ' + title
+        
+    def reverse_url(self):
+        return self.url
+
+class Photo(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
+    creation = models.DateTimeField(_('Creation time'), null = True, auto_now_add = True)
+    last_mod = models.DateTimeField(_('Last modification time'), null = True, auto_now = True)
+    name = models.CharField(_('Name'), max_length=1000)
+    path = models.CharField(_('Path'), max_length=1000, blank = True)
+    categories = models.CharField(_('Categories'), max_length=1000, blank = True)
+    info = models.TextField(_('Information'), blank = True)
+    lat = models.DecimalField(_('Latitude'), max_digits = 9, decimal_places = 6, null = True)
+    lon = models.DecimalField(_('Longitude'), max_digits = 9, decimal_places = 6, null = True)
+    size = models.IntegerField(_('Size'), null = True)
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        subdir = ''
+        if self.path:
+            subdir = self.path + '/'
+        url = urllib.parse.quote_plus(subdir + self.name)
+        return '{ url: ' + url + ', sz: ' + str(self.size) + ' }'
+
+    def full_name(self):
+        if self.path:
+            return self.path + '/' + self.name
+        return self.name
+
+    def subdir(self):
+        if self.path:
+            return self.path + '/'
+        return ''
+
+
+class PassParams(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'), related_name='store_user')
+    ln = models.IntegerField('Length', default = 20)
+    uc = models.BooleanField('Upper case', default = True)
+    lc = models.BooleanField('Lower case', default = True)
+    dg = models.BooleanField('Digits', default = True)
+    sp = models.BooleanField('Special symbols', default = True)
+    br = models.BooleanField('Brackets', default = True)
+    mi = models.BooleanField('Minus', default = True)
+    ul = models.BooleanField('Underline', default = True)
+    ac = models.BooleanField('Avoid confusion', default = True)
+    un = models.CharField('Default username', max_length=160, blank=True, default='')
+
+    @classmethod
+    def get_new_value(cls, user):
+        if (len(PassParams.objects.filter(user = user.id)) > 0):
+            params = PassParams.objects.filter(user = user.id)[0]
+        else:
+            params = PassParams.objects.create(user = user)
+
+        allowed_chars = ''
+        
+        if params.uc:
+            allowed_chars = allowed_chars + 'ABCDEFGHJKLMNPQRSTUVWXYZ'
+            if not params.ac:
+                allowed_chars = allowed_chars + 'IO'
+        
+        if params.lc:
+            allowed_chars = allowed_chars + 'abcdefghjkmnpqrstuvwxyz'
+            if not params.ac:
+                allowed_chars = allowed_chars + 'io'
+
+        if params.dg:
+            allowed_chars = allowed_chars + '23456789'
+            if not params.ac:
+                allowed_chars = allowed_chars + '10'
+
+        if params.sp:
+            allowed_chars = allowed_chars + '!@#$%^&*=+'
+
+        if params.br:
+            allowed_chars = allowed_chars + '()[]{}<>'
+        
+        if params.mi:
+            allowed_chars = allowed_chars + '-'
+        
+        if params.ul:
+            allowed_chars = allowed_chars + '_'
+
+        if (allowed_chars == ''):
+            allowed_chars = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#$%^&*(-_=+)'
+
+        ret_params = 0
+        if params.uc:
+            ret_params += 1
+        if params.lc:
+            ret_params += 2
+        if params.dg:
+            ret_params += 4
+        if params.sp:
+            ret_params += 8
+        if params.br:
+            ret_params += 16
+        if params.mi:
+            ret_params += 32
+        if params.ul:
+            ret_params += 64
+        if params.ac:
+            ret_params += 128
+
+        ret_value = get_random_string(params.ln, allowed_chars)
+        return ret_params, params.un, ret_value

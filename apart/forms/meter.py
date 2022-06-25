@@ -6,7 +6,6 @@ from rusel.base.forms import BaseCreateForm, BaseEditForm, GroupForm
 from rusel.widgets import DateInput, DateTimeInput, NumberInput, UrlsInput
 from task.models import Task, Group
 from apart.config import app_config
-from apart.models import Apart, Meter
 
 role = 'meter'
 

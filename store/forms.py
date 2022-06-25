@@ -3,10 +3,9 @@ from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 
 from rusel.base.forms import BaseCreateForm, BaseEditForm
-from task.models import Task, Group
+from task.models import Task, Group, PassParams
 from task.const import ROLE_STORE
 from store.config import app_config
-from store.models import Params
 from rusel.widgets import UrlsInput, CategoriesInput, EntryUsernameInput, EntryValueInput, SwitchInput
 
 role = ROLE_STORE
@@ -138,7 +137,7 @@ class ParamsForm(BaseEditForm):
         widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('Avoid confusion')}))
 
     class Meta:
-        model = Params
+        model = PassParams
         fields = ['ln', 'un', 'uc', 'lc', 'dg', 'sp', 'br', 'mi', 'ul', 'ac']
 
     def __init__(self, *args, **kwargs):

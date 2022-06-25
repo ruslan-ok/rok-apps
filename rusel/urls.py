@@ -34,12 +34,9 @@ urlpatterns = i18n_patterns(
     path('store/',  include('store.urls')),
     path('todo/',   include('todo.urls')),
     path('warr/',   include('warr.urls')),
-    #path('admin/',   admin.site.urls, name='admin'),
     path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
     path('api/',    include(api_router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('<str:role>/<int:pk>/doc/<str:fname>', views.get_doc, name='doc'),
     path('<str:role>/<int:pk>/thumbnail/<str:fname>', views.get_thumbnail, name='thumbnail'),
-    path('trip/',      include('v2_trip.urls')),
-    path('work/',      include('v2_wage.urls')),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

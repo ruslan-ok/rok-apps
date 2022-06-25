@@ -8,10 +8,10 @@ from django.urls import reverse
 from django.views.generic.edit import FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from task.const import APP_PHOTO, ROLE_PHOTO, ROLE_APP
+from task.models import Photo
 from rusel.base.dir_views import BaseDirView
 from rusel.files import storage_path, service_path
 from photo.config import app_config
-from photo.models import Photo
 from photo.forms import PhotoForm
 
 role = ROLE_PHOTO

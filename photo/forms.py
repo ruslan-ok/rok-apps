@@ -3,9 +3,8 @@ from django.utils.translation import gettext_lazy as _
 
 from task.const import ROLE_PHOTO
 from rusel.base.forms import BaseCreateForm, BaseEditForm
-from task.models import Task, Group
+from task.models import Task, Group, Photo
 from photo.config import app_config
-from photo.models import Photo
 from rusel.base.forms import GroupForm
 
 role = ROLE_PHOTO

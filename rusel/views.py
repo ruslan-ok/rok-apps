@@ -11,8 +11,7 @@ from rusel.context import get_base_context
 from .mysql_ver import get_mysql_ver
 
 from task.const import APP_HOME, ROLE_ACCOUNT
-from task.models import Task
-from hier.models import VisitedHistory
+from task.models import Task, VisitedHistory
 from rusel.base.views import BaseListView
 from rusel.config import app_config
 from rusel.context import MAX_LAST_VISITED
