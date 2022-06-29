@@ -79,6 +79,13 @@
                     {% endif %}
                   {% endif %}
 
+                  {% if attr.tuned_data %}
+                    {% for d in item.get_tuned_data %}
+                      <i class="bi-check2-square {{ d.class }}"></i>
+                      <div class="label {{ d.class }}"><span>{{ d.info }}</span></div>
+                    {% endfor %}
+                  {% endif %}
+
                   {% if attr.text %}
                     <div class="label"><span>{{ attr.text }}</span></div>
                   {% endif %}

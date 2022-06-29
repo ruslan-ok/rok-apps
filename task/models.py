@@ -19,6 +19,7 @@ from rusel.utils import nice_date
 from rusel.categories import get_categories_list
 from rusel.files import get_files_list_by_path
 from rusel.secret import storage_dvlp
+from fuel.utils import get_rest
 
 storage_path = storage_dvlp
 
@@ -875,6 +876,25 @@ class Task(models.Model):
         Step.objects.filter(task=self.id).delete()
         Urls.objects.filter(task=self.id).delete()
         Hist.objects.filter(task=self.id).delete()
+
+    def get_tuned_data(self):
+        if (self.app_fuel != NUM_ROLE_PART):
+            return None
+
+        last_odo = None
+        if Task.objects.filter(user=self.user.id, app_fuel__gt=0, task_1=self.task_1.id).exclude(car_odometr=None).exclude(car_odometr=0).exists():
+            last_odo = Task.objects.filter(user=self.user.id, app_fuel__gt=0, task_1=self.task_1.id).exclude(car_odometr=None).exclude(car_odometr=0).order_by('-event')[0]
+        if (not last_odo):
+            return None
+
+        last_repl = None
+        if Task.objects.filter(user=self.user.id, app_fuel=NUM_ROLE_SERVICE, task_1=self.task_1.id, task_2=self.id).exists():
+            last_repl = Task.objects.filter(user=self.user.id, app_fuel=NUM_ROLE_SERVICE, task_1=self.task_1.id, task_2=self.id).order_by('-event')[0]
+        if (not last_repl):
+            return None
+
+        rest, tune_class = get_rest(self, last_odo, last_repl)
+        return [{'class': tune_class, 'info': rest}]
 
 
 GIQ_ADD_TASK = 1 # Task created

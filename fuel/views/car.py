@@ -54,11 +54,6 @@ def get_info(item):
     ret = {'attr': attr}
     return ret
 
-def get_last_odometr(user, car):
-    if Task.objects.filter(user=user.id, app_fuel__gt=0, task_1=car.id).exclude(car_odometr=None).exclude(car_odometr=0).exists():
-        return Task.objects.filter(user=user.id, app_fuel__gt=0, task_1=car.id).exclude(car_odometr=None).exclude(car_odometr=0).order_by('-event')[0]
-    return None
-
 def get_new_odometr(user, car, event):
     lag = event - timedelta(150)
     last = Task.objects.filter(user=user.id, app_fuel__gt=0, task_1=car.id, event__gt=lag).exclude(car_odometr=None).exclude(car_odometr=0).order_by('-event')
