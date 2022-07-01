@@ -263,9 +263,15 @@ class ProfileForm(forms.ModelForm):
         required=False, 
         widget=forms.TextInput(attrs={'class': 'form-control mb-3'}))
 
+    lang = forms.ChoiceField(
+        label=_('Mailing list language'),
+        widget=forms.Select(attrs={'class': 'form-control mb-3'}),
+        choices=[(0, 'English'),(1, 'Русский'),]
+        )
+
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email', 'phone']
+        fields = ['username', 'first_name', 'last_name', 'email', 'phone', 'lang']
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control mb-3'}),
             'first_name': forms.TextInput(attrs={'class': 'form-control mb-3'}),

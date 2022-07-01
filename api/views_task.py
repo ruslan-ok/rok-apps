@@ -33,6 +33,8 @@ from apart.views.bill import get_info as bill_get_info
 from health.views.incident import get_info as incident_get_info
 from warr.views import get_info as warr_get_info
 
+from fuel.part_termin_check import check_termins
+
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -715,3 +717,8 @@ class TaskViewSet(viewsets.ModelViewSet):
         task.remind = None
         task.save()
         return Response({'result': 'ok'})
+
+    @action(detail=False)
+    def check_service_intervals(self, request, pk=None):
+        ret = check_termins()
+        return Response({'result': ret})

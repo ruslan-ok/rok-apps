@@ -5,7 +5,7 @@ from rusel.base.forms import BaseCreateForm, BaseEditForm
 from task.models import Task
 from task.const import ROLE_CAR
 from fuel.config import app_config
-from rusel.widgets import DateInput
+from rusel.widgets import DateInput, SwitchInput
 
 role = ROLE_CAR
 
@@ -39,6 +39,11 @@ class EditForm(BaseEditForm):
         required=False,
         widget=DateInput(format='%Y-%m-%d', attrs={'label': _('End'), 'placeholder': _('End date')}),
     )
+    car_notice = forms.BooleanField(
+        label=False,
+        required=False,
+        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('Service Interval Notice')}),
+    )
     info = forms.CharField(
         label=_('Information'),
         required=False,
@@ -46,7 +51,7 @@ class EditForm(BaseEditForm):
     )
     class Meta:
         model = Task
-        fields = ['name', 'car_plate', 'start', 'stop', 'info']
+        fields = ['name', 'car_plate', 'start', 'stop', 'info', 'car_notice']
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)

@@ -58,13 +58,13 @@ def process(log):
         for task in data['result']:
             remind_one_task(log, task)
     except requests.exceptions.HTTPError as errh:
-        log(exc_pref + 'Http Error: ' + str(errh))
+        log(exc_pref + 'Http Error: ' + str(errh), send_mail=True)
     except requests.exceptions.ConnectionError as errc:
-        log(exc_pref + 'Error Connecting: ' + str(errc))
+        log(exc_pref + 'Error Connecting: ' + str(errc), send_mail=True)
     except requests.exceptions.Timeout as errt:
-        log(exc_pref + 'Timeout Error: ' + str(errt))
+        log(exc_pref + 'Timeout Error: ' + str(errt), send_mail=True)
     except requests.exceptions.RequestException as err:
-        log(exc_pref + 'OOps: Something Else ' + str(err))
+        log(exc_pref + 'OOps: Something Else ' + str(err), send_mail=True)
 
 def remind_one_task(log, task):
     if not firebase_admin._apps:
@@ -98,7 +98,7 @@ def remind_one_task(log, task):
     resp = requests.get(TASK_API_TOKENS.format(task['user_id']), headers=headers, verify=verify)
     data = resp.json()
     if ('result' not in data) or (len(data['result']) == 0):
-        log('[TODO] No tokens for user_id = ' + str(task['user_id']))
+        log('[TODO] No tokens for user_id = ' + str(task['user_id']), send_mail=True)
         return
     tokens = data['result']
     
@@ -123,7 +123,7 @@ def remind_one_task(log, task):
             resp = requests.get(TASK_API_DEL_TOKEN.format(task['user_id'], tokens[npp-1]), headers=headers, verify=verify)
             data = resp.json()
             if ('result' not in data) and data['result']:
-                log('       [!] Token deleted.')
+                log('       [!] Token deleted.', send_mail=True)
         npp += 1
 
     requests.get(TASK_API_REMINDED.format(task['id']), headers=headers, verify=verify)

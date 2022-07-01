@@ -1,0 +1,37 @@
+{% autoescape off %}
+<html>
+<body style="font-family:Verdana, Geneva, Tahoma, sans-serif">
+
+<h2 style="color:navy">Service Interval Notice</h2>
+    {% for car in cars %}
+    <div style="padding: 5px; margin-bottom: 5px;">
+        <h3 style="color:seagreen">{{ car.name }}</h3>
+        {% if car.parts_1 %}
+            <h4 style="color:darkslateblue">Service intervals with changed timing status:</h4>
+            <table>
+                {% for part in car.parts_1 %}
+                    <tr>
+                        <td style="padding:0.2em 0.5em">{{ part.name }}</td>
+                        <td style="color:cornflowerblue">{{ part.termin }}</td>
+                        <td style="color:{{ part.color }}">{{ part.rest }}</td></tr>
+                    <tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+        {% if car.parts_2 %}
+            <h4 style="color:darkslateblue">Service intervals expiring or overdue:</h4>
+            <table>
+                {% for part in car.parts_2 %}
+                    <tr>
+                        <td style="padding:0.2em 0.5em">{{ part.name }}</td>
+                        <td style="color:cornflowerblue">{{ part.termin }}</td>
+                        <td style="color:{{ part.color }}">{{ part.rest }}</td></tr>
+                    <tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+    </div>
+{% endfor %}
+</body>
+</html>
+{% endautoescape %}

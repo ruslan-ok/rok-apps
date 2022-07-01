@@ -19,7 +19,7 @@ from django.views.generic.base import TemplateView
 from django.views import generic
 
 from django.contrib import messages
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, update_session_auth_hash
 from django.contrib.auth import (REDIRECT_FIELD_NAME, get_user_model, login as auth_login, logout as auth_logout,)
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.decorators import login_required
@@ -405,7 +405,7 @@ class PasswordChangeDoneView(PasswordContextMixin, TemplateView):
         return super().dispatch(*args, **kwargs)
 
 def user_data_changed(user, data, request):
-    if user.username == data['username'] and user.first_name == data['first_name'] and user.last_name == data['last_name'] and user.email == data['email'] and user.userext.phone == data['phone'] and (('avatar' not in data) or (user.userext.avatar == data['avatar'])):
+    if user.username == data['username'] and user.first_name == data['first_name'] and user.last_name == data['last_name'] and user.email == data['email'] and user.userext.phone == data['phone'] and user.userext.lang == data['lang'] and (('avatar' not in data) or (user.userext.avatar == data['avatar'])):
         messages.add_message(request, messages.INFO, 'User information is not changed.')
         return False
     return True
@@ -428,13 +428,15 @@ def profile(request):
                 usr.email = form.cleaned_data['email']
                 usr.is_active = True
                 usr.save()
-                if ('avatar' in form.cleaned_data or 'phone' in form.cleaned_data):
+                if ('avatar' in form.cleaned_data or 'phone' in form.cleaned_data or 'lang' in form.cleaned_data):
                     ue = UserExt.objects.filter(user=usr.id).get()
                     if ('avatar' in form.cleaned_data):
                         avatar = form.cleaned_data['avatar']
                         ue.avatar = avatar
                     if ('phone' in form.cleaned_data):
                         ue.phone = form.cleaned_data['phone']
+                    if ('lang' in form.cleaned_data):
+                        ue.lang = form.cleaned_data['lang']
                     #transform = Image.open(avatar.file)
                     #ue.avatar_mini = transform.resize((50,50))
                     ue.save()
@@ -445,6 +447,7 @@ def profile(request):
     else:
         form = ProfileForm(instance = request.user)
         form.initial['phone'] = request.user.userext.phone
+        form.initial['lang'] = request.user.userext.lang
 
     context = get_base_context(request, 'home', ROLE_ACCOUNT, None, '', (_('profile').capitalize(),))
     context['form'] = form

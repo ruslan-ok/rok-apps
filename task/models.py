@@ -300,9 +300,12 @@ class Task(models.Model):
     #-------------- Car ----------------
     car_plate  = models.CharField(_('car number'), max_length=100, null=True, blank=True)
     car_odometr = models.IntegerField(_('odometer'), null=True)
+    car_notice = models.BooleanField(_('Service Interval Notice'), null=True, default=False)
     #-------------- Fuel ---------------
     fuel_volume = models.DecimalField(_('volume'), null=True, max_digits=5, decimal_places=3)
     fuel_price = models.DecimalField(_('price'), null=True, max_digits=15, decimal_places=2)
+    fuel_warn = models.DateTimeField(_('Warning notice time'), null=True)
+    fuel_expir = models.DateTimeField(_('Expiration notice time'), null=True)
     #-------------- Part ---------------
     part_chg_km = models.IntegerField(_('replacement interval, km'), null=True)
     part_chg_mo = models.IntegerField(_('replacement interval, months'), null=True)
