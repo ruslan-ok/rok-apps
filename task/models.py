@@ -609,6 +609,16 @@ class Task(models.Model):
 
         return ret
 
+    def days_to_next(self, repeat_last, repeat_days, repeat_num):
+        from_dow = repeat_last.weekday()
+        for day in range(from_dow + 1, 7):
+            if repeat_days & 2**day:
+                return day - from_dow
+        for day in range(0, from_dow + 1):
+            if repeat_days & 2**day:
+                return day - from_dow + 7 * repeat_num
+        return 7
+
     def next_iteration(self):
         next = None
 
@@ -616,7 +626,8 @@ class Task(models.Model):
             if (self.repeat == DAILY):
                 next = self.stop + timedelta(self.repeat_num)
             elif (self.repeat == WEEKLY):
-                next = self.stop + timedelta(self.repeat_num * 7)
+                days = self.days_to_next(self.stop, self.repeat_days, self.repeat_num)
+                next = self.stop + timedelta(days)
             elif (self.repeat == MONTHLY):
                 next = add_months(self.stop, self.repeat_num)
                 if self.start and (next.day != self.start.day):
