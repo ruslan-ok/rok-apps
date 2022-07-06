@@ -506,7 +506,9 @@ class Task(models.Model):
         self.correct_groups_qty(GIQ_CMP_TASK)
         next_task = None
         if self.completed and next: # Completed a stage of a recurring task and set a deadline for the next iteration
-            if not Task.objects.filter(user=self.user, app_task=self.app_task, name=self.name, completed=False).exists():
+            if Task.objects.filter(user=self.user, app_task=self.app_task, name=self.name, completed=False).exists():
+                next_task = Task.objects.filter(user=self.user, app_task=self.app_task, name=self.name, completed=False)[0]
+            else:
                 next_task = Task.objects.create(user=self.user, app_task=self.app_task, name=self.name, 
                     start=self.start, stop=next, important=self.important,
                     remind=self.next_remind_time(), repeat=self.repeat, repeat_num=self.repeat_num,
