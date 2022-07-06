@@ -713,6 +713,8 @@ class TaskViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
         task_id = self.request.query_params['task_id']
         task = Task.objects.filter(id=task_id).get()
+        if not task.first_remind:
+            task.first_remind = task.remind
         task.last_remind = datetime.now()
         task.remind = None
         task.save()

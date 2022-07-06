@@ -211,6 +211,7 @@ class Task(models.Model):
     in_my_day = models.BooleanField(_('In My day'), default=False)
     important = models.BooleanField(_('Important'), default=False)
     remind = models.DateTimeField(_('Remind'), blank=True, null=True)
+    first_remind = models.DateTimeField(_('First remind'), blank=True, null=True)
     last_remind = models.DateTimeField(_('Last remind'), blank=True, null=True)
     repeat = models.IntegerField(_('Repeat'), blank=True, null=True, choices=REPEAT_SELECT, default=NONE)
     repeat_num = models.IntegerField(_('Repeat num'), blank=True, null=True)
@@ -626,8 +627,8 @@ class Task(models.Model):
             if (self.repeat == DAILY):
                 next = self.stop + timedelta(self.repeat_num)
             elif (self.repeat == WEEKLY):
-                days = self.days_to_next(self.stop, self.repeat_days, self.repeat_num)
-                next = self.stop + timedelta(days)
+                after_days = self.days_to_next(self.stop, self.repeat_days, self.repeat_num)
+                next = self.stop + timedelta(after_days)
             elif (self.repeat == MONTHLY):
                 next = add_months(self.stop, self.repeat_num)
                 if self.start and (next.day != self.start.day):
@@ -771,9 +772,11 @@ class Task(models.Model):
         return ''
     
     def next_remind_time(self):
-        if ((not self.remind) and (not self.last_remind)) or (not self.stop):
+        if ((not self.remind) and (not self.first_remind) and (not self.last_remind)) or (not self.stop):
             return None
-        if self.remind:
+        if self.first_remind:
+            rmd = self.first_remind
+        elif self.remind:
             rmd = self.remind
         else:
             rmd = self.last_remind

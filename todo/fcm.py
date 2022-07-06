@@ -47,6 +47,8 @@ def fcm_del(request):
 
 def fcm_postpone(request, pk):
     task = get_object_or_404(Task.objects.filter(user=request.user.id, id=pk))
+    if not task.first_remind:
+        task.first_remind = task.remind
     task.remind = (datetime.now() + timedelta(hours=1))
     task.save()
     return HttpResponse('ok, id = ' + str(task.id) + ', remind time = ' + task.remind.strftime('%H:%M'))
