@@ -5,8 +5,8 @@ certifi==2021.10.8
 cffi==1.15.0
 charset-normalizer==2.0.10
 cryptography==36.0.1
-Django==4.0.4
-django-filter==21.1
+Django==4.0.6
+django-filter==22.1
 djangorestframework==3.13.1
 firebase-admin==5.2.0
 google-api-core==2.4.0
@@ -23,7 +23,7 @@ grpcio==1.43.0
 grpcio-status==1.43.0
 httplib2==0.20.2
 idna==3.3
-Markdown==3.3.6
+Markdown==3.3.7
 mod-wsgi==4.9.0
 msgpack==1.0.3
 mysql-connector==2.2.9
@@ -35,7 +35,7 @@ protobuf==3.19.3
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycparser==2.21
-pyOpenSSL==21.0.0
+pyOpenSSL==22.0.0
 pyparsing==3.0.6
 pytz==2021.3
 requests==2.27.1
