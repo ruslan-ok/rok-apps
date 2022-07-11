@@ -20,6 +20,7 @@ rusel-by-firebase-adminsdk-*.json
 static/scss/*.css
 static/scss/*.css.map
 static/backgrounds/*/*.*
+MailBackup.vbs
 
 
 # Windows image file caches
