@@ -40,3 +40,5 @@ urlpatterns = i18n_patterns(
     path('<str:role>/<int:pk>/doc/<str:fname>', views.get_doc, name='doc'),
     path('<str:role>/<int:pk>/thumbnail/<str:fname>', views.get_thumbnail, name='thumbnail'),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+urlpatterns.append(path('i18n/', include('django.conf.urls.i18n')))
