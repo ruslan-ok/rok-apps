@@ -1,5 +1,6 @@
 from datetime import datetime, date, timedelta
 from django.utils.translation import gettext_lazy as _
+from django.utils import formats
 from task.const import APP_TODO, ROLE_TODO
 from task.models import Task, Step
 from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView
@@ -44,8 +45,8 @@ class DetailView(BaseDetailView, TuneData):
         context['del_step_text'] = _('Delete this step?')
         context['add_due_date_text'] = _('Add due date')
         context['termin_today_info'] = get_remind_today(3).strftime('%H:%M')
-        context['termin_tomorrow_info'] = get_remind_tomorrow().strftime('%a, %H:%M')
-        context['termin_next_week_info'] = get_remind_next_week(8).strftime('%a, %H:%M')
+        context['termin_tomorrow_info'] = formats.date_format(get_remind_tomorrow(), 'D, H:i')
+        context['termin_next_week_info'] = formats.date_format(get_remind_next_week(8), 'D, H:i')
 
         context['repeat_text'] = _('Repeat')
         context['repeat_form_d1'] = get_week_day_name(1)
@@ -63,8 +64,8 @@ class DetailView(BaseDetailView, TuneData):
             context['task_remind_time'] = _('Remind in') + ' ' + ed_task.remind.strftime('%H:%M')
             context['task_remind_date'] = nice_date(ed_task.remind.date())
         context['remind_today_info'] = get_remind_today(2).strftime('%H:%M')
-        context['remind_tomorrow_info'] = get_remind_tomorrow().strftime('%a, %H:%M')
-        context['remind_next_week_info'] = get_remind_next_week(8).strftime('%a, %H:%M')
+        context['remind_tomorrow_info'] = formats.date_format(get_remind_tomorrow(), 'D, H:i')
+        context['remind_next_week_info'] = formats.date_format(get_remind_next_week(8), 'D, H:i')
         return context
 
     def form_valid(self, form):
@@ -83,7 +84,7 @@ def get_week_day_name(weekday_num):
     d = date(2020, 7, 13)
     if (weekday_num > 1):
         d = d + timedelta(weekday_num - 1)
-    return d.strftime('%a')
+    return formats.date_format(d, 'D')
 
 def get_remind_today(hours):
     remind_today = datetime.now()

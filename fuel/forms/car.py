@@ -55,6 +55,4 @@ class EditForm(BaseEditForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
-        # value = kwargs['instance'].start.strftime('%Y-%m-%d')
-        # self.fields['start'].initial = value
 

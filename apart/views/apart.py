@@ -67,20 +67,20 @@ def get_info(item):
         if item.info or files:
             ret['attr'].append({'icon': 'separator'})
         if item.apart_has_el:
-            ret['attr'].append({'text': 'el'})
+            ret['attr'].append({'text': str(_('el'))})
         if item.apart_has_hw:
-            ret['attr'].append({'text': 'hw'})
+            ret['attr'].append({'text': str(_('hw'))})
         if item.apart_has_cw:
-            ret['attr'].append({'text': 'cw'})
+            ret['attr'].append({'text': str(_('cw'))})
         if item.apart_has_gas:
-            ret['attr'].append({'text': 'gas'})
+            ret['attr'].append({'text': str(_('gas'))})
         if item.apart_has_tv:
-            ret['attr'].append({'text': 'inet/tv'})
+            ret['attr'].append({'text': str(_('inet/tv'))})
         if item.apart_has_phone:
-            ret['attr'].append({'text': 'phone'})
+            ret['attr'].append({'text': str(_('phone'))})
         if item.apart_has_zkx:
-            ret['attr'].append({'text': 'zkx'})
+            ret['attr'].append({'text': str(_('zkx'))})
         if item.apart_has_ppo:
-            ret['attr'].append({'text': 'ppo'})
+            ret['attr'].append({'text': str(_('ppo'))})
 
     return ret

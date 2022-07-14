@@ -1,6 +1,7 @@
 from django.core.exceptions import FieldError
 from datetime import datetime, date
 from django.utils.translation import gettext_lazy as _
+from django.utils import formats
 
 def extract_get_params(request, group_entity):
     v = request.GET.get('view')
@@ -160,14 +161,15 @@ def nice_date(d):
     
     if (type(d) == date) or ((type(d) == datetime) and (d.minute == 0) and (d.hour == 0)):
         if (d.year == date.today().year):
-            return d.strftime('%a, %d %b')
+            ret = formats.date_format(d, 'D, d N')
         else:
-            return d.strftime('%a, %d %b %Y')
+            ret = formats.date_format(d, 'D, d N Y')
     else:
         if (d.year == date.today().year):
-            return d.strftime('%a, %d %b %H:%M')
+            ret = formats.date_format(d, 'D, d N H:i')
         else:
-            return d.strftime('%a, %d %b %Y %H:%M')
+            ret = formats.date_format(d, 'D, d N Y H:i')
+    return ret
 
 def sort_data(data, sort, reverse):
     if not data:

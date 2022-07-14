@@ -1,4 +1,5 @@
 from django.utils.translation import gettext_lazy as _, pgettext_lazy
+from django.utils import formats
 from task.const import ROLE_EXPENSE, ROLE_APP
 from task.models import Task, Urls, TaskGroup
 from rusel.categories import get_categories_list
@@ -45,7 +46,7 @@ class DetailView(BaseDetailView, TuneData):
         if not title and self.object.expen_qty and self.object.expen_price:
             title = str(self.object.expen_qty*self.object.expen_price)
         if not title:
-            title = self.object.event.strftime('%d %b %Y')
+            title = formats.date_format(self.object.event, 'd N Y')
 
         context['title'] = title
         grp = self.get_group()

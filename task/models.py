@@ -10,6 +10,7 @@ from django.contrib.auth.models import User
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
 from django.urls import NoReverseMatch
+from django.utils import formats
 
 from rest_framework.reverse import reverse
 
@@ -731,7 +732,7 @@ class Task(models.Model):
     def repeat_s_days(self):
         if (self.repeat == WEEKLY):
             if (self.repeat_days == 0):
-                return self.stop.strftime('%a')
+                return formats.date_format(self.stop, 'D')
             if (self.repeat_days == 1+2+4+8+16):
                 return str(_('Work days'))
             ret = ''
@@ -740,7 +741,7 @@ class Task(models.Model):
                 if (self.repeat_days & (1 << i)):
                     if (ret != ''):
                         ret += ', '
-                    ret += (monday +timedelta(i)).strftime('%a')
+                    ret += formats.date_format(monday +timedelta(i), 'D')
             return ret
         return ''
     
@@ -760,7 +761,7 @@ class Task(models.Model):
     def repeat_info(self):
         if (self.repeat == WEEKLY):
             if (self.repeat_days == 0):
-                return self.stop.strftime('%A')
+                return formats.date_format(self.stop, 'l')
             if (self.repeat_days == 1+2+4+8+16):
                 return str(_('Work days'))
             ret = ''
@@ -769,7 +770,7 @@ class Task(models.Model):
                 if (self.repeat_days & (1 << i)):
                     if (ret != ''):
                         ret += ', '
-                    ret += (monday +timedelta(i)).strftime('%A')
+                    ret += formats.date_format(monday +timedelta(i), 'l')
             return ret
         return ''
     
