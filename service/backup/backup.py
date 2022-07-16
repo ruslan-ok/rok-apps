@@ -128,18 +128,18 @@ class Backup:
 
     # Определение возраста архива
     def get_arch_age(self, arh, day):
-        file_date = datetime.strptime(arh.split('.')[0], device + '-%Y.%m.%d-' + self.mode).date()
+        file_date = datetime.strptime(arh, device + '-%Y.%m.%d-' + self.mode + '.zip').date()
         file_days = (day - file_date).days
         return file_days
 
     # Проверка и при необходимости удаление архива в указанной позиции  из списка имеющихся
     def zip_arh(self, pos, day):
-        file_age = self.get_arh_age(self.arh_list[pos], day)
+        file_age = self.get_arch_age(self.arh_list[pos], day)
         min_range = 2**(pos-1)+1
         max_range = 2**pos
         if file_age < min_range or file_age > max_range:
             if pos < len(self.arh_list)-1:
-                next_file_age = self.get_arh_age(self.arh_list[pos+1], day)
+                next_file_age = self.get_arch_age(self.arh_list[pos+1], day)
                 if next_file_age >= min_range and next_file_age <= max_range:
                     self.content.append('   Удален архив ' + self.arh_list[pos])
                     del self.arh_list[pos]
