@@ -18,6 +18,7 @@ APP_HEALTH = 'health'
 APP_WORK = 'work'
 APP_PHOTO = 'photo'
 APP_ADMIN = 'admin'
+APP_BACKUP = 'backup'
 
 APP_ALL = 'all'
 
@@ -40,6 +41,7 @@ APP_NAME = {
     APP_PHOTO: 'photobank',
     APP_ADMIN: 'administration',
     APP_ALL: 'all applications',
+    APP_BACKUP: 'backup check',
 }
 
 FOLDER_NAV_APPS = [APP_PHOTO, APP_DOCS, APP_WARR]
@@ -140,6 +142,7 @@ NUM_ROLE_ACCOUNT = 35
 NUM_ROLE_CHART_WAIST = 36
 NUM_ROLE_CHART_TEMP = 37
 NUM_ROLE_STORE_HIST = 38
+NUM_ROLE_BACKUP = 39
 
 ROLE_TODO        = 'todo'            
 ROLE_NOTE        = 'note'            
@@ -180,6 +183,7 @@ ROLE_PAYMENT     = 'payment'
 ROLE_PHOTO       = 'photo'      
 ROLE_ACCOUNT     = 'account'     
 ROLE_SEARCH_RESULTS = 'search'
+ROLE_BACKUP      = 'backup'
 
 ALL_ROLES = (
     ROLE_TODO,             
@@ -219,7 +223,8 @@ ALL_ROLES = (
     ROLE_PAYMENT,     
     ROLE_PHOTO, 
     ROLE_ACCOUNT,  
-    ROLE_SEARCH_RESULTS,         
+    ROLE_SEARCH_RESULTS,
+    ROLE_BACKUP,
     )
 
 ROLES_IDS = {
@@ -240,6 +245,7 @@ ROLES_IDS = {
                 ROLE_CHILDREN: NUM_ROLE_CHILD, ROLE_APPOINTMENT: NUM_ROLE_APPOINTMENT, ROLE_EDUCATION: NUM_ROLE_EDUCATION, 
                 ROLE_EMPLOYEE_PERIOD: NUM_ROLE_EMPL_PER, ROLE_PAY_TITLE: NUM_ROLE_PAY_TITLE, ROLE_PAYMENT: NUM_ROLE_PAYMENT },
     APP_PHOTO: { ROLE_PHOTO: NUM_ROLE_PHOTO },
+    APP_BACKUP: { ROLE_BACKUP: NUM_ROLE_BACKUP },
     APP_ALL: { ROLE_SEARCH_RESULTS: NONE },
 }
 
@@ -316,7 +322,7 @@ ROLE_ICON = {
     ROLE_PERSON: 'person',
     ROLE_TRIP: 'truck',
     ROLE_SALDO: 'currency-dollar',
-    ROLE_FUEL: 'droplet',
+    ROLE_FUEL: 'fuel-pump',
     ROLE_CAR: 'truck',
     ROLE_PART: 'cart',
     ROLE_SERVICE: 'tools',
@@ -344,6 +350,7 @@ ROLE_ICON = {
     ROLE_PHOTO: 'image',
     ROLE_ACCOUNT: 'person-check',
     ROLE_SEARCH_RESULTS: 'search-results',
+    ROLE_BACKUP: 'bootstrap',
 }
 
 ROLE_BASE = {

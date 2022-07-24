@@ -34,6 +34,7 @@ urlpatterns = i18n_patterns(
     path('store/',  include('store.urls')),
     path('todo/',   include('todo.urls')),
     path('warr/',   include('warr.urls')),
+    path('backup/', include('backup.urls')),
     path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
     path('api/',    include(api_router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
