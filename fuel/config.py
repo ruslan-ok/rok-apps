@@ -4,14 +4,14 @@ from task.const import *
 app_config = {
     'name': APP_FUEL,
     'app_title': _('fueling'),
-    'icon': 'truck',
+    'icon': 'fuel-pump',
     'main_view': 'fuel',
     'group_entity': 'car',
     'group_entity_loc': pgettext_lazy('create ...', 'car'),
     'views': {
         'fuel': {
             'role': ROLE_FUEL,
-            'icon': 'droplet', 
+            'icon': 'fuel-pump',
             'title': _('fuelings'),
             'item_name': _('fueling'),
             'add_button': True,

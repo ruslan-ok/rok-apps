@@ -9,7 +9,7 @@ APPS = {
     APP_NEWS:    ('newspaper',     '/news/'),
     APP_STORE:   ('key',           '/store/'),
     APP_EXPEN:   ('piggy-bank',    '/expen/'),
-    APP_FUEL:    ('droplet',       '/fuel/'),
+    APP_FUEL:    ('fuel-pump',     '/fuel/'),
     APP_APART:   ('building',      '/bill/'),
     APP_HEALTH:  ('heart',         '/health/'),
     APP_DOCS:    ('file-text',     '/docs/'),
