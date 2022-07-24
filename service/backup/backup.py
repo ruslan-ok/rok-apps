@@ -142,6 +142,7 @@ class Backup:
                 next_file_age = self.get_arch_age(self.arh_list[pos+1], day)
                 if next_file_age >= min_range and next_file_age <= max_range:
                     self.content.append('   Удален архив ' + self.arh_list[pos])
+                    os.remove(work_dir + '\\' + self.arh_list[pos])
                     del self.arh_list[pos]
 
     # Удаление неактуальных архивов
