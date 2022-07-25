@@ -4,7 +4,7 @@
 {% block main %}
     {% for src in sources %}
         <h3>{{ src.name }}</h3>
-        <h4>Etalon</h4>
+        <h5>Etalon</h5>
         <table>
             <thead>
                 <tr>
@@ -28,7 +28,7 @@
             </tbody>
         </table>
 
-        <h4>Fact</h4>
+        <h5>Fact</h5>
         <ul>
             {% for x in src.fact_arch %}
                 <li style="{% if not x.valid %} color: red;{% endif %}">{{x.name}}</li>
