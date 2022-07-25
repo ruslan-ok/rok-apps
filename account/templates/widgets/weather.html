@@ -1,7 +1,7 @@
 <div id="openweathermap-widget-11"></div>
 <script src='//openweathermap.org/themes/openweathermap/assets/vendor/owm/js/d3.min.js'></script>
 <script>window.myWidgetParam ? window.myWidgetParam : window.myWidgetParam = []; 
-    window.myWidgetParam.push({ id: 11, cityid: '618800', appid: '51f030bd605c63dfa4f180983fb97c3d', 
+    window.myWidgetParam.push({ id: 11, cityid: '{{ weather_city_id }}', appid: '{{ weather_api_key }}', 
                                 units: 'metric', containerid: 'openweathermap-widget-11', }); 
     (function () { 
         var script = document.createElement('script'); 

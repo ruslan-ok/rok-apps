@@ -16,6 +16,7 @@ from rusel.base.views import BaseListView
 from rusel.config import app_config
 from rusel.context import MAX_LAST_VISITED
 from rusel.app_doc import get_app_doc, get_app_thumbnail
+from rusel.secret import weather_api_key, weather_city_id
 
 class TuneData:
     def tune_dataset(self, data, group):
@@ -59,6 +60,8 @@ class ListView(BaseListView, TuneData):
             context['python_version'] = python_version()
             context['django_version'] = '{}.{}.{} {}'.format(*django.VERSION)
             context['drf_version'] = '{}'.format(rest_framework.VERSION)
+            context['weather_api_key'] = weather_api_key
+            context['weather_city_id'] = weather_city_id
             response = urllib.request.urlopen('https://rusel.by')
             versions = response.headers['Server'].split(' ')
             for ver in versions:
