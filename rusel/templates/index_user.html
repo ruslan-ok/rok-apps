@@ -8,15 +8,12 @@
 
 {% block main %}
   <div class="container-fluid">
-        <h3>
-          {{ title|capfirst }}
-        </h3>
-  
     <div class="w3-row w3-padding">
       {% if debug and user.username == 'ruslan.ok' %}
         <h6 class="text-danger mb-1">Warning: Debug mode</h6>
       {% endif %}
       
+      {% include "widgets/weather.html" %}
       {#<a href="{% url 'trip:main' %}">{{ trip_summary|safe }}</a>#}
 
       <div class="row">
