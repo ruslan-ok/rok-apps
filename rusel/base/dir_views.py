@@ -1,13 +1,12 @@
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.edit import FormView
-from django.contrib.auth.mixins import LoginRequiredMixin
 from rusel.base.context import DirContext
 from rusel.base.dir_forms import UploadForm
 from rusel.files import storage_path
 from task.const import *
 
 #----------------------------------------------------------------------
-class BaseDirView(DirContext, FormView, LoginRequiredMixin):
+class BaseDirView(DirContext, FormView):
     form_class = UploadForm
 
     def __init__(self, app_config, role, *args, **kwargs):

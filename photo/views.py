@@ -17,7 +17,8 @@ from photo.forms import PhotoForm
 role = ROLE_PHOTO
 app = ROLE_APP[role]
 
-class FolderView(BaseDirView):
+class FolderView(LoginRequiredMixin, BaseDirView):
+    login_url = '/account/login/'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
@@ -106,8 +107,9 @@ class FolderView(BaseDirView):
         self.store_dir = get_storage(user, 'photo')
 
 #----------------------------------
-class PhotoView(FormView, LoginRequiredMixin):
+class PhotoView(LoginRequiredMixin, FormView):
     form_class = PhotoForm
+    login_url = '/account/login/'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

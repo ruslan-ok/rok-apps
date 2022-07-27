@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from task.const import APP_NEWS, ROLE_NEWS
 from task.models import Task
 from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView
@@ -12,17 +13,19 @@ class TuneData:
     def tune_dataset(self, data, group):
         return data
 
-class ListView(BaseListView, TuneData):
+class ListView(LoginRequiredMixin, BaseListView, TuneData):
     model = Task
     form_class = CreateForm
+    login_url = '/account/login/'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
 
-class DetailView(BaseDetailView, TuneData):
+class DetailView(LoginRequiredMixin, BaseDetailView, TuneData):
     model = Task
     form_class = EditForm
+    login_url = '/account/login/'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
@@ -33,6 +36,8 @@ class DetailView(BaseDetailView, TuneData):
         return response
 
 
-class GroupView(BaseGroupView, TuneData):
+class GroupView(LoginRequiredMixin, BaseGroupView, TuneData):
+    login_url = '/account/login/'
+
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)

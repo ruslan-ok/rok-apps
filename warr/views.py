@@ -1,4 +1,5 @@
 from datetime import datetime, date
+from django.contrib.auth.mixins import LoginRequiredMixin
 from task.const import ROLE_WARR, ROLE_APP
 from task.models import Task, Urls, TaskGroup
 from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView
@@ -19,16 +20,18 @@ class TuneData:
                 return data.filter(stop__lt=datetime.today())
         return data
 
-class ListView(BaseListView, TuneData):
+class ListView(LoginRequiredMixin, BaseListView, TuneData):
     model = Task
     form_class = CreateForm
+    login_url = '/account/login/'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
-class DetailView(BaseDetailView, TuneData):
+class DetailView(LoginRequiredMixin, BaseDetailView, TuneData):
     model = Task
     form_class = EditForm
+    login_url = '/account/login/'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
@@ -48,8 +51,9 @@ def add_months(d, x):
     newdate = date(newyear, newmonth, d.day)
     return newdate
 
-class GroupView(BaseGroupView, TuneData):
+class GroupView(LoginRequiredMixin, BaseGroupView, TuneData):
     form_class = GroupForm
+    login_url = '/account/login/'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)

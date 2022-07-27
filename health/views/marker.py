@@ -1,5 +1,6 @@
 from datetime import datetime
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.mixins import LoginRequiredMixin
 from rusel.base.views import BaseListView, BaseDetailView
 from health.forms.marker import CreateForm, EditForm
 from task.const import ROLE_MARKER, ROLE_APP, NUM_ROLE_MARKER
@@ -13,17 +14,19 @@ class TuneData:
     def tune_dataset(self, data, group):
         return data
 
-class ListView(BaseListView, TuneData):
+class ListView(LoginRequiredMixin, BaseListView, TuneData):
     model = Task
     form_class = CreateForm
+    login_url = '/account/login/'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
 
-class DetailView(BaseDetailView, TuneData):
+class DetailView(LoginRequiredMixin, BaseDetailView, TuneData):
     model = Task
     form_class = EditForm
+    login_url = '/account/login/'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)

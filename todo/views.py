@@ -1,5 +1,6 @@
 from datetime import datetime, date, timedelta
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import formats
 from task.const import APP_TODO, ROLE_TODO
 from task.models import Task, Step
@@ -24,16 +25,18 @@ class TuneData:
                 return data.filter(completed=True)
         return data
 
-class ListView(BaseListView, TuneData):
+class ListView(LoginRequiredMixin, BaseListView, TuneData):
     model = Task
     form_class = CreateForm
+    login_url = '/account/login/'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
-class DetailView(BaseDetailView, TuneData):
+class DetailView(LoginRequiredMixin, BaseDetailView, TuneData):
     model = Task
     form_class = EditForm
+    login_url = '/account/login/'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
@@ -76,7 +79,9 @@ class DetailView(BaseDetailView, TuneData):
         return response
 
 
-class GroupView(BaseGroupView, TuneData):
+class GroupView(LoginRequiredMixin, BaseGroupView, TuneData):
+    login_url = '/account/login/'
+
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 

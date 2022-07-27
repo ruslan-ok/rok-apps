@@ -1,4 +1,5 @@
 import urllib.parse
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import FileResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.urls import reverse
 from task.const import APP_DOCS, ROLE_DOC, ROLE_APP
@@ -9,7 +10,9 @@ from docs.config import app_config
 role = ROLE_DOC
 app = ROLE_APP[role]
 
-class FolderView(BaseDirView):
+class FolderView(LoginRequiredMixin, BaseDirView):
+    login_url = '/account/login/'
+
     def __init__(self, *args, **kwargs):
         self.template_name = 'docs/folder.html'
         super().__init__(app_config, role, *args, **kwargs)

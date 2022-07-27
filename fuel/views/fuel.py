@@ -2,6 +2,7 @@ from datetime import datetime
 from task.const import ROLE_FUEL, ROLE_APP, NUM_ROLE_FUEL
 from task.models import Task, Urls
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.mixins import LoginRequiredMixin
 from rusel.categories import get_categories_list
 from rusel.base.views import BaseListView, BaseDetailView
 from fuel.forms.fuel import CreateForm, EditForm
@@ -14,17 +15,19 @@ class TuneData:
     def tune_dataset(self, data, group):
         return data
 
-class ListView(BaseListView, TuneData):
+class ListView(LoginRequiredMixin, BaseListView, TuneData):
     model = Task
     form_class = CreateForm
+    login_url = '/account/login/'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
 
-class DetailView(BaseDetailView, TuneData):
+class DetailView(LoginRequiredMixin, BaseDetailView, TuneData):
     model = Task
     form_class = EditForm
+    login_url = '/account/login/'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)

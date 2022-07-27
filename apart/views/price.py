@@ -1,5 +1,6 @@
 from datetime import datetime
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.mixins import LoginRequiredMixin
 from task.const import APP_APART, ROLE_PRICE, NUM_ROLE_PRICE, APART_SERVICE
 from task.models import Task, Urls
 from rusel.base.views import BaseListView, BaseDetailView
@@ -9,9 +10,10 @@ from apart.config import app_config
 app = APP_APART
 role = ROLE_PRICE
 
-class ListView(BaseListView):
+class ListView(LoginRequiredMixin, BaseListView):
     model = Task
     form_class = CreateForm
+    login_url = '/account/login/'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
@@ -33,9 +35,10 @@ class ListView(BaseListView):
         response = super().form_valid(form)
         return response
 
-class DetailView(BaseDetailView):
+class DetailView(LoginRequiredMixin, BaseDetailView):
     model = Task
     form_class = EditForm
+    login_url = '/account/login/'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)

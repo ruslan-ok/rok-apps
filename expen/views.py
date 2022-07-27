@@ -1,4 +1,5 @@
 from django.utils.translation import gettext_lazy as _, pgettext_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import formats
 from task.const import ROLE_EXPENSE, ROLE_APP
 from task.models import Task, Urls, TaskGroup
@@ -14,9 +15,10 @@ class TuneData:
     def tune_dataset(self, data, group):
         return data
 
-class ListView(BaseListView, TuneData):
+class ListView(LoginRequiredMixin, BaseListView, TuneData):
     model = Task
     form_class = CreateForm
+    login_url = '/account/login/'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
@@ -29,9 +31,10 @@ class ListView(BaseListView, TuneData):
         return context
 
 
-class DetailView(BaseDetailView, TuneData):
+class DetailView(LoginRequiredMixin, BaseDetailView, TuneData):
     model = Task
     form_class = EditForm
+    login_url = '/account/login/'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
@@ -109,9 +112,10 @@ def get_info(item):
     return ret
 
 
-class ProjectView(BaseGroupView, TuneData):
+class ProjectView(LoginRequiredMixin, BaseGroupView, TuneData):
     form_class = ProjectForm
     template_name = 'expen/project.html'
+    login_url = '/account/login/'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)

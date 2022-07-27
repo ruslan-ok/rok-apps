@@ -1,5 +1,6 @@
 from datetime import datetime
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 from django.template import loader
 from task.const import ROLE_STORE, ROLE_APP, NUM_ROLE_STORE
@@ -21,17 +22,19 @@ class TuneData:
                 return data.filter(completed=True)
         return data
 
-class ListView(BaseListView, TuneData):
+class ListView(LoginRequiredMixin, BaseListView, TuneData):
     model = Task
     form_class = CreateForm
+    login_url = '/account/login/'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
 
-class DetailView(BaseDetailView, TuneData):
+class DetailView(LoginRequiredMixin, BaseDetailView, TuneData):
     model = Task
     form_class = EditForm
+    login_url = '/account/login/'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
@@ -108,7 +111,9 @@ def params(request):
     template = loader.get_template('store/params.html')
     return HttpResponse(template.render(context, request))
 
-class GroupView(BaseGroupView, TuneData):
+class GroupView(LoginRequiredMixin, BaseGroupView, TuneData):
+    login_url = '/account/login/'
+
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 

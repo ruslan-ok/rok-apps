@@ -9,7 +9,6 @@ from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView
 from django.db.models import Q
 from django.core.exceptions import FieldError
-from django.contrib.auth.mixins import LoginRequiredMixin
 from rusel.apps import get_related_roles
 from rusel.utils import extract_get_params, get_search_mode
 from rusel.base.forms import GroupForm
@@ -31,7 +30,7 @@ BG_IMAGES = [
 ]
 
 #----------------------------------------------------------------------
-class BaseListView(ListView, Context, LoginRequiredMixin):
+class BaseListView(ListView, Context):
 
     def __init__(self, config, cur_role, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -302,7 +301,7 @@ class BaseListView(ListView, Context, LoginRequiredMixin):
         return response
     
 #----------------------------------------------------------------------
-class BaseDetailView(UpdateView, Context, LoginRequiredMixin):
+class BaseDetailView(UpdateView, Context):
 
     def __init__(self, config, cur_role, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -380,7 +379,7 @@ class BaseDetailView(UpdateView, Context, LoginRequiredMixin):
             for chunk in f.chunks():
                 destination.write(chunk)
 
-class BaseGroupView(UpdateView, Context, LoginRequiredMixin):
+class BaseGroupView(UpdateView, Context):
     model = Group
     template_name = 'base/group_detail.html'
     form_class = GroupForm
