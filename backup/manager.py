@@ -144,18 +144,20 @@ class Backup():
     def backup_db(self, zf):
         file = 'mysql_backup.sql'
         command = '"' + self.params['sql_dump'] + '" --user=' + self.params['sql_user'] + ' --password=' + self.params['sql_pass'] + ' --result-file=' + file + ' rusel'
-        return_code = subprocess.call(command, shell=True)
-        if (return_code != 0):
-            raise BackupError('backup_db', 'Ошибка создания бэкапа MySQL. Код ошибки: ' + return_code.__str__())
+        #self.save_log(False, '[i] command = ', command)
+        ret = subprocess.run(command, shell=True)
+        if (ret.returncode != 0):
+            raise BackupError('backup_db', 'Ошибка создания бэкапа MySQL. Код ошибки: ' + str(ret.returncode))
         sz = os.path.getsize(file)
         self.content.append('   ' + file + '    ' + sizeof_fmt(sz))
         zf.write(file)
         os.remove(file)
 
     def backup_mail(self, zf):
-        return_code = subprocess.call('MailBackup.vbs', shell=True)
-        if (return_code != 0):
-            raise BackupError('backup_mail', 'Вызов subprocess.call вернул код ошибки ' + return_code.__str__())
+        ret = subprocess.run('cscript ' + self.params['backup_mail_script_path'] + 'MailBackup.vbs')
+        #self.save_log(False, '[i] command = ', command)
+        if (ret.returncode != 0):
+            raise BackupError('backup_mail', 'Вызов subprocess.run вернул код ошибки ' + str(ret.returncode))
         start_dt = datetime.now()
         total = 0
         fl = glob.glob('HMBackup*.7z')
