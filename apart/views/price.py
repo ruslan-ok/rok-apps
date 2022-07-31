@@ -13,7 +13,6 @@ role = ROLE_PRICE
 class ListView(LoginRequiredMixin, BaseListView):
     model = Task
     form_class = CreateForm
-    login_url = '/account/login/'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
@@ -38,7 +37,6 @@ class ListView(LoginRequiredMixin, BaseListView):
 class DetailView(LoginRequiredMixin, BaseDetailView):
     model = Task
     form_class = EditForm
-    login_url = '/account/login/'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)

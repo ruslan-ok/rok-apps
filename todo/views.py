@@ -28,7 +28,6 @@ class TuneData:
 class ListView(LoginRequiredMixin, BaseListView, TuneData):
     model = Task
     form_class = CreateForm
-    login_url = '/account/login/'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
@@ -36,7 +35,6 @@ class ListView(LoginRequiredMixin, BaseListView, TuneData):
 class DetailView(LoginRequiredMixin, BaseDetailView, TuneData):
     model = Task
     form_class = EditForm
-    login_url = '/account/login/'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
@@ -80,7 +78,6 @@ class DetailView(LoginRequiredMixin, BaseDetailView, TuneData):
 
 
 class GroupView(LoginRequiredMixin, BaseGroupView, TuneData):
-    login_url = '/account/login/'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)

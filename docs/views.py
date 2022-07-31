@@ -11,7 +11,6 @@ role = ROLE_DOC
 app = ROLE_APP[role]
 
 class FolderView(LoginRequiredMixin, BaseDirView):
-    login_url = '/account/login/'
 
     def __init__(self, *args, **kwargs):
         self.template_name = 'docs/folder.html'

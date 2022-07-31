@@ -18,7 +18,6 @@ role = ROLE_PHOTO
 app = ROLE_APP[role]
 
 class FolderView(LoginRequiredMixin, BaseDirView):
-    login_url = '/account/login/'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
@@ -109,7 +108,6 @@ class FolderView(LoginRequiredMixin, BaseDirView):
 #----------------------------------
 class PhotoView(LoginRequiredMixin, FormView):
     form_class = PhotoForm
-    login_url = '/account/login/'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
