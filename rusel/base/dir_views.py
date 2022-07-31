@@ -1,8 +1,8 @@
+import os
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.edit import FormView
 from rusel.base.context import DirContext
 from rusel.base.dir_forms import UploadForm
-from rusel.files import storage_path
 from task.const import *
 
 #----------------------------------------------------------------------
@@ -14,6 +14,7 @@ class BaseDirView(DirContext, FormView):
         self.set_config(app_config, role)
 
     def init_store_dir(self, user):
+        storage_path = os.environ.get('DJANGO_STORAGE_PATH')
         self.store_dir = storage_path.format(user.username) + '{}/'.format('docs')
 
     def post(self, request, *args, **kwargs):

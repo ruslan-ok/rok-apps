@@ -2,7 +2,6 @@ import os, glob, mimetypes
 from django.urls import reverse
 from task.const import *
 from task.models import Task
-from rusel.files import storage_path
 
 class SearchResult:
     def __init__(self, query, role, folder, file, is_folder=False, photo_num=0, *args, **kwargs):
@@ -49,6 +48,7 @@ class SearchResult:
 
 def search_in_files(user, app, start_folder, query):
     ret = []
+    storage_path = os.environ.get('DJANGO_STORAGE_PATH')
 
     docs_dir = None
     if not app or app == APP_DOCS:

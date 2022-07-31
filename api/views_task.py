@@ -33,7 +33,7 @@ from apart.views.bill import get_info as bill_get_info
 from health.views.incident import get_info as incident_get_info
 from warr.views import get_info as warr_get_info
 
-from fuel.part_termin_check import check_termins
+from service.background_services import check_services
 
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
@@ -651,76 +651,9 @@ class TaskViewSet(viewsets.ModelViewSet):
         task.set_item_attr(APP_TODO, task.get_info())
 
     @action(detail=False)
-    def reminder_ripe(self, request, pk=None):
-        now = datetime.now()
-        tasks = Task.objects.filter(completed=False, remind__lt=now).exclude(remind=None)
-        return Response({'result': (len(tasks) > 0)})
-
-    @action(detail=False)
-    def reminder_process(self, request, pk=None):
-        now = datetime.now()
-        tasks = Task.objects.filter(completed=False, remind__lt=now).exclude(remind=None)
-        result = []
-        for task in tasks:
-            group_path = ''
-            group = None
-            if TaskGroup.objects.filter(task=task.id, role=ROLE_TODO).exists():
-                group = TaskGroup.objects.filter(task=task.id, role=ROLE_TODO).get().group
-            while group:
-                if group_path:
-                    group_path = '/' + group_path
-                group_path = group.name + group_path
-                group = group.node
-            result.append({
-                'id': task.id, 
-                'name': task.name, 
-                'user_id': task.user.id, 
-                'important': task.important, 
-                'term': task.s_termin(), 
-                'group': group_path
-                })
-        return Response({'result': result})
-    
-    @action(detail=False)
-    def get_tokens(self, request, pk=None):
-        if 'user_id' not in self.request.query_params:
-            return Response({'Error': "Expected parameter 'user_id'"},
-                            status=status.HTTP_400_BAD_REQUEST)
-        user_id = self.request.query_params['user_id']
-        subs = Subscription.objects.filter(user_id=user_id)
-        tokens = []
-        for s in subs:
-            tokens.append(s.token)
-        return Response({'result': tokens})
-    
-    @action(detail=False)
-    def del_token(self, request, pk=None):
-        if 'user_id' not in self.request.query_params:
-            return Response({'Error': "Expected parameter 'user_id'"},
-                            status=status.HTTP_400_BAD_REQUEST)
-        user_id = self.request.query_params['user_id']
-        if 'token' not in self.request.query_params:
-            return Response({'Error': "Expected parameter 'token'"},
-                            status=status.HTTP_400_BAD_REQUEST)
-        token = self.request.query_params['token']
-        ret = Subscription.objects.filter(user_id=user_id, token=token).delete()
-        return Response({'result': (len(ret) > 0)})
-    
-    @action(detail=False)
-    def reminded(self, request, pk=None):
-        if 'task_id' not in self.request.query_params:
-            return Response({'Error': "Expected parameter 'task_id'"},
-                            status=status.HTTP_400_BAD_REQUEST)
-        task_id = self.request.query_params['task_id']
-        task = Task.objects.filter(id=task_id).get()
-        if not task.first_remind:
-            task.first_remind = task.remind
-        task.last_remind = datetime.now()
-        task.remind = None
-        task.save()
-        return Response({'result': 'ok'})
-
-    @action(detail=False)
-    def check_service_intervals(self, request, pk=None):
-        ret = check_termins()
-        return Response({'result': ret})
+    def check_background_services(self, request, pk=None):
+        started = False
+        if 'started' in request.query_params:
+            started = True
+        ret = check_services(started)
+        return Response(ret)

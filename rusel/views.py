@@ -1,4 +1,4 @@
-import datetime, django, rest_framework, OpenSSL, ssl, urllib.request
+import os, datetime, django, rest_framework, OpenSSL, ssl, urllib.request
 from platform import python_version
 from django.http import HttpResponse
 from django.template import loader
@@ -7,7 +7,7 @@ from django.conf import settings
 
 from rusel.context import get_base_context
 #from trip.models import trip_summary
-#from rusel.site_stat import get_site_stat
+from logs.site_stat import get_site_stat
 from .mysql_ver import get_mysql_ver
 
 from task.const import APP_HOME, ROLE_ACCOUNT
@@ -16,7 +16,7 @@ from rusel.base.views import BaseListView
 from rusel.config import app_config
 from rusel.context import MAX_LAST_VISITED
 from rusel.app_doc import get_app_doc, get_app_thumbnail
-from rusel.secret import weather_api_key, weather_city_id
+from task.models import ServiceEvent
 
 class TuneData:
     def tune_dataset(self, data, group):
@@ -50,27 +50,30 @@ class ListView(BaseListView, TuneData):
         context['config'] = config
 
         if (request.user.username == 'ruslan.ok'):
-            #statistics = get_site_stat(request.user)
-            #indicators = statistics[0]
-            #stat = statistics[1]
-            #context['indicators'] = indicators
-            #context['show_stat'] = (len(stat) > 0)
-            #context['stat'] = stat
+            statistics = get_site_stat(request.user)
+            indicators = statistics[0]
+            stat = statistics[1]
+            context['indicators'] = indicators
+            context['show_stat'] = (len(stat) > 0)
+            context['stat'] = stat
             #context['trip_summary'] = trip_summary(request.user.id)
             context['python_version'] = python_version()
             context['django_version'] = '{}.{}.{} {}'.format(*django.VERSION)
             context['drf_version'] = '{}'.format(rest_framework.VERSION)
-            context['weather_api_key'] = weather_api_key
-            context['weather_city_id'] = weather_city_id
-            response = urllib.request.urlopen('https://rusel.by')
-            versions = response.headers['Server'].split(' ')
-            for ver in versions:
-                if 'Apache' in ver:
-                    context['apache_version'] = ver.split('/')[1]
-                if 'OpenSSL' in ver:
-                    context['openssl_version'] = ver.split('/')[1]
-                if 'mod_wsgi' in ver:
-                    context['mod_wsgi_version'] = ver.split('/')[1]
+            context['weather_api_key'] = os.environ.get('OPENWEATHER_API_KEY')
+            context['weather_city_id'] = os.environ.get('OPENWEATHER_CITY_ID')
+            host = os.environ.get('DJANGO_HOST')
+            api_host = os.environ.get('DJANGO_HOST_API')
+            if host != 'localhost':
+                response = urllib.request.urlopen(api_host)
+                versions = response.headers['Server'].split(' ')
+                for ver in versions:
+                    if 'Apache' in ver:
+                        context['apache_version'] = ver.split('/')[1]
+                    if 'OpenSSL' in ver:
+                        context['openssl_version'] = ver.split('/')[1]
+                    if 'mod_wsgi' in ver:
+                        context['mod_wsgi_version'] = ver.split('/')[1]
             context['hmail_version'] = '5.6.7 bld 2425'
             context['mysql_version'] = get_mysql_ver()
             context['leaflet_version'] = get_leaflet_ver()
@@ -90,6 +93,24 @@ class ListView(BaseListView, TuneData):
                 pass
 
             context['last_visited'] = VisitedHistory.objects.filter(user=request.user.id).order_by('-stamp')[:MAX_LAST_VISITED]
+            context['event_log'] = ServiceEvent.objects.all().exclude(app='service', service='manager', type='info', name='call').order_by('-created')[:25]
+
+            bss_status = 'stoped'
+            last_start = None
+            last_call = None
+            start_events = ServiceEvent.objects.filter(app='service', service='manager', type='info', name='start').order_by('-created')
+            call_events = ServiceEvent.objects.filter(app='service', service='manager', type='info', name='call').order_by('-created')
+            if len(call_events) > 0:
+                last_call = call_events[0].created
+            if len(start_events) > 0:
+                last_start = start_events[0].created
+                if not last_call or last_call < last_start:
+                    last_call = last_start
+            if last_call:
+                sec = (datetime.datetime.now() - last_call).total_seconds()
+                if sec < 120:
+                    bss_status = 'work'
+            context['bss'] = bss_status
 
         template = loader.get_template('index_user.html')
         return HttpResponse(template.render(context, request))

@@ -1,4 +1,4 @@
-import glob
+import os, glob
 from datetime import datetime
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
@@ -6,8 +6,7 @@ from django.template import loader
 from task.const import ROLE_BACKUP
 from rusel.base.views import Context
 from backup.config import app_config
-from backup.manager import Backup
-from backup.secret import params
+from backup.backup import Backup
 
 class TuneData:
     def tune_dataset(self, data, group):
@@ -25,10 +24,10 @@ class BackupCheckView(Context, TuneData):
 def backup_check(request):
     sources = []
     for src in ['Nuc', 'Vivo']:
-        arch_list = Backup(src, params, datetime(2022, 7, 11).date(), datetime.today().date())
-        # arch_list = Backup(src, params, datetime(2022, 7, 11).date(), datetime(2022, 7, 24).date())
+        arch_list = Backup(src, datetime(2022, 7, 11).date(), datetime.today().date())
         arch_list.fill()
-        fact_arch = [x.replace(params['backup_folder'] + src.lower() + '\\', '') for x in glob.glob(params['backup_folder'] + src.lower() + '\\' + '*.zip')]
+        backup_folder = os.environ.get('DJANGO_BACKUP_FOLDER')
+        fact_arch = [x.replace(backup_folder + src.lower() + '\\', '') for x in glob.glob(backup_folder + src.lower() + '\\' + '*.zip')]
         fact_arch.sort(reverse=True)
         fact_arch_info = [{'name': x, 'valid': arch_list.check_name(x)} for x in fact_arch]
         sources.append({'name': src, 'arch_data': arch_list.data, 'fact_arch': fact_arch_info})

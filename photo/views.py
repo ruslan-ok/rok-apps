@@ -10,7 +10,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from task.const import APP_PHOTO, ROLE_PHOTO, ROLE_APP
 from task.models import Photo
 from rusel.base.dir_views import BaseDirView
-from rusel.files import storage_path, service_path
 from photo.config import app_config
 from photo.forms import PhotoForm
 
@@ -183,8 +182,10 @@ class Entry:
 #----------------------------------
 def get_storage(user, folder, service=False):
     if service:
+        service_path = os.environ.get('DJANGO_SERVICE_PATH')
         path = service_path.format(user.id) + '{}/'.format(folder)
     else:
+        storage_path = os.environ.get('DJANGO_STORAGE_PATH')
         path = storage_path.format(user.username) + '{}/'.format(folder)
     pathlib.Path(path).mkdir(parents=True, exist_ok=True)
     return path

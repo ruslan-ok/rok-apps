@@ -1,4 +1,4 @@
-import calendar, json, urllib
+import os, calendar, json, urllib
 from urllib.parse import urlparse
 from django.utils.crypto import get_random_string
 import requests
@@ -19,10 +19,7 @@ from task.const import *
 from rusel.utils import nice_date
 from rusel.categories import get_categories_list
 from rusel.files import get_files_list_by_path
-from rusel.secret import storage_dvlp
 from fuel.utils import get_rest
-
-storage_path = storage_dvlp
 
 
 class Group(models.Model):
@@ -551,7 +548,8 @@ class Task(models.Model):
             match (role, self.app_warr):
                 case (const.ROLE_WARR, const.NUM_ROLE_WARR):
                     ret = APP_WARR + '/' + self.name.replace('/', '_').replace('\\', '_').replace(':', '_').replace('*', '_').replace('?', '_').replace('«', '_').replace('<', '_').replace('>', '_').replace('|', '_')
-                    
+
+        storage_path = os.environ.get('DJANGO_STORAGE_PATH')
         return storage_path.format(self.user.username) + 'attachments/' + ret + '/'
 
     def get_files_list(self, role):
@@ -1168,3 +1166,18 @@ class PassParams(models.Model):
 
         ret_value = get_random_string(params.ln, allowed_chars)
         return ret_params, params.un, ret_value
+
+EVENT_TYPE_CHOICES = [
+    ('error', _('Error')),
+    ('warning', _('Warning')),
+    ('info', _('Information')),
+    ('debug', _('Debug')),
+]
+
+class ServiceEvent(models.Model):
+    app = models.CharField(_('App name'), max_length=50, blank=False, default=APP_TODO, null=True)
+    service = models.CharField(_('Service name'), max_length=50, blank=False, null=True)
+    created = models.DateTimeField(_('Creation time'), blank=True, default=datetime.now)
+    type = models.CharField(_('Event type'), max_length=20, blank=False, choices=EVENT_TYPE_CHOICES, default='info')
+    name = models.CharField(_('Event name'), max_length=200, blank=False)
+    info = models.TextField(_('Event description'), blank=True, null=True)

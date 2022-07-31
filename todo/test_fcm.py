@@ -1,11 +1,11 @@
-import firebase_admin
+import os, firebase_admin
 from firebase_admin import credentials, messaging
 from firebase_admin.exceptions import FirebaseError
-from secret import cred_cert
 
 def test_firebase_call():
     print('1')
     if not firebase_admin._apps:
+        cred_cert = os.environ.get('FIREBASE_ACCOUNT_CERT')
         cred = credentials.Certificate(cred_cert)
         default_app = firebase_admin.initialize_app(cred)
 

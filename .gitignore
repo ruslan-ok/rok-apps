@@ -1,5 +1,4 @@
 db.sqlite3
-settings.py
 sqlite3.exe
 *.pyc
 django.mo
@@ -21,6 +20,7 @@ static/scss/*.css
 static/scss/*.css.map
 static/backgrounds/*/*.*
 MailBackup.vbs
+*.pem
 
 
 # Windows image file caches

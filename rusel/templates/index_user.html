@@ -12,6 +12,34 @@
       {% if debug and user.username == 'ruslan.ok' %}
         <h6 class="text-danger mb-1">Warning: Debug mode</h6>
       {% endif %}
+
+      <p>Background services: {{ bss }}</p>
+
+      <div class="row">
+        <div class="col">
+          <table class="info-table">
+            <tr>
+              <th>{% trans 'created'|capfirst %}</th> 
+              <th>{% trans 'app'|capfirst %}</th> 
+              <th>{% trans 'service'|capfirst %}</th> 
+              <th>{% trans 'type'|capfirst %}</th> 
+              <th>{% trans 'event'|capfirst %}</th> 
+              <th>{% trans 'info'|capfirst %}</th> 
+            </tr>
+            {% for event in event_log %}
+              <tr> 
+                <td>{{ event.created|date:'d.m.Y H:i:s' }}</td> 
+                <td>{{ event.app }}</td>
+                <td>{{ event.service }}</td>
+                <td>{{ event.type }}</td>
+                <td>{{ event.name }}</td>
+                <td>{% if event.info %}{{ event.info }}{% endif %}</td>
+                </td> 
+              </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
       
       {% include "widgets/weather.html" %}
       {#<a href="{% url 'trip:main' %}">{{ trip_summary|safe }}</a>#}

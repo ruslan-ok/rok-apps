@@ -1,4 +1,4 @@
-import sys
+import os, sys
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.shortcuts import resolve_url
@@ -36,7 +36,6 @@ from django.utils.crypto import get_random_string
 from task.const import ROLE_ACCOUNT
 from rusel.context import get_base_context
 from account.models import UserExt
-from rusel.secret import demouserpassword
 
 UserModel = get_user_model()
 
@@ -478,8 +477,9 @@ def avatar(request):
 
 def demo(request):
     if not User.objects.filter(username = 'demouser').exists():
+        demouserpassword = os.environ.get('DJANGO_DEMOUSER_PWRD')
         User.objects.create_user('demouser', 'demouser@rusel.by', demouserpassword)
-    user = authenticate(username = 'demouser', password = demouserpassword)
+    user = authenticate(username='demouser', password=demouserpassword)
     if user is not None:
         login(request, user)
     return HttpResponseRedirect(reverse_lazy('index'))

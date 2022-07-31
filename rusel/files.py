@@ -1,11 +1,6 @@
 import os
 from django.urls import reverse
 from django.core.files.storage import FileSystemStorage
-from rusel.secret import storage_dvlp, storage_prod, service_dvlp, service_prod, folder_dvlp, folder_prod
-
-folder_path  = folder_dvlp
-storage_path = storage_dvlp
-service_path = service_dvlp
 
 file_storage_url = 'doc/'
     
