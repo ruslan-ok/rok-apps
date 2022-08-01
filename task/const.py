@@ -145,6 +145,7 @@ NUM_ROLE_CHART_WAIST = 36
 NUM_ROLE_CHART_TEMP = 37
 NUM_ROLE_STORE_HIST = 38
 NUM_ROLE_BACKUP = 39
+NUM_ROLE_LOGS = 40
 
 ROLE_TODO        = 'todo'            
 ROLE_NOTE        = 'note'            
@@ -186,6 +187,7 @@ ROLE_PHOTO       = 'photo'
 ROLE_ACCOUNT     = 'account'     
 ROLE_SEARCH_RESULTS = 'search'
 ROLE_BACKUP      = 'backup'
+ROLE_LOGS        = 'logs'
 
 ALL_ROLES = (
     ROLE_TODO,             
@@ -227,6 +229,7 @@ ALL_ROLES = (
     ROLE_ACCOUNT,  
     ROLE_SEARCH_RESULTS,
     ROLE_BACKUP,
+    ROLE_LOGS,
     )
 
 ROLES_IDS = {
@@ -247,6 +250,7 @@ ROLES_IDS = {
                 ROLE_CHILDREN: NUM_ROLE_CHILD, ROLE_APPOINTMENT: NUM_ROLE_APPOINTMENT, ROLE_EDUCATION: NUM_ROLE_EDUCATION, 
                 ROLE_EMPLOYEE_PERIOD: NUM_ROLE_EMPL_PER, ROLE_PAY_TITLE: NUM_ROLE_PAY_TITLE, ROLE_PAYMENT: NUM_ROLE_PAYMENT },
     APP_PHOTO: { ROLE_PHOTO: NUM_ROLE_PHOTO },
+    APP_LOGS: { ROLE_LOGS: NUM_ROLE_LOGS },
     APP_BACKUP: { ROLE_BACKUP: NUM_ROLE_BACKUP },
     APP_ALL: { ROLE_SEARCH_RESULTS: NONE },
 }
@@ -352,6 +356,7 @@ ROLE_ICON = {
     ROLE_PHOTO: 'image',
     ROLE_ACCOUNT: 'person-check',
     ROLE_SEARCH_RESULTS: 'search-results',
+    ROLE_LOGS: 'card-list',
     ROLE_BACKUP: 'bootstrap',
 }
 

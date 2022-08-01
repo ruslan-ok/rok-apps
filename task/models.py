@@ -1181,3 +1181,8 @@ class ServiceEvent(models.Model):
     type = models.CharField(_('Event type'), max_length=20, blank=False, choices=EVENT_TYPE_CHOICES, default='info')
     name = models.CharField(_('Event name'), max_length=200, blank=False)
     info = models.TextField(_('Event description'), blank=True, null=True)
+
+    def s_info(self):
+        if self.info:
+            return self.info
+        return ''

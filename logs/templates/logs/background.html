@@ -1,0 +1,34 @@
+{% extends "base/page_content.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link href="{% static 'scss/home.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block main %}
+      <div class="row">
+        <h5>Background services: <span style="color:{{status_color}}">{{ status }}</span></h5>
+
+        <div class="col">
+            <table class="info-table">
+              <tr>
+                <th>{% trans 'date'|capfirst %}</th>
+                <th>{% trans 'time'|capfirst %}</th>
+                <th>{% trans 'event'|capfirst %}</th>
+                <th>{% trans 'type'|capfirst %}</th>
+                <th>{% trans 'info'|capfirst %}</th>
+              </tr>
+              {% for event in events %}
+                <tr>
+                  <td>{{ event.created|date:'d.m.Y' }}</td>
+                  <td>{{ event.created|date:'G:i:s' }}</td>
+                  <td>{{ event.name }}</td>
+                  <td>{{ event.type }}</td>
+                  <td>{{ event.s_info }}</td>
+                </tr>
+              {% endfor %}
+            </table>
+        </div>
+      </div>
+{% endblock %}

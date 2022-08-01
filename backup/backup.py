@@ -148,6 +148,7 @@ class Backup():
         return False
 
     def backup_db(self, zf):
+        self.log('info', 'stage', 'backup_db()')
         file = 'mysql_backup.sql'
         sql_util = os.environ.get('DJANGO_BACKUP_SQL_UTIL')
         sql_user = os.environ.get('DJANGO_BACKUP_SQL_USER')
@@ -165,6 +166,7 @@ class Backup():
         os.remove(file)
 
     def backup_mail(self, zf):
+        self.log('info', 'stage', 'backup_mail()')
         script = os.environ.get('DJANGO_BACKUP_MAIL_UTIL')
         wait_time = os.environ.get('DJANGO_BACKUP_MAIL_WAIT')
         ret = subprocess.run('cscript ' + script)
@@ -212,6 +214,7 @@ class Backup():
 
     # Архивирование
     def archivate(self):
+        self.log('info', 'stage', 'archivate()')
         if self.mode == 'full':
             dirs_raw = self.full_dirs
         else:
@@ -245,6 +248,7 @@ class Backup():
 
     # Удаление неактуальных архивов
     def zip(self):
+        self.log('info', 'stage', 'zip()')
         arh_path_list = glob.glob(self.work_dir + '\\*.zip')
         for x in arh_path_list:
             name = x.split('\\')[-1]
@@ -302,6 +306,7 @@ class Backup():
 
     # Синхронизация
     def synch(self):
+        self.log('info', 'stage', 'synch()')
         syncs_raw = os.environ.get('DJANGO_BACKUP_SYNCS', '')
         if not syncs_raw:
             return
@@ -336,14 +341,14 @@ class Backup():
         arch_name = self.get_arh_name_by_day(self.last_day)
         return not os.path.isfile(self.work_dir + '\\' + arch_name)
 
-    def run(self, log_event=None):
-        self.log_event = log_event
+    def run(self):
+        self.log('info', 'stage', 'run()')
         try:
             self.content.clear()
             self.archivate()      # Архивирование
             self.zip()            # Удаление неактуальных архивов
             self.synch()          # Синхронизация
-            self.log('info', 'ok', '')
+            self.log('info', 'stage', 'done')
         except Exception as ex:
             self.log('error', 'exception', str(ex))
 

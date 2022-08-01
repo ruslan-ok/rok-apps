@@ -5,7 +5,15 @@ A regular call to the API method that provides the operation of various site ser
 import os, requests, time, smtplib, json
 from email.message import EmailMessage
 
+def console_log(status, mess=None):
+    print(status)
+    if mess:
+        print(mess)
+
 def notify(host, user, pwrd, recipients, status, mess, maintype='text', subtype='plain'):
+    host = os.environ.get('DJANGO_HOST')
+    if host == 'localhost':
+        return console_log(status, mess)
     s = smtplib.SMTP(host=host, port=25)
     s.starttls()
     s.login(user, pwrd)
@@ -14,7 +22,7 @@ def notify(host, user, pwrd, recipients, status, mess, maintype='text', subtype=
     msg['To'] = recipients
     msg['Subject']='Services Notificator: ' + status
     if subtype == 'plain':
-        msg.set_content(mess)
+        msg.set_content('Background process (/service/_service.py):\n\n' + mess)
     else:
         msg.set_content(mess, maintype=maintype, subtype=subtype)
     s.send_message(msg)
@@ -40,20 +48,22 @@ if (__name__ == '__main__'):
                 extra_param = '&started=true'
             resp = requests.get(api_url + extra_param, headers=headers, verify=verify)
             started = False
+            console_log('started')
+        
+            if (resp.status_code != 200):
+                notify(mail_host, user, pwrd, recipients, '[x] error ' + str(resp.status_code), resp.content, maintype='text', subtype='html')
+                # break
+
+            data_str = resp.json()
+            data = json.loads(data_str)
+            status = '[x] unexpected response'
+            if ('result' in data):
+                status = data['result']
+            if (status != 'ok'):
+                info = json.dumps(data)
+                notify(mail_host, user, pwrd, recipients, status, info)
+            time.sleep(timer_interval_sec)
         except Exception as ex:
             notify(mail_host, user, pwrd, recipients, '[x] exception', str(ex))
-            break
-        
-        if (resp.status_code != 200):
-            notify(mail_host, user, pwrd, recipients, '[x] error ' + str(resp.status_code), resp.content, maintype='text', subtype='html')
-            break
-
-        data_str = resp.json()
-        data = json.loads(data_str)
-        status = '[x] unexpected response'
-        if ('result' in data):
-            status = data['result']
-        if (status != 'ok'):
-            info = json.dumps(data)
-            notify(mail_host, user, pwrd, recipients, status, info)
-        time.sleep(timer_interval_sec)
+            # break
+    console_log('finished')

@@ -1,0 +1,59 @@
+{% extends "base/page_content.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link href="{% static 'scss/home.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block main %}
+      <div class="row">
+        <div class="col">
+          {% if show_stat %}
+            <h4>{% trans 'site statistics'|capfirst %}</h4>
+            <table>
+              <tr> <th>{% trans 'application'|capfirst %}</th> <th>{% trans 'visitor'|capfirst %}</th> <th>{% trans 'page'|capfirst %}</th> </tr>
+              {% for app, hosts in stat.items %}
+                <tr> <td>{{ app }}</td> <td></td> <td></td> </tr>
+                {% for host, pages in hosts.items %}
+                  <tr> <td></td> <td>{{ host }}</td> <td></td> </tr>
+                    {% for page in pages %}
+                      <tr> <td></td> <td></td> <td>{{ page }}</td> </tr>
+                    {% endfor %}
+                {% endfor %}
+              {% endfor %}
+            </table>
+          {% endif %}
+          {% if indicators %}
+            <h4>{% trans 'site statistics'|capfirst %}</h4>
+            <table>
+              <tr> <th>{% trans 'indictor'|capfirst %}</th> <th>{% trans 'value'|capfirst %}</th> </tr>
+              {% for x in indicators %}
+                <tr> <td>{{ x.0 }}</td> <td>{{ x.1 }}</td> </tr>
+              {% endfor %}
+            </table>
+          {% endif %}
+        </div>
+        <div class="col">
+          <h4 class="mt-5">{{ log_title }}</h4>
+          <table class="info-table">
+            <tr>
+              <th>{% trans 'date'|capfirst %}</th>
+              <th>{% trans 'time'|capfirst %}</th>
+              <th>{% trans 'event'|capfirst %}</th>
+              <th>{% trans 'type'|capfirst %}</th>
+              <th>{% trans 'info'|capfirst %}</th>
+            </tr>
+            {% for event in events %}
+              <tr>
+                <td>{{ event.strted|date:'d.m.Y' }}</td>
+                <td>{{ event.strted|date:'G:i:s' }}</td>
+                <td>{{ event.name }}</td>
+                <td>{{ event.type }}</td>
+                <td>{{ event.info }}</td>
+              </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+{% endblock %}

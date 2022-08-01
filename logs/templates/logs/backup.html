@@ -1,0 +1,69 @@
+{% extends "base/page_content.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link href="{% static 'scss/home.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block main %}
+    <div class="row">
+        {% for src in sources %}
+            <div class="col">
+                <h3>{{ src.name }}</h3>
+                <h5>Etalon</h5>
+                <table class="info-table">
+                    <thead>
+                        <tr>
+                            <td>Age</td>
+                            <td>Mode</td>
+                            <td>Etalon</td>
+                            <td>Range</td>
+                            <td>Valid</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for x in src.arch_data %}
+                            <tr>
+                                <td>{{ x.age }}</td>
+                                <td>{{ x.mode }}</td>
+                                <td>{{ x.name }}</td>
+                                <td>{{ x.min_range }}-{{ x.max_range }}</td>
+                                <td>{{ x.valid }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <h5>Fact</h5>
+                <ul>
+                    {% for x in src.fact_arch %}
+                        <li style="{% if not x.valid %} color: red;{% endif %}">{{x.name}}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+    <div class="row">
+        <div class="col">
+            <table class="info-table">
+              <tr>
+                <th>{% trans 'date'|capfirst %}</th>
+                <th>{% trans 'time'|capfirst %}</th>
+                <th>{% trans 'event'|capfirst %}</th>
+                <th>{% trans 'type'|capfirst %}</th>
+                <th>{% trans 'info'|capfirst %}</th>
+              </tr>
+              {% for event in events %}
+                <tr>
+                  <td>{{ event.created|date:'d.m.Y' }}</td>
+                  <td>{{ event.created|date:'G:i:s' }}</td>
+                  <td>{{ event.name }}</td>
+                  <td>{{ event.type }}</td>
+                  <td>{{ event.s_info }}</td>
+                </tr>
+              {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

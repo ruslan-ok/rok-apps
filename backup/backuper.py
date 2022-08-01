@@ -16,5 +16,8 @@ class Backuper(SiteService):
         return self.backup.ripe()
 
     def process(self):
-        self.backup.run(False)
-        return self.backup.last_day + timedelta(days=1)
+        self.log_event('info', 'start', self.backup.device)
+        self.backup.run()
+        ret = self.backup.last_day + timedelta(days=1)
+        self.log_event('info', 'stop', self.backup.device + '. Next = ' + str(ret))
+        return ret

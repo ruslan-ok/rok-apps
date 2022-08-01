@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     'task.apps.TaskConfig',
     'todo.apps.TodoConfig',
     'warr.apps.WarrConfig',
-    'backup.apps.BackupConfig',
     'logs.apps.LogsConfig',
     'django.contrib.admin',
     'django.contrib.auth',

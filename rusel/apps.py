@@ -16,7 +16,7 @@ APPS = {
     APP_WARR:    ('award',         '/warr/'),
     APP_PHOTO:   ('image',         '/photo/'),
     APP_ADMIN:   ('people',        '/admin/'),
-    APP_BACKUP:  ('bootstrap',     '/backup/'),
+    APP_LOGS:    ('card-list',     '/logs/'),
 }
 
 def _get_app_human_name(app):
@@ -50,8 +50,8 @@ def _get_app_human_name(app):
         return _('health')
     if (app == APP_ADMIN):
         return _('administrative tools')
-    if (app == APP_BACKUP):
-        return _('backup check')
+    if (app == APP_LOGS):
+        return _('logs')
     return None
 
 def get_app_human_name(app):
@@ -65,7 +65,7 @@ def get_app_human_name(app):
 def get_apps_list(user, current):
     apps = []
     for app in APPS:
-        if (app in (APP_STORE, APP_TRIP, APP_APART, APP_WORK, APP_HEALTH, APP_WARR, APP_DOCS, APP_PHOTO, APP_BACKUP)) and (user.username != 'ruslan.ok'):
+        if (app in (APP_STORE, APP_TRIP, APP_APART, APP_WORK, APP_HEALTH, APP_WARR, APP_DOCS, APP_PHOTO, APP_LOGS)) and (user.username != 'ruslan.ok'):
             continue
         if (app == APP_ADMIN) and (user.username != 'admin'):
             continue

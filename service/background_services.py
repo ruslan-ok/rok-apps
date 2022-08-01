@@ -10,7 +10,9 @@ from logs.log_analyzer import LogAnalyzer
 from task.models import Group, Task
 
 def log_event(name):
-    ServiceEvent.objects.create(app='service', service='manager', type='info', name=name)
+    event = ServiceEvent.objects.create(app='service', service='manager', type='info', name=name)
+    if name == 'call':
+        ServiceEvent.objects.filter(app='service', service='manager', type='info', name=name).exclude(id=event.id).delete()
 
 def process_service(service_class):
     match service_class:
