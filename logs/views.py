@@ -8,6 +8,7 @@ from logs.config import app_config
 from logs.log_data.apache import ApacheLogData
 from logs.log_data.background import BackgroundLogData
 from logs.log_data.backup import BackupLogData
+from logs.log_data.backup_check import BackupCheckLogData
 from logs.log_data.intervals import IntervalsLogData
 from logs.log_data.notification import NotificationLogData
 from logs.log_data.versions import VersionsLogData
@@ -33,6 +34,7 @@ def log_view(request):
     data = None
     match view.config.cur_view_group.view_id:
         case 'backup': data = BackupLogData()
+        case 'backup_check': data = BackupCheckLogData()
         case 'apache': data = ApacheLogData()
         case 'notification': data = NotificationLogData()
         case 'intervals': data = IntervalsLogData()

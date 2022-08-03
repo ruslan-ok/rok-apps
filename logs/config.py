@@ -19,6 +19,11 @@ app_config = {
         },
         'backup': {
             'icon': 'card-list',
+            'title': _('Backup log'),
+            'hide_qty': True,
+        },
+        'backup_check': {
+            'icon': 'card-list',
             'title': _('Backup check'),
             'hide_qty': True,
         },
