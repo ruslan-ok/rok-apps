@@ -24,7 +24,7 @@ class BackgroundLogData(LogData):
             sec = (datetime.now() - last_call).total_seconds()
             if sec < 120:
                 status = 'work'
-                color = 'green'
+                color = '#12AD2B'
         context['status'] = status
         context['status_color'] = color
         return context

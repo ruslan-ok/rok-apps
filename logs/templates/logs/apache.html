@@ -46,11 +46,11 @@
             </tr>
             {% for event in events %}
               <tr>
-                <td>{{ event.strted|date:'d.m.Y' }}</td>
-                <td>{{ event.strted|date:'G:i:s' }}</td>
+                <td>{{ event.created|date:'d.m.Y' }}</td>
+                <td>{{ event.created|date:'G:i:s' }}</td>
                 <td>{{ event.name }}</td>
                 <td>{{ event.type }}</td>
-                <td>{{ event.info }}</td>
+                <td>{{ event.s_info }}</td>
               </tr>
             {% endfor %}
           </table>

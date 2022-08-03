@@ -10,7 +10,7 @@ from service.site_service import SiteService
 class Notificator(SiteService):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(APP_TODO, 'notificator', *args, **kwargs)
+        super().__init__(APP_TODO, 'notificator', 'Рассылка уведомлений о задачах', *args, **kwargs)
         self.host = os.environ.get('DJANGO_HOST_API', 'http://localhost:8000')
         self.cred_cert = os.environ.get('FIREBASE_ACCOUNT_CERT')
 
@@ -25,16 +25,16 @@ class Notificator(SiteService):
             return False
         now = datetime.now()
         self.tasks = Task.objects.filter(completed=False, remind__lt=now).exclude(remind=None)
-        # self.log_event('debug', 'ripe', 'result = ' + str(len(self.tasks) > 0))
+        #self.log_event('info', 'ripe', 'result = ' + str(len(self.tasks) > 0))
         return len(self.tasks) > 0
 
     def process(self):
         """Generating of reminder messages.
         """
+        self.log_event('info', 'process', 'task qnt = ' + str(len(self.tasks)))
         ret = False
         if not self.ripe():
             return ret
-        # self.log_event('debug', 'process', 'task qnt = ' + str(len(self.tasks)))
         for task in self.tasks:
             group_path = ''
             group = None

@@ -11,12 +11,13 @@ from fuel.utils import LANG_EN, LANG_RU, get_rest, month_declination
 class ServInterval(SiteService):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(APP_FUEL, 'serv_interval', *args, **kwargs)
+        super().__init__(APP_FUEL, 'serv_interval', 'Контроль сервисных интервалов обслуживания автомобиля', *args, **kwargs)
 
     def ripe(self):
         return True
 
     def process(self):
+        self.log_event('info', 'start')
         parts = Task.objects.filter(app_fuel=NUM_ROLE_PART)
         users = []
         status = []
@@ -66,80 +67,72 @@ class ServInterval(SiteService):
                             part.save()
                         if part.user not in users:
                             users.append(part.user)
-        #l_users = len(users)
-        #l_status = len(status)
-        #dbg += f'z04: users:{l_users}, status:{l_status}'
-        return send_notifications(users, status, rests) #, dbg)
+        self.send_notifications(users, status, rests)
+        self.log_event('info', 'stop')
+        return True
 
-def send_notifications(users, status_parts, rests, dbg=''):
-    ret = 'ok' #f'users: {len(users)}, status_parts: {len(status_parts)}'
-    #mail_qnt = 0
-    for user in users:
-        user_parts = Task.objects.filter(user=user.id, app_fuel=NUM_ROLE_PART).exclude(fuel_warn=None, fuel_expir=None)
-        context = {'cars': []}
-        cars = []
-        for part in user_parts:
-            if part.task_1 not in cars and part.task_1.car_notice:
-                cars.append(part.task_1)
-        for car in cars:
-            car_info = {'name': car.name, 'parts_1': [], 'parts_2': []}
+    def send_notifications(self, users, status_parts, rests, dbg=''):
+        for user in users:
+            user_parts = Task.objects.filter(user=user.id, app_fuel=NUM_ROLE_PART).exclude(fuel_warn=None, fuel_expir=None)
+            context = {'cars': []}
+            cars = []
             for part in user_parts:
-                if car != part.task_1:
-                    continue
+                if part.task_1 not in cars and part.task_1.car_notice:
+                    cars.append(part.task_1)
+            for car in cars:
+                car_info = {'name': car.name, 'parts_1': [], 'parts_2': []}
+                for part in user_parts:
+                    if car != part.task_1:
+                        continue
 
-                user_ext = UserExt.objects.filter(user=part.user).get()
-                if user_ext.lang == 1:
-                    lang = LANG_RU
-                else:
-                    lang = LANG_EN
+                    user_ext = UserExt.objects.filter(user=part.user).get()
+                    if user_ext.lang == 1:
+                        lang = LANG_RU
+                    else:
+                        lang = LANG_EN
 
-                if lang == LANG_RU:
-                    lbl_km = 'км'
-                else:
-                    lbl_km = 'km'
+                    if lang == LANG_RU:
+                        lbl_km = 'км'
+                    else:
+                        lbl_km = 'km'
 
-                part_termin = ''
+                    part_termin = ''
 
-                if part.part_chg_km:
-                    part_termin = '{} {}'.format(part.part_chg_km, lbl_km)
+                    if part.part_chg_km:
+                        part_termin = '{} {}'.format(part.part_chg_km, lbl_km)
 
-                if part.part_chg_mo:
-                    if (len(part_termin) > 0):
-                        part_termin += ' '
-                    part_termin += month_declination(part.part_chg_mo, lang)
-                
-                part_rest = rests[str(part.id)]
-                color = 'tomato'
-                if part_rest['class'] == 'error':
-                    color = 'red'
+                    if part.part_chg_mo:
+                        if (len(part_termin) > 0):
+                            part_termin += ' '
+                        part_termin += month_declination(part.part_chg_mo, lang)
+                    
+                    part_rest = rests[str(part.id)]
+                    color = 'tomato'
+                    if part_rest['class'] == 'error':
+                        color = 'red'
 
-                if part in status_parts:
-                    car_info['parts_1'].append({'name': part.name, 'termin': part_termin, 'color': color, 'rest': part_rest['rest']})
-                else:
-                    car_info['parts_2'].append({'name': part.name, 'termin': part_termin, 'color': color, 'rest': part_rest['rest']})
+                    if part in status_parts:
+                        car_info['parts_1'].append({'name': part.name, 'termin': part_termin, 'color': color, 'rest': part_rest['rest']})
+                    else:
+                        car_info['parts_2'].append({'name': part.name, 'termin': part_termin, 'color': color, 'rest': part_rest['rest']})
 
-            context['cars'].append(car_info)
+                context['cars'].append(car_info)
 
-        user_ext = UserExt.objects.filter(user=user.id).get()
-        if user_ext.lang == 1:
-            email_template_name = 'fuel/notification_email_ru.html'
-            email_subj = 'Контроль сервисных интервалов'
-        else:
-            email_template_name = 'fuel/notification_email_en.html'
-            email_subj = 'Car Service Interval Notice'
-        body = loader.render_to_string(email_template_name, context)
-        user_ext.fuel_notice = datetime.now()
-        user_ext.save()
-        try:
-            mail_from = os.environ.get('DJANGO_MAIL_USER')
-            msg = EmailMessage(email_subj, body, mail_from, [user.email])
-            msg.content_subtype = "html"
-            msg.send()
-            #mail_qnt += 1
-        except:
-            ret = 'error'
-
-    #if ret != 'error':
-    #    ret += f', mails: {mail_qnt}'
-    #ret += dbg
-    return ret
+            user_ext = UserExt.objects.filter(user=user.id).get()
+            if user_ext.lang == 1:
+                email_template_name = 'fuel/notification_email_ru.html'
+                email_subj = 'Контроль сервисных интервалов'
+            else:
+                email_template_name = 'fuel/notification_email_en.html'
+                email_subj = 'Car Service Interval Notice'
+            body = loader.render_to_string(email_template_name, context)
+            user_ext.fuel_notice = datetime.now()
+            user_ext.save()
+            try:
+                mail_from = os.environ.get('DJANGO_MAIL_USER')
+                msg = EmailMessage(email_subj, body, mail_from, [user.email])
+                msg.content_subtype = "html"
+                msg.send()
+                self.log_event('info', 'notify', user.email + ' - ok')
+            except Exception as e:
+                self.log_event('error', 'notify', user.email + ' - exception: ' + str(e))

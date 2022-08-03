@@ -41,7 +41,7 @@ request_pattern = re.compile(r'\s+'.join(request_parts)+r'\s*\Z')
 class LogAnalyzer(SiteService):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(APP_LOGS, 'logs', *args, **kwargs)
+        super().__init__(APP_LOGS, 'logs', 'Анализ логов сервера Apache', *args, **kwargs)
         self.apache_log = os.environ.get('APACHE_LOG')
 
     def read_log_sz(self):
@@ -62,9 +62,9 @@ class LogAnalyzer(SiteService):
         try:
             self.new_log_sz = Path(self.apache_log).stat().st_size
             ret = (self.new_log_sz > self.prev_log_sz)
-        except:
+        except Exception as ex:
+            self.log_event('error', 'exception', str(ex))
             ret = False
-        # self.log_event('debug', 'ripe', 'result = ' + str(ret))
         return ret
 
     def process(self):

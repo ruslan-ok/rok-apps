@@ -43,7 +43,7 @@ APP_NAME = {
     APP_ADMIN: 'administration',
     APP_ALL: 'all applications',
     APP_BACKUP: 'backup check',
-    APP_LOGS: 'apache logs analyse'
+    APP_LOGS: 'view logs',
 }
 
 FOLDER_NAV_APPS = [APP_PHOTO, APP_DOCS, APP_WARR]

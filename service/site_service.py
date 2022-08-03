@@ -9,10 +9,11 @@ from task.models import ServiceEvent
 
 class SiteService():
 
-    def __init__(self, app, service_name, *args, **kwargs):
+    def __init__(self, app, service_name, service_descr=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.app = app
         self.service_name = service_name
+        self.service_descr = service_descr
         self.mail_host = os.environ.get('DJANGO_HOST_MAIL')
         self.user = os.environ.get('DJANGO_MAIL_USER')
         self.pwrd = os.environ.get('DJANGO_MAIL_PWRD')
@@ -31,14 +32,20 @@ class SiteService():
             s.starttls()
             s.login(self.user, self.pwrd)
             msg = EmailMessage()
-            msg['From'] = self.user
+            if self.service_descr:
+                msg['From'] = self.service_descr + '<' + self.user + '>'
+            else:
+                msg['From'] = self.user
             msg['To'] = self.recipients
             match type:
                 case 'error': prefix = 'x'
                 case 'warning': prefix = '!'
                 case _: prefix = 'i'
             msg['Subject']='Service Event: [' + prefix + ']' + name
-            msg.set_content(info)
+            if info:
+                msg.set_content(info)
+            else:
+                msg.set_content(name)
             s.send_message(msg)
             del msg
             s.quit()

@@ -3,10 +3,11 @@
 A regular call to the API method that provides the operation of various site services.
 """
 import os, requests, time, smtplib, json
+from datetime import datetime
 from email.message import EmailMessage
 
 def console_log(status, mess=None):
-    print(status)
+    print(datetime.now().strftime('%Y.%m.%d %H:%M') + ' ' + status)
     if mess:
         print(mess)
 
@@ -47,8 +48,11 @@ if (__name__ == '__main__'):
             if started:
                 extra_param = '&started=true'
             resp = requests.get(api_url + extra_param, headers=headers, verify=verify)
-            started = False
-            console_log('started')
+            if started:
+                started = False
+                console_log('started')
+            else:
+                console_log('call')
         
             if (resp.status_code != 200):
                 notify(mail_host, user, pwrd, recipients, '[x] error ' + str(resp.status_code), resp.content, maintype='text', subtype='html')

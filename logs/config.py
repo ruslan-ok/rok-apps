@@ -26,11 +26,13 @@ app_config = {
             'icon': 'card-list',
             'title': _('Apache logs analyzer'),
             'hide_qty': True,
+            'hide_on_host': 'localhost',
         },
         'notification': {
             'icon': 'card-list',
             'title': _('Notification report'),
             'hide_qty': True,
+            'hide_on_host': 'localhost',
         },
         'intervals': {
             'icon': 'card-list',

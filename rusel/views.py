@@ -1,3 +1,4 @@
+import os
 from django.http import HttpResponse
 from django.template import loader
 from django.utils.translation import gettext_lazy as _
@@ -53,6 +54,8 @@ class ListView(BaseListView, TuneData):
             context['show_stat'] = (len(stat) > 0)
             context['stat'] = stat
             #context['trip_summary'] = trip_summary(request.user.id)
+            context['weather_api_key'] = os.environ.get('OPENWEATHER_API_KEY')
+            context['weather_city_id'] = os.environ.get('OPENWEATHER_CITY_ID')
 
             context['last_visited'] = VisitedHistory.objects.filter(user=request.user.id).order_by('-stamp')[:MAX_LAST_VISITED]
 

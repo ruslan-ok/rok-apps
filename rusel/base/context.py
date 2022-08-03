@@ -60,6 +60,9 @@ class Context:
             common_url = reverse(self.config.app + ':list')
         nav_item=Task.get_active_nav_item(self.request.user.id, self.config.app)
         for key, value in views.items():
+            if 'hide_on_host' in value:
+                if value['hide_on_host'] == os.environ.get('DJANGO_HOST'):
+                    continue
             url = common_url
             determinator = 'view'
             view_id = self.config.main_view
@@ -207,7 +210,7 @@ class DirContext(Context):
         s_node = node
         if node:
             s_node = node + '/'
-        p = path
+        p = path.replace('\\', '/')
         for d in ld:
             dd = d.replace('\\', '/')
             name = dd.split(p)[1].strip('/')

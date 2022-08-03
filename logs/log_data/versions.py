@@ -10,8 +10,6 @@ class VersionsLogData(LogData):
         context['python_version'] = python_version()
         context['django_version'] = '{}.{}.{} {}'.format(*django.VERSION)
         context['drf_version'] = '{}'.format(rest_framework.VERSION)
-        context['weather_api_key'] = os.environ.get('OPENWEATHER_API_KEY')
-        context['weather_city_id'] = os.environ.get('OPENWEATHER_CITY_ID')
         host = os.environ.get('DJANGO_HOST')
         api_host = os.environ.get('DJANGO_HOST_API')
         if host != 'localhost':
