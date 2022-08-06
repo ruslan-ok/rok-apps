@@ -16,7 +16,6 @@ def log_event(name, type=EventType.INFO, info=None):
         ServiceEvent.objects.filter(device=device, app='service', service='manager', type=EventType.INFO, name=name, created__date=date.today()).exclude(id=event.id).delete()
 
 def process_service(service_name, service_class):
-    log_event('method', info=f'+process_service("{service_name}", {service_class})')
     match service_class:
         case 'backup.backuper.BackupNucShort':
             service = BackupNucShort()
@@ -36,16 +35,13 @@ def process_service(service_name, service_class):
     if not service or not service.ripe():
         if not service:
             log_event('process', info=f'Service with name "{service_class}" not found. Task "{service_name}".', type=EventType.WARNING)
-        log_event('method', info='-process_service() - 1')
         return False
     try:
         log_event('process', info=service.service_descr)
         completed = service.process()
-        log_event('method', info='-process_service() - 2')
         return completed
     except Exception as ex:
         log_event('exception', info=f'Exception {str(ex)}', type=EventType.ERROR)
-        log_event('method', info='-process_service() - 3')
         return False
 
 def _check_services(started):
@@ -54,7 +50,6 @@ def _check_services(started):
     grp = Group.objects.filter(id=svc_grp).get()
     services = Task.objects.filter(groups=grp, completed=False)
     now = datetime.now()
-    log_event('info', info=f'now = {str(now)}, len(services) = {str(len(services))}')
     for service_task in services:
         if not service_task.stop or service_task.stop <= now:
             completed = process_service(service_task.name, service_task.info)

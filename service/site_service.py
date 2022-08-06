@@ -22,8 +22,6 @@ class SiteService():
         self.device = os.environ.get('DJANGO_DEVICE')
         self.use_log_api = (self.device != 'Nuc')
         self.local_log = local_log
-        ServiceEvent.objects.create(device=self.device, app='service', service='manager', type=EventType.DEBUG, name='init', 
-            info=f'SiteService(app="{self.app}", service="{self.service_name}")')
 
     def get_extra_context(self, request):
         context = {}
@@ -40,8 +38,6 @@ class SiteService():
         return datetime.now() + timedelta(hours=1)
 
     def log_event(self, type, name, info=None, send_mail=False):
-        ServiceEvent.objects.create(device=self.device, app='service', service='manager', type=EventType.DEBUG, name='init', 
-        info=f'SiteService.log_event(device={self.device}, app={self.app}, service={self.service_name}, type={str(type)}, name="{name}", info="{str(info)}", use_log_api={str(self.use_log_api)}, local_log={str(self.local_log)})')
         if self.use_log_api and not self.local_log:
             self.log_event_api(type, name, info)
         else:

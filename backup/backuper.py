@@ -28,20 +28,15 @@ class Backuper(SiteService):
                 self.service_name = ROLE_BACKUP_VIVO_FULL
                 self.service_descr = 'Сервис "Полное резервное копирование Vivo"'
         super().__init__(APP_BACKUP, self.service_name, self.service_descr, local_log=local_log, *args, **kwargs)
-        ServiceEvent.objects.create(device=self.device, app='service', service='manager', type=EventType.DEBUG, name='init', info='Backuper')
 
     def ripe(self):
-        ServiceEvent.objects.create(device=self.device, app='service', service='manager', type=EventType.DEBUG, 
-            name='method', info=f'+ripe(): self.device={str(self.device)}, self.backup_device={str(self.backup_device)}')
         if self.device != self.backup_device:
-            ServiceEvent.objects.create(device=self.device, app='service', service='manager', type=EventType.DEBUG, name='method', info='-ripe(): False')
             return False
         self.backup = Backup(self.device, datetime(2022, 7, 11).date(), datetime.today().date(), log_event=self.log_event)
         self.backup.fill()
         ret = self.backup.ripe()
-        ServiceEvent.objects.create(device=self.device, app='service', service='manager', type=EventType.DEBUG, name='method', info=f'-ripe(): {str(ret)}')
         return ret
-        
+
     def process(self):
         self.log_event(EventType.INFO, 'start', self.backup.device)
         self.backup.run()
