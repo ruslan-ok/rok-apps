@@ -368,7 +368,12 @@ class Backup():
     def ripe(self):
         self.count_mode(self.last_day) # Выбор режима архивирования
         arch_name = self.get_arh_name_by_day(self.last_day)
-        return not os.path.isfile(self.work_dir + '\\' + arch_name)
+        f1 = self.work_dir + '\\' + arch_name
+        if '-full' in arch_name:
+            f2 = self.work_dir + '\\' + arch_name.replace('-full', '-short')
+        else:
+            f2 = self.work_dir + '\\' + arch_name.replace('-short', '-full')
+        return not os.path.isfile(f1) and not os.path.isfile(f2)
 
     def run(self):
         self.log(EventType.INFO, 'method', '+run() started')

@@ -2,6 +2,7 @@ import os
 from datetime import datetime, timedelta
 from django.core.mail import EmailMessage
 from django.template import loader
+from logs.models import EventType
 from service.site_service import SiteService
 from account.models import UserExt
 from task.const import APP_FUEL, NUM_ROLE_PART, NUM_ROLE_SERVICE
@@ -17,7 +18,7 @@ class ServInterval(SiteService):
         return True
 
     def process(self):
-        self.log_event('info', 'start')
+        self.log_event(EventType.INFO, 'start')
         parts = Task.objects.filter(app_fuel=NUM_ROLE_PART)
         users = []
         status = []
@@ -68,7 +69,7 @@ class ServInterval(SiteService):
                         if part.user not in users:
                             users.append(part.user)
         self.send_notifications(users, status, rests)
-        self.log_event('info', 'stop')
+        self.log_event(EventType.INFO, 'stop')
         return True
 
     def send_notifications(self, users, status_parts, rests, dbg=''):
@@ -133,6 +134,6 @@ class ServInterval(SiteService):
                 msg = EmailMessage(email_subj, body, mail_from, [user.email])
                 msg.content_subtype = "html"
                 msg.send()
-                self.log_event('info', 'notify', user.email + ' - ok')
+                self.log_event(EventType.INFO, 'notify', user.email + ' - ok')
             except Exception as e:
-                self.log_event('error', 'notify', user.email + ' - exception: ' + str(e))
+                self.log_event(EventType.ERROR, 'notify', user.email + ' - exception: ' + str(e))

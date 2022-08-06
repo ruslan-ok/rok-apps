@@ -39,7 +39,7 @@ def process_service(service_class):
         completed = service.process()
         return completed
     except Exception as ex:
-        log_event(f'Exception {str(ex)}', 'error')
+        log_event('exception', info=f'Exception {str(ex)}', type=EventType.ERROR)
         return False
 
 def check_services(started):

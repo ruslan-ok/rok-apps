@@ -41,12 +41,12 @@ request_pattern = re.compile(r'\s+'.join(request_parts)+r'\s*\Z')
 class LogAnalyzer(SiteService):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(APP_LOGS, 'logs', 'Анализ логов сервера Apache', *args, **kwargs)
+        super().__init__(APP_LOGS, ROLE_APACHE, 'Анализ логов сервера Apache', local_log=True, *args, **kwargs)
         self.apache_log = os.environ.get('APACHE_LOG')
 
     def read_log_sz(self):
         log_sz = 0
-        log_sz_events = self.get_events(app=APP_LOGS, service=ROLE_APACHE, type=EventType.INFO, name='log_size', order_by='-created')
+        log_sz_events = self.get_events(app=APP_LOGS, service=ROLE_APACHE, type=EventType.INFO, name='log_size')
         if len(log_sz_events) > 0:
             log_sz = int(log_sz_events[0].info)
         return log_sz
@@ -63,7 +63,7 @@ class LogAnalyzer(SiteService):
             self.new_log_sz = Path(self.apache_log).stat().st_size
             ret = (self.new_log_sz > self.prev_log_sz)
         except Exception as ex:
-            self.log_event('error', 'exception', str(ex))
+            self.log_event(EventType.ERROR, 'exception', str(ex))
             ret = False
         return ret
 
@@ -72,7 +72,7 @@ class LogAnalyzer(SiteService):
         """
         self.added_hosts = 0
         self.added_records = 0
-        self.log_event('info', 'log_size', str(self.new_log_sz))
+        self.log_event(EventType.INFO, 'log_size', str(self.new_log_sz))
         with open(self.apache_log, 'r') as f:
             if self.prev_log_sz:
                 f.seek(self.prev_log_sz)
@@ -92,49 +92,52 @@ class LogAnalyzer(SiteService):
                         data.update(request)
                         
                     self.save_log_record(data)
-        self.log_event('info', 'new_data', 'bytes: {}, added hosts: {}, log records: {}'.format(self.new_log_sz - self.prev_log_sz, self.added_hosts, self.added_records))
+        self.log_event(EventType.INFO, 'new_data', 'bytes: {}, added hosts: {}, log records: {}'.format(self.new_log_sz - self.prev_log_sz, self.added_hosts, self.added_records))
 
     def get_host(self, host):
         if IPInfo.objects.filter(ip=host).exists():
-            return IPInfo.objects.filter(ip=host).get().ip
+            return IPInfo.objects.filter(ip=host).get().id
         return None
     
     def add_host(self, host):
         data = get_host_info(host)
     
         if not 'success' in data or not data['success']:
-            self.log_event('error', 'bad_response', 'Bad response for host ' + host)
+            self.log_event(EventType.ERROR, 'bad_response', 'Bad response for host ' + host)
             data = {'ip': host}
 
-        if not 'counrty_code' in data:
+        if not 'country_code' in data:
             IPInfo.objects.create(ip=host, success=False)
         else:
-            IPInfo.objects.create(
-                ip=data['ip'],
-                success=data['success'],
-                ip_type=data['type'],
-                continent=data['continent'],
-                continent_code=data['continent_code'],
-                country=data['country'],
-                country_code=data['country_code'],
-                country_flag=data['country_flag'],
-                country_capital=data['country_capital'],
-                country_phone=data['country_phone'],
-                country_neighbours=data['country_neighbours'],
-                region=data['region'],
-                city=data['city'],
-                latitude=data['latitude'],
-                longitude=data['longitude'],
-                asn=data['asn'],
-                org=data['org'],
-                timezone_dstOffset=data['timezone_dstOffset'],
-                timezone_gmtOffset=data['timezone_gmtOffset'],
-                timezone_gmt=data['timezone_gmt'],
-                currency=data['currency'],
-                currency_code=data['currency_code'],
-                currency_symbol=data['currency_symbol'],
-                )
-        self.added_hosts += 1
+            try:
+                IPInfo.objects.create(
+                    ip=data['ip'],
+                    success=data['success'],
+                    ip_type=data['type'],
+                    continent=data['continent'],
+                    continent_code=data['continent_code'],
+                    country=data['country'],
+                    country_code=data['country_code'],
+                    country_flag=data['country_flag'],
+                    country_capital=data['country_capital'],
+                    country_phone=data['country_phone'],
+                    country_neighbours=data['country_neighbours'],
+                    region=data['region'],
+                    city=data['city'],
+                    latitude=data['latitude'],
+                    longitude=data['longitude'],
+                    asn=data['asn'],
+                    org=data['org'],
+                    timezone_dstOffset=data['timezone_dstOffset'],
+                    timezone_gmtOffset=data['timezone_gmtOffset'],
+                    timezone_gmt=data['timezone_gmt'],
+                    currency=data['currency'],
+                    currency_code=data['currency_code'],
+                    currency_symbol=data['currency_symbol'],
+                    )
+                self.added_hosts += 1
+            except Exception as ex:
+                self.log_event(EventType.ERROR, 'exception', 'on IPInfo.objects.create: ' + str(ex))
         return self.get_host(host)
     
     def save_host(self, host):
@@ -162,17 +165,20 @@ class LogAnalyzer(SiteService):
         if (record['size'] != '-'):
             size = int(record['size'])
         
-        AccessLog.objects.create(
-            host_id=host_id,
-            user=user,
-            event=datetime.datetime.strptime(time, '%d/%b/%Y:%H:%M:%S'),
-            method=method,
-            uri=uri,
-            protocol=protocol,
-            status=status,
-            size=size,
-            )
-        self.added_records += 1
+        try:
+            AccessLog.objects.create(
+                host_id=host_id,
+                user=user,
+                event=datetime.datetime.strptime(time, '%d/%b/%Y:%H:%M:%S'),
+                method=method,
+                uri=uri,
+                protocol=protocol,
+                status=status,
+                size=size,
+                )
+            self.added_records += 1
+        except Exception as ex:
+            self.log_event(EventType.ERROR, 'exception', 'on AccessLog.objects.create: ' + str(ex))
     
     def save_log_record(self, record):
         if 'host' in record:

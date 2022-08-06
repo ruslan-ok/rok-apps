@@ -5,5 +5,5 @@ class ApacheLogData(SiteService):
     template_name = 'apache'
 
     def __init__(self, *args, **kwargs):
-        super().__init__(APP_LOGS, ROLE_APACHE, *args, **kwargs)
+        super().__init__(APP_LOGS, ROLE_APACHE, local_log=True, *args, **kwargs)
 

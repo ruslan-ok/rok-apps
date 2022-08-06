@@ -22,7 +22,7 @@ class IPInfo(models.Model):
     latitude = models.CharField('latitude', max_length=100, blank=True, null=True)
     longitude = models.CharField('longitude', max_length=100, blank=True, null=True)
     asn = models.CharField('asn', max_length=100, blank=True, null=True)
-    org = models.CharField('org', max_length=100, blank=True, null=True)
+    org = models.CharField('org', max_length=500, blank=True, null=True)
     timezone_dstOffset = models.CharField('timezone_dstOffset', max_length=10, blank=True, null=True)
     timezone_gmtOffset = models.CharField('timezone_gmtOffset', max_length=100, blank=True, null=True)
     timezone_gmt = models.CharField('timezone_gmt', max_length=100, blank=True, null=True)
@@ -93,3 +93,17 @@ class ServiceEvent(models.Model):
         if self.info:
             return self.info
         return ''
+
+    def type_color(self):
+        match self.type:
+            case EventType.ERROR: ret = 'red'
+            case EventType.WARNING: ret = 'orange'
+            case _: ret = 'black'
+        return ret
+
+    def type_bg_color(self):
+        match self.type:
+            case EventType.ERROR: ret = 'snow'
+            case EventType.WARNING: ret = 'ivory'
+            case _: ret = 'white'
+        return ret

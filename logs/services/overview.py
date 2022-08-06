@@ -1,6 +1,7 @@
 from datetime import date, timedelta
 from logs.models import ServiceEvent
 from service.site_service import SiteService
+from task.const import APP_LOGS
 
 REPORT_DEPTH_DAYS = 5
 
@@ -52,7 +53,7 @@ class OverviewLogData(SiteService):
         for day_num in range(REPORT_DEPTH_DAYS):
             day = date.today() - timedelta(days=day_num)
             href = day.strftime('%Y%m%d')
-            events = self.get_events(app=app, service=service, day=day, local=(app == 'service'))
+            events = self.get_events(app=app, service=service, day=day, local_log=(app == 'service' or app == APP_LOGS))
             if not len(events):
                 ret.append({'icon': 'dash', 'color': 'black', 'href': href})
                 continue
