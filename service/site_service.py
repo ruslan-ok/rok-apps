@@ -5,7 +5,7 @@ The base behavior of the site service.
 import os, smtplib, requests
 from datetime import datetime, timedelta
 from email.message import EmailMessage
-from logs.models import ServiceEvent
+from logs.models import ServiceEvent, EventType
 
 class SiteService():
     template_name = 'logs'
@@ -22,6 +22,8 @@ class SiteService():
         self.device = os.environ.get('DJANGO_DEVICE')
         self.use_log_api = (self.device != 'Nuc')
         self.local_log = local_log
+        ServiceEvent.objects.create(device=self.device, app='service', service='manager', type=EventType.DEBUG, name='init', 
+            info=f'SiteService(app="{self.app}", service="{self.service_name}")')
 
     def get_extra_context(self, request):
         context = {}
@@ -38,7 +40,9 @@ class SiteService():
         return datetime.now() + timedelta(hours=1)
 
     def log_event(self, type, name, info=None, send_mail=False):
-        if self.use_log_api:
+        ServiceEvent.objects.create(device=self.device, app='service', service='manager', type=EventType.DEBUG, name='init', 
+        info=f'SiteService.log_event(device={self.device}, app={self.app}, service={self.service_name}, type={str(type)}, name="{name}", info="{str(info)}", use_log_api={str(self.use_log_api)}, local_log={str(self.local_log)})')
+        if self.use_log_api and not self.local_log:
             self.log_event_api(type, name, info)
         else:
             ServiceEvent.objects.create(device=self.device, app=self.app, service=self.service_name, type=type, name=name, info=info)
@@ -93,7 +97,7 @@ class SiteService():
         if self.use_log_api and not local_log:
             return self.get_events_api(app, service, type, name, day, order_by)
 
-        data = ServiceEvent.objects.filter(device=self.device).order_by(order_by)
+        data = ServiceEvent.objects.filter(device=self.device).order_by(order_by, '-id')
         if app:
             data = data.filter(app=app)
         if service:

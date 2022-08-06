@@ -6,7 +6,6 @@ from django.conf import settings
 
 from rusel.context import get_base_context
 #from trip.models import trip_summary
-from logs.site_stat import get_site_stat
 
 from task.const import APP_HOME, ROLE_ACCOUNT
 from task.models import Task, VisitedHistory
@@ -47,12 +46,6 @@ class ListView(BaseListView, TuneData):
         context['config'] = config
 
         if (request.user.username == 'ruslan.ok'):
-            statistics = get_site_stat(request.user)
-            indicators = statistics[0]
-            stat = statistics[1]
-            context['indicators'] = indicators
-            context['show_stat'] = (len(stat) > 0)
-            context['stat'] = stat
             #context['trip_summary'] = trip_summary(request.user.id)
             context['weather_api_key'] = os.environ.get('OPENWEATHER_API_KEY')
             context['weather_city_id'] = os.environ.get('OPENWEATHER_CITY_ID')

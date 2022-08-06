@@ -60,7 +60,6 @@ if (__name__ == '__main__'):
                 if '<html' in resp.content:
                     subtype = 'html'
                 notify(mail_host, user, pwrd, recipients, '[x] error ' + str(resp.status_code), resp.content, maintype='text', subtype=subtype)
-                # break
 
             data_str = resp.json()
             data = json.loads(data_str)
@@ -70,10 +69,9 @@ if (__name__ == '__main__'):
             if (status != 'ok'):
                 info = json.dumps(data)
                 notify(mail_host, user, pwrd, recipients, status, info)
-            time.sleep(timer_interval_sec)
         except Exception as ex:
             subtype = 'plain'
             if '<html' in str(ex):
                 subtype = 'html'
             notify(mail_host, user, pwrd, recipients, '[x] exception', str(ex), maintype='text', subtype=subtype)
-    console_log('finished')
+        time.sleep(timer_interval_sec)

@@ -11,7 +11,7 @@
     <div class="col">
       {% if show_stat %}
         <h4>{% trans 'site statistics'|capfirst %}</h4>
-        <table>
+        <table class="info-table">
           <tr> <th>{% trans 'application'|capfirst %}</th> <th>{% trans 'visitor'|capfirst %}</th> <th>{% trans 'page'|capfirst %}</th> </tr>
           {% for app, hosts in stat.items %}
             <tr> <td>{{ app }}</td> <td></td> <td></td> </tr>
@@ -26,7 +26,7 @@
       {% endif %}
       {% if indicators %}
         <h4>{% trans 'site statistics'|capfirst %}</h4>
-        <table>
+        <table class="info-table">
           <tr> <th>{% trans 'indictor'|capfirst %}</th> <th>{% trans 'value'|capfirst %}</th> </tr>
           {% for x in indicators %}
             <tr> <td>{{ x.0 }}</td> <td>{{ x.1 }}</td> </tr>
