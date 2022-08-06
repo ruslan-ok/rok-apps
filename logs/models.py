@@ -1,6 +1,9 @@
+import os
+from datetime import datetime
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
+from task.const import APP_TODO
 
 class IPInfo(models.Model):
     ip = models.CharField('IP', max_length=20, blank=False)
@@ -66,3 +69,27 @@ class SiteStat(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
     record = models.ForeignKey(AccessLog, on_delete = models.RESTRICT, verbose_name='log record', related_name='LogID', null=True)
 
+DEVICE = os.environ.get('DJANGO_DEVICE')
+
+class EventType(models.TextChoices):
+        ERROR = 'error', _('Error')
+        WARNING = 'warning', _('Warning')
+        INFO = 'info', _('Information')
+        DEBUG = 'debug', _('Debug')
+        
+class ServiceEvent(models.Model):
+    device = models.CharField(_('Device name'), max_length=50, blank=True, default=DEVICE, null=True)
+    app = models.CharField(_('App name'), max_length=50, blank=False, default=APP_TODO, null=True)
+    service = models.CharField(_('Service name'), max_length=50, blank=False, null=True)
+    created = models.DateTimeField(_('Creation time'), blank=True, default=datetime.now)
+    type = models.CharField(_('Event type'), max_length=20, blank=False, choices=EventType.choices, default=EventType.INFO)
+    name = models.CharField(_('Event name'), max_length=200, blank=False)
+    info = models.TextField(_('Event description'), blank=True, null=True)
+
+    def __repr__(self):
+        return f'{self.app}:{self.service} [{self.created.strftime("%Y-%m-%d %H:%M:%S")}] {self.type} | {self.name} - {self.info}'
+    
+    def s_info(self):
+        if self.info:
+            return self.info
+        return ''

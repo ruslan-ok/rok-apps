@@ -1,19 +1,23 @@
 from datetime import datetime
-from logs.log_data.log_data import LogData
-from task.models import ServiceEvent
+from service.site_service import SiteService
+from logs.models import EventType
 
-class BackgroundLogData(LogData):
+class BackgroundLogData(SiteService):
+    template_name = 'background'
 
-    def get_extra_context(self):
+    def __init__(self, *args, **kwargs):
+        super().__init__('service', 'manager', *args, **kwargs)
+
+    def get_extra_context(self, request):
         context = {}
-        context['events'] = ServiceEvent.objects.filter(app='service', service='manager').order_by('-created')
+        context['events'] = self.get_events(app=self.app, service=self.service_name, local=True)
 
         status = 'stoped'
         color = 'red'
         last_start = None
         last_call = None
-        start_events = ServiceEvent.objects.filter(app='service', service='manager', type='info', name='start').order_by('-created')
-        call_events = ServiceEvent.objects.filter(app='service', service='manager', type='info', name='call').order_by('-created')
+        start_events = self.get_events(app=self.app, service=self.service_name, type=EventType.INFO, name='start', local=True)
+        call_events = self.get_events(app=self.app, service=self.service_name, type=EventType.INFO, name='work', local=True)
         if len(call_events) > 0:
             last_call = call_events[0].created
         if len(start_events) > 0:

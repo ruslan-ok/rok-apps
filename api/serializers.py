@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from task.models import Group, Task, Step, Urls
 from account.models import UserExt
+from logs.models import ServiceEvent
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')
@@ -45,3 +46,9 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserExt
         fields = ['user', 'avatar', 'avatar_mini']
+
+class LogsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ServiceEvent
+        fields = ['app', 'service', 'created', 'type', 'name', 'info']
+

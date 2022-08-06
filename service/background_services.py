@@ -1,23 +1,30 @@
 """Site service manager
 """
 import os, json
-from datetime import datetime
-from task.models import ServiceEvent
-from backup.backuper import Backuper
+from datetime import datetime, date
+from logs.models import ServiceEvent, EventType
+from backup.backuper import BackupNucShort, BackupNucFull, BackupVivoShort, BackupVivoFull
 from todo.notificator import Notificator
 from fuel.serv_interval import ServInterval
 from logs.log_analyzer import LogAnalyzer
 from task.models import Group, Task
 
-def log_event(name, type='info', info=None):
-    event = ServiceEvent.objects.create(app='service', service='manager', type=type, name=name, info=info)
-    if name == 'call':
-        ServiceEvent.objects.filter(app='service', service='manager', type='info', name=name).exclude(id=event.id).delete()
+def log_event(name, type=EventType.INFO, info=None):
+    device = os.environ.get('DJANGO_DEVICE')
+    event = ServiceEvent.objects.create(device=device, app='service', service='manager', type=type, name=name, info=info)
+    if name == 'work':
+        ServiceEvent.objects.filter(app='service', service='manager', type=EventType.INFO, name=name, created__date=date.today()).exclude(id=event.id).delete()
 
 def process_service(service_class):
     match service_class:
-        case 'backup.backuper.Backuper':
-            service = Backuper()
+        case 'backup.backuper.BackupNucShort':
+            service = BackupNucShort()
+        case 'backup.backuper.BackupNucFull':
+            service = BackupNucFull()
+        case 'backup.backuper.BackupVivoShort':
+            service = BackupVivoShort()
+        case 'backup.backuper.BackupVivoFull':
+            service = BackupVivoFull()
         case 'todo.notificator.Notificator':
             service = Notificator()
         case 'fuel.serv_interval.ServInterval':
@@ -36,7 +43,7 @@ def process_service(service_class):
         return False
 
 def check_services(started):
-    log_event('start' if started else 'call')
+    log_event('start' if started else 'work')
     svc_grp = int(os.environ.get('DJANGO_SERVICE_GROUP'))
     grp = Group.objects.filter(id=svc_grp).get()
     services = Task.objects.filter(groups=grp, completed=False)

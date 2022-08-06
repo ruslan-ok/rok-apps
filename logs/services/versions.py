@@ -1,11 +1,11 @@
 import os, datetime, django, rest_framework, OpenSSL, ssl, urllib.request
 from platform import python_version
 from rusel.mysql_ver import get_mysql_ver
-from logs.log_data.log_data import LogData
 
-class VersionsLogData(LogData):
+class VersionsLogData():
+    template_name = 'versions'
 
-    def get_extra_context(self):
+    def get_extra_context(self, request):
         context = {}
         context['python_version'] = python_version()
         context['django_version'] = '{}.{}.{} {}'.format(*django.VERSION)

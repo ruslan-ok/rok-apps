@@ -13,9 +13,10 @@ def console_log(status, mess=None):
 
 def notify(host, user, pwrd, recipients, status, mess, maintype='text', subtype='plain'):
     host = os.environ.get('DJANGO_HOST')
-    if host == 'localhost':
+    if host == 'localhost' and subtype != 'html':
         return console_log(status, mess)
-    s = smtplib.SMTP(host=host, port=25)
+    host_mail = os.environ.get('DJANGO_HOST_MAIL')
+    s = smtplib.SMTP(host=host_mail, port=25)
     s.starttls()
     s.login(user, pwrd)
     msg = EmailMessage()
@@ -52,10 +53,13 @@ if (__name__ == '__main__'):
                 started = False
                 console_log('started')
             else:
-                console_log('call')
+                console_log('work')
         
             if (resp.status_code != 200):
-                notify(mail_host, user, pwrd, recipients, '[x] error ' + str(resp.status_code), resp.content, maintype='text', subtype='html')
+                subtype = 'plain'
+                if '<html' in resp.content:
+                    subtype = 'html'
+                notify(mail_host, user, pwrd, recipients, '[x] error ' + str(resp.status_code), resp.content, maintype='text', subtype=subtype)
                 # break
 
             data_str = resp.json()
@@ -68,6 +72,8 @@ if (__name__ == '__main__'):
                 notify(mail_host, user, pwrd, recipients, status, info)
             time.sleep(timer_interval_sec)
         except Exception as ex:
-            notify(mail_host, user, pwrd, recipients, '[x] exception', str(ex))
-            # break
+            subtype = 'plain'
+            if '<html' in str(ex):
+                subtype = 'html'
+            notify(mail_host, user, pwrd, recipients, '[x] exception', str(ex), maintype='text', subtype=subtype)
     console_log('finished')

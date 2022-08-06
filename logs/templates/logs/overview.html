@@ -1,0 +1,30 @@
+{% extends "base/page_content.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link href="{% static 'scss/home.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block main %}
+      <div class="row">
+        <div class="col">
+          <table class="info-table">
+            <tr>
+                <th>Service</th>
+                {% for dt in dates %}
+                    <th> {{ dt|date:'d.m.Y' }} </th>
+                {% endfor %}
+            </tr>
+            {% for service in services %}
+                <tr>
+                    <td class="bi-{{ service.icon }}"><span class="px-3">{{ service.name }}</span></td>
+                    {% for day in service.days %}
+                        <td class="text-center"><a href="{% url 'logs:list' %}?view={{ service.href }}&day{{ day.href }}"><i class="bi-{{ day.icon }}" style="color:{{ day.color }}"></i></a></td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+{% endblock %}

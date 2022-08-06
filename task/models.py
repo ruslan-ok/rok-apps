@@ -1167,22 +1167,3 @@ class PassParams(models.Model):
         ret_value = get_random_string(params.ln, allowed_chars)
         return ret_params, params.un, ret_value
 
-EVENT_TYPE_CHOICES = [
-    ('error', _('Error')),
-    ('warning', _('Warning')),
-    ('info', _('Information')),
-    ('debug', _('Debug')),
-]
-
-class ServiceEvent(models.Model):
-    app = models.CharField(_('App name'), max_length=50, blank=False, default=APP_TODO, null=True)
-    service = models.CharField(_('Service name'), max_length=50, blank=False, null=True)
-    created = models.DateTimeField(_('Creation time'), blank=True, default=datetime.now)
-    type = models.CharField(_('Event type'), max_length=20, blank=False, choices=EVENT_TYPE_CHOICES, default='info')
-    name = models.CharField(_('Event name'), max_length=200, blank=False)
-    info = models.TextField(_('Event description'), blank=True, null=True)
-
-    def s_info(self):
-        if self.info:
-            return self.info
-        return ''

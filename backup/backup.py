@@ -1,6 +1,7 @@
 import os, zipfile, math, subprocess, time, glob, shutil, smtplib
 from datetime import datetime, timedelta
 from email.message import EmailMessage
+from logs.models import EventType
 
 def sizeof_fmt(num, suffix='B'):
     magnitude = int(math.floor(math.log(num, 1024)))
@@ -148,37 +149,38 @@ class Backup():
         return False
 
     def backup_db(self, zf):
-        self.log('info', 'method', '+backup_db() started')
+        self.log(EventType.INFO, 'method', '+backup_db() started')
         file = 'mysql_backup.sql'
         sql_util = '"' + os.environ.get('DJANGO_BACKUP_SQL_UTIL') + '"'
-        # self.log('info', 'variable', f'sql_util = {sql_util}')
+        # self.log(EventType.INFO, 'variable', f'sql_util = {sql_util}')
         sql_user = os.environ.get('DJANGO_BACKUP_SQL_USER')
-        # self.log('info', 'variable', f'sql_user = {sql_user}')
+        # self.log(EventType.INFO, 'variable', f'sql_user = {sql_user}')
         sql_pass = os.environ.get('DJANGO_BACKUP_SQL_PWRD')
-        # self.log('info', 'variable', f'sql_pass = {sql_pass}')
+        # self.log(EventType.INFO, 'variable', f'sql_pass = {sql_pass}')
         sql_schema = os.environ.get('DJANGO_BACKUP_SQL_SCHEMA')
-        # self.log('info', 'variable', f'sql_schema = {sql_schema}')
+        # self.log(EventType.INFO, 'variable', f'sql_schema = {sql_schema}')
         command = sql_util + ' --user=' + sql_user + ' --password=' + sql_pass + ' --result-file=' + file + ' ' + sql_schema
-        # self.log('info', 'variable', f'command = {command}')
+        # self.log(EventType.INFO, 'variable', f'command = {command}')
         ret = subprocess.run(command, shell=True)
-        # self.log('info', 'variable', f'ret.returncode = {ret.returncode}')
+        # self.log(EventType.INFO, 'variable', f'ret.returncode = {ret.returncode}')
         if (ret.returncode != 0):
-            self.log('error', 'backup_db', 'Ошибка создания бэкапа MySQL. Код ошибки: ' + str(ret.returncode))
+            self.log(EventType.ERROR, 'backup_db', 'Ошибка создания бэкапа MySQL. Код ошибки: ' + str(ret.returncode))
             return
         sz = os.path.getsize(file)
         self.content.append('   ' + file + '    ' + sizeof_fmt(sz))
         zf.write(file)
+        self.log(EventType.INFO, 'remove', file)
         os.remove(file)
-        self.log('info', 'method', '-backup_db() finished')
+        self.log(EventType.INFO, 'method', '-backup_db() finished')
 
     def backup_mail(self, zf):
-        self.log('info', 'method', '+backup_mail() started')
+        self.log(EventType.INFO, 'method', '+backup_mail() started')
         script = os.environ.get('DJANGO_BACKUP_MAIL_UTIL')
         wait_time = int(os.environ.get('DJANGO_BACKUP_MAIL_WAIT'))
         ret = subprocess.run('cscript ' + script)
         #self.save_log(False, '[i] command = ', command)
         if (ret.returncode != 0):
-            self.log('error', 'backup_mail', 'Вызов subprocess.run вернул код ошибки ' + str(ret.returncode))
+            self.log(EventType.ERROR, 'backup_mail', 'Вызов subprocess.run вернул код ошибки ' + str(ret.returncode))
             return
         start_dt = datetime.now()
         total = 0
@@ -187,11 +189,11 @@ class Backup():
         while (sz == 0) and (sec < wait_time):
             time.sleep(5)
             fl = glob.glob(self.work_dir + '\\HMBackup*.7z')
-            # self.log('info', 'backup_mail', 'Количество найденных архивов ' + str(len(fl)))
+            # self.log(EventType.INFO, 'backup_mail', 'Количество найденных архивов ' + str(len(fl)))
             if (len(fl) > 0):
                 fn = fl[0]
                 sz = os.path.getsize(fn)
-                # self.log('info', 'backup_mail', 'Размер архива ' + str(sz))
+                # self.log(EventType.INFO, 'backup_mail', 'Размер архива ' + str(sz))
             sec = int((datetime.now()-start_dt).total_seconds())
             status = 'ok'
             if (sz < 200000000):
@@ -207,19 +209,20 @@ class Backup():
             if (status != 'ok'):
                 sz = 0
         if (sz == 0):
-            self.log('error', 'backup_mail', 'За назначенный таймаут файл архива не был получен.')
+            self.log(EventType.ERROR, 'backup_mail', 'За назначенный таймаут файл архива не был получен.')
             return
         for f in fl:
             total += 1
             sz = os.path.getsize(f)
             self.content.append('   ' + f + '    ' + sizeof_fmt(sz))
             zf.write(f, arcname=f.split(self.work_dir + '\\')[1])
+            self.log(EventType.INFO, 'remove', f)
             os.remove(f)
-        self.log('info', 'method', '-backup_mail() finished')
+        self.log(EventType.INFO, 'method', '-backup_mail() finished')
 
     # Архивирование
     def archivate(self):
-        self.log('info', 'method', '+archivate() started')
+        self.log(EventType.INFO, 'method', '+archivate() started')
         if self.mode == 'full':
             dirs_raw = self.full_dirs
         else:
@@ -238,6 +241,10 @@ class Backup():
             elif (dir == 'email'):
                 self.backup_mail(zf)
             else:
+                if not os.path.exists(dir):
+                    self.log(EventType.WARNING, 'archiving', 'Folder does not exist: ' + dir)
+                    continue
+                self.log(EventType.INFO, 'archiving', dir)
                 for dirname, subdirs, files in os.walk(dir):
                     zf.write(dirname)
                     for filename in files:
@@ -247,20 +254,21 @@ class Backup():
         if (sz > 1000):
             self.content.append('   ' + fn + '    ' + sizeof_fmt(sz))
         elif (sz == 0):
-            self.log('error', 'archivate', 'Не удалось создать архив ' + self.work_dir + '\\' + fn)
+            self.log(EventType.ERROR, 'archivate', 'Не удалось создать архив ' + self.work_dir + '\\' + fn)
         else:
-            self.log('error', 'archivate', 'Пустой архив ' + self.work_dir + '\\' + fn)
-        self.log('info', 'method', '-archivate() finished')
+            self.log(EventType.ERROR, 'archivate', 'Пустой архив ' + self.work_dir + '\\' + fn)
+        self.log(EventType.INFO, 'method', '-archivate() finished')
 
     # Удаление неактуальных архивов
     def zip(self):
-        self.log('info', 'method', '+zip() started')
+        self.log(EventType.INFO, 'method', '+zip() started')
         arh_path_list = glob.glob(self.work_dir + '\\*.zip')
         for x in arh_path_list:
             name = x.split('\\')[-1]
             if not self.check_name(name):
+                self.log(EventType.INFO, 'remove', x)
                 os.remove(x)
-        self.log('info', 'method', '-zip() finished')
+        self.log(EventType.INFO, 'method', '-zip() finished')
 
     def add_info(self, src, dst):
         if (not self.changed):
@@ -291,7 +299,9 @@ class Backup():
             f = fsrc.split('\\')[-1]
             fdst = dst + '\\' + f
             if not self.check_name(f):
+                self.log(EventType.INFO, 'remove', fsrc)
                 os.remove(fsrc)
+                self.log(EventType.INFO, 'remove', fdst)
                 os.remove(fdst)
                 continue
             sat = os.path.getatime(fsrc)
@@ -308,14 +318,23 @@ class Backup():
                     shutil.copyfile(src + '\\' + f, fdst)
                     os.utime(fdst, (sat, smt))
                     self.add_info(_src + '\\' + _folder + ' -> ' + _dst + '\\' + _folder, 'Файл обновлен в ' + _dst + '\\' + _folder + '\\' + f)
+
+        arh_list = glob.glob(dst + '\\*.zip')
+        for fdst in arh_list:
+            f = fdst.split('\\')[-1]
+            if not self.check_name(f):
+                self.log(EventType.INFO, 'remove', fdst)
+                os.remove(fdst)
+
         self.device = bkp_device
         self.work_dir = self.backup_folder + self.device.lower()
 
     # Синхронизация
     def synch(self):
-        self.log('info', 'method', '+synch() started')
+        self.log(EventType.INFO, 'method', '+synch() started')
         syncs_raw = os.environ.get('DJANGO_BACKUP_SYNCS', '')
         if not syncs_raw:
+            self.log(EventType.INFO, 'method', '-synch() finished')
             return
         syncs = [x.split(',') for x in syncs_raw.split(';')]
         self.nuc_drive = os.environ.get('DJANGO_BACKUP_NUC', '')
@@ -323,11 +342,11 @@ class Backup():
         self.content.append('Синхронизация:')
         for s in syncs:
             self.synch_dir(s[0], s[1], s[2])
-        self.log('info', 'method', '-synch() finished')
+        self.log(EventType.INFO, 'method', '-synch() finished')
 
     # Отправка информационного письма
     def send_mail(self, status, info):
-        self.log('info', 'method', '+send_mail() started')
+        self.log(EventType.INFO, 'method', '+send_mail() started')
         s = smtplib.SMTP(host=self.host, port=25)
         s.starttls()
         s.login(self.mail_user, self.mail_pwrd)
@@ -344,7 +363,7 @@ class Backup():
         s.send_message(msg)
         del msg
         s.quit()
-        self.log('info', 'method', '-send_mail() finished')
+        self.log(EventType.INFO, 'method', '-send_mail() finished')
 
     def ripe(self):
         self.count_mode(self.last_day) # Выбор режима архивирования
@@ -352,13 +371,13 @@ class Backup():
         return not os.path.isfile(self.work_dir + '\\' + arch_name)
 
     def run(self):
-        self.log('info', 'method', '+run() started')
+        self.log(EventType.INFO, 'method', '+run() started')
         try:
             self.content.clear()
             self.archivate()      # Архивирование
             self.zip()            # Удаление неактуальных архивов
             self.synch()          # Синхронизация
         except Exception as ex:
-            self.log('error', 'exception', str(ex))
-        self.log('info', 'method', '-run() finished')
+            self.log(EventType.ERROR, 'exception', str(ex))
+        self.log(EventType.INFO, 'method', '-run() finished')
 

@@ -13,8 +13,8 @@ process(log)
 import os, re, datetime, requests
 from pathlib import Path
 from service.site_service import SiteService
-from task.const import APP_LOGS
-from task.models import ServiceEvent
+from task.const import APP_LOGS, ROLE_APACHE
+from logs.models import EventType
 from logs.models import IPInfo, AccessLog
 
 
@@ -46,7 +46,7 @@ class LogAnalyzer(SiteService):
 
     def read_log_sz(self):
         log_sz = 0
-        log_sz_events = ServiceEvent.objects.filter(app=APP_LOGS, service='log_analyze', type='info', name='log_size').order_by('-created')
+        log_sz_events = self.get_events(app=APP_LOGS, service=ROLE_APACHE, type=EventType.INFO, name='log_size', order_by='-created')
         if len(log_sz_events) > 0:
             log_sz = int(log_sz_events[0].info)
         return log_sz
