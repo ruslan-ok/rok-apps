@@ -12,8 +12,8 @@ class LogsViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         event = serializer.save()
-        if 'one_per_day' in self.request.POST:
-            one_per_day = self.request.POST['one_per_day']
+        if 'one_per_day' in serializer.initial_data:
+            one_per_day = serializer.initial_data['one_per_day']
             if one_per_day == 'True':
                 ServiceEvent.objects.filter(device=event.device, app=event.app, service=event.service, type=event.type, name=event.name, info=event.info).exclude(id=event.id).delete()
 

@@ -40,9 +40,9 @@ request_pattern = re.compile(r'\s+'.join(request_parts)+r'\s*\Z')
 
 class LogAnalyzer(SiteService):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, service_task, *args, **kwargs):
         super().__init__(APP_LOGS, ROLE_APACHE, 'Анализ логов сервера Apache', local_log=True, *args, **kwargs)
-        self.apache_log = os.environ.get('APACHE_LOG')
+        self.apache_log = service_task.info
 
     def read_log_sz(self):
         log_sz = 0

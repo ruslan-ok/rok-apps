@@ -45,9 +45,9 @@ class Backup():
         self.work_dir = self.backup_folder + device.lower()
         self.log_event = log_event
 
-    def log(self, type, name, info):
+    def log(self, type, name, info, send_mail=False, one_per_day=False):
         if self.log_event:
-            self.log_event(type, name, info)
+            self.log_event(type, name, info, send_mail=send_mail, one_per_day=one_per_day)
 
     def count_mode(self, day):
         if not len(self.etalon):
@@ -378,7 +378,7 @@ class Backup():
         mode = self.count_mode(self.last_day)
         fn = self.work_dir + '\\' + self.get_arh_name_by_day(self.last_day, mode)
         if os.path.isfile(fn):
-            self.log(EventType.WARNING, 'ripe', f'Archive {fn} already exist. Need to check the due date of the service task.')
+            self.log(EventType.WARNING, 'ripe', f'Archive {fn} already exist. Need to check the due date of the service task.', send_mail=False, one_per_day=True)
             return False
         if mode == 'short':
             mode = 'full'

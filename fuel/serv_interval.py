@@ -5,14 +5,14 @@ from django.template import loader
 from logs.models import EventType
 from service.site_service import SiteService
 from account.models import UserExt
-from task.const import APP_FUEL, NUM_ROLE_PART, NUM_ROLE_SERVICE
+from task.const import APP_FUEL, NUM_ROLE_PART, NUM_ROLE_SERVICE, ROLE_PART
 from task.models import Task
 from fuel.utils import LANG_EN, LANG_RU, get_rest, month_declination
 
 class ServInterval(SiteService):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(APP_FUEL, 'serv_interval', 'Контроль сервисных интервалов обслуживания автомобиля', *args, **kwargs)
+        super().__init__(APP_FUEL, ROLE_PART, 'Контроль сервисных интервалов обслуживания автомобиля', *args, **kwargs)
 
     def ripe(self):
         return True

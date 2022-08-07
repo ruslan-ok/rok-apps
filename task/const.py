@@ -20,6 +20,7 @@ APP_PHOTO = 'photo'
 APP_ADMIN = 'admin'
 APP_BACKUP = 'backup'
 APP_LOGS = 'logs'
+APP_SERVICE = 'service'
 
 APP_ALL = 'all'
 
@@ -44,6 +45,7 @@ APP_NAME = {
     APP_ALL: 'all applications',
     APP_BACKUP: 'backup',
     APP_LOGS: 'view logs',
+    APP_SERVICE: 'site services'
 }
 
 FOLDER_NAV_APPS = [APP_PHOTO, APP_DOCS, APP_WARR]
@@ -148,8 +150,10 @@ NUM_ROLE_APACHE = 39
 NUM_ROLE_BACKUP_SHORT = 40
 NUM_ROLE_BACKUP_FULL = 41
 NUM_ROLE_BACKUP_CHECK = 42
+NUM_ROLE_MANAGER = 43
 
-ROLE_TODO        = 'todo'            
+ROLE_TODO        = 'todo'
+ROLE_NOTIFICATOR = 'notificator'
 ROLE_NOTE        = 'note'            
 ROLE_NEWS        = 'news'            
 ROLE_STORE       = 'store'           
@@ -192,9 +196,11 @@ ROLE_BACKUP_SHORT = 'short'
 ROLE_BACKUP_FULL = 'full'
 ROLE_BACKUP_CHECK = 'check'
 ROLE_APACHE      = 'apache'
+ROLE_MANAGER     = 'manager'
 
 ALL_ROLES = (
-    ROLE_TODO,             
+    ROLE_TODO,
+    ROLE_NOTIFICATOR,             
     ROLE_NOTE,             
     ROLE_NEWS,             
     ROLE_STORE,
@@ -236,6 +242,7 @@ ALL_ROLES = (
     ROLE_BACKUP_FULL,
     ROLE_BACKUP_CHECK,
     ROLE_APACHE,
+    ROLE_MANAGER,
     )
 
 ROLES_IDS = {
@@ -257,6 +264,7 @@ ROLES_IDS = {
                 ROLE_EMPLOYEE_PERIOD: NUM_ROLE_EMPL_PER, ROLE_PAY_TITLE: NUM_ROLE_PAY_TITLE, ROLE_PAYMENT: NUM_ROLE_PAYMENT },
     APP_PHOTO: { ROLE_PHOTO: NUM_ROLE_PHOTO },
     APP_LOGS: { ROLE_APACHE: NUM_ROLE_APACHE },
+    APP_SERVICE: {ROLE_MANAGER: NUM_ROLE_MANAGER },
     APP_BACKUP: { ROLE_BACKUP_SHORT: NUM_ROLE_BACKUP_SHORT, ROLE_BACKUP_FULL: NUM_ROLE_BACKUP_FULL, ROLE_BACKUP_CHECK: NUM_ROLE_BACKUP_CHECK },
     APP_ALL: { ROLE_SEARCH_RESULTS: NONE },
 }
@@ -395,6 +403,7 @@ ROLE_BASE = {
 
 ROLE_APP = {
     ROLE_TODO: APP_TODO,
+    ROLE_NOTIFICATOR: APP_TODO,
     ROLE_NOTE: APP_NOTE,
     ROLE_NEWS: APP_NEWS,
     ROLE_STORE: APP_STORE,

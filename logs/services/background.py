@@ -1,12 +1,13 @@
 from datetime import datetime
 from service.site_service import SiteService
 from logs.models import EventType
+from task.const import APP_SERVICE, ROLE_MANAGER
 
 class BackgroundLogData(SiteService):
     template_name = 'background'
 
     def __init__(self, *args, **kwargs):
-        super().__init__('service', 'manager', local_log=True, *args, **kwargs)
+        super().__init__(APP_SERVICE, ROLE_MANAGER, local_log=True, *args, **kwargs)
 
     def get_extra_context(self, request):
         context = {}

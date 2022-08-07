@@ -6,6 +6,7 @@ import os, smtplib, requests, json
 from datetime import datetime, timedelta
 from email.message import EmailMessage
 from logs.models import ServiceEvent, EventType
+from task.const import APP_SERVICE, ROLE_MANAGER
 
 class SiteService():
     template_name = 'logs'
@@ -38,7 +39,7 @@ class SiteService():
         day=None
         if 'day' in request.GET:
             day = request.GET['day']
-        context['events'] = self.get_events(app=self.app, service=self.service_name, day=day)
+        context['events'] = self.get_events(device=self.device, app=self.app, service=self.service_name, day=day)
         return context
 
     def ripe(self):
@@ -89,19 +90,22 @@ class SiteService():
         }
         resp = requests.post(self.api_url, headers=self.headers, verify=self.verify, json=data)
         if (resp.status_code != 201):
-            ServiceEvent.objects.create(device=self.device, app='service', service='manager', type=EventType.ERROR, name='log_api_post', info='[x] error ' + str(resp.status_code) + '. ' + str(resp.content))
+            ServiceEvent.objects.create(device=self.device, app=APP_SERVICE, service=ROLE_MANAGER, type=EventType.ERROR, name='log_api_post', info='[x] error ' + str(resp.status_code) + '. ' + str(resp.content))
  
-    def get_events(self, app=None, service=None, type=None, name=None, day=None, order_by=None, local_log=None):
+    def get_events(self, device=None, app=None, service=None, type=None, name=None, day=None, order_by=None, local_log=None):
         if not order_by:
             order_by = '-created'
 
         if local_log == None:
             local_log = self.local_log
+        
+        if not device:
+            device = self.device
 
         if self.use_log_api and not local_log:
-            return self.get_events_api(app, service, type, name, day, order_by)
+            return self.get_events_api(device, app, service, type, name, day, order_by)
 
-        data = ServiceEvent.objects.filter(device=self.device).order_by(order_by, '-id')
+        data = ServiceEvent.objects.filter(device=device).order_by(order_by, '-id')
         if app:
             data = data.filter(app=app)
         if service:
@@ -114,8 +118,8 @@ class SiteService():
             data = data.filter(created__date=day)
         return data
 
-    def get_events_api(self, app, service, type, name, day, order_by):
-        extra_param = f'&device={self.device}&app={app}&service={service}'
+    def get_events_api(self, device, app, service, type, name, day, order_by):
+        extra_param = f'&device={device}&app={app}&service={service}'
         if type:
             extra_param += f'&type={str(type)}'
         if name:
@@ -126,7 +130,7 @@ class SiteService():
             extra_param += f'&order_by={order_by}'
         resp = requests.get(self.api_url + extra_param, headers=self.headers, verify=self.verify)
         if (resp.status_code != 200):
-            ServiceEvent.objects.create(device=self.device, app='service', service='manager', type=EventType.ERROR, name='log_api_get', info='[x] error ' + str(resp.status_code) + '. ' + str(resp.content))
+            ServiceEvent.objects.create(device=self.device, app=APP_SERVICE, service=ROLE_MANAGER, type=EventType.ERROR, name='log_api_get', info='[x] error ' + str(resp.status_code) + '. ' + str(resp.content))
             return []
         ret = json.loads(resp.content)
         ret2 = [EventFromApi(x) for x in ret['results']]

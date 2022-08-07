@@ -4,6 +4,7 @@ import os, json
 from datetime import datetime, date
 from logs.models import ServiceEvent, EventType
 from backup.backuper import Backuper
+from task.const import APP_SERVICE, ROLE_MANAGER
 from todo.notificator import Notificator
 from fuel.serv_interval import ServInterval
 from logs.log_analyzer import LogAnalyzer
@@ -11,9 +12,9 @@ from task.models import Group, Task
 
 def log_event(name, type=EventType.INFO, info=None):
     device = os.environ.get('DJANGO_DEVICE')
-    event = ServiceEvent.objects.create(device=device, app='service', service='manager', type=type, name=name, info=info)
+    event = ServiceEvent.objects.create(device=device, app=APP_SERVICE, service=ROLE_MANAGER, type=type, name=name, info=info)
     if name == 'work':
-        ServiceEvent.objects.filter(device=device, app='service', service='manager', type=EventType.INFO, name=name, created__date=date.today()).exclude(id=event.id).delete()
+        ServiceEvent.objects.filter(device=device, app=APP_SERVICE, service=ROLE_MANAGER, type=EventType.INFO, name=name, created__date=date.today()).exclude(id=event.id).delete()
 
 def process_service(service_task):
     service_class = service_task.categories
@@ -25,7 +26,7 @@ def process_service(service_task):
         case 'ServInterval':
             service = ServInterval()
         case 'Apache':
-            service = LogAnalyzer()
+            service = LogAnalyzer(service_task)
         case _: service = None
     if not service or not service.ripe():
         if not service:
