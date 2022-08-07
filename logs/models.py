@@ -69,8 +69,6 @@ class SiteStat(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
     record = models.ForeignKey(AccessLog, on_delete = models.RESTRICT, verbose_name='log record', related_name='LogID', null=True)
 
-DEVICE = os.environ.get('DJANGO_DEVICE')
-
 class EventType(models.TextChoices):
         ERROR = 'error', _('Error')
         WARNING = 'warning', _('Warning')
@@ -78,7 +76,7 @@ class EventType(models.TextChoices):
         DEBUG = 'debug', _('Debug')
         
 class ServiceEvent(models.Model):
-    device = models.CharField(_('Device name'), max_length=50, blank=True, default=DEVICE, null=True)
+    device = models.CharField(_('Device name'), max_length=50, blank=True, null=True)
     app = models.CharField(_('App name'), max_length=50, blank=False, default=APP_TODO, null=True)
     service = models.CharField(_('Service name'), max_length=50, blank=False, null=True)
     created = models.DateTimeField(_('Creation time'), blank=True, default=datetime.now)

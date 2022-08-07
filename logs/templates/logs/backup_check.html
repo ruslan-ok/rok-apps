@@ -8,40 +8,53 @@
 
 {% block main %}
     <div class="row">
-        {% for src in sources %}
             <div class="col">
-                <h3>{{ src.name }}</h3>
                 <h5>Etalon</h5>
                 <table class="info-table">
                     <thead>
                         <tr>
                             <td>Age</td>
                             <td>Mode</td>
-                            <td>Etalon</td>
+                            <td>File name</td>
                             <td>Range</td>
-                            <td>Valid</td>
+                            <td>Ripe</td>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for x in src.arch_data %}
-                            <tr>
+                        {% for x in etalon %}
+                            <tr style="{% if not x.has_fact %} color: red; background-color: snow;{% endif %}">
                                 <td>{{ x.age }}</td>
                                 <td>{{ x.mode }}</td>
                                 <td>{{ x.name }}</td>
                                 <td>{{ x.min_range }}-{{ x.max_range }}</td>
+                                <td>{{ x.ripe }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="col">
+                <h5>Fact</h5>
+                <table class="info-table">
+                    <thead>
+                        <tr>
+                            <td>Age</td>
+                            <td>Mode</td>
+                            <td>File name</td>
+                            <td>Valid</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for x in fact %}
+                            <tr style="{% if not x.valid %} color: red; background-color: snow;{% endif %}">
+                                <td>{{ x.age }}</td>
+                                <td>{{ x.mode }}</td>
+                                <td>{{ x.name }}</td>
                                 <td>{{ x.valid }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
-
-                <h5>Fact</h5>
-                <ul>
-                    {% for x in src.fact_arch %}
-                        <li style="{% if not x.valid %} color: red;{% endif %}">{{x.name}}</li>
-                    {% endfor %}
-                </ul>
             </div>
-        {% endfor %}
     </div>
 {% endblock %}

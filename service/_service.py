@@ -56,19 +56,23 @@ if (__name__ == '__main__'):
                 console_log('work')
         
             if (resp.status_code != 200):
+                try:
+                    content_str = resp.content.decode()
+                except (UnicodeDecodeError, AttributeError):
+                    content_str = resp.content
                 subtype = 'plain'
-                if '<html' in resp.content:
+                if '<html' in content_str:
                     subtype = 'html'
-                notify(mail_host, user, pwrd, recipients, '[x] error ' + str(resp.status_code), resp.content, maintype='text', subtype=subtype)
-
-            data_str = resp.json()
-            data = json.loads(data_str)
-            status = '[x] unexpected response'
-            if ('result' in data):
-                status = data['result']
-            if (status != 'ok'):
-                info = json.dumps(data)
-                notify(mail_host, user, pwrd, recipients, status, info)
+                notify(mail_host, user, pwrd, recipients, '[x] error ' + str(resp.status_code), content_str, maintype='text', subtype=subtype)
+            else:
+                data_str = resp.json()
+                data = json.loads(data_str)
+                status = '[x] unexpected response'
+                if ('result' in data):
+                    status = data['result']
+                if (status != 'ok'):
+                    info = json.dumps(data)
+                    notify(mail_host, user, pwrd, recipients, status, info)
         except Exception as ex:
             subtype = 'plain'
             if '<html' in str(ex):

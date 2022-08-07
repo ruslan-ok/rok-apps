@@ -2,7 +2,7 @@
 
 The base behavior of the site service.
 """
-import os, smtplib, requests
+import os, smtplib, requests, json
 from datetime import datetime, timedelta
 from email.message import EmailMessage
 from logs.models import ServiceEvent, EventType
@@ -10,8 +10,13 @@ from logs.models import ServiceEvent, EventType
 class SiteService():
     template_name = 'logs'
 
-    def __init__(self, app, service_name, service_descr=None, local_log=False, *args, **kwargs):
+    def __init__(self, app, service_name, service_descr=None, device=None, local_log=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        this_device = os.environ.get('DJANGO_DEVICE')
+        if device:
+            self.device = device
+        else:
+            self.device = this_device
         self.app = app
         self.service_name = service_name
         self.service_descr = service_descr
@@ -19,9 +24,14 @@ class SiteService():
         self.user = os.environ.get('DJANGO_MAIL_USER')
         self.pwrd = os.environ.get('DJANGO_MAIL_PWRD')
         self.recipients = os.environ.get('DJANGO_MAIL_ADMIN')
-        self.device = os.environ.get('DJANGO_DEVICE')
-        self.use_log_api = (self.device != 'Nuc')
+        self.use_log_api = (this_device != 'Nuc')
         self.local_log = local_log
+        api_host = os.environ.get('DJANGO_HOST_LOG')
+        #api_host = 'http://localhost:8000'
+        self.api_url = f'{api_host}/en/api/logs/?format=json'
+        service_token = os.environ.get('DJANGO_SERVICE_TOKEN')
+        self.headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
+        self.verify = os.environ.get('DJANGO_CERT')
 
     def get_extra_context(self, request):
         context = {}
@@ -37,11 +47,13 @@ class SiteService():
     def process(self):
         return datetime.now() + timedelta(hours=1)
 
-    def log_event(self, type, name, info=None, send_mail=False):
+    def log_event(self, type, name, info=None, send_mail=False, one_per_day=False):
         if self.use_log_api and not self.local_log:
-            self.log_event_api(type, name, info)
+            self.log_event_api(type, name, info, one_per_day)
         else:
-            ServiceEvent.objects.create(device=self.device, app=self.app, service=self.service_name, type=type, name=name, info=info)
+            event = ServiceEvent.objects.create(device=self.device, app=self.app, service=self.service_name, type=type, name=name, info=info)
+            if one_per_day:
+                ServiceEvent.objects.filter(device=self.device, app=self.app, service=self.service_name, type=type, name=name, info=info).exclude(id=event.id).delete()
         if send_mail:
             s = smtplib.SMTP(host=self.mail_host, port=25)
             s.starttls()
@@ -65,12 +77,7 @@ class SiteService():
             del msg
             s.quit()
 
-    def log_event_api(self, type, name, info):
-        api_host = os.environ.get('DJANGO_HOST_API')
-        service_token = os.environ.get('DJANGO_SERVICE_TOKEN')
-        verify = os.environ.get('DJANGO_CERT')
-        api_url = f'{api_host}/en/api/logs/?format=json'
-        headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
+    def log_event_api(self, type, name, info, one_per_day):
         data = {
             'device': self.device,
             'app': self.app,
@@ -78,10 +85,11 @@ class SiteService():
             'type': str(type),
             'name': name,
             'info': info,
+            'one_per_day': str(one_per_day)
         }
-        resp = requests.post(api_url, headers=headers, verify=verify, json=data)
+        resp = requests.post(self.api_url, headers=self.headers, verify=self.verify, json=data)
         if (resp.status_code != 201):
-            ServiceEvent.objects.create(device=self.device, app='service', service='manager', type='error', name='log_api', info='[x] error ' + str(resp.status_code) + '. ' + resp.content)
+            ServiceEvent.objects.create(device=self.device, app='service', service='manager', type=EventType.ERROR, name='log_api_post', info='[x] error ' + str(resp.status_code) + '. ' + str(resp.content))
  
     def get_events(self, app=None, service=None, type=None, name=None, day=None, order_by=None, local_log=None):
         if not order_by:
@@ -107,4 +115,54 @@ class SiteService():
         return data
 
     def get_events_api(self, app, service, type, name, day, order_by):
-        return []
+        extra_param = f'&device={self.device}&app={app}&service={service}'
+        if type:
+            extra_param += f'&type={str(type)}'
+        if name:
+            extra_param += f'&name={name}'
+        if day:
+            extra_param += f'&day={day.strftime("%Y%m%d")}'
+        if order_by:
+            extra_param += f'&order_by={order_by}'
+        resp = requests.get(self.api_url + extra_param, headers=self.headers, verify=self.verify)
+        if (resp.status_code != 200):
+            ServiceEvent.objects.create(device=self.device, app='service', service='manager', type=EventType.ERROR, name='log_api_get', info='[x] error ' + str(resp.status_code) + '. ' + str(resp.content))
+            return []
+        ret = json.loads(resp.content)
+        ret2 = [EventFromApi(x) for x in ret['results']]
+        return ret2
+
+
+class EventFromApi():
+
+    def __init__(self, resp, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.device = resp['device']
+        self.app = resp['app']
+        self.service = resp['service']
+        self.created = datetime.strptime(resp['created'], '%Y-%m-%dT%H:%M:%S.%f')
+        self.type = EventType(resp['type'])
+        self.name = resp['name']
+        self.info = resp['info']
+
+    def __repr__(self):
+        return f'{self.app}:{self.service} [{self.created.strftime("%Y-%m-%d %H:%M:%S")}] {self.type} | {self.name} - {self.info}'
+    
+    def s_info(self):
+        if self.info:
+            return self.info
+        return ''
+
+    def type_color(self):
+        match self.type:
+            case EventType.ERROR: ret = 'red'
+            case EventType.WARNING: ret = 'orange'
+            case _: ret = 'black'
+        return ret
+
+    def type_bg_color(self):
+        match self.type:
+            case EventType.ERROR: ret = 'snow'
+            case EventType.WARNING: ret = 'ivory'
+            case _: ret = 'white'
+        return ret

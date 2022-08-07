@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 from logs.models import ServiceEvent
 from service.site_service import SiteService
-from task.const import APP_LOGS
+from task.const import APP_LOGS, APP_TODO
 
 REPORT_DEPTH_DAYS = 5
 
@@ -59,17 +59,34 @@ class OverviewLogData(SiteService):
                 continue
             has_error = False
             has_warn = False
+            qnt = 0
             for event in events:
                 if event.type == 'error':
                     has_error = True
                 if event.type == 'warning':
                     has_warn = True
+                if app == APP_TODO and service == 'notificator':
+                    if event.name == 'process' and 'task qnt = ' in event.info:
+                        add_qnt = int(event.info.split('task qnt = ')[1])
+                        qnt += add_qnt
             if has_error:
                 color = 'red'
             elif has_warn:
                 color = 'orange'
             else:
                 color = 'green'
-            ret.append({'icon': 'circle-fill', 'color': color, 'href': href})
+            match qnt:
+                case 0: icon = 'circle-fill'
+                case 1: icon = '1-circle'
+                case 2: icon = '2-circle'
+                case 3: icon = '3-circle'
+                case 4: icon = '4-circle'
+                case 5: icon = '5-circle'
+                case 6: icon = '6-circle'
+                case 7: icon = '7-circle'
+                case 8: icon = '8-circle'
+                case 9: icon = '9-circle'
+                case _: icon = 'arrow-up-right-circle'
+            ret.append({'icon': icon, 'color': color, 'href': href})
         return ret
 

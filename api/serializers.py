@@ -50,5 +50,5 @@ class ProfileSerializer(serializers.ModelSerializer):
 class LogsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ServiceEvent
-        fields = ['app', 'service', 'created', 'type', 'name', 'info']
+        fields = ['device', 'app', 'service', 'created', 'type', 'name', 'info']
 

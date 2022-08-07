@@ -10,7 +10,10 @@ class BackgroundLogData(SiteService):
 
     def get_extra_context(self, request):
         context = {}
-        context['events'] = self.get_events(app=self.app, service=self.service_name)
+        day = datetime.today().date()
+        if 'day' in request.GET:
+            day = datetime.strptime(request.GET['day'], '%Y%m%d')
+        context['events'] = self.get_events(app=self.app, service=self.service_name, day=day)
 
         status = 'stoped'
         color = 'red'

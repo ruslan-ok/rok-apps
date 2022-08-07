@@ -26,7 +26,7 @@ class Notificator(SiteService):
             return False
         now = datetime.now()
         self.tasks = Task.objects.filter(completed=False, remind__lt=now).exclude(remind=None)
-        #self.log_event(EventType.INFO, 'ripe', 'result = ' + str(len(self.tasks) > 0))
+        self.log_event(EventType.INFO, 'ripe', 'result = ' + str(len(self.tasks) > 0), one_per_day=True)
         return len(self.tasks) > 0
 
     def process(self):
@@ -109,7 +109,11 @@ class Notificator(SiteService):
         mm = messaging.MulticastMessage(tokens=tokens, data=None, notification=n, android=None, webpush=wc, apns=None, fcm_options=None)
         r = messaging.send_multicast(mm, dry_run=False, app=None)
         ret_resp = '[' + str(len(r.responses)) + ']'
-        self.log_event(EventType.INFO, 'remind', 'Remind task ID: {},\n ok: {},\n err: {},\n resp: {},\n name: "{}"'.format(task.id, r.success_count, r.failure_count, ret_resp, task.name))
+        if r.failure_count:
+            type = EventType.WARNING
+        else:
+            type = EventType.INFO
+        self.log_event(type, 'remind', f'Remind task ID: {task.id},\n ok: {r.success_count},\n err: {r.failure_count},\n resp: {ret_resp},\n name: "{task.name}"')
         npp = 1
         for z in r.responses:
             if z.success:
@@ -121,7 +125,7 @@ class Notificator(SiteService):
             msg = ''
             if z.message_id:
                 msg += ', message_id = "' + z.message_id + '"'
-            self.log_event(EventType.INFO, 'status', 'Remind status {}. {}{}{}\n       token "{}"'.format(npp, status, error_desc, msg, tokens[npp-1]))
+            #self.log_event(EventType.DEBUG, 'status', 'Remind status {}. {}{}{}\n       token "{}"'.format(npp, status, error_desc, msg, tokens[npp-1]))
             if (not z.success) and (z.exception.code == 'NOT_FOUND'):
                 self.del_token(task.user.id, tokens[npp-1])
                 self.log_event(EventType.WARNING, 'token_deleted', 'Token deleted', None, send_mail=True)

@@ -11,38 +11,37 @@ def sizeof_fmt(num, suffix='B'):
     return '{:3.1f}{}{}'.format(val, [' ', ' K', ' M', ' G', ' T', ' P', ' E', ' Z'][magnitude], suffix)
 
 class ArchItem():
-    def __init__(self, mode, name, age, *args, **kwargs):
+    def __init__(self, mode, name, age, valid=True, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.mode = mode
         self.name = name
         self.age = age
+        self.valid = valid
 
     def __repr__(self) -> str:
         return str(self.age) + ' - ' + self.name
     
-    def valid(self):
+    def ripe(self):
         if self.age >= self.min_range and self.age <= self.max_range:
             return 1
         return 0
 
 class Backup():
-    def __init__(self, device, first_day, last_day, log_event=None, *args, **kwargs):
+    def __init__(self, device, log_event=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.device = device
-        self.mode = 'full'
-        self.data = []
-        self.first_day = first_day
-        self.last_day = last_day
+        self.first_day = datetime(2022, 7, 11).date()
+        self.last_day = datetime.today().date()
+        self.full_frequency_days = 10 # TODO: make customizable
+        self.etalon = []
+        self.fact = []
         self.content = []
         self.backup_folder = os.environ.get('DJANGO_BACKUP_FOLDER')
-        self.full_duration_days = int(os.environ.get('DJANGO_BACKUP_FULL_DURATION_DAYS'))
         self.host = os.environ.get('DJANGO_HOST_MAIL')
         self.mail_user = os.environ.get('DJANGO_MAIL_USER')
         self.mail_pwrd = os.environ.get('DJANGO_MAIL_PWRD')
         self.mail_to = os.environ.get('DJANGO_MAIL_ADMIN')
         self.log_path = os.environ.get('DJANGO_BACKUP_LOG_PATH')
-        self.full_dirs = os.environ.get('DJANGO_BACKUP_FULL')
-        self.short_dirs = os.environ.get('DJANGO_BACKUP_SHORT')
         self.work_dir = self.backup_folder + device.lower()
         self.log_event = log_event
 
@@ -51,26 +50,23 @@ class Backup():
             self.log_event(type, name, info)
 
     def count_mode(self, day):
-        if not len(self.data):
-            self.mode = 'full'
-            return
-        arh_path_list = list(filter(lambda item: item.mode == 'full', self.data))
+        if not len(self.etalon):
+            return 'full'
+        arh_path_list = list(filter(lambda item: item.mode == 'full', self.etalon))
         arh_day = datetime.strptime(arh_path_list[0].name, self.device + '-%Y.%m.%d-full.zip').date()
         days = (day - arh_day).days
-        if (days == 0) or (days >= (self.full_duration_days-1)):
-            self.mode = 'full'
-            return
-        self.mode = 'short'
-        return
+        if (days == 0) or (days >= (self.full_frequency_days-1)):
+            return 'full'
+        return 'short'
 
     def get_item_by_age(self, age):
-        for x in self.data:
+        for x in self.etalon:
             if x.age == age:
                 return x
         return None
 
-    def get_arh_name_by_day(self, day):
-        return self.device + '-' + day.strftime('%Y.%m.%d') + '-' + self.mode + '.zip'
+    def get_arh_name_by_day(self, day, mode):
+        return self.device + '-' + day.strftime('%Y.%m.%d') + '-' + mode + '.zip'
 
     def get_arh_age(self, arch, day):
         file_name = arch.replace(self.device + '-', '').replace('-full', '').replace('-short', '').replace('.zip', '')
@@ -79,9 +75,9 @@ class Backup():
         return file_days + 1
 
     def remove(self, name):
-        for x in self.data:
+        for x in self.etalon:
             if x.name == name:
-                self.data.remove(x)
+                self.etalon.remove(x)
                 break
 
     def get_range(self, mode, pos):
@@ -89,14 +85,14 @@ class Backup():
             min_range = int(2**pos)
             max_range = int(2**(pos+1))-1
         else:
-            duration = self.full_duration_days
+            duration = self.full_frequency_days
             min_range = int(duration**pos)
             max_range = int(duration**(pos+1))-1
         return min_range, max_range
 
-    def zip_arh(self, mode_list, pos, day):
+    def zip_arh(self, mode, mode_list, pos, day):
         file_age = self.get_arh_age(mode_list[pos], day)
-        min_range, max_range = self.get_range(self.mode, pos)
+        min_range, max_range = self.get_range(mode, pos)
         if file_age < min_range or file_age > max_range:
             if pos < len(mode_list)-1:
                 next_file_age = self.get_arh_age(mode_list[pos+1], day)
@@ -105,14 +101,14 @@ class Backup():
                     del mode_list[pos]
 
     def update_range(self, name, min_range, max_range):
-        for x in self.data:
+        for x in self.etalon:
             if x.name == name:
                 x.min_range = min_range
                 x.max_range = max_range
                 break
 
     def update_range_by_mode(self, mode):
-        mode_items_list = list(filter(lambda item: item.mode == mode, self.data))
+        mode_items_list = list(filter(lambda item: item.mode == mode, self.etalon))
         mode_list = [x.name for x in mode_items_list]
         npp = 0
         for x in mode_list:
@@ -121,29 +117,45 @@ class Backup():
             npp += 1
 
     def fill(self):
-        self.data.clear()
+        self.etalon.clear()
         cur_day = self.first_day
         while cur_day <= self.last_day:
-            self.count_mode(cur_day)
-            arch_name = self.get_arh_name_by_day(cur_day)
+            mode = self.count_mode(cur_day)
+            arch_name = self.get_arh_name_by_day(cur_day, mode)
             arch_age = self.get_arh_age(arch_name, self.last_day)
-            item = ArchItem(self.mode, arch_name, arch_age)
-            self.data.insert(0, item)
-            if self.mode == 'full':
-                mode_items_list = list(filter(lambda item: item.mode == 'full', self.data))
+            item = ArchItem(mode, arch_name, arch_age)
+            self.etalon.insert(0, item)
+            if mode == 'full':
+                mode_items_list = list(filter(lambda item: item.mode == 'full', self.etalon))
             else:
-                mode_items_list = list(filter(lambda item: item.mode == 'short', self.data))
+                mode_items_list = list(filter(lambda item: item.mode == 'short', self.etalon))
             mode_list = [x.name for x in mode_items_list]
             y = 2
             while y < len(mode_list):
-                self.zip_arh(mode_list, y, cur_day)
+                self.zip_arh(mode, mode_list, y, cur_day)
                 y += 1
             cur_day = cur_day + timedelta(1)
         self.update_range_by_mode('full')
         self.update_range_by_mode('short')
+        self.fact.clear()
+        fact_arch = [x.replace(self.work_dir + '\\', '') for x in glob.glob(self.work_dir + '\\*.zip')]
+        fact_arch.sort(reverse=True)
+        for arch_name in fact_arch:
+            mode = 'short'
+            if '-full.zip' in arch_name:
+                mode = 'full'
+            arch_age = self.get_arh_age(arch_name, self.last_day)
+            item = ArchItem(mode, arch_name, arch_age, valid=(1 if self.check_name(arch_name) else 0))
+            self.fact.append(item)
+        for e in self.etalon:
+            e.has_fact = False
+            for f in self.fact:
+                if e.name == f.name:
+                    e.has_fact = True
+                    break
 
     def check_name(self, name):
-        for x in self.data:
+        for x in self.etalon:
             if x.name == name:
                 return True
         return False
@@ -221,13 +233,9 @@ class Backup():
         self.log(EventType.INFO, 'method', '-backup_mail() finished')
 
     # Архивирование
-    def archivate(self):
+    def archivate(self, folders):
         self.log(EventType.INFO, 'method', '+archivate() started')
-        if self.mode == 'full':
-            dirs_raw = self.full_dirs
-        else:
-            dirs_raw = self.short_dirs
-        dirs = dirs_raw.split(';')
+        dirs = folders.split('\n')
 
         if not os.path.exists(self.work_dir):
             os.mkdir(self.work_dir)
@@ -366,25 +374,30 @@ class Backup():
         self.log(EventType.INFO, 'method', '-send_mail() finished')
 
     def ripe(self):
-        self.log(EventType.INFO, 'method', '+ripe()')
-        self.count_mode(self.last_day) # Выбор режима архивирования
-        arch_name = self.get_arh_name_by_day(self.last_day)
-        f1 = self.work_dir + '\\' + arch_name
-        if '-full' in arch_name:
-            f2 = self.work_dir + '\\' + arch_name.replace('-full', '-short')
+        self.fill()
+        mode = self.count_mode(self.last_day)
+        fn = self.work_dir + '\\' + self.get_arh_name_by_day(self.last_day, mode)
+        if os.path.isfile(fn):
+            self.log(EventType.WARNING, 'ripe', f'Archive {fn} already exist. Need to check the due date of the service task.')
+            return False
+        if mode == 'short':
+            mode = 'full'
         else:
-            f2 = self.work_dir + '\\' + arch_name.replace('-short', '-full')
-        ret = not os.path.isfile(f1) and not os.path.isfile(f2)
-        self.log(EventType.INFO, 'method', f'-ripe(): f1="{f1}", f2="{f2}", ret={str(ret)}')
-        return ret
+            mode = 'short'
+        fn = self.work_dir + '\\' + self.get_arh_name_by_day(self.last_day, mode)
+        if os.path.isfile(fn):
+            self.log(EventType.INFO, 'ripe', f'Different mode archive {fn} already exist.')
+            return False
+        self.log(EventType.INFO, 'ripe', f'An archive {fn} will be created.')
+        return True
 
-    def run(self):
-        self.log(EventType.INFO, 'method', '+run() started')
+    def run(self, device, mode, folders):
+        self.log(EventType.INFO, 'method', f'+run({device}, {mode}) started')
         try:
             self.content.clear()
-            self.archivate()      # Архивирование
-            self.zip()            # Удаление неактуальных архивов
-            self.synch()          # Синхронизация
+            self.archivate(folders) # Архивирование
+            self.zip()              # Удаление неактуальных архивов
+            self.synch()            # Синхронизация
         except Exception as ex:
             self.log(EventType.ERROR, 'exception', str(ex))
         self.log(EventType.INFO, 'method', '-run() finished')
