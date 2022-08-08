@@ -70,7 +70,8 @@ class SiteService():
                 case 'error': prefix = 'x'
                 case 'warning': prefix = '!'
                 case _: prefix = 'i'
-            msg['Subject']='Service Event: [' + prefix + ']' + name
+            subject = 'Service Event: [' + prefix + ']' + name
+            msg['Subject'] = subject
             if info:
                 msg.set_content(info)
             else:
@@ -78,6 +79,8 @@ class SiteService():
             s.send_message(msg)
             del msg
             s.quit()
+            ServiceEvent.objects.create(device=self.device, app=self.app, service=self.service_name, type=EventType, name='mail', 
+                info=f'To:[{self.recipients}], Subject:"[{subject}], Body:[{info[:40]}...]')
 
     def log_event_api(self, type, name, info, one_per_day):
         data = {

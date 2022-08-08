@@ -41,6 +41,7 @@
                             <td>Age</td>
                             <td>Mode</td>
                             <td>File name</td>
+                            <td>Size</td>
                             <td>Valid</td>
                         </tr>
                     </thead>
@@ -50,6 +51,7 @@
                                 <td>{{ x.age }}</td>
                                 <td>{{ x.mode }}</td>
                                 <td>{{ x.name }}</td>
+                                <td style="text-align: right">{{ x.size }}</td>
                                 <td>{{ x.valid }}</td>
                             </tr>
                         {% endfor %}

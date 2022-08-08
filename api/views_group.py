@@ -131,3 +131,11 @@ class GroupViewSet(viewsets.ModelViewSet):
         group.save()
         serializer = GroupSerializer(instance=group, context={'request': request})
         return Response(serializer.data)
+
+    @action(detail=True)
+    def toggle_services_visible(self, request, pk=None):
+        group = self.get_object()
+        group.services_visible = not group.services_visible
+        group.save()
+        serializer = GroupSerializer(instance=group, context={'request': request})
+        return Response(serializer.data)

@@ -132,6 +132,10 @@ class Context:
             data = data.filter(groups__id=group.id)
             # if (not group.completed):
             #     data = data.filter(completed=False)
+        else:
+            if group.view_id == 'planned' and not group.services_visible:
+                svc_grp_id = int(os.environ.get('DJANGO_SERVICE_GROUP'))
+                data = data.exclude(groups__id=svc_grp_id)
         
         if hasattr(self, 'tune_dataset'):
             return self.tune_dataset(data, group)

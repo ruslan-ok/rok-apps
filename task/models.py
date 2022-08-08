@@ -38,6 +38,7 @@ class Group(models.Model):
     theme = models.IntegerField(_('theme id'), blank=True, null=True)
     sub_groups = models.CharField(_('content items sub groups'), max_length=10000, blank=True, null=True)
     use_sub_groups = models.BooleanField(_('using content items sub groups'), null=True)
+    services_visible = models.BooleanField(_('show service tasks'), null=True)
     determinator = models.CharField(_('group category: "group", "role" or "view"'), max_length=10, blank=True, null=True)
     view_id = models.CharField(_('view identificator for "role" and "view"'), max_length=50, blank=True, null=True)
     items_sort = models.CharField(_('items sorting orders'), max_length=500, blank=True)

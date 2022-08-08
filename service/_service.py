@@ -11,7 +11,7 @@ def console_log(status, mess=None):
     if mess:
         print(mess)
 
-def notify(host, user, pwrd, recipients, status, mess, maintype='text', subtype='plain'):
+def notify(host, user, pwrd, recipients, status, mess, maintype='text', subtype='plain', subject=None):
     host = os.environ.get('DJANGO_HOST')
     if host == 'localhost' and subtype != 'html':
         return console_log(status, mess)
@@ -22,7 +22,12 @@ def notify(host, user, pwrd, recipients, status, mess, maintype='text', subtype=
     msg = EmailMessage()
     msg['From'] = user
     msg['To'] = recipients
-    msg['Subject']='Services Notificator: ' + status
+
+    if subject:
+        msg['Subject'] = subject
+    else:
+        msg['Subject'] = 'Services Notificator: ' + status
+
     if subtype == 'plain':
         msg.set_content('Background process (/service/_service.py):\n\n' + mess)
     else:
@@ -44,18 +49,27 @@ if (__name__ == '__main__'):
     timer_interval_sec = int(os.environ.get('DJANGO_SERVICE_INTERVAL_SEC'))
     started = True
     while True:
+        extra_param = ''
+        ret_code = None
+        if started:
+            extra_param = '&started=true'
         try:
-            extra_param = ''
-            if started:
-                extra_param = '&started=true'
             resp = requests.get(api_url + extra_param, headers=headers, verify=verify)
+            ret_code = resp.status_code
+        except Exception as ex:
+            subtype = 'plain'
+            if '<html' in str(ex):
+                subtype = 'html'
+            notify(mail_host, user, pwrd, recipients, 'exception', str(ex), maintype='text', subtype=subtype, subject='Server API not available.')
+
+        if ret_code:
             if started:
                 started = False
                 console_log('started')
             else:
                 console_log('work')
         
-            if (resp.status_code != 200):
+            if (ret_code != 200):
                 try:
                     content_str = resp.content.decode()
                 except (UnicodeDecodeError, AttributeError):
@@ -63,7 +77,7 @@ if (__name__ == '__main__'):
                 subtype = 'plain'
                 if '<html' in content_str:
                     subtype = 'html'
-                notify(mail_host, user, pwrd, recipients, '[x] error ' + str(resp.status_code), content_str, maintype='text', subtype=subtype)
+                notify(mail_host, user, pwrd, recipients, '[x] error ' + str(ret_code), content_str, maintype='text', subtype=subtype)
             else:
                 data_str = resp.json()
                 data = json.loads(data_str)
@@ -73,9 +87,4 @@ if (__name__ == '__main__'):
                 if (status != 'ok'):
                     info = json.dumps(data)
                     notify(mail_host, user, pwrd, recipients, status, info)
-        except Exception as ex:
-            subtype = 'plain'
-            if '<html' in str(ex):
-                subtype = 'html'
-            notify(mail_host, user, pwrd, recipients, '[x] exception', str(ex), maintype='text', subtype=subtype)
         time.sleep(timer_interval_sec)

@@ -1,7 +1,10 @@
+import requests, json
 from datetime import datetime
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from rest_framework import viewsets, permissions, renderers
 
-from logs.models import ServiceEvent
+from logs.models import EventType, ServiceEvent
 from api.serializers import LogsSerializer
 from task.const import *
 
@@ -44,3 +47,13 @@ class LogsViewSet(viewsets.ModelViewSet):
             data = data.filter(created__date=day)
         return data
 
+    @action(detail=False)
+    def get_btc_price(self, request, pk=None):
+        headers = {'x-access-token': 'coinranking74ce3cb6b1a7eac4ce4bdd938bc524cdb3a1027a1b0fb6cd', 'User-Agent': 'Mozilla/5.0'}
+        resp = requests.get('https://api.coinranking.com/v2/coin/Qwsogvtv82FCd/price', headers=headers)
+        if (resp.status_code != 200):
+            ServiceEvent.objects.create(device='Nuc', app=APP_SERVICE, service=ROLE_MANAGER, type=EventType.WARNING, name='requests', info='[x] error ' + str(resp.status_code) + '. ' + str(resp.content))
+            ret = {'result': 'error'}
+        else:
+            ret = json.loads(resp.content)
+        return Response(ret)

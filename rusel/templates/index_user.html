@@ -14,7 +14,14 @@
       {% endif %}
 
       {% include "widgets/weather.html" %}
-      {#<a href="{% url 'trip:main' %}">{{ trip_summary|safe }}</a>#}
+
+      <div class="row">
+        <div class="col mt-3">
+          {#<a href="{% url 'trip:main' %}">{{ trip_summary|safe }}</a>#}
+          <a href="https://cex.io/prices"><span id="btc_price_id">BTC price</span></a><br>
+          <a href="https://www.blockchain.com/btc/address/1CWSc1yEyPPAsRo6bYNE6cVgVhsbdjd74R"><span id="btc_amount_id">BTC amount</span></a>
+        </div>
+      </div>
 
       <div class="row">
         <div class="col">

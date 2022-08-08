@@ -11,12 +11,13 @@ def sizeof_fmt(num, suffix='B'):
     return '{:3.1f}{}{}'.format(val, [' ', ' K', ' M', ' G', ' T', ' P', ' E', ' Z'][magnitude], suffix)
 
 class ArchItem():
-    def __init__(self, mode, name, age, valid=True, *args, **kwargs):
+    def __init__(self, mode, name, age, valid=True, size='', *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.mode = mode
         self.name = name
         self.age = age
         self.valid = valid
+        self.size = size
 
     def __repr__(self) -> str:
         return str(self.age) + ' - ' + self.name
@@ -145,7 +146,8 @@ class Backup():
             if '-full.zip' in arch_name:
                 mode = 'full'
             arch_age = self.get_arh_age(arch_name, self.last_day)
-            item = ArchItem(mode, arch_name, arch_age, valid=(1 if self.check_name(arch_name) else 0))
+            size = self.sizeof_fmt(os.path.getsize(self.work_dir + '\\' + arch_name))
+            item = ArchItem(mode, arch_name, arch_age, valid=(1 if self.check_name(arch_name) else 0), size=size)
             self.fact.append(item)
         for e in self.etalon:
             e.has_fact = False
@@ -153,6 +155,13 @@ class Backup():
                 if e.name == f.name:
                     e.has_fact = True
                     break
+
+    def sizeof_fmt(self, num, suffix='B'):
+        for unit in ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z']:
+            if abs(num) < 1024.0:
+                return f'{num:3.1f}{unit}{suffix}'
+            num /= 1024.0
+        return f'{num:.1f}Yi{suffix}'
 
     def check_name(self, name):
         for x in self.etalon:
@@ -176,7 +185,7 @@ class Backup():
         ret = subprocess.run(command, shell=True)
         # self.log(EventType.INFO, 'variable', f'ret.returncode = {ret.returncode}')
         if (ret.returncode != 0):
-            self.log(EventType.ERROR, 'backup_db', 'Ошибка создания бэкапа MySQL. Код ошибки: ' + str(ret.returncode))
+            self.log(EventType.ERROR, 'backup_db', 'Ошибка создания бэкапа MySQL. Код ошибки: ' + str(ret.returncode), send_mail=True)
             return
         sz = os.path.getsize(file)
         self.content.append('   ' + file + '    ' + sizeof_fmt(sz))
@@ -192,7 +201,7 @@ class Backup():
         ret = subprocess.run('cscript ' + script)
         #self.save_log(False, '[i] command = ', command)
         if (ret.returncode != 0):
-            self.log(EventType.ERROR, 'backup_mail', 'Вызов subprocess.run вернул код ошибки ' + str(ret.returncode))
+            self.log(EventType.ERROR, 'backup_mail', 'Вызов subprocess.run вернул код ошибки ' + str(ret.returncode), send_mail=True)
             return
         start_dt = datetime.now()
         total = 0
@@ -221,7 +230,7 @@ class Backup():
             if (status != 'ok'):
                 sz = 0
         if (sz == 0):
-            self.log(EventType.ERROR, 'backup_mail', 'За назначенный таймаут файл архива не был получен.')
+            self.log(EventType.ERROR, 'backup_mail', 'За назначенный таймаут файл архива не был получен.', send_mail=True)
             return
         for f in fl:
             total += 1
@@ -262,9 +271,9 @@ class Backup():
         if (sz > 1000):
             self.content.append('   ' + fn + '    ' + sizeof_fmt(sz))
         elif (sz == 0):
-            self.log(EventType.ERROR, 'archivate', 'Не удалось создать архив ' + self.work_dir + '\\' + fn)
+            self.log(EventType.ERROR, 'archivate', 'Не удалось создать архив ' + self.work_dir + '\\' + fn, send_mail=True)
         else:
-            self.log(EventType.ERROR, 'archivate', 'Пустой архив ' + self.work_dir + '\\' + fn)
+            self.log(EventType.ERROR, 'archivate', 'Пустой архив ' + self.work_dir + '\\' + fn, send_mail=True)
         self.log(EventType.INFO, 'method', '-archivate() finished')
 
     # Удаление неактуальных архивов
@@ -354,14 +363,14 @@ class Backup():
 
     # Отправка информационного письма
     def send_mail(self, status, info):
-        self.log(EventType.INFO, 'method', '+send_mail() started')
         s = smtplib.SMTP(host=self.host, port=25)
         s.starttls()
         s.login(self.mail_user, self.mail_pwrd)
         msg = EmailMessage()
         msg['From'] = self.mail_user
         msg['To'] = self.mail_to
-        msg['Subject']='Архивация на ' + self.device + ' - ' + status
+        subject = 'Архивация на ' + self.device + ' - ' + status
+        msg['Subject'] = subject
         body = ''
         for str in self.content:
             body = body + str + '\n'
@@ -371,7 +380,7 @@ class Backup():
         s.send_message(msg)
         del msg
         s.quit()
-        self.log(EventType.INFO, 'method', '-send_mail() finished')
+        self.log(EventType.INFO, 'mail', f'To:[{self.mail_to}], Subject:"[{subject}], Body:[{body[:40]}...]')
 
     def ripe(self):
         self.fill()
@@ -401,6 +410,6 @@ class Backup():
             self.zip()              # Удаление неактуальных архивов
             self.synch()            # Синхронизация
         except Exception as ex:
-            self.log(EventType.ERROR, 'exception', str(ex))
+            self.log(EventType.ERROR, 'exception', str(ex), send_mail=True)
         self.log(EventType.INFO, 'method', '-run() finished')
 

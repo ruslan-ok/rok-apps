@@ -38,6 +38,15 @@
                 </label>
             </div>
             {% endif %}
+            {% if config.cur_view_group.view_id == 'planned' %}
+            <div class="form-check form-switch my-1 mx-1">
+                <input type="checkbox" name="services_visible" id="id_services_visible" class="form-check-input" 
+                {% if config.cur_view_group.services_visible %} checked{% endif %} onclick="toggleServicesVisible({{config.cur_view_group.id|escape}})">
+                <label for="id_services_visible" class="form-check-label">
+                    {% trans 'services visible'|capfirst %}
+                </label>
+            </div>
+            {% endif %}
         </ul>
     </div>
 {% endif %}
