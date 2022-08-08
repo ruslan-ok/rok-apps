@@ -38,7 +38,8 @@ class SiteService():
         context = {}
         day=None
         if 'day' in request.GET:
-            day = request.GET['day']
+            day_str = request.GET['day']
+            day = datetime.strptime(day_str, '%Y%m%d')
         context['events'] = self.get_events(device=self.device, app=self.app, service=self.service_name, day=day)
         return context
 
