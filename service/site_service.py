@@ -134,7 +134,7 @@ class SiteService():
             ServiceEvent.objects.create(device=self.device, app=APP_SERVICE, service=ROLE_MANAGER, type=EventType.ERROR, name='log_api_get', info='[x] error ' + str(resp.status_code) + '. ' + str(resp.content))
             return []
         ret = json.loads(resp.content)
-        ret2 = [EventFromApi(x) for x in ret['results']]
+        ret2 = [EventFromApi(x) for x in ret]
         return ret2
 
 

@@ -4,5 +4,5 @@ from task.const import APP_BACKUP, ROLE_BACKUP_SHORT
 class BackupNucShortLogData(SiteService):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(APP_BACKUP, ROLE_BACKUP_SHORT, device='Nuc', local_log=True, *args, **kwargs)
+        super().__init__(APP_BACKUP, ROLE_BACKUP_SHORT, device='Nuc', *args, **kwargs)
 

@@ -233,14 +233,14 @@ class Backup():
         self.log(EventType.INFO, 'method', '-backup_mail() finished')
 
     # Архивирование
-    def archivate(self, folders):
+    def archivate(self, mode, folders):
         self.log(EventType.INFO, 'method', '+archivate() started')
-        dirs = folders.split('\n')
+        dirs = [x.replace('\r', '') for x in folders.split('\n')]
 
         if not os.path.exists(self.work_dir):
             os.mkdir(self.work_dir)
 
-        fn = self.device + '-' + datetime.now().strftime('%Y.%m.%d') + '-' + self.mode + '.zip'
+        fn = self.device + '-' + datetime.now().strftime('%Y.%m.%d') + '-' + mode + '.zip'
         zf = zipfile.ZipFile(self.work_dir + '\\' + fn, 'w')
         for dir in dirs:
             print('Archiving:', dir, '...')
@@ -376,26 +376,28 @@ class Backup():
     def ripe(self):
         self.fill()
         mode = self.count_mode(self.last_day)
-        fn = self.work_dir + '\\' + self.get_arh_name_by_day(self.last_day, mode)
-        if os.path.isfile(fn):
-            self.log(EventType.WARNING, 'ripe', f'Archive {fn} already exist. Need to check the due date of the service task.', send_mail=False, one_per_day=True)
+        fn1 = self.work_dir + '\\' + self.get_arh_name_by_day(self.last_day, mode)
+        if os.path.isfile(fn1):
+            self.log(EventType.WARNING, 'ripe', f'Archive {fn1} already exist. Need to check the due date of the service task.', send_mail=False, one_per_day=True)
             return False
         if mode == 'short':
             mode = 'full'
         else:
             mode = 'short'
-        fn = self.work_dir + '\\' + self.get_arh_name_by_day(self.last_day, mode)
-        if os.path.isfile(fn):
-            self.log(EventType.INFO, 'ripe', f'Different mode archive {fn} already exist.')
+        fn2 = self.work_dir + '\\' + self.get_arh_name_by_day(self.last_day, mode)
+        if os.path.isfile(fn2):
+            self.log(EventType.INFO, 'ripe', f'Different mode archive {fn2} already exist.')
             return False
-        self.log(EventType.INFO, 'ripe', f'An archive {fn} will be created.')
+        self.log(EventType.INFO, 'ripe', f'An archive {fn1} will be created.')
         return True
 
     def run(self, device, mode, folders):
         self.log(EventType.INFO, 'method', f'+run({device}, {mode}) started')
+        self.device = device
+        # self.mode = mode
         try:
             self.content.clear()
-            self.archivate(folders) # Архивирование
+            self.archivate(mode, folders) # Архивирование
             self.zip()              # Удаление неактуальных архивов
             self.synch()            # Синхронизация
         except Exception as ex:

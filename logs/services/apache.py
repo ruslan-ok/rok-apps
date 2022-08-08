@@ -6,7 +6,7 @@ class ApacheLogData(SiteService):
     template_name = 'apache'
 
     def __init__(self, *args, **kwargs):
-        super().__init__(APP_LOGS, ROLE_APACHE, local_log=True, *args, **kwargs)
+        super().__init__(APP_LOGS, ROLE_APACHE, device='Nuc', *args, **kwargs)
 
     def get_extra_context(self, request):
         context = super().get_extra_context(request)

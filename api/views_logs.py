@@ -9,6 +9,7 @@ class LogsViewSet(viewsets.ModelViewSet):
     serializer_class = LogsSerializer
     permission_classes = [permissions.IsAuthenticated]
     renderer_classes = [renderers.BrowsableAPIRenderer, renderers.JSONRenderer,]
+    pagination_class = None
 
     def perform_create(self, serializer):
         event = serializer.save()

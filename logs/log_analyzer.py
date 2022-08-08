@@ -19,13 +19,12 @@ from logs.models import IPInfo, AccessLog
 
 
 record_parts = [
-    r'(?P<host>\S+)',      # host %h
-    r'-',                  # indent %l (unused)
-    r'(?P<user>\S+)',      # user %u
     r'\[(?P<time>.+)',     # time %t
     r'(?P<timezone>.+)\]', # timezone %t
+    r'(?P<host>\S+)',      # host %h
+    r'(?P<prot1>\S+)',     # protocol1 %p
+    r'(?P<prot2>\S+)',     # protocol2 %p
     r'"(?P<request>.*)"',  # request "%r"
-    r'(?P<status>\d+)',    # status %>s
     r'(?P<size>\S+)',      # size %b (careful, can be '-')
 ]
 
@@ -96,7 +95,7 @@ class LogAnalyzer(SiteService):
 
     def get_host(self, host):
         if IPInfo.objects.filter(ip=host).exists():
-            return IPInfo.objects.filter(ip=host).get().id
+            return IPInfo.objects.filter(ip=host)[0].id
         return None
     
     def add_host(self, host):
@@ -147,7 +146,8 @@ class LogAnalyzer(SiteService):
         return self.add_host(host)
     
     def save_record(self, host_id, record):
-        user = record['user']
+        # user = record['user']
+        user = ''
         time = record['time']
         if 'method' in record:
             method = record['method']
@@ -159,8 +159,8 @@ class LogAnalyzer(SiteService):
     
         status = size = 0
     
-        if int(record['status']):
-            status = int(record['status'])
+        # if int(record['status']):
+        #     status = int(record['status'])
         
         if (record['size'] != '-'):
             size = int(record['size'])
@@ -191,6 +191,6 @@ def get_host_info(host):
         return {'ip': host}
 
     resp = requests.get('http://ipwhois.app/json/' + host)
-    info = resp.content.decode('utf-8')
+    # info = resp.content.decode('utf-8')
     data = resp.json()
     return data

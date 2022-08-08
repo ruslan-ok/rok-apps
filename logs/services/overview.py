@@ -37,9 +37,9 @@ class OverviewLogData(SiteService):
                 case 'NS': days = self.get_service_health('Nuc', APP_BACKUP, ROLE_BACKUP_SHORT)
                 case 'VF': days = self.get_service_health('Vivo', APP_BACKUP, ROLE_BACKUP_FULL)
                 case 'VS': days = self.get_service_health('Vivo', APP_BACKUP, ROLE_BACKUP_SHORT)
-                case 'TN': days = self.get_service_health(this_device, APP_TODO, ROLE_NOTIFICATOR)
-                case 'SI': days = self.get_service_health(this_device, APP_FUEL, ROLE_PART)
-                case 'AL': days = self.get_service_health(this_device, APP_LOGS, ROLE_APACHE)
+                case 'TN': days = self.get_service_health('Nuc', APP_TODO, ROLE_NOTIFICATOR)
+                case 'SI': days = self.get_service_health('Nuc', APP_FUEL, ROLE_PART)
+                case 'AL': days = self.get_service_health('Nuc', APP_LOGS, ROLE_APACHE)
                 case _: days = [{'icon': 'dash-circle-dotted', 'color': 'gray'} for x in range(REPORT_DEPTH_DAYS)]
             services.append({
                 'icon': service[1],
@@ -55,7 +55,7 @@ class OverviewLogData(SiteService):
         for day_num in range(REPORT_DEPTH_DAYS):
             day = date.today() - timedelta(days=day_num)
             href = day.strftime('%Y%m%d')
-            events = self.get_events(device=device, app=app, service=service, day=day, local_log=(app == APP_SERVICE or app == APP_LOGS))
+            events = self.get_events(device=device, app=app, service=service, day=day, local_log=(app == APP_SERVICE))
             if not len(events):
                 ret.append({'icon': 'dash', 'color': 'black', 'href': href})
                 continue
@@ -67,7 +67,7 @@ class OverviewLogData(SiteService):
                     has_error = True
                 if event.type == 'warning':
                     has_warn = True
-                if app == APP_TODO and service == 'notificator':
+                if app == APP_TODO and service == ROLE_NOTIFICATOR:
                     if event.name == 'process' and 'task qnt = ' in event.info:
                         add_qnt = int(event.info.split('task qnt = ')[1])
                         qnt += add_qnt

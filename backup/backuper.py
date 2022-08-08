@@ -21,6 +21,10 @@ class Backuper(SiteService):
 
     def process(self):
         self.log_event(EventType.INFO, 'start', self.backup.device)
-        self.backup.run(self.folders)
+        if self.service_name == ROLE_BACKUP_SHORT:
+            mode = 'short'
+        else:
+            mode = 'full'
+        self.backup.run(self.backup.device, mode, self.folders)
         self.log_event(EventType.INFO, 'stop', self.backup.device)
         return True

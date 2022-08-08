@@ -5,13 +5,13 @@ from firebase_admin import credentials, messaging
 from logs.models import EventType
 from task.models import Task, TaskGroup
 from todo.models import Subscription
-from task.const import APP_TODO, ROLE_TODO
+from task.const import APP_TODO, ROLE_NOTIFICATOR, ROLE_TODO
 from service.site_service import SiteService
 
 class Notificator(SiteService):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(APP_TODO, 'notificator', 'Рассылка уведомлений о задачах', *args, **kwargs)
+        super().__init__(APP_TODO, ROLE_NOTIFICATOR, 'Рассылка уведомлений о задачах', *args, **kwargs)
         self.host = os.environ.get('DJANGO_HOST_API', 'http://localhost:8000')
         self.cred_cert = os.environ.get('FIREBASE_ACCOUNT_CERT')
 
