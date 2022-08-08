@@ -1,4 +1,4 @@
-import requests, json
+import requests, json, os
 from datetime import datetime
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -49,7 +49,8 @@ class LogsViewSet(viewsets.ModelViewSet):
 
     @action(detail=False)
     def get_btc_price(self, request, pk=None):
-        headers = {'x-access-token': 'coinranking74ce3cb6b1a7eac4ce4bdd938bc524cdb3a1027a1b0fb6cd', 'User-Agent': 'Mozilla/5.0'}
+        api_key = os.environ.get('COINRANKING_API_KEY')
+        headers = {'x-access-token': api_key, 'User-Agent': 'Mozilla/5.0'}
         resp = requests.get('https://api.coinranking.com/v2/coin/Qwsogvtv82FCd/price', headers=headers)
         if (resp.status_code != 200):
             ServiceEvent.objects.create(device='Nuc', app=APP_SERVICE, service=ROLE_MANAGER, type=EventType.WARNING, name='requests', info='[x] error ' + str(resp.status_code) + '. ' + str(resp.content))
