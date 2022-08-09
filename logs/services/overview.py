@@ -1,6 +1,6 @@
 import os
 from datetime import date, timedelta
-from logs.models import ServiceEvent
+from logs.services.background import BackgroundLogData
 from service.site_service import SiteService
 from task.const import APP_BACKUP, APP_FUEL, APP_LOGS, APP_SERVICE, APP_TODO, ROLE_APACHE, ROLE_BACKUP_FULL, ROLE_BACKUP_SHORT, ROLE_MANAGER, ROLE_NOTIFICATOR, ROLE_PART
 
@@ -25,8 +25,11 @@ class OverviewLogData(SiteService):
 
     def get_extra_context(self, request):
         context = {}
+        context['health'] = self.get_health()
+        return context
+
+    def get_health(self):
         dates = [date.today() - timedelta(days=x) for x in range(REPORT_DEPTH_DAYS)]
-        context['dates'] = dates
         this_device = os.environ.get('DJANGO_DEVICE')
         services = []
         for service in SERVICES:
@@ -47,14 +50,18 @@ class OverviewLogData(SiteService):
                 'name': service[3],
                 'days': days,
             })
-        context['services'] = services
-        return context
+        return {'dates': dates, 'services': services}
 
     def get_service_health(self, device, app, service):
         ret = []
         for day_num in range(REPORT_DEPTH_DAYS):
             day = date.today() - timedelta(days=day_num)
             href = day.strftime('%Y%m%d')
+            if day_num == 0 and app == APP_SERVICE:
+                bs = BackgroundLogData()
+                if not bs.get_health():
+                    ret.append({'icon': 'circle-fill', 'color': 'gray', 'href': href})
+                    continue
             events = self.get_events(device=device, app=app, service=service, day=day, local_log=(app == APP_SERVICE))
             if not len(events):
                 ret.append({'icon': 'dash', 'color': 'black', 'href': href})

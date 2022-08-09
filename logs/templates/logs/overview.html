@@ -12,11 +12,11 @@
           <table class="info-table">
             <tr>
                 <th>Service</th>
-                {% for dt in dates %}
+                {% for dt in health.dates %}
                     <th> {{ dt|date:'d.m.Y' }} </th>
                 {% endfor %}
             </tr>
-            {% for service in services %}
+            {% for service in health.services %}
                 <tr>
                     <td class="bi-{{ service.icon }}"><span class="px-3">{{ service.name }}</span></td>
                     {% for day in service.days %}

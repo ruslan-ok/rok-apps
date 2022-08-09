@@ -15,11 +15,29 @@
 
       {% include "widgets/weather.html" %}
 
-      <div class="row">
-        <div class="col mt-3">
+      <div class="row mt-3">
+        <div class="col-3">
           {#<a href="{% url 'trip:main' %}">{{ trip_summary|safe }}</a>#}
           <a href="https://cex.io/prices"><span id="btc_price_id">BTC price</span></a><br>
           <a href="https://www.blockchain.com/btc/address/1CWSc1yEyPPAsRo6bYNE6cVgVhsbdjd74R"><span id="btc_amount_id">BTC amount</span></a>
+        </div>
+        <div class="col">
+          <table class="info-table">
+            <tr>
+                <th>Service</th>
+                {% for dt in health.dates %}
+                    <th> {{ dt|date:'d.m' }} </th>
+                {% endfor %}
+            </tr>
+            {% for service in health.services %}
+                <tr>
+                    <td class="bi-{{ service.icon }}"><span class="px-3">{{ service.short_name }}</span></td>
+                    {% for day in service.days %}
+                        <td class="text-center"><a href="{% url 'logs:list' %}?view={{ service.href }}&day={{ day.href }}"><i class="bi-{{ day.icon }}" style="color:{{ day.color }}"></i></a></td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+          </table>
         </div>
       </div>
 

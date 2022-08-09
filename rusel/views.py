@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.template import loader
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
+from logs.services.overview import OverviewLogData
 
 from rusel.context import get_base_context
 #from trip.models import trip_summary
@@ -49,7 +50,8 @@ class ListView(BaseListView, TuneData):
             #context['trip_summary'] = trip_summary(request.user.id)
             context['weather_api_key'] = os.environ.get('OPENWEATHER_API_KEY')
             context['weather_city_id'] = os.environ.get('OPENWEATHER_CITY_ID')
-
+            ov = OverviewLogData()
+            context['health'] = ov.get_health()
             context['last_visited'] = VisitedHistory.objects.filter(user=request.user.id).order_by('-stamp')[:MAX_LAST_VISITED]
 
         template = loader.get_template('index_user.html')

@@ -16,8 +16,15 @@ class BackgroundLogData(SiteService):
             day = datetime.strptime(request.GET['day'], '%Y%m%d')
         context['events'] = self.get_events(app=self.app, service=self.service_name, day=day)
 
-        status = 'stoped'
-        color = 'red'
+        if self.get_health():
+            context['status'] = 'work'
+            context['status_color'] = '#12AD2B'
+        else:
+            context['status'] = 'stoped'
+            context['status_color'] = 'red'
+        return context
+
+    def get_health(self):
         last_start = None
         last_call = None
         start_events = self.get_events(app=self.app, service=self.service_name, type=EventType.INFO, name='start')
@@ -31,9 +38,5 @@ class BackgroundLogData(SiteService):
         if last_call:
             sec = (datetime.now() - last_call).total_seconds()
             if sec < 120:
-                status = 'work'
-                color = '#12AD2B'
-        context['status'] = status
-        context['status_color'] = color
-        return context
-
+                return True
+        return False
