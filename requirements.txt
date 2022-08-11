@@ -1,11 +1,11 @@
-asgiref==3.4.1
+asgiref==3.5.2
 CacheControl==0.12.10
 cachetools==4.2.4
 certifi==2021.10.8
 cffi==1.15.0
 charset-normalizer==2.0.10
 cryptography==36.0.1
-Django==4.0.6
+Django==4.1
 django-filter==22.1
 djangorestframework==3.13.1
 firebase-admin==5.2.0
