@@ -13,7 +13,7 @@
             <tr>
                 <th>Service</th>
                 {% for dt in health.dates %}
-                    <th> {{ dt|date:'d.m.Y' }} </th>
+                    <th> {{ dt|date:'d b' }} </th>
                 {% endfor %}
             </tr>
             {% for service in health.services %}

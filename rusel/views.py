@@ -51,7 +51,7 @@ class ListView(BaseListView, TuneData):
             context['weather_api_key'] = os.environ.get('OPENWEATHER_API_KEY')
             context['weather_city_id'] = os.environ.get('OPENWEATHER_CITY_ID')
             ov = OverviewLogData()
-            context['health'] = ov.get_health()
+            context['health'] = ov.get_health(3)
             context['last_visited'] = VisitedHistory.objects.filter(user=request.user.id).order_by('-stamp')[:MAX_LAST_VISITED]
 
         template = loader.get_template('index_user.html')

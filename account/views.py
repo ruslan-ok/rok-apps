@@ -476,8 +476,8 @@ def avatar(request):
     return render(request, 'account/avatar.html', context)
 
 def demo(request):
+    demouserpassword = os.environ.get('DJANGO_DEMOUSER_PWRD')
     if not User.objects.filter(username = 'demouser').exists():
-        demouserpassword = os.environ.get('DJANGO_DEMOUSER_PWRD')
         User.objects.create_user('demouser', 'demouser@rusel.by', demouserpassword)
     user = authenticate(username='demouser', password=demouserpassword)
     if user is not None:

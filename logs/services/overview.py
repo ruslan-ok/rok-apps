@@ -4,7 +4,7 @@ from logs.services.background import BackgroundLogData
 from service.site_service import SiteService
 from task.const import APP_BACKUP, APP_FUEL, APP_LOGS, APP_SERVICE, APP_TODO, ROLE_APACHE, ROLE_BACKUP_FULL, ROLE_BACKUP_SHORT, ROLE_MANAGER, ROLE_NOTIFICATOR, ROLE_PART
 
-REPORT_DEPTH_DAYS = 5
+REPORT_DEPTH_DAYS = 10
 
 SERVICES = [
     ('SM', 'fast-forward',  'background',           'Service manager'),
@@ -25,25 +25,25 @@ class OverviewLogData(SiteService):
 
     def get_extra_context(self, request):
         context = {}
-        context['health'] = self.get_health()
+        context['health'] = self.get_health(REPORT_DEPTH_DAYS)
         return context
 
-    def get_health(self):
-        dates = [date.today() - timedelta(days=x) for x in range(REPORT_DEPTH_DAYS)]
+    def get_health(self, depth):
+        dates = [date.today() - timedelta(days=x) for x in range(depth)]
         this_device = os.environ.get('DJANGO_DEVICE')
         services = []
         for service in SERVICES:
             days = []
             match service[0]:
-                case 'SM': days = self.get_service_health(this_device, APP_SERVICE, ROLE_MANAGER)
-                case 'NF': days = self.get_service_health('Nuc', APP_BACKUP, ROLE_BACKUP_FULL)
-                case 'NS': days = self.get_service_health('Nuc', APP_BACKUP, ROLE_BACKUP_SHORT)
-                case 'VF': days = self.get_service_health('Vivo', APP_BACKUP, ROLE_BACKUP_FULL)
-                case 'VS': days = self.get_service_health('Vivo', APP_BACKUP, ROLE_BACKUP_SHORT)
-                case 'TN': days = self.get_service_health('Nuc', APP_TODO, ROLE_NOTIFICATOR)
-                case 'SI': days = self.get_service_health('Nuc', APP_FUEL, ROLE_PART)
-                case 'AL': days = self.get_service_health('Nuc', APP_LOGS, ROLE_APACHE)
-                case _: days = [{'icon': 'dash-circle-dotted', 'color': 'gray'} for x in range(REPORT_DEPTH_DAYS)]
+                case 'SM': days = self.get_service_health(this_device, APP_SERVICE, ROLE_MANAGER, depth)
+                case 'NF': days = self.get_service_health('Nuc', APP_BACKUP, ROLE_BACKUP_FULL, depth)
+                case 'NS': days = self.get_service_health('Nuc', APP_BACKUP, ROLE_BACKUP_SHORT, depth)
+                case 'VF': days = self.get_service_health('Vivo', APP_BACKUP, ROLE_BACKUP_FULL, depth)
+                case 'VS': days = self.get_service_health('Vivo', APP_BACKUP, ROLE_BACKUP_SHORT, depth)
+                case 'TN': days = self.get_service_health('Nuc', APP_TODO, ROLE_NOTIFICATOR, depth)
+                case 'SI': days = self.get_service_health('Nuc', APP_FUEL, ROLE_PART, depth)
+                case 'AL': days = self.get_service_health('Nuc', APP_LOGS, ROLE_APACHE, depth)
+                case _: days = [{'icon': 'dash-circle-dotted', 'color': 'gray'} for x in range(depth)]
             services.append({
                 'icon': service[1],
                 'href': service[2],
@@ -52,9 +52,9 @@ class OverviewLogData(SiteService):
             })
         return {'dates': dates, 'services': services}
 
-    def get_service_health(self, device, app, service):
+    def get_service_health(self, device, app, service, depth):
         ret = []
-        for day_num in range(REPORT_DEPTH_DAYS):
+        for day_num in range(depth):
             day = date.today() - timedelta(days=day_num)
             href = day.strftime('%Y%m%d')
             if day_num == 0 and app == APP_SERVICE:
