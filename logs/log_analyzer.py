@@ -92,6 +92,7 @@ class LogAnalyzer(SiteService):
                         
                     self.save_log_record(data)
         self.log_event(EventType.INFO, 'new_data', 'bytes: {}, added hosts: {}, log records: {}'.format(self.new_log_sz - self.prev_log_sz, self.added_hosts, self.added_records))
+        return True
 
     def get_host(self, host):
         if IPInfo.objects.filter(ip=host).exists():

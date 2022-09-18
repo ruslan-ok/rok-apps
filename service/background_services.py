@@ -35,6 +35,7 @@ def process_service(service_task):
     try:
         log_event('process', info=service.service_descr)
         completed = service.process()
+        log_event('process_completed', info=str(completed))
         return completed
     except Exception as ex:
         log_event('exception', info=f'Exception {str(ex)}', type=EventType.ERROR)
