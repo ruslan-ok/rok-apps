@@ -49,6 +49,7 @@ class Group(models.Model):
     expen_byn = models.BooleanField(_('totals in BYN'), null=True)
     expen_usd = models.BooleanField(_('totals in USD'), null=True)
     expen_eur = models.BooleanField(_('totals in EUR'), null=True)
+    expen_gbp = models.BooleanField(_('totals in GBP'), null=True)
 
     class Meta:
         verbose_name=_('task group')
@@ -123,15 +124,16 @@ class Group(models.Model):
         self.save()
 
     def expen_what_totals(self):
-        if (not self.expen_byn) and (not self.expen_usd) and (not self.expen_eur):
-            return True, False, False
-        return self.expen_byn, self.expen_usd, self.expen_eur
+        if (not self.expen_byn) and (not self.expen_usd) and (not self.expen_eur) and (not self.expen_gbp):
+            return True, False, False, False
+        return self.expen_byn, self.expen_usd, self.expen_eur, self.expen_gbp
 
     def expen_get_totals(self):
         byn = 0
         usd = 0
         eur = 0
-        in_byn, in_usd, in_eur = self.expen_what_totals()
+        gbp = 0
+        in_byn, in_usd, in_eur, in_gbp = self.expen_what_totals()
         for exp in TaskGroup.objects.filter(group=self.id):
             if in_byn:
                 byn += exp.task.expen_amount('BYN')
@@ -139,16 +141,20 @@ class Group(models.Model):
                 usd += exp.task.expen_amount('USD')
             if in_eur:
                 eur += exp.task.expen_amount('EUR')
-        return byn, usd, eur
+            if in_gbp:
+                gbp += exp.task.expen_amount('GBP')
+        return byn, usd, eur, gbp
 
     def expen_summary(self):
-        in_byn, in_usd, in_eur = self.expen_what_totals()
-        byn, usd, eur = self.expen_get_totals()
+        in_byn, in_usd, in_eur, in_gbp = self.expen_what_totals()
+        byn, usd, eur, gbp = self.expen_get_totals()
         res = []
         if in_usd:
             res.append(currency_repr(usd, '$'))
         if in_eur:
             res.append(currency_repr(eur, '€'))
+        if in_gbp:
+            res.append(currency_repr(gbp, '£'))
         if in_byn:
             res.append(currency_repr(byn, ' BYN'))
         return res
@@ -243,10 +249,12 @@ class Task(models.Model):
     #------------ Expenses ------------
     expen_qty = models.DecimalField(_('Quantity'), blank=True, null=True, max_digits=15, decimal_places=3)
     expen_price = models.DecimalField(_('Price in NC'), blank=True, null=True, max_digits=15, decimal_places=2)
-    expen_rate = models.DecimalField(_('USD exchange rate'), blank=True, null=True, max_digits=15, decimal_places=4)
-    expen_rate_2 = models.DecimalField(_('EUR exchange rate'), blank=True, null=True, max_digits=15, decimal_places=4)
+    expen_rate_usd = models.DecimalField(_('USD exchange rate'), blank=True, null=True, max_digits=15, decimal_places=4)
+    expen_rate_eur = models.DecimalField(_('EUR exchange rate'), blank=True, null=True, max_digits=15, decimal_places=4)
+    expen_rate_gbp = models.DecimalField(_('GBP exchange rate'), blank=True, null=True, max_digits=15, decimal_places=4)
     expen_usd = models.DecimalField(_('amount in USD'), blank=True, null=True, max_digits=15, decimal_places=2)
     expen_eur = models.DecimalField(_('amount in EUR'), blank=True, null=True, max_digits=15, decimal_places=2)
+    expen_gbp = models.DecimalField(_('amount in GBP'), blank=True, null=True, max_digits=15, decimal_places=2)
     expen_kontr = models.CharField(_('Manufacturer'), max_length=1000, blank=True, null=True)
     #------------ Person --------------
     pers_dative = models.CharField(_('dative'), max_length=500, null=True)
@@ -807,44 +815,59 @@ class Task(models.Model):
                 if self.expen_qty:
                     return self.expen_usd * self.expen_qty
                 return self.expen_usd
-            if byn and self.expen_rate:
-                return byn / self.expen_rate
+            if byn and self.expen_rate_usd:
+                return byn / self.expen_rate_usd
 
         if (currency == 'EUR'):
             if self.expen_eur:
                 if self.expen_qty:
                     return self.expen_eur * self.expen_qty
                 return self.expen_eur
-            if byn and self.expen_rate_2:
-                return byn / self.expen_rate_2
+            if byn and self.expen_rate_eur:
+                return byn / self.expen_rate_eur
+
+        if (currency == 'GBP'):
+            if self.expen_gbp:
+                if self.expen_qty:
+                    return self.expen_gbp * self.expen_qty
+                return self.expen_gbp
+            if byn and self.expen_rate_gbp:
+                return byn / self.expen_rate_gbp
 
         if (currency == 'BYN'):
             if self.expen_price:
                 return byn
 
-            if self.expen_usd and self.expen_rate:
+            if self.expen_usd and self.expen_rate_usd:
                 if self.expen_qty:
-                    return self.expen_usd * self.expen_qty * self.expen_rate
-                return self.expen_usd * self.expen_rate
+                    return self.expen_usd * self.expen_qty * self.expen_rate_usd
+                return self.expen_usd * self.expen_rate_usd
 
-            if self.expen_eur and self.expen_rate_2:
+            if self.expen_eur and self.expen_rate_eur:
                 if self.expen_qty:
-                    return self.expen_eur * self.expen_qty * self.expen_rate_2
-                return self.expen_eur * self.expen_rate_2
+                    return self.expen_eur * self.expen_qty * self.expen_rate_eur
+                return self.expen_eur * self.expen_rate_eur
+
+            if self.expen_gbp and self.expen_rate_gbp:
+                if self.expen_qty:
+                    return self.expen_gbp * self.expen_qty * self.expen_rate_gbp
+                return self.expen_gbp * self.expen_rate_gbp
 
         return 0
 
     def expen_summary(self):
         if TaskGroup.objects.filter(task=self.id, role=ROLE_EXPENSE).exists():
             tg = TaskGroup.objects.filter(task=self.id, role=ROLE_EXPENSE).get()
-            in_byn, in_usd, in_eur = tg.group.expen_what_totals()
+            in_byn, in_usd, in_eur, in_gbp = tg.group.expen_what_totals()
         else:
-            in_byn, in_usd, in_eur = True, False, False
-        usd = eur = byn = None
+            in_byn, in_usd, in_eur, in_gbp = True, False, False, False
+        usd = eur = byn = gbp = None
         if in_usd:
             usd = self.expen_amount('USD')
         if in_eur:
             eur = self.expen_amount('EUR')
+        if in_gbp:
+            gbp = self.expen_amount('GBP')
         if in_byn:
             byn = self.expen_amount('BYN')
 
@@ -853,6 +876,8 @@ class Task(models.Model):
             res.append(currency_repr(usd, '$'))
         if in_eur and eur:
             res.append(currency_repr(eur, '€'))
+        if in_gbp and gbp:
+            res.append(currency_repr(gbp, '£'))
         if in_byn and self.event:
             if (self.event < datetime(2016, 6, 1)):
                 res.append(currency_repr(byn, ' BYR'))

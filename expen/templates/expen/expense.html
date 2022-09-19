@@ -28,12 +28,16 @@
         </div>
       {% endif %}
       {% if expen_usd %}
-        <div class="col">{{ form.expen_rate.errors }}{{ form.expen_rate.label_tag }}{{ form.expen_rate }}</div>
+        <div class="col">{{ form.expen_rate_usd.errors }}{{ form.expen_rate_usd.label_tag }}{{ form.expen_rate_usd }}</div>
         <div class="col">{{ form.expen_usd.errors }}{{ form.expen_usd.label_tag }}{{ form.expen_usd }}</div>
       {% endif %}
       {% if expen_eur %}
-        <div class="col">{{ form.expen_rate_2.errors }}{{ form.expen_rate_2.label_tag }}{{ form.expen_rate_2 }}</div>
+        <div class="col">{{ form.expen_rate_eur.errors }}{{ form.expen_rate_eur.label_tag }}{{ form.expen_rate_eur }}</div>
         <div class="col">{{ form.expen_eur.errors }}{{ form.expen_eur.label_tag }}{{ form.expen_eur }}</div>
+      {% endif %}
+      {% if expen_gbp %}
+        <div class="col">{{ form.expen_rate_gbp.errors }}{{ form.expen_rate_gbp.label_tag }}{{ form.expen_rate_gbp }}</div>
+        <div class="col">{{ form.expen_gbp.errors }}{{ form.expen_gbp.label_tag }}{{ form.expen_gbp }}</div>
       {% endif %}
     </div>
     <div class="row mb-3">

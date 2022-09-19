@@ -37,7 +37,7 @@ class EditForm(BaseEditForm):
         label=_('Price in NC'),
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}))
-    expen_rate = forms.DecimalField(
+    expen_rate_usd = forms.DecimalField(
         label=_('USD exchange rate'),
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.0001'}))
@@ -45,12 +45,20 @@ class EditForm(BaseEditForm):
         label=_('Amount in USD'),
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '1'}))
-    expen_rate_2 = forms.DecimalField(
+    expen_rate_eur = forms.DecimalField(
         label=_('EUR exchange rate'),
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.0001'}))
     expen_eur = forms.DecimalField(
         label=_('Amount in EUR'),
+        required=False,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '1'}))
+    expen_rate_gbp = forms.DecimalField(
+        label=_('GBP exchange rate'),
+        required=False,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.0001'}))
+    expen_gbp = forms.DecimalField(
+        label=_('Amount in GBP'),
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '1'}))
     grp = forms.ChoiceField(
@@ -68,7 +76,7 @@ class EditForm(BaseEditForm):
 
     class Meta:
         model = Task
-        fields = ['event', 'name', 'grp', 'expen_qty', 'expen_price', 'expen_rate', 'expen_rate_2', 'expen_usd', 'expen_eur', 'expen_kontr', 'info', 
+        fields = ['event', 'name', 'grp', 'expen_qty', 'expen_price', 'expen_rate_usd', 'expen_rate_eur', 'expen_rate_gbp', 'expen_usd', 'expen_eur', 'expen_gbp', 'expen_kontr', 'info', 
         'url', 'categories', 'upload']
         widgets = {
             'event': forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime mb-3', 'type': 'datetime-local'}),
@@ -96,9 +104,13 @@ class ProjectForm(GroupForm):
         label=False, 
         required=False, 
         widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('Calculate totals in euro')}))
+    expen_gbp = forms.BooleanField(
+        label=False, 
+        required=False, 
+        widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('Calculate totals in pounds')}))
     class Meta:
         model = Group
-        fields = ['node', 'name', 'sort', 'expen_byn', 'expen_usd', 'expen_eur']
+        fields = ['node', 'name', 'sort', 'expen_byn', 'expen_usd', 'expen_eur', 'expen_gbp']
         widgets = {
             'node': forms.Select(attrs={'class': 'form-control mb-2'}),
             'sort': forms.TextInput(attrs={'class': 'form-control mb-2'}),
