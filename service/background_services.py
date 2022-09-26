@@ -4,6 +4,7 @@ import os, json
 from datetime import datetime, date
 from logs.models import ServiceEvent, EventType
 from backup.backuper import Backuper
+from backup.backuper_v3 import Backuper_v3
 from task.const import APP_SERVICE, ROLE_MANAGER
 from todo.notificator import Notificator
 from fuel.serv_interval import ServInterval
@@ -21,6 +22,8 @@ def process_service(service_task):
     match service_class:
         case 'Backuper':
             service = Backuper(service_task)
+        case 'Backuper_v3':
+            service = Backuper_v3(service_task)
         case 'Notificator':
             service = Notificator()
         case 'ServInterval':

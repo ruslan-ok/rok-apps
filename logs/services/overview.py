@@ -2,7 +2,7 @@ import os
 from datetime import date, timedelta
 from logs.services.background import BackgroundLogData
 from service.site_service import SiteService
-from task.const import APP_BACKUP, APP_FUEL, APP_LOGS, APP_SERVICE, APP_TODO, ROLE_APACHE, ROLE_BACKUP_FULL, ROLE_BACKUP_SHORT, ROLE_MANAGER, ROLE_NOTIFICATOR, ROLE_PART
+from task.const import APP_BACKUP, APP_FUEL, APP_LOGS, APP_SERVICE, APP_TODO, ROLE_APACHE, ROLE_BACKUP_FULL, ROLE_BACKUP_SHORT, ROLE_BACKUP_V3_SHORT, ROLE_MANAGER, ROLE_NOTIFICATOR, ROLE_PART
 
 REPORT_DEPTH_DAYS = 10
 
@@ -11,6 +11,7 @@ SERVICES = [
     ('NS', 'save',          'backup_nuc_short',     'Backup Nuc short'),
     ('NF', 'save-fill',     'backup_nuc_full',      'Backup Nuc full'),
     ('VS', 'save',          'backup_vivo_short',    'Backup Vivo short'),
+    ('VS_v3', 'save',       'backup_v3_vivo_short', 'Backup v.3 Vivo short'),
     ('VF', 'save-fill',     'backup_vivo_full',     'Backup Vivo full'),
     ('TN', 'bell',          'notification',         'Task Notificator'),
     ('SI', 'tools',         'intervals',            'Service intervals'),
@@ -40,6 +41,7 @@ class OverviewLogData(SiteService):
                 case 'NS': days = self.get_service_health('Nuc', APP_BACKUP, ROLE_BACKUP_SHORT, depth)
                 case 'VF': days = self.get_service_health('Vivo', APP_BACKUP, ROLE_BACKUP_FULL, depth)
                 case 'VS': days = self.get_service_health('Vivo', APP_BACKUP, ROLE_BACKUP_SHORT, depth)
+                case 'VS_v3': days = self.get_service_health('Vivo', APP_BACKUP, ROLE_BACKUP_V3_SHORT, depth)
                 case 'TN': days = self.get_service_health('Nuc', APP_TODO, ROLE_NOTIFICATOR, depth)
                 case 'SI': days = self.get_service_health('Nuc', APP_FUEL, ROLE_PART, depth)
                 case 'AL': days = self.get_service_health('Nuc', APP_LOGS, ROLE_APACHE, depth)

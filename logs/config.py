@@ -52,6 +52,16 @@ app_config = {
             'title': _('Backup Vivo check'),
             'hide_qty': True,
         },
+        'backup_v3_vivo_short': {
+            'icon': 'save',
+            'title': _('Backup v.3 Vivo short log'),
+            'hide_qty': True,
+        },
+        'backup_v3_vivo_check': {
+            'icon': 'card-list',
+            'title': _('Backup v.3 Vivo check'),
+            'hide_qty': True,
+        },
         'notification': {
             'icon': 'bell',
             'title': _('Task notification report'),

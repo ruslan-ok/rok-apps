@@ -11,8 +11,10 @@ from logs.services.backup_nuc_check import BackupNucCheckLogData
 from logs.services.backup_nuc_full import BackupNucFullLogData
 from logs.services.backup_nuc_short import BackupNucShortLogData
 from logs.services.backup_vivo_check import BackupVivoCheckLogData
+from logs.services.backup_v3_vivo_check import BackupV3VivoCheckLogData
 from logs.services.backup_vivo_full import BackupVivoFullLogData
 from logs.services.backup_vivo_short import BackupVivoShortLogData
+from logs.services.backup_v3_vivo_short import BackupV3VivoShortLogData
 from logs.services.intervals import IntervalsLogData
 from logs.services.notification import NotificationLogData
 from logs.services.overview import OverviewLogData
@@ -43,8 +45,10 @@ def log_view(request):
         case 'backup_nuc_full': data = BackupNucFullLogData()
         case 'backup_nuc_short': data = BackupNucShortLogData()
         case 'backup_vivo_check': data = BackupVivoCheckLogData()
+        case 'backup_v3_vivo_check': data = BackupV3VivoCheckLogData()
         case 'backup_vivo_full': data = BackupVivoFullLogData()
         case 'backup_vivo_short': data = BackupVivoShortLogData()
+        case 'backup_v3_vivo_short': data = BackupV3VivoShortLogData()
         case 'intervals': data = IntervalsLogData()
         case 'notification': data = NotificationLogData()
         case 'overview': data = OverviewLogData()

@@ -1,0 +1,58 @@
+{% extends "base/page_content.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link href="{% static 'scss/home.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block main %}
+    <div class="row">
+            <div class="col">
+                <h5>Etalon</h5>
+                <table class="info-table">
+                    <thead>
+                        <tr>
+                            <td>Age</td>
+                            <td>File name</td>
+                            <td>Range</td>
+                            <td>Ripe</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for x in etalon %}
+                            <tr style="{% if not x.has_fact %} color: red; background-color: snow;{% endif %}">
+                                <td>{{ x.age }}</td>
+                                <td>{{ x.name }}</td>
+                                <td>{{ x.min_range }}-{{ x.max_range }}</td>
+                                <td>{{ x.ripe }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="col">
+                <h5>Fact</h5>
+                <table class="info-table">
+                    <thead>
+                        <tr>
+                            <td>Age</td>
+                            <td>File name</td>
+                            <td>Size</td>
+                            <td>Valid</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for x in fact %}
+                            <tr style="{% if not x.valid %} color: red; background-color: snow;{% endif %}">
+                                <td>{{ x.age }}</td>
+                                <td>{{ x.name }}</td>
+                                <td style="text-align: right">{{ x.size }}</td>
+                                <td>{{ x.valid }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+    </div>
+{% endblock %}
