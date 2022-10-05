@@ -27,9 +27,9 @@ class SiteService():
         self.recipients = os.environ.get('DJANGO_MAIL_ADMIN')
         self.use_log_api = (this_device != 'Nuc')
         self.local_log = local_log
-        api_host = os.environ.get('DJANGO_HOST_LOG')
+        self.api_host = os.environ.get('DJANGO_HOST_LOG')
         #api_host = 'http://localhost:8000'
-        self.api_url = f'{api_host}/en/api/logs/?format=json'
+        self.api_url = f'{self.api_host}/en/api/logs/?format=json'
         service_token = os.environ.get('DJANGO_SERVICE_TOKEN')
         self.headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
         self.verify = os.environ.get('DJANGO_CERT')

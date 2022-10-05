@@ -1,5 +1,5 @@
 import requests, json, os
-from datetime import datetime
+from datetime import datetime, timedelta
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import viewsets, permissions, renderers
@@ -57,4 +57,12 @@ class LogsViewSet(viewsets.ModelViewSet):
             ret = {'result': 'error'}
         else:
             ret = json.loads(resp.content)
+        return Response(ret)
+
+    @action(detail=False)
+    def get_service_health(self, request, pk=None):
+        depth = 3
+        if 'depth' in self.request.GET:
+            depth = int(self.request.GET['depth'])
+        ret = ServiceEvent.get_health(depth)
         return Response(ret)

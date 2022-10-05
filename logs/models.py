@@ -1,9 +1,8 @@
-import os
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
-from task.const import APP_TODO
+from task.const import APP_TODO, ROLE_NOTIFICATOR, APP_SERVICE, ROLE_MANAGER
 
 class IPInfo(models.Model):
     ip = models.CharField('IP', max_length=20, blank=False)
@@ -104,4 +103,44 @@ class ServiceEvent(models.Model):
             case EventType.ERROR: ret = 'snow'
             case EventType.WARNING: ret = 'ivory'
             case _: ret = 'white'
+        return ret
+
+    @classmethod
+    def get_health(cls, depth, app=None, service=None):
+        day = date.today() - timedelta(depth)
+        events = ServiceEvent.objects.filter(created__date__gt=day).order_by('device', 'app', 'service', '-created')
+        if app and service:
+            events = events.filter(app=app, service=service)
+        else:
+            events = events.exclude(app=APP_SERVICE, service=ROLE_MANAGER)
+        dev = None
+        app = None
+        svc = None
+        hlt = None
+        ret = []
+        for event in events:
+            day = event.created.date()
+            day_num = (date.today() - day).days
+            if event.device != dev or event.app != app or event.service != svc:
+                if hlt:
+                    ret.append(hlt)
+                dev = event.device
+                app = event.app
+                svc = event.service
+                hlt = {'dev': dev, 'app': app, 'svc': svc, 'days': [None for x in range(depth)], 'qnt': [0 for x in range(depth)]}
+
+            if event.type == EventType.DEBUG and hlt['days'][day_num] not in (EventType.INFO, EventType.WARNING, EventType.ERROR):
+                hlt['days'][day_num] = EventType.DEBUG
+            if event.type == EventType.INFO and hlt['days'][day_num] not in (EventType.WARNING, EventType.ERROR):
+                hlt['days'][day_num] = EventType.INFO
+            if event.type == EventType.WARNING and hlt['days'][day_num] != EventType.ERROR:
+                hlt['days'][day_num] = EventType.WARNING
+            if event.type == EventType.ERROR:
+                hlt['days'][day_num] = EventType.ERROR
+            if app == APP_TODO and svc == ROLE_NOTIFICATOR:
+                if event.name == 'process' and 'task qnt = ' in event.info:
+                    add_qnt = int(event.info.split('task qnt = ')[1])
+                    hlt['qnt'][day_num] += add_qnt
+        if hlt:
+            ret.append(hlt)
         return ret
