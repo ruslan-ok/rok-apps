@@ -13,6 +13,7 @@ class Backuper_v3(SiteService):
         duration = 1
         folders = []
         self.backup = None
+        service_name = ROLE_BACKUP_V3_SHORT
         str_params = service_task.info
         if str_params:
             params = json.loads(str_params)
