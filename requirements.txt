@@ -24,7 +24,7 @@ grpcio-status==1.43.0
 httplib2==0.20.2
 idna==3.3
 Markdown==3.3.7
-mod-wsgi==4.9.0
+mod-wsgi==4.9.4
 msgpack==1.0.3
 mysql-connector==2.2.9
 mysqlclient==2.1.0
