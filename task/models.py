@@ -1312,3 +1312,6 @@ class TaskInfo(models.Model):
         managed = False
         db_table = 'vw_tasks'
 
+    def get_item_attr(self):
+        task = Task.objects.filter(id=self.id).get()
+        return task.get_item_attr()
