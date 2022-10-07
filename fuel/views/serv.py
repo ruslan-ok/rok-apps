@@ -12,11 +12,7 @@ from fuel.config import app_config
 role = ROLE_SERVICE
 app = ROLE_APP[role]
 
-class TuneData:
-    def tune_dataset(self, data, group):
-        return data
-
-class ListView(LoginRequiredMixin, BaseListView, TuneData):
+class ListView(LoginRequiredMixin, BaseListView):
     model = Task
     form_class = CreateForm
 
@@ -33,7 +29,7 @@ class ListView(LoginRequiredMixin, BaseListView, TuneData):
         context['form'] = form
         return context
 
-class DetailView(LoginRequiredMixin, BaseDetailView, TuneData):
+class DetailView(LoginRequiredMixin, BaseDetailView):
     model = Task
     form_class = EditForm
 

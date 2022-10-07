@@ -24,18 +24,12 @@ class ListView(LoginRequiredMixin, BaseListView):
         response = super().form_valid(form)
         return response
 
-    def tune_dataset(self, data, group):
-        return data
-
 class DetailView(LoginRequiredMixin, BaseDetailView):
     model = Task
     form_class = EditForm
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
-
-    def tune_dataset(self, data, group):
-        return data
 
     def get_context_data(self, **kwargs):
         self.config.set_view(self.request)

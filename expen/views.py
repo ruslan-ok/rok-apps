@@ -11,11 +11,7 @@ from expen.config import app_config
 role = ROLE_EXPENSE
 app = ROLE_APP[role]
 
-class TuneData:
-    def tune_dataset(self, data, group):
-        return data
-
-class ListView(LoginRequiredMixin, BaseListView, TuneData):
+class ListView(LoginRequiredMixin, BaseListView):
     model = Task
     form_class = CreateForm
 
@@ -30,7 +26,7 @@ class ListView(LoginRequiredMixin, BaseListView, TuneData):
         return context
 
 
-class DetailView(LoginRequiredMixin, BaseDetailView, TuneData):
+class DetailView(LoginRequiredMixin, BaseDetailView):
     model = Task
     form_class = EditForm
 
@@ -111,7 +107,7 @@ def get_info(item):
     return ret
 
 
-class ProjectView(LoginRequiredMixin, BaseGroupView, TuneData):
+class ProjectView(LoginRequiredMixin, BaseGroupView):
     form_class = ProjectForm
     template_name = 'expen/project.html'
 

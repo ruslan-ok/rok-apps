@@ -15,11 +15,7 @@ from rusel.config import app_config
 from rusel.context import MAX_LAST_VISITED
 from rusel.app_doc import get_app_doc, get_app_thumbnail
 
-class TuneData:
-    def tune_dataset(self, data, group):
-        return data
-
-class ListView(BaseListView, TuneData):
+class ListView(BaseListView):
     model = Task
     fields = {'name'}
 

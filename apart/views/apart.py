@@ -16,9 +16,6 @@ class ListView(LoginRequiredMixin, BaseListView):
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
-    def tune_dataset(self, data, group):
-        return data
-
 
 class DetailView(LoginRequiredMixin, BaseDetailView):
     model = Task
@@ -26,9 +23,6 @@ class DetailView(LoginRequiredMixin, BaseDetailView):
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
-
-    def tune_dataset(self, data, group):
-        return data
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
