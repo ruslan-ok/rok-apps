@@ -386,7 +386,7 @@ class Task(models.Model):
         return None
 
     @classmethod
-    def get_role_tasks(cls, user_id, app, role, nav_item=None, group=None):
+    def get_role_tasks(cls, user_id, app, role, nav_item=None):
         if user_id:
             data = TaskInfo.objects.filter(user_id=user_id)
         else:
