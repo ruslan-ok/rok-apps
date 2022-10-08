@@ -19,7 +19,7 @@
       {% endfor %}
     {% endif %}
 
-    <a href="{{ item.get_absolute_url|escape }}{% if not item.hide_params %}{{ params }}{% endif %}" class="container">
+    <a href="{{ item.get_absolute_url|escape }}{{ params }}" class="container">
       <div class="info">
         <span class="name{% if item.completed %} completed{% endif %}">
           {% if config.event_in_name %}{{ item.event|date:"j M Y" }}{% if item.name %} - {% endif %}{% endif %}

@@ -1192,7 +1192,7 @@ class TaskInfo(models.Model):
     # completion = models.DateTimeField(_('Completion time'), blank=True, null=True)
     in_my_day = models.BooleanField(_('In My day'), default=False)
     important = models.BooleanField(_('Important'), default=False)
-    # remind = models.DateTimeField(_('Remind'), blank=True, null=True)
+    remind = models.DateTimeField(_('Remind'), blank=True, null=True)
     # first_remind = models.DateTimeField(_('First remind'), blank=True, null=True)
     # last_remind = models.DateTimeField(_('Last remind'), blank=True, null=True)
     repeat = models.IntegerField(_('Repeat'), blank=True, null=True, choices=REPEAT_SELECT, default=NONE)
@@ -1221,7 +1221,7 @@ class TaskInfo(models.Model):
     task_1_id = models.IntegerField(_('task_1 id'), null=True)
     # task_2_id = models.IntegerField(_('task_2 id'), null=True)
     # task_3_id = models.IntegerField(_('task_3 id'), null=True)
-    # item_attr = models.CharField(_('Item attributes'), max_length=2000, blank=True, null=True)
+    item_attr = models.CharField(_('Item attributes'), max_length=2000, blank=True, null=True)
     # sort = models.CharField(_('sort code'), max_length=50, blank=True)
     # #------------ Expenses ------------
     # expen_qty = models.DecimalField(_('Quantity'), blank=True, null=True, max_digits=15, decimal_places=3)
@@ -1317,22 +1317,43 @@ class TaskInfo(models.Model):
         db_table = 'vw_tasks'
 
     def get_absolute_url(self):
-        task = Task.objects.filter(id=self.id).get()
-        return task.get_absolute_url()
+        role = ROLE_BY_NUM[self.task_role]
+        app = ROLE_APP[role]
+        if not app:
+            return '/'
+        base_role = list(ROLES_IDS[app].values())[0]
+        if (role == ROLE_BY_NUM[base_role]):
+            role = None
+        try:
+            if role:
+                url = reverse(app + ':' + role + '-item', args = [self.id])
+            else:
+                url = reverse(app + ':item', args = [self.id])
+            return url
+        except NoReverseMatch:
+            return '/'
 
     def get_item_attr(self):
-        task = Task.objects.filter(id=self.id).get()
-        return task.get_item_attr()
+        if self.item_attr:
+            return json.loads(self.item_attr)
+        return {}
 
     def b_expired(self):
         if self.completed:
             return False
 
     def termin_date(self):
-        task = Task.objects.filter(id=self.id).get()
-        return task.termin_date()
+        if not self.stop:
+            return _('Set due date')
+        if self.b_expired():
+            s = str(_('Expired')) + ', '
+        else:
+            s = str(_('Termin')) + ': '
+        return s + str(nice_date(self.stop))
 
     def get_tuned_data(self):
+        if (self.app_fuel != NUM_ROLE_PART):
+            return None
         task = Task.objects.filter(id=self.id).get()
         return task.get_tuned_data()
 
@@ -1341,5 +1362,4 @@ class TaskInfo(models.Model):
         return task.get_roles()
 
     def remind_active(self):
-        task = Task.objects.filter(id=self.id).get()
-        return task.remind_active()
+        return self.remind and (not self.completed) and (self.remind > datetime.now())
