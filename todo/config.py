@@ -51,6 +51,7 @@ app_config = {
                 ('important', _('important')),
                 ('in_my_day', _('my day')),
             ],
+            'relate': [ROLE_NOTE, ROLE_NEWS],
         },
         'all': {
             'icon': 'infinity',

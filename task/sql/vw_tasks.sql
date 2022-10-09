@@ -15,6 +15,7 @@ WITH cte_roles AS (
 	UNION ALL SELECT d.id, d.user_id, d.app_work   AS role FROM task_task d WHERE COALESCE(d.app_work, 0) != 0
 	UNION ALL SELECT d.id, d.user_id, d.app_photo  AS role FROM task_task d WHERE COALESCE(d.app_photo, 0) != 0
 )
+--SELECT * FROM cte_roles;
 , cte_todo_termin as (
 	SELECT
 		r.id,
@@ -84,6 +85,17 @@ WITH cte_roles AS (
     (20, '!?-19'),
     (21, '!?-20')
 )
+, cte_grp_role_by_task_role (task_role, task_app) as (
+	VALUES
+		(1, 'todo'),
+		(2, 'note'),
+		(3, 'news'),
+		(4, 'store'),
+		(38, 'store'),
+		(6, 'warr'),
+		(7, 'expense')
+)
+--, Q1 AS (
 	SELECT
 		s.role as task_role,
 		s.subgroup_id,
@@ -98,12 +110,25 @@ WITH cte_roles AS (
 	FROM cte_subgroup_id s
 	JOIN task_task t
 		ON s.id = t.id
+	JOIN cte_grp_role_by_task_role r
+		ON s.role = r.task_role
 	LEFT JOIN task_taskgroup g
-		on s.id = g.task_id
+		ON s.id = g.task_id
+		AND r.task_app = g.role
 	LEFT JOIN cte_grps_planned p
 		ON s.role = p.role
 		AND s.subgroup_id = p.id
 	LEFT JOIN task_task t2
 		ON s.task_2_id = t2.id
 	LEFT JOIN cte_apart_service a
-		ON s.price_service = a.id;
+		ON s.price_service = a.id
+
+--)
+--SELECT *
+--FROM Q1
+--where task_role = 2 and user_id = 16 order by event desc;
+
+--SELECT *
+--FROM Q1
+--WHERE ID = 67116;
+
