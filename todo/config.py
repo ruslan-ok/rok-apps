@@ -11,6 +11,7 @@ app_config = {
     'use_groups': True,
     'use_selector': True,
     'use_important': True,
+    'relate': [ROLE_NOTE, ROLE_NEWS],
     'sort': [
         ('stop', _('termin')),
         ('name', _('name')),

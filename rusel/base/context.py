@@ -116,7 +116,7 @@ class Context:
 
     def get_view_qty(self, group, nav_item):
         data = self.get_dataset(group, nav_item=nav_item)
-        return len(data)    
+        return len(data)
 
     def get_dataset(self, group, query=None, nav_item=None):
         if (group.determinator == 'role'):
@@ -129,13 +129,11 @@ class Context:
             return data
 
         if data and ((not group.determinator) or (group.determinator == 'group')):
-            data = data.filter(groups__id=group.id)
-            # if (not group.completed):
-            #     data = data.filter(completed=False)
+            data = data.filter(group_id=group.id)
         else:
             if group.view_id == 'planned' and not group.services_visible:
                 svc_grp_id = int(os.environ.get('DJANGO_SERVICE_GROUP'))
-                data = data.exclude(groups__id=svc_grp_id)
+                data = data.exclude(group_id=svc_grp_id)
         
         if hasattr(self, 'tune_dataset'):
             return self.tune_dataset(data, group)

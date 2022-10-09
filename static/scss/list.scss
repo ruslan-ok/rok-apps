@@ -50,6 +50,18 @@
                         &.completed {
                             text-decoration: line-through;
                         }
+
+                        .roles {
+                            padding-left: 15px;
+                            object {
+                                font-size: 0.6rem;
+
+                                a.role-icon i {
+                                    padding: 3px 0;
+                                    color: mediumseagreen;
+                                }
+                            }
+                        }
                     }
 
                     .descr {

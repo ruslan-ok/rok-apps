@@ -96,12 +96,10 @@ class BaseListView(ListView, Context):
         use_sub_groups = self.config.use_sub_groups and self.config.cur_view_group.use_sub_groups
         context['use_sub_groups'] = use_sub_groups
         if use_sub_groups:
-            sub_groups = self.load_sub_groups()
-            for task in self.get_queryset():
-                grp_id, name = self.get_sub_group(task)
-                group = self.find_sub_group(sub_groups, grp_id, name)
+            sub_groups = []
+            for task in self.object_list:
+                group = self.find_sub_group(sub_groups, task.subgroup_id, task.subgroup_name)
                 group['items'].append(task)
-            self.save_sub_groups(sub_groups)
             context['sub_groups'] = sorted(sub_groups, key = lambda group: group['id'])
 
         search_qty = None
@@ -117,8 +115,8 @@ class BaseListView(ListView, Context):
             search_qty = 0
             if not app:
                 search_qty += len(self.object_list)
-            else:
-                self.object_list = []
+            # else:
+            #     self.object_list = []
             search_qty += len(search_in_files_result)
         nav_items = self.get_nav_items()
         upd_context = self.get_app_context(self.request.user.id, search_qty, icon=self.config.view_icon, nav_items=nav_items, **kwargs)
@@ -158,61 +156,6 @@ class BaseListView(ListView, Context):
 
     def get_bg_img(self, num):
         return BG_IMAGES[num-14]
-
-    def load_sub_groups(self):
-        cur_group = self.config.cur_view_group
-        ret = []
-        if not cur_group:
-            return ret
-        if not cur_group.sub_groups:
-            return ret
-        sgs = json.loads(cur_group.sub_groups)
-        for sg in sgs:
-            ret.append({'id': sg['id'], 'name': sg['name'], 'is_open': sg['is_open'], 'items': [], 'qty': 0 })
-        return ret
-
-    def save_sub_groups(self, sub_groups):
-        cur_group = self.config.cur_view_group
-        if not cur_group:
-            return
-        sub_groups_json = []
-        for sg in sub_groups:
-            if sg['id']:
-                sub_groups_json.append({'id': sg['id'], 'name': sg['name'], 'is_open': sg['is_open']})
-        sub_groups_str = json.dumps(sub_groups_json)
-        cur_group.sub_groups = sub_groups_str
-        cur_group.save()
-
-    def get_sub_group(self, task):
-        use_sub_groups = self.config.use_sub_groups and self.config.cur_view_group.use_sub_groups
-        if not use_sub_groups:
-            return 0, ''
-        if (task.app_apart == NUM_ROLE_PRICE):
-            return task.price_service, APART_SERVICE[task.price_service]
-        if (task.app_fuel == NUM_ROLE_SERVICE):
-            if not task.task_2:
-                return 0, ''
-            else:
-                return task.task_2.id, task.task_2.name
-        if task.completed and self.config.cur_view_group:
-            grp_id = GRP_PLANNED_DONE
-        elif (not task.stop) or not ((self.config.cur_view_group.determinator == 'view' and self.config.cur_view_group.view_id == 'planned')):
-            grp_id = GRP_PLANNED_NONE
-        else:
-            today = date.today()
-            if (task.stop.date() == today):
-                grp_id = GRP_PLANNED_TODAY
-            else:
-                days = (task.stop.date() - today).days
-                if (days == 1):
-                    grp_id = GRP_PLANNED_TOMORROW
-                elif (days < 0):
-                    grp_id = GRP_PLANNED_EARLIER
-                elif (days < 8):
-                    grp_id = GRP_PLANNED_ON_WEEK
-                else:
-                    grp_id = GRP_PLANNED_LATER
-        return grp_id, GRPS_PLANNED[grp_id].capitalize()
 
     def find_sub_group(self, groups, grp_id, name):
         for group in groups:

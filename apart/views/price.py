@@ -18,9 +18,6 @@ class ListView(LoginRequiredMixin, BaseListView):
         super().__init__(app_config, role, *args, **kwargs)
         self.template_name = 'apart/list.html'
 
-    def tune_dataset(self, data, group):
-        return data
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['add_item_template'] = 'apart/add_price.html'
@@ -40,9 +37,6 @@ class DetailView(LoginRequiredMixin, BaseDetailView):
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
-
-    def tune_dataset(self, data, group):
-        return data
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

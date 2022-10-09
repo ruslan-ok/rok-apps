@@ -1,5 +1,24 @@
 {% load static i18n %}
 
+<div class="related d-flex">
+    {% for role in related_roles %}
+        <div class="dropdown">
+            <a class="btn dropdown-toggle" href="{{ role.href }}" role="button" id="relRoleLink_{{ role.name }}" 
+                data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi-{{ role.icon }}" title="Related role is '{{ role.name }}'"></i>
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="relRoleLink_{{ role.name }}">
+                <li><a class="dropdown-item" href="{{ role.href }}">{% trans 'go to linked role'|capfirst %}</a></li>
+                <li><button type="button" class="dropdown-item" onclick="delRole('{{ role.name }}')">{% trans 'remove relation'|capfirst %}</button></li>
+            </ul>
+        </div>
+    {% endfor %}
+    {% for role in possible_related %}
+        <button class="btn possible-related bi-{{ role.icon }}" type="button" id="addRole_{{ role.name }}" 
+            onclick="addRole('{{ role.name }}')" title="Possible related role is '{{ role.name }}'"></button>
+    {% endfor %}
+</div>
+
 {% if not hide_add_item_input %}
     {% include add_item_template %}
 {% endif %}

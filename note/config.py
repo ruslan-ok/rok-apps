@@ -9,6 +9,7 @@ app_config = {
     'role_loc': pgettext_lazy('add ... ', 'note'),
     'main_view': 'all',
     'use_groups': True,
+    'relate': [ROLE_TODO, ROLE_NEWS],
     'sort': [
         ('event', _('event date')),
         ('name', _('name')),

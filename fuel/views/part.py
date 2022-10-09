@@ -12,11 +12,7 @@ from fuel.utils import month_declination
 role = ROLE_PART
 app = ROLE_APP[role]
 
-class TuneData:
-    def tune_dataset(self, data, group):
-        return data
-
-class ListView(LoginRequiredMixin, BaseListView, TuneData):
+class ListView(LoginRequiredMixin, BaseListView):
     model = Task
     form_class = CreateForm
 
@@ -25,7 +21,7 @@ class ListView(LoginRequiredMixin, BaseListView, TuneData):
         self.template_name = 'fuel/list.html'
 
 
-class DetailView(LoginRequiredMixin, BaseDetailView, TuneData):
+class DetailView(LoginRequiredMixin, BaseDetailView):
     model = Task
     form_class = EditForm
 

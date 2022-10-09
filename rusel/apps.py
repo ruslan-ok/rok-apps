@@ -90,10 +90,8 @@ def get_app_icon(app):
 def get_related_roles(task, config):
     related_roles = []
     possible_related = []
-    if (config.cur_view_group.determinator != 'group'):
-        if (config.cur_view_group.view_id in config.views) and ('relate' in config.views[config.cur_view_group.view_id]):
-            for role in config.views[config.cur_view_group.view_id]['relate']:
-                possible_related.append({'name': role, 'icon': ROLE_ICON[role], 'href': get_role_href(role, task.id)})
+    for role in config.relate:
+        possible_related.append({'name': role, 'icon': ROLE_ICON[role], 'href': get_role_href(role, task.id)})
     for app_role in (task.app_task, task.app_note, task.app_news, task.app_store, #task.app_doc, 
                     task.app_expen, task.app_apart, #task.app_warr, task.app_trip, task.app_fuel, 
                     #task.app_health, task.app_work, task.app_photo
