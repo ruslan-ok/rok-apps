@@ -8,7 +8,7 @@ from rest_framework import viewsets, permissions, renderers, status, pagination
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from task.const import *
+from task import const
 from task.models import Task, Group, TaskGroup, GIQ_ADD_TASK, GIQ_DEL_TASK
 from todo.models import Subscription
 from rusel.utils import nice_date
@@ -58,26 +58,26 @@ class TaskViewSet(viewsets.ModelViewSet):
         return Response({'qty': qty})
     
     def _get_info(self, task):
-        if (task.app_task == NUM_ROLE_TODO):
-            task.set_item_attr(APP_TODO, task.get_info())
-        if (task.app_note == NUM_ROLE_NOTE):
-            task.set_item_attr(APP_NOTE, note_get_info(task))
-        if (task.app_news == NUM_ROLE_NEWS):
-            task.set_item_attr(APP_NEWS, news_get_info(task))
-        if (task.app_store == NUM_ROLE_STORE):
-            task.set_item_attr(APP_STORE, store_get_info(task))
-        if (task.app_apart == NUM_ROLE_APART):
-            task.set_item_attr(APP_APART, apart_get_info(task))
-        if (task.app_apart == NUM_ROLE_PRICE):
-            task.set_item_attr(APP_APART, price_get_info(task))
-        if (task.app_apart == NUM_ROLE_METER):
-            task.set_item_attr(APP_APART, meter_get_info(task))
-        if (task.app_apart == NUM_ROLE_BILL):
-            task.set_item_attr(APP_APART, bill_get_info(task))
-        if (task.app_apart == NUM_ROLE_INCIDENT):
-            task.set_item_attr(APP_HEALTH, incident_get_info(task))
-        if (task.app_warr == NUM_ROLE_WARR):
-            task.set_item_attr(APP_WARR, warr_get_info(task))
+        if (task.app_task == const.NUM_ROLE_TODO):
+            task.set_item_attr(const.APP_TODO, task.get_info())
+        if (task.app_note == const.NUM_ROLE_NOTE):
+            task.set_item_attr(const.APP_NOTE, note_get_info(task))
+        if (task.app_news == const.NUM_ROLE_NEWS):
+            task.set_item_attr(const.APP_NEWS, news_get_info(task))
+        if (task.app_store == const.NUM_ROLE_STORE):
+            task.set_item_attr(const.APP_STORE, store_get_info(task))
+        if (task.app_apart == const.NUM_ROLE_APART):
+            task.set_item_attr(const.APP_APART, apart_get_info(task))
+        if (task.app_apart == const.NUM_ROLE_PRICE):
+            task.set_item_attr(const.APP_APART, price_get_info(task))
+        if (task.app_apart == const.NUM_ROLE_METER):
+            task.set_item_attr(const.APP_APART, meter_get_info(task))
+        if (task.app_apart == const.NUM_ROLE_BILL):
+            task.set_item_attr(const.APP_APART, bill_get_info(task))
+        if (task.app_apart == const.NUM_ROLE_INCIDENT):
+            task.set_item_attr(const.APP_HEALTH, incident_get_info(task))
+        if (task.app_warr == const.NUM_ROLE_WARR):
+            task.set_item_attr(const.APP_WARR, warr_get_info(task))
     
     @action(detail=False)
     def get_info(self, request, pk=None):
@@ -120,7 +120,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         task = None
         message = ''
         ani = Task.get_active_nav_item(request.user.id, app)
-        if (app == APP_TODO) and (role == ROLE_TODO):
+        if (app == const.APP_TODO) and (role == const.ROLE_TODO):
             in_my_day = False
             important = False
             stop = None
@@ -130,71 +130,72 @@ class TaskViewSet(viewsets.ModelViewSet):
                 important = True
             if group and (group.determinator == 'view') and (group.view_id == 'planned'):
                 stop = datetime.now().replace(hour=9, minute=0, second=0) + timedelta(1)
-            task = Task.objects.create(user=request.user, app_task=NUM_ROLE_TODO, name=name, in_my_day=in_my_day, important=important, stop=stop, repeat_days=0)
-        if (app == APP_NOTE) and (role == ROLE_NOTE):
-            task = Task.objects.create(user=request.user, app_note=NUM_ROLE_NOTE, name=name, event=datetime.now())
-        if (app == APP_NEWS) and (role == ROLE_NEWS):
-            task = Task.objects.create(user=request.user, app_news=NUM_ROLE_NEWS, name=name, event=datetime.now())
-        if (app == APP_STORE) and (role == ROLE_STORE):
-            task = add_store(request.user, name)
-        if (app == APP_DOCS) and (role == ROLE_DOC):
-            task = Task.objects.create(user=request.user, app_doc=NUM_ROLE_DOC, name=name, event=datetime.now())
-        if (app == APP_WARR) and (role == ROLE_WARR):
-            task = Task.objects.create(user=request.user, app_warr=NUM_ROLE_WARR, name=name, event=datetime.now())
-        if (app == APP_EXPEN) and (role == ROLE_EXPENSE):
-            task = Task.objects.create(user=request.user, app_expen=NUM_ROLE_EXPENSE, name=name, event=datetime.now())
-        if (app == APP_TRIP) and (role == ROLE_PERSON):
-            task = Task.objects.create(user=request.user, app_trip=NUM_ROLE_PERSON, name=name, event=datetime.now())
-        if (app == APP_TRIP) and (role == ROLE_TRIP):
-            task = Task.objects.create(user=request.user, app_trip=NUM_ROLE_TRIP, name=name, event=datetime.now())
-        if (app == APP_TRIP) and (role == ROLE_SALDO):
-            task = Task.objects.create(user=request.user, app_trip=NUM_ROLE_SALDO, name=name, event=datetime.now())
-        if (app == APP_FUEL) and (role == ROLE_CAR):
-            task = Task.objects.create(user=request.user, app_fuel=NUM_ROLE_CAR, name=name, event=datetime.now())
-        if (app == APP_FUEL) and (role == ROLE_FUEL):
-            task = add_fuel(request.user, ani)
-        if (app == APP_FUEL) and (role == ROLE_PART):
-            task = add_part(request.user, ani, name)
-        if (app == APP_FUEL) and (role == ROLE_SERVICE):
-            task = add_serv(request.user, ani, part_id)
-        if (app == APP_APART) and (role == ROLE_APART):
-            task = Task.objects.create(user=request.user, app_apart=NUM_ROLE_APART, name=name, event=datetime.now())
-        if (app == APP_APART) and (role == ROLE_METER):
-            task = add_meter(request.user, ani)
-        if (app == APP_APART) and (role == ROLE_PRICE):
-            task = add_price(request.user, ani, service_id)
-        if (app == APP_APART) and (role == ROLE_BILL):
-            task, message = add_bill(request.user, ani)
-        if (app == APP_HEALTH) and (role == ROLE_MARKER):
-            task = add_marker(request.user, name)
-        if (app == APP_HEALTH) and (role == ROLE_INCIDENT):
-            task = Task.objects.create(user=request.user, app_health=NUM_ROLE_INCIDENT, name=name, event=datetime.now())
-        if (app == APP_WORK) and (role == ROLE_PERIOD):
-            task = Task.objects.create(user=request.user, app_work=NUM_ROLE_PERIOD, name=name, event=datetime.now())
-        if (app == APP_WORK) and (role == ROLE_DEPARTMENT):
-            task = Task.objects.create(user=request.user, app_work=NUM_ROLE_DEPARTMENT, name=name, event=datetime.now())
-        if (app == APP_WORK) and (role == ROLE_DEP_HIST):
-            task = Task.objects.create(user=request.user, app_work=NUM_ROLE_DEP_HIST, name=name, event=datetime.now())
-        if (app == APP_WORK) and (role == ROLE_POST):
-            task = Task.objects.create(user=request.user, app_work=NUM_ROLE_POST, name=name, event=datetime.now())
-        if (app == APP_WORK) and (role == ROLE_EMPLOYEE):
-            task = Task.objects.create(user=request.user, app_work=NUM_ROLE_EMPLOYEE, name=name, event=datetime.now())
-        if (app == APP_WORK) and (role == ROLE_FIO_HIST):
-            task = Task.objects.create(user=request.user, app_work=NUM_ROLE_FIO_HIST, name=name, event=datetime.now())
-        if (app == APP_WORK) and (role == ROLE_CHILDREN):
-            task = Task.objects.create(user=request.user, app_work=NUM_ROLE_CHILD, name=name, event=datetime.now())
-        if (app == APP_WORK) and (role == ROLE_APPOINTMENT):
-            task = Task.objects.create(user=request.user, app_work=NUM_ROLE_APPOINTMENT, name=name, event=datetime.now())
-        if (app == APP_WORK) and (role == ROLE_EDUCATION):
-            task = Task.objects.create(user=request.user, app_work=NUM_ROLE_EDUCATION, name=name, event=datetime.now())
-        if (app == APP_WORK) and (role == ROLE_EMPLOYEE_PERIOD):
-            task = Task.objects.create(user=request.user, app_work=NUM_ROLE_EMPL_PER, name=name, event=datetime.now())
-        if (app == APP_WORK) and (role == ROLE_PAY_TITLE):
-            task = Task.objects.create(user=request.user, app_work=NUM_ROLE_PAY_TITLE, name=name, event=datetime.now())
-        if (app == APP_WORK) and (role == ROLE_PAYMENT):
-            task = Task.objects.create(user=request.user, app_work=NUM_ROLE_PAYMENT, name=name, event=datetime.now())
-        if (app == APP_PHOTO) and (role == ROLE_PHOTO):
-            task = Task.objects.create(user=request.user, app_photo=NUM_ROLE_PHOTO, name=name, event=datetime.now())
+            task = Task.objects.create(user=request.user, app_task=const.NUM_ROLE_TODO, name=name, in_my_day=in_my_day, important=important, stop=stop, repeat_days=0)
+        match (app, role):
+            case (const.APP_NOTE, const.ROLE_NOTE):
+                task = Task.objects.create(user=request.user, app_note=const.NUM_ROLE_NOTE, name=name, event=datetime.now())
+            case (const.APP_NEWS, const.ROLE_NEWS):
+                task = Task.objects.create(user=request.user, app_news=const.NUM_ROLE_NEWS, name=name, event=datetime.now())
+            case (const.APP_STORE, const.ROLE_STORE):
+                task = add_store(request.user, name)
+            case (const.APP_DOCS, const.ROLE_DOC):
+                task = Task.objects.create(user=request.user, app_doc=const.NUM_ROLE_DOC, name=name, event=datetime.now())
+            case (const.APP_WARR, const.ROLE_WARR):
+                task = Task.objects.create(user=request.user, app_warr=const.NUM_ROLE_WARR, name=name, event=datetime.now())
+            case (const.APP_EXPEN, const.ROLE_EXPENSE):
+                task = Task.objects.create(user=request.user, app_expen=const.NUM_ROLE_EXPENSE, name=name, event=datetime.now())
+            case (const.APP_TRIP, const.ROLE_PERSON):
+                task = Task.objects.create(user=request.user, app_trip=const.NUM_ROLE_PERSON, name=name, event=datetime.now())
+            case (const.APP_TRIP, const.ROLE_TRIP):
+                task = Task.objects.create(user=request.user, app_trip=const.NUM_ROLE_TRIP, name=name, event=datetime.now())
+            case (const.APP_TRIP, const.ROLE_SALDO):
+                task = Task.objects.create(user=request.user, app_trip=const.NUM_ROLE_SALDO, name=name, event=datetime.now())
+            case (const.APP_FUEL, const.ROLE_CAR):
+                task = Task.objects.create(user=request.user, app_fuel=const.NUM_ROLE_CAR, name=name, event=datetime.now())
+            case (const.APP_FUEL, const.ROLE_FUEL):
+                task = add_fuel(request.user, ani)
+            case (const.APP_FUEL, const.ROLE_PART):
+                task = add_part(request.user, ani, name)
+            case (const.APP_FUEL, const.ROLE_SERVICE):
+                task = add_serv(request.user, ani, part_id)
+            case (const.APP_APART, const.ROLE_APART):
+                task = Task.objects.create(user=request.user, app_apart=const.NUM_ROLE_APART, name=name, event=datetime.now())
+            case (const.APP_APART, const.ROLE_METER):
+                task = add_meter(request.user, ani)
+            case (const.APP_APART, const.ROLE_PRICE):
+                task = add_price(request.user, ani, service_id)
+            case (const.APP_APART, const.ROLE_BILL):
+                task, message = add_bill(request.user, ani)
+            case (const.APP_HEALTH, const.ROLE_MARKER):
+                task = add_marker(request.user, name)
+            case (const.APP_HEALTH, const.ROLE_INCIDENT):
+                task = Task.objects.create(user=request.user, app_health=const.NUM_ROLE_INCIDENT, name=name, event=datetime.now())
+            case (const.APP_WORK, const.ROLE_PERIOD):
+                task = Task.objects.create(user=request.user, app_work=const.NUM_ROLE_PERIOD, name=name, event=datetime.now())
+            case (const.APP_WORK, const.ROLE_DEPARTMENT):
+                task = Task.objects.create(user=request.user, app_work=const.NUM_ROLE_DEPARTMENT, name=name, event=datetime.now())
+            case (const.APP_WORK, const.ROLE_DEP_HIST):
+                task = Task.objects.create(user=request.user, app_work=const.NUM_ROLE_DEP_HIST, name=name, event=datetime.now())
+            case (const.APP_WORK, const.ROLE_POST):
+                task = Task.objects.create(user=request.user, app_work=const.NUM_ROLE_POST, name=name, event=datetime.now())
+            case (const.APP_WORK, const.ROLE_EMPLOYEE):
+                task = Task.objects.create(user=request.user, app_work=const.NUM_ROLE_EMPLOYEE, name=name, event=datetime.now())
+            case (const.APP_WORK, const.ROLE_FIO_HIST):
+                task = Task.objects.create(user=request.user, app_work=const.NUM_ROLE_FIO_HIST, name=name, event=datetime.now())
+            case (const.APP_WORK, const.ROLE_CHILDREN):
+                task = Task.objects.create(user=request.user, app_work=const.NUM_ROLE_CHILD, name=name, event=datetime.now())
+            case (const.APP_WORK, const.ROLE_APPOINTMENT):
+                task = Task.objects.create(user=request.user, app_work=const.NUM_ROLE_APPOINTMENT, name=name, event=datetime.now())
+            case (const.APP_WORK, const.ROLE_EDUCATION):
+                task = Task.objects.create(user=request.user, app_work=const.NUM_ROLE_EDUCATION, name=name, event=datetime.now())
+            case (const.APP_WORK, const.ROLE_EMPLOYEE_PERIOD):
+                task = Task.objects.create(user=request.user, app_work=const.NUM_ROLE_EMPL_PER, name=name, event=datetime.now())
+            case (const.APP_WORK, const.ROLE_PAY_TITLE):
+                task = Task.objects.create(user=request.user, app_work=const.NUM_ROLE_PAY_TITLE, name=name, event=datetime.now())
+            case (const.APP_WORK, const.ROLE_PAYMENT):
+                task = Task.objects.create(user=request.user, app_work=const.NUM_ROLE_PAYMENT, name=name, event=datetime.now())
+            case (const.APP_PHOTO, const.ROLE_PHOTO):
+                task = Task.objects.create(user=request.user, app_photo=const.NUM_ROLE_PHOTO, name=name, event=datetime.now())
         if not task:
             return Response({'task_id': 0, 'mess': message})
         task.correct_groups_qty(GIQ_ADD_TASK, group.id)
@@ -208,8 +209,8 @@ class TaskViewSet(viewsets.ModelViewSet):
             return Response({'Error': "Expected parameter 'role'"},
                             status=status.HTTP_400_BAD_REQUEST)
         role = self.request.query_params['role']
-        if role not in ALL_ROLES:
-            return Response({'Error': "The 'role' parameter must have one of the following values: " + ', '.join(ALL_ROLES)},
+        if role not in const.ALL_ROLES:
+            return Response({'Error': "The 'role' parameter must have one of the following values: " + ', '.join(const.ALL_ROLES)},
                             status=status.HTTP_400_BAD_REQUEST)
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
@@ -240,7 +241,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         self.save(task)
         mess = None
         if next_task:
-            next_task.set_item_attr(APP_TODO, next_task.get_info())
+            next_task.set_item_attr(const.APP_TODO, next_task.get_info())
             mess = _('replanned to ' + nice_date(next_task.stop))
         serializer = TaskSerializer(instance=task, context={'request': request})
         return Response({'data': serializer.data, 'info': mess})
@@ -411,7 +412,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     @action(detail=True)
     def repeat_daily(self, request, pk=None):
         task = self.get_object()
-        task.repeat = DAILY
+        task.repeat = const.DAILY
         task.repeat_num = 1
         if not task.stop:
             task.stop = datetime.today().date()
@@ -422,7 +423,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     @action(detail=True)
     def repeat_workdays(self, request, pk=None):
         task = self.get_object()
-        task.repeat = WEEKLY
+        task.repeat = const.WEEKLY
         task.repeat_num = 1
         task.repeat_days = 1+2+4+8+16
         if not task.stop:
@@ -434,7 +435,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     @action(detail=True)
     def repeat_weekly(self, request, pk=None):
         task = self.get_object()
-        task.repeat = WEEKLY
+        task.repeat = const.WEEKLY
         task.repeat_num = 1
         task.repeat_days = 0
         if not task.stop:
@@ -446,7 +447,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     @action(detail=True)
     def repeat_monthly(self, request, pk=None):
         task = self.get_object()
-        task.repeat = MONTHLY
+        task.repeat = const.MONTHLY
         task.repeat_num = 1
         if not task.stop:
             task.stop = datetime.today().date()
@@ -457,7 +458,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     @action(detail=True)
     def repeat_annually(self, request, pk=None):
         task = self.get_object()
-        task.repeat = ANNUALLY
+        task.repeat = const.ANNUALLY
         task.repeat_num = 1
         if not task.stop:
             task.stop = datetime.today().date()
@@ -507,76 +508,50 @@ class TaskViewSet(viewsets.ModelViewSet):
             return Response({'Error': "Expected parameter 'role'"},
                             status=status.HTTP_400_BAD_REQUEST)
         role = self.request.query_params['role']
-        if role not in ALL_ROLES:
-            return Response({'Error': "The 'role' parameter must have one of the following values: " + ', '.join(ALL_ROLES)},
+        if role not in const.ALL_ROLES:
+            return Response({'Error': "The 'role' parameter must have one of the following values: " + ', '.join(const.ALL_ROLES)},
                             status=status.HTTP_400_BAD_REQUEST)
         queryset = Task.objects.filter(user=request.user)
         task = get_object_or_404(queryset, pk=pk)
-        if (role == ROLE_TODO):
-            task.app_task = NUM_ROLE_TODO
-        if (role == ROLE_NOTE):
-            task.app_note = NUM_ROLE_NOTE
-        if (role == ROLE_NEWS):
-            task.app_news = NUM_ROLE_NEWS
-        if (role == ROLE_STORE):
-            task.app_store = NUM_ROLE_STORE
-        if (role == ROLE_DOC):
-            task.app_doc = NUM_ROLE_DOC
-        if (role == ROLE_WARR):
-            task.app_warr = NUM_ROLE_WARR
-        if (role == ROLE_EXPENSE):
-            task.app_expen = NUM_ROLE_EXPENSE
-        if (role == ROLE_SALDO):
-            task.app_expen = NUM_ROLE_SALDO
-        if (role == ROLE_PERSON):
-            task.app_trip = NUM_ROLE_PERSON
-        if (role == ROLE_TRIP):
-            task.app_trip = NUM_ROLE_TRIP
-        if (role == ROLE_SALDO):
-            task.app_trip = NUM_ROLE_SALDO
-        if (role == ROLE_FUEL):
-            task.app_fuel = NUM_ROLE_FUEL
-        if (role == ROLE_PART):
-            task.app_fuel = NUM_ROLE_PART
-        if (role == ROLE_SERVICE):
-            task.app_fuel = NUM_ROLE_SERVICE
-        if (role == ROLE_METER):
-            task.app_apart = NUM_ROLE_METER
-        if (role == ROLE_PRICE):
-            task.app_apart = NUM_ROLE_PRICE
-        if (role == ROLE_BILL):
-            task.app_apart = NUM_ROLE_BILL
-        if (role == ROLE_MARKER):
-            task.app_health = NUM_ROLE_MARKER
-        if (role == ROLE_INCIDENT):
-            task.app_health = NUM_ROLE_INCIDENT
-        if (role == ROLE_PERIOD):
-            task.app_work = NUM_ROLE_PERIOD
-        if (role == ROLE_DEPARTMENT):
-            task.app_work = NUM_ROLE_DEPARTMENT
-        if (role == ROLE_DEP_HIST):
-            task.app_work = NUM_ROLE_DEP_HIST
-        if (role == ROLE_POST):
-            task.app_work = NUM_ROLE_POST
-        if (role == ROLE_EMPLOYEE):
-            task.app_work = NUM_ROLE_EMPLOYEE
-        if (role == ROLE_FIO_HIST):
-            task.app_work = NUM_ROLE_FIO_HIST
-        if (role == ROLE_CHILDREN):
-            task.app_work = NUM_ROLE_CHILD
-        if (role == ROLE_APPOINTMENT):
-            task.app_work = NUM_ROLE_APPOINTMENT
-        if (role == ROLE_EDUCATION):
-            task.app_work = NUM_ROLE_EDUCATION
-        if (role == ROLE_EMPLOYEE_PERIOD):
-            task.app_work = NUM_ROLE_EMPL_PER
-        if (role == ROLE_PAY_TITLE):
-            task.app_work = NUM_ROLE_PAY_TITLE
-        if (role == ROLE_PAYMENT):
-            task.app_work = NUM_ROLE_PAYMENT
-        if (role == ROLE_PHOTO):
-            task.app_photo = NUM_ROLE_PHOTO
-        self.save(task)
+        match role:
+            case const.ROLE_TODO: task.app_task = const.NUM_ROLE_TODO
+            case const.ROLE_NOTE: 
+                task.app_note = const.NUM_ROLE_NOTE
+                if not task.event:
+                    task.event = datetime.now()
+            case const.ROLE_NEWS: 
+                task.app_news = const.NUM_ROLE_NEWS
+                if not task.event:
+                    task.event = datetime.now()
+            case const.ROLE_STORE: task.app_store = const.NUM_ROLE_STORE
+            case const.ROLE_DOC: task.app_doc = const.NUM_ROLE_DOC
+            case const.ROLE_WARR: task.app_warr = const.NUM_ROLE_WARR
+            case const.ROLE_EXPENSE: task.app_expen = const.NUM_ROLE_EXPENSE
+            case const.ROLE_SALDO: task.app_expen = const.NUM_ROLE_SALDO
+            case const.ROLE_PERSON: task.app_trip = const.NUM_ROLE_PERSON
+            case const.ROLE_TRIP: task.app_trip = const.NUM_ROLE_TRIP
+            case const.ROLE_FUEL: task.app_fuel = const.NUM_ROLE_FUEL
+            case const.ROLE_PART: task.app_fuel = const.NUM_ROLE_PART
+            case const.ROLE_SERVICE: task.app_fuel = const.NUM_ROLE_SERVICE
+            case const.ROLE_METER: task.app_apart = const.NUM_ROLE_METER
+            case const.ROLE_PRICE: task.app_apart = const.NUM_ROLE_PRICE
+            case const.ROLE_BILL: task.app_apart = const.NUM_ROLE_BILL
+            case const.ROLE_MARKER: task.app_health = const.NUM_ROLE_MARKER
+            case const.ROLE_INCIDENT: task.app_health = const.NUM_ROLE_INCIDENT
+            case const.ROLE_PERIOD: task.app_work = const.NUM_ROLE_PERIOD
+            case const.ROLE_DEPARTMENT: task.app_work = const.NUM_ROLE_DEPARTMENT
+            case const.ROLE_DEP_HIST: task.app_work = const.NUM_ROLE_DEP_HIST
+            case const.ROLE_POST: task.app_work = const.NUM_ROLE_POST
+            case const.ROLE_EMPLOYEE: task.app_work = const.NUM_ROLE_EMPLOYEE
+            case const.ROLE_FIO_HIST: task.app_work = const.NUM_ROLE_FIO_HIST
+            case const.ROLE_CHILDREN: task.app_work = const.NUM_ROLE_CHILD
+            case const.ROLE_APPOINTMENT: task.app_work = const.NUM_ROLE_APPOINTMENT
+            case const.ROLE_EDUCATION: task.app_work = const.NUM_ROLE_EDUCATION
+            case const.ROLE_EMPLOYEE_PERIOD: task.app_work = const.NUM_ROLE_EMPL_PER
+            case const.ROLE_PAY_TITLE: task.app_work = const.NUM_ROLE_PAY_TITLE
+            case const.ROLE_PAYMENT: task.app_work = const.NUM_ROLE_PAYMENT
+            case const.ROLE_PHOTO: task.app_photo = const.NUM_ROLE_PHOTO
+        self.save(task, role)
         serializer = TaskSerializer(instance=task, context={'request': request})
         return Response(serializer.data)
 
@@ -588,53 +563,29 @@ class TaskViewSet(viewsets.ModelViewSet):
             return Response({'Error': "Expected parameter 'role'"},
                             status=status.HTTP_400_BAD_REQUEST)
         role = self.request.query_params['role']
-        if role not in ALL_ROLES:
-            return Response({'Error': "The 'role' parameter must have one of the following values: " + ', '.join(ALL_ROLES)},
+        if role not in const.ALL_ROLES:
+            return Response({'Error': "The 'role' parameter must have one of the following values: " + ', '.join(const.ALL_ROLES)},
                             status=status.HTTP_400_BAD_REQUEST)
         queryset = Task.objects.filter(user=request.user)
         task = get_object_or_404(queryset, pk=pk)
 
-        if (role == ROLE_TODO):
-            task.app_task = NONE
-        
-        if (role == ROLE_NOTE):
-            task.app_note = NONE
-        
-        if (role == ROLE_NEWS):
-            task.app_news = NONE
-        
-        if (role == ROLE_STORE):
-            task.app_store = NONE
-        
-        if (role == ROLE_DOC):
-            task.app_doc = NONE
-        
-        if (role == ROLE_WARR):
-            task.app_warr = NONE
-        
-        if (role == ROLE_EXPENSE):
-            task.app_expen = NONE
-        
-        if (role in [ROLE_PERSON, ROLE_TRIP, ROLE_SALDO]):
-            task.app_trip = NONE
+        match role:
+            case const.ROLE_TODO: task.app_task = 0
+            case const.ROLE_NOTE: task.app_note = 0
+            case const.ROLE_NEWS: task.app_news = 0
+            case const.ROLE_STORE: task.app_store = 0
+            case const.ROLE_DOC: task.app_doc = 0
+            case const.ROLE_WARR: task.app_warr = 0
+            case const.ROLE_EXPENSE: task.app_expen = 0
+            case const.ROLE_PERSON | const.ROLE_TRIP | const.ROLE_SALDO: task.app_trip = 0
+            case const.ROLE_FUEL | const.ROLE_PART | const.ROLE_SERVICE: task.app_fuel = 0
+            case const.ROLE_APART | const.ROLE_METER | const.ROLE_PRICE | const.ROLE_BILL: task.app_apart = 0
+            case const.ROLE_MARKER | const.ROLE_INCIDENT: task.app_health = 0
+            case const.ROLE_PERIOD | const.ROLE_DEPARTMENT | const.ROLE_DEP_HIST | const.ROLE_POST | const.ROLE_EMPLOYEE | const.ROLE_FIO_HIST | const.ROLE_CHILDREN | const.ROLE_APPOINTMENT | const.ROLE_EDUCATION | const.ROLE_EMPLOYEE_PERIOD | const.ROLE_PAY_TITLE | const.ROLE_PAYMENT: task.app_work = 0
+            case const.ROLE_PHOTO: task.app_photo = 0
 
-        if (role in [ROLE_FUEL, ROLE_PART, ROLE_SERVICE]):
-            task.app_fuel = NONE
-
-        if (role in [ROLE_APART, ROLE_METER, ROLE_PRICE, ROLE_BILL]):
-            task.app_apart = NONE
-        
-        if (role in [ROLE_MARKER, ROLE_INCIDENT]):
-            task.app_health = NONE
-        
-        if (role in [ROLE_PERIOD, ROLE_DEPARTMENT, ROLE_DEP_HIST, ROLE_POST, ROLE_EMPLOYEE, ROLE_FIO_HIST,
-            ROLE_CHILDREN, ROLE_APPOINTMENT, ROLE_EDUCATION, ROLE_EMPLOYEE_PERIOD, ROLE_PAY_TITLE, ROLE_PAYMENT]):
-            task.app_work = NONE
-        
-        if (role == ROLE_PHOTO):
-            task.app_photo = NONE
-        
-        task.correct_groups_qty(GIQ_DEL_TASK, role=role)
+        for tg in TaskGroup.objects.filter(task_id=task.id, role=role):
+            task.correct_groups_qty(GIQ_DEL_TASK, role=role)
 
         if ((task.app_task + task.app_note + task.app_news + task.app_store + task.app_doc + task.app_warr + task.app_expen + 
             task.app_trip + task.app_fuel + task.app_apart + task.app_health + task.app_work + task.app_photo) == 0):
@@ -646,9 +597,9 @@ class TaskViewSet(viewsets.ModelViewSet):
         serializer = TaskSerializer(instance=task, context={'request': request})
         return Response(serializer.data)
 
-    def save(self, task):
+    def save(self, task, role=const.APP_TODO):
         task.save()
-        task.set_item_attr(APP_TODO, task.get_info())
+        task.set_item_attr(role, task.get_info())
 
     @action(detail=False)
     def check_background_services(self, request, pk=None):

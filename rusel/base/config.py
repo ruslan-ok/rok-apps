@@ -15,12 +15,14 @@ class Config:
         self.view_icon = config['icon']
         self.role_icon = config['icon']
         self.views = config['views']
+        self.relate = self.check_property(config, 'relate', [])
         self.base_role = self.check_property(config, 'role', None)
         self.base_role_loc = self.check_property(config, 'role_loc', None)
         self.main_view = self.check_property(config, 'main_view', None)
         if self.main_view:
             self.base_role = self.check_property(config['views'][self.main_view], 'role', self.base_role)
             self.base_role_loc = self.check_property(config['views'][self.main_view], 'role_loc', self.base_role_loc)
+            self.relate = self.check_property(config['views'][self.main_view], 'relate', self.relate)
         self.use_groups = self.check_property(config, 'use_groups', False)
         self.group_entity = self.check_property(config, 'group_entity', 'group')
         self.group_entity_loc = self.check_property(config, 'group_entity_loc', pgettext('create ...', 'group'))
@@ -49,6 +51,7 @@ class Config:
         self.nav_item = None
         self.role_loc = None
         determinator = 'view'
+
         view_id = ''
         if (self.app == APP_ALL):
             common_url = reverse('index')
@@ -102,6 +105,7 @@ class Config:
             self.event_in_name = self.check_property(self.views[view_id], 'event_in_name', self.event_in_name)
             self.use_sub_groups = self.check_property(self.views[view_id], 'use_sub_groups', self.use_sub_groups)
             self.limit_list = self.check_property(self.views[view_id], 'limit_list', self.limit_list)
+            self.relate = self.check_property(self.views[view_id], 'relate', self.relate)
             if 'sort' in self.views[view_id]:
                 self.view_sorts = self.views[view_id]['sort']
 

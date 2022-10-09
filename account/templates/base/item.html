@@ -24,6 +24,15 @@
         <span class="name{% if item.completed %} completed{% endif %}">
           {% if config.event_in_name %}{{ item.event|date:"j M Y" }}{% if item.name %} - {% endif %}{% endif %}
           {{ item.name|safe }}
+          {% if config.get_cur_role != 'search' %}
+            <span class="roles">
+              {% for role in item.get_roles %}
+                {% if role.name != config.app %}
+                  <object><a href="{{ role.href|escape }}" class="role-icon"><i class="bi-{{ role.icon }}"></i></a></object>
+                {% endif %}
+              {% endfor %}
+            </span>
+          {% endif %}
         </span>
         <div class="descr">
           {% for k, v in item.get_item_attr.items %}
