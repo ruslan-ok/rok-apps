@@ -453,7 +453,7 @@ class Task(models.Model):
                             url_role = role
                         icon = ROLE_ICON[role]
                         href = self.get_url_for_app(app, url_role)
-                        roles.append({'icon': icon, 'href': href, 'name': role})
+                        roles.append({'icon': icon, 'href': href, 'name': role, 'name_mod': role.replace('expense', 'expen').replace('service', 'fuel')})
         return roles
 
     def get_absolute_url(self):

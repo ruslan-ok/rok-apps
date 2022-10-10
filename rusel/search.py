@@ -15,7 +15,7 @@ class SearchResult:
         self.photo_num = photo_num
 
     def get_roles(self):
-        return [{'icon': ROLE_ICON[self.role], 'href': self.get_absolute_url(), 'name': self.role, 'hide_params': True}]
+        return [{'icon': ROLE_ICON[self.role], 'href': self.get_absolute_url(), 'name': self.role, 'name_mod': self.role.replace('expense', 'expen').replace('service', 'fuel'), 'hide_params': True}]
 
     def get_absolute_url(self):
         if (self.role == ROLE_PHOTO):

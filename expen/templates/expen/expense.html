@@ -13,7 +13,9 @@
       </div>
     {% endif %}
 
-    {{ form.grp }}
+    <div class="row mb-3">
+      <div class="col">{{ form.grp.label_tag }}{{ form.grp }}</div>
+    </div>
     <div class="row mb-3">
       <div class="col">{{ form.event }}</div>
       <div class="col">{{ form.name.label_tag }}{{ form.name }}</div>

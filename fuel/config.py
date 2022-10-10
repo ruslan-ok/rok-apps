@@ -32,6 +32,7 @@ app_config = {
             'item_name': _('service'),
             'add_button': True,
             'use_sub_groups': True,
+            'relate': [ROLE_EXPENSE],
             'sort': [
                 ('event', _('due date')),
             ],

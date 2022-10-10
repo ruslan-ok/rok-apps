@@ -62,8 +62,8 @@ class EditForm(BaseEditForm):
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '1'}))
     grp = forms.ChoiceField(
-        label=_('Group'),
-        widget=forms.HiddenInput(attrs={'class': 'form-control'}),
+        label=_('Project'),
+        widget=forms.Select(attrs={'class': 'form-control mb-3'}),
         choices=[(0, '------'),])
     url = forms.CharField(
         label=_('URLs'),
