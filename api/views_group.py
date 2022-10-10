@@ -1,4 +1,4 @@
-import math
+import math, os
 import urllib.parse
 from django.http import HttpResponseRedirect
 from rest_framework import viewsets, permissions, status, renderers
@@ -139,3 +139,19 @@ class GroupViewSet(viewsets.ModelViewSet):
         group.save()
         serializer = GroupSerializer(instance=group, context={'request': request})
         return Response(serializer.data)
+
+    @action(detail=False)
+    def create_folder(self, request, pk=None):
+        if 'folder' not in self.request.query_params:
+            return Response({'Error': "Expected parameter 'folder'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if 'name' not in self.request.query_params:
+            return Response({'Error': "Expected parameter 'name'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        folder = self.request.query_params['folder']
+        name = self.request.query_params['name']
+        storage_path = os.environ.get('DJANGO_STORAGE_PATH')
+        store_dir = storage_path.format(request.user.username) + 'docs/'
+        os.mkdir(store_dir + folder + '/' + name)
+        return Response({'result': 'ok'})
+    
