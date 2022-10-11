@@ -4,7 +4,7 @@
       <!-- Task.stop VIEW -->
       {{ form.stop.errors }} 
       <div class="termin-block" id="termin-view">
-        <button type="button" class="termin-block__content" onclick="ToggleSelectField('termin')">
+        <button type="button" class="termin-block__content" onclick="ToggleSelectField('termin', 'id_stop')">
           <i class="bi-check2-square termin-block__icon"></i>
           <div id="id_termin_title"
             class="termin-block__title{% if item.b_expired %} expired{% elif item.task_actual %} actual{% endif %}">
@@ -62,7 +62,7 @@
       {{ form.repeat_days.errors }}
       <!-- Task.repeat VIEW -->
       <div class="termin-block" id="repeat-view">
-        <button type="button" class="termin-block__content" onclick="ToggleSelectField('repeat')">
+        <button type="button" class="termin-block__content" onclick="ToggleSelectField('repeat', 'id_repeat_num')">
           <i class="bi-arrow-repeat termin-block__icon"></i>
           <div id="id_repeat_title" class="termin-block__title">
             {% if item.repeat and item.repeat != 0 %}
@@ -143,7 +143,7 @@
       <!-- Task.remind VIEW -->
       <div class="termin-block" id="remind-view">
         {{ form.remind.errors }}
-        <button type="button" class="termin-block__content" onclick="ToggleSelectField('remind')">
+        <button type="button" class="termin-block__content" onclick="ToggleSelectField('remind', 'id_remind')">
           <i class="bi-bell termin-block__icon"></i>
           <div id="id_remind_title" class="termin-block__title">
             {% if task_b_remind %}

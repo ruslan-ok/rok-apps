@@ -293,10 +293,18 @@ function delRole(role) {
     runAPI(api, callback);
 }
 
-function ToggleSelectField(name)
+function ToggleSelectField(name, input_id)
 {
   var sel_id = name + '-select';
-  document.getElementById(sel_id).classList.toggle('d-none');
+  let container = document.getElementById(sel_id);
+  if (!container.classList.contains('d-none')) {
+    let input = document.getElementById(input_id);
+    if (!input.checkValidity()) {
+        input.form.reportValidity();
+        return;
+    }
+  }
+  container.classList.toggle('d-none');
 }
 
 function toggleMyDay() {
