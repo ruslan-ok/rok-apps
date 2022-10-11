@@ -173,6 +173,22 @@ function fileSelected()
     document.getElementById('id_submit').click();
 }
 
+function delFileConfirm(ban, text, app, role, fname, file_id) {
+    if (ban) {
+      showInfo(ban);
+      return;
+    }
+  
+    let el = document.getElementById('delModal');
+    let conf = new bootstrap.Modal(document.getElementById('delModal'), {});
+    el.querySelectorAll('div.modal-body')[0].innerText = `${text} "${fname}"?`;
+    el.querySelectorAll('button.btn-danger')[0].onclick = function() {
+        conf.hide();
+        return delFile(app, role, fname, file_id);
+    }
+    conf.show();
+}
+  
 function delFile(app, role, fname, file_id) {
     const item_id = window.location.pathname.match( /\d+/ )[0];
     const api = '/api/tasks/' + item_id + '/file_delete/?format=json&app=' + app + '&role=' + role + '&fname=' + fname;
