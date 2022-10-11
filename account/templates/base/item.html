@@ -21,7 +21,7 @@
 
     <a href="{{ item.get_absolute_url|escape }}{{ params }}" class="container">
       <div class="info">
-        <span class="name{% if item.completed %} completed{% endif %}">
+        <span class="name{% if item.completed and config.use_selector %} completed{% endif %}">
           {% if config.event_in_name %}{{ item.event|date:"j M Y" }}{% if item.name %} - {% endif %}{% endif %}
           {{ item.name|safe }}
           {% if config.get_cur_role != 'search' %}

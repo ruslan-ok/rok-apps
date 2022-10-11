@@ -48,7 +48,7 @@
                     {% for node in groups %}
                         {% if node.is_leaf %}
                             <a href="/{{ config.app }}/?{{ config.group_entity }}={{ node.id|escape }}" 
-                                class="{% if current_group == node.s_id %}active{% endif %}"
+                                class="sidebar__group-visible {% if current_group == node.s_id %}active{% endif %}"
                                 {% if current_group == node.s_id %}aria-current="true"{% endif %}
                                 data-id="{{ node.id|escape }}" data-parent="{{ node.node.id|escape }}" id="task_group_{{ node.id|escape }}">
                                 <div>
@@ -79,7 +79,7 @@
             <div id="groups-tree" class="sidebar__groups">
                 {% for node in nav_items %}
                     <a href="{{ node.href }}?{{ config.group_entity }}={{ node.id|escape }}" 
-                        class="{% if nav_item.id == node.id %}active{% endif %}"
+                        class="sidebar__group-visible {% if nav_item.id == node.id %}active{% endif %}"
                         {% if nav_item.id == node.id %}aria-current="true"{% endif %}
                         data-id="{{ node.id|escape }}" id="task_group_{{ node.id|escape }}">
                         <div>
