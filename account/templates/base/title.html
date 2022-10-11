@@ -15,7 +15,21 @@
                     {% if group != group_path|first %} <h3 class="content-title__separator{% if dark_theme %} dark-theme{% endif %}">/</h3> {% endif %}
                 {% endfor %}
             {% else %}
-                <h3 class="content-title__text{% if dark_theme %} dark-theme{% endif %}">{{ title }}</h3>
+                <h3 class="content-title__text{% if dark_theme %} dark-theme{% endif %}">
+                    {% if folder %}
+                        <span>{{ path }}</span>
+                        <span id="id_folder_view" class="folder_view">{{ folder }}</span>
+                        <span id="id_folder_edit" class="folder_edit d-none"><input type="text" name="file_name" size="15" maxlength="100" value="zzz"/></span>
+                    {% else %}
+                        {{ title }}
+                    {% endif %}
+                </h3>
+                {% if folder %}
+                    <button id="id_folder_edit_btn" class="bi-pen btn folder-mod-btn" onclick="editFolder('{{config.app}}', '{{path}}', '{{folder}}')"></button>
+                    <button id="id_folder_del_btn" class="bi-trash btn folder-mod-btn" onclick="delFolderConfirm('{{config.app}}', '{{path}}', '{{folder}}', '{{ban_on_deletion}}', '{{delete_question}}')"></button>
+                    <button id="id_folder_save_btn" class="bi-save btn folder-mod-btn d-none" onclick="saveFolder('{{config.app}}', '{{path}}', '{{folder}}')"></button>
+                    <span id="id_edit_folder_error" class="d-none errornote">Error Description</span>
+                {% endif %}
             {% endif %}
         </div>
         <div class="d-flex mx-2">

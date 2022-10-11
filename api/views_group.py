@@ -143,15 +143,74 @@ class GroupViewSet(viewsets.ModelViewSet):
     @action(detail=False)
     def create_folder(self, request, pk=None):
         if 'folder' not in self.request.query_params:
-            return Response({'Error': "Expected parameter 'folder'"},
+            return Response({'result': 'error', 'error': "Expected parameter 'folder'"},
                             status=status.HTTP_400_BAD_REQUEST)
         if 'name' not in self.request.query_params:
-            return Response({'Error': "Expected parameter 'name'"},
+            return Response({'result': 'error', 'error': "Expected parameter 'name'"},
                             status=status.HTTP_400_BAD_REQUEST)
+        app = 'docs'
+        if 'app' in self.request.query_params:
+            app = self.request.query_params['app']
+        app += '/'
         folder = self.request.query_params['folder']
         name = self.request.query_params['name']
         storage_path = os.environ.get('DJANGO_STORAGE_PATH')
-        store_dir = storage_path.format(request.user.username) + 'docs/'
-        os.mkdir(store_dir + folder + '/' + name)
-        return Response({'result': 'ok'})
-    
+        store_dir = storage_path.format(request.user.username) + app + '/'
+        try:
+            os.mkdir(store_dir + folder + '/' + name)
+            return Response({'result': 'ok'})
+        except Exception as ex:
+            ret = {'result': 'exception', 'exception': ex.strerror}
+            return Response(ret)
+
+    @action(detail=False)
+    def rename_folder(self, request, pk=None):
+        if 'folder' not in self.request.query_params:
+            return Response({'result': 'error', 'error': "Expected parameter 'folder'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if 'new_name' not in self.request.query_params:
+            return Response({'result': 'error', 'error': "Expected parameter 'new_name'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        app = 'docs'
+        if 'app' in self.request.query_params:
+            app = self.request.query_params['app']
+        app += '/'
+        path = ''
+        if 'path' in self.request.query_params:
+            path = self.request.query_params['path']
+        folder = self.request.query_params['folder']
+        new_name = self.request.query_params['new_name']
+        storage_path = os.environ.get('DJANGO_STORAGE_PATH')
+        store_dir = storage_path.format(request.user.username) + app + '/'
+        old_path = store_dir + path + folder
+        new_path = store_dir + path + new_name
+        try:
+            os.rename(old_path, new_path)
+            return Response({'result': 'ok'})
+        except Exception as ex:
+            ret = {'result': 'exception', 'exception': ex.strerror}
+            return Response(ret)
+
+    @action(detail=False)
+    def delete_folder(self, request, pk=None):
+        if 'folder' not in self.request.query_params:
+            return Response({'result': 'error', 'error': "Expected parameter 'folder'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        app = 'docs'
+        if 'app' in self.request.query_params:
+            app = self.request.query_params['app']
+        app += '/'
+        path = ''
+        if 'path' in self.request.query_params:
+            path = self.request.query_params['path']
+        folder = self.request.query_params['folder']
+        storage_path = os.environ.get('DJANGO_STORAGE_PATH')
+        store_dir = storage_path.format(request.user.username) + app + '/'
+        folder_path = store_dir + path + folder
+        try:
+            os.rmdir(folder_path)
+            return Response({'result': 'ok'})
+        except Exception as ex:
+            ret = {'result': 'exception', 'exception': ex.strerror}
+            return Response(ret)
+

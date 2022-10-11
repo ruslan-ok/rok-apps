@@ -7,6 +7,7 @@ app_config = {
     'icon': 'file-text',
     'main_view': 'root',
     'use_groups': True,
+    'group_entity_loc': pgettext_lazy('create ...', 'folder'),
     'sort': [
         ('name', _('name')),
     ],

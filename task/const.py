@@ -48,7 +48,7 @@ APP_NAME = {
     APP_SERVICE: 'site services'
 }
 
-FOLDER_NAV_APPS = [APP_PHOTO, APP_DOCS, APP_WARR]
+FOLDER_NAV_APPS = [APP_PHOTO, APP_DOCS]
 
 """
 Kinds of Entities that can be combined into Group

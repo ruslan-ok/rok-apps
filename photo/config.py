@@ -1,4 +1,4 @@
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 from task.const import *
 
 app_config = {
@@ -7,6 +7,7 @@ app_config = {
     'icon': 'image',
     'main_view': 'preview',
     'use_groups': True,
+    'group_entity_loc': pgettext_lazy('create ...', 'folder'),
     'role': ROLE_PHOTO,
     'sort': [
         ('name', _('name')),

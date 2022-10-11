@@ -63,10 +63,12 @@ class FolderView(LoginRequiredMixin, BaseDirView):
         if files_path:
             files_path += '/'
         num = 0
+        is_empty = True
         with os.scandir(self.store_dir + self.cur_folder) as it:
             for entry in it:
                 if (entry.name.upper() == 'Thumbs.db'.upper()):
                     continue
+                is_empty = False
                 if entry.is_dir():
                     continue
                 if not self.is_image(entry.path):
@@ -81,7 +83,7 @@ class FolderView(LoginRequiredMixin, BaseDirView):
                     p = Photo.objects.filter(user=self.request.user.id, path=files_path, name=entry.name).get()
                 if (p.lat and p.lon):
                     self.gps_data.append({ 'id': p.id, 'num': num-1, 'lat': str(p.lat), 'lon': str(p.lon), 'name': p.name })
-        return self.gps_data
+        return is_empty
 
     def get_view_qty(self, group, nav_item):
         if (group.view_id == 'preview'):
@@ -133,7 +135,7 @@ class PhotoView(LoginRequiredMixin, FormView):
             title = page_title
         context['title'] = title
 
-        self.scan_files()
+        is_empty = self.scan_files()
         context['file_list'] = self.file_list
         context['cur_folder'] = self.cur_folder
         return context
@@ -150,15 +152,18 @@ class PhotoView(LoginRequiredMixin, FormView):
     def scan_files(self):
         self.gps_data = []
         self.file_list = []
+        is_empty = True
         with os.scandir(self.store_dir + self.cur_folder) as it:
             for entry in it:
                 if (entry.name.upper() == 'Thumbs.db'.upper()):
                     continue
+                is_empty = False
                 if entry.is_dir():
                     continue
                 if not self.is_image(entry.path):
                     continue
                 self.file_list.append(entry.name)
+        return is_empty
 
 #----------------------------------
 class Entry:

@@ -1,4 +1,5 @@
 import os, time, mimetypes, glob
+from django.http import Http404
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 from task.const import *
@@ -169,25 +170,33 @@ class DirContext(Context):
     def get_context_data(self, **kwargs):
         self.config.set_view(self.request)
         self.object = None
+        path_list = []
         self.cur_folder = ''
-        page_title = ''
         title = ''
-        if ('folder' in self.request.GET):
-            self.cur_folder = self.request.GET['folder']
-            page_title = self.cur_folder.split('/')[-1:][0]
-            title = self.cur_folder
-        if not self.cur_folder:
-            page_title = self.config.app_title
-            title = page_title
-        kwargs.update({'title': page_title})
+        path = ''
+        folder = ''
+        if (self.config.app in FOLDER_NAV_APPS) and ('folder' in self.request.GET):
+            self.cur_folder = self.request.GET['folder'].rstrip('/')
+            if self.cur_folder:
+                path_list = self.cur_folder.split('/')
+                path = '/'.join(path_list[:-1])
+                if path:
+                    path += '/'
+                folder = path_list[-1]
+                title = '/'.join(path_list)
+        if not folder:
+            title = self.config.app_title
+        kwargs.update({'title': title})
         dir_tree = []
         self.scan_dir_tree(dir_tree, self.cur_folder, self.store_dir.rstrip('/'))
-        self.scan_files()
+        is_empty = self.scan_files()
         self.object = None
         context = super().get_context_data(**kwargs)
         upd_context = self.get_app_context(self.request.user.id, None, icon=self.config.view_icon, nav_items=None, **kwargs)
         context.update(upd_context)
         context['title'] = title
+        context['path'] = path
+        context['folder'] = folder
         context['dir_tree'] = dir_tree
         context['file_list'] = self.file_list
         context['gps_data'] = self.gps_data
@@ -195,6 +204,9 @@ class DirContext(Context):
             context['cur_view'] = self.config.cur_view_group.view_id
         context['theme_id'] = 24
         context['cur_folder'] = self.cur_folder
+        context['delete_question'] = _('delete folder').capitalize()
+        if not is_empty:
+            context['ban_on_deletion'] = _('deletion is prohibited because the folder is not empty').capitalize()
         return context
 
     def scan_dir_tree(self, dir_tree, cur_folder, path, parent=None, demo=False):
@@ -230,25 +242,30 @@ class DirContext(Context):
     def scan_files(self):
         self.gps_data = []
         self.file_list = []
-        with os.scandir(self.store_dir + self.cur_folder) as it:
-            for entry in it:
-                if (entry.name.upper() == 'Thumbs.db'.upper()):
-                    continue
-                if entry.is_dir():
-                    continue
-                ff = self.store_dir + self.cur_folder + '/' + entry.name
-                mt = mimetypes.guess_type(ff)
-                file_type = ''
-                if mt and mt[0]:
-                    file_type = mt[0]
-                self.file_list.append({
-                    'name': entry.name, 
-                    'href': 'file/?folder=' + self.cur_folder + '&file=' + entry.name,
-                    'date': time.ctime(os.path.getmtime(ff)),
-                    'type': file_type,
-                    'size': self.sizeof_fmt(os.path.getsize(ff)),
-                    })
-        return self.gps_data
+        is_empty = True
+        try:
+            with os.scandir(self.store_dir + self.cur_folder) as it:
+                for entry in it:
+                    if (entry.name.upper() == 'Thumbs.db'.upper()):
+                        continue
+                    is_empty = False
+                    if entry.is_dir():
+                        continue
+                    ff = self.store_dir + self.cur_folder + '/' + entry.name
+                    mt = mimetypes.guess_type(ff)
+                    file_type = ''
+                    if mt and mt[0]:
+                        file_type = mt[0]
+                    self.file_list.append({
+                        'name': entry.name, 
+                        'href': 'file/?folder=' + self.cur_folder + '&file=' + entry.name,
+                        'date': time.ctime(os.path.getmtime(ff)),
+                        'type': file_type,
+                        'size': self.sizeof_fmt(os.path.getsize(ff)),
+                        })
+        except FileNotFoundError:
+            raise Http404
+        return is_empty
 
     def sizeof_fmt(self, num, suffix='B'):
         for unit in ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z']:
