@@ -379,10 +379,13 @@ class Task(models.Model):
         nav_role = cls.get_nav_role(app)
         if nav_role:
             nav_items = Task.get_role_tasks(user_id, app, nav_role)
+            ti = None
             if nav_items.filter(active=True).exists():
-                return nav_items.filter(active=True).order_by('name')[0]
-            if (len(nav_items) > 0):
-                return nav_items.order_by('name')[0]
+                ti = nav_items.filter(active=True).order_by('name')[0]
+            elif (len(nav_items) > 0):
+                ti = nav_items.order_by('name')[0]
+            if ti:
+                return Task.objects.filter(id=ti.id).get()
         return None
 
     @classmethod

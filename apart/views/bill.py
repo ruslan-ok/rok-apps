@@ -92,11 +92,11 @@ def avg_accrual(user, apart, period, service_id):
     last = Task.objects.filter(user=user.id, app_apart=NUM_ROLE_BILL, task_1=apart.id, start__lt=period).order_by('-start')[:3]
     ret = 0
     for bill in last:
-        if (service_id == INTERNET):
+        if (service_id == INTERNET) and bill.bill_tv_bill:
             ret += bill.bill_tv_bill
-        if (service_id == PHONE):
+        if (service_id == PHONE) and bill.bill_phone_bill:
             ret += bill.bill_phone_bill
-        if (service_id == HSC):
+        if (service_id == HSC) and bill.bill_zhirovka:
             ret += bill.bill_zhirovka
     if (len(last) > 0):
         ret = round(ret / len(last), 2)
