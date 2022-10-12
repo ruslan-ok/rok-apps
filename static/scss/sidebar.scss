@@ -2,8 +2,9 @@
     &__fix-item {
         display: flex !important;
         justify-content: space-between !important;
+        overflow-x: auto;
         &.active {
-            background-color: rgba(112, 76, 167, 0.2);
+            background-color: rgba(112, 76, 167, 0.2);;
         }
     }
     .dirs {
@@ -37,7 +38,7 @@
                 justify-content: space-between;
             }
             &.active {
-                background-color: rgba(112, 76, 167, 0.2);
+                background-color: rgba(112, 76, 167, 0.2);;
             }
             .level-0 { margin-left: 0px; }
             .level-1 { margin-left: 10px; }
@@ -58,7 +59,7 @@
             display: flex !important;
             justify-content: space-between !important;
             &.active {
-                background-color: rgba(112, 76, 167, 0.2);
+                background-color: rgba(112, 76, 167, 0.2);;
             }
             .level-0 { margin-left: 0px; }
             .level-1 { margin-left: 10px; }
@@ -69,21 +70,17 @@
             .level-6 { margin-left: 60px; }
         }
     }
-}
-
-.add-form {
-    background-color: rgba(255, 255, 255, 0.8);
-    bottom: 2.1rem !important;
-    /*margin-bottom: 13px;*/
-    margin-right: 1rem;
-    input {
-        border: 1px solid #aeaeae;
-        border-radius: 0.25rem;
-        padding: 5px;
+    .add-form {
+        background-color: rgba(255, 255, 255, 0.8);
+        input {
+            border: 1px solid #aeaeae;
+            border-radius: 0.25rem;
+            padding: 5px;
+        }
+        p.errornote {
+            color: #ba2121;
+        }        
     }
-    p.errornote {
-        color: #ba2121;
-    }        
 }
 
 @media (max-width: 767.98px) {

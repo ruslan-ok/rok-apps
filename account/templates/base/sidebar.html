@@ -71,6 +71,13 @@
                 </div>
             {% endif %}
             <hr>
+            <div class="add-form position-sticky bottom-0 px-3 py-3 d-flex flex-column">
+                <p class="d-none errornote" id="id_add_group_error">Error Description</p>
+                <div class="add-form position-sticky bottom-0 px-3 py-3 d-flex flex-nowrap">
+                    <button type="button" class="btn btn-primary bi-plus-lg add-form__button" id="add_group_btn_id" onclick="addGroup('{{ config.app }}','{{ config.get_cur_role }}','{{ config.group_entity }}')"></button>
+                    <input type="text" class="add-form__input" placeholder="{% trans 'create '|capfirst %}{{ config.group_entity_loc }}" name="name" id="new_group_id">
+                </div>
+            </div>
         {% endif %}
 
         {% if nav_items %}
@@ -92,11 +99,4 @@
             </div>
         {% endif %}
     </nav>
-    <div class="add-form position-sticky bottom-0 px-3 py-3 d-flex flex-column">
-        <p class="d-none errornote" id="id_add_group_error">Error Description</p>
-        <div class="d-flex flex-nowrap">
-            <button type="button" class="btn btn-primary bi-plus-lg add-form__button" id="add_group_btn_id" onclick="addGroup('{{ config.app }}','{{ config.get_cur_role }}','{{ config.group_entity }}')"></button>
-            <input type="text" class="add-form__input" placeholder="{% trans 'create '|capfirst %}{{ config.group_entity_loc }}" name="name" id="new_group_id">
-        </div>
-    </div>
 </aside>
