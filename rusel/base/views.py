@@ -286,8 +286,8 @@ class BaseListView(ListView, Context):
                 data = data.order_by(sort_fields[0], sort_fields[1])
             elif (len(sort_fields) == 3):
                 data = data.order_by(sort_fields[0], sort_fields[1], sort_fields[2])
-        except FieldError:
-            pass
+        except FieldError as ex:
+            print(ex.strerror)
 
         return data
 
