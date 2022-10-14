@@ -1,20 +1,23 @@
+import os
 from datetime import datetime
-from service.site_service import SiteService
+from logs.service_log import ServiceLog
 from logs.models import EventType
 from task.const import APP_SERVICE, ROLE_MANAGER
 
-class BackgroundLogData(SiteService):
+class BackgroundLogData(ServiceLog):
     template_name = 'background'
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(APP_SERVICE, ROLE_MANAGER, local_log=True, *args, **kwargs)
+    def __init__(self):
+        this_device = os.environ.get('DJANGO_DEVICE')
+        super().__init__(this_device, APP_SERVICE, ROLE_MANAGER)
+        self.local_log = True
 
     def get_extra_context(self, request):
         context = {}
         day = datetime.today().date()
         if 'day' in request.GET:
             day = datetime.strptime(request.GET['day'], '%Y%m%d')
-        context['events'] = self.get_events(app=self.app, service=self.service_name, day=day)
+        context['events'] = self.get_events(device=self.dev, app=self.app, service=self.svc, day=day)
 
         if self.get_health():
             context['status'] = 'work'
@@ -27,8 +30,8 @@ class BackgroundLogData(SiteService):
     def get_health(self):
         last_start = None
         last_call = None
-        start_events = self.get_events(app=self.app, service=self.service_name, type=EventType.INFO, name='start')
-        call_events = self.get_events(app=self.app, service=self.service_name, type=EventType.INFO, name='work')
+        start_events = self.get_events(device=self.dev, app=self.app, service=self.svc, type=EventType.INFO, name='start')
+        call_events = self.get_events(device=self.dev, app=self.app, service=self.svc, type=EventType.INFO, name='work')
         if len(call_events) > 0:
             last_call = call_events[0].created
         if len(start_events) > 0:

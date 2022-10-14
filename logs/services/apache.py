@@ -1,12 +1,12 @@
-from service.site_service import SiteService
+from logs.service_log import ServiceLog
 from task.const import APP_LOGS, ROLE_APACHE
 from logs.site_stat import get_site_stat
 
-class ApacheLogData(SiteService):
+class ApacheLogData(ServiceLog):
     template_name = 'apache'
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(APP_LOGS, ROLE_APACHE, device='Nuc', *args, **kwargs)
+    def __init__(self):
+        super().__init__('Nuc', APP_LOGS, ROLE_APACHE)
 
     def get_extra_context(self, request):
         context = super().get_extra_context(request)

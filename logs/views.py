@@ -1,24 +1,16 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.template import loader
-from task.const import ROLE_APACHE
-from rusel.base.views import Context
-from logs.config import app_config
-
 from logs.services.apache import ApacheLogData
 from logs.services.background import BackgroundLogData
-from logs.services.backup_nuc_check import BackupNucCheckLogData
-from logs.services.backup_nuc_full import BackupNucFullLogData
-from logs.services.backup_nuc_short import BackupNucShortLogData
-from logs.services.backup_vivo_check import BackupVivoCheckLogData
-from logs.services.backup_v3_vivo_check import BackupV3VivoCheckLogData
-from logs.services.backup_vivo_full import BackupVivoFullLogData
-from logs.services.backup_vivo_short import BackupVivoShortLogData
-from logs.services.backup_v3_vivo_short import BackupV3VivoShortLogData
-from logs.services.intervals import IntervalsLogData
-from logs.services.notification import NotificationLogData
+from logs.services.backup_check import BackupCheckLogData
+from logs.services.backup_v3_check import BackupV3CheckLogData
 from logs.services.overview import OverviewLogData
 from logs.services.versions import VersionsLogData
+from logs.service_log import ServiceLog
+from rusel.base.views import Context
+from logs.config import app_config
+from task import const
 
 class TuneData:
     def tune_dataset(self, data, group):
@@ -30,7 +22,7 @@ class LogsView(Context, TuneData):
         super().__init__(*args, **kwargs)
         self.object = None
         self.request = request
-        self.set_config(app_config, ROLE_APACHE)
+        self.set_config(app_config, 'overview')
         self.config.set_view(request)
 
 @login_required(login_url='account:login')
@@ -38,22 +30,26 @@ def log_view(request):
     view = LogsView(request)
     context = view.get_app_context(request.user.id, icon=view.config.view_icon)
     context['log_title'] = view.config.title
-    data = None
+    dev = None
+    if 'dev' in request.GET:
+        dev = request.GET.get('dev')
+    app = None
+    if 'app' in request.GET:
+        app = request.GET.get('app')
+    svc = None
+    if 'svc' in request.GET:
+        svc = request.GET.get('svc')
     match view.config.cur_view_group.view_id:
-        case 'apache': data = ApacheLogData()
-        case 'backup_nuc_check': data = BackupNucCheckLogData()
-        case 'backup_nuc_full': data = BackupNucFullLogData()
-        case 'backup_nuc_short': data = BackupNucShortLogData()
-        case 'backup_vivo_check': data = BackupVivoCheckLogData()
-        case 'backup_v3_vivo_check': data = BackupV3VivoCheckLogData()
-        case 'backup_vivo_full': data = BackupVivoFullLogData()
-        case 'backup_vivo_short': data = BackupVivoShortLogData()
-        case 'backup_v3_vivo_short': data = BackupV3VivoShortLogData()
-        case 'intervals': data = IntervalsLogData()
-        case 'notification': data = NotificationLogData()
-        case 'overview': data = OverviewLogData()
+        case 'backup_nuc_check': data = BackupCheckLogData('Nuc')
+        case 'backup_vivo_check': data = BackupCheckLogData('Vivo')
+        case 'backup_v3_vivo_check': data = BackupV3CheckLogData('Vivo')
         case 'versions': data = VersionsLogData()
-        case _: data = BackgroundLogData()
+        case _:
+            match (app, svc):
+                case (None, None): data = OverviewLogData()
+                case (const.APP_SERVICE, const.ROLE_MANAGER): data = BackgroundLogData()
+                case (const.APP_LOGS, const.ROLE_APACHE): data = ApacheLogData()
+                case _: data = ServiceLog(dev=dev, app=app, svc=svc)
     if data:
         context.update(data.get_extra_context(request))
     template = loader.get_template(f'logs/{data.template_name}.html')

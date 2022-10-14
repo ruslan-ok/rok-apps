@@ -1,14 +1,17 @@
 from datetime import datetime
 from backup.backup_v3 import Backup_v3
 
-class BackupV3VivoCheckLogData():
+class BackupV3CheckLogData():
     template_name = 'backup_v3_check'
+
+    def __init__(self, dev):
+        self.dev = dev
 
     def get_extra_context(self, request):
         start = datetime(2022, 9, 22).date()
         stop  = datetime.today().date()
         backup = Backup_v3(
-            device='Vivo', 
+            device=self.dev, 
             service_name='Ежедневный бэкап', 
             duration=1, 
             folders=[], 
