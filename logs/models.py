@@ -106,12 +106,12 @@ class ServiceEvent(models.Model):
         return ret
 
     @classmethod
-    def get_health(cls, depth, app=None, service=None):
+    def get_health(cls, depth, app=None, service=None, exclude_background_svc=False):
         day = date.today() - timedelta(depth)
         events = ServiceEvent.objects.filter(created__date__gt=day).order_by('device', 'app', 'service', '-created')
         if app and service:
             events = events.filter(app=app, service=service)
-        else:
+        elif exclude_background_svc:
             events = events.exclude(app=APP_SERVICE, service=ROLE_MANAGER)
         dev = None
         app = None
@@ -121,10 +121,11 @@ class ServiceEvent(models.Model):
         for event in events:
             day = event.created.date()
             day_num = (date.today() - day).days
-            if event.device != dev or event.app != app or event.service != svc:
+            event_device = event.device if event.device else 'Nuc'
+            if event_device != dev or event.app != app or event.service != svc:
                 if hlt:
                     ret.append(hlt)
-                dev = event.device
+                dev = event_device
                 app = event.app
                 svc = event.service
                 hlt = {'dev': dev, 'app': app, 'svc': svc, 'days': [None for x in range(depth)], 'qnt': [0 for x in range(depth)]}

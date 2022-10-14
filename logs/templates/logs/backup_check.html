@@ -7,24 +7,25 @@
 {% endblock %}
 
 {% block main %}
+    {% for deep in backup_deeps %}
     <div class="row">
+        <h3>{{ deep.device }} - {{ deep.service_name }}</h3>
+        <h5>{% trans 'Periodicity' %}: {{ deep.periodicity }}</h5>
             <div class="col">
                 <h5>Etalon</h5>
                 <table class="info-table">
                     <thead>
                         <tr>
-                            <td>Age</td>
-                            <td>Mode</td>
-                            <td>File name</td>
-                            <td>Range</td>
-                            <td>Ripe</td>
+                            <td>{% trans 'Age' %}</td>
+                            <td>{% trans 'File name' %}</td>
+                            <td>{% trans 'Range' %}</td>
+                            <td>{% trans 'Valid' %}</td>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for x in etalon %}
+                        {% for x in deep.etalon %}
                             <tr style="{% if not x.has_fact %} color: red; background-color: snow;{% endif %}">
                                 <td>{{ x.age }}</td>
-                                <td>{{ x.mode }}</td>
                                 <td>{{ x.name }}</td>
                                 <td>{{ x.min_range }}-{{ x.max_range }}</td>
                                 <td>{{ x.ripe }}</td>
@@ -38,18 +39,16 @@
                 <table class="info-table">
                     <thead>
                         <tr>
-                            <td>Age</td>
-                            <td>Mode</td>
-                            <td>File name</td>
-                            <td>Size</td>
-                            <td>Valid</td>
+                            <td>{% trans 'Age' %}</td>
+                            <td>{% trans 'File name' %}</td>
+                            <td>{% trans 'Size' %}</td>
+                            <td>{% trans 'Valid' %}</td>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for x in fact %}
+                        {% for x in deep.fact %}
                             <tr style="{% if not x.valid %} color: red; background-color: snow;{% endif %}">
                                 <td>{{ x.age }}</td>
-                                <td>{{ x.mode }}</td>
                                 <td>{{ x.name }}</td>
                                 <td style="text-align: right">{{ x.size }}</td>
                                 <td>{{ x.valid }}</td>
@@ -59,4 +58,5 @@
                 </table>
             </div>
     </div>
+    {% endfor %}
 {% endblock %}

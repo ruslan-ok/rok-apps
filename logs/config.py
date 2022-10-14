@@ -17,19 +17,9 @@ app_config = {
             'title': _('All services health'),
             'hide_qty': True,
         },
-        'backup_nuc_check': {
-            'icon': 'card-list',
-            'title': _('Backup Nuc check'),
-            'hide_qty': True,
-        },
-        'backup_vivo_check': {
-            'icon': 'card-list',
-            'title': _('Backup Vivo check'),
-            'hide_qty': True,
-        },
-        'backup_v3_vivo_check': {
-            'icon': 'card-list',
-            'title': _('Backup v.3 Vivo check'),
+        'backup_check': {
+            'icon': 'save',
+            'title': _('Backup check'),
             'hide_qty': True,
         },
         'versions': {

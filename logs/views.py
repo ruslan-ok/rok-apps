@@ -4,7 +4,6 @@ from django.template import loader
 from logs.services.apache import ApacheLogData
 from logs.services.background import BackgroundLogData
 from logs.services.backup_check import BackupCheckLogData
-from logs.services.backup_v3_check import BackupV3CheckLogData
 from logs.services.overview import OverviewLogData
 from logs.services.versions import VersionsLogData
 from logs.service_log import ServiceLog
@@ -40,9 +39,7 @@ def log_view(request):
     if 'svc' in request.GET:
         svc = request.GET.get('svc')
     match view.config.cur_view_group.view_id:
-        case 'backup_nuc_check': data = BackupCheckLogData('Nuc')
-        case 'backup_vivo_check': data = BackupCheckLogData('Vivo')
-        case 'backup_v3_vivo_check': data = BackupV3CheckLogData('Vivo')
+        case 'backup_check': data = BackupCheckLogData()
         case 'versions': data = VersionsLogData()
         case _:
             match (app, svc):

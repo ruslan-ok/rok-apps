@@ -13,8 +13,8 @@ class OverviewLogData(ServiceLog):
     template_name = 'overview'
 
     def __init__(self):
-        this_device = os.environ.get('DJANGO_DEVICE')
-        super().__init__(this_device, APP_SERVICE, ROLE_MANAGER)
+        self.device = os.environ.get('DJANGO_DEVICE')
+        super().__init__(self.device, APP_SERVICE, ROLE_MANAGER)
 
     def get_extra_context(self, request):
         context = {}
@@ -33,7 +33,8 @@ class OverviewLogData(ServiceLog):
             svc_list = self.get_service_health_api(depth)
             svc_list += ServiceEvent.get_health(depth, app=APP_SERVICE, service=ROLE_MANAGER)
         else:
-            svc_list = ServiceEvent.get_health(depth)
+            exclude_background_svc = self.device != 'Nuc'
+            svc_list = ServiceEvent.get_health(depth, exclude_background_svc=exclude_background_svc)
         services = []
         for svc in svc_list:
             if svc['app'] == APP_SERVICE and svc['dev'] != this_device:

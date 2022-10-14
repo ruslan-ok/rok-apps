@@ -2,7 +2,7 @@
 
 The base behavior of the site service.
 """
-import os, smtplib, requests, json
+import os, smtplib, requests
 from datetime import datetime, timedelta
 from email.message import EmailMessage
 from logs.models import ServiceEvent, EventType
