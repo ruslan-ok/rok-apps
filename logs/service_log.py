@@ -53,7 +53,7 @@ class ServiceLog():
             case ('Nuc',  const.APP_TODO,    const.ROLE_NOTIFICATOR): return 'bell'
             case ('Nuc',  const.APP_FUEL,    const.ROLE_PART): return 'tools'
             case ('Nuc',  const.APP_LOGS,    const.ROLE_APACHE): return 'server'
-            case _: return 99
+            case _: return 'card-list'
     
     def get_href(self):
         return f'dev={self.dev}&app={self.app}&svc={self.svc}'

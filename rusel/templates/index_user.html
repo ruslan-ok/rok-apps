@@ -34,7 +34,7 @@
                   <tr>
                       <td class="bi-{{ service.icon }}"><span class="px-3">{{ service.short_name }}</span></td>
                       {% for day in service.days %}
-                          <td class="text-center"><a href="{% url 'logs:list' %}?view={{ service.href }}&day={{ day.href }}"><i class="bi-{{ day.icon }}" style="color:{{ day.color }}"></i></a></td>
+                          <td class="text-center"><a href="{% url 'logs:list' %}?{{ service.href }}&day={{ day.href }}"><i class="bi-{{ day.icon }}" style="color:{{ day.color }}"></i></a></td>
                       {% endfor %}
                   </tr>
               {% endfor %}
