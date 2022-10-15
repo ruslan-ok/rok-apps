@@ -21,7 +21,7 @@ WITH cte_roles AS (
 	SELECT
 		r.id,
 		r.role,
-		CASE WHEN r.role != 1 OR t.stop IS NULL THEN NULL ELSE CAST ((julianday(t.stop) - julianday('now')) AS INTEGER) END as termin,
+		CASE WHEN r.role != 1 OR t.stop IS NULL THEN NULL ELSE CAST ((julianday(date(t.stop)) - julianday(date('now'))) AS INTEGER) END as termin,
 		t.completed,
 		t.task_2_id,
 		t.price_service
