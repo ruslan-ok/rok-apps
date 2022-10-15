@@ -217,7 +217,7 @@ class Backup():
         sec = int((datetime.now()-start_dt).total_seconds())
         while (sz == 0) and (sec < wait_time):
             time.sleep(5)
-            fl = glob.glob(self.work_dir + '\\HMBackup*.7z')
+            fl = glob.glob(self.work_dir + '\\..\\HMBackup*.7z')
             # self.log(EventType.INFO, 'backup_mail', 'Количество найденных архивов ' + str(len(fl)))
             if (len(fl) > 0):
                 fn = fl[0]
@@ -244,7 +244,7 @@ class Backup():
             total += 1
             sz = os.path.getsize(f)
             self.content.append('   ' + f + '    ' + self.sizeof_fmt(sz))
-            zf.write(f, arcname=f.split(self.work_dir + '\\')[1])
+            zf.write(f, arcname=f.split(self.work_dir + '\\..\\')[1])
             self.log(EventType.INFO, 'remove', f)
             os.remove(f)
         self.log(EventType.INFO, 'method', '-backup_mail() finished')
