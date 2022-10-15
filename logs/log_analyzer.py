@@ -10,8 +10,9 @@ Exported functions:
 ripe()
 process(log)
 """
-import os, re, datetime, requests
+import re, datetime, requests
 from pathlib import Path
+from logs.service_log import ServiceLog
 from service.site_service import SiteService
 from task.const import APP_LOGS, ROLE_APACHE
 from logs.models import EventType
@@ -45,7 +46,8 @@ class LogAnalyzer(SiteService):
 
     def read_log_sz(self):
         log_sz = 0
-        log_sz_events = self.get_events(app=APP_LOGS, service=ROLE_APACHE, type=EventType.INFO, name='log_size')
+        sl = ServiceLog(dev='Nuc', app=APP_LOGS, svc=ROLE_APACHE)
+        log_sz_events = sl.get_events(device='Nuc', app=APP_LOGS, service=ROLE_APACHE, type=EventType.INFO, name='log_size')
         if len(log_sz_events) > 0:
             log_sz = int(log_sz_events[0].info)
         return log_sz
