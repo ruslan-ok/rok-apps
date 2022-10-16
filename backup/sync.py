@@ -1,6 +1,5 @@
 import os, requests
 import shutil
-from numpy import fill_diagonal
 from datetime import datetime
 from ftplib import FTP
 from enum import Enum
