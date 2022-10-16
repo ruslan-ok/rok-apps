@@ -1,4 +1,3 @@
-import json
 from datetime import datetime
 from logs.models import EventType
 from service.site_service import SiteService
@@ -14,13 +13,11 @@ class Backuper(SiteService):
         folders = []
         self.backup = None
         service_name = ROLE_BACKUP_SHORT
-        str_params = service_task.info
-        if str_params:
-            params = json.loads(str_params)
-            if 'duration' in params:
-                duration = params['duration']
-            if 'folders' in params:
-                folders = params['folders']
+        params = service_task.info.split('\r\n')
+        if len(params):
+            if 'duration:' in params[0]:
+                duration = int(params[0].replace('duration:', ''))
+            folders = params[1:]
         if not len(folders):
             self.log_event(EventType.WARNING, 'params', 'empty folders list')
             super().__init__(APP_BACKUP, service_name, service_task.name)

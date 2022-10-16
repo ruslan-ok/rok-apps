@@ -1,4 +1,4 @@
-import os, glob, zipfile, subprocess, time
+import os, glob, pyzipper, subprocess, time
 from datetime import datetime, timedelta
 from backup.sync import Sync
 from logs.models import EventType
@@ -38,6 +38,7 @@ class Backup():
         self.work_dir = self.backup_folder + device.lower() + '\\' + service_name
         self.prefix = device + '-(' + str(duration) + ')-'
         self.fill()
+        self.arch_pwrd = os.environ.get('DJANGO_BACKUP_PWRD')
 
     def log(self, type, name, info, send_mail=False, one_per_day=False):
         if self.log_event:
@@ -262,7 +263,8 @@ class Backup():
         fn = self.prefix + datetime.now().strftime('%Y.%m.%d') + '.zip'
         dir_file = self.work_dir + '\\' + fn
 
-        zf = zipfile.ZipFile(dir_file, 'w')
+        zf = pyzipper.AESZipFile(dir_file, 'w', compression=pyzipper.ZIP_LZMA, encryption=pyzipper.WZ_AES)
+        zf.setpassword(str.encode(self.arch_pwrd))
         for dir in self.folders:
             print('Archiving:', dir, '...')
             if (dir == 'mysql'):
