@@ -35,7 +35,7 @@ class SiteService():
         self.verify = os.environ.get('DJANGO_CERT')
 
     def ripe(self):
-        return False
+        return False, False
         
     def process(self):
         return datetime.now() + timedelta(hours=1)

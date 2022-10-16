@@ -28,10 +28,12 @@ def process_service(service_task):
         case 'Apache':
             service = LogAnalyzer(service_task)
         case _: service = None
-    if not service or not service.ripe():
-        if not service:
-            log_event('process', info=f'Service with name "{service_class}" not found. Task "{service_task.name}".', type=EventType.WARNING)
+    if not service:
+        log_event('process', info=f'Service with name "{service_class}" not found. Task "{service_task.name}".', type=EventType.WARNING)
         return False
+    is_ripe, completed = service.ripe()
+    if not is_ripe:
+        return completed
     try:
         log_event('process', info=service.service_descr)
         completed = service.process()

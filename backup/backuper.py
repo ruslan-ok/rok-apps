@@ -34,7 +34,7 @@ class Backuper(SiteService):
         ret = False
         if self.backup:
             ret = self.backup.ripe()
-        return ret
+        return ret, True
 
     def process(self):
         self.log_event(EventType.INFO, 'start', self.backup.device)

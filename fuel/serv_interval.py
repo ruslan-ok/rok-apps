@@ -15,7 +15,7 @@ class ServInterval(SiteService):
         super().__init__(APP_FUEL, ROLE_PART, 'Контроль сервисных интервалов обслуживания автомобиля', *args, **kwargs)
 
     def ripe(self):
-        return True
+        return True, True
 
     def process(self):
         self.log_event(EventType.INFO, 'start')

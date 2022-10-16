@@ -66,7 +66,7 @@ class LogAnalyzer(SiteService):
         except Exception as ex:
             self.log_event(EventType.ERROR, 'exception', str(ex))
             ret = False
-        return ret
+        return ret, True
 
     def process(self):
         """Parsing new lines of the log file and saving the received data in the database.

@@ -27,14 +27,14 @@ class Notificator(SiteService):
         now = datetime.now()
         self.tasks = Task.objects.filter(completed=False, remind__lt=now).exclude(remind=None)
         self.log_event(EventType.INFO, 'ripe', 'result = ' + str(len(self.tasks) > 0), one_per_day=True)
-        return len(self.tasks) > 0
+        return len(self.tasks) > 0, False
 
     def process(self):
         """Generating of reminder messages.
         """
         self.log_event(EventType.INFO, 'process', 'task qnt = ' + str(len(self.tasks)))
-        ret = False
-        if not self.ripe():
+        ret, compl = self.ripe()
+        if not ret:
             return ret
         for task in self.tasks:
             group_path = ''
