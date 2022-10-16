@@ -1,7 +1,8 @@
 import os, glob, zipfile, subprocess, time
-import shutil
 from datetime import datetime, timedelta
+from backup.sync import Sync
 from logs.models import EventType
+
 
 class ArchItem():
     def __init__(self, name, age):
@@ -304,73 +305,10 @@ class Backup():
                 os.remove(x)
         self.log(EventType.INFO, 'method', '-zipping() finished')
 
-    def synch_dir(self, _src, _dst, _folder):
-        if (_src == 'nuc'):
-            src = self.nuc_drive + _folder
-            dst = self.backup_folder + _folder
-        else:
-            src = self.backup_folder + _folder
-            dst = self.nuc_drive + _folder
-
-        bkp_device = self.device
-        self.device = _src.capitalize()
-        self.work_dir = self.backup_folder + _src
-        self.fill()
-    
-        first_time = False
-        if not os.path.exists(dst):
-            os.mkdir(dst)
-            first_time = True
-        self.changed = False
-        arh_list = glob.glob(src + '\\*.zip')
-        for fsrc in arh_list:
-            f = fsrc.split('\\')[-1]
-            fdst = dst + '\\' + f
-            if not self.check_name(f):
-                self.log(EventType.INFO, 'remove', fsrc)
-                os.remove(fsrc)
-                self.log(EventType.INFO, 'remove', fdst)
-                os.remove(fdst)
-                continue
-            sat = os.path.getatime(fsrc)
-            smt = os.path.getmtime(fsrc)
-            if first_time or not os.path.exists(fdst):
-                print(_dst + '\\' + _folder + '\\' + f, 'copied...')
-                shutil.copyfile(fsrc, fdst)
-                os.utime(fdst, (sat, smt))
-                self.add_info(_src + '\\' + _folder + ' -> ' + _dst + '\\' + _folder, 'Файл скопирован в ' + _dst + '\\' + _folder + '\\' + f)
-            else:
-                dmt = os.path.getmtime(fdst)
-                if (smt != dmt):
-                    print(_dst + '\\' + _folder + '\\' + f, 'copied...')
-                    shutil.copyfile(src + '\\' + f, fdst)
-                    os.utime(fdst, (sat, smt))
-                    self.add_info(_src + '\\' + _folder + ' -> ' + _dst + '\\' + _folder, 'Файл обновлен в ' + _dst + '\\' + _folder + '\\' + f)
-
-        arh_list = glob.glob(dst + '\\*.zip')
-        for fdst in arh_list:
-            f = fdst.split('\\')[-1]
-            if not self.check_name(f):
-                self.log(EventType.INFO, 'remove', fdst)
-                os.remove(fdst)
-
-        self.device = bkp_device
-        self.work_dir = self.backup_folder + self.device.lower()
-
     # Синхронизация
     def synch(self):
-        self.log(EventType.INFO, 'method', '+synch() started')
-        syncs_raw = os.environ.get('DJANGO_BACKUP_SYNCS', '')
-        if not syncs_raw:
-            self.log(EventType.INFO, 'method', '-synch() finished')
-            return
-        syncs = [x.split(',') for x in syncs_raw.split(';')]
-        self.nuc_drive = os.environ.get('DJANGO_BACKUP_NUC', '')
-        self.content.append('')
-        self.content.append('Синхронизация:')
-        for s in syncs:
-            self.synch_dir(s[0], s[1], s[2])
-        self.log(EventType.INFO, 'method', '-synch() finished')
+        so = Sync(self.log)
+        so.run()
 
     def run(self):
         self.log(EventType.INFO, 'method', f'+run({self.device}, {self.duration}) started')
