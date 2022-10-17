@@ -1344,6 +1344,9 @@ class TaskInfo(models.Model):
     def b_expired(self):
         if self.completed:
             return False
+        if self.stop:
+            return (self.stop < datetime.now()) and ((self.stop.date() != date.today()) or (self.stop.hour != 0) or (self.stop.minute != 0))
+        return False
 
     def termin_date(self):
         if not self.stop:
