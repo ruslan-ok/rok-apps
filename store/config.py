@@ -1,4 +1,4 @@
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 from task.const import *
 
 app_config = {
@@ -6,6 +6,7 @@ app_config = {
     'app_title': _('passwords'),
     'icon': 'key',
     'role': ROLE_STORE,
+    'role_loc': pgettext_lazy('add ... ', 'password'),
     'main_view': 'actual',
     'use_groups': True,
     'use_selector': True,

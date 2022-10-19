@@ -1,4 +1,5 @@
 import os, urllib.parse
+from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import FileResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.urls import reverse
@@ -35,6 +36,7 @@ class FolderView(LoginRequiredMixin, BaseDirView):
         context = super().get_context_data(**kwargs)
         context['list_href'] = '/docs/'
         context['add_item_template'] = 'base/add_item_upload.html'
+        context['add_item_placeholder'] = '{}'.format(_('Upload document'))
         return context
 
     def get_success_url(self, **kwargs):

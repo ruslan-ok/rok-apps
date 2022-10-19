@@ -22,7 +22,7 @@ app_config = {
         },
         'incident': {
             'role': ROLE_INCIDENT,
-            'role_loc': pgettext_lazy('add ...', 'incidentz'),
+            'role_loc': pgettext_lazy('add ...', 'incident'),
             'icon': 'thermometer-half', 
             'title': _('incidents'),
             'sort': [

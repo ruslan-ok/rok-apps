@@ -11,9 +11,9 @@ app_config = {
     'views': {
         'fuel': {
             'role': ROLE_FUEL,
+            'role_loc': pgettext_lazy('add ... ', 'fueling'),
             'icon': 'fuel-pump',
             'title': _('fuelings'),
-            'item_name': _('fueling'),
             'add_button': True,
             'hide_qty': True,
             'sort': [
