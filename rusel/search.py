@@ -34,10 +34,11 @@ class SearchResult:
     def name(self):
         return self.highlight_search(self.file)
 
-    def get_item_attr(self):
-        ret = {self.role: {'attr': [], 'group': self.highlight_search(self.folder.replace('\\', '/'))}}
+    def get_custom_attr(self):
+        ret = []
         if self.is_folder:
-            ret[self.role]['attr'].append({'icon': 'folder'})
+            ret.append({'text': self.highlight_search(self.folder.replace('\\', '/'))})
+            ret.append({'icon': 'folder'})
         return ret
 
     def highlight_search(self, value):

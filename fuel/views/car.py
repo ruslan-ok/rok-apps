@@ -26,30 +26,14 @@ class DetailView(LoginRequiredMixin, BaseDetailView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        form.instance.set_item_attr(app, get_info(form.instance))
+        get_info(form.instance)
         return response
 
 def get_info(item):
     attr = []
-
     if item.car_plate:
         attr.append({'text': item.car_plate})
-
-    files = (len(item.get_files_list(role)) > 0)
-
-    if item.info or files:
-        if (len(attr) > 0):
-            attr.append({'icon': 'separator'})
-        if files:
-            attr.append({'icon': 'attach'})
-        if item.info:
-            info_descr = item.info[:80]
-            if len(item.info) > 80:
-                info_descr += '...'
-            attr.append({'icon': 'notes', 'text': info_descr})
-
-    ret = {'attr': attr}
-    return ret
+    item.actualize_role_info(app, role, attr)
 
 def get_new_odometr(user, car, event):
     lag = event - timedelta(150)

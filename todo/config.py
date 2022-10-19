@@ -11,7 +11,7 @@ app_config = {
     'use_groups': True,
     'use_selector': True,
     'use_important': True,
-    'relate': [ROLE_NOTE, ROLE_NEWS],
+    'relate': [ROLE_NOTE, ROLE_NEWS, ROLE_EXPENSE],
     'sort': [
         ('stop', _('termin')),
         ('name', _('name')),
@@ -45,6 +45,7 @@ app_config = {
             'icon': 'check2-square',
             'title': _('planned tasks'),
             'use_sub_groups': True,
+            'hide_qty': True,
             'sort': [
                 ('stop', _('termin')),
                 ('name', _('name')),

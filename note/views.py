@@ -26,7 +26,7 @@ class DetailView(LoginRequiredMixin, BaseDetailView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        form.instance.set_item_attr(app, get_info(form.instance))
+        get_info(form.instance)
         return response
 
 

@@ -15,6 +15,7 @@ app_config = {
             'title': _('fuelings'),
             'item_name': _('fueling'),
             'add_button': True,
+            'hide_qty': True,
             'sort': [
                 ('event', _('fueling date')),
             ],
@@ -24,6 +25,7 @@ app_config = {
             'icon': 'cart', 
             'title': _('itnervals'),
             'item_name': _('service interval'),
+            'hide_qty': True,
         },
         'service': {
             'role': ROLE_SERVICE,
@@ -33,6 +35,7 @@ app_config = {
             'add_button': True,
             'use_sub_groups': True,
             'relate': [ROLE_EXPENSE],
+            'hide_qty': True,
             'sort': [
                 ('event', _('due date')),
             ],
@@ -42,6 +45,7 @@ app_config = {
             'icon': 'truck', 
             'title': _('cars'),
             'item_name': _('car'),
+            'hide_qty': True,
             'sort': [
                 ('name', _('name')),
                 ('start', _('date of commencement')),

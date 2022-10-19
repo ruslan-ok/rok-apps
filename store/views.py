@@ -78,7 +78,7 @@ class DetailView(LoginRequiredMixin, BaseDetailView, TuneData):
                 )
         form.instance.completed = not form.cleaned_data['actual']
         form.instance.save()
-        form.instance.set_item_attr(app, get_info(form.instance))
+        get_info(form.instance)
         return response
 
 class ParamsView(Context, TuneData):

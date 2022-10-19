@@ -10,7 +10,6 @@ from rest_framework.response import Response
 
 from task import const
 from task.models import Task, Group, TaskGroup, GIQ_ADD_TASK, GIQ_DEL_TASK
-from todo.models import Subscription
 from rusel.utils import nice_date
 from api.serializers import TaskSerializer
 
@@ -30,8 +29,14 @@ from apart.views.apart import get_info as apart_get_info
 from apart.views.price import get_info as price_get_info
 from apart.views.meter import get_info as meter_get_info
 from apart.views.bill import get_info as bill_get_info
+from health.views.marker import get_info as marker_get_info
 from health.views.incident import get_info as incident_get_info
 from warr.views import get_info as warr_get_info
+from expen.views import get_info as expen_get_info
+from fuel.views.car import get_info as car_get_info
+from fuel.views.fuel import get_info as fuel_get_info
+from fuel.views.part import get_info as part_get_info
+from fuel.views.serv import get_info as serv_get_info
 
 from service.background_services import check_services
 
@@ -65,26 +70,38 @@ class TaskViewSet(viewsets.ModelViewSet):
     
     def _get_info(self, task):
         if (task.app_task == const.NUM_ROLE_TODO):
-            task.set_item_attr(const.APP_TODO, task.get_info())
+            task.get_info()
         if (task.app_note == const.NUM_ROLE_NOTE):
-            task.set_item_attr(const.APP_NOTE, note_get_info(task))
+            note_get_info(task)
         if (task.app_news == const.NUM_ROLE_NEWS):
-            task.set_item_attr(const.APP_NEWS, news_get_info(task))
+            news_get_info(task)
         if (task.app_store == const.NUM_ROLE_STORE):
-            task.set_item_attr(const.APP_STORE, store_get_info(task))
+            store_get_info(task)
         if (task.app_apart == const.NUM_ROLE_APART):
-            task.set_item_attr(const.APP_APART, apart_get_info(task))
+            apart_get_info(task)
         if (task.app_apart == const.NUM_ROLE_PRICE):
-            task.set_item_attr(const.APP_APART, price_get_info(task))
+            price_get_info(task)
         if (task.app_apart == const.NUM_ROLE_METER):
-            task.set_item_attr(const.APP_APART, meter_get_info(task))
+            meter_get_info(task)
         if (task.app_apart == const.NUM_ROLE_BILL):
-            task.set_item_attr(const.APP_APART, bill_get_info(task))
-        if (task.app_apart == const.NUM_ROLE_INCIDENT):
-            task.set_item_attr(const.APP_HEALTH, incident_get_info(task))
+            bill_get_info(task)
+        if (task.app_health == const.NUM_ROLE_MARKER):
+            marker_get_info(task)
+        if (task.app_health == const.NUM_ROLE_INCIDENT):
+            incident_get_info(task)
         if (task.app_warr == const.NUM_ROLE_WARR):
-            task.set_item_attr(const.APP_WARR, warr_get_info(task))
-    
+            warr_get_info(task)
+        if (task.app_expen == const.NUM_ROLE_EXPENSE):
+            expen_get_info(task)
+        if (task.app_fuel == const.NUM_ROLE_CAR):
+            car_get_info(task)
+        if (task.app_fuel == const.NUM_ROLE_FUEL):
+            fuel_get_info(task)
+        if (task.app_fuel == const.NUM_ROLE_PART):
+            part_get_info(task)
+        if (task.app_fuel == const.NUM_ROLE_SERVICE):
+            serv_get_info(task)
+
     @action(detail=False)
     def get_info(self, request, pk=None):
         for task in Task.objects.filter(user=request.user.id):
@@ -247,7 +264,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         self.save(task)
         mess = None
         if next_task:
-            next_task.set_item_attr(const.APP_TODO, next_task.get_info())
+            next_task.get_info()
             mess = _('replanned to ' + nice_date(next_task.stop))
         serializer = TaskSerializer(instance=task, context={'request': request})
         return Response({'data': serializer.data, 'info': mess})
@@ -605,7 +622,7 @@ class TaskViewSet(viewsets.ModelViewSet):
 
     def save(self, task, role=const.APP_TODO):
         task.save()
-        task.set_item_attr(role, task.get_info())
+        task.get_info()
 
     @action(detail=False)
     def check_background_services(self, request, pk=None):
@@ -614,3 +631,9 @@ class TaskViewSet(viewsets.ModelViewSet):
             started = True
         ret = check_services(started)
         return Response(ret)
+
+    @action(detail=False)
+    def actualize_taskroleinfo(self, request, pk=None):
+        for task in Task.objects.all():
+            self._get_info(task)
+        return Response({'result': 'ok'})

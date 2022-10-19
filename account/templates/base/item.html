@@ -34,83 +34,83 @@
             </span>
           {% endif %}
         </span>
+
         <div class="descr">
-          {% for k, v in item.get_item_attr.items %}
-            {% if k == config.app or config.get_cur_role == 'search' %}
-              {% if config.cur_view_group.determinator == 'role' or config.cur_view_group.determinator == 'view' %}
-                {% if v.group %}
-                  <div class="inline">
-                    <div class="label"><span>{{ v.group|safe }}</span></div>
-                    {% if v.attr %}
-                      <i class="bi-dot"></i>
-                    {% endif %}
-                  </div>
+          {% if config.cur_view_group.determinator == 'role' or config.cur_view_group.determinator == 'view' %}
+            {% if item.group_name %}
+              <div class="inline">
+                <div class="label"><span>{{ item.group_name|safe }}</span></div>
+                <i class="bi-dot"></i>
+              </div>
+            {% endif %}
+          {% endif %}
+
+          {% for attr in item.get_custom_attr %}
+            <div class="inline">
+              {% if attr.icon == "remind" and item.remind_active %}
+                <i class="bi-bell"></i>
+              {% elif attr.myday and config.cur_view != "todo" %}
+                <i class="bi-sun"></i>
+                <div class="label"><span>{% trans "My day" %}</span></div>
+              {% elif attr.termin and not item.completed and item.b_expired %}
+                <i class="bi-check2-square expired"></i>
+                <div class="label expired"><span>{{ item.termin_date }}</span></div>
+                {% if item.repeat %}
+                  <i class="bi-arrow-repeat expired"></i>
+                {% endif %}
+              {% elif attr.termin and not item.completed and not item.b_expired%}
+                <i class="bi-check2-square actual"></i>
+                <div class="label actual"><span>{{ item.termin_date }}</span></div>
+                {% if item.repeat %}
+                  <i class="bi-arrow-repeat actual"></i>
+                {% endif %}
+              {% elif attr.tuned_data %}
+                {% for d in item.get_tuned_data %}
+                  <i class="bi-check2-square {{ d.class }}"></i>
+                  <div class="label {{ d.class }}"><span>{{ d.info }}</span></div>
+                {% endfor %}
+              {% elif attr.text %}
+                <div class="label"><span>{{ attr.text|safe }}</span></div>
+              {% elif attr.icon == "folder" %}
+                <i class="bi-folder2"></i>
+              {% else %}
+                {% if not attr.termin and attr.icon != "separator" and attr.icon != "remind" %}
+                  [{{ attr }}]
                 {% endif %}
               {% endif %}
-              {% for attr in v.attr %}
-                <div class="inline {% if attr.color %}{{ attr.color }}{% endif %}">
-                  {% if attr.icon == "attach" %}
-                    <i class="bi-paperclip"></i>
-                  {% elif attr.icon == "category" %}
-                    <i class="bi-circle"></i>
-                  {% elif attr.icon == "notes" %}
-                    <i class="bi-sticky"></i>
-                  {% elif attr.icon == "folder" %}
-                    <i class="bi-folder2"></i>
-                  {% elif attr.icon == "remind" %}
-                    {% if item.remind_active %}
-                      <i class="bi-bell"></i>
-                    {% endif %}
-                  {% elif attr.icon == "url" %}
-                    <i class="bi-cursor"></i>
-                  {% elif attr.icon == "separator" %}
-                    <i class="bi-dot"></i>
-                  {% endif %}
 
-                  {% if attr.myday and config.cur_view != "todo" %}
-                    <i class="bi-sun"></i>
-                    <div class="label"><span>{% trans "My day" %}</span></div>
-                  {% endif %}
-
-                  {% if attr.termin and not item.completed %}
-                    {% if item.b_expired %}
-                      <i class="bi-check2-square expired"></i>
-                      <div class="label expired"><span>{{ item.termin_date }}</span></div>
-                      {% if item.repeat %}
-                        <i class="bi-arrow-repeat expired"></i>
-                      {% endif %}
-                    {% else %}
-                      <i class="bi-check2-square actual"></i>
-                      <div class="label actual"><span>{{ item.termin_date }}</span></div>
-                      {% if item.repeat %}
-                        <i class="bi-arrow-repeat actual"></i>
-                      {% endif %}
-                    {% endif %}
-                  {% endif %}
-
-                  {% if attr.tuned_data %}
-                    {% for d in item.get_tuned_data %}
-                      <i class="bi-check2-square {{ d.class }}"></i>
-                      <div class="label {{ d.class }}"><span>{{ d.info }}</span></div>
-                    {% endfor %}
-                  {% endif %}
-
-                  {% if attr.text %}
-                    <div class="label"><span>{{ attr.text }}</span></div>
-                  {% endif %}
-
-                </div>
-              {% endfor %}
-              {% if item.found %}
-                <div class="inline">
-                  <div class="label">
-                    <span>{{ item.found|safe }}</span>
-                  </div>
-                </div>
+              {% if not attr.termin or not item.completed %}
+                {% if attr.icon != "separator" and attr.icon != "remind" %}
+                  <i class="bi-dot"></i>
+                {% endif %}
               {% endif %}
+
+            </div> <!-- inline -->
+
+          {% endfor %} <!-- item.get_custom_attr -->
+
+
+          <div class="inline">
+            {% if item.has_files %}
+              <i class="bi-paperclip"></i><i class="bi-dot"></i>
             {% endif %}
+            {% if item.has_links %}
+              <i class="bi-cursor"></i><i class="bi-dot"></i>
+            {% endif %}
+            {% if item.task_descr %}
+              <i class="bi-sticky"></i>
+              <div class="label"><span>{{ item.task_descr }}</span></div><i class="bi-dot"></i>
+            {% endif %}
+          </div>
+
+          {% for cat in item.get_categories %}
+            <div class="inline {{ cat.color }}">
+              <i class="bi-circle"></i>
+              <div class="label"><span>{{ cat.name }}</span></div>
+            </div>
           {% endfor %}
-        </div>
+
+        </div> <!-- descr -->
       </div>
     </a>      
 

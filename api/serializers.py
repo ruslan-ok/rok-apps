@@ -27,7 +27,7 @@ class TaskSerializer(serializers.HyperlinkedModelSerializer):
                 'remind', 'last_remind', 'repeat', 'repeat_num', 'repeat_days', 'categories', 'info',
                 'src_id', 'created', 'last_mod', 'task_1', 'task_2', 'task_3', 'groups', 'active', 
                 'app_task', 'app_note', 'app_news', 'app_store', 'app_doc', 'app_warr', 'app_expen', 
-                'app_trip', 'app_fuel', 'app_apart', 'app_health', 'app_work', 'app_photo', 'item_attr']
+                'app_trip', 'app_fuel', 'app_apart', 'app_health', 'app_work', 'app_photo']
 
 class StepSerializer(serializers.HyperlinkedModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')

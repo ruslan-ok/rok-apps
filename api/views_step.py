@@ -27,14 +27,14 @@ class StepViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         task = instance.task
         instance.delete()
-        task.set_item_attr(APP_TODO, task.get_info())
+        task.get_info()
     
     @action(detail=True)
     def complete(self, request, pk=None):
         step = self.get_object()
         step.completed = not step.completed
         step.save()
-        step.task.set_item_attr(APP_TODO, step.task.get_info())
+        step.task.get_info()
         serializer = StepSerializer(instance=step, context={'request': request})
         return Response(serializer.data)
     

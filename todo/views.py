@@ -73,7 +73,7 @@ class DetailView(LoginRequiredMixin, BaseDetailView, TuneData):
         response = super().form_valid(form)
         if ('add_step' in form.changed_data):
             step = Step.objects.create(user = form.instance.user, name = self.request.POST['add_step'], task = form.instance)
-        form.instance.set_item_attr(app, form.instance.get_info())
+        form.instance.get_info()
         return response
 
 

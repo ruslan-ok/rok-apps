@@ -2,7 +2,7 @@ from datetime import date, datetime
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.mixins import LoginRequiredMixin
 from task.const import APP_APART, ROLE_METER, NUM_ROLE_METER, NUM_ROLE_BILL
-from task.models import Task, Urls
+from task.models import Task
 from rusel.base.views import BaseListView, BaseDetailView
 from apart.forms.meter import CreateForm, EditForm
 from apart.config import app_config
@@ -42,7 +42,7 @@ class DetailView(LoginRequiredMixin, BaseDetailView):
         response = super().form_valid(form)
         form.instance.name = get_meter_name(form.instance.start)
         form.instance.save()
-        form.instance.set_item_attr(app, get_info(form.instance))
+        get_info(form.instance)
         return response
 
 def get_info(item):
@@ -50,32 +50,12 @@ def get_info(item):
     if (item.task_1.apart_has_el):
         ret.append({'text': '{} {}'.format(_('el:'), item.meter_el)})
     if (item.task_1.apart_has_hw):
-        if ret:
-            ret.append({'icon': 'separator'})
         ret.append({'text': '{} {}'.format(_('hw:'), item.meter_hw)})
     if (item.task_1.apart_has_cw):
-        if ret:
-            ret.append({'icon': 'separator'})
         ret.append({'text': '{} {}'.format(_('cw:'), item.meter_cw)})
     if (item.task_1.apart_has_gas):
-        if ret:
-            ret.append({'icon': 'separator'})
         ret.append({'text': '{} {}'.format(_('gas:'), item.meter_ga)})
-    links = len(Urls.objects.filter(task=item.id)) > 0
-    files = (len(item.get_files_list(role)) > 0)
-    if item.info or links or files:
-        if ret:
-            ret.append({'icon': 'separator'})
-        if links:
-            ret.append({'icon': 'url'})
-        if files:
-            ret.append({'icon': 'attach'})
-        if item.info:
-            info_descr = item.info[:80]
-            if len(item.info) > 80:
-                info_descr += '...'
-            ret.append({'icon': 'notes', 'text': info_descr})
-    return {'attr': ret}
+    item.actualize_role_info(app, role, ret)
 
 #----------------------------------
 def next_period(last=None):

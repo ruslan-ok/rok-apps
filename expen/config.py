@@ -12,6 +12,7 @@ app_config = {
     'group_entity': 'project',
     'group_entity_loc': pgettext_lazy('create ...', 'project'),
     'event_in_name': True,
+    'relate': [ROLE_TODO],
     'sort': [
         ('event', _('operation date')),
         ('name', _('name')),

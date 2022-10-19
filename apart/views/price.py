@@ -2,7 +2,7 @@ from datetime import datetime
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.mixins import LoginRequiredMixin
 from task.const import APP_APART, ROLE_PRICE, NUM_ROLE_PRICE, APART_SERVICE
-from task.models import Task, Urls
+from task.models import Task
 from rusel.base.views import BaseListView, BaseDetailView
 from apart.forms.price import CreateForm, EditForm
 from apart.config import app_config
@@ -50,7 +50,7 @@ class DetailView(LoginRequiredMixin, BaseDetailView):
         form.instance.save()
         form.instance.name = get_price_name(form.instance.start, form.instance.price_service)
         form.instance.save()
-        form.instance.set_item_attr(app, get_info(form.instance))
+        get_info(form.instance)
         return response
 
 def get_info(item):
@@ -92,28 +92,11 @@ def get_info(item):
     if p1:
         ret.append({'text': p1})
     if p2:
-        ret.append({'icon': 'separator'})
         ret.append({'text': p2})
     if p3:
-        ret.append({'icon': 'separator'})
         ret.append({'text': p3})
 
-    links = len(Urls.objects.filter(task=item.id)) > 0
-    files = (len(item.get_files_list(role)) > 0)
-    if item.info or links or files:
-        if ret:
-            ret.append({'icon': 'separator'})
-        if links:
-            ret.append({'icon': 'url'})
-        if files:
-            ret.append({'icon': 'attach'})
-        if item.info:
-            info_descr = item.info[:80]
-            if len(item.info) > 80:
-                info_descr += '...'
-            ret.append({'icon': 'notes', 'text': info_descr})
-
-    return {'attr': ret}
+    item.actualize_role_info(app, role, ret)
 
 def get_price_name(start, service_id):
     return start.strftime('%Y.%m.%d') + ' ' + APART_SERVICE[service_id]

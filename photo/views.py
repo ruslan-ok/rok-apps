@@ -347,7 +347,7 @@ def get_lat_lon(exif_data):
         gps_longitude = _get_if_exist(gps_info, 'GPSLongitude')
         gps_longitude_ref = _get_if_exist(gps_info, 'GPSLongitudeRef')
 
-        if gps_latitude and gps_latitude_ref and gps_longitude and gps_longitude_ref:
+        if gps_latitude and gps_latitude_ref and gps_longitude and gps_longitude_ref and str(gps_latitude[0]) != 'nan' and str(gps_longitude[0]) != 'nan':
             lat = _convert_to_degress(gps_latitude)
             if gps_latitude_ref != "N":                     
                 lat = 0 - lat

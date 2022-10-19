@@ -41,41 +41,27 @@ class DetailView(LoginRequiredMixin, BaseDetailView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        form.instance.set_item_attr(app, get_info(form.instance))
+        get_info(form.instance)
         return response
 
 
 def get_info(item):
-    ret = {'attr': []}
-    if item.info:
-        info_descr = item.info[:80]
-        if len(item.info) > 80:
-            info_descr += '...'
-        ret['attr'].append({'icon': 'notes', 'text': info_descr})
-
-    files = (len(item.get_files_list(role)) > 0)
-    if files:
-        if item.info:
-            ret['attr'].append({'icon': 'separator'})
-        ret['attr'].append({'icon': 'attach'})
+    ret = []
     if item.apart_has_el or item.apart_has_hw or item.apart_has_cw or item.apart_has_gas or item.apart_has_tv or item.apart_has_phone or item.apart_has_zkx or item.apart_has_ppo:
-        if item.info or files:
-            ret['attr'].append({'icon': 'separator'})
         if item.apart_has_el:
-            ret['attr'].append({'text': str(_('el'))})
+            ret.append({'text': str(_('el'))})
         if item.apart_has_hw:
-            ret['attr'].append({'text': str(_('hw'))})
+            ret.append({'text': str(_('hw'))})
         if item.apart_has_cw:
-            ret['attr'].append({'text': str(_('cw'))})
+            ret.append({'text': str(_('cw'))})
         if item.apart_has_gas:
-            ret['attr'].append({'text': str(_('gas'))})
+            ret.append({'text': str(_('gas'))})
         if item.apart_has_tv:
-            ret['attr'].append({'text': str(_('inet/tv'))})
+            ret.append({'text': str(_('inet/tv'))})
         if item.apart_has_phone:
-            ret['attr'].append({'text': str(_('phone'))})
+            ret.append({'text': str(_('phone'))})
         if item.apart_has_zkx:
-            ret['attr'].append({'text': str(_('zkx'))})
+            ret.append({'text': str(_('zkx'))})
         if item.apart_has_ppo:
-            ret['attr'].append({'text': str(_('ppo'))})
-
-    return ret
+            ret.append({'text': str(_('ppo'))})
+    item.actualize_role_info(app, role, ret)

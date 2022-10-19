@@ -89,11 +89,14 @@ class Context:
                     else:
                         url += '?'
                     url += 'folder=' + folder
+            active = (self.config.cur_view_group.determinator == determinator) and (self.config.cur_view_group.view_id == view_id)
             hide_qty = False
             if ('hide_qty' in value):
                 hide_qty = value['hide_qty']
             if hide_qty:
                 qty = None
+                if active and hasattr(self, 'object_list'):
+                    qty = len(self.object_list)
             else:
                 if (view_id == self.config.group_entity):
                     _nav_item = None
@@ -101,7 +104,6 @@ class Context:
                     _nav_item = nav_item
                 fix_group = detect_group(self.request.user, self.config.app, determinator, view_id, value['title'].capitalize())
                 qty = self.get_view_qty(fix_group, _nav_item)
-            active = (self.config.cur_view_group.determinator == determinator) and (self.config.cur_view_group.view_id == view_id)
             fix = {
                 'determinator': determinator,
                 'id': view_id, 

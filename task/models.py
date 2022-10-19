@@ -1,3 +1,4 @@
+from functools import reduce
 import os, calendar, json, urllib
 from urllib.parse import urlparse
 from django.utils.crypto import get_random_string
@@ -17,7 +18,7 @@ from rest_framework.reverse import reverse
 from task import const
 from task.const import *
 from rusel.utils import nice_date
-from rusel.categories import get_categories_list
+from rusel.categories import CATEGORY_DESIGN
 from rusel.files import get_files_list_by_path
 from fuel.utils import get_rest
 
@@ -400,22 +401,8 @@ class Task(models.Model):
 
         if (app != APP_ALL):
             role_id = ROLES_IDS[app][role]
-            data = data.filter(task_role=role_id)
+            data = data.filter(num_role=role_id)
         return data
-
-    def set_item_attr(self, app, attr):
-        if not self.item_attr:
-            value = {}
-        else:
-            value = json.loads(self.item_attr)
-        value[app] = attr
-        self.item_attr = json.dumps(value)
-        self.save()
-
-    def get_item_attr(self):
-        if self.item_attr:
-            return json.loads(self.item_attr)
-        return {}
 
     def get_roles(self):
         roles = []
@@ -502,7 +489,7 @@ class Task(models.Model):
                     start=self.start, stop=next, important=self.important,
                     remind=self.next_remind_time(), repeat=self.repeat, repeat_num=self.repeat_num,
                     repeat_days=self.repeat_days, categories=self.categories, info=self.info)
-                next_task.set_item_attr(APP_TODO, next_task.get_info(ROLE_TODO))
+                next_task.get_info(ROLE_TODO)
                 if TaskGroup.objects.filter(task=self.id, role=ROLE_TODO).exists():
                     group = TaskGroup.objects.filter(task=self.id, role=ROLE_TODO).get().group
                     next_task.correct_groups_qty(GIQ_ADD_TASK, group.id)
@@ -548,13 +535,9 @@ class Task(models.Model):
         return get_files_list_by_path(role, self.id, fss_path)
 
     def get_info(self, role=ROLE_TODO):
-        ret = {'attr': []}
-        
-        if TaskGroup.objects.filter(task=self.id, role=role).exists():
-            ret['group'] = TaskGroup.objects.filter(task=self.id, role=role).get().group.name
-
+        attr = []
         if self.in_my_day:
-            ret['attr'].append({'myday': True})
+            attr.append({'myday': True})
 
         step_total = 0
         step_completed = 0
@@ -563,44 +546,18 @@ class Task(models.Model):
             if step.completed:
                 step_completed += 1
         if (step_total > 0):
-            if (len(ret['attr']) > 0):
-                ret['attr'].append({'icon': 'separator'})
-            ret['attr'].append({'text': '{} {} {}'.format(step_completed, _('out of'), step_total)})
+            attr.append({'text': '{} {} {}'.format(step_completed, _('out of'), step_total)})
 
         if self.stop:
-            ret['attr'].append({'termin': True})
+            attr.append({'termin': True})
 
-        links = len(Urls.objects.filter(task=self.id)) > 0
-        files = (len(self.get_files_list(role)) > 0)
-
-        if (self.remind != None) or self.info or links or files:
-            if (len(ret['attr']) > 0):
-                ret['attr'].append({'icon': 'separator'})
-            if (self.remind != None):
-                ret['attr'].append({'icon': 'remind'})
-            if links:
-                ret['attr'].append({'icon': 'url'})
-            if files:
-                ret['attr'].append({'icon': 'attach'})
-            if self.info:
-                info_descr = self.info[:80]
-                if len(self.info) > 80:
-                    info_descr += '...'
-                ret['attr'].append({'icon': 'notes', 'text': info_descr})
-
-        if self.categories:
-            if (len(ret['attr']) > 0):
-                ret['attr'].append({'icon': 'separator'})
-            categs = get_categories_list(self.categories)
-            for categ in categs:
-                ret['attr'].append({'icon': 'category', 'text': categ.name, 'color': 'category-design-' + categ.design})
+        if (self.remind != None):
+            attr.append({'icon': 'remind'})
 
         if self.completed:
-            if (len(ret['attr']) > 0):
-                ret['attr'].append({'icon': 'separator'})
-            ret['attr'].append({'text': '{}: {}'.format(_('Completion'), self.completion.strftime('%d.%m.%Y') if self.completion else '')})
+            attr.append({'text': '{}: {}'.format(_('Completion'), self.completion.strftime('%d.%m.%Y') if self.completion else '')})
 
-        return ret
+        self.actualize_role_info(ROLE_APP[role], role, attr)
 
     def days_to_next(self, repeat_last, repeat_days, repeat_num):
         from_dow = repeat_last.weekday()
@@ -922,6 +879,22 @@ class Task(models.Model):
         rest, tune_class = get_rest(self, last_odo, last_repl)
         return [{'class': tune_class, 'info': rest}]
 
+    def actualize_role_info(self, app, role, info=None):
+        qnt = len(self.get_files_list(role))
+        str_info = None
+        if info:
+            str_info = json.dumps(info)
+        if qnt == 0 and info == None:
+            TaskRoleInfo.objects.filter(task=self.id, app=app, role=role).delete()
+        else:
+            if not TaskRoleInfo.objects.filter(task=self.id, app=app, role=role).exists():
+                TaskRoleInfo.objects.create(task=self, app=app, role=role, info=str_info, files_qnt=qnt)
+            else:
+                tri = TaskRoleInfo.objects.filter(task=self.id, app=app, role=role).get()
+                tri.info = str_info
+                tri.files_qnt = qnt
+                tri.save()
+
 
 GIQ_ADD_TASK = 1 # Task created
 GIQ_DEL_TASK = 2 # Task deleted
@@ -1019,6 +992,15 @@ class Urls(models.Model):
         if (self.title):
             return self.title
         return self.href
+
+class TaskRoleInfo(models.Model):
+    task = models.ForeignKey(Task, on_delete = models.CASCADE, verbose_name = _('task'))
+    app = models.CharField(_('app name'), max_length=50, blank=False, default='todo', null=True)
+    role = models.CharField(_('role name'), max_length=50, blank=False, default='todo', null=True)
+    created = models.DateTimeField(_('creation time'), blank=True, default=datetime.now)
+    last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now=True)
+    info = models.CharField(_('role specific info'), max_length=500, blank=True, default=None, null=True)
+    files_qnt = models.IntegerField(_('number of attached files'), default=0, null=True)
 
 def currency_repr(value, currency):
     if (round(value, 2) % 1):
@@ -1179,11 +1161,20 @@ class TaskInfo(models.Model):
     """
     An Entity that can be a Task or something else
     """
-    task_role = models.IntegerField('Task Role id', null=True)
+    app = models.CharField('App', max_length=20, blank=True)
+    num_role = models.IntegerField('Task Role id', null=True)
+    role = models.CharField('Role', max_length=20, blank=True)
+    icon = models.CharField('Icon', max_length=20, blank=True)
     subgroup_id = models.IntegerField('Subgroup id', null=True)
     subgroup_name = models.CharField('Name', max_length=200, blank=True)
     group_id = models.IntegerField('Group id', null=True)
     # group_role = models.CharField('Group role', max_length=200, blank=True, null=True)
+    group_name = models.CharField('Group name', max_length=200, blank=True)
+    related = models.CharField('List of related roles', max_length=1000, blank=True)
+    custom_attr = models.CharField('Custom role attributes', max_length=500, blank=True)
+    task_descr = models.CharField('Cutted to 85 symbols task info', max_length=85, blank=True)
+    has_files = models.IntegerField('Has files', null=True)
+    has_links = models.IntegerField('Has links', null=True)
     # #------------ Task ------------
     id = models.IntegerField(_('id'), primary_key=True, null=False)
     user_id = models.IntegerField(_('user id'), null=False)
@@ -1212,7 +1203,7 @@ class TaskInfo(models.Model):
     # app_warr = models.IntegerField('Role in application Warranty', choices=WARR_ROLE_CHOICE, default=NONE, null=True)
     # app_expen = models.IntegerField('Role in application Expense', choices=EXPEN_ROLE_CHOICE, default=NONE, null=True)
     # app_trip = models.IntegerField('Role in application Trip', choices=TRIP_ROLE_CHOICE, default=NONE, null=True)
-    # app_fuel = models.IntegerField('Role in application Fueling', choices=FUEL_ROLE_CHOICE, default=NONE, null=True)
+    app_fuel = models.IntegerField('Role in application Fueling', choices=FUEL_ROLE_CHOICE, default=NONE, null=True)
     # app_apart = models.IntegerField('Role in application Communal', choices=APART_ROLE_CHOICE, default=NONE, null=True)
     # app_health = models.IntegerField('Role in application Health', choices=HEALTH_ROLE_CHOICE, default=NONE, null=True)
     # app_work = models.IntegerField('Role in application Work', choices=WORK_ROLE_CHOICE, default=NONE, null=True)
@@ -1224,7 +1215,7 @@ class TaskInfo(models.Model):
     task_1_id = models.IntegerField(_('task_1 id'), null=True)
     # task_2_id = models.IntegerField(_('task_2 id'), null=True)
     # task_3_id = models.IntegerField(_('task_3 id'), null=True)
-    item_attr = models.CharField(_('Item attributes'), max_length=2000, blank=True, null=True)
+    # item_attr = models.CharField(_('Item attributes'), max_length=2000, blank=True, null=True)
     sort = models.CharField(_('sort code'), max_length=50, blank=True)
     # #------------ Expenses ------------
     # expen_qty = models.DecimalField(_('Quantity'), blank=True, null=True, max_digits=15, decimal_places=3)
@@ -1320,26 +1311,19 @@ class TaskInfo(models.Model):
         db_table = 'vw_tasks'
 
     def get_absolute_url(self):
-        role = ROLE_BY_NUM[self.task_role]
-        app = ROLE_APP[role]
-        if not app:
+        if not self.app:
             return '/'
-        base_role = list(ROLES_IDS[app].values())[0]
-        if (role == ROLE_BY_NUM[base_role]):
-            role = None
+        base_role = list(ROLES_IDS[self.app].values())[0]
+        if (self.role == ROLE_BY_NUM[base_role]):
+            self.role = None
         try:
-            if role:
-                url = reverse(app + ':' + role + '-item', args = [self.id])
+            if self.role:
+                url = reverse(self.app + ':' + self.role + '-item', args = [self.id])
             else:
-                url = reverse(app + ':item', args = [self.id])
+                url = reverse(self.app + ':item', args = [self.id])
             return url
         except NoReverseMatch:
             return '/'
-
-    def get_item_attr(self):
-        if self.item_attr:
-            return json.loads(self.item_attr)
-        return {}
 
     def b_expired(self):
         if self.completed:
@@ -1369,3 +1353,14 @@ class TaskInfo(models.Model):
 
     def remind_active(self):
         return self.remind and (not self.completed) and (self.remind > datetime.now())
+
+    def get_custom_attr(self):
+        if self.custom_attr:
+            return json.loads(self.custom_attr)
+
+    def get_categories(self):
+        if not self.categories:
+            return None
+        return [{
+            'name': categ,
+            'color': 'category-design-' + CATEGORY_DESIGN[reduce(lambda x, y: x + ord(y), categ, 0) % 6], } for categ in self.categories.split()]

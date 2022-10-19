@@ -29,7 +29,7 @@ class DetailView(LoginRequiredMixin, BaseDetailView):
         response = super().form_valid(form)
         form.instance.name = get_item_name(self.request.user.id, form.instance.event, form.instance.id)
         form.instance.save()
-        form.instance.set_item_attr(app, get_info(form.instance))
+        get_info(form.instance)
         return response
 
 def get_item_name(user_id, event, id=None):
@@ -57,47 +57,19 @@ def get_item_name(user_id, event, id=None):
 
 def get_info(item):
     attr = []
-
     if item.bio_height:
-        if (len(attr) > 0):
-            attr.append({'icon': 'separator'})
         attr.append({'icon': 'myday', 'text': '{}: {} {}'.format(_('Height'), item.bio_height, _('cm')) })
-
     if item.bio_weight:
-        if (len(attr) > 0):
-            attr.append({'icon': 'separator'})
         attr.append({'icon': 'myday', 'text': '{}: {} {}'.format(_('Weight'), item.bio_weight, _('kg')) })
-
     if item.bio_temp:
-        if (len(attr) > 0):
-            attr.append({'icon': 'separator'})
         attr.append({'icon': 'myday', 'text': '{}: {}'.format(_('Temperature'), item.bio_temp) })
-
     if item.bio_waist:
-        if (len(attr) > 0):
-            attr.append({'icon': 'separator'})
         attr.append({'icon': 'myday', 'text': '{}: {} {}'.format(_('Waist'), item.bio_waist, _('cm')) })
-
     if item.bio_systolic or item.bio_diastolic:
-        if (len(attr) > 0):
-            attr.append({'icon': 'separator'})
         attr.append({'icon': 'myday', 'text': '{}: {}/{}'.format(_('Pressure'), item.bio_systolic, item.bio_diastolic) })
-
     if item.bio_pulse:
-        if (len(attr) > 0):
-            attr.append({'icon': 'separator'})
         attr.append({'icon': 'myday', 'text': '{}: {}'.format(_('Pulse'), item.bio_pulse) })
-
-    if item.info:
-        if (len(attr) > 0):
-            attr.append({'icon': 'separator'})
-        info_descr = item.info[:80]
-        if len(item.info) > 80:
-            info_descr += '...'
-        attr.append({'icon': 'notes', 'text': info_descr})
-
-    ret = {'attr': attr}
-    return ret
+    item.actualize_role_info(app, role, attr)
 
 def add_item(user, value):
     height = None
@@ -128,6 +100,6 @@ def add_item(user, value):
     name = get_item_name(user.id, event)
     task = Task.objects.create(user=user, app_health=NUM_ROLE_MARKER, name=name, bio_height=height, bio_weight=weight, bio_temp=temp, bio_waist=waist, \
                                 bio_systolic=systolic, bio_diastolic=diastolic, bio_pulse=pulse, info=info, event=event)
-    task.set_item_attr(app, get_info(task))
+    get_info(task)
     return task
 
