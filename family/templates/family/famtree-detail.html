@@ -1,0 +1,73 @@
+{% extends "base/page_content.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link href="{% static 'scss/form.css' %}" rel="stylesheet">
+    <link href="{% static 'scss/widgets.css' %}" rel="stylesheet">
+      <link href="{% static 'scss/family.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block main %}
+    <div class="list-content{% if theme_id %} theme-{{theme_id}}{% endif %}">
+        <form method="post" class="item-form px-2" enctype="multipart/form-data" id="article_form" data-item_id="{{ ed_item.id|cut:" " }}">{% csrf_token %}
+            <div class="row">
+                <div class="col">
+                    {{ form.name.label_tag }}{{ form.name }}
+                    {{ form.sort.label_tag }}{{ form.sort }}
+                    {{ form.dest.label_tag }}{{ form.dest }}
+                    {{ form.date.label_tag }}{{ form.date }}
+                    {{ form.time.label_tag }}{{ form.time }}
+                    {{ form.sour_data_copr.label_tag }}{{ form.sour_data_copr }}
+                </div>
+                <div class="col">
+                    {{ form.subm_id.label_tag }}{{ form.subm_id }}
+                    {{ form.file.label_tag }}{{ form.file }}
+                    {{ form.copr.label_tag }}{{ form.copr }}
+                    {{ form.char.label_tag }}{{ form.char }}
+                    {{ form.lang.label_tag }}{{ form.lang }}
+                    {{ form.mh_rtl.label_tag }}{{ form.mh_rtl }}
+                </div>
+                <div class="col">
+                    {{ form.sour.label_tag }}{{ form.sour }}
+                    {{ form.sour_vers.label_tag }}{{ form.sour_vers }}
+                    {{ form.sour_name.label_tag }}{{ form.sour_name }}
+                    {{ form.sour_corp.label_tag }}{{ form.sour_corp }}
+                    {{ form.sour_corp_addr.label_tag }}{{ sour_corp_addr }}
+                    {{ form.sour_data.label_tag }}{{ form.sour_data }}
+                    {{ form.sour_data_date.label_tag }}{{ form.sour_data_date }}
+                </div>
+                <div class="col">
+                    {{ form.gedc_vers.label_tag }}{{ form.gedc_vers }}
+                    {{ form.gedc_form.label_tag }}{{ form.gedc_form }}
+                    {{ form.gedc_form_vers.label_tag }}{{ form.gedc_form_vers }}
+                    {{ form.note.label_tag }}{{ form.note }}
+                    {{ form.mh_id.label_tag }}{{ form.mh_id }}
+                    {{ form.mh_prj_id.label_tag }}{{ form.mh_prj_id }}
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-evenly mt-3 pb-5">
+                <button type="button" name="media_update" class="btn btn-info bi-save" onclick="updateMedia({{ tree_id }})" title="{% trans 'update media files'|capfirst %}">
+                    {% trans 'media'|capfirst %}
+                </button>
+                <button type="submit" name="item_save" class="btn btn-primary bi-save" title="{% trans 'save changes'|capfirst %}">
+                    {% trans 'save'|capfirst %}
+                </button>
+                <button type="button" name="form_close" class="btn btn-secondary bi-x" onclick="closeForm()" title="{% trans 'close edit form'|capfirst %}">
+                    {% trans 'close'|capfirst %}
+                </button>
+                <button type="button" name="item_delete" class="btn btn-danger bi-trash" onclick="delFamTreeConfirm('{{ban_on_deletion}}', '{{delete_question}} {{title}}?')" title="{% trans 'delete record'|capfirst %}">
+                    {% trans 'delete'|capfirst %}
+                </button>
+            </div>
+      
+        </div>
+    </form>
+{% endblock %}
+
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'js/form.js' %}"></script>
+  <script src="{% static 'js/family.js' %}"></script>
+{% endblock %}

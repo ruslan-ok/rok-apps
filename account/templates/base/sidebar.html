@@ -19,6 +19,26 @@
             </a>
         {% endfor %}
 
+        {% if extra_fix_list %}
+            <hr>
+            {% for fix in extra_fix_list %}
+                <a href="{{ fix.url }}" class="sidebar__fix-item{% if fix.active %} active{% endif %}">
+                    <div class="">
+                        <i class="bi-{{fix.icon}}"></i>
+                        <span class="">{{ fix.title }}</span>
+                    </div>
+                    <span class="">
+                        {% if fix.active and fix.search_qty != None %}
+                            {{ fix.search_qty }} / 
+                        {% endif %}
+                        {% if fix.qty != None %}
+                            {{ fix.qty }}
+                        {% endif %}
+                    </span>
+                </a>
+            {% endfor %}
+        {% endif %}
+
         {% if config.use_groups %}
 
             {% if dir_tree %}

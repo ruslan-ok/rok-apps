@@ -9,6 +9,7 @@ APPS = {
     APP_NEWS:    ('newspaper',     '/news/'),
     APP_STORE:   ('key',           '/store/'),
     APP_EXPEN:   ('piggy-bank',    '/expen/'),
+    APP_FAMILY:  ('diagram-3',     '/family/'),
     APP_FUEL:    ('fuel-pump',     '/fuel/'),
     APP_APART:   ('building',      '/bill/'),
     APP_HEALTH:  ('heart',         '/health/'),
@@ -46,6 +47,8 @@ def _get_app_human_name(app):
         return _('work')
     if (app == APP_PHOTO):
         return _('photobank')
+    if (app == APP_FAMILY):
+        return _('family tree')
     if (app == APP_HEALTH):
         return _('health')
     if (app == APP_ADMIN):
@@ -65,7 +68,7 @@ def get_app_human_name(app):
 def get_apps_list(user, current):
     apps = []
     for app in APPS:
-        if (app in (APP_STORE, APP_TRIP, APP_APART, APP_WORK, APP_HEALTH, APP_WARR, APP_DOCS, APP_PHOTO, APP_LOGS)) and (user.username != 'ruslan.ok'):
+        if (app in (APP_STORE, APP_TRIP, APP_APART, APP_WORK, APP_HEALTH, APP_WARR, APP_DOCS, APP_PHOTO, APP_LOGS, APP_FAMILY)) and (user.username != 'ruslan.ok'):
             continue
         if (app == APP_ADMIN) and (user.username != 'admin'):
             continue

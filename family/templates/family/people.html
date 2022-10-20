@@ -1,0 +1,45 @@
+{% extends "base/page_content.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link href="{% static 'scss/home.css' %}" rel="stylesheet">
+    <link href="{% static 'scss/family.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block main %}
+    <div class="list-content{% if theme_id %} theme-{{theme_id}}{% endif %}">
+        <form method="post" class="item-form px-2">{% csrf_token %}</form>
+        <table class="people info-table">
+            <tr>
+                <th>{% trans 'photo'|capfirst %}</th>
+                <th class="name">{% trans 'names'|capfirst %}</th>
+                <th class="name">{% trans 'last name'|capfirst %}</th>
+                <th class="char">{% trans 'sex'|capfirst %}</th>
+                <th class="age">{% trans 'age'|capfirst %}</th>
+                <th class="date">{% trans 'birth date'|capfirst %}</th>
+                <th class="place">{% trans 'birth place'|capfirst %}</th>
+                <th class="date">{% trans 'death date'|capfirst %}</th>
+                <th class="place">{% trans 'death place'|capfirst %}</th>
+            </tr>
+            {% for item in object_list %}
+                <tr onclick="personDetail({{ item.id|safe }})">
+                    <td class="photo" style="padding: 0;"><img src="{{ item.thumbnail }}" height="44"/></td>
+                    <td>{{ item.givn }}</td>
+                    <td>{{ item.surn }}</td>
+                    <td>{{ item.sex }}</td>
+                    <td>{{ item.age }}</td>
+                    <td>{{ item.birth_date }}</td>
+                    <td>{{ item.birth_place }}</td>
+                    <td>{{ item.death_date }}</td>
+                    <td>{{ item.death_place }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}
+
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'js/family.js' %}"></script>
+{% endblock %}

@@ -117,3 +117,8 @@ class NegativeNumberInput(widgets.Input):
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
         return context
+
+class InlineRadio(widgets.ChoiceWidget):
+    input_type = "radio"
+    template_name = "widgets/radio.html"
+    option_template_name = "django/forms/widgets/radio_option.html"

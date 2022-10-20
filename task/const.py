@@ -21,6 +21,7 @@ APP_ADMIN = 'admin'
 APP_BACKUP = 'backup'
 APP_LOGS = 'logs'
 APP_SERVICE = 'service'
+APP_FAMILY = 'family'
 
 APP_ALL = 'all'
 
@@ -41,6 +42,7 @@ APP_NAME = {
     APP_HEALTH: 'health',
     APP_WORK: 'work',
     APP_PHOTO: 'photobank',
+    APP_FAMILY: 'family tree',
     APP_ADMIN: 'administration',
     APP_ALL: 'all applications',
     APP_BACKUP: 'backup',
@@ -151,6 +153,9 @@ NUM_ROLE_BACKUP_SHORT = 40
 NUM_ROLE_BACKUP_FULL = 41
 NUM_ROLE_BACKUP_CHECK = 42
 NUM_ROLE_MANAGER = 43
+NUM_ROLE_INDI = 44
+NUM_ROLE_FAMILY = 45
+NUM_ROLE_FAM_TREE = 46
 
 ROLE_TODO        = 'todo'
 ROLE_NOTIFICATOR = 'notificator'
@@ -197,10 +202,13 @@ ROLE_BACKUP_FULL = 'full'
 ROLE_BACKUP_CHECK = 'check'
 ROLE_APACHE      = 'apache'
 ROLE_MANAGER     = 'manager'
+ROLE_INDI        = 'individual'
+ROLE_FAMILY      = 'family'
+ROLE_FAM_TREE    = 'family_tree'
 
 ALL_ROLES = (
     ROLE_TODO,
-    ROLE_NOTIFICATOR,             
+    ROLE_NOTIFICATOR,
     ROLE_NOTE,             
     ROLE_NEWS,             
     ROLE_STORE,
@@ -236,13 +244,16 @@ ALL_ROLES = (
     ROLE_PAY_TITLE,   
     ROLE_PAYMENT,     
     ROLE_PHOTO, 
-    ROLE_ACCOUNT,  
+    ROLE_ACCOUNT,
     ROLE_SEARCH_RESULTS,
     ROLE_BACKUP_SHORT,
     ROLE_BACKUP_FULL,
     ROLE_BACKUP_CHECK,
     ROLE_APACHE,
     ROLE_MANAGER,
+    ROLE_INDI,
+    ROLE_FAMILY,
+    ROLE_FAM_TREE,
     )
 
 ROLES_IDS = {
@@ -270,6 +281,7 @@ ROLES_IDS = {
         ROLE_BACKUP_FULL: NUM_ROLE_BACKUP_FULL, 
         ROLE_BACKUP_CHECK: NUM_ROLE_BACKUP_CHECK },
     APP_ALL: { ROLE_SEARCH_RESULTS: NONE },
+    APP_FAMILY: { ROLE_INDI: NUM_ROLE_INDI, ROLE_FAMILY: NUM_ROLE_FAMILY,  ROLE_FAM_TREE: NUM_ROLE_FAM_TREE,  },
 }
 
 """

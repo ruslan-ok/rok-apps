@@ -1,0 +1,66 @@
+{% extends "base/page.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+    <link href="{% static 'scss/family.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block header_content %}
+  {% include 'base/header.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="family-tree">
+        <svg width="1536" height="660" onload="makeDraggable(evt)">
+            {% for action in action_list %}
+                {% if action.type == 'circle' %}
+                    <g transform="translate({{ action.x }},{{ action.y }})" onclick="{{ action.onclick }}">
+                        <circle cx="0" cy="0" r="10" class="plus"></circle>
+                        <path d="{{ action.path }}" class="plus"></path>
+                    </g>
+                {% else %}
+                    <a href="{{ action.href }}">
+                        <g transform="translate({{ action.x }},{{ action.y }})">
+                            <rect width="100" height="30" x="0" y="0" rx="5" ry="5" class="action"></rect>
+                            <text class="action_name" dx="5" dy="20">{{ action.name }}</text>
+                        </g>
+                    </a>
+                {% endif %}
+            {% endfor %}
+            <g transform="translate(150, 50)" id="draggable">
+                {% for indi in indi_list %}
+                    <a href="{% url 'family:list' %}?indi={{ indi.id|safe }}">
+                        <g class="person ancestor" transform="translate({{ indi.x|safe }}, {{ indi.y|safe }})">
+                            <rect width="200" height="50" x="0" y="0" rx="5" ry="5" class="{% if indi.male %}male{% else %}female{% endif %}"></rect>
+                            <image href="{{ indi.photo }}" height="44" width="44" x="3" y="3"/>
+                            <text class="name" dx="52" dy="22">{{ indi.name }}</text>
+                            <text class="lifespan" dx="52" dy="38">{{ indi.dates }}</text>
+                        </g>
+                    </a>
+                    {% if indi.fam_btn %}
+                        <a href="{% url 'family:list' %}?indi={{ indi_ids|safe }},{{ indi.id|safe }}">
+                            <g class="person_fam_link" transform="translate({{ indi.xr|safe }}, {{ indi.y|safe }})">
+                                <rect width="24" height="8" x="96" y="13" rx="2" ry="2" class="fam_link"></rect>
+                                <rect width="24" height="8" x="96" y="29" rx="2" ry="2" class="fam_link"></rect>
+                                <path class="link ancestor_fam" d="M75,25H85V17H95"></path>
+                                <path class="link ancestor_fam" d="M75,25H85V33H95"></path>
+                            </g>
+                        </a>
+                    {% endif %}
+                {% endfor %}
+                {% for path in path_list %}
+                    <path class="link ancestor" d="M{{path.x|safe}},{{path.y|safe}}{% for line in path.lines %}{{line|safe}}{% endfor %}"></path>
+                {% endfor %}
+                <!-- <g class="plus" transform="translate(420,-50)">
+                    <circle cx="0" cy="0" r="10"></circle>
+                    <path d="M0,5v-10M5,0h-10"></path>
+                </g> -->
+            </g>    
+        </svg>
+    </div>
+{% endblock %}
+
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'js/family.js' %}"></script>
+{% endblock %}

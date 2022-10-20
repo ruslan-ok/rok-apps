@@ -1,0 +1,67 @@
+{% extends "family/person/base.html" %}
+{% load static i18n %}
+
+{% block pers_content %}
+    {% for fami in families %}
+        <h5>{% trans 'parents'|capfirst %}</h5>
+        <div class="row">
+            <div class="col">
+                <a href="{% url 'family:person' fami.husb_id %}">
+                    <img src="{{ fami.husb_thumbnail }}" height="100"/>
+                    {{ fami.husb_givn }}
+                    {{ fami.husb_surn }}
+                </a>
+                {{ fami.husb_role }}
+            </div>
+            <div class="col">
+                <a href="{% url 'family:person' fami.wife_id %}">
+                    <img src="{{ fami.wife_thumbnail }}" height="100"/>
+                    {{ fami.wife_givn }}
+                    {{ fami.wife_surn }}
+                </a>
+                {{ fami.wife_role }}
+            </div>
+        </div>
+        <div class="row my-4">
+            <div class="col">
+                {% trans 'relationship to parents'|capfirst %}:
+                {{ fami.pedi }}
+            </div>
+        </div>
+    {% endfor %}
+    {% for spouse in spouses %}
+        <div class="row">
+            <div class="col">
+                <h5>{{ spouse.role }}</h5>
+                <a href="{% url 'family:person' spouse.id %}">
+                    <img src="{{ spouse.spou_thumbnail }}" height="100"/>
+                    {{ spouse.givn }}
+                    {{ spouse.surn }}
+                </a>
+                {{ fami.wife_role }}
+            </div>
+        </div>
+        <div class="row my-4">
+            <div class="col">
+                {% trans 'relationship'|capfirst %}:
+                {{ spouse.relation }}
+            </div>
+        </div>
+        {% for event in spouse.events %}
+            <div class="row">
+                <div class="col">
+                    {{ event.date_label }}:
+                    {{ event.date }}
+                </div>
+                <div class="col">
+                    {{ event.place_label }}:
+                    {{ event.place }}
+                </div>
+                <div class="col">
+                    {{ event.witnesses_label }}:
+                    {{ event.witnesses }}
+                </div>
+            </div>
+        {% endfor %}
+    {% endfor %}
+{% endblock %}

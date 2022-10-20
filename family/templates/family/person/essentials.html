@@ -1,0 +1,36 @@
+{% extends "family/person/base.html" %}
+{% load static i18n %}
+
+{% block pers_content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-4">
+                <div>
+                    <img style="display: block;-webkit-user-select: none;margin: auto;background-color: hsl(0, 0%, 90%);transition: background-color 300ms;"
+                        src="{% url 'family:avatar' indi_id %}" height="100%" width="150"/>
+                </div>
+            </div>
+            <div class="col-sm-8">
+                {{ form.sex }}
+                {{ form.givn.label_tag }}{{ form.givn }}
+                {{ form.surn.label_tag }}{{ form.surn }}
+                <a href="#">{% trans 'additional names'|capfirst %}</a>
+            </div>
+        </div>
+
+
+        <div class="row mt-5">
+            <div class="col-sm-4">{{ form.birth_date.label_tag }}{{ form.birth_date }}</div>
+            <div class="col-sm-8">{{ form.birth_place.label_tag }}{{ form.birth_place }}</div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4"><a href="#">{% trans 'baptism info'|capfirst %}</a></div>
+            <div class="col-sm-8">{{ form.alive }}</div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-sm-4">{{ form.death_date.label_tag }}{{ form.death_date }}</div>
+            <div class="col-sm-8">{{ form.death_place.label_tag }}{{ form.death_place }}</div>
+        </div>
+    </div>
+{% endblock %}

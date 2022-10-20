@@ -1,0 +1,33 @@
+{% extends "base/page_content.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link href="{% static 'scss/form.css' %}" rel="stylesheet">
+    <link href="{% static 'scss/family.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block main %}
+    <div class="list-content{% if theme_id %} theme-{{theme_id}}{% endif %}">
+        <form method="post" class="item-form px-2">{% csrf_token %}
+            {% block pers_content %}{% endblock %}
+
+            <div class="d-flex justify-content-evenly mt-3 pb-5">
+                <button type="submit" name="save_continue" class="btn btn-primary bi-save" title="{% trans 'save and continue'|capfirst %}">
+                  {% trans 'save and continue'|capfirst %}
+                </button>
+                <button type="submit" name="save_close" class="btn btn-primary bi-x" title="{% trans 'save and close'|capfirst %}">
+                  {% trans 'save and close'|capfirst %}
+                </button>
+                <button type="button" name="edit_cancel" class="btn btn-secondary" onclick="cancelEdit()" title="{% trans 'cancel'|capfirst %}">
+                  {% trans 'cancel'|capfirst %}
+                </button>
+              </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'js/family.js' %}"></script>
+{% endblock %}
