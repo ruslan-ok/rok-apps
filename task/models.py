@@ -175,7 +175,7 @@ class Group(models.Model):
             tgs = TaskGroup.objects.filter(group=self.id)
             qnt = 0
             for tg in tgs:
-                if not tg.task.completed:
+                if not tg.task.completed or tg.role != ROLE_TODO:
                     qnt += 1
             if (self.act_items_qty != qnt):
                 self.act_items_qty = qnt

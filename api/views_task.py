@@ -537,7 +537,9 @@ class TaskViewSet(viewsets.ModelViewSet):
         queryset = Task.objects.filter(user=request.user)
         task = get_object_or_404(queryset, pk=pk)
         match role:
-            case const.ROLE_TODO: task.app_task = const.NUM_ROLE_TODO
+            case const.ROLE_TODO: 
+                task.app_task = const.NUM_ROLE_TODO
+                task.repeat_days = 0
             case const.ROLE_NOTE: 
                 task.app_note = const.NUM_ROLE_NOTE
                 if not task.event:
