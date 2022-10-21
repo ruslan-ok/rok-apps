@@ -62,10 +62,12 @@ class EditForm(BaseEditForm):
         label=_('Categories'),
         required=False,
         widget=CategoriesInput(attrs={'class': 'form-control mb-3', 'placeholder': _('Add category')}))
+    latitude = forms.HiddenInput()
+    longitude = forms.HiddenInput()
 
     class Meta:
         model = Task
-        fields = ['car_odometr', 'event', 'task_2', 'repl_manuf', 'repl_part_num', 'repl_descr', 'info', 'url', 'categories', 'upload']
+        fields = ['car_odometr', 'event', 'task_2', 'repl_manuf', 'repl_part_num', 'repl_descr', 'info', 'url', 'categories', 'upload', 'latitude', 'longitude']
         widgets = {
             'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),
         }

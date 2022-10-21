@@ -44,7 +44,7 @@ class BaseEditForm(forms.ModelForm):
 
     def get_group_id(self):
         task_id = self.instance.id
-        tgs = TaskGroup.objects.filter(task=task_id)
+        tgs = TaskGroup.objects.filter(task=task_id, role=self.role)
         if (len(tgs) > 0):
             tg = tgs[0]
             grp = tg.group

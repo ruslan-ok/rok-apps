@@ -9,6 +9,7 @@ app_config = {
     'use_groups': True,
     'role': ROLE_WARR,
     'role_loc': pgettext_lazy('add ...', 'warranty'),
+    'relate': [ROLE_EXPENSE],
     'sort': [
         ('stop', _('termin')),
         ('name', _('name')),
