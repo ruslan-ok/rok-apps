@@ -18,7 +18,13 @@
             {{ form.upload.label_tag }}{{ form.upload }}
         </div>
     </div>
+    {{ form.latitude.as_hidden }}
+    {{ form.longitude.as_hidden }}
     {% include "widgets/url_list.html" %}
     {% include "widgets/attachments.html" %}
 {% endblock %}
 
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'js/geolocation.js' %}"></script>
+{% endblock %}
