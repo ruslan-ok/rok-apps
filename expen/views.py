@@ -56,7 +56,7 @@ class DetailView(LoginRequiredMixin, BaseDetailView):
         return context
 
     def get_group(self):
-        tgs = TaskGroup.objects.filter(task=self.object.id)
+        tgs = TaskGroup.objects.filter(task=self.object.id, role=self.config.get_cur_role())
         if (len(tgs) > 0):
             return tgs[0].group
         return None

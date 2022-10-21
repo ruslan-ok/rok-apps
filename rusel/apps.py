@@ -93,7 +93,7 @@ def get_related_roles(task, config):
     for role in config.relate:
         possible_related.append({'name': role, 'icon': ROLE_ICON[role], 'href': get_role_href(role, task.id)})
     for app_role in (task.app_task, task.app_note, task.app_news, task.app_store, #task.app_doc, 
-                    task.app_expen, task.app_apart, task.app_fuel, #task.app_warr, task.app_trip, 
+                    task.app_expen, task.app_apart, task.app_fuel, task.app_warr#, task.app_trip, 
                     #task.app_health, task.app_work, task.app_photo
                     ):
         check_role(related_roles, possible_related, app_role, config, task.id)
