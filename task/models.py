@@ -247,6 +247,8 @@ class Task(models.Model):
     task_3 = models.ForeignKey('self', on_delete=models.SET_NULL, verbose_name=_('linked task #3'), related_name='task_link_3', blank=True, null=True)
     item_attr = models.CharField(_('Item attributes'), max_length=2000, blank=True, null=True)
     sort = models.CharField(_('sort code'), max_length=50, blank=True)
+    latitude = models.CharField('Latitude', max_length=15, blank=True, null=True)
+    longitude = models.CharField('Longitude', max_length=15, blank=True, null=True)
     #------------ Expenses ------------
     expen_qty = models.DecimalField(_('Quantity'), blank=True, null=True, max_digits=15, decimal_places=3)
     expen_price = models.DecimalField(_('Price in NC'), blank=True, null=True, max_digits=15, decimal_places=2)
