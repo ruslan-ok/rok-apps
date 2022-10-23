@@ -38,19 +38,25 @@ class Sync():
             self.remote = []
             self.cur_folder = []
             self.dirs = []
-            self.fill_locale(self.work_dir)
+            self.fill_local(self.work_dir)
             self.fill_remote()
             self.count_status()
             self.do_sync()
         print('* run')
         self.log(EventType.INFO, 'method', '-Synch.run() finished')
 
-    def fill_locale(self, root_dir):
-        print('- fill_locale')
+    def fill_local(self, root_dir):
+        print('- fill_local')
+        self.scan_dir(root_dir, False)
+
+    def scan_dir(self, root_dir, is_remote):
+        print('- scan_dir ' + root_dir)
         for dirname, subdirs, files in os.walk(root_dir):
             dirname = dirname.replace(root_dir, '')
             if dirname:
-                dirname = dirname.replace('\\', '/')[1:]
+                dirname = dirname.replace('\\', '/')
+            if dirname.startswith('/'):
+                dirname = dirname[1:]
             fpath = os.path.join(root_dir, dirname).replace('\\', '/')
             for filename in files:
                 fullname = os.path.join(fpath, filename).replace('\\', '/')
@@ -58,18 +64,22 @@ class Sync():
                 dttm = datetime.fromtimestamp(mt)
                 dttm = datetime.strptime(dttm.strftime('%m-%d-%Y %I:%M%p'), '%m-%d-%Y %I:%M%p')
                 sz = os.path.getsize(fullname)
-                self.local.append({
+                x = {
                     'status': FileSutatus.Unknown,
                     'folder': dirname,
                     'name': filename,
                     'date_time': dttm,
                     'size': sz,
-                })
+                }
+                if is_remote:
+                    self.remote.append(x)
+                else:
+                    self.local.append(x)
     
     def fill_remote(self):
         print('- fill_remote')
         if os.path.exists(self.nuc_drive):
-            self.fill_locale(self.nuc_drive)
+            self.scan_dir(self.nuc_drive, True)
         else:
             with FTP(self.host, self.user, self.pwrd, encoding='windows-1251') as ftp:
                 self.scan_remote(ftp, '.')
@@ -152,7 +162,9 @@ class Sync():
         fsrc = self.get_full_local_name(x)
         if os.path.exists(self.nuc_drive):
             fdst = self.get_mapped_local_name(x)
+            print(f'FTP <- : {x["folder"]}/{x["name"]} [{x["size"]}]')
             shutil.copyfile(fsrc, fdst)
+            print('done')
             dt_epoch = x['date_time'].timestamp()
             os.utime(fdst, (dt_epoch, dt_epoch))
             self.log(EventType.INFO, 'copied local -> remote', self.get_file_path(x))
