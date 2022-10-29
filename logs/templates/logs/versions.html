@@ -20,7 +20,7 @@
             <tr> <td> DRF </td> <td> {{ drf_version }} </td> <td><a href="https://www.django-rest-framework.org/">django-rest-framework.org</a></td> </tr>
             <tr> <td> MySQL  </td> <td> {{ mysql_version }} </td> <td><a href="https://dev.mysql.com/downloads/mysql/">dev.mysql.com</a></td> </tr>
             <tr> <td> hMailServer  </td> <td> {{ hmail_version }} </td> <td><a href="https://www.hmailserver.com/download">hmailserver.com</a></td> </tr>
-            <tr> <td> Bootstrap </td> <td> {{ bootstrap_version }} </td> <td><a href="https://getbootstrap.com/docs/5.1/getting-started/download/">getbootstrap.com</a></td> </tr>
+            <tr> <td> Bootstrap </td> <td id="id_bootstrap_version"></td> <td><a href="https://getbootstrap.com/docs/getting-started/">getbootstrap.com</a></td> </tr>
             <tr> <td> Firebase </td> <td> {{ firebase_version }} </td> <td><a href="https://firebase.google.com/support/release-notes/admin/python">firebase.google.com</a></td> </tr>
             <tr> <td> iziToast </td> <td> {{ izitoast_version }} </td> <td><a href="https://izitoast.marcelodolza.com/">izitoast.marcelodolza.com</a></td> </tr>
             <tr> <td> Swiper </td> <td> {{ swiper_version }} </td> <td><a href="https://swiperjs.com/changelog">swiperjs.com</a></td> </tr>
@@ -29,4 +29,9 @@
           </table>
         </div>
       </div>
+{% endblock %}
+
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'js/versions.js' %}"></script>
 {% endblock %}

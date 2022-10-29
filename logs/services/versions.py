@@ -25,7 +25,6 @@ class VersionsLogData():
         context['hmail_version'] = '5.6.7 bld 2425'
         context['mysql_version'] = get_mysql_ver()
         context['leaflet_version'] = get_leaflet_ver()
-        context['bootstrap_version'] = get_bootstrap_ver()
         context['izitoast_version'] = get_izitoast_ver()
         context['chartjs_version'] = get_chartjs_ver()
         context['swiper_version'] = get_swiper_ver()
@@ -44,9 +43,6 @@ class VersionsLogData():
 
 def get_leaflet_ver():
     return '1.7.1'
-
-def get_bootstrap_ver():
-    return '5.1.0'
 
 def get_izitoast_ver():
     return '1.4.0'

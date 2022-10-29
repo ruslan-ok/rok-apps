@@ -162,7 +162,7 @@ class Sync():
         fsrc = self.get_full_local_name(x)
         if os.path.exists(self.nuc_drive):
             fdst = self.get_mapped_local_name(x)
-            print(f'FTP <- : {x["folder"]}/{x["name"]} [{x["size"]}]')
+            print(f'{self.nuc_drive} <- : {x["folder"]}/{x["name"]} [{x["size"]}]')
             shutil.copyfile(fsrc, fdst)
             print('done')
             dt_epoch = x['date_time'].timestamp()
