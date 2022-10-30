@@ -342,7 +342,9 @@ class BaseDetailView(UpdateView, Context):
         context['urls'] = urls
         context['files'] = self.object.get_files_list(self.config.get_cur_role())
         context['ban_on_deletion'] = ''
-        context['delete_question'] = _('delete file').capitalize()
+        context['delete_question'] = _('delete').capitalize()
+        context['ban_on_attach_deletion'] = ''
+        context['attach_delete_question'] = _('delete file').capitalize()
         context['item'] = self.object
         related_roles, possible_related = get_related_roles(self.get_object(), self.config)
         context['related_roles'] = related_roles

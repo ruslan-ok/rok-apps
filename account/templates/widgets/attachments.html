@@ -19,7 +19,7 @@
                     <div class="file-metadata">{{ file.size }}</div>
                 </div>
             </a>
-            <button type="button" name="file_delete" value="{{ file.url }}" class="bi-x" onclick="delFileConfirm('{{ban_on_deletion}}', '{{delete_question}}', '{{ config.app }}', '{{ config.get_cur_role }}', '{{ file.name }}.{{ file.ext }}', '{{ file.id }}')"></button>
+            <button type="button" name="file_delete" value="{{ file.url }}" class="bi-x" onclick="delFileConfirm('{{ban_on_attach_deletion}}', '{{attach_delete_question}}', '{{ config.app }}', '{{ config.get_cur_role }}', '{{ file.name }}.{{ file.ext }}', '{{ file.id }}')"></button>
         </div>
     {% endfor %}
 </div>
