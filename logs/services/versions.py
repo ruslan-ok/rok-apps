@@ -24,9 +24,7 @@ class VersionsLogData():
                     context['mod_wsgi_version'] = ver.split('/')[1]
         context['hmail_version'] = '5.6.7 bld 2425'
         context['mysql_version'] = get_mysql_ver()
-        context['leaflet_version'] = get_leaflet_ver()
         context['izitoast_version'] = get_izitoast_ver()
-        context['chartjs_version'] = get_chartjs_ver()
         context['swiper_version'] = get_swiper_ver()
         context['firebase_version'] = get_firebase_ver()
 
@@ -41,17 +39,11 @@ class VersionsLogData():
         return context
 
 
-def get_leaflet_ver():
-    return '1.7.1'
-
 def get_izitoast_ver():
     return '1.4.0'
 
-def get_chartjs_ver():
-    return '3.7.0'
-
 def get_swiper_ver():
-    return '8.0.7'
+    return '8.4.4'
 
 def get_firebase_ver():
     return '5.2.0'
