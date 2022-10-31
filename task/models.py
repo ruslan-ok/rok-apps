@@ -467,8 +467,10 @@ class Task(models.Model):
         except NoReverseMatch:
             return '/'
     
-    def toggle_completed(self):
+    def toggle_completed(self, do_complete=False):
         next = None
+        if self.completed and do_complete:
+            return None
         if (not self.completed) and self.repeat:
             if not self.start:
                 self.start = self.stop # For a repeating task, remember the deadline that is specified in the first iteration in order to use it to adjust the next steps

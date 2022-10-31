@@ -55,7 +55,7 @@ def fcm_postpone(request, pk):
 
 def fcm_done(request, pk):
     task = get_object_or_404(Task.objects.filter(user=request.user.id, id=pk))
-    task.toggle_completed()
+    task.toggle_completed(do_complete=True)
     return HttpResponse('ok')
 
 
