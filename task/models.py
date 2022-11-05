@@ -21,6 +21,8 @@ from rusel.utils import nice_date
 from rusel.categories import CATEGORY_DESIGN
 from rusel.files import get_files_list_by_path
 from fuel.utils import get_rest
+from news.get_info import get_info as news_get_info
+from expen.get_info import get_info as expen_get_info
 
 
 class Group(models.Model):
@@ -472,8 +474,8 @@ class Task(models.Model):
         if self.completed and do_complete:
             return None
         if (not self.completed) and self.repeat:
-            if not self.start:
-                self.start = self.stop # For a repeating task, remember the deadline that is specified in the first iteration in order to use it to adjust the next steps
+            if not self.start and self.stop:
+                self.start = self.stop.date() # For a repeating task, remember the deadline that is specified in the first iteration in order to use it to adjust the next steps
             next = self.next_iteration()
         self.completed = not self.completed
         if self.completed:
@@ -482,20 +484,36 @@ class Task(models.Model):
             self.completion = datetime.now()
         else:
             self.completion = None
+        if (self.app_news or self.app_expen) and not self.event:
+            self.event = datetime.now()
         self.save()
+        if self.app_news:
+            news_get_info(self)
+        if self.app_expen:
+            expen_get_info(self)
         self.correct_groups_qty(GIQ_CMP_TASK)
         next_task = None
         if self.completed and next: # Completed a stage of a recurring task and set a deadline for the next iteration
             if Task.objects.filter(user=self.user, app_task=self.app_task, name=self.name, completed=False).exists():
                 next_task = Task.objects.filter(user=self.user, app_task=self.app_task, name=self.name, completed=False)[0]
             else:
-                next_task = Task.objects.create(user=self.user, app_task=self.app_task, name=self.name, 
-                    start=self.start, stop=next, important=self.important,
+                next_task = Task.objects.create(user=self.user, app_task=self.app_task, app_news=self.app_news, app_expen=self.app_expen, 
+                    name=self.name, start=self.start, stop=next, important=self.important,
                     remind=self.next_remind_time(), repeat=self.repeat, repeat_num=self.repeat_num,
                     repeat_days=self.repeat_days, categories=self.categories, info=self.info)
                 next_task.get_info(ROLE_TODO)
+                if next_task.app_news:
+                    news_get_info(next_task)
+                if next_task.app_expen:
+                    expen_get_info(next_task)
                 if TaskGroup.objects.filter(task=self.id, role=ROLE_TODO).exists():
                     group = TaskGroup.objects.filter(task=self.id, role=ROLE_TODO).get().group
+                    next_task.correct_groups_qty(GIQ_ADD_TASK, group.id)
+                if TaskGroup.objects.filter(task=self.id, role=ROLE_NEWS).exists():
+                    group = TaskGroup.objects.filter(task=self.id, role=ROLE_NEWS).get().group
+                    next_task.correct_groups_qty(GIQ_ADD_TASK, group.id)
+                if TaskGroup.objects.filter(task=self.id, role=ROLE_EXPENSE).exists():
+                    group = TaskGroup.objects.filter(task=self.id, role=ROLE_EXPENSE).get().group
                     next_task.correct_groups_qty(GIQ_ADD_TASK, group.id)
         return next_task
 
