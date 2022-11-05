@@ -5,86 +5,131 @@ A regular call to the API method that provides the operation of various site ser
 import os, requests, time, smtplib, json
 from datetime import datetime
 from email.message import EmailMessage
+from dataclasses import dataclass
+from enum import Enum
 
-def console_log(status, mess=None):
-    print(datetime.now().strftime('%Y.%m.%d %H:%M') + ' ' + status)
-    if mess:
-        print(mess)
+class ApiCallStatus(Enum):
+    ok = 'ok'
+    warning = 'warning'
+    error = 'error'
+    exception = 'exception'
 
-def notify(host, user, pwrd, recipients, status, mess, maintype='text', subtype='plain', subject=None):
-    host = os.environ.get('DJANGO_HOST')
-    if host == 'localhost' and subtype != 'html':
-        return console_log(status, mess)
-    host_mail = os.environ.get('DJANGO_HOST_MAIL')
-    s = smtplib.SMTP(host=host_mail, port=25)
+@dataclass(frozen=True)
+class Params:
+    host: str = os.environ.get('DJANGO_HOST', '')
+    api_host: str = os.environ.get('DJANGO_HOST_API', '')
+    verify: str = os.environ.get('DJANGO_CERT', '')
+    mail_host: str = os.environ.get('DJANGO_HOST_MAIL', '')
+    user: str = os.environ.get('DJANGO_MAIL_USER', '')
+    pwrd: str = os.environ.get('DJANGO_MAIL_PWRD', '')
+    recipients: str = os.environ.get('DJANGO_MAIL_ADMIN', '')
+    api_url: str = api_host + '/api/tasks/check_background_services/?format=json'
+    service_token: str = os.environ.get('DJANGO_SERVICE_TOKEN', '')
+    timer_interval_sec: int = int(os.environ.get('DJANGO_SERVICE_INTERVAL_SEC', 60))
+
+    def headers(self):
+        return {'Authorization': 'Token ' + self.service_token, 'User-Agent': 'Mozilla/5.0'}
+
+""" Notification that do not require email
+"""
+def console_log(status: str, message: str=''):
+    print(f'{datetime.now():%Y.%m.%d %H:%M} {status}')
+    if message:
+        print(message)
+
+""" Email notification
+"""
+def notify(params: Params, status: ApiCallStatus, subject: str, message: str, format: str='plain'):
+    if params.host == 'localhost' and format != 'html':
+        console_log(str(status), message)
+    s = smtplib.SMTP(host=params.mail_host, port=25)
     s.starttls()
-    s.login(user, pwrd)
+    s.login(params.user, params.pwrd)
     msg = EmailMessage()
-    msg['From'] = user
-    msg['To'] = recipients
+    msg['From'] = params.user
+    msg['To'] = params.recipients
+    msg['Subject'] = subject
 
-    if subject:
-        msg['Subject'] = subject
+    if format == 'plain':
+        msg.set_content(f'Background process for host {params.host} (/service/_service.py):\n\n' + message)
     else:
-        msg['Subject'] = 'Services Notificator: ' + status
-
-    if subtype == 'plain':
-        msg.set_content('Background process (/service/_service.py):\n\n' + mess)
-    else:
-        msg.set_content(mess, maintype=maintype, subtype=subtype)
+        msg.set_content(message, maintype='text', subtype=format)
     s.send_message(msg)
     del msg
     s.quit()
 
-if (__name__ == '__main__'):
-    api_host = os.environ.get('DJANGO_HOST_API')
-    service_token = os.environ.get('DJANGO_SERVICE_TOKEN')
-    verify = os.environ.get('DJANGO_CERT')
-    mail_host = os.environ.get('DJANGO_HOST_MAIL')
-    user = os.environ.get('DJANGO_MAIL_USER')
-    pwrd = os.environ.get('DJANGO_MAIL_PWRD')
-    recipients = os.environ.get('DJANGO_MAIL_ADMIN')
-    api_url = api_host + '/api/tasks/check_background_services/?format=json'
-    headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
-    timer_interval_sec = int(os.environ.get('DJANGO_SERVICE_INTERVAL_SEC'))
-    started = True
-    while True:
-        extra_param = ''
-        ret_code = None
-        if started:
-            extra_param = '&started=true'
-        try:
-            resp = requests.get(api_url + extra_param, headers=headers, verify=verify)
-            ret_code = resp.status_code
-        except Exception as ex:
-            subtype = 'plain'
-            if '<html' in str(ex):
-                subtype = 'html'
-            notify(mail_host, user, pwrd, recipients, 'exception', str(ex), maintype='text', subtype=subtype, subject='Server API not available.')
+""" API call
+"""
+def call_api(params, started):
+    extra_param = ''
+    if started:
+        extra_param = '&started=true'
+    resp = None
+    status:ApiCallStatus = ApiCallStatus.ok
+    subject = None
+    message = ''
+    format = 'plain'
+    try:
+        resp = requests.get(params.api_url + extra_param, headers=params.headers(), verify=params.verify)
+    except Exception as ex:
+        status = ApiCallStatus.exception
+        message = str(ex)
+        subject = f'API server {params.api_host} is not available.'
 
-        if ret_code:
+    if not resp or not resp.status_code:
+        if params.host == 'localhost':
+            status = ApiCallStatus.warning
+        else:
+            status = ApiCallStatus.error
+        message = f'API server {params.api_host} is not available.'
+    else:
+        if (resp.status_code != 200):
+            status = ApiCallStatus.error
+            try:
+                message = resp.content.decode()
+            except (UnicodeDecodeError, AttributeError):
+                message = str(resp.content)
+            message = f'{resp.status_code=}. {message}'
+        else:
+            data_str = resp.json()
+            data = json.loads(data_str)
+            if ('result' not in data):
+                status = ApiCallStatus.error
+                message = 'Unexpected API response. Attribute "result" not found: ' + data_str
+            else:
+                if data['result'] != 'ok':
+                    status = ApiCallStatus.error
+                    message = data_str
+
+    if '<html' in message:
+        format = 'html'
+
+    if not subject:
+        subject = f'Background service notification. {status=}'
+
+    return status, subject, message, format
+
+if (__name__ == '__main__'):
+    params = Params()
+    started = True
+    try:
+        while True:
             if started:
-                started = False
                 console_log('started')
             else:
                 console_log('work')
-        
-            if (ret_code != 200):
-                try:
-                    content_str = resp.content.decode()
-                except (UnicodeDecodeError, AttributeError):
-                    content_str = resp.content
-                subtype = 'plain'
-                if '<html' in content_str:
-                    subtype = 'html'
-                notify(mail_host, user, pwrd, recipients, '[x] error ' + str(ret_code), content_str, maintype='text', subtype=subtype)
-            else:
-                data_str = resp.json()
-                data = json.loads(data_str)
-                status = '[x] unexpected response'
-                if ('result' in data):
-                    status = data['result']
-                if (status != 'ok'):
-                    info = json.dumps(data)
-                    notify(mail_host, user, pwrd, recipients, status, info)
-        time.sleep(timer_interval_sec)
+
+            status, subject, message, format = call_api(params, started)
+
+            if status != ApiCallStatus.ok:
+                if status == ApiCallStatus.warning:
+                    console_log(str(status), message)
+                else:
+                    notify(params, status, subject, message, format)
+
+            if started:
+                started = False
+
+            time.sleep(params.timer_interval_sec)
+    except Exception as ex:
+        notify(params, ApiCallStatus.exception, 'Background service interrupted', str(ex))
