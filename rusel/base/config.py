@@ -45,7 +45,7 @@ class Config:
             return False
 
     def set_view(self, request, detail=False):
-        if not self.app:
+        if not self.app or not request.user.is_authenticated:
             return
         self.cur_view_group = None
         self.nav_item = None
@@ -55,7 +55,6 @@ class Config:
         view_id = ''
         if (self.app == APP_ALL):
             common_url = reverse('index')
-            view_id = 'search'
         else:
             common_url = reverse(self.app + ':list')
         if self.main_view:

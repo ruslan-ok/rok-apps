@@ -35,12 +35,16 @@ class BaseListView(ListView, Context):
     def __init__(self, config, cur_role, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.set_config(config, cur_role)
-        self.template_name = 'base/list.html'
+
+    def get_template_names(self):
+        if not self.request.user.is_authenticated:
+            return []
+        return ['base/list.html']
 
     def get(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            raise Http404
         ret = super().get(request, *args, **kwargs)
+        if not request.user.is_authenticated:
+            return ret
         nav_role = Task.get_nav_role(self.config.app)
         cur_role = self.config.get_cur_role()
         if nav_role and (nav_role != cur_role):
@@ -51,6 +55,8 @@ class BaseListView(ListView, Context):
         return ret
 
     def get_queryset(self):
+        if not self.request.user.is_authenticated:
+            return []
         query = None
         if (self.request.method == 'GET'):
             query = self.request.GET.get('q')
@@ -93,6 +99,8 @@ class BaseListView(ListView, Context):
         self.config.set_view(self.request)
         self.object = None
         context = super().get_context_data(**kwargs)
+        if not self.request.user.is_authenticated:
+            return context
         use_sub_groups = self.config.use_sub_groups and self.config.cur_view_group.use_sub_groups
         context['use_sub_groups'] = use_sub_groups
         if use_sub_groups:
@@ -114,7 +122,7 @@ class BaseListView(ListView, Context):
             search_in_files_result = search_in_files(self.request.user, app, folder, query)
             context['files_list'] = search_in_files_result
             search_qty = 0
-            if not app:
+            if not app and self.object_list:
                 search_qty += len(self.object_list)
             search_qty += len(search_in_files_result)
         nav_items = self.get_nav_items()
@@ -228,19 +236,14 @@ class BaseListView(ListView, Context):
             return data
         return self.sort_data(data, self.config.cur_view_group.items_sort)
 
-    def get_base_dataset(self):
+    def get_base_dataset(self, query):
         nav_role = Task.get_nav_role(self.config.app)
         if nav_role and (nav_role != self.config.get_cur_role()):
             if (self.config.group_entity in self.request.GET):
                 active_nav_item_id = self.request.GET[self.config.group_entity]
                 Task.set_active_nav_item(self.request.user.id, self.config.app, active_nav_item_id)
         self.config.set_view(self.request)
-        query = None
-        if (self.request.method == 'GET'):
-            query = self.request.GET.get('q')
         nav_item = None
-
-        nav_role = Task.get_nav_role(self.config.app)
         cur_role = self.config.get_cur_role()
         if nav_role and (nav_role != cur_role):
             if (self.config.group_entity in self.request.GET):
@@ -249,12 +252,10 @@ class BaseListView(ListView, Context):
             else:
                 nav_item = Task.get_active_nav_item(self.request.user.id, self.config.app)
 
-        if nav_role and (nav_role != self.config.get_cur_role()):
-            nav_item = Task.get_active_nav_item(self.request.user.id, self.config.app)
         return self.get_dataset(self.config.cur_view_group, query, nav_item)
 
     def get_filtered_items(self, query):
-        ret = self.get_base_dataset()
+        ret = self.get_base_dataset(query)
         search_mode = get_search_mode(query)
         lookups = None
         if (search_mode == 0):

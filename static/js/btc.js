@@ -11,10 +11,6 @@ function runAPI(api, callback, method='GET') {
 }
 
 function get_btc_price() {
-    var el_price = document.getElementById('btc_price_id');
-    if (!el_price)
-        return;
-
     var el_amount = document.getElementById('btc_amount_id');
     if (!el_amount)
         return;
@@ -24,8 +20,7 @@ function get_btc_price() {
         if (this.readyState == 4 && this.status == 200) {
             let obj = JSON.parse(this.response);
             if (obj.status == 'success') {
-                el_price.innerText = 'BTC price: ' + Math.round(parseFloat(obj.data.price)).toLocaleString('ru-RU') + '$';
-                el_amount.innerText = 'BTC amount: ' + Math.round(parseFloat(0.07767845 * obj.data.price)).toLocaleString('ru-RU') + '$';
+                el_amount.innerText = Math.round(parseFloat(0.07767845 * obj.data.price)).toLocaleString('ru-RU') + '$';
             }
         }
     };

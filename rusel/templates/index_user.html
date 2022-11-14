@@ -1,63 +1,45 @@
-{% extends "base/page_content.html" %}
+{% extends "base/main_page.html" %}
 {% load static i18n %}
 
 {% block extrastyle %}
   {{ block.super }}
+  <link href="{% static 'scss/tune.css' %}" rel="stylesheet">
   <link href="{% static 'scss/home.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block main %}
-  <div class="container-fluid">
-    <div class="w3-row w3-padding">
-      {% if user.username == 'ruslan.ok' %}
-        {% if debug %}
-          <h6 class="text-danger mb-1">Warning: Debug mode</h6>
-        {% endif %}
-
-        {% include "widgets/weather.html" %}
-
-        <div class="row mt-3">
-          <div class="col-3">
-            {#<a href="{% url 'trip:main' %}">{{ trip_summary|safe }}</a>#}
-            <a href="https://cex.io/prices"><span id="btc_price_id">BTC price</span></a><br>
-            <a href="https://www.blockchain.com/btc/address/1CWSc1yEyPPAsRo6bYNE6cVgVhsbdjd74R"><span id="btc_amount_id">BTC amount</span></a>
-          </div>
-          <div class="col">
-            <table class="info-table">
-              <tr>
-                  <th>Service</th>
-                  {% for dt in health.dates %}
-                      <th> {{ dt|date:'d b' }} </th>
-                  {% endfor %}
-              </tr>
-              {% for service in health.services %}
-                  <tr>
-                      <td class="bi-{{ service.icon }}"><span class="px-3">{{ service.short_name }}</span></td>
-                      {% for day in service.days %}
-                          <td class="text-center"><a href="{% url 'logs:list' %}?{{ service.href }}&day={{ day.href }}"><i class="bi-{{ day.icon }}" style="color:{{ day.color }}"></i></a></td>
-                      {% endfor %}
-                  </tr>
-              {% endfor %}
-            </table>
-          </div>
-        </div>
-      {% endif %}
-
-      <div class="row">
-        <div class="col">
-          {% if last_visited %}
-            <h4 class="mt-5">{% trans 'last visited pages'|capfirst %}</h4>
-            <table class="info-table">
-              <tr> <th>{% trans 'date'|capfirst %}</th> <th>{% trans 'time'|capfirst %}</th> <th> </th> <th>{% trans 'page'|capfirst %}</th> </tr>
-              {% for page in last_visited %}
-                <tr> <td>{{ page.stamp|date:'d.m.Y' }}</td> <td>{{ page.stamp|date:'G:i' }}</td>
-                  <td><i class="bi-{{ page.icon }}"></i></td>   
-                  <td><a href="{{ page.reverse_url }}">{{ page.title }}</a></td> </tr>
-              {% endfor %}
-            </table>
-          {% endif %}
-        </div>
-      </div>
-    </div>
+<div class="home-container">
+  <div class="home-widget style-1 theme-20">
+    {% include "widgets/task_list.html" %}
   </div>
+
+  <div class="home-widget style-5">
+    Hello
+  </div>
+
+  <div class="home-widget style-4">
+    Hello
+  </div>
+
+  <div class="home-widget style-3">
+    Hello
+  </div>
+
+  <div class="home-widget style-3">
+    Hello
+  </div>
+
+  <div class="home-widget style-3">
+    Hello
+  </div>
+
+  <div class="home-widget style-3">
+    Hello
+  </div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'js/list.js' %}"></script>
 {% endblock %}

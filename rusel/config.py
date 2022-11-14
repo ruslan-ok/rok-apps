@@ -3,17 +3,20 @@ from task.const import *
 
 app_config = {
     'name': APP_ALL,
-    'app_title': _('search results'),
-    'icon': 'search',
-    'role': ROLE_SEARCH_RESULTS,
+    'app_title': _('home page'),
+    'icon': 'house',
+    'main_view': 'home',
+    'use_selector': True,
+    'use_important': True,
     'sort': [
         ('name', _('name')),
         ('created', _('create date')),
     ],
     'views': {
-        'search': {
-            'icon': 'search',
-            'title': 'search results',
+        'home': {
+            'icon': 'house',
+            'title': _('home page'),
+            'use_sub_groups': True,
         },
     }
 }

@@ -1,0 +1,32 @@
+{% extends "base/page.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link href="{% static 'iziToast/css/iziToast.min.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block header_content %}
+  {% include 'base/header.html' %}
+{% endblock %}
+
+{% block content %}
+  {% include 'base/sidebar_top.html' %}
+
+  <div class="container-xxl my-md-2 px-0">
+    <main>
+      {% block main %}{% endblock %}
+    </main>
+  </div>
+{% endblock %}
+
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'iziToast/js/iziToast.min.js' %}"></script>
+  <script src="{% static 'js/manage-groups.js' %}"></script>
+  <script src="{% static 'js/build-tree.js' %}"></script>
+  <script>
+    buildTree('groups-tree');
+  </script>
+  <script src="{% static 'js/btc.js' %}"></script>
+{% endblock %}
