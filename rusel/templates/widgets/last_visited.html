@@ -1,0 +1,11 @@
+{% load i18n %}
+
+<h6 class="">{% trans 'last visited pages'|capfirst %}</h6>
+<table class="info-table">
+  <tr> <th>{% trans 'date'|capfirst %}</th> <th>{% trans 'time'|capfirst %}</th> <th> </th> <th>{% trans 'page'|capfirst %}</th> </tr>
+  {% for page in last_visited %}
+    <tr> <td>{{ page.stamp|date:'d.m.Y' }}</td> <td>{{ page.stamp|date:'G:i' }}</td>
+      <td><i class="bi-{{ page.icon }}"></i></td>   
+      <td><a href="{{ page.reverse_url }}">{{ page.title }}</a></td> </tr>
+  {% endfor %}
+</table>

@@ -8,10 +8,9 @@
     min-height: 50px;
     display: flex;
     flex-direction: column;
+    align-self: flex-start !important;
     margin: 5px;
     padding: 5px;
-    border-style: solid;
-    border-width: 1px;
 
     .list-content {
       font-size: small;

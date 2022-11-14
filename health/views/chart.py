@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from django.http import Http404
 from django.views.generic import TemplateView
 from django.utils.translation import gettext_lazy as _
@@ -68,7 +69,7 @@ class TempView(TemplateView, Context):
         return context
 
 #----------------------------------
-def get_data_from_db(user, name):
+def get_data_from_db(user, name, compact=False):
     x = []
     y = []
     min_value = max_value = min_date = max_date = last_value = None
@@ -81,6 +82,8 @@ def get_data_from_db(user, name):
             max_value = values[len(values)-1].bio_weight
             min_date = values[0].event.date()
             max_date = values[len(values)-1].event.date()
+            if compact:
+                min_date = max_date.replace(year=(max_date.year-1))
             last_value = data[len(data)-1].bio_weight
     elif (name == 'waist'):
         data = Task.objects.filter(user=user.id, app_health=NUM_ROLE_MARKER).exclude(bio_waist=None).exclude(bio_waist=0).order_by('event')
@@ -96,7 +99,10 @@ def get_data_from_db(user, name):
     
     cur_day = average = qty = None
     for b in data:
-        if cur_day and (cur_day == b.event.date()):
+        work_date = b.event.date()
+        if work_date < min_date:
+            continue
+        if cur_day and (cur_day == work_date):
             qty += 1
             if (name == 'weight'):
                 average += b.bio_weight
@@ -112,7 +118,7 @@ def get_data_from_db(user, name):
                 else:
                     y.append(average / qty)
             qty = 1
-            cur_day = b.event.date()
+            cur_day = work_date
             if (name == 'weight'):
                 average = b.bio_weight
             elif (name == 'waist'):
@@ -124,25 +130,25 @@ def get_data_from_db(user, name):
 def approximate_months(x, y):
     ret_x = []
     ret_y = []
-    cur_month = None
+    cur_period = None
     qty = average = 0
     for i in range(len(y)):
-        month = str(x[i].year) + '.' + str(x[i].month)
-        if cur_month and (cur_month == month):
+        period = str(x[i].year) + '.' + str(x[i].month)
+        if cur_period and (cur_period == period):
             qty += 1
             average += y[i]
         else:
-            if cur_month:
-                ret_x.append(cur_month)
+            if cur_period:
+                ret_x.append(cur_period)
                 value = round(average / qty, 1)
                 ret_y.append(str(value))
             qty = 1
-            cur_month = month
+            cur_period = period
             average = y[i]
     return ret_x, ret_y
 
-def build_weight_chart(user):
-    x, y, min_value, max_value, min_date, max_date, last_vaue = get_data_from_db(user, 'weight')
+def build_weight_chart(user, compact=False):
+    x, y, min_value, max_value, min_date, max_date, last_vaue = get_data_from_db(user, 'weight', compact=compact)
     x, y = approximate_months(x, y)
 
     data = {

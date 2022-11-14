@@ -9,32 +9,40 @@
 
 {% block main %}
 <div class="home-container">
-  <div class="home-widget style-1 theme-20">
+  <div class="home-widget style-1 theme-14">
     {% include "widgets/task_list.html" %}
   </div>
 
-  <div class="home-widget style-5">
-    Hello
-  </div>
+  {% if last_visited %}
+    <div class="home-widget style-3">
+      {% include "widgets/last_visited.html" %}
+    </div>
+  {% endif %}
+  
+  {% if health %}
+    <div class="home-widget style-3">
+      {% include "widgets/logs.html" %}
+    </div>
+  {% endif %}
 
   <div class="home-widget style-4">
-    Hello
+    {% include "widgets/health.html" %}
   </div>
 
   <div class="home-widget style-3">
-    Hello
+    Crypto
   </div>
 
   <div class="home-widget style-3">
-    Hello
+    Rates
+  </div>
+
+  <div class="home-widget style-5" id="id-weather-forecast">
+    Weather
   </div>
 
   <div class="home-widget style-3">
-    Hello
-  </div>
-
-  <div class="home-widget style-3">
-    Hello
+    Apache stat
   </div>
 </div>
 {% endblock %}
@@ -42,4 +50,13 @@
 {% block extrascript %}
   {{ block.super }}
   <script src="{% static 'js/list.js' %}"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-adapter-moment/1.0.0/chartjs-adapter-moment.min.js"></script>
+  <script src="{% static 'js/health.js' %}"></script>
+  <script>
+      let data = String.raw`{{ chart_data|safe }}`
+      Chart.defaults.elements.point.radius = 0;
+      buildChart(data);
+  </script>
 {% endblock %}
