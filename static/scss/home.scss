@@ -1,9 +1,14 @@
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 .home-container {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
 
-  .home-widget {
+  .hp-widget {
     min-width: 100px;
     min-height: 50px;
     display: flex;
@@ -12,197 +17,14 @@
     margin: 5px;
     padding: 5px;
 
-    .list-content {
-      font-size: small;
-      display: flex;
-      flex-direction: column;
-      width: 100% !important;
-      margin:0 auto;
-      padding-top: 10px;
-
-      div {
-        .sub-group {
-          border-radius: 5px;
-          background-color: white;
-          color: #3f697e;
-          margin-left: 15px;
-          margin-bottom: 5px;
-          padding: 4px 7px;
-          font-size: 0.9rem;
-          &__name {
-            margin: 0 5px;
-          }
-        }
-      }
-
-      ul {
-        list-style-type: none;
-        padding: 0 15px;
-        overflow: auto;
-        margin-top: 15px;
-
-        li.list-item {
-          display: flex !important;
-          justify-content: space-between !important;
-          min-height: 50px;
-          margin-bottom: 0.25rem !important;
-          border-radius: 5px;
-          background-color: white;
-      
-          button.left-icon, a.left-icon {
-            cursor: pointer;
-            padding: 9px;
-            font-size: 1.1rem;
-            border: none;
-            background-color: transparent;
-            color: #447e9b;
-          }
-
-          a.container {
-            display: flex;
-            min-height: 50px;
-            width: 100%;
-            padding: 0;
-
-            .info {
-              display: flex;
-              flex-direction: column;
-              justify-content: center;
-
-              .name {
-                color: #2b576d;
-
-                &.completed {
-                    text-decoration: line-through;
-                }
-
-                .roles {
-                    padding-left: 15px;
-                    object {
-                        font-size: 0.6rem;
-
-                        a.role-icon i {
-                            padding: 3px 0;
-                            color: mediumseagreen;
-                        }
-                    }
-                }
-              }
-
-              .descr {
-                display: flex !important;
-                flex-wrap: wrap;
-                margin-bottom: 5px;
-                
-                .inline {
-                    display: flex !important;
-                    align-items: center;
-                    font-size: 0.6rem;
-                    padding: 0 3px;
-                    border-radius: 2px;
-                    margin-right: 2px;
-
-                    .actual { color: #465efc !important; }
-                    .expired { color: #af2e20 !important; }
-                    .category-design-green { color: rgb(37, 126, 32); }
-                    .category-design-blue { color: rgb(0, 120, 153); }
-                    .category-design-red { color: rgb(208, 27, 42); }
-                    .category-design-purple { color: rgb(125, 87, 178); }
-                    .category-design-yellow { color: rgb(122, 116, 0); }
-                    .category-design-orange { color: rgb(163, 90, 0); }
-                    i {
-                        font-size: 0.6rem;
-                        padding: 3px 0;
-                    }
-                    .label {
-                        padding: 0 2px;
-                    }
-                }
-      }
-            }
-          }
-
-          button.right-icon {
-            cursor: pointer;
-            padding: 9px;
-            border: none;
-            background-color: transparent;
-            color: #447e9b;
-          }
-        }
-      }
+    .loader {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #417690;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 2s linear infinite;
     }
-
-  }
-
-  /*.style-1 {
-    background-color: antiquewhite;
-  }
-
-  .style-2 {
-    background-color: aquamarine;
-  }
-
-  .style-3 {
-    background-color: chartreuse;
-  }
-
-  .style-4 {
-    background-color: cornsilk;
-  }
-
-  .style-5 {
-    background-color: honeydew;
-  }*/
-
-  .wallet-amount {
-    color: black;
   }
 }
-
-
-
-.info-table {
-    font-size: 15px;
-    font-family: "Arial", "sans-serif";
-    line-height: normal;
-    color: #333;
-    box-sizing: inherit;
-    padding: 0;
-    margin: 0 0 2rem 0;
-    border-collapse: collapse;
-    border-color: #ccc;
-    tbody {
-      -webkit-text-size-adjust: 100%;
-      font-family: "Arial", "sans-serif";
-      margin: 0;
-      tr {
-        font-family: "Arial", "sans-serif";
-        th {
-          font-weight: 600;
-          text-align: left;
-          font-size: 13px;
-          line-height: 16px;
-          border-bottom: 1px solid #eee;
-          border-bottom-width: 1px;
-          border-bottom-style: solid;
-          border-bottom-color: rgb(238, 238, 238);
-          vertical-align: top;
-          padding: 8px;
-          font-family: "Roboto", "Lucida Grande", Verdana, Arial, sans-serif;
-        }
-        td {
-          font-size: 13px;
-          line-height: 16px;
-          border-bottom: 1px solid #eee;
-          border-bottom-width: 1px;
-          border-bottom-style: solid;
-          border-bottom-color: rgb(238, 238, 238);
-          vertical-align: top;
-          padding: 8px;
-          font-family: "Roboto", "Lucida Grande", Verdana, Arial, sans-serif;
-        }      
-      }    
-    }
-  }
   

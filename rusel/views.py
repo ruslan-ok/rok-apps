@@ -1,12 +1,6 @@
-import json
-from datetime import datetime, timedelta
-from django.db.models import Q
-from task.const import ROLE_ACCOUNT, NUM_ROLE_TODO
-from task.models import Task, VisitedHistory
-from logs.services.overview import OverviewLogData
-from health.views.chart import build_weight_chart
+from task.const import ROLE_ACCOUNT
+from task.models import Task
 from rusel.base.views import BaseListView
-from rusel.context import MAX_LAST_VISITED
 from rusel.config import app_config
 from rusel.app_doc import get_app_doc, get_app_thumbnail
 
@@ -30,20 +24,20 @@ class ListView(BaseListView):
         return ['index_user.html']
 
     def get_queryset(self):
-        data = super().get_queryset()
-        if data:
-            lookups = Q(stop__lte=(datetime.now() + timedelta(1))) | Q(in_my_day=True) | Q(important=True)
-            return data.filter(num_role=NUM_ROLE_TODO).filter(lookups).exclude(completed=True)
+        return []
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        hp_widgets = []
+        hp_widgets.append({'id': 'todo', 'css': 'todo', 'js': 'todo', })
+        hp_widgets.append({'id': 'visited'})
         if (self.request.user.username == 'ruslan.ok'):
-            context['last_visited'] = VisitedHistory.objects.filter(user=self.request.user.id).order_by('-stamp')[:MAX_LAST_VISITED]
-            ov = OverviewLogData()
-            context['health'] = ov.get_health(5)
-            data = build_weight_chart(self.request.user, compact=True)
-            s_data = json.dumps(data)
-            context['chart_data'] = s_data
+            hp_widgets.append({'id': 'logs'})
+            hp_widgets.append({'id': 'weather'})
+            hp_widgets.append({'id': 'crypto'})
+            hp_widgets.append({'id': 'currency'})
+            hp_widgets.append({'id': 'health'})
+        context['hp_widgets'] = hp_widgets
         return context
 
 def get_doc(request, role, pk, fname):

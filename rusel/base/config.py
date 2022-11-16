@@ -60,11 +60,13 @@ class Config:
         if self.main_view:
             view_id = self.main_view
         if (request.path != common_url):
-            view_id = request.path.split(common_url)[1].split('?')[0].split('/')[0]
+            url_app = request.path.split(common_url)[1].split('?')[0].split('/')[0]
+            if url_app != 'api':
+                view_id = url_app
             if detail and self.is_num(view_id):
                 view_id = request.path.split(common_url)[1].split('?')[0].split(view_id)[0]
 
-            if view_id and (view_id in self.views):
+            if view_id and (view_id != 'home') and (view_id in self.views):
                 if ('page_url' in self.views[view_id]) and (self.views[view_id]['page_url'] == view_id):
                     determinator = 'view'
                 else:

@@ -5,58 +5,29 @@
   {{ block.super }}
   <link href="{% static 'scss/tune.css' %}" rel="stylesheet">
   <link href="{% static 'scss/home.css' %}" rel="stylesheet">
+  {% for widget in hp_widgets %}
+    {% if widget.css %}
+      <link href="/static/scss/hp_widgets/{{widget.css}}.css" rel="stylesheet">
+    {% endif %}
+  {% endfor %}
 {% endblock %}
 
 {% block main %}
 <div class="home-container">
-  <div class="home-widget style-1 theme-14">
-    {% include "widgets/task_list.html" %}
-  </div>
-
-  {% if last_visited %}
-    <div class="home-widget style-3">
-      {% include "widgets/last_visited.html" %}
+  {% for widget in hp_widgets %}
+    <div class="hp-widget" id="id_hp_widget_{{widget.id}}">
+      <div class="loader"></div>
     </div>
-  {% endif %}
-  
-  {% if health %}
-    <div class="home-widget style-3">
-      {% include "widgets/logs.html" %}
-    </div>
-  {% endif %}
-
-  <div class="home-widget style-4">
-    {% include "widgets/health.html" %}
-  </div>
-
-  <div class="home-widget style-3">
-    Crypto
-  </div>
-
-  <div class="home-widget style-3">
-    Rates
-  </div>
-
-  <div class="home-widget style-5" id="id-weather-forecast">
-    Weather
-  </div>
-
-  <div class="home-widget style-3">
-    Apache stat
-  </div>
+  {% endfor %}
 </div>
 {% endblock %}
 
 {% block extrascript %}
   {{ block.super }}
-  <script src="{% static 'js/list.js' %}"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-adapter-moment/1.0.0/chartjs-adapter-moment.min.js"></script>
-  <script src="{% static 'js/health.js' %}"></script>
-  <script>
-      let data = String.raw`{{ chart_data|safe }}`
-      Chart.defaults.elements.point.radius = 0;
-      buildChart(data);
-  </script>
+  {% for widget in hp_widgets %}
+    {% if widget.js %}
+      <script src="/static/js/hp_widgets/{{widget.js}}.js"></script>
+    {% endif %}
+  {% endfor %}
+  <script src="{% static 'js/hp_widgets/load_hp_widgets.js' %}"></script>
 {% endblock %}
