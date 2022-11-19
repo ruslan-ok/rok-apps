@@ -13,7 +13,7 @@ app_config = {
             'role': ROLE_MARKER,
             'role_loc': pgettext_lazy('add ...', 'marker'),
             'icon': 'heart', 
-            'title': _('biomarkers'),
+            'title': _('Biomarkers'),
             'limit_list': 10,
             'sort': [
                 ('event', _('event date')),
@@ -24,7 +24,7 @@ app_config = {
             'role': ROLE_INCIDENT,
             'role_loc': pgettext_lazy('add ...', 'incident'),
             'icon': 'thermometer-half', 
-            'title': _('incidents'),
+            'title': _('Incidents'),
             'sort': [
                 ('name', _('name')),
                 ('start', _('period')),
@@ -34,19 +34,19 @@ app_config = {
         'weight': {
             'role': ROLE_CHART_WEIGHT,
             'icon': 'graph-up', 
-            'title': _('weight chart'),
+            'title': _('Weight chart'),
             'hide_qty': True,
         },
         'waist': {
             'role': ROLE_CHART_WAIST,
             'icon': 'graph-up', 
-            'title': _('waist chart'),
+            'title': _('Waist chart'),
             'hide_qty': True,
         },
         'temp': {
             'role': ROLE_CHART_TEMP,
             'icon': 'graph-up', 
-            'title': _('temperature chart'),
+            'title': _('Temperature chart'),
             'hide_qty': True,
         },
     }
