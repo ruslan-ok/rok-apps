@@ -109,7 +109,7 @@ class Context:
                 'id': view_id, 
                 'url': url, 
                 'icon': value['icon'], 
-                'title': _(value['title']).capitalize(),
+                'title': _(value['title']),
                 'qty': qty,
                 'active': active,
                 'search_qty': search_qty,

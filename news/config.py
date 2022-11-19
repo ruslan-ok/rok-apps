@@ -17,7 +17,7 @@ app_config = {
     'views': {
         'all': {
             'icon': 'infinity',
-            'title': _('all'),
+            'title': _('All'),
         },
     }
 }
