@@ -1,16 +1,10 @@
-def get_logs():
-    context = {'widget_id': 'logs'}
-    template_name = None
-    return template_name, context
+from task.models import VisitedHistory
+from rusel.context import MAX_LAST_VISITED
 
-def get_weather():
-    context = {'widget_id': 'weather'}
-    template_name = None
-    return template_name, context
-
-def get_visited():
-    context = {'widget_id': 'visited'}
-    template_name = None
+def get_visited(request):
+    last_visited = VisitedHistory.objects.filter(user=request.user.id).order_by('-stamp')[:MAX_LAST_VISITED]
+    context = {'last_visited': last_visited}
+    template_name = 'widgets/visited.html'
     return template_name, context
 
 def get_crypto():
@@ -23,7 +17,8 @@ def get_currency():
     template_name = None
     return template_name, context
 
-def get_health():
-    context = {'widget_id': 'health'}
+def get_weather():
+    context = {'widget_id': 'weather'}
     template_name = None
     return template_name, context
+

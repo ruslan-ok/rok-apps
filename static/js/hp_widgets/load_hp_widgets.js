@@ -4,8 +4,11 @@ document.querySelectorAll('.hp-widget').forEach(function(el) {
     const url = window.location.protocol + '//' + window.location.host + api;
     let xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function() { 
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
             el.innerHTML = xmlHttp.responseText;
+            //window.document.getElementById('after_load_widget_' + id);
+            sayHello();
+        }
     }
     xmlHttp.open("GET", url, true);
     xmlHttp.send(null);
