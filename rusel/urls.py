@@ -41,6 +41,7 @@ urlpatterns = i18n_patterns(
     path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
     path('api/',    include(api_router.urls)),
     path('api/get_widget/', api_widget.get_widget, name='get_widget'),
+    path('api/get_chart_data/', api_widget.get_chart_data, name='get_chart_data'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('<str:role>/<int:pk>/doc/<str:fname>', views.get_doc, name='doc'),
     path('<str:role>/<int:pk>/thumbnail/<str:fname>', views.get_thumbnail, name='thumbnail'),

@@ -1,7 +1,5 @@
 const scripts = [
-    'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js',
     'https://cdn.jsdelivr.net/npm/chart.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/chartjs-adapter-moment/1.0.0/chartjs-adapter-moment.min.js',
 ];
 
 scripts.forEach(x => {
@@ -10,19 +8,20 @@ scripts.forEach(x => {
     document.body.appendChild(script);
 })
 
-let dataEl = window.document.getElementById('chartData');
-if (dataEl) {
-    const data = dataEl.innerText;
-    const jdata = JSON.parse(data);
-    const ctx = document.getElementById('healthChart').getContext('2d');
-    Chart.defaults.elements.point.radius = 0;
-    new Chart(ctx, jdata);
-}
-
-function getChartData() {
-    console.log('getChartData()');
-}
-
-function sayHello() {
-    alert('hello');
+function buildChart(mark) {
+    const api = '/api/get_chart_data/?mark=' + mark;
+    const url = window.location.protocol + '//' + window.location.host + api;
+    let xmlHttp = new XMLHttpRequest();
+    xmlHttp.responseType = 'json';
+    xmlHttp.onreadystatechange = function() { 
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+            data = xmlHttp.response;
+            const chartEl = document.getElementById('healthChart');
+            const ctx = chartEl.getContext('2d');
+            new Chart(ctx, data);
+            chartEl.parentNode.removeChild(chartEl.parentNode.firstElementChild);
+        }
+    }
+    xmlHttp.open("GET", url, true);
+    xmlHttp.send(null);
 }

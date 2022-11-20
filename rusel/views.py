@@ -34,9 +34,9 @@ class ListView(BaseListView):
         if (self.request.user.username == 'ruslan.ok'):
             # hp_widgets.append({'id': 'logs', 'css': 'info-table', })
             # hp_widgets.append({'id': 'weather'})
-            # hp_widgets.append({'id': 'crypto'})
+            hp_widgets.append({'id': 'crypto'})
             # hp_widgets.append({'id': 'currency'})
-            hp_widgets.append({'id': 'health', 'js': 'health', })
+            # hp_widgets.append({'id': 'health', 'js': 'health', })
         context['hp_widgets'] = hp_widgets
         return context
 

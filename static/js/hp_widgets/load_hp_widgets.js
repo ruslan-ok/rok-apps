@@ -6,8 +6,8 @@ document.querySelectorAll('.hp-widget').forEach(function(el) {
     xmlHttp.onreadystatechange = function() { 
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
             el.innerHTML = xmlHttp.responseText;
-            //window.document.getElementById('after_load_widget_' + id);
-            sayHello();
+            if (id == 'health')
+                buildChart('weight_last');
         }
     }
     xmlHttp.open("GET", url, true);
