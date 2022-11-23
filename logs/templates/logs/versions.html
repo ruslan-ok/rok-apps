@@ -4,10 +4,10 @@
 {% block extrastyle %}
   {{ block.super }}
   <link href="{% static 'scss/home.css' %}" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.2/dist/leaflet.css"
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@latest/dist/leaflet.css"
      integrity="sha256-sA+zWATbFveLLNqWO2gtiw3HL/lh1giY/Inf1BJ0z14="
      crossorigin=""/>
-  <script src="https://unpkg.com/leaflet@1.9.2/dist/leaflet.js"
+  <script src="https://unpkg.com/leaflet@latest/dist/leaflet.js"
      integrity="sha256-o9N1jGDZrf5tS+Ft4gbIK7mYMipq9lqpVJ91xHSyKhg="
      crossorigin=""></script>
 {% endblock %}
@@ -27,7 +27,7 @@
             <tr> <td> MySQL  </td> <td> {{ mysql_version }} </td> <td><a href="https://dev.mysql.com/downloads/mysql/">dev.mysql.com</a></td> </tr>
             <tr> <td> hMailServer  </td> <td> {{ hmail_version }} </td> <td><a href="https://www.hmailserver.com/download">hmailserver.com</a></td> </tr>
             <tr> <td> Bootstrap </td> <td id="id_bootstrap_version"></td> <td><a href="https://getbootstrap.com/docs/getting-started/">getbootstrap.com</a></td> </tr>
-            <tr> <td> Firebase </td> <td> {{ firebase_version }} </td> <td><a href="https://firebase.google.com/support/release-notes/admin/python">firebase.google.com</a></td> </tr>
+            <tr> <td> Firebase </td> <td> {{ firebase_version }} </td> <td><a href="https://firebase.google.com/support/release-notes/js">firebase.google.com</a></td> </tr>
             <tr> <td> iziToast </td> <td> {{ izitoast_version }} </td> <td><a href="https://izitoast.marcelodolza.com/">izitoast.marcelodolza.com</a></td> </tr>
             <tr> <td> Swiper </td> <td> {{ swiper_version }} </td> <td><a href="https://swiperjs.com/changelog">swiperjs.com</a></td> </tr>
             <tr> <td> Leaflet </td> <td id="id_leaflet_version"></td> <td><a href="https://leafletjs.com/download.html">leafletjs.com</a></td> </tr>

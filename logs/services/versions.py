@@ -10,8 +10,8 @@ class VersionsLogData():
         context['python_version'] = python_version()
         context['django_version'] = '{}.{}.{} {}'.format(*django.VERSION)
         context['drf_version'] = '{}'.format(rest_framework.VERSION)
-        host = os.environ.get('DJANGO_HOST')
-        api_host = os.environ.get('DJANGO_HOST_API')
+        host = os.environ.get('DJANGO_HOST', '')
+        api_host = os.environ.get('DJANGO_HOST_API', '')
         if host != 'localhost':
             response = urllib.request.urlopen(api_host)
             versions = response.headers['Server'].split(' ')
@@ -43,8 +43,8 @@ def get_izitoast_ver():
     return '1.4.0'
 
 def get_swiper_ver():
-    return '8.4.4'
+    return '8.4.5'
 
 def get_firebase_ver():
-    return '5.2.0'
+    return '7.16.1'
 

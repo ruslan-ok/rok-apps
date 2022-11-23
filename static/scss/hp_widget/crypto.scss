@@ -1,0 +1,20 @@
+.crypto-container {
+    width: 100%;
+
+    div.loader {
+
+    }
+    div.cripto-current {
+        display: flex;
+        flex-direction: column;
+
+        a.crypto-price {
+            font-size: 1rem;
+            text-align: right;
+        }
+        a.crypto-amount {
+            font-size: 0.7rem;
+            text-align: right;
+        }
+    }
+}

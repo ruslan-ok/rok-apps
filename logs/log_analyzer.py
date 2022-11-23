@@ -10,7 +10,7 @@ Exported functions:
 ripe()
 process(log)
 """
-import re, datetime, requests
+import re, datetime, requests, os
 from pathlib import Path
 from logs.service_log import ServiceLog
 from service.site_service import SiteService
@@ -189,11 +189,9 @@ class LogAnalyzer(SiteService):
             self.save_record(host_id, record)
 
 def get_host_info(host):
-    if (datetime.date.today() < datetime.date(2021, 4, 18)):
-        # Bad response for host x.x.x.x {'success': False, 'message': "you've hit the monthly limit"}
-        return {'ip': host}
-
-    resp = requests.get('http://ipwhois.app/json/' + host)
-    # info = resp.content.decode('utf-8')
-    data = resp.json()
-    return data
+    api_whois = os.getenv('API_WHOIS')
+    if api_whois:
+        resp = requests.get(api_whois + host)
+        data = resp.json()
+        return data
+    return {'ip': host}

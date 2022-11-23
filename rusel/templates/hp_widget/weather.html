@@ -1,0 +1,10 @@
+{% load i18n %}
+
+<h6 class="">{% trans 'Weather' %}</h6>
+<div class="weather-container">
+    <div class="loader"></div>
+    <div class="weather-current">
+        <a class="temp" href="{{ weather_url }}">{{ temp_value }}</a>
+    </div>
+    <canvas id="weatherChart"></canvas>
+</div>

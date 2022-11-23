@@ -137,7 +137,7 @@ def build_weight_chart(user_id: int):
     }
     return data
 
-def build_weight_last_chart(user_id: int):
+def build_health_chart(user_id: int):
     x = []
     y = []
     values = Task.objects.filter(user=user_id, app_health=NUM_ROLE_MARKER).exclude(bio_weight=None).exclude(bio_weight=0).order_by('-event')
@@ -230,7 +230,7 @@ def get_chart_data(user_id: int, mark: str):
     data = {}
     match mark:
         case 'weight': data = build_weight_chart(user_id)
-        case 'weight_last': data = build_weight_last_chart(user_id)
         case 'waist': data = build_waist_chart(user_id)
         case 'temp': data = build_temp_chart(user_id)
+        case 'health': data = build_health_chart(user_id)
     return data

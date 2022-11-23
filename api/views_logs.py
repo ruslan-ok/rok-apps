@@ -49,15 +49,23 @@ class LogsViewSet(viewsets.ModelViewSet):
 
     @action(detail=False)
     def get_btc_price(self, request, pk=None):
-        api_key = os.environ.get('COINRANKING_API_KEY')
-        headers = {'x-access-token': api_key, 'User-Agent': 'Mozilla/5.0'}
-        resp = requests.get('https://api.coinranking.com/v2/coin/Qwsogvtv82FCd/price', headers=headers)
-        if (resp.status_code != 200):
-            ServiceEvent.objects.create(device='Nuc', app=APP_SERVICE, service=ROLE_MANAGER, type=EventType.WARNING, name='requests', info='[x] error ' + str(resp.status_code) + '. ' + str(resp.content))
-            ret = {'result': 'error'}
+        api_url = os.getenv('API_COIN_RATE')
+        api_key = os.getenv('API_COIN_RATE_KEY')
+        if not api_url or not api_key:
+            info = 'Not specified variables API_COIN_RATE and/or API_COIN_RATE_KEY.'
+            ServiceEvent.objects.create(device='Nuc', app=APP_SERVICE, service=ROLE_MANAGER, type=EventType.WARNING, name='os.getenv', info=info)
+            ret = {'result': 'warning', 'info': info}
+            return Response(ret)
         else:
-            ret = json.loads(resp.content)
-        return Response(ret)
+            headers = {'x-access-token': api_key, 'User-Agent': 'Mozilla/5.0'}
+            resp = requests.get(api_url + 'price', headers=headers)
+            if (resp.status_code != 200):
+                info = 'Failed call for BTC price. Status = ' + str(resp.status_code) + '. ' + str(resp.content)
+                ServiceEvent.objects.create(device='Nuc', app=APP_SERVICE, service=ROLE_MANAGER, type=EventType.WARNING, name='requests', info=info)
+                ret = {'result': 'warning', 'info': info}
+            else:
+                ret = json.loads(resp.content)
+            return Response(ret)
 
     @action(detail=False)
     def get_service_health(self, request, pk=None):

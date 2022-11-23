@@ -1,0 +1,11 @@
+{% load i18n %}
+
+<h6 class="">{% trans 'Exchange rates' %}</h6>
+<div class="currency-container">
+    <div class="loader"></div>
+    <div class="cripto-current">
+        <a class="usd-rate" href="{{ usd_rate_url }}">{{ usd_rate_value }}</a>
+        <a class="eur-rate" href="{{ eur_rate_url }}">{{ eur_rate_value }}</a>
+    </div>
+    <canvas id="currencyChart"></canvas>
+</div>

@@ -7,7 +7,7 @@
   <link href="{% static 'scss/home.css' %}" rel="stylesheet">
   {% for widget in hp_widgets %}
     {% if widget.css %}
-      <link href="/static/scss/hp_widgets/{{widget.css}}.css" rel="stylesheet">
+      <link href="/static/scss/hp_widget/{{widget.css}}.css" rel="stylesheet">
     {% endif %}
   {% endfor %}
 {% endblock %}
@@ -24,10 +24,11 @@
 
 {% block extrascript %}
   {{ block.super }}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   {% for widget in hp_widgets %}
     {% if widget.js %}
-      <script src="/static/js/hp_widgets/{{widget.js}}.js"></script>
+      <script src="/static/js/hp_widget/{{widget.js}}.js"></script>
     {% endif %}
   {% endfor %}
-  <script src="{% static 'js/hp_widgets/load_hp_widgets.js' %}"></script>
+  <script src="{% static 'js/hp_widget/load_hp_widgets.js' %}"></script>
 {% endblock %}
