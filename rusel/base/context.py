@@ -55,7 +55,7 @@ class Context:
 
     def get_fixes(self, views, search_qty):
         fixes = []
-        if (self.config.app == APP_ALL):
+        if (self.config.app == APP_ALL) or (self.config.app == APP_HOME):
             common_url = reverse('index')
         else:
             common_url = reverse(self.config.app + ':list')

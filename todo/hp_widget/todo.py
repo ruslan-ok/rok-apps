@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timedelta
 from django.db.models import Q
 from rusel.base.views import BaseListView
@@ -16,7 +17,8 @@ class ListView(BaseListView):
         data = super().get_queryset()
         if data:
             lookups = Q(stop__lte=(datetime.now() + timedelta(1))) | Q(in_my_day=True) | Q(important=True)
-            return data.filter(num_role=NUM_ROLE_TODO).filter(lookups).exclude(completed=True)
+            svc_grp_id = int(os.environ.get('DJANGO_SERVICE_GROUP', '0'))
+            return data.filter(num_role=NUM_ROLE_TODO).filter(lookups).exclude(completed=True).exclude(group_id=svc_grp_id)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

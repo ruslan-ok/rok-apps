@@ -2,7 +2,7 @@ from django.utils.translation import gettext_lazy as _
 from task.const import *
 
 app_config = {
-    'name': APP_ALL,
+    'name': APP_HOME,
     'app_title': _('home page'),
     'icon': 'house',
     'main_view': 'home',

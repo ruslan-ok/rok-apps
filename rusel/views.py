@@ -29,14 +29,14 @@ class ListView(BaseListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         hp_widgets = []
-        hp_widgets.append({'id': 'todo', 'css': 'todo', 'js': 'todo', })
-        hp_widgets.append({'id': 'visited', 'css': 'info-table', })
-        hp_widgets.append({'id': 'currency', 'css': 'currency', })
         hp_widgets.append({'id': 'weather', 'css': 'weather', })
+        hp_widgets.append({'id': 'currency', 'css': 'currency', })
         if (self.request.user.username == 'ruslan.ok'):
-            hp_widgets.append({'id': 'logs', 'css': 'info-table', })
             hp_widgets.append({'id': 'crypto', 'css': 'crypto', })
             hp_widgets.append({'id': 'health', })
+            hp_widgets.append({'id': 'logs', 'css': 'info-table', })
+        hp_widgets.append({'id': 'todo', 'css': 'todo', 'js': 'todo', })
+        hp_widgets.append({'id': 'visited', 'css': 'info-table', })
         context['hp_widgets'] = hp_widgets
         return context
 

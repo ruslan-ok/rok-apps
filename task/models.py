@@ -71,7 +71,7 @@ class Group(models.Model):
         return '.'*self.level()*2 + self.name
     
     def edit_url(self):
-        if not self.app or (self.app == APP_ALL):
+        if not self.app or (self.app == APP_ALL) or (self.app == APP_HOME):
             return 'todo:group'
         return self.app + ':group'
 
@@ -403,7 +403,7 @@ class Task(models.Model):
         if nav_item:
             data = data.filter(task_1_id=nav_item.id)
 
-        if (app != APP_ALL):
+        if (app != APP_ALL) and (app != APP_HOME):
             role_id = ROLES_IDS[app][role]
             data = data.filter(num_role=role_id)
         return data
