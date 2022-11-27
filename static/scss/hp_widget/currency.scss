@@ -1,0 +1,23 @@
+.currency-container {
+    .currency-current {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        .currency-info {
+            margin: 0 5px;
+            .usd-rate {
+                color: rgb(72, 118, 47);
+            }
+            .eur-rate {
+                color: rgb(61, 86, 170);
+            }
+            }
+    }
+    .copyright {
+        width: 100%;
+        text-align: right !important;
+        a {
+            font-size: 0.5rem;
+        }
+    }
+}

@@ -46,29 +46,29 @@ class OverviewLogData(ServiceLog):
                 if day_num == 0 and svc['app'] == APP_SERVICE:
                     bs = BackgroundLogData()
                     if not bs.get_health():
-                        day_status.append({'icon': 'circle-fill', 'color': 'gray', 'href': href})
+                        day_status.append({'icon': 'square-fill', 'color': 'gray', 'href': href})
                         continue
                 if not svc['days'][day_num]:
                     day_status.append({'icon': 'dash', 'color': 'black', 'href': href})
                 else:
                     if svc['days'][day_num] == EventType.ERROR:
-                        color = 'red'
+                        color = 'salmon'
                     elif svc['days'][day_num] == EventType.WARNING:
-                        color = 'orange'
+                        color = 'cadetblue'
                     else:
-                        color = 'green'
+                        color = '#a3c4bb'
                     match svc['qnt'][day_num]:
-                        case 0: icon = 'circle-fill'
-                        case 1: icon = '1-circle'
-                        case 2: icon = '2-circle'
-                        case 3: icon = '3-circle'
-                        case 4: icon = '4-circle'
-                        case 5: icon = '5-circle'
-                        case 6: icon = '6-circle'
-                        case 7: icon = '7-circle'
-                        case 8: icon = '8-circle'
-                        case 9: icon = '9-circle'
-                        case _: icon = 'arrow-up-right-circle'
+                        case 0: icon = 'square-fill'
+                        case 1: icon = '1-square'
+                        case 2: icon = '2-square'
+                        case 3: icon = '3-square'
+                        case 4: icon = '4-square'
+                        case 5: icon = '5-square'
+                        case 6: icon = '6-square'
+                        case 7: icon = '7-square'
+                        case 8: icon = '8-square'
+                        case 9: icon = '9-square'
+                        case _: icon = 'arrow-up-right-square'
                     day_status.append({'icon': icon, 'color': color, 'href': href})
             svc_descr = self.get_svc_descr(svc)
             services.append({
@@ -76,6 +76,7 @@ class OverviewLogData(ServiceLog):
                 'icon': svc_descr.get_icon(),
                 'href': svc_descr.get_href(),
                 'name': svc_descr.get_descr(),
+                'short_name': svc_descr.get_descr(),
                 'days': day_status,
             })
         dates = [date.today() - timedelta(days=x) for x in range(depth)]

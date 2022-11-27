@@ -7,7 +7,7 @@ def get_weather(request):
     context = {}
     lat = os.getenv('API_WEATHER_LAT')
     lon = os.getenv('API_WEATHER_LON')
-    lifetime = datetime.now() - timedelta(hours=4)
+    lifetime = datetime.now() - timedelta(hours=2)
     data = Weather.objects.filter(lat=lat, lon=lon, ev_type=CURRENT, event__gt=lifetime).order_by('-event')
     if len(data) > 0:
         weather = data[0]
@@ -64,16 +64,20 @@ def get_weather(request):
                         prec_type=day['all_day']['precipitation']['type'],
                         cloud_cover=day['all_day']['cloud_cover']['total'],
                     )
+    api_url = os.getenv('API_WEATHER_CR_URL', '#')
     if weather:
         context['weather_url'] = os.getenv('API_WEATHER_INFO', '#')
         context['temp_value'] = weather.temperature
+        context['summary'] = weather.summary
+        context['current_weather_icon'] = api_url + f'/static/img/ico/weather/{weather.icon}.svg'
+    context['copyright_url'] = api_url
+    context['copyright_info'] = os.getenv('API_WEATHER_CR_INFO', '')
     template_name = 'hp_widget/weather.html'
     return template_name, context
 
 def get_chart_data(user_id: int):
     x = []
-    y_min = []
-    y_max = []
+    y = []
     lat = 54.093709
     lon = 28.295668
     lifetime = datetime.now() - timedelta(hours=4, minutes=1)
@@ -81,8 +85,9 @@ def get_chart_data(user_id: int):
     for day in weather:
         if day.event:
             x.append(day.event.strftime('%m.%d'))
-            y_min.append(day.temperature_min)
-            y_max.append(day.temperature_max)
+            y.append(day.temperature_min)
+            x.append(day.event.strftime('%m.%d'))
+            y.append(day.temperature_max)
 
     data = {
         'type': 'line',
@@ -90,17 +95,9 @@ def get_chart_data(user_id: int):
             'datasets': [
                 {
                     'label': 'Temperature minimum',
-                    'data': reversed(y_min),
+                    'data': reversed(y),
                     'backgroundColor': 'rgba(111, 184, 71, 0.2)',
                     'borderColor': 'rgba(111, 184, 71, 1)',
-                    'borderWidth': 1,
-                    'tension': 0.4,
-                },
-                {
-                    'label': 'Temperature maximum',
-                    'data': reversed(y_max),
-                    'backgroundColor': 'rgba(255, 99, 132, 0.2)',
-                    'borderColor': 'rgba(255, 99, 132, 1)',
                     'borderWidth': 1,
                     'tension': 0.4,
                 },

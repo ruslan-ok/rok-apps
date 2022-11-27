@@ -1,4 +1,4 @@
-<table class="info-table">
+<table class="health-table">
     <tr>
         <th>Service</th>
         {% for dt in health.dates %}
@@ -7,7 +7,7 @@
     </tr>
     {% for service in health.services %}
         <tr>
-            <td class="bi-{{ service.icon }}"><span class="px-3">{{ service.short_name }}</span></td>
+            <td class="bi-{{ service.icon }} text-center service-icon" title="{{ service.short_name }}"></td>
             {% for day in service.days %}
                 <td class="text-center"><a href="{% url 'logs:list' %}?{{ service.href }}&day={{ day.href }}"><i class="bi-{{ day.icon }}" style="color:{{ day.color }}"></i></a></td>
             {% endfor %}

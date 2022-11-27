@@ -1,15 +1,23 @@
 .crypto-container {
   width: 100%;
 }
-.crypto-container div.cripto-current {
+.crypto-container .cripto-current {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: space-around;
 }
-.crypto-container div.cripto-current a.crypto-price {
+.crypto-container .cripto-current .cripto-info .crypto-price {
   font-size: 1rem;
-  text-align: right;
+  color: slategray;
 }
-.crypto-container div.cripto-current a.crypto-amount {
+.crypto-container .cripto-current .cripto-info .crypto-amount {
   font-size: 0.7rem;
-  text-align: right;
+  color: slategray;
+}
+.crypto-container .copyright {
+  width: 100%;
+  text-align: right !important;
+}
+.crypto-container .copyright a {
+  font-size: 0.5rem;
 }/*# sourceMappingURL=crypto.css.map */

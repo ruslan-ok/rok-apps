@@ -1,0 +1,19 @@
+.weather-container {
+    .weather-current {
+        text-align: center !important;
+        .temp {
+            margin: 0 5px;
+            font-size: 1.3rem;
+        }
+        .summary {
+            color:slategray;
+        }
+    }
+    .copyright {
+        width: 100%;
+        text-align: right !important;
+        a {
+            font-size: 0.5rem;
+        }
+    }
+}

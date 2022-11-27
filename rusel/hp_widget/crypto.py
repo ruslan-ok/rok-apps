@@ -17,6 +17,8 @@ def get_crypto(request):
         'crypto_amount_url': f"{os.getenv('API_WALLET', '#')}{os.getenv('API_WALLET_KEY', '')}",
         'crypto_price_value': f'${price:,.0f}',
         'crypto_amount_value': f'${0.07767845 * price:,.0f}',
+        'copyright_url': os.getenv('API_COIN_CR_URL', '#'),
+        'copyright_info': os.getenv('API_COIN_CR_INFO', ''), 
     }
     template_name = 'hp_widget/crypto.html'
     return template_name, context

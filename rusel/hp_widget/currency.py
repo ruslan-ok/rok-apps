@@ -19,8 +19,10 @@ def get_currency(request):
     context = {
         'usd_rate_url': os.getenv('API_NBRB_STAT', '#'), 
         'eur_rate_url': os.getenv('API_NBRB_STAT', '#'),
-        'usd_rate_value': f'USD {rate_usd:,.2f}',
-        'eur_rate_value': f'EUR {rate_eur:,.2f}',
+        'usd_rate_value': f'{rate_usd:,.2f}',
+        'eur_rate_value': f'{rate_eur:,.2f}',
+        'copyright_url': os.getenv('API_NBRB_CR_URL', '#'),
+        'copyright_info': os.getenv('API_NBRB_CR_INFO', ''), 
     }
     template_name = 'hp_widget/currency.html'
     return template_name, context
@@ -52,16 +54,16 @@ def get_chart_data(user_id: int):
             'datasets': [{
                 'label': 'USD',
                 'data': usd,
-                'backgroundColor': 'rgba(111, 184, 71, 0.2)',
-                'borderColor': 'rgba(111, 184, 71, 1)',
+                'backgroundColor': 'rgba(72, 118, 47, 0.2)',
+                'borderColor': 'rgba(72, 118, 47, 1)',
                 'borderWidth': 1,
                 'tension': 0.4,
             },
             {
                 'label': 'EUR',
                 'data': eur,
-                'backgroundColor': 'rgba(255, 99, 132, 0.2)',
-                'borderColor': 'rgba(255, 99, 132, 1)',
+                'backgroundColor': 'rgba(61, 86, 170, 0.2)',
+                'borderColor': 'rgba(61, 86, 170, 1)',
                 'borderWidth': 1,
                 'tension': 0.4,
             }]
