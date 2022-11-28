@@ -166,12 +166,18 @@ class Sync():
         for k in self.remote.keys():
             r = self.remote[k]
             if r['status'] == FileSutatus.Unknown:
-                r['status'] = FileSutatus.Copy
+                if r['folder'].startswith('vivo'):
+                    r['status'] = FileSutatus.Remove
+                else:
+                    r['status'] = FileSutatus.Copy
 
         for k in self.local.keys():
             l = self.local[k]
             if l['status'] == FileSutatus.Unknown:
-                l['status'] = FileSutatus.Copy
+                if l['folder'].startswith('nuc'):
+                    l['status'] = FileSutatus.Remove
+                else:
+                    l['status'] = FileSutatus.Copy
     
     def get_full_local_name(self, local_dir, x):
         fpath = os.path.join(local_dir, x["folder"]).replace('\\', '/')
