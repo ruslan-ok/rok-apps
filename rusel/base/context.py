@@ -58,7 +58,7 @@ class Context:
 
     def get_fixes(self, views, search_qty):
         fixes = []
-        if (self.config.app == APP_ALL):
+        if (self.config.app == APP_ALL) or (self.config.app == APP_HOME):
             common_url = reverse('index')
         else:
             common_url = reverse(self.config.app + ':list')
@@ -112,7 +112,7 @@ class Context:
                 'id': view_id, 
                 'url': url, 
                 'icon': value['icon'], 
-                'title': _(value['title']).capitalize(),
+                'title': _(value['title']),
                 'qty': qty,
                 'active': active,
                 'search_qty': search_qty,
@@ -131,14 +131,11 @@ class Context:
             cur_role = self.config.base_role
         data = Task.get_role_tasks(self.request.user.id, self.config.app, cur_role, nav_item)
 
-        if (self.config.app == APP_ALL) and (not query):
-            return data
-
-        if data and ((not group.determinator) or (group.determinator == 'group')):
+        if (not group.determinator) or (group.determinator == 'group'):
             data = data.filter(group_id=group.id)
         else:
             if group.view_id == 'planned' and not group.services_visible:
-                svc_grp_id = int(os.environ.get('DJANGO_SERVICE_GROUP'))
+                svc_grp_id = int(os.environ.get('DJANGO_SERVICE_GROUP', '0'))
                 data = data.exclude(group_id=svc_grp_id)
         
         if hasattr(self, 'tune_dataset'):

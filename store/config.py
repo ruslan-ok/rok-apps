@@ -17,22 +17,22 @@ app_config = {
     'views': {
         'actual': {
             'icon': 'key',
-            'title': _('actual'),
+            'title': _('Actual'),
         },
         'completed': {
             'icon': 'check2-circle',
-            'title': _('unactual'),
+            'title': _('Unactual'),
         },
         'all': {
             'icon': 'infinity',
-            'title': _('all'),
+            'title': _('All'),
             'use_sub_groups': True,
             # 'hide_qty': True,
         },
         'params': {
             'page_url': 'params',
             'icon': 'gear', 
-            'title': _('default parameters'),
+            'title': _('Default parameters'),
             'hide_qty': True,
         },
     }

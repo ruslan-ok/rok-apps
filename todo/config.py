@@ -23,7 +23,7 @@ app_config = {
     'views': {
         'myday': {
             'icon': 'sun',
-            'title': _('my day'),
+            'title': _('My day'),
             'sort': [
                 ('stop', _('termin')),
                 ('name', _('name')),
@@ -33,7 +33,7 @@ app_config = {
         },
         'important': {
             'icon': 'star',
-            'title': _('important tasks'),
+            'title': _('Important tasks'),
             'sort': [
                 ('stop', _('termin')),
                 ('name', _('name')),
@@ -43,7 +43,7 @@ app_config = {
         },
         'planned': {
             'icon': 'check2-square',
-            'title': _('planned tasks'),
+            'title': _('Planned tasks'),
             'use_sub_groups': True,
             'hide_qty': True,
             'sort': [
@@ -56,7 +56,7 @@ app_config = {
         },
         'all': {
             'icon': 'infinity',
-            'title': _('all tasks'),
+            'title': _('All tasks'),
             'use_sub_groups': True,
             'hide_qty': True,
             'sort': [
@@ -69,7 +69,7 @@ app_config = {
         },
         'completed': {
             'icon': 'check2-circle',
-            'title': _('completed tasks'),
+            'title': _('Completed tasks'),
             'hide_qty': True,
             'sort': [
                 ('completion', _('completion date')),

@@ -13,7 +13,7 @@ app_config = {
             'role': ROLE_BILL,
             'role_loc': pgettext_lazy('add ... ', 'bill'),
             'icon': 'receipt', 
-            'title': _('bills'),
+            'title': _('Bills'),
             'add_button': True,
             'relate': [ROLE_TODO],
             'sort': [
@@ -25,7 +25,7 @@ app_config = {
             'role': ROLE_METER,
             'role_loc': pgettext_lazy('add ... ', 'meter'),
             'icon': 'speedometer2', 
-            'title': _('meters data'),
+            'title': _('Meters data'),
             'item_name': _('meters data'),
             'add_button': True,
             'relate': [ROLE_TODO],
@@ -38,7 +38,7 @@ app_config = {
             'role': ROLE_PRICE,
             'role_loc': pgettext_lazy('add ... ', 'price'),
             'icon': 'tag', 
-            'title': _('prices'),
+            'title': _('Prices'),
             'add_button': True,
             'use_sub_groups': True,
             'sort': [
@@ -50,7 +50,7 @@ app_config = {
             'role': ROLE_APART,
             'role_loc': pgettext_lazy('add ... ', 'apart'),
             'icon': 'building', 
-            'title': _('apartments'),
+            'title': _('Apartments'),
             'item_name': _('apartment'),
             'sort': [
                 ('name', _('name')),

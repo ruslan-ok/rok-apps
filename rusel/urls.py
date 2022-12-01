@@ -14,6 +14,8 @@ from api import views_urls as api_urls
 from api import views_profile as api_profile
 from api import views_logs as api_logs
 from api import views_famtree as api_family
+from api import views_widget as api_widget
+from api import views_service as api_service
 
 api_router = routers.DefaultRouter()
 api_router.register(r'groups', api_grp.GroupViewSet, basename='group')
@@ -42,6 +44,9 @@ urlpatterns = i18n_patterns(
     path('logs/',   include('logs.urls')),
     path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
     path('api/',    include(api_router.urls)),
+    path('api/get_widget/', api_widget.get_widget, name='get_widget'),
+    path('api/get_chart_data/', api_widget.get_chart_data, name='get_chart_data'),
+    path('api/get_dir/', api_service.get_dir, name='get_dir'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('<str:role>/<int:pk>/doc/<str:fname>', views.get_doc, name='doc'),
     path('<str:role>/<int:pk>/thumbnail/<str:fname>', views.get_thumbnail, name='thumbnail'),

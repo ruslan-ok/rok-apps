@@ -2,9 +2,9 @@ from datetime import datetime
 from django.utils.translation import gettext_lazy as _
 from rusel.apps import get_apps_list
 from task.models import Group, VisitedHistory
-from task.const import APP_HOME, APP_NAME
+from task.const import APP_HOME, APP_ALL, APP_NAME
 
-MAX_LAST_VISITED = 10
+MAX_LAST_VISITED = 7
 
 def get_base_context(request, app, role, group, detail, title, icon=None):
     context = {}
@@ -100,7 +100,7 @@ def save_last_visited(user, url, app, title_1, title_2, icon):
     if not title_1 and not title_2:
         return
 
-    if (app == APP_HOME):
+    if (app == APP_HOME) or (app == APP_ALL):
         return
     
     str_app = APP_NAME[app]

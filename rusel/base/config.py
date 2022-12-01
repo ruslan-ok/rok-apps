@@ -45,7 +45,7 @@ class Config:
             return False
 
     def set_view(self, request, detail=False):
-        if not self.app:
+        if not self.app or not request.user.is_authenticated:
             return
         self.cur_view_group = None
         self.nav_item = None
@@ -53,19 +53,20 @@ class Config:
         determinator = 'view'
 
         view_id = ''
-        if (self.app == APP_ALL):
+        if (self.app == APP_ALL) or (self.app == APP_HOME):
             common_url = reverse('index')
-            view_id = 'search'
         else:
             common_url = reverse(self.app + ':list')
         if self.main_view:
             view_id = self.main_view
         if (request.path != common_url):
-            view_id = request.path.split(common_url)[1].split('?')[0].split('/')[0]
+            url_app = request.path.split(common_url)[1].split('?')[0].split('/')[0]
+            if url_app != 'api':
+                view_id = url_app
             if detail and self.is_num(view_id):
                 view_id = request.path.split(common_url)[1].split('?')[0].split(view_id)[0]
 
-            if view_id and (view_id in self.views):
+            if view_id and (view_id != 'home') and (view_id in self.views):
                 if ('page_url' in self.views[view_id]) and (self.views[view_id]['page_url'] == view_id):
                     determinator = 'view'
                 else:

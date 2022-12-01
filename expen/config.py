@@ -20,7 +20,7 @@ app_config = {
     'views': {
         'all': {
             'icon': 'infinity', 
-            'title': _('all expenses'),
+            'title': _('All expenses'),
         },
     }
 }

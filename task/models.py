@@ -21,6 +21,8 @@ from rusel.utils import nice_date
 from rusel.categories import CATEGORY_DESIGN
 from rusel.files import get_files_list_by_path
 from fuel.utils import get_rest
+from news.get_info import get_info as news_get_info
+from expen.get_info import get_info as expen_get_info
 
 
 class Group(models.Model):
@@ -69,7 +71,7 @@ class Group(models.Model):
         return '.'*self.level()*2 + self.name
     
     def edit_url(self):
-        if (self.app == APP_ALL):
+        if not self.app or (self.app == APP_ALL) or (self.app == APP_HOME):
             return 'todo:group'
         return self.app + ':group'
 
@@ -85,12 +87,13 @@ class Group(models.Model):
         return not Group.objects.filter(node=self.id).exists()
 
     def toggle_sub_group(self, sub_group_id):
-        sgs = json.loads(self.sub_groups)
-        for sg in sgs:
-            if (sg['id'] == int(sub_group_id)):
-                sg['is_open'] = not sg['is_open']
-        self.sub_groups = json.dumps(sgs)
-        self.save()
+        if self.sub_groups:
+            sgs = json.loads(self.sub_groups)
+            for sg in sgs:
+                if (sg['id'] == int(sub_group_id)):
+                    sg['is_open'] = not sg['is_open']
+            self.sub_groups = json.dumps(sgs)
+            self.save()
 
     def set_theme(self, theme_id):
         self.theme = theme_id
@@ -161,11 +164,10 @@ class Group(models.Model):
         return res
 
     def get_absolute_url(self):
-        if not self.app:
+        if not self.app or not self.role:
             return '/'
-        id = self.id
         try:
-            url = reverse(self.app + ':' + self.role + '-item', args = [id])
+            url = reverse(self.app + ':' + self.role + '-item', args = [self.id])
             return url
         except NoReverseMatch:
             return '/'
@@ -401,7 +403,7 @@ class Task(models.Model):
         if nav_item:
             data = data.filter(task_1_id=nav_item.id)
 
-        if (app != APP_ALL):
+        if (app != APP_ALL) and (app != APP_HOME):
             role_id = ROLES_IDS[app][role]
             data = data.filter(num_role=role_id)
         return data
@@ -467,11 +469,13 @@ class Task(models.Model):
         except NoReverseMatch:
             return '/'
     
-    def toggle_completed(self):
+    def toggle_completed(self, do_complete=False):
         next = None
+        if self.completed and do_complete:
+            return None
         if (not self.completed) and self.repeat:
-            if not self.start:
-                self.start = self.stop # For a repeating task, remember the deadline that is specified in the first iteration in order to use it to adjust the next steps
+            if not self.start and self.stop:
+                self.start = self.stop.date() # For a repeating task, remember the deadline that is specified in the first iteration in order to use it to adjust the next steps
             next = self.next_iteration()
         self.completed = not self.completed
         if self.completed:
@@ -480,20 +484,36 @@ class Task(models.Model):
             self.completion = datetime.now()
         else:
             self.completion = None
+        if (self.app_news or self.app_expen) and not self.event:
+            self.event = datetime.now()
         self.save()
+        if self.app_news:
+            news_get_info(self)
+        if self.app_expen:
+            expen_get_info(self)
         self.correct_groups_qty(GIQ_CMP_TASK)
         next_task = None
         if self.completed and next: # Completed a stage of a recurring task and set a deadline for the next iteration
             if Task.objects.filter(user=self.user, app_task=self.app_task, name=self.name, completed=False).exists():
                 next_task = Task.objects.filter(user=self.user, app_task=self.app_task, name=self.name, completed=False)[0]
             else:
-                next_task = Task.objects.create(user=self.user, app_task=self.app_task, name=self.name, 
-                    start=self.start, stop=next, important=self.important,
+                next_task = Task.objects.create(user=self.user, app_task=self.app_task, app_news=self.app_news, app_expen=self.app_expen, 
+                    name=self.name, start=self.start, stop=next, important=self.important,
                     remind=self.next_remind_time(), repeat=self.repeat, repeat_num=self.repeat_num,
                     repeat_days=self.repeat_days, categories=self.categories, info=self.info)
                 next_task.get_info(ROLE_TODO)
+                if next_task.app_news:
+                    news_get_info(next_task)
+                if next_task.app_expen:
+                    expen_get_info(next_task)
                 if TaskGroup.objects.filter(task=self.id, role=ROLE_TODO).exists():
                     group = TaskGroup.objects.filter(task=self.id, role=ROLE_TODO).get().group
+                    next_task.correct_groups_qty(GIQ_ADD_TASK, group.id)
+                if TaskGroup.objects.filter(task=self.id, role=ROLE_NEWS).exists():
+                    group = TaskGroup.objects.filter(task=self.id, role=ROLE_NEWS).get().group
+                    next_task.correct_groups_qty(GIQ_ADD_TASK, group.id)
+                if TaskGroup.objects.filter(task=self.id, role=ROLE_EXPENSE).exists():
+                    group = TaskGroup.objects.filter(task=self.id, role=ROLE_EXPENSE).get().group
                     next_task.correct_groups_qty(GIQ_ADD_TASK, group.id)
         return next_task
 
@@ -1037,6 +1057,7 @@ class VisitedHistory(models.Model):
         return self.app + ' - ' + self.page
     
     def title(self):
+        title = None
         if not self.page and not self.info:
             title = ''
         if self.page and not self.info:
@@ -1170,142 +1191,41 @@ class TaskInfo(models.Model):
     subgroup_id = models.IntegerField('Subgroup id', null=True)
     subgroup_name = models.CharField('Name', max_length=200, blank=True)
     group_id = models.IntegerField('Group id', null=True)
-    # group_role = models.CharField('Group role', max_length=200, blank=True, null=True)
     group_name = models.CharField('Group name', max_length=200, blank=True)
     related = models.CharField('List of related roles', max_length=1000, blank=True)
     custom_attr = models.CharField('Custom role attributes', max_length=500, blank=True)
     task_descr = models.CharField('Cutted to 85 symbols task info', max_length=85, blank=True)
     has_files = models.IntegerField('Has files', null=True)
     has_links = models.IntegerField('Has links', null=True)
-    # #------------ Task ------------
-    id = models.IntegerField(_('id'), primary_key=True, null=False)
-    user_id = models.IntegerField(_('user id'), null=False)
-    name = models.CharField(_('Name'), max_length=200, blank=False)
-    event = models.DateTimeField(_('Event date'), blank=True, null=True)
-    start = models.DateField(_('Start date'), blank=True, null=True)
-    stop = models.DateTimeField(_('Termin'), blank=True, null=True)
-    completed = models.BooleanField(_('Completed'), default=False)
-    completion = models.DateTimeField(_('Completion time'), blank=True, null=True)
-    in_my_day = models.BooleanField(_('In My day'), default=False)
-    important = models.BooleanField(_('Important'), default=False)
-    remind = models.DateTimeField(_('Remind'), blank=True, null=True)
-    # first_remind = models.DateTimeField(_('First remind'), blank=True, null=True)
-    # last_remind = models.DateTimeField(_('Last remind'), blank=True, null=True)
-    repeat = models.IntegerField(_('Repeat'), blank=True, null=True, choices=REPEAT_SELECT, default=NONE)
-    # repeat_num = models.IntegerField(_('Repeat num'), blank=True, null=True)
-    # repeat_days = models.IntegerField(_('Repeat days'), blank=True, null=True)
-    categories = models.TextField(_('Categories'), blank=True, null=True)
-    info = models.TextField(_('Information'), blank=True, null=True)
-    # src_id = models.IntegerField(_('ID in source table'), blank=True, null=True)
-    # app_task = models.IntegerField('Role in application Task', choices=TASK_ROLE_CHOICE, default=NONE, null=True)
-    # app_note = models.IntegerField('Role in application Note', choices=NOTE_ROLE_CHOICE, default=NONE, null=True)
-    # app_news = models.IntegerField('Role in application News', choices=NEWS_ROLE_CHOICE, default=NONE, null=True)
-    # app_store = models.IntegerField('Role in application Store', choices=STORE_ROLE_CHOICE, default=NONE, null=True)
-    # app_doc = models.IntegerField('Role in application Document', choices=DOC_ROLE_CHOICE, default=NONE, null=True)
-    # app_warr = models.IntegerField('Role in application Warranty', choices=WARR_ROLE_CHOICE, default=NONE, null=True)
-    # app_expen = models.IntegerField('Role in application Expense', choices=EXPEN_ROLE_CHOICE, default=NONE, null=True)
-    # app_trip = models.IntegerField('Role in application Trip', choices=TRIP_ROLE_CHOICE, default=NONE, null=True)
+    #------------ Task ------------
+    id = models.IntegerField('Id', primary_key=True, null=False)
+    user_id = models.IntegerField('User id', null=False)
+    name = models.CharField('Name', max_length=200, blank=False)
+    event = models.DateTimeField('Event date', blank=True, null=True)
+    start = models.DateField('Start date', blank=True, null=True)
+    stop = models.DateTimeField('Termin', blank=True, null=True)
+    completed = models.BooleanField('Completed', default=False)
+    completion = models.DateTimeField('Completion time', blank=True, null=True)
+    in_my_day = models.BooleanField('In My day', default=False)
+    important = models.BooleanField('Important', default=False)
+    remind = models.DateTimeField('Remind', blank=True, null=True)
+    repeat = models.IntegerField('Repeat', blank=True, null=True, choices=REPEAT_SELECT, default=NONE)
+    categories = models.TextField('Categories', blank=True, null=True)
+    info = models.TextField('Information', blank=True, null=True)
     app_fuel = models.IntegerField('Role in application Fueling', choices=FUEL_ROLE_CHOICE, default=NONE, null=True)
-    # app_apart = models.IntegerField('Role in application Communal', choices=APART_ROLE_CHOICE, default=NONE, null=True)
-    # app_health = models.IntegerField('Role in application Health', choices=HEALTH_ROLE_CHOICE, default=NONE, null=True)
-    # app_work = models.IntegerField('Role in application Work', choices=WORK_ROLE_CHOICE, default=NONE, null=True)
-    # app_photo = models.IntegerField('Role in application Photo Bank', choices=PHOTO_ROLE_CHOICE, default=NONE, null=True)
-    created = models.DateTimeField(_('Creation time'), default=datetime.now)
-    # last_mod = models.DateTimeField(_('Last modification time'), blank=True, auto_now=True)
-    # # groups = models.ManyToManyField(Group, through='TaskGroup')
-    active = models.BooleanField(_('Is active navigation item'), null=True)
-    task_1_id = models.IntegerField(_('task_1 id'), null=True)
-    # task_2_id = models.IntegerField(_('task_2 id'), null=True)
-    # task_3_id = models.IntegerField(_('task_3 id'), null=True)
-    # item_attr = models.CharField(_('Item attributes'), max_length=2000, blank=True, null=True)
-    sort = models.CharField(_('sort code'), max_length=50, blank=True)
-    # #------------ Expenses ------------
-    # expen_qty = models.DecimalField(_('Quantity'), blank=True, null=True, max_digits=15, decimal_places=3)
-    # expen_price = models.DecimalField(_('Price in NC'), blank=True, null=True, max_digits=15, decimal_places=2)
-    # expen_rate_usd = models.DecimalField(_('USD exchange rate'), blank=True, null=True, max_digits=15, decimal_places=4)
-    # expen_rate_eur = models.DecimalField(_('EUR exchange rate'), blank=True, null=True, max_digits=15, decimal_places=4)
-    # expen_rate_gbp = models.DecimalField(_('GBP exchange rate'), blank=True, null=True, max_digits=15, decimal_places=4)
-    # expen_usd = models.DecimalField(_('amount in USD'), blank=True, null=True, max_digits=15, decimal_places=2)
-    # expen_eur = models.DecimalField(_('amount in EUR'), blank=True, null=True, max_digits=15, decimal_places=2)
-    # expen_gbp = models.DecimalField(_('amount in GBP'), blank=True, null=True, max_digits=15, decimal_places=2)
-    # expen_kontr = models.CharField(_('Manufacturer'), max_length=1000, blank=True, null=True)
-    # #------------ Person --------------
-    # pers_dative = models.CharField(_('dative'), max_length=500, null=True)
-    # #------------- Trip ---------------
-    # trip_days = models.IntegerField(_('days'), null=True)
-    # trip_oper = models.IntegerField(_('operation'), null=True)
-    # trip_price = models.DecimalField(_('price'), max_digits=15, decimal_places=2, null=True)
-    # #------------- Store --------------
-    # store_username = models.CharField(_('username'), max_length=150, blank=True, null=True)
-    # store_value = models.CharField(_('value'), max_length=128, null=True)
-    # store_params = models.IntegerField(_('generator parameters used'), null=True)
+    created = models.DateTimeField('Creation time', default=datetime.now)
+    active = models.BooleanField('Is active navigation item', null=True)
+    task_1_id = models.IntegerField('task_1 id', null=True)
+    sort = models.CharField('Sort code', max_length=50, blank=True)
     # #------------- Apart --------------
-    apart_has_el = models.BooleanField(_('has electricity'), null=True)
-    apart_has_hw = models.BooleanField(_('has hot water'), null=True)
-    apart_has_cw = models.BooleanField(_('has cold water'), null=True)
-    apart_has_gas = models.BooleanField(_('has gas'), null=True)
-    apart_has_ppo = models.BooleanField(_('payments to the partnership of owners'), null=True)
-    apart_has_tv = models.BooleanField(_('has Internet/TV'), null=True)
-    apart_has_phone = models.BooleanField(_('has phone'), null=True)
-    apart_has_zkx = models.BooleanField(_('has ZKX'), null=True)
-    # #------------- Meter --------------
-    # meter_el = models.IntegerField(_('electricity'), null=True)
-    # meter_hw = models.IntegerField(_('hot water'), null=True)
-    # meter_cw = models.IntegerField(_('cold water'), null=True)
-    # meter_ga = models.IntegerField(_('gas'), null=True)
-    # meter_zkx = models.DecimalField('account amount', null=True, max_digits=15, decimal_places=2)
-    # #------------- Price --------------
-    # price_service = models.IntegerField(_('service code'), null=True)
-    # price_tarif = models.DecimalField(_('tariff 1'), null=True, max_digits=15, decimal_places=5)
-    # price_border = models.DecimalField(_('border 1'), null=True, max_digits=15, decimal_places=4)
-    # price_tarif2 = models.DecimalField(_('tariff 2'), null=True, max_digits=15, decimal_places=5)
-    # price_border2 = models.DecimalField(_('border 2'), null=True, max_digits=15, decimal_places=4)
-    # price_tarif3 = models.DecimalField(_('tariff 3'), null=True, max_digits=15, decimal_places=5)
-    # price_unit = models.CharField(_('unit'), max_length=100, blank=True, null=True)
-    # #------------- Bill ---------------
-    # bill_residents = models.IntegerField(_('number of residents'), null=True)
-    # bill_el_pay = models.DecimalField('electro - payment', null=True, max_digits=15, decimal_places=2)
-    # bill_tv_bill = models.DecimalField('tv - accrued', null=True, max_digits=15, decimal_places=2)
-    # bill_tv_pay = models.DecimalField('tv - payment', null=True, max_digits=15, decimal_places=2)
-    # bill_phone_bill = models.DecimalField('phone - accrued', null=True, max_digits=15, decimal_places=2)
-    # bill_phone_pay = models.DecimalField('phone - payment', null=True, max_digits=15, decimal_places=2)
-    # bill_zhirovka = models.DecimalField('zhirovka', null=True, max_digits=15, decimal_places=2)
-    # bill_hot_pay = models.DecimalField('heatenergy - payment', null=True, max_digits=15, decimal_places=2)
-    # bill_repair_pay = models.DecimalField('overhaul - payment', null=True, max_digits=15, decimal_places=2)
-    # bill_zkx_pay = models.DecimalField('housing and communal services - payment', null=True, max_digits=15, decimal_places=2)
-    # bill_water_pay = models.DecimalField('water - payment', null=True, max_digits=15, decimal_places=2)
-    # bill_gas_pay = models.DecimalField('gas - payment', null=True, max_digits=15, decimal_places=2)
-    # bill_rate = models.DecimalField('rate', null=True, max_digits=15, decimal_places=4)
-    # bill_poo = models.DecimalField('pay to the Partnersheep of Owners - accrued', null=True, max_digits=15, decimal_places=2)
-    # bill_poo_pay = models.DecimalField('pay to the Partnersheep of Owners - payment', null=True, max_digits=15, decimal_places=2)
-    # #-------------- Car ----------------
-    # car_plate  = models.CharField(_('car number'), max_length=100, null=True, blank=True)
-    # car_odometr = models.IntegerField(_('odometer'), null=True)
-    # car_notice = models.BooleanField(_('Service Interval Notice'), null=True, default=False)
-    # #-------------- Fuel ---------------
-    # fuel_volume = models.DecimalField(_('volume'), null=True, max_digits=5, decimal_places=3)
-    # fuel_price = models.DecimalField(_('price'), null=True, max_digits=15, decimal_places=2)
-    # fuel_warn = models.DateTimeField(_('Warning notice time'), null=True)
-    # fuel_expir = models.DateTimeField(_('Expiration notice time'), null=True)
-    # #-------------- Part ---------------
-    # part_chg_km = models.IntegerField(_('replacement interval, km'), null=True)
-    # part_chg_mo = models.IntegerField(_('replacement interval, months'), null=True)
-    # #-------------- Repl ---------------
-    # repl_manuf = models.CharField(_('manufacturer'), max_length=1000, null=True, blank=True)
-    # repl_part_num = models.CharField(_('catalog number'), max_length=100, null=True, blank=True)
-    # repl_descr = models.CharField(_('name'), max_length=1000, null=True, blank=True)
-    # #------------- Health --------------
-    # diagnosis = models.CharField(_('diagnosis'), max_length=1000, blank=True)
-    # bio_height = models.IntegerField(_('height, cm'), blank=True, null=True)
-    # bio_weight = models.DecimalField(_('weight, kg'), blank=True, null=True, max_digits=5, decimal_places=1)
-    # bio_temp = models.DecimalField(_('temperature'), blank=True, null=True, max_digits=4, decimal_places=1)
-    # bio_waist = models.IntegerField(_('waist circumference'), blank=True, null=True)
-    # bio_systolic = models.IntegerField(_('systolic blood pressure'), blank=True, null=True)
-    # bio_diastolic = models.IntegerField(_('diastolic blood pressure'), blank=True, null=True)
-    # bio_pulse = models.IntegerField(_('the number of heartbeats per minute'), blank=True, null=True)
-    # #------------- Warranty --------------
-    # months = models.IntegerField(_('warranty termin, months'), blank=True, null=True, default=12)
-    # -------------
+    apart_has_el = models.BooleanField('Has electricity', null=True)
+    apart_has_hw = models.BooleanField('Has hot water', null=True)
+    apart_has_cw = models.BooleanField('Has cold water', null=True)
+    apart_has_gas = models.BooleanField('Has gas', null=True)
+    apart_has_ppo = models.BooleanField('Payments to the partnership of owners', null=True)
+    apart_has_tv = models.BooleanField('Has Internet/TV', null=True)
+    apart_has_phone = models.BooleanField('Has phone', null=True)
+    apart_has_zkx = models.BooleanField('Has ZKX', null=True)
 
 
     class Meta:
@@ -1366,3 +1286,57 @@ class TaskInfo(models.Model):
         return [{
             'name': categ,
             'color': 'category-design-' + CATEGORY_DESIGN[reduce(lambda x, y: x + ord(y), categ, 0) % 6], } for categ in self.categories.split()]
+
+
+
+class HealthStat(models.Model):
+    """
+    Health statistics
+    """
+    user_id = models.IntegerField('User id', null=False)
+    mark = models.CharField('Metrics', max_length=20, blank=True)
+    max_value = models.DecimalField('Max value', blank=True, null=True, max_digits=10, decimal_places=1)
+    min_value = models.DecimalField('Min value', blank=True, null=True, max_digits=10, decimal_places=1)
+    max_date = models.DateField('Max date', blank=True, null=True)
+    min_date = models.DateField('Min date', blank=True, null=True)
+    max_value_date = models.DateField('Max value date', blank=True, null=True)
+    min_value_date = models.DateField('Min value date', blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'vw_health_stat'
+
+
+CURRENT = 1
+HISTORICAL = 2
+FORECASTED_HOURLY = 3
+FORECASTED_DAILY = 4
+
+EVENT_TYPE = [
+    (CURRENT, _('current')),
+    (HISTORICAL, _('historical')),
+    (FORECASTED_HOURLY, _('forecasted hourly')),
+    (FORECASTED_DAILY, _('forecasted daily')),
+]
+
+class Weather(models.Model):
+    event = models.DateTimeField('Date and time of the described event', blank=True, null=True)
+    fixed = models.DateTimeField('Date and time when this event is described', blank=True, null=True)
+    ev_type = models.IntegerField('Event type: current, historical, forecasted', null=False, choices=EVENT_TYPE, default=CURRENT)
+    lat = models.CharField('Latitude', max_length=10, blank=True)
+    lon = models.CharField('Longitude', max_length=10, blank=True)
+    elevation = models.IntegerField('Elevation', null=True)
+    timezone = models.CharField('Timezone', max_length=20, blank=True)
+    units = models.CharField('Units', max_length=10, blank=True)
+    weather = models.CharField('String identifier of the weather icon', max_length=20, blank=True)
+    icon = models.IntegerField('Numeric identifier of the weather icon', null=True)
+    summary = models.CharField('Summary', max_length=200, blank=True)
+    temperature = models.DecimalField('Temperature', null=True, max_digits=5, decimal_places=1)
+    temperature_min = models.DecimalField('Temperature min', null=True, max_digits=5, decimal_places=1)
+    temperature_max = models.DecimalField('Temperature max', null=True, max_digits=5, decimal_places=1)
+    wind_speed = models.DecimalField('Wind speed', null=True, max_digits=5, decimal_places=1)
+    wind_angle = models.IntegerField('Wind angle', null=True)
+    wind_dir = models.CharField('Wind direction', max_length=5, blank=True)
+    prec_total = models.DecimalField('Precipitation total', null=True, max_digits=10, decimal_places=1)
+    prec_type = models.CharField('Precipitation type', max_length=10, blank=True)
+    cloud_cover = models.IntegerField('Cloud cover', null=True)

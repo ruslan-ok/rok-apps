@@ -13,7 +13,7 @@ app_config = {
             'role': ROLE_FUEL,
             'role_loc': pgettext_lazy('add ... ', 'fueling'),
             'icon': 'fuel-pump',
-            'title': _('fuelings'),
+            'title': _('Fuelings'),
             'add_button': True,
             'hide_qty': True,
             'sort': [
@@ -23,14 +23,14 @@ app_config = {
         'part': {
             'role': ROLE_PART,
             'icon': 'cart', 
-            'title': _('itnervals'),
+            'title': _('Itnervals'),
             'item_name': _('service interval'),
             'hide_qty': True,
         },
         'service': {
             'role': ROLE_SERVICE,
             'icon': 'tools', 
-            'title': _('services'),
+            'title': _('Services'),
             'item_name': _('service'),
             'add_button': True,
             'use_sub_groups': True,
@@ -43,7 +43,7 @@ app_config = {
         'car': {
             'role': ROLE_CAR,
             'icon': 'truck', 
-            'title': _('cars'),
+            'title': _('Cars'),
             'item_name': _('car'),
             'hide_qty': True,
             'sort': [

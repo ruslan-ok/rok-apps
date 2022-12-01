@@ -16,7 +16,7 @@ app_config = {
             'role': ROLE_DOC,
             'role_loc': pgettext_lazy('add ... ', 'document'),
             'icon': 'file-text', 
-            'title': _('documents'),
+            'title': _('Documents'),
         },
     }
 }

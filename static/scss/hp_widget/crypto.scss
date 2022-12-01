@@ -1,0 +1,27 @@
+.crypto-container {
+    width: 100%;
+
+    .cripto-current {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+
+        .cripto-info {
+            .crypto-price {
+                font-size: 1rem;
+                color:slategray;
+            }
+            .crypto-amount {
+                font-size: 0.7rem;
+                color:slategray;
+            }
+        }
+    }
+    .copyright {
+        width: 100%;
+        text-align: right !important;
+        a {
+            font-size: 0.5rem;
+        }
+    }
+}

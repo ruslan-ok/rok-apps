@@ -6,6 +6,7 @@ from task.models import Task, TaskGroup
 from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView
 from expen.forms import CreateForm, EditForm, ProjectForm
 from expen.config import app_config
+from expen.get_info import get_info
 
 role = ROLE_EXPENSE
 app = ROLE_APP[role]
@@ -70,10 +71,6 @@ def currency_repr(value):
     if (round(value, 2) % 1):
         return '{:,.2f}'.format(value).replace(',', '`')
     return '{:,.0f}'.format(value).replace(',', '`')
-
-def get_info(item):
-    attr = [{'text': ', '.join(item.expen_summary())}]
-    item.actualize_role_info(app, role, attr)
 
 class ProjectView(LoginRequiredMixin, BaseGroupView):
     form_class = ProjectForm

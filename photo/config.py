@@ -15,11 +15,11 @@ app_config = {
     'views': {
         'preview': {
             'icon': 'images', 
-            'title': _('photo preview'),
+            'title': _('Photo preview'),
         },
         'map': {
             'icon': 'geo-alt', 
-            'title': _('on the map'),
+            'title': _('On the map'),
         },
     }
 }

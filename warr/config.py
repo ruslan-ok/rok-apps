@@ -17,15 +17,15 @@ app_config = {
     'views': {
         'active': {
             'icon': 'award', 
-            'title': _('active warranties'),
+            'title': _('Active warranties'),
         },
         'expired': {
             'icon': 'award', 
-            'title': _('expired warranties'),
+            'title': _('Expired warranties'),
         },
         'all': {
             'icon': 'award', 
-            'title': _('all warranties'),
+            'title': _('All warranties'),
         },
     }
 }
