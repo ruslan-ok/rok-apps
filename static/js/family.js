@@ -73,8 +73,8 @@ function makeDraggable(evt) {
     }
   }
 
-function personDetail(id) {
-    window.location = '/family/person/' + id + '/';
+function individualDetail(id) {
+    window.location = '/family/individual/' + id + '/';
 }
 
 function zoomIn() {

@@ -23,58 +23,81 @@ class GenealogyContext(Context):
             get_object_or_404(FamTree.objects.filter(id=tree_id))
             if group:
                 match group.view_id:
-                    case 'people': 
-                        return IndiInfo.objects.filter(tree_id=tree_id)
-                    case 'families': 
-                        return FamRecord.objects.filter(tree=tree_id)
-                    case 'media': 
-                        return MultimediaRecord.objects.filter(tree=tree_id)
+                    case 'pedigree': return FamTree.objects.all()
+                    case 'individual': return IndiInfo.objects.filter(tree_id=tree_id)
+                    case 'family': return FamRecord.objects.filter(tree=tree_id)
+                    case 'media': return MultimediaRecord.objects.filter(tree=tree_id)
         return []
 
-    def get_app_context(self, user_id, search_qty=None, icon=None, nav_items=None, role=None, **kwargs):
+    def get_app_context(self, user_id, search_qty=None, icon=None, nav_items=None, role=None):
         self.config.set_view(self.request)
-        context = super().get_app_context(user_id, search_qty, icon, nav_items, **kwargs)
+        context = super().get_app_context(user_id, search_qty, icon, nav_items)
         # context['groups'] = FamTree.objects.all()
         # context['theme_id'] = 8
         cur_tree = Params.get_cur_tree(self.request.user)
         if cur_tree:
             context['current_group'] = str(cur_tree.id)
+        context['api_role'] = 'famtree'
         return context
 
 class GenealogyListView(ListView, GenealogyContext, LoginRequiredMixin):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self):
+        super().__init__()
         self.set_config(app_config, 'tree')
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         if not request.user.is_authenticated:
             raise Http404
-        ret = super().get(request, *args, **kwargs)
+        ret = super().get(request)
         cur_tree = Params.get_cur_tree(request.user)
         if (self.config.group_entity not in request.GET and cur_tree):
             return HttpResponseRedirect(request.path + '?' + self.config.group_entity + '=' + str(cur_tree.id))
+        elif 'tree' in request.GET:
+            s_tree_id = request.GET.get('tree')
+            if s_tree_id:
+                tree_id = int(s_tree_id)
+                if FamTree.objects.filter(id=tree_id).exists():
+                    tree = FamTree.objects.filter(id=tree_id).get()
+                    Params.set_cur_tree(request.user, tree)
         return ret
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_context_data(self):
+        context = super().get_context_data()
         self.config.set_view(self.request)
         upd_context = self.get_app_context(self.request.user.id, icon=self.config.view_icon)
         context.update(upd_context)
         return context
 
-    def tune_dataset(self, data, group):
-        return data
-
-class FamTreeListView(GenealogyListView):
+class PedigreeListView(GenealogyListView):
     model = FamTree
     form_class = CreateFamTreeForm
-    template_name = 'family/famtree-list.html'
+    template_name = 'family/pedigree.html'
+
+    def get_context_data(self):
+        context = super().get_context_data()
+        return context
+
+    def get_dataset(self, group, nav_item):
+        return super().get_dataset(group, nav_item)
+
+    def get_queryset(self):
+        ft = super().get_queryset()
+        s_tree_id = self.request.GET.get('tree')
+        tree_id = None
+        if s_tree_id:
+            tree_id = int(s_tree_id)
+            get_object_or_404(FamTree.objects.filter(id=tree_id))
+        ret = []
+        for t in ft:
+            ret.append({'id': t.id, 'name': t.name, 'important': tree_id and t.id == int(tree_id),})
+        return ret
+
 
 class IndiListView(GenealogyListView):
     model = IndiInfo
     form_class = CreateIndiForm
-    template_name = 'family/people.html'
+    template_name = 'family/individuals.html'
 
     def get_queryset(self):
         tree_id = self.request.GET.get('tree')
@@ -95,6 +118,28 @@ class FamListView(GenealogyListView):
             return FamRecord.objects.filter(tree=tree_id)
         return []
 
+class CalendarListView(GenealogyListView):
+    model = FamTree
+    template_name = 'family/calendar.html'
+
+    def get_queryset(self):
+        tree_id = self.request.GET.get('tree')
+        if tree_id:
+            return FamTree.objects.filter(id=tree_id)
+        return []
+
+
+class NotesListView(GenealogyListView):
+    model = FamTree
+    template_name = 'family/notes.html'
+
+    def get_queryset(self):
+        tree_id = self.request.GET.get('tree')
+        if tree_id:
+            return FamTree.objects.filter(id=tree_id)
+        return []
+
+
 class MediaListView(GenealogyListView):
     model = MultimediaRecord
     form_class = CreateMediaForm
@@ -108,14 +153,25 @@ class MediaListView(GenealogyListView):
         return []
 
 
+class ReportsListView(GenealogyListView):
+    model = FamTree
+    template_name = 'family/reports.html'
+
+    def get_queryset(self):
+        tree_id = self.request.GET.get('tree')
+        if tree_id:
+            return FamTree.objects.filter(id=tree_id)
+        return []
+
+
 class GenealogyDetailsView(UpdateView, GenealogyContext, LoginRequiredMixin):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self):
+        super().__init__()
         self.set_config(app_config, 'tree')
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_context_data(self):
+        context = super().get_context_data()
         self.config.set_view(self.request)
         upd_context = self.get_app_context(self.request.user.id, icon=self.config.view_icon)
         context.update(upd_context)
@@ -129,8 +185,8 @@ class FamTreeDetailsView(GenealogyDetailsView):
     form_class = EditFamTreeForm
     template_name = 'family/famtree-detail.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_context_data(self):
+        context = super().get_context_data()
         context['sour_corp_addr'] = 'todo::sour_corp_addr'
         context['tree_id'] = self.get_object().id
         return context
@@ -151,9 +207,9 @@ EXTRA_FIXES = [
 class IndiDetailsView(GenealogyDetailsView):
     model = IndiInfo
     form_class = EditIndiEssentials
-    template_name = 'family/person.html'
+    template_name = 'family/individual.html'
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         if not request.user.is_authenticated:
             raise Http404
         cur_view = None
@@ -161,20 +217,20 @@ class IndiDetailsView(GenealogyDetailsView):
             cur_view = self.request.GET.get('view')
         extra_fixes_keys = [x[0] for x in EXTRA_FIXES]
         if (cur_view not in extra_fixes_keys):
-            return HttpResponseRedirect(reverse('family:person', args=(self.get_object().id,)) + '?view=essentials')
-        self.template_name = 'family/person/' + cur_view + '.html'
-        ret = super().get(request, *args, **kwargs)
+            return HttpResponseRedirect(reverse('family:individual', args=(self.get_object().id,)) + '?view=essentials')
+        self.template_name = 'family/individual/' + cur_view + '.html'
+        ret = super().get(request)
         return ret
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_context_data(self):
+        context = super().get_context_data()
         context['extra_fix_list'] = self.get_extra_fixes()
         context['indi_id'] = self.get_object().id
         cur_view = self.request.GET.get('view')
         match cur_view:
             case 'essentials': pass
             case 'family':
-                context['families'] = IndiFamilies.objects.filter(chil_id=self.get_object().id)
+                context['family'] = IndiFamilies.objects.filter(chil_id=self.get_object().id)
                 context['spouses'] = self.get_spouses()
             case 'biography': pass
             case 'contacts': pass
@@ -227,7 +283,7 @@ class IndiDetailsView(GenealogyDetailsView):
             fixes.append({
                 'determinator': 'view',
                 'id': fix[0],
-                'url': reverse('family:person', args=(self.get_object().id,)) + '?view=' + fix[0],
+                'url': reverse('family:individual', args=(self.get_object().id,)) + '?view=' + fix[0],
                 'title': _(fix[1]).capitalize(),
                 'active': (cur_view == fix[0]),
             })
@@ -262,7 +318,7 @@ def tree(request):
             if indi:
                 return HttpResponseRedirect(request.path + '?indi=' + str(indi.id))
             else:
-                return HttpResponseRedirect(reverse('family:people') + '?tree=' + str(tree_id))
+                return HttpResponseRedirect(reverse('family:individuals') + '?tree=' + str(tree_id))
     indi_list = []
     path_list = []
     indi_ids = None
@@ -309,8 +365,8 @@ def tree(request):
 
     action_list = []
     action_list.append({'name': _('properties').capitalize(), 'w': 100, 'h': 30, 'x': 10, 'y': 10, 'tx': 5, 'ty': 20, 'href': reverse('family:famtree-details', args=(tree_id,))})
-    action_list.append({'name': _('persons').capitalize(), 'w': 100, 'h': 30, 'x': 10, 'y': 50, 'tx': 5, 'ty': 20, 'href': reverse('family:people') + tree_href})
-    action_list.append({'name': _('families').capitalize(), 'w': 100, 'h': 30, 'x': 10, 'y': 90, 'tx': 5, 'ty': 20, 'href': reverse('family:families') + tree_href})
+    action_list.append({'name': _('individual').capitalize(), 'w': 100, 'h': 30, 'x': 10, 'y': 50, 'tx': 5, 'ty': 20, 'href': reverse('family:individuals') + tree_href})
+    action_list.append({'name': _('family').capitalize(), 'w': 100, 'h': 30, 'x': 10, 'y': 90, 'tx': 5, 'ty': 20, 'href': reverse('family:families') + tree_href})
     action_list.append({'type': 'circle', 'x': 55, 'y': 140, 'path': 'M0,5v-10M5,0h-10', 'onclick': 'zoomIn()'})
     action_list.append({'type': 'circle', 'x': 55, 'y': 170, 'path': 'M5,0h-10', 'onclick': 'zoomOut()'})
 
@@ -353,8 +409,8 @@ def path_descr(ay, bx, by):
     }
 
 class Ancestor:
-    def __init__(self, prev, child, indi, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, prev, child, indi):
+        super().__init__()
         self.indi = indi # IndividualRecord
         self.child = child # Ancestor
         self.prev = prev # Ancestor

@@ -1,0 +1,12 @@
+{% extends "base/list.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link href="{% static 'scss/family.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'js/family.js' %}"></script>
+{% endblock %}

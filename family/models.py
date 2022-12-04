@@ -87,7 +87,7 @@ class FamTree(models.Model):
     mark = models.CharField(_('debug marker'), max_length=20, blank=True, null=True)
     cur_indi = models.IntegerField(_('current individual id'), null=True)
     name = models.CharField(_('family tree name'), max_length=200, blank=True, null=True)
-    depth = models.IntegerField(_('tree depth'), null=True)
+    depth = models.IntegerField(_('tree depth'), default=0, null=True)
 
     def __str__(self):
         return self.name
@@ -504,7 +504,7 @@ class IndividualEventStructure(models.Model):
     value = models.CharField(_('event descriptor'), max_length=90, blank=True, null=True)
     age = models.CharField(_('age at event'), max_length=13, blank=True, null=True)
     famc = models.ForeignKey(FamRecord, on_delete=models.SET_NULL, verbose_name=_('child'), related_name='event_structure_child', null=True)
-    adop = models.CharField(_('adopted by whith parent'), max_length=4, blank=True, null=True)
+    adop = models.CharField(_('adopted by which parent'), max_length=4, blank=True, null=True)
     deta = models.ForeignKey(EventDetail, on_delete=models.SET_NULL, verbose_name=_('event_detail'), related_name='individual_event_event_detail', null=True)
     _sort = models.IntegerField(_('sort order'), null=True)
 
@@ -566,7 +566,7 @@ class SourceRecord(models.Model):
     xref = models.IntegerField(_('identifier in the source system'), null=True)
     data_even = models.CharField(_('events recorded'), max_length=90, blank=True, null=True)
     data_date = models.CharField(_('date period'), max_length=35, blank=True, null=True)
-    data_plac = models.CharField(_('source juridication place'), max_length=120, blank=True, null=True)
+    data_plac = models.CharField(_('source jurisdiction place'), max_length=120, blank=True, null=True)
     data_agnc = models.CharField(_('responsible agency'), max_length=120, blank=True, null=True)
     auth = models.TextField(_('source originator'), blank=True, null=True)
     titl = models.TextField(_('source descriptive title'), blank=True, null=True)
@@ -740,7 +740,7 @@ class NoteStructure(models.Model):
     pnpi = models.ForeignKey(PersonalNamePieces, on_delete=models.CASCADE, verbose_name=_('personal_name_pieces'), related_name='personal_name_pieces_note', null=True)
     plac = models.ForeignKey(PlaceStructure, on_delete=models.CASCADE, verbose_name=_('place'), related_name='place_note', null=True)
     note = models.ForeignKey(NoteRecord, on_delete=models.CASCADE, verbose_name=_('note'), related_name='note_structure_note', null=True)
-    mode = models.IntegerField(_('wich part of noted structure'), default=0)
+    mode = models.IntegerField(_('which part of noted structure'), default=0)
     _sort = models.IntegerField(_('sort order'), null=True)
 
 class UserReferenceNumber(models.Model):

@@ -122,9 +122,15 @@ function toggleCompleted(item_id) {
     runAPI(api, callback);
 }
 
-function toggleImportant(item_id, redirect=true) {
+function toggleImportant(item_id, api_role='tasks', redirect=true) {
+    if (!api_role)
+        api_role = 'tasks';
+    if (api_role == 'famtree') {
+        window.location.search = '?tree=' + item_id;
+        return;
+    }
     const redirect_url = window.location.href;
-    const api = '/api/tasks/' + item_id + '/important/?format=json';
+    const api = '/api/' + api_role + '/' + item_id + '/important/?format=json';
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             if (redirect)

@@ -23,7 +23,7 @@
                 <th class="place">{% trans 'death place'|capfirst %}</th>
             </tr>
             {% for item in object_list %}
-                <tr onclick="personDetail({{ item.id|safe }})">
+                <tr onclick="individualDetail({{ item.id|safe }})">
                     <td class="photo" style="padding: 0;"><img src="{{ item.thumbnail }}" height="44"/></td>
                     <td>{{ item.givn }}</td>
                     <td>{{ item.surn }}</td>

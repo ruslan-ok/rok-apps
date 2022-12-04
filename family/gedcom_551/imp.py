@@ -100,7 +100,7 @@ class ImpGedcom551:
     # ------------- FamTree ---------------
 
     def read_header(self, item, file):
-        tree = FamTree.objects.create()
+        tree = FamTree.objects.create(depth=0)
         for x in item.sub_tags(follow=False):
             match x.tag:
                 case 'SOUR': self.header_source(tree, x)
