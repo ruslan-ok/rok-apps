@@ -18,13 +18,9 @@ with cte_names as (
 		mmr.id as mmr_id,
 		mmr._prim as mmr_prim,
 		mmr._pari as mmr_pari,
-		mmr2.id as mmr2_id,
-		mmr2._prin as  mmr2_prin,
 		replace(mmf.file, rtrim(mmf.file, replace(mmf.file, '/', '')), '') as file,
-		replace(mmf2.file, rtrim(mmf2.file, replace(mmf2.file, '/', '')), '') as file2,
 		row_number() over(partition by ir.id order by mmr._prim nulls last) as rn,
-		mmr._posi as mmr_posi,
-		mmr2._posi as mmr2_posi
+		mmr._posi as mmr_posi
 	from family_individualrecord ir
 	left join family_personalnamestructure pns
 		on ir.id = pns.indi_id
@@ -34,16 +30,11 @@ with cte_names as (
 		on ir.id = mml.indi_id
 	left join family_multimediarecord mmr
 		on mml.obje_id = mmr.id
-	left join family_multimediarecord mmr2
-		on mmr._pari = mmr2._prin
 		and mmr._prim = 'Y'
-		and mmr.tree_id = mmr2.tree_id
 	left join family_multimediafile mmf
 		on mmr.id = mmf.obje_id
-	left join family_multimediafile mmf2
-		on mmr2.id = mmf2.obje_id
 )
---select * from cte_names where id = 10;
+--select * from cte_names where id = 951 and rn = 1;
 , cte_files as (
 	select
 		q1.id,
@@ -54,14 +45,14 @@ with cte_names as (
 		q1.givn,
 		q1.surn,
 		q1._marnm,
-		coalesce(q1.mmr2_id, q1.mmr_id) as mmr_id,
+		q1.mmr_id,
 		q1.mmr_prim,
-		coalesce(q1.file2, q1.file) as file,
-		coalesce(q1.mmr2_posi, q1.mmr_posi) as mmr_posi
+		q1.file,
+		q1.mmr_posi
 	from cte_names q1
 	where q1.rn = 1
 )
---select * from cte_files;
+--select * from cte_files where id = 951;
 , cte_dates as (
 	select
 		ir.id,
@@ -141,5 +132,4 @@ with cte_names as (
 	from cte_files as q1
 	join cte_age as ages
 		on q1.id = ages.id
-	--where q1.id = 10
 ;

@@ -192,16 +192,16 @@ class FamTreeDetailsView(GenealogyDetailsView):
         return context
 
 EXTRA_FIXES = [
-    ('essentials', 'essentials'),
-    ('family', 'family'),
-    ('biography', 'biography'),
-    ('contacts', 'contact info'),
-    ('work', 'work'),
-    ('education', 'education'),
-    ('favorites', 'favorites'),
-    ('pers_info', 'personal info'),
-    ('citation', 'source citation'),
-    ('facts', 'all facts'),
+    ('essentials', _('essentials')),
+    ('family', _('family')),
+    ('biography', _('biography')),
+    ('contacts', _('contact info')),
+    ('work', _('work')),
+    ('education', _('education')),
+    ('favorites', _('favorites')),
+    ('pers_info', _('personal info')),
+    ('citation', _('source citation')),
+    ('facts', _('all facts')),
 ]
 
 class IndiDetailsView(GenealogyDetailsView):
@@ -209,7 +209,7 @@ class IndiDetailsView(GenealogyDetailsView):
     form_class = EditIndiEssentials
     template_name = 'family/individual.html'
 
-    def get(self, request):
+    def get(self, request, pk):
         if not request.user.is_authenticated:
             raise Http404
         cur_view = None
@@ -364,11 +364,9 @@ def tree(request):
         tree_href = '?tree=' + str(tree_id)
 
     action_list = []
-    action_list.append({'name': _('properties').capitalize(), 'w': 100, 'h': 30, 'x': 10, 'y': 10, 'tx': 5, 'ty': 20, 'href': reverse('family:famtree-details', args=(tree_id,))})
-    action_list.append({'name': _('individual').capitalize(), 'w': 100, 'h': 30, 'x': 10, 'y': 50, 'tx': 5, 'ty': 20, 'href': reverse('family:individuals') + tree_href})
-    action_list.append({'name': _('family').capitalize(), 'w': 100, 'h': 30, 'x': 10, 'y': 90, 'tx': 5, 'ty': 20, 'href': reverse('family:families') + tree_href})
-    action_list.append({'type': 'circle', 'x': 55, 'y': 140, 'path': 'M0,5v-10M5,0h-10', 'onclick': 'zoomIn()'})
-    action_list.append({'type': 'circle', 'x': 55, 'y': 170, 'path': 'M5,0h-10', 'onclick': 'zoomOut()'})
+    action_list.append({'name': _('menu').capitalize(), 'w': 100, 'h': 30, 'x': 10, 'y': 10, 'tx': 5, 'ty': 20, 'href': reverse('family:pedigree') + tree_href})
+    action_list.append({'type': 'circle', 'x': 55, 'y': 60, 'path': 'M0,5v-10M5,0h-10', 'onclick': 'zoomIn()'})
+    action_list.append({'type': 'circle', 'x': 55, 'y': 90, 'path': 'M5,0h-10', 'onclick': 'zoomOut()'})
 
     ctx = GenealogyContext()
     ctx.request = request

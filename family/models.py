@@ -262,6 +262,9 @@ class IndividualRecord(models.Model):
         mmr = None
         for mml in MultimediaLink.objects.filter(indi=self.id):
             if (mml.obje._prim == 'Y'):
+                if (mml.obje._pers == 'Y'):
+                    mmr = mml.obje
+                    break
                 if (mml.obje._cuto == 'Y' and mml.obje._pari and MultimediaRecord.objects.filter(tree=self.tree.id, _prin=mml.obje._pari).exists()):
                     mmr = MultimediaRecord.objects.filter(tree=self.tree.id, _prin=mml.obje._pari)[0]
                     break
@@ -278,8 +281,12 @@ class IndividualRecord(models.Model):
         mmr = None
         for mml in MultimediaLink.objects.filter(indi=self.id):
             if (mml.obje._prim == 'Y'):
+                if (mml.obje._pers == 'Y'):
+                    mmr = mml.obje
+                    break
                 if (mml.obje._cuto == 'Y' and mml.obje._pari and MultimediaRecord.objects.filter(tree=self.tree.id, _prin=mml.obje._pari).exists()):
                     mmr = MultimediaRecord.objects.filter(tree=self.tree.id, _prin=mml.obje._pari)[0]
+                    break
         if not mmr:
             if MultimediaLink.objects.filter(indi=self.id).exists():
                 mmr = MultimediaLink.objects.filter(indi=self.id)[0].obje
