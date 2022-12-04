@@ -265,6 +265,7 @@ def tree(request):
                 return HttpResponseRedirect(reverse('family:people') + '?tree=' + str(tree_id))
     indi_list = []
     path_list = []
+    indi_ids = None
     if ('indi' in request.GET):
         indi_ids = request.GET['indi']
         if (',' not in indi_ids):
@@ -317,6 +318,8 @@ def tree(request):
     ctx.request = request
     ctx.set_config(app_config, 'tree')
     ctx.config.set_view(request)
+    if indi:
+        ctx.object = indi # To init Page Title
     context = ctx.get_app_context(request.user.id, icon=ctx.config.view_icon)
     context['indi_ids'] = indi_ids
     context['indi_list'] = indi_list

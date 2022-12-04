@@ -237,8 +237,8 @@ class IndividualRecord(models.Model):
         photo = ''
         for ml in MultimediaLink.objects.filter(indi=self.id):
             if (ml.obje._prim == 'Y'):
-                if (ml.obje._cuto == 'Y' and ml.obje._pari and MultimediaRecord.objects.filter(_prin=ml.obje._pari).exists()):
-                    mr = MultimediaRecord.objects.filter(_prin=ml.obje._pari)[0]
+                if (ml.obje._cuto == 'Y' and ml.obje._pari and MultimediaRecord.objects.filter(tree=self.tree.id, _prin=ml.obje._pari).exists()):
+                    mr = MultimediaRecord.objects.filter(tree=self.tree.id, _prin=ml.obje._pari)[0]
                     mf = MultimediaFile.objects.filter(obje=mr.id)[0]
                 else:
                     mf = MultimediaFile.objects.filter(obje=ml.obje.id)[0]
@@ -262,8 +262,9 @@ class IndividualRecord(models.Model):
         mmr = None
         for mml in MultimediaLink.objects.filter(indi=self.id):
             if (mml.obje._prim == 'Y'):
-                if (mml.obje._cuto == 'Y' and mml.obje._pari and MultimediaRecord.objects.filter(_prin=mml.obje._pari).exists()):
-                    mmr = MultimediaRecord.objects.filter(_prin=mml.obje._pari)[0]
+                if (mml.obje._cuto == 'Y' and mml.obje._pari and MultimediaRecord.objects.filter(tree=self.tree.id, _prin=mml.obje._pari).exists()):
+                    mmr = MultimediaRecord.objects.filter(tree=self.tree.id, _prin=mml.obje._pari)[0]
+                    break
         if not mmr:
             if MultimediaLink.objects.filter(indi=self.id).exists():
                 mmr = MultimediaLink.objects.filter(indi=self.id)[0].obje
@@ -277,8 +278,8 @@ class IndividualRecord(models.Model):
         mmr = None
         for mml in MultimediaLink.objects.filter(indi=self.id):
             if (mml.obje._prim == 'Y'):
-                if (mml.obje._cuto == 'Y' and mml.obje._pari and MultimediaRecord.objects.filter(_prin=mml.obje._pari).exists()):
-                    mmr = MultimediaRecord.objects.filter(_prin=mml.obje._pari)[0]
+                if (mml.obje._cuto == 'Y' and mml.obje._pari and MultimediaRecord.objects.filter(tree=self.tree.id, _prin=mml.obje._pari).exists()):
+                    mmr = MultimediaRecord.objects.filter(tree=self.tree.id, _prin=mml.obje._pari)[0]
         if not mmr:
             if MultimediaLink.objects.filter(indi=self.id).exists():
                 mmr = MultimediaLink.objects.filter(indi=self.id)[0].obje
@@ -764,7 +765,7 @@ class Params(models.Model):
             if FamTree.objects.filter(id=params.cur_tree.id).exists():
                 return params.cur_tree
         if len(FamTree.objects.all()) > 0:
-            tree = FamTree.objects.all()[0]
+            tree = FamTree.objects.all().order_by('sort')[0]
             Params.set_cur_tree(user, tree)
             return tree
         return None
@@ -791,7 +792,7 @@ class Params(models.Model):
                 return indi
             cls.set_cur_indi(tree, None)
         if IndividualRecord.objects.filter(tree=tree.id).exists():
-            indi = IndividualRecord.objects.filter(tree=tree.id).get()
+            indi = IndividualRecord.objects.filter(tree=tree.id)[0]
             Params.set_cur_indi(tree, indi)
             return indi
         return None

@@ -76,3 +76,11 @@ function makeDraggable(evt) {
 function personDetail(id) {
     window.location = '/family/person/' + id + '/';
 }
+
+function zoomIn() {
+    console.log('The "zoomIn()"  function is not implemented.')
+}
+
+function zoomOut() {
+    console.log('The "zoomOut()"  function is not implemented.')
+}
