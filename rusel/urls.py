@@ -1,4 +1,4 @@
-#from django.contrib import admin
+from django.contrib import admin
 from django.conf.urls.i18n import i18n_patterns
 from django.urls import include, path
 from django.conf import settings
@@ -42,6 +42,7 @@ urlpatterns = i18n_patterns(
     path('todo/',   include('todo.urls')),
     path('warr/',   include('warr.urls')),
     path('logs/',   include('logs.urls')),
+    path('admin/',  admin.site.urls, name='admin'),
     path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
     path('api/',    include(api_router.urls)),
     path('api/get_widget/', api_widget.get_widget, name='get_widget'),

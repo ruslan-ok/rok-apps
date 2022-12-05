@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from api.family import FamTreeSerializer
 from family.gedcom_551.exp import ExpGedcom551
 from family.gedcom_551.imp import ImpGedcom551
-from family.models import FamTree, IndividualRecord
+from family.models import FamTreeUser, IndividualRecord
 from family.utils import update_media
 
 
@@ -27,7 +27,7 @@ class FamTreeViewSet(viewsets.ModelViewSet):
             instance.delete()
 
     def get_queryset(self):
-        return FamTree.objects.all()
+        return FamTreeUser.objects.filter(user_id=self.request.user.id)
 
     @action(detail=False)
     def import_gedcom_5_5_1(self, request, pk=None):
@@ -54,3 +54,9 @@ class FamTreeViewSet(viewsets.ModelViewSet):
         updated = update_media(pk)
         return Response({'updated': updated})
     
+    @action(detail=True)
+    def important(self, request, pk=None):
+        user_tree = FamTreeUser.objects.filter(user_id=request.user.id, id=pk).get()
+        if user_tree.tree_id:
+            return Response({'result': 'ok', 'tree_id': user_tree.tree_id})
+        return Response({'result': 'error', 'info': 'Specified family tree not found.'})

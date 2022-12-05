@@ -105,9 +105,10 @@ class BaseListView(ListView, Context):
         context['use_sub_groups'] = use_sub_groups
         if use_sub_groups:
             sub_groups = self.load_sub_groups()
-            for task in self.object_list:
-                group = self.find_sub_group(sub_groups, task.subgroup_id, task.subgroup_name)
-                group['items'].append(task)
+            if self.object_list:
+                for task in self.object_list:
+                    group = self.find_sub_group(sub_groups, task.subgroup_id, task.subgroup_name)
+                    group['items'].append(task)
             self.save_sub_groups(sub_groups)
             context['sub_groups'] = sorted(sub_groups, key = lambda group: group['id'])
 

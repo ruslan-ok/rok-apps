@@ -1,5 +1,6 @@
 import urllib, os
 from PIL import Image
+from dataclasses import dataclass
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect, Http404, FileResponse
 from django.urls import reverse
@@ -11,7 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from django.shortcuts import get_object_or_404
 from rusel.base.context import Context
 from family.config import app_config
-from family.models import (FamTree, IndividualRecord, FamRecord, MultimediaRecord, Params, IndiInfo, IndiFamilies,
+from family.models import (FamTree, FamTreeUser, IndividualRecord, FamRecord, MultimediaRecord, Params, IndiInfo, IndiFamilies,
     IndiSpouses)
 from family.forms import (CreateFamTreeForm, EditFamTreeForm, CreateIndiForm, CreateFamForm, CreateMediaForm,
     EditIndiEssentials)
@@ -20,10 +21,10 @@ class GenealogyContext(Context):
     def get_dataset(self, group, query=None, nav_item=None):
         tree_id = self.request.GET.get('tree')
         if tree_id:
-            get_object_or_404(FamTree.objects.filter(id=tree_id))
+            get_object_or_404(FamTreeUser.objects.filter(user_id=self.request.user.id, tree_id=tree_id))
             if group:
                 match group.view_id:
-                    case 'pedigree': return FamTree.objects.all()
+                    case 'pedigree': return FamTreeUser.objects.filter(user_id=self.request.user.id)
                     case 'individual': return IndiInfo.objects.filter(tree_id=tree_id)
                     case 'family': return FamRecord.objects.filter(tree=tree_id)
                     case 'media': return MultimediaRecord.objects.filter(tree=tree_id)
@@ -32,8 +33,6 @@ class GenealogyContext(Context):
     def get_app_context(self, user_id, search_qty=None, icon=None, nav_items=None, role=None):
         self.config.set_view(self.request)
         context = super().get_app_context(user_id, search_qty, icon, nav_items)
-        # context['groups'] = FamTree.objects.all()
-        # context['theme_id'] = 8
         cur_tree = Params.get_cur_tree(self.request.user)
         if cur_tree:
             context['current_group'] = str(cur_tree.id)
@@ -57,8 +56,9 @@ class GenealogyListView(ListView, GenealogyContext, LoginRequiredMixin):
             s_tree_id = request.GET.get('tree')
             if s_tree_id:
                 tree_id = int(s_tree_id)
-                if FamTree.objects.filter(id=tree_id).exists():
-                    tree = FamTree.objects.filter(id=tree_id).get()
+                if FamTreeUser.objects.filter(user_id=request.user.id, tree_id=tree_id).exists():
+                    user_tree = FamTreeUser.objects.filter(user_id=request.user.id, tree_id=tree_id).get()
+                    tree = FamTree.objects.filter(id=user_tree.tree_id).get()
                     Params.set_cur_tree(request.user, tree)
         return ret
 
@@ -69,8 +69,17 @@ class GenealogyListView(ListView, GenealogyContext, LoginRequiredMixin):
         context.update(upd_context)
         return context
 
+@dataclass
+class Pedigree:
+    id: int
+    name: str
+    important: bool
+
+    def get_absolute_url(self):
+        return reverse('family:pedigree-detail', args=(self.id,))
+
 class PedigreeListView(GenealogyListView):
-    model = FamTree
+    model = FamTreeUser
     form_class = CreateFamTreeForm
     template_name = 'family/pedigree.html'
 
@@ -82,17 +91,19 @@ class PedigreeListView(GenealogyListView):
         return super().get_dataset(group, nav_item)
 
     def get_queryset(self):
-        ft = super().get_queryset()
+        ft = FamTreeUser.objects.filter(user_id=self.request.user.id)
         s_tree_id = self.request.GET.get('tree')
-        tree_id = None
+        user_tree = None
         if s_tree_id:
-            tree_id = int(s_tree_id)
-            get_object_or_404(FamTree.objects.filter(id=tree_id))
+            user_tree = get_object_or_404(FamTreeUser.objects.filter(user_id=self.request.user.id, tree_id=int(s_tree_id)))
         ret = []
         for t in ft:
-            ret.append({'id': t.id, 'name': t.name, 'important': tree_id and t.id == int(tree_id),})
+            if t.name:
+                important = False
+                if user_tree:
+                    important = t.tree_id == int(user_tree.tree_id)
+                ret.append(Pedigree(id=t.tree_id, name=t.name, important=important))
         return ret
-
 
 class IndiListView(GenealogyListView):
     model = IndiInfo
@@ -102,7 +113,7 @@ class IndiListView(GenealogyListView):
     def get_queryset(self):
         tree_id = self.request.GET.get('tree')
         if tree_id:
-            get_object_or_404(FamTree.objects.filter(id=tree_id))
+            get_object_or_404(FamTreeUser.objects.filter(user_id=self.request.user.id, tree_id=tree_id))
             return IndiInfo.objects.filter(tree_id=tree_id)
         return []
 
@@ -114,29 +125,29 @@ class FamListView(GenealogyListView):
     def get_queryset(self):
         tree_id = self.request.GET.get('tree')
         if tree_id:
-            get_object_or_404(FamTree.objects.filter(id=tree_id))
+            get_object_or_404(FamTreeUser.objects.filter(user_id=self.request.user.id, tree_id=tree_id))
             return FamRecord.objects.filter(tree=tree_id)
         return []
 
 class CalendarListView(GenealogyListView):
-    model = FamTree
+    model = FamTreeUser
     template_name = 'family/calendar.html'
 
     def get_queryset(self):
         tree_id = self.request.GET.get('tree')
         if tree_id:
-            return FamTree.objects.filter(id=tree_id)
+            return FamTreeUser.objects.filter(user_id=self.request.user.id, tree_id=tree_id)
         return []
 
 
 class NotesListView(GenealogyListView):
-    model = FamTree
+    model = FamTreeUser
     template_name = 'family/notes.html'
 
     def get_queryset(self):
         tree_id = self.request.GET.get('tree')
         if tree_id:
-            return FamTree.objects.filter(id=tree_id)
+            return FamTreeUser.objects.filter(user_id=self.request.user.id, tree_id=tree_id)
         return []
 
 
@@ -148,19 +159,19 @@ class MediaListView(GenealogyListView):
     def get_queryset(self):
         tree_id = self.request.GET.get('tree')
         if tree_id:
-            get_object_or_404(FamTree.objects.filter(id=tree_id))
+            get_object_or_404(FamTreeUser.objects.filter(user_id=self.request.user.id, tree_id=tree_id))
             return MultimediaRecord.objects.filter(tree=tree_id)
         return []
 
 
 class ReportsListView(GenealogyListView):
-    model = FamTree
+    model = FamTreeUser
     template_name = 'family/reports.html'
 
     def get_queryset(self):
         tree_id = self.request.GET.get('tree')
         if tree_id:
-            return FamTree.objects.filter(id=tree_id)
+            return FamTreeUser.objects.filter(user_id=self.request.user.id, tree_id=tree_id)
         return []
 
 
@@ -180,7 +191,7 @@ class GenealogyDetailsView(UpdateView, GenealogyContext, LoginRequiredMixin):
     def tune_dataset(self, data, group):
         return data
 
-class FamTreeDetailsView(GenealogyDetailsView):
+class PedigreeDetailsView(GenealogyDetailsView):
     model = FamTree
     form_class = EditFamTreeForm
     template_name = 'family/famtree-detail.html'
@@ -309,8 +320,8 @@ def tree(request):
             return HttpResponseRedirect(request.path + '?tree=' + str(tree.id))
     if ('indi' not in request.GET and 'tree' in request.GET):
         tree_id = request.GET['tree']
-        if FamTree.objects.filter(id=tree_id).exists():
-            tree = FamTree.objects.filter(id=tree_id).get()
+        if FamTreeUser.objects.filter(user_id=request.user.id, tree_id=tree_id).exists():
+            tree = FamTreeUser.objects.filter(user_id=request.user.id, tree_id=tree_id).get()
         else:
             tree = Params.get_cur_tree(request.user)
         if tree:
@@ -332,28 +343,31 @@ def tree(request):
             indi_id = indi_id_list[0]
         if IndividualRecord.objects.filter(id=indi_id).exists():
             indi = IndividualRecord.objects.filter(id=indi_id).get()
-            Params.set_cur_indi(indi.tree, indi)
-            items_tree = []
-            children = indi.get_children()
-            children_qnt = len(children)
-            child_pos = int(-1 * (children_qnt - 1))
-            build_ancestor_tree(items_tree, indi_id_list, None, indi, 0)
-            count_ancestor_tree(items_tree, child_pos)
-            ix = 1
-            iy = items_tree[0][0].pos
-            cx = 0
-            cy = int(-1 * (children_qnt - 1)) + iy
-            for child in children:
-                indi_list.append(indi_descr(child, cx, cy))
-                path_list.append(path_descr(cy, ix, iy))
-                cy += 2
-            indi_list.append(indi_descr(indi, ix, iy))
-            ix = 2
-            while ix <= len(items_tree):
-                for ancestor in items_tree[ix-1]:
-                    indi_list.append(indi_descr(ancestor.indi, ix, ancestor.pos, ancestor.fam_btn))
-                    path_list.append(path_descr(ancestor.child.pos, ix, ancestor.pos))
-                ix += 1
+            if not FamTreeUser.objects.filter(user_id=request.user.id, tree_id=indi.tree.id).exists():
+                indi = None
+            else:
+                Params.set_cur_indi(indi.tree, indi)
+                items_tree = []
+                children = indi.get_children()
+                children_qnt = len(children)
+                child_pos = int(-1 * (children_qnt - 1))
+                build_ancestor_tree(items_tree, indi_id_list, None, indi, 0)
+                count_ancestor_tree(items_tree, child_pos)
+                ix = 1
+                iy = items_tree[0][0].pos
+                cx = 0
+                cy = int(-1 * (children_qnt - 1)) + iy
+                for child in children:
+                    indi_list.append(indi_descr(child, cx, cy))
+                    path_list.append(path_descr(cy, ix, iy))
+                    cy += 2
+                indi_list.append(indi_descr(indi, ix, iy))
+                ix = 2
+                while ix <= len(items_tree):
+                    for ancestor in items_tree[ix-1]:
+                        indi_list.append(indi_descr(ancestor.indi, ix, ancestor.pos, ancestor.fam_btn))
+                        path_list.append(path_descr(ancestor.child.pos, ix, ancestor.pos))
+                    ix += 1
     tree_id = None
     if indi:
         tree_id = indi.tree.id
@@ -475,7 +489,8 @@ def count_ancestor_tree(items_tree, child_pos):
 
 def photo(request, pk):
     file = get_name_from_request(request, 'file')
-    tree = get_object_or_404(FamTree.objects.filter(id=pk))
+    user_tree = get_object_or_404(FamTreeUser.objects.filter(user_id=request.user.id, tree_id=pk))
+    tree = get_object_or_404(FamTree.objects.filter(id=user_tree.tree_id))
     storage_path = os.environ.get('DJANGO_STORAGE_PATH')
     media_path = storage_path.format('family_tree') + tree.store_name()
     fsock = open(media_path + '/' + file, 'rb')
@@ -497,7 +512,8 @@ def scaled_image(mmr: MultimediaRecord, size: int) -> HttpResponse:
     return response
 
 def thumbnail(request, pk, size=44):
-    tree = get_object_or_404(FamTree.objects.filter(id=pk))
+    user_tree = get_object_or_404(FamTreeUser.objects.filter(user_id=request.user.id, tree_id=pk))
+    tree = get_object_or_404(FamTree.objects.filter(id=user_tree.tree_id))
     mmr_id = get_name_from_request(request, 'mmr')
     mmr = get_object_or_404(MultimediaRecord.objects.filter(id=mmr_id, tree=tree.id))
     return scaled_image(mmr, size)

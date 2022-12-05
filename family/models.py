@@ -89,6 +89,15 @@ class FamTree(models.Model):
     name = models.CharField(_('family tree name'), max_length=200, blank=True, null=True)
     depth = models.IntegerField(_('tree depth'), default=0, null=True)
 
+    class Meta:
+        permissions = [
+            ('view', 'Can view family tree'),
+            ('clone', 'Can clone family tree'),
+            ('change', 'Can change family tree'),
+            ('delete', 'Can delete family tree'),
+            ('merge', 'Can merge two family trees'),
+        ]
+
     def __str__(self):
         return self.name
 
@@ -96,7 +105,7 @@ class FamTree(models.Model):
         return str(self.id)
 
     def get_absolute_url(self):
-        return reverse('family:famtree-details', args=(self.id,))
+        return reverse('family:pedigree-detail', args=(self.id,))
 
     def before_delete(self):
         if self.sour_corp_addr:
@@ -130,6 +139,87 @@ class FamTree(models.Model):
             else:
                 name = self.file
         return name
+
+#--------------------------------------------------
+class FamTreePermission(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'), related_name = 'famtree_permission_user')
+    tree = models.ForeignKey(FamTree, on_delete=models.CASCADE, verbose_name=_('family tree'), related_name='famtree_permission_tree')
+    can_view = models.BooleanField('Can view family tree', default=False)
+    can_clone = models.BooleanField('Can clone family tree', default=False)
+    can_change = models.BooleanField('Can change family tree', default=False)
+    can_delete = models.BooleanField('Can delete family tree', default=False)
+    can_merge = models.BooleanField('Can merge family tree', default=False)
+
+    def __str__(self):
+        perm = ''
+        if self.can_view:
+            perm += 'V'
+        else:
+            perm += '-'
+        if self.can_clone:
+            perm += 'C'
+        else:
+            perm += '-'
+        if self.can_change:
+            perm += 'E'
+        else:
+            perm += '-'
+        if self.can_delete:
+            perm += 'D'
+        else:
+            perm += '-'
+        if self.can_merge:
+            perm += 'M'
+        else:
+            perm += '-'
+        return f'{self.user.username} - {self.tree.name}: [{perm}]'
+
+
+class FamTreeUser(models.Model):
+    user_id = models.IntegerField(_('user id'), null=False)
+    can_view = models.BooleanField('Can view family tree', default=False)
+    can_clone = models.BooleanField('Can clone family tree', default=False)
+    can_change = models.BooleanField('Can change family tree', default=False)
+    can_delete = models.BooleanField('Can delete family tree', default=False)
+    can_merge = models.BooleanField('Can merge family tree', default=False)
+    tree_id = models.IntegerField(_('tree id'), null=False)
+    sour = models.CharField(_('system ID'), max_length=50, blank=True, null=True)
+    sour_vers = models.CharField(_('version number'), max_length=15, blank=True, null=True)
+    sour_name = models.CharField(_('name of product'), max_length=90, blank=True, null=True)
+    sour_corp = models.CharField(_('name of business'), max_length=90, blank=True, null=True)
+    sour_corp_addr_id = models.IntegerField(_('sour_corp_addr id'), null=False)
+    sour_data = models.CharField(_('name of source data'), max_length=90, blank=True, null=True)
+    sour_data_date = models.DateField(_('publication date'), blank=True, null=True)
+    sour_data_copr = models.TextField(_('copyright source data'), blank=True, null=True)
+    dest = models.CharField(_('receiving system name'), max_length=20, blank=True, null=True)
+    date = models.CharField(_('transmission date'), max_length=11, blank=True, null=True)
+    time = models.CharField(_('time value'), max_length=12, blank=True, null=True)
+    subm_id = models.IntegerField(_('submitter reference'), blank=True, null=True)
+    file = models.CharField(_('file name'), max_length=90, blank=True, null=True)
+    copr = models.CharField(_('copyright gedcom file'), max_length=90, blank=True, null=True)
+    gedc_vers = models.CharField(_('gedcom version number'), max_length=15, blank=True, null=True)
+    gedc_form = models.CharField(_('gedcom form'), max_length=20, blank=True, null=True)
+    gedc_form_vers = models.CharField(_('gedcom formversion number'), max_length=15, blank=True, null=True)
+    char = models.CharField(_('character set'), max_length=12, blank=True, null=True)
+    lang = models.CharField(_('language of text'), max_length=15, blank=True, null=True)
+    note = models.TextField(_('gedcom content description'), blank=True, null=True)
+    mh_id = models.CharField(_('ID in MyHeritage.com'), max_length=50, blank=True, null=True)
+    mh_prj_id = models.CharField(_('project GUID'), max_length=200, blank=True, null=True)
+    mh_rtl = models.CharField(_('source RTL'), max_length=200, blank=True, null=True)
+    sort = models.IntegerField(_('sorting position'), null=True)
+    created = models.DateTimeField(_('creation time'), blank=True, default=datetime.now)
+    last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now=True)
+    mark = models.CharField(_('debug marker'), max_length=20, blank=True, null=True)
+    cur_indi_id = models.IntegerField(_('current individual id'), null=True)
+    name = models.CharField(_('family tree name'), max_length=200, blank=True, null=True)
+    depth = models.IntegerField(_('tree depth'), default=0, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'family_vw_famtree'
+
+    def get_absolute_url(self):
+        return reverse('family:pedigree-detail', args=(self.tree_id,))
 
 #--------------------------------------------------
 class IndividualRecord(models.Model):
@@ -766,19 +856,23 @@ class Params(models.Model):
     cur_tree = models.ForeignKey(FamTree, on_delete=models.SET_NULL, verbose_name=_('current tree'), related_name='users_current_tree', null=True)
 
     @classmethod
-    def get_cur_tree(cls, user):
+    def get_cur_tree(cls, user) -> FamTree:
         if Params.objects.filter(user=user.id).exists():
             params = Params.objects.filter(user=user.id).get()
-            if FamTree.objects.filter(id=params.cur_tree.id).exists():
-                return params.cur_tree
-        if len(FamTree.objects.all()) > 0:
-            tree = FamTree.objects.all().order_by('sort')[0]
+            if params.cur_tree:
+                if FamTreeUser.objects.filter(user_id=user.id, tree_id=params.cur_tree.id).exists():
+                    return params.cur_tree
+                params.cur_tree = None
+                params.save()
+        if len(FamTreeUser.objects.filter(user_id=user.id)) > 0:
+            user_tree = FamTreeUser.objects.filter(user_id=user.id).order_by('sort')[0]
+            tree = FamTree.objects.filter(id=user_tree.tree_id).get()
             Params.set_cur_tree(user, tree)
             return tree
         return None
 
     @classmethod
-    def set_cur_tree(cls, user, tree):
+    def set_cur_tree(cls, user, tree: FamTree):
         if user and tree:
             if not Params.objects.filter(user=user.id).exists():
                 Params.objects.create(user=user, cur_tree=tree)
