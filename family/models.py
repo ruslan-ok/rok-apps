@@ -409,15 +409,6 @@ class IndividualRecord(models.Model):
                     ret = pns.piec.surn
         return ret
 
-    def prefix(self):
-        ret = ''
-        if PersonalNameStructure.objects.filter(indi=self.id).exists():
-            pns = PersonalNameStructure.objects.filter(indi=self.id)[0]
-            if pns.piec:
-                if pns.piec.nsfx:
-                    ret = pns.piec.nsfx
-        return ret
-
     def age(self):
         birt = None
         birt_year = None
@@ -461,7 +452,7 @@ class IndividualRecord(models.Model):
             return str(years)
 
     def get_absolute_url(self):
-        return reverse('family:list') + '?indi=' + str(self.id)
+        return reverse('family:individual-detail', args=(self.tree.id, self.id,))
 
 class PersonalNamePieces(models.Model):
     npfx = models.CharField(_('prefix'), max_length=30, blank=True, null=True)

@@ -1,7 +1,8 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 from family.config import app_config
-from family.models import FamTree, IndividualRecord, FamRecord, MultimediaRecord, IndiInfo, ChildToFamilyLink
+from family.models import (FamTree, IndividualRecord, IndiInfo, FamRecord, MultimediaRecord, RepositoryRecord, SourceRecord, SubmitterRecord, 
+    ChildToFamilyLink, NoteStructure,)
 from rusel.widgets import InlineRadio
 
 #----------------------------------
@@ -151,6 +152,74 @@ class CreateMediaForm(forms.ModelForm):
 
     class Meta:
         model = MultimediaRecord
+        fields = ['id']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.config = app_config
+        self.role = None
+        
+    def save(self, commit=True):
+        ret = super().save(commit=False)
+        ret.save()
+        return ret
+
+#----------------------------------
+class CreateRepoForm(forms.ModelForm):
+
+    class Meta:
+        model = RepositoryRecord
+        fields = ['id']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.config = app_config
+        self.role = None
+        
+    def save(self, commit=True):
+        ret = super().save(commit=False)
+        ret.save()
+        return ret
+
+#----------------------------------
+class CreateNoteForm(forms.ModelForm):
+
+    class Meta:
+        model = NoteStructure
+        fields = ['id']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.config = app_config
+        self.role = None
+        
+    def save(self, commit=True):
+        ret = super().save(commit=False)
+        ret.save()
+        return ret
+
+#----------------------------------
+class CreateSourceForm(forms.ModelForm):
+
+    class Meta:
+        model = SourceRecord
+        fields = ['id']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.config = app_config
+        self.role = None
+        
+    def save(self, commit=True):
+        ret = super().save(commit=False)
+        ret.save()
+        return ret
+
+#----------------------------------
+class CreateSubmitterForm(forms.ModelForm):
+
+    class Meta:
+        model = SubmitterRecord
         fields = ['id']
 
     def __init__(self, *args, **kwargs):

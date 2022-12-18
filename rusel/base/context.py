@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 from task.const import *
 from task.models import Task, detect_group
+from family.models import Params
 from rusel.base.config import Config
 from rusel.base.forms import CreateGroupForm
 from rusel.context import get_base_context
@@ -62,7 +63,10 @@ class Context:
             common_url = reverse('index')
         else:
             common_url = reverse(self.config.app + ':list')
-        nav_item=Task.get_active_nav_item(self.request.user.id, self.config.app)
+        if (self.config.app == APP_FAMILY):
+            nav_item = Params.get_cur_tree(self.request.user)
+        else:
+            nav_item=Task.get_active_nav_item(self.request.user.id, self.config.app)
         for key, value in views.items():
             if 'hide_on_host' in value:
                 if value['hide_on_host'] == os.environ.get('DJANGO_HOST'):
@@ -71,9 +75,13 @@ class Context:
             determinator = 'view'
             view_id = self.config.main_view
             if (view_id != key):
+                if (self.config.app == APP_FAMILY) and (not nav_item):
+                    continue
                 if ('role' in value):
                     determinator = 'role'
                     view_id = value['role']
+                    if (self.config.app == APP_FAMILY):
+                        url += str(nav_item.id) + '/'
                     url += view_id + '/'
                 else:
                     view_id = key

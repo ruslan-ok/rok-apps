@@ -29,7 +29,7 @@
             {% endfor %}
             <g transform="translate(150, 50)" id="draggable">
                 {% for indi in indi_list %}
-                    <a href="{% url 'family:list' %}?indi={{ indi.id|safe }}">
+                    <a href="{% url 'family:diagram' tree_id %}?indi={{ indi.id|safe }}">
                         <g class="person ancestor" transform="translate({{ indi.x|safe }}, {{ indi.y|safe }})">
                             <rect width="200" height="50" x="0" y="0" rx="5" ry="5" class="{% if indi.male %}male{% else %}female{% endif %}"></rect>
                             <image href="{{ indi.photo }}" height="44" width="44" x="3" y="3"/>
@@ -38,7 +38,7 @@
                         </g>
                     </a>
                     {% if indi.fam_btn %}
-                        <a href="{% url 'family:list' %}?indi={{ indi_ids|safe }},{{ indi.id|safe }}">
+                        <a href="{% url 'family:diagram' tree_id %}?indi={{ indi_ids|safe }},{{ indi.id|safe }}">
                             <g class="person_fam_link" transform="translate({{ indi.xr|safe }}, {{ indi.y|safe }})">
                                 <rect width="24" height="8" x="96" y="13" rx="2" ry="2" class="fam_link"></rect>
                                 <rect width="24" height="8" x="96" y="29" rx="2" ry="2" class="fam_link"></rect>

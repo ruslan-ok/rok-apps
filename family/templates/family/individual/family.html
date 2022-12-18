@@ -6,7 +6,7 @@
         <h5>{% trans 'parents'|capfirst %}</h5>
         <div class="row">
             <div class="col">
-                <a href="{% url 'family:individual' fami.husb_id %}">
+                <a href="{% url 'family:individual-detail' tree_id fami.husb_id %}">
                     <img src="{{ fami.husb_thumbnail }}" height="100"/>
                     {{ fami.husb_givn }}
                     {{ fami.husb_surn }}
@@ -14,7 +14,7 @@
                 {{ fami.husb_role }}
             </div>
             <div class="col">
-                <a href="{% url 'family:individual' fami.wife_id %}">
+                <a href="{% url 'family:individual-detail' tree_id fami.wife_id %}">
                     <img src="{{ fami.wife_thumbnail }}" height="100"/>
                     {{ fami.wife_givn }}
                     {{ fami.wife_surn }}
@@ -33,7 +33,7 @@
         <div class="row">
             <div class="col">
                 <h5>{{ spouse.role }}</h5>
-                <a href="{% url 'family:individual' spouse.id %}">
+                <a href="{% url 'family:individual-detail' tree_id spouse.id %}">
                     <img src="{{ spouse.spou_thumbnail }}" height="100"/>
                     {{ spouse.givn }}
                     {{ spouse.surn }}

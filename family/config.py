@@ -5,51 +5,65 @@ app_config = {
     'name': APP_FAMILY,
     'app_title': _('family tree'),
     'icon': 'diagram-3',
-    'main_view': 'tree',
+    'main_view': 'pedigree',
     'group_entity': 'tree',
     'views': {
         'pedigree': {
             'title': _('Pedigree'),
             'icon': 'collection', 
-            'role': 'pedigree',
             'use_important': True,
         },
-        'tree': {
+        'diagram': {
             'title': _('Diagram'),
             'icon': 'diagram-3', 
             'hide_qty': True,
+            'role': 'diagram',
         },
-        'calendar': {
-            'title': _('Calendar'),
-            'icon': 'calendar3', 
-            'role': 'calendar',
-            'hide_qty': True,
-        },
-        'people': {
+        'individual': {
             'title': _('Individuals'),
             'icon': 'person', 
             'role': 'individual',
         },
-        'families': {
+        'family': {
             'title': _('Families'),
             'icon': 'people', 
             'role': 'family',
-        },
-        'notes': {
-            'title': _('Notes'),
-            'icon': 'stickies', 
-            'role': 'notes',
-            'hide_qty': True,
         },
         'media': {
             'title': _('Media'),
             'icon': 'image', 
             'role': 'media',
         },
-        'reports': {
+        'repo': {
+            'title': _('Repository'),
+            'icon': 'file-text', 
+            'role': 'repo',
+        },
+        'note': {
+            'title': _('Notes'),
+            'icon': 'stickies', 
+            'role': 'note',
+        },
+        'source': {
+            'title': _('Sources'),
+            'icon': 'stickies', 
+            'role': 'source',
+        },
+        'submitter': {
+            'title': _('Submitters'),
+            'icon': 'stickies', 
+            'role': 'submitter',
+        },
+        'report': {
             'title': _('Reports'),
             'icon': 'file-text', 
-            'role': 'reports',
+            'role': 'report',
+            'hide_qty': True,
+        },
+        'calendar': {
+            'title': _('Calendar'),
+            'icon': 'calendar3', 
+            'role': 'calendar',
             'hide_qty': True,
         },
     }

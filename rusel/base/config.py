@@ -60,7 +60,10 @@ class Config:
         if self.main_view:
             view_id = self.main_view
         if (request.path != common_url):
-            url_app = request.path.split(common_url)[1].split('?')[0].split('/')[0]
+            if self.app == APP_FAMILY:
+                url_app = request.path.split(common_url)[1].split('?')[0].split('/')[1]
+            else:
+                url_app = request.path.split(common_url)[1].split('?')[0].split('/')[0]
             if url_app != 'api':
                 view_id = url_app
             if detail and self.is_num(view_id):

@@ -73,8 +73,8 @@ function makeDraggable(evt) {
     }
   }
 
-function individualDetail(id) {
-    window.location = '/family/individual/' + id + '/';
+function individualDetail(tree_id, indi_id) {
+    window.location = `/family/${tree_id}/individual/${indi_id}/`;
 }
 
 function zoomIn() {

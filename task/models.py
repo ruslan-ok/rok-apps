@@ -382,7 +382,7 @@ class Task(models.Model):
     @classmethod
     def get_active_nav_item(cls, user_id, app):
         nav_role = cls.get_nav_role(app)
-        if nav_role:
+        if nav_role and nav_role != ROLE_PEDIGREE:
             nav_items = Task.get_role_tasks(user_id, app, nav_role)
             ti = None
             if nav_items.filter(active=True).exists():
