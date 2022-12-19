@@ -30,6 +30,7 @@ urlpatterns = i18n_patterns(
     path('bill/',   include('apart.urls')),
     path('docs/',   include('docs.urls')),
     path('expen/',  include('expen.urls')),
+    path('family/', include('family.urls')),
     path('fuel/',   include('fuel.urls')),
     path('health/', include('health.urls')),
     path('news/',   include('news.urls')),

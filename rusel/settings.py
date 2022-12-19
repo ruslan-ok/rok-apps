@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'apart.apps.ApartConfig',
     'docs.apps.DocsConfig',
     'expen.apps.ExpenConfig',
+    'family.apps.FamilyConfig',
     'fuel.apps.FuelConfig',
     'health.apps.HealthConfig',
     'news.apps.NewsConfig',

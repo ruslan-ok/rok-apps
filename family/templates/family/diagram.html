@@ -1,0 +1,195 @@
+{% extends "base/page.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+  <link href="" rel="stylesheet">
+    <script src="{% static 'genea-app/resources/vuejs/vue.js' %}"></script>
+    <script src="{% static 'genea-app/resources/wasm/index.min.js' %}"></script>
+    <script>
+        var hpccWasm = window["@hpcc-js/wasm"];
+    </script>
+    <!-- Genea.app -->
+    <link rel="stylesheet" href="{% static 'genea-app/css/style.css' %}" />
+    <script type="application/javascript" src="{% static 'genea-app/js/tags.js' %}"></script>
+    <script type="application/javascript" src="{% static 'genea-app/js/gedcom.js' %}"></script>
+    <script type="application/javascript" src="{% static 'genea-app/js/stamboom.js' %}"></script>
+    <script type="application/javascript" src="{% static 'genea-app/components/tree.js' %}"></script>
+{% endblock %}
+
+{% block header_content %}
+  {% include 'base/header.html' %}
+{% endblock %}
+
+{% block content %}
+    <div id="genea">
+
+        <!-- Start -->
+        <div id="overlay" v-if="page=='start'" class="container" style="max-width: 600px;">
+            <div class="section" v-if="isNative()">
+                <h4 class="light">Build and edit your family tree</h4>
+                <p style="text-align: justify;">
+                    Create a new family tree from scratch, or start from a GEDCOM file previously exported from other services like MyHeritage, FamilySearch, or Ancestry.
+                </p>
+            </div>
+            <div class="section" v-if="isLocalStorage()" v-cloak>
+                <button class="btn-large waves-effect waves-light  red lighten-2" v-on:click="page='tree'; loadLocalStorage()">
+                    <i class="material-icons left"></i>
+                    Continue with current family tree
+                </button>
+            </div>
+            <div class="section">
+                <button class="btn-large waves-effect waves-light teal darken-3" v-on:click="loadExample('new')">
+                    <i class="material-icons left"></i>
+                    Start new family tree
+                </button>
+                <label class="btn-large waves-effect waves-light">
+					<i class="material-icons left"></i>
+					Upload
+					<input type="file" style="display: none;" accept=".gedcom,.ged,.txt" v-on:change="loadFile">
+				</label>
+            </div>
+        </div>
+
+        <!-- App -->
+        <main v-show="page=='tree'">
+            <tree :person="person" />
+        </main>
+    </div>
+{% endblock %}
+
+{% block extrascript %}
+  {{ block.super }}
+    <script type="application/javascript">
+        // Bind stamboom
+        var stamboom = new Stamboom();
+
+        // DOM bindings
+        var genea = new Vue({
+            el: "#genea",
+            data: {
+                page: "",
+                person: {}
+            },
+            mounted: function() {
+                if (this.isLocalStorage()) {
+                    this.page = "tree";
+                    window.setTimeout(function() {
+                        genea.loadLocalStorage();
+                    }, 200);
+                } else {
+                    this.page = "start";
+                }
+            },
+            watch: {
+                person: {
+                    handler: function(val, oldVal) {
+                        //if (oldVal.id == val.id) {
+                        const isEqual = (...objects) => objects.every(obj => JSON.stringify(obj) === JSON.stringify(objects[0]));
+                        if (!isEqual(val, oldVal)) {
+                            // this.git.outstandingChanges = true;
+                            this.autoSave();
+                        }
+                        //}
+                    },
+                    deep: true
+                },
+            },
+            methods: {
+                autoSave: function() {
+                    // Save changes into local storage
+                    window.clearTimeout(window.autoSaveTimeout);
+                    window.autoSaveTimeout = window.setTimeout(function() {
+                        genea.saveLocalStorage();
+                    }, 1000);
+                },
+                loadExample: function(example) {
+                    if (!stamboom.isLoaded || window.confirm("This will clear the family tree you previously had open.")) {
+                        genea.page = "tree";
+                        if (example == "new") {
+                            fetch("{% static 'genea-app/sample/empty.ged' %}").then(function(response) {
+                                return response.text();
+                            }).then(function(data) {
+                                stamboom.load(data);
+                                stamboom.select();
+                            });
+                        }
+                    }
+                },
+                close: function() {
+                    if (window.confirm("This will clear the family tree. Changes made will not be saved.")) {
+                        // Clear local storage
+                        window.localStorage.clear();
+                        // Go back to start
+                        document.location = document.location.origin + document.location.pathname;
+                    }
+                    return false;
+                },
+                loadFile: function(event) {
+                    if (!stamboom.isLoaded || window.confirm("This will clear the family tree you previously had open.")) {
+                        let file = event.srcElement.files[0];
+                        let reader = new FileReader();
+                        reader.readAsText(file);
+                        reader.onload = function() {
+                            genea.page = "tree";
+                            stamboom.load(reader.result);
+                            stamboom.select();
+                        };
+                        reader.onerror = function() {
+                            alert("Error reading selected file.");
+                        };
+                    }
+                },
+                isLocalStorage: function() {
+                    return window.localStorage.getItem("selectedPerson");
+                },
+                isNative: function() {
+                    return window.localStorage.getItem("isNative") == "true";
+                },
+                loadLocalStorage: function() {
+                    var data = window.localStorage.getItem("stamboom");
+                    stamboom.load(data);
+                    router();
+                    if (!genea.person.id) {
+                        var selectedPerson = window.localStorage.getItem("selectedPerson");
+                        stamboom.select(selectedPerson);
+                    }
+                    window.addEventListener('storage', function(e) {
+                        if (e.key == "stamboom") {
+                            stamboom.load(e.newValue);
+                            stamboom.select(genea.person.id);
+                        }
+                    });
+                },
+                saveLocalStorage: function() {
+                    var data = stamboom.save();
+                    window.localStorage.setItem("stamboom", data);
+                    window.localStorage.setItem("selectedPerson", genea.selectedPerson);
+                },
+            }
+        });
+
+        function router() {
+            var url = document.location.hash.split("/");
+            switch (url[1]) {
+                case "tree":
+                    genea.page = url[1];
+                    stamboom.select(url[2]);
+                    document.title = `Genea.app - ${genea.person.name}`;
+                    break;
+                case "native":
+                    window.localStorage.setItem("isNative", "true");
+                    // Forward to start
+                    genea.page = "start";
+                    break;
+                default:
+                    // Unknown link, do nothing
+                    genea.page = "start";
+                    document.title = `Genea.app`;
+                    break;
+            }
+        }
+        window.addEventListener("hashchange", router);
+        router();
+    </script>
+
+{% endblock %}
