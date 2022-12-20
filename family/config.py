@@ -5,19 +5,19 @@ app_config = {
     'name': APP_FAMILY,
     'app_title': _('family tree'),
     'icon': 'diagram-3',
-    'main_view': 'pedigree',
+    'main_view': 'diagram',
     'group_entity': 'tree',
     'views': {
         'pedigree': {
             'title': _('Pedigree'),
             'icon': 'collection', 
             'use_important': True,
+            'role': 'pedigree',
         },
         'diagram': {
             'title': _('Diagram'),
             'icon': 'diagram-3', 
             'hide_qty': True,
-            'role': 'diagram',
         },
     }
 }

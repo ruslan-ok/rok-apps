@@ -28,5 +28,7 @@ def diagram(request):
     ctx.set_config(app_config, 'tree')
     ctx.config.set_view(request)
     context = ctx.get_app_context(request.user.id, icon=ctx.config.view_icon)
+    context['cur_tree_id'] = 1
+    context['cur_indi_id'] = '1'
     template = loader.get_template('family/diagram.html')
     return HttpResponse(template.render(context, request))

@@ -1,6 +1,6 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
-from family.models import FamTree
+from family.models import FamTree, IndividualRecord
 
 #----------------------------------
 class CreateFamTreeForm(forms.ModelForm):
@@ -44,5 +44,15 @@ class EditFamTreeForm(forms.ModelForm):
             'mh_id': forms.TextInput(attrs={'class': 'form-control mb-2'}), 
             'mh_prj_id': forms.TextInput(attrs={'class': 'form-control mb-2'}), 
             'mh_rtl': forms.TextInput(attrs={'class': 'form-control mb-2'}),
+        }
+
+
+#----------------------------------
+class EditIndividualForm(forms.ModelForm):
+    class Meta:
+        model = IndividualRecord
+        fields = ['sex',]
+        widgets = {
+            'sex': forms.TextInput(attrs={'class': 'form-control mb-2'}),
         }
 
