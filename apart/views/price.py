@@ -16,7 +16,9 @@ class ListView(LoginRequiredMixin, BaseListView):
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
-        self.template_name = 'apart/list.html'
+
+    def get_template_names(self):
+        return ['apart/list.html']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
