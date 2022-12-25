@@ -15,7 +15,7 @@ class CreateForm(BaseCreateForm):
     new_service = forms.ChoiceField(
         label=False,
         required=True,
-        widget=Select(attrs={'label': _('Service'), 'class': 'col-md-3'}))
+        widget=Select(attrs={'label': _('Service'), 'class': 'col-md-3', 'style': 'width:180px;'}))
 
     class Meta:
         model = Task

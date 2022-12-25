@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import *
 from django.utils.translation import gettext_lazy as _
 from task.models import Task
@@ -19,7 +20,11 @@ HOT_WATER = 21
 HSC = 22
 POO = 23
 
-def used(apart, service_id):
+def used(bill, service_id):
+    excl = service_excluded(bill, service_id)
+    if excl:
+        return False
+    apart = bill.task_1
     if (service_id == ELECTRICITY):
         return apart.apart_has_el
     if (service_id == GAS):
@@ -123,7 +128,7 @@ def get_paid(bill, service_id):
     return 0
 
 def get_service_amount(bill, service_id):
-    if not used(bill.task_1, service_id):
+    if not used(bill, service_id):
         return False, 0, 0, 0
     if (service_id in (INTERNET, PHONE, HSC, POO)):
         return True, 0, get_accrued(bill, service_id), get_paid(bill, service_id)
@@ -161,6 +166,16 @@ def get_service_amount(bill, service_id):
         if (cold_water_consump + hot_water_consump):
             tarif = accrued / (cold_water_consump + hot_water_consump)
     return True, round(tarif, 5), round(accrued, 2), get_paid(bill, service_id)
+
+def service_excluded(bill, service_id):
+    ret = False
+    if bill and bill.user:
+        period = bill.start
+        apart_name = bill.task_1.name
+        user_name = bill.user.username
+        if user_name == 'ruslan.ok' and apart_name == 'Жодино' and service_id == WATER and period >= datetime(2022, 10, 1).date():
+            ret = True
+    return ret
 
 def get_bill_info(bill):
     total_accrued = total_paid = 0
