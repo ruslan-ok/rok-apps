@@ -3,7 +3,7 @@
 
 {% block extrastyle %}
   <link href="" rel="stylesheet">
-    <!-- <script src="{% static 'genea-app/resources/vuejs/vue.js' %}"></script> -->
+    <script src="{% static 'genea-app/resources/vuejs/vue.js' %}"></script>
     <script src="{% static 'genea-app/resources/wasm/index.min.js' %}"></script>
     <script>
         var hpccWasm = window["@hpcc-js/wasm"];
@@ -12,7 +12,7 @@
     <script type="application/javascript" src="{% static 'genea-app/js/tags.js' %}"></script>
     <script type="application/javascript" src="{% static 'genea-app/js/gedcom.js' %}"></script>
     <script type="application/javascript" src="{% static 'genea-app/js/stamboom.js' %}"></script>
-    <!-- <script type="application/javascript" src="{% static 'genea-app/components/tree.js' %}"></script> -->
+    <script type="application/javascript" src="{% static 'genea-app/components/tree.js' %}"></script>
 {% endblock %}
 
 {% block header_content %}
@@ -22,19 +22,40 @@
 {% block content %}
     <div id="genea">
 
+        <!-- Start -->
+        <div id="overlay" v-if="page=='start'" class="container" style="max-width: 600px;">
+            <div class="section" v-if="isNative()">
+                <h4 class="light">Build and edit your family tree</h4>
+                <p style="text-align: justify;">
+                    Create a new family tree from scratch, or start from a GEDCOM file previously exported from other services like MyHeritage, FamilySearch, or Ancestry.
+                </p>
+            </div>
+            <div class="section" v-if="isLocalStorage()" v-cloak>
+                <button class="btn-large waves-effect waves-light  red lighten-2" v-on:click="page='tree'; loadLocalStorage()">
+                    <i class="material-icons left"></i>
+                    Continue with current family tree
+                </button>
+            </div>
+            <div class="section">
+                <button class="btn-large waves-effect waves-light teal darken-3" v-on:click="loadExample('new')">
+                    <i class="material-icons left"></i>
+                    Start new family tree
+                </button>
+                <label class="btn-large waves-effect waves-light">
+					<i class="material-icons left"></i>
+					Upload
+					<input type="file" style="display: none;" accept=".gedcom,.ged,.txt" v-on:change="loadFile">
+				</label>
+            </div>
+        </div>
+
         <!-- App -->
         <main v-show="page=='tree'">
-            <!-- <tree :person="person" /> -->
-            <div>
-                <div id="treecontainer">
-                    <div id="tree"></div>
-                </div>
-            </div>
-    
+            <tree :person="person" />
         </main>
         <div class="d-flex flex-column btn-group-diagram m-2" role="toolbar">
             <div class="btn-group m-2" role="group">
-                <a href="{% url 'family:pedigree-list' %}" class="btn btn-outline-secondary bi-collection" title="{% trans 'Manage family trees' %}"></a>
+                <a href="pedigree/" class="btn btn-outline-secondary bi-collection" title="{% trans 'Manage family trees' %}"></a>
             </div>
             <div class="btn-group m-2" role="group">
                 <button type="button" class="btn btn-outline-secondary bi-toggles" onclick="ftViewOptions()" title="{% trans 'View options' %}"></button>
@@ -52,30 +73,11 @@
 {% block extrascript %}
   {{ block.super }}
     <script type="application/javascript">
-
-        let selectedPerson;
-        let person;
-
-        let tree_onselect = function(id) {
-            selectedPerson = id;
-            person = stamboom.getPerson(id);
-            person.relations = stamboom.getRelations(id);
-            person.parents = stamboom.getParents(id);
-            document.location.hash = "/" + id;
-        }
-
         // Bind stamboom
         var stamboom = new Stamboom();
 
-        stamboom.register({
-            treecontainer: document.getElementById("treecontainer"),
-            tree: document.getElementById("tree")
-        });
-        stamboom.onselect(tree_onselect);
-        stamboom.load_tree(100);
-
         // DOM bindings
-        /*var genea = new Vue({
+        var genea = new Vue({
             el: "#genea",
             data: {
                 page: "",
@@ -177,11 +179,27 @@
                     window.localStorage.setItem("selectedPerson", genea.selectedPerson);
                 },
             }
-        });*/
+        });
 
         function router() {
             var url = document.location.hash.split("/");
-            stamboom.select(url[1]);
+            switch (url[1]) {
+                case "tree":
+                    genea.page = url[1];
+                    stamboom.select(url[2]);
+                    document.title = `Genea.app - ${genea.person.name}`;
+                    break;
+                case "native":
+                    window.localStorage.setItem("isNative", "true");
+                    // Forward to start
+                    genea.page = "start";
+                    break;
+                default:
+                    // Unknown link, do nothing
+                    genea.page = "start";
+                    document.title = `Genea.app`;
+                    break;
+            }
         }
         window.addEventListener("hashchange", router);
         router();

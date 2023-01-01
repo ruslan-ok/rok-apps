@@ -390,6 +390,11 @@ var Gedcom = (function() {
             return [];
         }
     }
+    Gedcom.prototype.load = function(id) {
+        if (!id)
+            return [];
+        return [];
+    }
 
     // Private methods
     function parseDate(date) {

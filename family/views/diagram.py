@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
+from django.urls import reverse
 from django.template import loader
 from django.shortcuts import get_object_or_404
 from rusel.base.context import Context
@@ -22,7 +23,17 @@ class GenealogyContext(Context):
         return context
 
 @login_required(login_url='account:login')
-def diagram(request):
+def diagram_start(request):
+    cur_tree = Params.get_cur_tree(request.user)
+    if not cur_tree:
+        return HttpResponseRedirect(reverse('family:pedigree-list'))
+    cur_indi = Params.get_cur_indi(request.user, cur_tree)
+    if not cur_indi:
+        return HttpResponseRedirect(reverse('family:pedigree-list'))
+    return HttpResponseRedirect(reverse('family:diagram', args=(cur_tree.id,)) + f'#/@I{cur_indi.id}@')
+
+@login_required(login_url='account:login')
+def diagram(request, tree_id):
     ctx = GenealogyContext()
     ctx.request = request
     ctx.set_config(app_config, 'tree')
@@ -31,4 +42,16 @@ def diagram(request):
     context['cur_tree_id'] = 1
     context['cur_indi_id'] = '1'
     template = loader.get_template('family/diagram.html')
+    return HttpResponse(template.render(context, request))
+
+@login_required(login_url='account:login')
+def diagram_debug(request):
+    ctx = GenealogyContext()
+    ctx.request = request
+    ctx.set_config(app_config, 'tree')
+    ctx.config.set_view(request)
+    context = ctx.get_app_context(request.user.id, icon=ctx.config.view_icon)
+    context['cur_tree_id'] = 1
+    context['cur_indi_id'] = '1'
+    template = loader.get_template('family/diagram_debug.html')
     return HttpResponse(template.render(context, request))

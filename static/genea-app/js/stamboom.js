@@ -28,6 +28,10 @@ var Stamboom = (function() {
             this.isLoaded = false;
 
             // Public methods
+            Stamboom.prototype.load_tree = function(id) {
+                gedcom.load(id);
+            }
+
             Stamboom.prototype.register = function(options) {
                 this.treecontainer = options.treecontainer;
                 this.tree = options.tree;
@@ -139,7 +143,7 @@ var Stamboom = (function() {
                     draw: function(person) {
                         return `` +
                             `id="stamboom_${person.id}",` +
-                            (person.id ? `href="#/tree/${person.id}",` : ``) +
+                            (person.id ? `href="#/${person.id}",` : ``) +
                             `color="${node.color(person)}",` +
                             (selectedPerson == person.id ? `style="filled,bold",fillcolor="white",` : ``) +
                             (selectedPerson == person.id ? `class="selectedPerson",` : ``) +
