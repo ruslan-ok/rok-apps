@@ -45,6 +45,8 @@ def get_new_odometr(user, car, event):
         qnt = len(last) - 1
         fix_days = (last[0].event - last[qnt].event).days
         per_days = (event - last[0].event).days
-        new_odo = last[0].car_odometr + (last[0].car_odometr - last[qnt].car_odometr) / fix_days * per_days
+        new_odo = last[0].car_odometr
+        if fix_days:
+            new_odo = last[0].car_odometr + (last[0].car_odometr - last[qnt].car_odometr) / fix_days * per_days
     return new_odo
 

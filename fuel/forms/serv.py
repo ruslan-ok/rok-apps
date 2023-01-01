@@ -15,7 +15,7 @@ class CreateForm(BaseCreateForm):
     new_part = forms.ChoiceField(
         label=False,
         required=True,
-        widget=Select(attrs={'label': _('Car part'), 'class': 'col-md-3'}))
+        widget=Select(attrs={'label': _('Car part'), 'class': 'col-md-3', 'style': 'width: 180px;'}))
 
     class Meta:
         model = Task

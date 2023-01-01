@@ -17,7 +17,9 @@ class ListView(LoginRequiredMixin, BaseListView):
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
-        self.template_name = 'fuel/list.html'
+
+    def get_template_names(self):
+        return ['fuel/list.html']
 
 
 class DetailView(LoginRequiredMixin, BaseDetailView):
