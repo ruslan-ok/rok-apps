@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from api.family import FamTreeSerializer
 from family.gedcom_551.exp import ExpGedcom551
 from family.gedcom_551.imp import ImpGedcom551
-from family.models import FamTreeUser, FamTree, Params
+from family.models import FamTreeUser, FamTree, Params, IndividualRecord, PersonalNameStructure, PersonalNamePieces, ChildToFamilyLink, FamRecord, IndividualEventStructure, EventDetail
 from family.utils import update_media
 
 
@@ -42,14 +42,14 @@ class FamTreeViewSet(viewsets.ModelViewSet):
         res = mgr.import_gedcom_551(folder)
         return Response(res)
 
-    @action(detail=False)
+    @action(detail=True)
     def export_gedcom_5_5_1(self, request, pk=None):
         if 'folder' not in self.request.query_params:
             return Response({'Error': "Expected parameter 'folder'"},
                             status=status.HTTP_400_BAD_REQUEST)
         folder = self.request.query_params['folder']
         mgr = ExpGedcom551(request)
-        res = mgr.export_gedcom_551(folder)
+        res = mgr.export_gedcom_551(folder, pk)
         return Response(res)
     
     @action(detail=True)
@@ -65,3 +65,14 @@ class FamTreeViewSet(viewsets.ModelViewSet):
                 Params.set_cur_tree(self.request.user, tree)
                 return Response({'result': 'ok', 'tree_id': pk})
         return Response({'result': 'error', 'info': 'Specified family tree not found.'})
+
+    @action(detail=True)
+    def get_tree(self, request, pk):
+        if FamTreeUser.objects.filter(user_id=request.user.id, tree_id=pk).exists():
+            if FamTree.objects.filter(id=pk).exists():
+                tree = FamTree.objects.filter(id=pk).get()
+                mgr = ExpGedcom551(request)
+                gedcom = mgr.export_gedcom_551_str(tree)
+                return Response({'result': 'ok', 'tree': gedcom})
+        return Response({'result': 'error', 'info': 'Specified family tree not found.'})
+

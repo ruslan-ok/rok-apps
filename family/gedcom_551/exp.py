@@ -1,4 +1,4 @@
-import os
+import os, io
 from django.shortcuts import get_object_or_404
 from family.models import (AssociationStructure, FamTree, IndividualRecord, FamRecord, MultimediaLink, MultimediaRecord, #PersonalNamePieces, 
     PersonalNameStructure, SourceRecord, AlbumRecord, ChangeDate, SubmitterRecord, NoteStructure, NamePhoneticVariation, 
@@ -20,26 +20,42 @@ class ExpGedcom551:
                 'folder': folder,
                 'description': 'Folder does not exist.',
                 }
+        self.use_xref = False
         if pk:
             tree = get_object_or_404(FamTree.objects.filter(id=pk))
             if self.valid_tree(tree):
-                self.exp_tree(folder, tree)
+                self.exp_tree_to_file(folder, tree)
         else:
             for tree in FamTree.objects.all():
                 if self.valid_tree(tree):
-                    self.exp_tree(folder, tree)
+                    self.exp_tree_to_file(folder, tree)
         return {'result': 'ok'}
+
+    def export_gedcom_551_str(self, tree: FamTree):
+        self.use_xref = False
+        self.f = io.StringIO()
+        self.exp_tree(tree)
+        return self.f.getvalue()
 
     def valid_tree(self, tree):
         q1 = (len(IndividualRecord.objects.filter(tree=tree)) > 0)
         q2 = (len(FamRecord.objects.filter(tree=tree)) > 0)
         return (q1 or q2)
 
-    def exp_tree(self, folder, tree):
+    def exp_tree_to_file(self, folder, tree):
         fname = tree.file
+        if not fname:
+            if tree.name:
+                fname = f'{tree.name}.ged'
+            else:
+                fname = f'{tree.id}.ged'
         if (fname[-4:] != '.ged' and fname[-4:] != '.GED'):
             fname += '.ged'
         self.f = open(folder + '\\' + fname, 'w', encoding='utf-8-sig')
+        self.exp_tree(tree)
+        self.f.close()
+
+    def exp_tree(self, tree):
         self.write_header(tree)
         print('header done')
         for x in SubmitterRecord.objects.filter(tree=tree).order_by('_sort'):
@@ -50,7 +66,6 @@ class ExpGedcom551:
         print('album done')
         for x in IndividualRecord.objects.filter(tree=tree).order_by('_sort'):
             self.indi_record(x)
-            #print('individual ' + str(x._sort))
         print('individual done')
         for x in FamRecord.objects.filter(tree=tree).order_by('_sort'):
             self.fam_record(x)
@@ -68,7 +83,6 @@ class ExpGedcom551:
             self.note_record(x)
         print('note done')
         self.write_required(0, 'TRLR')
-        self.f.close()
 
     # TODO: print self values
     def write_header(self, tree):
@@ -87,7 +101,7 @@ class ExpGedcom551:
         self.write_optional(2, 'TIME', tree.time)
         if tree.subm_id:
             subm = SubmitterRecord.objects.filter(id=tree.subm_id).get()
-            self.write_link(1, 'SUBM', subm._sort)
+            self.write_link(1, 'SUBM', subm._sort, subm.id)
         self.write_optional(1, 'FILE', tree.file)
         self.write_optional(1, 'COPR', tree.copr)
         self.write_required(1, 'GEDC')
@@ -101,7 +115,7 @@ class ExpGedcom551:
         self.write_custom(1, '_EXPORTED_FROM_SITE_ID', tree.mh_id)
 
     def submitter_record(self, subm):
-        self.write_id('SUBM', subm._sort)
+        self.write_id('SUBM', subm._sort, subm.id)
         self.write_optional(1, 'NAME', subm.name)
         self.write_address(1, subm.addr)
         for x in MultimediaLink.objects.filter(subm=subm.id).order_by('_sort'):
@@ -113,7 +127,7 @@ class ExpGedcom551:
         self.write_custom(1, '_UID', subm._uid)
 
     def indi_record(self, indi):
-        self.write_id('INDI', indi._sort)
+        self.write_id('INDI', indi._sort, indi.id)
         for x in PersonalNameStructure.objects.filter(indi=indi.id).order_by('_sort'):
             self.write_name(1, x)
         self.write_optional(1, 'SEX', indi.sex)
@@ -142,18 +156,20 @@ class ExpGedcom551:
         self.write_custom(1, '_UPD', indi._upd)
         self.write_custom(1, '_UID', indi._uid)
 
-    def make_xref(self, tag, id):
+    def make_xref(self, tag, xref, id=None):
         liter = LITERS[tag]
+        if self.use_xref or not id:
+            return '@' + liter + str(xref) + '@'
         return '@' + liter + str(id) + '@'
 
     def fam_record(self, fam):
-        self.write_id('FAM', fam._sort)
+        self.write_id('FAM', fam._sort, fam.id)
         for x in FamilyEventStructure.objects.filter(fam=fam.id).order_by('_sort'):
             self.write_fam_event(1, x)
         if fam.husb:
-            self.write_optional(1, 'HUSB', self.make_xref('INDI', fam.husb._sort))
+            self.write_optional(1, 'HUSB', self.make_xref('INDI', fam.husb._sort, fam.husb.id))
         if fam.wife:
-            self.write_optional(1, 'WIFE', self.make_xref('INDI', fam.wife._sort))
+            self.write_optional(1, 'WIFE', self.make_xref('INDI', fam.wife._sort, fam.wife.id))
         for x in ChildToFamilyLink.objects.filter(fami=fam.id).order_by('_sort'):
             self.write_family_child(1, x)
         self.write_optional(1, 'NCHI', fam.nchi)
@@ -172,7 +188,7 @@ class ExpGedcom551:
         self.write_custom(1, '_MSTAT', fam._mstat)
 
     def media_record(self, obje):
-        self.write_id('OBJE', obje._sort)
+        self.write_id('OBJE', obje._sort, obje.id)
         for x in MultimediaFile.objects.filter(obje=obje.id).order_by('_sort'):
             self.write_optional(1, 'FILE', x.file)
             self.write_optional(2, 'FORM', x.form)
@@ -198,11 +214,11 @@ class ExpGedcom551:
         self.write_custom(1, '_PHOTO_RIN', obje._prin)
         self.write_custom(1, '_POSITION', obje._posi)
         if obje._albu:
-            self.write_custom(1, '_ALBUM', self.make_xref('_ALBUM', obje._albu._sort))
+            self.write_custom(1, '_ALBUM', self.make_xref('_ALBUM', obje._albu._sort, obje._albu.id))
         self.write_custom(1, '_UID', obje._uid )
 
     def source_record(self, sour):
-        self.write_id('SOUR', sour._sort)
+        self.write_id('SOUR', sour._sort, sour.id)
         if (sour.data_even or sour.data_date or sour.data_plac or sour.data_agnc):
             self.write_required(1, 'DATA')
             self.write_optional(2, 'EVEN', sour.data_even)
@@ -230,7 +246,7 @@ class ExpGedcom551:
         self.write_custom(1, '_UID', sour._uid)
 
     def repo_record(self, repo):
-        self.write_id('REPO', repo._sort)
+        self.write_id('REPO', repo._sort, repo.id)
         self.write_required(1, 'NAME', repo.name)
         self.write_address(1, repo.addr)
         for x in NoteStructure.objects.filter(repo=repo.id).order_by('_sort'):
@@ -241,22 +257,22 @@ class ExpGedcom551:
         self.write_chan(1, repo.chan)
 
     def note_record(self, note):
-        self.write_text(0, self.make_xref('NOTE', note._sort) + ' NOTE', note.note)
+        self.write_text(0, self.make_xref('NOTE', note._sort, note.id) + ' NOTE', note.note)
 
 
     def album_record(self, albu):
-        self.write_id('_ALBUM', albu._sort)
+        self.write_id('_ALBUM', albu._sort, albu.id)
         self.write_optional(1, 'TITL', albu.titl)
         self.write_custom(1, '_UPD', albu._upd)
 
     # ------ Tools --------
 
-    def write_id(self, tag, id):
-        self.f.write('0 ' + self.make_xref(tag, id) + ' ' + tag + '\n')
+    def write_id(self, tag, xref, id=None):
+        self.f.write('0 ' + self.make_xref(tag, xref, id) + ' ' + tag + '\n')
 
-    def write_link(self, level, tag, id):
+    def write_link(self, level, tag, xref, id=None):
         if (id != None):
-            self.write_optional(level, tag, self.make_xref(tag, id))
+            self.write_optional(level, tag, self.make_xref(tag, xref, id))
 
     def write_required(self, level, tag, value=''):
         s_value = ''
@@ -360,7 +376,10 @@ class ExpGedcom551:
 
     def write_note_link(self, level, note_struct):
         if note_struct and note_struct.note:
-            self.write_text(level, 'NOTE', '@N' + str(note_struct.note._sort) + '@')
+            if self.use_xref:
+                self.write_text(level, 'NOTE', '@N' + str(note_struct.note._sort) + '@')
+            else:
+                self.write_text(level, 'NOTE', '@N' + str(note_struct.note.id) + '@')
 
     def write_chan(self, level, chan):
         if chan:
@@ -410,7 +429,10 @@ class ExpGedcom551:
         self.write_name_pieces(level+1, roma.piec)
 
     def write_citate(self, level, cita):
-        self.write_link(level, 'SOUR', cita.sour._sort)
+        if self.use_xref:
+            self.write_link(level, 'SOUR', cita.sour._sort)
+        else:
+            self.write_link(level, 'SOUR', cita.sour.id)
         self.write_optional(level+1, 'PAGE', cita.page)
         self.write_optional(level+1, 'EVEN', cita.even_even)
         self.write_optional(level+2, 'ROLE', cita.even_role)
@@ -425,7 +447,10 @@ class ExpGedcom551:
         self.write_optional(level+1, 'QUAY', cita.quay)
 
     def write_repo_citate(self, level, srci):
-        self.write_link(level, 'REPO', srci.repo._sort)
+        if self.use_xref:
+            self.write_link(level, 'REPO', srci.repo._sort)
+        else:
+            self.write_link(level, 'REPO', srci.repo.id)
         self.write_optional(level+1, 'CALN', srci.caln)
         self.write_optional(level+2, 'MEDI', srci.caln_medi)
 
@@ -473,16 +498,25 @@ class ExpGedcom551:
 
     def write_child_family(self, level, ctfl):
         if ctfl and ctfl.fami:
-            self.write_required(level, 'FAMC', '@F' + str(ctfl.fami._sort) + '@')
+            if self.use_xref:
+                self.write_required(level, 'FAMC', '@F' + str(ctfl.fami._sort) + '@')
+            else:
+                self.write_required(level, 'FAMC', '@F' + str(ctfl.fami.id) + '@')
             self.write_optional(level+1, 'PEDI', ctfl.pedi)
 
     def write_family_child(self, level, ctfl):
         if ctfl and ctfl.chil:
-            self.write_required(level, 'CHIL', '@I' + str(ctfl.chil._sort) + '@')
+            if self.use_xref:
+                self.write_required(level, 'CHIL', '@I' + str(ctfl.chil._sort) + '@')
+            else:
+                self.write_required(level, 'CHIL', '@I' + str(ctfl.chil.id) + '@')
 
     def write_spouse(self, level, fam):
         if fam:
-            self.write_required(level, 'FAMS', '@F' + str(fam._sort) + '@')
+            if self.use_xref:
+                self.write_required(level, 'FAMS', '@F' + str(fam._sort) + '@')
+            else:
+                self.write_required(level, 'FAMS', '@F' + str(fam.id) + '@')
 
     def write_asso_link(self, level, asso):
         self.write_required(level, 'ASSO', '@I' + str(asso.id) + '@')
@@ -498,5 +532,8 @@ class ExpGedcom551:
 
     def write_media_link(self, level, media):
         if media.obje:
-            self.write_required(level, 'OBJE', '@M' + str(media.obje._sort) + '@')
+            if self.use_xref:
+                self.write_required(level, 'OBJE', '@M' + str(media.obje._sort) + '@')
+            else:
+                self.write_required(level, 'OBJE', '@M' + str(media.obje.id) + '@')
 

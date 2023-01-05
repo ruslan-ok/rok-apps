@@ -152,6 +152,7 @@ class ImpGedcom551:
                 case 'VERS': tree.sour_vers = x.value
                 case 'NAME': tree.sour_name = self.get_name(x.value)
                 case '_RTLSAVE': tree.mh_rtl = x.value
+                case '_TREE': tree.name = x.value
                 case 'CORP': 
                     tree.sour_corp = x.value
                     for y in x.sub_tags(follow=False):
@@ -283,7 +284,7 @@ class ImpGedcom551:
 
     def person_name(self, item, indi):
         sort = len(PersonalNameStructure.objects.filter(indi=indi)) + 1
-        name = PersonalNameStructure.objects.create(indi=indi, _sort=sort)
+        name = PersonalNameStructure.objects.create(indi=indi, _sort=sort, name=item.value)
         empty = True
         for x in item.sub_tags(follow=False):
             empty = False
@@ -843,12 +844,15 @@ class ImpGedcom551:
         raise Exception(descr)
 
     def unexpected_tag(self, item):
-        ret = str(item.offset) + ', tag: ' + item. tag
+        ret = str(item.offset) + ', tag: ' + item.tag
         if item.xref_id:
             ret += ', xref_id: ' + item.xref_id
         if item.value:
             ret += ', value: ' + item.value
-        self.raise_error('Unexpected tag. Offset: ' + ret)
+        if item.tag.startswith('_'):
+            print('Unexpected tag. Offset: ' + ret)
+        else:
+            self.raise_error('Unexpected tag. Offset: ' + ret)
 
     def get_name(self, value):
         if (type(value) == tuple) and (len(value) == 3) and (value[1] == '') and (value[2] == ''):

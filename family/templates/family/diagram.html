@@ -9,6 +9,7 @@
         var hpccWasm = window["@hpcc-js/wasm"];
     </script>
     <link rel="stylesheet" href="{% static 'scss/family-diagram.css' %}" />
+    <link rel="stylesheet" href="{% static 'iziToast/css/iziToast.min.css' %}">
     <script type="application/javascript" src="{% static 'genea-app/js/tags.js' %}"></script>
     <script type="application/javascript" src="{% static 'genea-app/js/gedcom.js' %}"></script>
     <script type="application/javascript" src="{% static 'genea-app/js/stamboom.js' %}"></script>
@@ -20,17 +21,16 @@
 {% endblock %}
 
 {% block content %}
+    <form method="post" class="d-none">{% csrf_token %}</form>
     <div id="genea">
 
         <!-- App -->
         <main v-show="page=='tree'">
-            <!-- <tree :person="person" /> -->
             <div>
                 <div id="treecontainer">
                     <div id="tree"></div>
                 </div>
             </div>
-    
         </main>
         <div class="d-flex flex-column btn-group-diagram m-2" role="toolbar">
             <div class="btn-group m-2" role="group">
@@ -46,11 +46,13 @@
                 <a href="#" class="btn btn-outline-secondary bi-plus" title="{% trans 'Add person' %}"></a>
             </div>
         </div>
+        <div id="tree-load-spiner"></div>
 </div>
 {% endblock %}
 
 {% block extrascript %}
-  {{ block.super }}
+    {{ block.super }}
+    <script src="{% static 'iziToast/js/iziToast.min.js' %}"></script>
     <script type="application/javascript">
 
         let selectedPerson;
@@ -72,119 +74,24 @@
             tree: document.getElementById("tree")
         });
         stamboom.onselect(tree_onselect);
-        stamboom.load_tree(100);
-
-        // DOM bindings
-        /*var genea = new Vue({
-            el: "#genea",
-            data: {
-                page: "",
-                person: {}
-            },
-            mounted: function() {
-                if (this.isLocalStorage()) {
-                    this.page = "tree";
-                    window.setTimeout(function() {
-                        genea.loadLocalStorage();
-                    }, 200);
-                } else {
-                    this.page = "start";
-                }
-            },
-            watch: {
-                person: {
-                    handler: function(val, oldVal) {
-                        //if (oldVal.id == val.id) {
-                        const isEqual = (...objects) => objects.every(obj => JSON.stringify(obj) === JSON.stringify(objects[0]));
-                        if (!isEqual(val, oldVal)) {
-                            // this.git.outstandingChanges = true;
-                            this.autoSave();
-                        }
-                        //}
-                    },
-                    deep: true
-                },
-            },
-            methods: {
-                autoSave: function() {
-                    // Save changes into local storage
-                    window.clearTimeout(window.autoSaveTimeout);
-                    window.autoSaveTimeout = window.setTimeout(function() {
-                        genea.saveLocalStorage();
-                    }, 1000);
-                },
-                loadExample: function(example) {
-                    if (!stamboom.isLoaded || window.confirm("This will clear the family tree you previously had open.")) {
-                        genea.page = "tree";
-                        if (example == "new") {
-                            fetch("{% static 'genea-app/sample/empty.ged' %}").then(function(response) {
-                                return response.text();
-                            }).then(function(data) {
-                                stamboom.load(data);
-                                stamboom.select();
-                            });
-                        }
-                    }
-                },
-                close: function() {
-                    if (window.confirm("This will clear the family tree. Changes made will not be saved.")) {
-                        // Clear local storage
-                        window.localStorage.clear();
-                        // Go back to start
-                        document.location = document.location.origin + document.location.pathname;
-                    }
-                    return false;
-                },
-                loadFile: function(event) {
-                    if (!stamboom.isLoaded || window.confirm("This will clear the family tree you previously had open.")) {
-                        let file = event.srcElement.files[0];
-                        let reader = new FileReader();
-                        reader.readAsText(file);
-                        reader.onload = function() {
-                            genea.page = "tree";
-                            stamboom.load(reader.result);
-                            stamboom.select();
-                        };
-                        reader.onerror = function() {
-                            alert("Error reading selected file.");
-                        };
-                    }
-                },
-                isLocalStorage: function() {
-                    return window.localStorage.getItem("selectedPerson");
-                },
-                isNative: function() {
-                    return window.localStorage.getItem("isNative") == "true";
-                },
-                loadLocalStorage: function() {
-                    var data = window.localStorage.getItem("stamboom");
-                    stamboom.load(data);
-                    router();
-                    if (!genea.person.id) {
-                        var selectedPerson = window.localStorage.getItem("selectedPerson");
-                        stamboom.select(selectedPerson);
-                    }
-                    window.addEventListener('storage', function(e) {
-                        if (e.key == "stamboom") {
-                            stamboom.load(e.newValue);
-                            stamboom.select(genea.person.id);
-                        }
-                    });
-                },
-                saveLocalStorage: function() {
-                    var data = stamboom.save();
-                    window.localStorage.setItem("stamboom", data);
-                    window.localStorage.setItem("selectedPerson", genea.selectedPerson);
-                },
-            }
-        });*/
 
         function router() {
             var url = document.location.hash.split("/");
             stamboom.select(url[1]);
         }
+
         window.addEventListener("hashchange", router);
-        router();
+
+        function afterTreeLoad(data) {
+            stamboom.load(data);
+            document.getElementById('tree-load-spiner').classList.add('d-none');
+            router();
+        }
+
+        const path = document.location.pathname.split("/");
+        const tree_id = path[path.length-2];
+        stamboom.load_tree(tree_id, afterTreeLoad);
+
     </script>
     <script type="application/javascript" src="{% static 'js/family-diagram.js' %}"></script>
 

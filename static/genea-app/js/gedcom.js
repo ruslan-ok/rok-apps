@@ -390,10 +390,30 @@ var Gedcom = (function() {
             return [];
         }
     }
-    Gedcom.prototype.load = function(id) {
-        if (!id)
-            return [];
-        return [];
+    Gedcom.prototype.load = function(id, afterTreeLoad) {
+        const api = `/api/famtree/${id}/get_tree/?format=json`;
+        const callback = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                let resp = JSON.parse(this.responseText);
+                if (!resp || !resp.result || resp.result != 'ok' || !resp.tree) {
+                    let mess = 'Unknown Error';
+                    if (resp.info)
+                        mess = resp.info;
+                    iziToast.error({title: 'Error', message: mess, position: 'bottomRight'});
+                    return;
+                }
+                afterTreeLoad(resp.tree);
+            }
+        };
+        const url = window.location.protocol + '//' + window.location.host + api;
+        let xhttp = new XMLHttpRequest();
+        xhttp.open('GET', url, true);
+        let y = document.getElementsByName('csrfmiddlewaretoken');
+        let crsf = y[0].value; 
+        xhttp.setRequestHeader('X-CSRFToken', crsf);
+        xhttp.setRequestHeader('Content-type', 'application/json');
+        xhttp.onreadystatechange = callback;
+        xhttp.send();
     }
 
     // Private methods
