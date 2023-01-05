@@ -24,6 +24,11 @@ class ListView(BaseListView):
         return ['index_user.html']
 
     def get_queryset(self):
+        query = None
+        if (self.request.method == 'GET'):
+            query = self.request.GET.get('q')
+        if query:
+            return super().get_queryset()
         return []
 
     def get_context_data(self, **kwargs):

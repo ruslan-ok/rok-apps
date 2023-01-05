@@ -261,7 +261,7 @@ class BaseListView(ListView, Context):
         if (search_mode == 0):
             return ret
         elif (search_mode == 1):
-            lookups = Q(name__icontains=query) | Q(info__icontains=query) | Q(categories__icontains=query)
+            lookups = Q(name__icontains=query) | Q(info__icontains=query) | Q(categories__icontains=query) | Q(store_username__icontains=query) | Q(store_value__icontains=query) 
         elif (search_mode == 2):
             lookups = Q(categories__icontains=query[1:])
         return ret.filter(lookups)
