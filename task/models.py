@@ -1217,7 +1217,10 @@ class TaskInfo(models.Model):
     active = models.BooleanField('Is active navigation item', null=True)
     task_1_id = models.IntegerField('task_1 id', null=True)
     sort = models.CharField('Sort code', max_length=50, blank=True)
-    # #------------- Apart --------------
+    #------------- Store --------------
+    store_username = models.CharField(_('username'), max_length=150, blank=True, null=True)
+    store_value = models.CharField(_('value'), max_length=128, null=True)
+    #------------- Apart --------------
     apart_has_el = models.BooleanField('Has electricity', null=True)
     apart_has_hw = models.BooleanField('Has hot water', null=True)
     apart_has_cw = models.BooleanField('Has cold water', null=True)
