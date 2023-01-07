@@ -2,7 +2,13 @@ import os, glob, pyzipper, subprocess, time
 from datetime import datetime, timedelta
 from backup.sync import Sync
 from logs.models import EventType
+# from enum import Enum
 
+# class EventType(Enum):
+#         ERROR = 'error'
+#         WARNING = 'warning'
+#         INFO = 'info'
+#         DEBUG = 'debug'
 
 class ArchItem():
     def __init__(self, name, age):
@@ -182,13 +188,13 @@ class Backup():
     def backup_db(self, zf):
         self.log(EventType.INFO, 'method', '+backup_db() started')
         file = 'mysql_backup.sql'
-        sql_util = '"' + os.environ.get('DJANGO_BACKUP_SQL_UTIL') + '"'
+        sql_util = '"' + os.environ.get('DJANGO_BACKUP_SQL_UTIL', '') + '"'
         # self.log(EventType.INFO, 'variable', f'sql_util = {sql_util}')
-        sql_user = os.environ.get('DJANGO_BACKUP_SQL_USER')
+        sql_user = os.environ.get('DJANGO_BACKUP_SQL_USER', '')
         # self.log(EventType.INFO, 'variable', f'sql_user = {sql_user}')
-        sql_pass = os.environ.get('DJANGO_BACKUP_SQL_PWRD')
+        sql_pass = os.environ.get('DJANGO_BACKUP_SQL_PWRD', '')
         # self.log(EventType.INFO, 'variable', f'sql_pass = {sql_pass}')
-        sql_schema = os.environ.get('DJANGO_BACKUP_SQL_SCHEMA')
+        sql_schema = os.environ.get('DJANGO_BACKUP_SQL_SCHEMA', '')
         # self.log(EventType.INFO, 'variable', f'sql_schema = {sql_schema}')
         command = sql_util + ' --user=' + sql_user + ' --password=' + sql_pass + ' --result-file=' + file + ' ' + sql_schema
         # self.log(EventType.INFO, 'variable', f'command = {command}')
@@ -206,8 +212,8 @@ class Backup():
 
     def backup_mail(self, zf):
         self.log(EventType.INFO, 'method', '+backup_mail() started')
-        script = os.environ.get('DJANGO_BACKUP_MAIL_UTIL')
-        wait_time = int(os.environ.get('DJANGO_BACKUP_MAIL_WAIT'))
+        script = os.environ.get('DJANGO_BACKUP_MAIL_UTIL', '')
+        wait_time = int(os.environ.get('DJANGO_BACKUP_MAIL_WAIT', '600'))
         ret = subprocess.run('cscript ' + script)
         #self.save_log(False, '[i] command = ', command)
         if (ret.returncode != 0):
@@ -322,3 +328,12 @@ class Backup():
         except Exception as ex:
             self.log(EventType.ERROR, 'exception', str(ex), send_mail=True)
         self.log(EventType.INFO, 'method', '-run() finished')
+
+def test_backup_zipping():
+    start = datetime(2022, 10, 15).date()
+    stop  = datetime.today().date()
+    backup = Backup('Vivo', service_name='Еженедельный бэкап', duration=7, folders='', first_day=start, last_day=stop)
+    backup.zipping()
+
+if __name__ == '__main__':
+    test_backup_zipping()
