@@ -2,7 +2,7 @@ import requests, json, os
 from datetime import datetime, timedelta
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework import viewsets, permissions, renderers
+from rest_framework import viewsets, permissions, renderers, status
 
 from logs.models import EventType, ServiceEvent
 from api.serializers import LogsSerializer
@@ -70,7 +70,22 @@ class LogsViewSet(viewsets.ModelViewSet):
     @action(detail=False)
     def get_service_health(self, request, pk=None):
         depth = 3
-        if 'depth' in self.request.GET:
-            depth = int(self.request.GET['depth'])
+        if 'depth' in request.GET:
+            depth = int(request.GET['depth'])
         ret = ServiceEvent.get_health(depth)
         return Response(ret)
+
+    @action(detail=False)
+    def write_event(self, request, pk=None):
+        if 'device' not in request.GET or 'app' not in request.GET or 'service' not in request.GET or \
+            'type' not in request.GET or 'name' not in request.GET or 'info' not in request.GET:
+            return Response({'result': 'error', 'info': "Expected parameters 'device', 'app', 'service', 'type', 'name' and 'info'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        device = request.GET.get('device', 'nuc')
+        app = request.GET.get('app', 'service')
+        service = request.GET.get('service', 'manager')
+        type = request.GET.get('type', 'info')
+        name = request.GET.get('name', 'unknown')
+        info = request.GET.get('info', 'undefined')
+        ServiceEvent.objects.create(device=device, app=app, service=service, type=type, name=name, info=info)
+        return Response({'result': 'ok'})
