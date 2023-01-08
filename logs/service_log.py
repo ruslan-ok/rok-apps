@@ -12,11 +12,11 @@ class ServiceLog():
         self.app = app
         self.svc = svc
         self.local_log = False
-        this_device = os.environ.get('DJANGO_DEVICE')
+        this_device = os.environ.get('DJANGO_DEVICE', '')
         self.use_log_api = (this_device != 'Nuc')
-        self.api_host = os.environ.get('DJANGO_HOST_LOG')
+        self.api_host = os.environ.get('DJANGO_HOST_LOG', '')
         self.api_url = f'{self.api_host}/en/api/logs/?format=json'
-        service_token = os.environ.get('DJANGO_SERVICE_TOKEN')
+        service_token = os.environ.get('DJANGO_SERVICE_TOKEN', '')
         self.headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
         self.verify = os.environ.get('DJANGO_CERT')
 
@@ -41,6 +41,7 @@ class ServiceLog():
             case ('Nuc',  const.APP_TODO,    const.ROLE_NOTIFICATOR): return 6
             case ('Nuc',  const.APP_FUEL,    const.ROLE_PART): return 7
             case ('Nuc',  const.APP_LOGS,    const.ROLE_APACHE): return 8
+            case ('Nuc',  const.APP_W_ACME,  const.ROLE_CERT_COPY): return 9
             case _: return 99
 
     def get_icon(self):
@@ -53,6 +54,7 @@ class ServiceLog():
             case ('Nuc',  const.APP_TODO,    const.ROLE_NOTIFICATOR): return 'bell'
             case ('Nuc',  const.APP_FUEL,    const.ROLE_PART): return 'tools'
             case ('Nuc',  const.APP_LOGS,    const.ROLE_APACHE): return 'server'
+            case ('Nuc',  const.APP_W_ACME,  const.ROLE_CERT_COPY): return 'award'
             case _: return 'card-list'
     
     def get_href(self):
@@ -68,6 +70,7 @@ class ServiceLog():
             case ('Nuc',  const.APP_TODO,    const.ROLE_NOTIFICATOR): return 'Task Notificator'
             case ('Nuc',  const.APP_FUEL,    const.ROLE_PART): return 'Service intervals'
             case ('Nuc',  const.APP_LOGS,    const.ROLE_APACHE): return 'Apache log'
+            case ('Nuc',  const.APP_W_ACME,  const.ROLE_CERT_COPY): return 'Win-ACME'
             case _: return f'{self.dev} - {self.app} - {self.svc}'
  
     def get_events(self, device=None, app=None, service=None, type=None, name=None, day=None, order_by=None):

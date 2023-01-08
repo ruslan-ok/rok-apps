@@ -21,6 +21,7 @@ APP_ADMIN = 'admin'
 APP_BACKUP = 'backup'
 APP_LOGS = 'logs'
 APP_SERVICE = 'service'
+APP_W_ACME = 'win-acme'
 
 APP_ALL = 'all'
 
@@ -197,6 +198,7 @@ ROLE_BACKUP_FULL = 'full'
 ROLE_BACKUP_CHECK = 'check'
 ROLE_APACHE      = 'apache'
 ROLE_MANAGER     = 'manager'
+ROLE_CERT_COPY = 'cert_copy'
 
 ALL_ROLES = (
     ROLE_TODO,

@@ -9,7 +9,7 @@ def log(type, name, message):
     headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
     verify = os.environ.get('DJANGO_CERT', '')
     info = message.replace(' ', '%20')
-    requests.get(f'{api_url}/api/logs/write_event/?device=nuc&app=win-acme&service=cert_copy&type={type}&name={name}&info={info}', headers=headers, verify=verify)
+    requests.get(f'{api_url}/api/logs/write_event/?device=Nuc&app=win-acme&service=cert_copy&type={type}&name={name}&info={info}', headers=headers, verify=verify)
 
 arh_dir = work_dir + str(datetime.date.today())
 
