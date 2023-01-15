@@ -1,7 +1,10 @@
+import os
 from datetime import datetime
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.db import models
+from django.db.models.signals import pre_delete 
+from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 from family.const import *
 
@@ -64,7 +67,7 @@ class FamTree(models.Model):
     sour_corp = models.CharField(_('name of business'), max_length=90, blank=True, null=True)
     sour_corp_addr = models.ForeignKey(AddressStructure, on_delete=models.SET_NULL, verbose_name=_('business address'), related_name='business_address', null=True)
     sour_data = models.CharField(_('name of source data'), max_length=90, blank=True, null=True)
-    sour_data_date = models.DateField(_('publication date'), blank=True, null=True)
+    sour_data_date = models.DateTimeField(_('publication date'), blank=True, null=True)
     sour_data_copr = models.TextField(_('copyright source data'), blank=True, null=True)
     dest = models.CharField(_('receiving system name'), max_length=20, blank=True, null=True)
     date = models.CharField(_('transmission date'), max_length=11, blank=True, null=True)
@@ -74,7 +77,7 @@ class FamTree(models.Model):
     copr = models.CharField(_('copyright gedcom file'), max_length=90, blank=True, null=True)
     gedc_vers = models.CharField(_('gedcom version number'), max_length=15, blank=True, null=True)
     gedc_form = models.CharField(_('gedcom form'), max_length=20, blank=True, null=True)
-    gedc_form_vers = models.CharField(_('gedcom formversion number'), max_length=15, blank=True, null=True)
+    char_vers = models.CharField(_('character set version number'), max_length=15, blank=True, null=True)
     char = models.CharField(_('character set'), max_length=12, blank=True, null=True)
     lang = models.CharField(_('language of text'), max_length=15, blank=True, null=True)
     note = models.TextField(_('gedcom content description'), blank=True, null=True)
@@ -118,6 +121,16 @@ class FamTree(models.Model):
         for item in NoteRecord.objects.filter(tree=self.id):
             item.before_delete()
 
+    def delete_gedcom_file(self, user):
+        storage_path = os.environ.get('DJANGO_STORAGE_PATH')
+        if storage_path:
+            store_dir = storage_path.format(user.username) + 'pedigree\\'
+            if store_dir and self.file:
+                filepath = store_dir + self.file
+                if os.path.exists(filepath):
+                    os.remove(filepath)
+
+
     def is_leaf(self):
         return True
 
@@ -130,6 +143,11 @@ class FamTree(models.Model):
             else:
                 name = self.file
         return name
+
+@receiver(pre_delete)
+def delete_fam_tree(sender, instance, **kwargs):
+    if type(instance) == FamTree:
+        instance.before_delete()
 
 #--------------------------------------------------
 class FamTreePermission(models.Model):
@@ -174,26 +192,26 @@ class FamTreeUser(models.Model):
     can_delete = models.BooleanField('Can delete family tree', default=False)
     can_merge = models.BooleanField('Can merge family tree', default=False)
     tree_id = models.IntegerField(_('tree id'), null=False)
-    sour = models.CharField(_('system ID'), max_length=50, blank=True, null=True)
-    sour_vers = models.CharField(_('version number'), max_length=15, blank=True, null=True)
-    sour_name = models.CharField(_('name of product'), max_length=90, blank=True, null=True)
-    sour_corp = models.CharField(_('name of business'), max_length=90, blank=True, null=True)
-    sour_corp_addr_id = models.IntegerField(_('sour_corp_addr id'), null=False)
-    sour_data = models.CharField(_('name of source data'), max_length=90, blank=True, null=True)
-    sour_data_date = models.DateField(_('publication date'), blank=True, null=True)
-    sour_data_copr = models.TextField(_('copyright source data'), blank=True, null=True)
-    dest = models.CharField(_('receiving system name'), max_length=20, blank=True, null=True)
-    date = models.CharField(_('transmission date'), max_length=11, blank=True, null=True)
-    time = models.CharField(_('time value'), max_length=12, blank=True, null=True)
-    subm_id = models.IntegerField(_('submitter reference'), blank=True, null=True)
-    file = models.CharField(_('file name'), max_length=90, blank=True, null=True)
-    copr = models.CharField(_('copyright gedcom file'), max_length=90, blank=True, null=True)
-    gedc_vers = models.CharField(_('gedcom version number'), max_length=15, blank=True, null=True)
+    sour = models.CharField(_('The ID of the system that created this dataset'), max_length=50, blank=True, null=True)
+    sour_vers = models.CharField(_('Source system version number'), max_length=15, blank=True, null=True)
+    sour_name = models.CharField(_('Name of product'), max_length=90, blank=True, null=True)
+    sour_corp = models.CharField(_('Name of business'), max_length=90, blank=True, null=True)
+    sour_corp_addr_id = models.IntegerField(_('Manufacturer address identifier'), null=False)
+    sour_data = models.CharField(_('Name of source data'), max_length=90, blank=True, null=True)
+    sour_data_date = models.DateField(_('Publication date'), blank=True, null=True)
+    sour_data_copr = models.TextField(_('Copyright source data'), blank=True, null=True)
+    dest = models.CharField(_('Receiving system name'), max_length=20, blank=True, null=True)
+    date = models.CharField(_('Transmission date'), max_length=11, blank=True, null=True)
+    time = models.CharField(_('Time value'), max_length=12, blank=True, null=True)
+    subm_id = models.IntegerField(_('Submitter reference'), blank=True, null=True)
+    file = models.CharField(_('File name'), max_length=90, blank=True, null=True)
+    copr = models.CharField(_('Copyright GEDCOM file'), max_length=90, blank=True, null=True)
+    gedc_vers = models.CharField(_('GEDCOM version number'), max_length=15, blank=True, null=True)
     gedc_form = models.CharField(_('gedcom form'), max_length=20, blank=True, null=True)
-    gedc_form_vers = models.CharField(_('gedcom formversion number'), max_length=15, blank=True, null=True)
-    char = models.CharField(_('character set'), max_length=12, blank=True, null=True)
-    lang = models.CharField(_('language of text'), max_length=15, blank=True, null=True)
-    note = models.TextField(_('gedcom content description'), blank=True, null=True)
+    char = models.CharField(_('Character set'), max_length=12, blank=True, null=True)
+    char_vers = models.CharField(_('Character set version number'), max_length=15, blank=True, null=True)
+    lang = models.CharField(_('Language of text'), max_length=15, blank=True, null=True)
+    note = models.TextField(_('Gedcom content description'), blank=True, null=True)
     mh_id = models.CharField(_('ID in MyHeritage.com'), max_length=50, blank=True, null=True)
     mh_prj_id = models.CharField(_('project GUID'), max_length=200, blank=True, null=True)
     mh_rtl = models.CharField(_('source RTL'), max_length=200, blank=True, null=True)

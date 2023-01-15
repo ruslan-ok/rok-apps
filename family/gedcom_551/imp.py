@@ -6,7 +6,7 @@ from family.models import (FamTree, AddressStructure, IndividualRecord, Submitte
     PersonalNamePieces, IndividualAttributeStructure, IndividualEventStructure, EventDetail, PlaceStructure, 
     SourceCitation, MultimediaRecord, MultimediaLink, MultimediaFile, FamRecord, ChildToFamilyLink,
     FamilyEventStructure, AlbumRecord, SourceRecord, UserReferenceNumber, NoteRecord, SourceRepositoryCitation,
-    AssociationStructure)
+    AssociationStructure, FamTreePermission, FamTreeUser)
 from family.const import *
 
 class ImpGedcom551:
@@ -15,58 +15,86 @@ class ImpGedcom551:
         self.user = request.user
         self.only_clear = False
 
-    def import_gedcom_551(self, folder):
-        if (not os.path.isdir(folder)):
+    def import_gedcom_551(self, path):
+        if self.only_clear:
+            qnt = self.db_del_trees()
+            return {'result': 'ok', 'number of deleted trees': qnt,}
+
+        if (not os.path.exists(path)):
             return {
                 'result': 'error', 
-                'folder': folder,
-                'description': 'Folder does not exist.',
+                'path': path,
+                'description': 'The specified path does not exist.',
                 }
-        os.chdir(folder)
-        files = glob.glob('*.ged')
-        if (len(files) == 0):
-            return {
-                'result': 'warning', 
-                'folder': folder,
-                'description': 'There are no GEDCOM files (*.ged) to import.',
-                }
-        ret = {
-            'folder': folder,
-            'time': None,
-            'files': []
-        }
-
-        start = datetime.now()
-
-        if self.only_clear:
-            self.db_del_trees()
+        folder = None
+        file = None
+        if os.path.isdir(path):
+            folder = path
         else:
+            file = os.path.basename(path)
+
+        if folder:
+            os.chdir(folder)
+            files = glob.glob('*.ged')
+            if (len(files) == 0):
+                return {
+                    'result': 'warning', 
+                    'folder': folder,
+                    'description': 'There are no GEDCOM files (*.ged) to import.',
+                    }
+            ret = {
+                'folder': folder,
+                'time': None,
+                'files': []
+            }
+
+            start = datetime.now()
+
             for file in files:
                 if (len(FamTree.objects.filter(file=file)) == 1):
                     tree = FamTree.objects.filter(file=file).get()
                     tree.before_delete()
                     tree.delete()
-                ret['files'].append(self.imp_tree(folder, file))
+                filepath = folder + '\\' + file
+                ret['files'].append(self.imp_tree(filepath))
 
-        # self.db_del_trees()
+            ret['time'] = datetime.now() - start
+        elif file:
+            start = datetime.now()
 
-        ret['time'] = datetime.now() - start
+            if (len(FamTree.objects.filter(file=file)) == 1):
+                tree = FamTree.objects.filter(file=file).get()
+                tree.before_delete()
+                tree.delete()
+            ret = self.imp_tree(path)
+
+            ret['time'] = datetime.now() - start
+        else:
+            ret = {
+                'result': 'error',
+                'path': path,
+                'description': 'Unknown error.',
+            }
+
         return ret
 
     def db_del_trees(self):
+        qnt = 0
         for tree in FamTree.objects.all():
             tree.before_delete()
+            qnt += 1
         FamTree.objects.all().delete()
+        return qnt
 
-    def imp_tree(self, folder, file):
+    def imp_tree(self, filepath):
         self.result = 'ok'
         self.stat = {}
         self.head_subm = 0
         self.tree = None
-        with GedcomReader(folder + '\\' + file) as parser:
+        with GedcomReader(filepath) as parser:
             for item in parser.records0():
                 match item.tag:
-                    case 'HEAD':  self.read_header(item, file)
+                    case 'HEAD':  self.read_header(item, os.path.basename(filepath))
                     case 'FAM':   self.family_record(item)
                     case 'INDI':  self.indi_record(item)
                     case 'OBJE':  self.media_record(item)
@@ -87,9 +115,13 @@ class ImpGedcom551:
         self.stat['submitter'] = len(SubmitterRecord.objects.filter(tree=self.tree))
         self.stat['album'] = len(AlbumRecord.objects.filter(tree=self.tree))
 
+        if self.result == 'ok':
+            FamTreePermission.objects.create(user=self.user, tree=self.tree, can_view=True, can_clone=True, can_change=False, can_delete=True, can_merge=False)
+
         ret = {
             'result': self.result,
-            'file': file,
+            'file': os.path.basename(filepath),
+            'tree_id': self.tree.id,
             'stat': self.stat,
             'header': len(FamTree.objects.all()),
             }
@@ -100,7 +132,26 @@ class ImpGedcom551:
     # ------------- FamTree ---------------
 
     def read_header(self, item, file):
-        tree = FamTree.objects.create(depth=0)
+        name = file.replace('.ged', '').replace('.GED', '')
+        num = 0
+        ft = FamTreeUser.objects.filter(user_id=self.user.id)
+        for t in ft:
+            if t.name and t.name.startswith(name):
+                tail = t.name.replace(name, '').replace('(', '').replace(')', '')
+                if not tail:
+                    if num == 0:
+                        num = 1
+                else:
+                    try:
+                        tmp = int(tail)
+                        if tmp >= num:
+                            num = tmp + 1 
+                    except Exception:
+                        pass
+        if num > 0:
+            name = f'{name} ({num})'
+
+        tree = FamTree.objects.create(depth=0, name=name)
         for x in item.sub_tags(follow=False):
             match x.tag:
                 case 'SOUR': self.header_source(tree, x)
@@ -121,14 +172,14 @@ class ImpGedcom551:
                     for y in x.sub_tags(follow=False):
                         match y.tag:
                             case 'VERS': tree.gedc_vers = y.value
-                            case 'FORM': 
-                                tree.gedc_form = y.value
-                                for z in y.sub_tags(follow=False):
-                                    match z.tag:
-                                        case 'VERS': tree.gedc_form_vers = z.value
-                                        case _: self.unexpected_tag(z)
+                            case 'FORM': tree.gedc_form = y.value
                             case _: self.unexpected_tag(y)
-                case 'CHAR': tree.char = x.value
+                case 'CHAR': 
+                    tree.char = x.value
+                    for y in x.sub_tags(follow=False):
+                        match y.tag:
+                            case 'VERS': tree.char_vers = y.value
+                            case _: self.unexpected_tag(y)
                 case 'LANG': tree.lang = x.value
                 case 'NOTE': 
                     tree.note = x.value

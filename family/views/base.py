@@ -1,15 +1,19 @@
-import urllib, os
+import urllib, os, glob, re
 from PIL import Image
+from django.urls import reverse, reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, FileResponse
 from django.views.generic.list import ListView
-from django.views.generic.edit import UpdateView
+from django.views.generic.edit import FormView, UpdateView, FormMixin
 from django.shortcuts import get_object_or_404
 from rusel.base.context import Context
+from rusel.base.dir_forms import UploadForm
+from rusel.utils import extract_get_params
 from family.models import (FamTree, FamTreeUser, FamRecord, IndividualRecord, MultimediaRecord, RepositoryRecord, 
     NoteStructure, SourceRecord, SubmitterRecord, Params, IndiInfo)
 from family.config import app_config
+from family.gedcom_551.imp import ImpGedcom551
 
 
 class GenealogyContext(Context):
@@ -57,14 +61,19 @@ class GenealogyListView(ListView, GenealogyContext, LoginRequiredMixin):
             context['tree_id'] = tree_id
         return context
 
-class GenealogyDetailsView(UpdateView, GenealogyContext, LoginRequiredMixin):
+class GenealogyDetailsView(UpdateView, GenealogyContext, LoginRequiredMixin, FormMixin):
 
     def __init__(self):
         super().__init__()
         self.set_config(app_config, 'tree')
 
-    def get_context_data(self):
-        context = super().get_context_data()
+    def get_success_url(self):
+        if ('form_close' in self.request.POST):
+            return reverse('family:pedigree-list') + extract_get_params(self.request, None)
+        return reverse('family:pedigree-detail', args=(self.object.id,)) + extract_get_params(self.request, None)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         self.config.set_view(self.request)
         upd_context = self.get_app_context(self.request.user.id, icon=self.config.view_icon)
         context.update(upd_context)
@@ -76,6 +85,7 @@ class GenealogyDetailsView(UpdateView, GenealogyContext, LoginRequiredMixin):
     def tune_dataset(self, data, group):
         return data
 
+           
 def photo(request, ft):
     file = get_name_from_request(request, 'file')
     get_object_or_404(FamTreeUser.objects.filter(user_id=request.user.id, tree_id=ft))
@@ -139,3 +149,71 @@ def default_avatar(size: int) -> HttpResponse:
     img.save(response, 'jpeg')
     return response
 
+class UploadGedcomView(FormView, GenealogyContext, LoginRequiredMixin):
+    form_class = UploadForm
+    #success_url = reverse_lazy('family:pedigree-list')
+
+    def __init__(self):
+        super().__init__()
+        self.imported_tree = None
+
+    def get_success_url(self):
+        if self.imported_tree:
+            return reverse_lazy('family:pedigree-detail', args=(self.imported_tree,))
+        return reverse_lazy('family:pedigree-list')
+
+    def init_store_dir(self, user):
+        storage_path = os.environ.get('DJANGO_STORAGE_PATH')
+        self.store_dir = storage_path.format(user.username) + 'pedigree\\'
+        if not os.path.isdir(self.store_dir):
+            os.mkdir(self.store_dir)
+
+    def post(self, request):
+        self.init_store_dir(request.user)
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        files = request.FILES.getlist('upload')
+        if form.is_valid():
+            for f in files:
+                self.handle_uploaded_file(f)
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+    
+    def avoid_duplication(self, f):
+        file_parts = os.path.splitext(f)
+        file_path = '\\'.join(file_parts[0].split('\\')[:-1])
+        file_name = file_parts[0].split('\\')[-1]
+        file_name_base = file_name
+        file_ext = file_parts[1][1:]
+        num = 0
+        x = re.fullmatch(r'(.*) \((\d+)\)', file_name)
+        if x:
+            file_name = x[1]
+            num = int(x[2])
+        files = glob.glob(file_path + '\\' + file_name + '*.' + file_ext)
+        for file in files:
+            file_parts = os.path.splitext(file)
+            file_name_cmp = file_parts[0].split('\\')[-1]
+            if file_name_cmp == file_name_base and num == 0:
+                num = 1
+            else:
+                x = re.fullmatch(r'(.*) \((\d+)\)', file_name_cmp)
+                if x:
+                    file_name = x[1]
+                    if num <= int(x[2]):
+                        num = int(x[2]) + 1
+        if num == 0:
+            return f'{file_path}\\{file_name}.{file_ext}'
+        return f'{file_path}\\{file_name} ({num}).{file_ext}'
+
+    def handle_uploaded_file(self, f):
+        path = self.store_dir
+        filepath = self.avoid_duplication(path + f.name)
+        with open(filepath, 'wb+') as destination:
+            for chunk in f.chunks():
+                destination.write(chunk)
+        mgr = ImpGedcom551(self.request)
+        res = mgr.import_gedcom_551(filepath)
+        if res['result'] == 'ok' and res['tree_id']:
+            self.imported_tree = int(res['tree_id'])

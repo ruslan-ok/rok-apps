@@ -1,11 +1,11 @@
-import urllib.parse
+from django.db.models import Subquery
 from rest_framework import viewsets, permissions, status, renderers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from api.family import FamTreeSerializer
 from family.gedcom_551.exp import ExpGedcom551
 from family.gedcom_551.imp import ImpGedcom551
-from family.models import FamTreeUser, FamTree, Params, IndividualRecord, PersonalNameStructure, PersonalNamePieces, ChildToFamilyLink, FamRecord, IndividualEventStructure, EventDetail
+from family.models import FamTreeUser, FamTree, Params, FamTreePermission
 from family.utils import update_media
 
 
@@ -15,22 +15,23 @@ class FamTreeViewSet(viewsets.ModelViewSet):
     renderer_classes = [renderers.BrowsableAPIRenderer, renderers.JSONRenderer,]
     pagination_class = None
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def destroy(self, request, pk=None):
+        can_delete = False
+        tree = self.get_object()
+        if FamTreePermission.objects.filter(user=request.user.id, tree=tree.id).exists():
+            ftp = FamTreePermission.objects.filter(user=request.user.id, tree=tree.id).get()
+            can_delete = ftp.can_delete
+        if can_delete:
+            tree.delete_gedcom_file(request.user)
+            return super().destroy(request, pk)
+        else:
+             return Response(status=status.HTTP_403_FORBIDDEN)
 
-    def perform_create(self, serializer):
-        serializer.validated_data['name'] = urllib.parse.unquote(serializer.initial_data['name'])
-        super().perform_create(serializer)
 
     def get_queryset(self):
-        ret = []
-        ftu = FamTreeUser.objects.filter(user_id=self.request.user.id)
-        for ft in ftu:
-            if ft.tree_id:
-                if FamTree.objects.filter(id=ft.tree_id).exists():
-                    tree = FamTree.objects.filter(id=ft.tree_id).get()
-                    ret.append(tree)
-        return ret
+        ftu = FamTreeUser.objects.filter(user_id=self.request.user.id, can_view=True)
+        ft = FamTree.objects.filter(id__in=Subquery(ftu.values('tree_id')))
+        return ft
 
     @action(detail=False)
     def import_gedcom_5_5_1(self, request, pk=None):

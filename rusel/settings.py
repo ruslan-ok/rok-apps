@@ -74,7 +74,7 @@ MIDDLEWARE = [
     'django_cprofile_middleware.middleware.ProfilerMiddleware',
 ]
 
-DJANGO_CPROFILE_MIDDLEWARE_REQUIRE_STAFF = False
+DJANGO_CPROFILE_MIDDLEWARE_REQUIRE_STAFF = False # Profiling in Django
 
 ROOT_URLCONF = 'rusel.urls'
 
