@@ -103,25 +103,39 @@
                 </div>
             </div>
 
-            <div class="d-flex justify-content-evenly flex-wrap mb-3 pb-5">
-                <button type="button" name="media_update" class="btn btn-info m-3 bi-save" onclick="updateMedia({{ tree_id }})" title="{% trans 'update media files'|capfirst %}">
-                    {% trans 'media'|capfirst %}
-                </button>
+            <div class="d-flex justify-content-evenly flex-wrap">
                 <button type="submit" name="item_save" class="btn btn-primary m-3 bi-save" title="{% trans 'save changes'|capfirst %}">
                     {% trans 'save'|capfirst %}
                 </button>
                 <button type="submit" name="form_close" class="btn btn-secondary m-3 bi-x" title="{% trans 'close edit form'|capfirst %}">
                     {% trans 'close'|capfirst %}
                 </button>
-                <button type="button" name="tree_clone" class="btn btn-success m-3 bi-x" onclick="clone()" title="{% trans 'clone this tree'|capfirst %}">
-                    {% trans 'clone'|capfirst %}
-                </button>
-                <button type="button" name="tree_merge" class="btn btn-success m-3 bi-x" onclick="merge()" title="{% trans 'merge with another tree'|capfirst %}">
-                    {% trans 'merge'|capfirst %}
-                </button>
-                <button type="button" name="item_delete" class="btn btn-danger m-3 bi-trash" onclick="delItemConfirm('{{config.get_cur_role}}', '{{ban_on_deletion}}', '{{delete_question}} {{title}}?')" title="{% trans 'delete record'|capfirst %}">
-                    {% trans 'delete'|capfirst %}
-                </button>
+                <div class="btn-group m-3">
+                    <button type="button" class="btn btn-primary dropdown-toggle bi-gear" data-bs-toggle="dropdown" aria-expanded="false">
+                        {% trans 'service'|capfirst %}
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><button type="button" name="media_update" class="dropdown-item bi-save" onclick="updateMedia({{ tree_id }})" title="{% trans 'update media files'|capfirst %}">
+                            {% trans 'media'|capfirst %}
+                        </button></li>
+                        <li><button type="button" name="tree_check" class="dropdown-item bi-check2-circle" onclick="treeCheck()" title="{% trans 'check tree'|capfirst %}">
+                            {% trans 'check'|capfirst %}
+                        </button></li>
+                        <li><button type="button" name="tree_clone" class="dropdown-item bi-files" onclick="treeClone()" title="{% trans 'clone this tree'|capfirst %}">
+                            {% trans 'clone'|capfirst %}
+                        </button></li>
+                        <li><button type="button" name="tree_merge" class="dropdown-item bi-intersect" onclick="treeMerge()" title="{% trans 'merge with another tree'|capfirst %}">
+                            {% trans 'merge'|capfirst %}
+                        </button></li>
+                        <li><a class="dropdown-item bi-cloud-arrow-down" href="{% url 'family:pedigree-export' tree_id %}" title="{% trans 'export tree to GEDCOM-file'|capfirst %}">
+                            {% trans 'export'|capfirst %}
+                        </a></li>
+                        <li><button type="button" name="item_delete" class="dropdown-item bi-trash" onclick="delItemConfirm('{{config.get_cur_role}}', '{{ban_on_deletion}}', '{{delete_question}} {{title}}?')" title="{% trans 'delete record'|capfirst %}">
+                            {% trans 'delete'|capfirst %}
+                        </button></li>
+                    </ul>
+                </div>
+
             </div>
       
         </div>

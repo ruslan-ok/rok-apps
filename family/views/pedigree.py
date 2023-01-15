@@ -1,9 +1,11 @@
 from dataclasses import dataclass
 from django.urls import reverse
+from django.http import HttpResponse
 from django.utils.translation import gettext_lazy as _
 from family.views.base import GenealogyListView, GenealogyDetailsView, UploadGedcomView
 from family.forms import CreateFamTreeForm, EditFamTreeForm
 from family.models import FamTree, FamTreeUser, Params, IndividualRecord, FamRecord
+from family.gedcom_551.exp import ExpGedcom551
 
 @dataclass
 class Pedigree:
@@ -76,3 +78,11 @@ class PedigreeDetailsView(GenealogyDetailsView):
         context['add_item_template'] = 'base/add_item_upload.html'
         context['add_item_placeholder'] = '{}'.format(_('Upload GEDCOM-file'))
         return context
+
+def export_tree(request, pk):
+    tree = FamTree.objects.filter(id=pk).get()
+    mgr = ExpGedcom551(request)
+    gedcom = mgr.export_gedcom_551_str(tree)
+    response = HttpResponse(gedcom, content_type='application/text charset=utf-8')
+    response['Content-Disposition'] = f'attachment; filename="{tree.file}"'
+    return response

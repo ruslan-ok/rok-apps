@@ -54,10 +54,15 @@ function updateMedia() {
     iziToast.warning({message: 'The feature has not yet been implemented.', position: 'bottomRight'});
 }
 
-function merge() {
+function treeCheck() {
     iziToast.warning({message: 'The feature has not yet been implemented.', position: 'bottomRight'});
 }
 
-function clone() {
+function treeClone() {
     iziToast.warning({message: 'The feature has not yet been implemented.', position: 'bottomRight'});
 }
+
+function treeMerge() {
+    iziToast.warning({message: 'The feature has not yet been implemented.', position: 'bottomRight'});
+}
+

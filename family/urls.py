@@ -9,5 +9,6 @@ urlpatterns = [
     path('<int:tree_id>/', diagram.diagram, name='diagram'),
     path('pedigree/', pedigree.PedigreeListView.as_view(), name='pedigree-list'),
     path('pedigree/<int:pk>/', pedigree.PedigreeDetailsView.as_view(), name='pedigree-detail'),
+    path('pedigree/<int:pk>/export/', pedigree.export_tree, name='pedigree-export'),
     path('pedigree/<int:ft>/individual/<str:pk>/<str:view>', individual.IndividualDetailsView.as_view(), name='individual-detail'),
 ]
