@@ -1,0 +1,98 @@
+{% extends "base/page.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+  <link href="" rel="stylesheet">
+    <!-- <script src="{% static 'genea-app/resources/vuejs/vue.js' %}"></script> -->
+    <script src="{% static 'genea-app/resources/wasm/index.min.js' %}"></script>
+    <script>
+        var hpccWasm = window["@hpcc-js/wasm"];
+    </script>
+    <link rel="stylesheet" href="{% static 'scss/family-diagram.css' %}" />
+    <link rel="stylesheet" href="{% static 'iziToast/css/iziToast.min.css' %}">
+    <script type="application/javascript" src="{% static 'genea-app/js/tags.js' %}"></script>
+    <script type="application/javascript" src="{% static 'genea-app/js/gedcom.js' %}"></script>
+    <script type="application/javascript" src="{% static 'genea-app/js/stamboom.js' %}"></script>
+    <!-- <script type="application/javascript" src="{% static 'genea-app/components/tree.js' %}"></script> -->
+{% endblock %}
+
+{% block header_content %}
+  {% include 'base/header.html' %}
+{% endblock %}
+
+{% block content %}
+    <form method="post" class="d-none">{% csrf_token %}</form>
+    <div id="genea">
+
+        <!-- App -->
+        <main v-show="page=='tree'">
+            <div>
+                <div id="treecontainer">
+                    <div id="tree"></div>
+                </div>
+            </div>
+        </main>
+        <div class="d-flex flex-column btn-group-diagram m-2" role="toolbar">
+            <div class="btn-group m-2" role="group">
+                <a href="{% url 'family:pedigree-list' %}" class="btn btn-outline-secondary bi-collection" title="{% trans 'Manage family trees' %}"></a>
+            </div>
+            <div class="btn-group m-2" role="group">
+                <button type="button" class="btn btn-outline-secondary bi-toggles" onclick="ftViewOptions()" title="{% trans 'View options' %}"></button>
+            </div>
+            <div class="btn-group m-2" role="group">
+                <a href="{% url 'family:individual-detail' cur_tree_id cur_indi_id 'essencial' %}" class="btn btn-outline-secondary bi-person" title="{% trans 'Person profile' %}"></a>
+            </div>
+            <div class="btn-group m-2" role="group">
+                <a href="#" class="btn btn-outline-secondary bi-plus" title="{% trans 'Add person' %}"></a>
+            </div>
+        </div>
+        <div id="tree-load-spiner"></div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+    {{ block.super }}
+    <script src="{% static 'iziToast/js/iziToast.min.js' %}"></script>
+    <script type="application/javascript">
+
+        let selectedPerson;
+        let person;
+
+        let tree_onselect = function(id) {
+            selectedPerson = id;
+            person = stamboom.getPerson(id);
+            person.relations = stamboom.getRelations(id);
+            person.parents = stamboom.getParents(id);
+            document.location.hash = "/" + id;
+        }
+
+        // Bind stamboom
+        var stamboom = new Stamboom();
+
+        stamboom.register({
+            treecontainer: document.getElementById("treecontainer"),
+            tree: document.getElementById("tree")
+        });
+        stamboom.onselect(tree_onselect);
+
+        function router() {
+            var url = document.location.hash.split("/");
+            stamboom.select(url[1]);
+        }
+
+        window.addEventListener("hashchange", router);
+
+        function afterTreeLoad(data) {
+            stamboom.load(data);
+            document.getElementById('tree-load-spiner').classList.add('d-none');
+            router();
+        }
+
+        const path = document.location.pathname.split("/");
+        const tree_id = path[path.length-2];
+        stamboom.load_tree(tree_id, afterTreeLoad);
+
+    </script>
+    <script type="application/javascript" src="{% static 'js/family-diagram.js' %}"></script>
+
+{% endblock %}

@@ -1,0 +1,29 @@
+body {
+    /* overflow: hidden; */
+}
+
+#overlay {
+    text-align: center;
+}
+
+#treecontainer {
+    position: absolute;
+    top: 64px;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+    background-color: white;
+    text-align: center;
+    vertical-align: middle;
+    background-color: white;
+    overflow-y: hidden;
+    overflow-x: hidden;
+}
+
+#tree {
+    padding: 8000px;
+}
+
+[v-cloak] {
+    display: none;
+}

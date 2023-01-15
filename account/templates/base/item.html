@@ -115,7 +115,7 @@
     </a>      
 
     {% if config.use_important %}
-      <button type="button" onclick="toggleImportant({{ item.id|escape }})" class="right-icon">
+      <button type="button" onclick="toggleImportant({{ item.id|escape }}, '{{ api_role }}')" class="right-icon">
         {% if item.important %}
           <i class="bi-star-fill"></i>
         {% else %}

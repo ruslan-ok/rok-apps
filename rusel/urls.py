@@ -1,4 +1,4 @@
-#from django.contrib import admin
+from django.contrib import admin
 from django.conf.urls.i18n import i18n_patterns
 from django.urls import include, path
 from django.conf import settings
@@ -13,6 +13,7 @@ from api import views_step as api_step
 from api import views_urls as api_urls
 from api import views_profile as api_profile
 from api import views_logs as api_logs
+from api import views_famtree as api_family
 from api import views_widget as api_widget
 from api import views_service as api_service
 
@@ -23,6 +24,7 @@ api_router.register(r'steps', api_step.StepViewSet, basename='step')
 api_router.register(r'urls', api_urls.UrlsViewSet, basename='urls')
 api_router.register(r'profile', api_profile.ProfileViewSet, basename='profile')
 api_router.register(r'logs', api_logs.LogsViewSet, basename='logs')
+api_router.register(r'famtree', api_family.FamTreeViewSet, basename='famtree')
 
 urlpatterns = i18n_patterns(
     path('', views.ListView.as_view(), name='index'),
@@ -30,6 +32,7 @@ urlpatterns = i18n_patterns(
     path('bill/',   include('apart.urls')),
     path('docs/',   include('docs.urls')),
     path('expen/',  include('expen.urls')),
+    path('family/', include('family.urls')),
     path('fuel/',   include('fuel.urls')),
     path('health/', include('health.urls')),
     path('news/',   include('news.urls')),
@@ -39,6 +42,7 @@ urlpatterns = i18n_patterns(
     path('todo/',   include('todo.urls')),
     path('warr/',   include('warr.urls')),
     path('logs/',   include('logs.urls')),
+    path('admin/',  admin.site.urls, name='admin'),
     path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
     path('api/',    include(api_router.urls)),
     path('api/get_widget/', api_widget.get_widget, name='get_widget'),

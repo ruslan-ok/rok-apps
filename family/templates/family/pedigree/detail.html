@@ -1,0 +1,135 @@
+{% extends "base/page_content.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link href="{% static 'scss/form.css' %}" rel="stylesheet">
+    <link href="{% static 'scss/widgets.css' %}" rel="stylesheet">
+    <link href="{% static 'scss/family.css' %}" rel="stylesheet">
+    <link href="{% static 'iziToast/css/iziToast.min.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block main %}
+    <div class="list-content{% if theme_id %} theme-{{theme_id}}{% endif %}">
+        <form method="post" class="item-form px-2" enctype="multipart/form-data" id="article_form" data-item_id="{{ ed_item.id|cut:" " }}">{% csrf_token %}
+            {% include "base/form_errors.html" %}
+        
+            <div class="accordion" id="accordion_Pedigree">
+                <!-- Name -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading_Name">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_Name" aria-expanded="true" aria-controls="collapse_Name">
+                            <i class="bi-check2-square me-2"></i>
+                            {{ pedigree_name }}
+                        </button>
+                    </h2>
+                    <div id="collapse_Name" class="accordion-collapse show" aria-labelledby="heading_Name">
+                        <div class="accordion-body">
+                            {{ form.name.errors }}{{ form.name.label_tag }}{{ form.name }}
+                            <div class="row">
+                                <div class="col-auto">{{ form.date.errors }}{{ form.date.label_tag }}{{ form.date }}</div>
+                                <div class="col-auto">{{ form.time.errors }}{{ form.time.label_tag }}{{ form.time }}</div>
+                            </div>
+                            {{ form.file.errors }}{{ form.file.label_tag }}{{ form.file }}
+                        </div>
+                    </div>
+                </div>
+                <!-- Source -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading_Source">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_Source" aria-expanded="false" aria-controls="collapse_Source">
+                            <i class="bi-check2-square me-2"></i>
+                            {{ pedigree_source }}
+                        </button>
+                    </h2>
+                    <div id="collapse_Source" class="accordion-collapse collapse" aria-labelledby="heading_Source">
+                        <div class="accordion-body">
+                            <div class="row">
+                                <div class="col-auto">{{ form.sour.errors }}{{ form.sour.label_tag }}{{ form.sour }}</div>
+                                <div class="col-auto">{{ form.sour_vers.errors }}{{ form.sour_vers.label_tag }}{{ form.sour_vers }}</div>
+                                <div class="col-auto">{{ form.sour_corp.errors }}{{ form.sour_corp.label_tag }}{{ form.sour_corp }}</div>
+                            </div>
+                            {{ form.sour_name.errors }}{{ form.sour_name.label_tag }}{{ form.sour_name }}
+                            <div class="row">
+                                <div class="col-auto">{{ form.sour_data.errors }}{{ form.sour_data.label_tag }}{{ form.sour_data }}</div>
+                                <div class="col-auto">{{ form.sour_data_date.errors }}{{ form.sour_data_date.label_tag }}{{ form.sour_data_date }}</div>
+                                <div class="col-auto">{{ form.sour_data_corp.errors }}{{ form.sour_data_copr.label_tag }}{{ form.sour_data_copr }}</div>
+                            </div>
+                            {{ form.dest.errors }}{{ form.dest.label_tag }}{{ form.dest }}
+                        </div>
+                    </div>
+                </div>
+                <!-- Info -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading_Info">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_Info" aria-expanded="false" aria-controls="collapse_Info">
+                            <i class="bi-check2-square me-2"></i>
+                            {{ pedigree_info }}
+                        </button>
+                    </h2>
+                    <div id="collapse_Info" class="accordion-collapse collapse" aria-labelledby="heading_Info">
+                        <div class="accordion-body">
+                            <div class="row">
+                                <div class="col-auto">{{ form.gedc_vers.errors }}{{ form.gedc_vers.label_tag }}{{ form.gedc_vers }}</div>
+                                <div class="col-auto">{{ form.gedc_form.errors }}{{ form.gedc_form.label_tag }}{{ form.gedc_form }}</div>
+                                <div class="col-auto">{{ form.char.errors }}{{ form.char.label_tag }}{{ form.char }}</div>
+                                <div class="col-auto">{{ form.char_vers.errors }}{{ form.char_vers.label_tag }}{{ form.char_vers }}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-auto">{{ form.lang.errors }}{{ form.lang.label_tag }}{{ form.lang }}</div>
+                                <div class="col-auto">{{ form.copr.errors }}{{ form.copr.label_tag }}{{ form.copr }}</div>
+                                <div class="col-auto">{{ form.note.errors }}{{ form.note.label_tag }}{{ form.note }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Extra -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading_Extra">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_Extra" aria-expanded="false" aria-controls="collapse_Extra">
+                            <i class="bi-check2-square me-2"></i>
+                            {{ pedigree_extra }}
+                        </button>
+                    </h2>
+                    <div id="collapse_Extra" class="accordion-collapse collapse" aria-labelledby="heading_Extra">
+                        <div class="accordion-body">
+                            <div class="row">
+                                <div class="col-auto">{{ form.mh_id.errors }}{{ form.mh_id.label_tag }}{{ form.mh_id }}</div>
+                                <div class="col-auto">{{ form.mh_prj_id.errors }}{{ form.mh_prj_id.label_tag }}{{ form.mh_prj_id }}</div>
+                                <div class="col-auto">{{ form.mh_rtl.errors }}{{ form.mh_rtl.label_tag }}{{ form.mh_rtl }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-evenly flex-wrap mb-3 pb-5">
+                <button type="button" name="media_update" class="btn btn-info m-3 bi-save" onclick="updateMedia({{ tree_id }})" title="{% trans 'update media files'|capfirst %}">
+                    {% trans 'media'|capfirst %}
+                </button>
+                <button type="submit" name="item_save" class="btn btn-primary m-3 bi-save" title="{% trans 'save changes'|capfirst %}">
+                    {% trans 'save'|capfirst %}
+                </button>
+                <button type="submit" name="form_close" class="btn btn-secondary m-3 bi-x" title="{% trans 'close edit form'|capfirst %}">
+                    {% trans 'close'|capfirst %}
+                </button>
+                <button type="button" name="tree_clone" class="btn btn-success m-3 bi-x" onclick="clone()" title="{% trans 'clone this tree'|capfirst %}">
+                    {% trans 'clone'|capfirst %}
+                </button>
+                <button type="button" name="tree_merge" class="btn btn-success m-3 bi-x" onclick="merge()" title="{% trans 'merge with another tree'|capfirst %}">
+                    {% trans 'merge'|capfirst %}
+                </button>
+                <button type="button" name="item_delete" class="btn btn-danger m-3 bi-trash" onclick="delItemConfirm('{{config.get_cur_role}}', '{{ban_on_deletion}}', '{{delete_question}} {{title}}?')" title="{% trans 'delete record'|capfirst %}">
+                    {% trans 'delete'|capfirst %}
+                </button>
+            </div>
+      
+        </div>
+    </form>
+{% endblock %}
+
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'iziToast/js/iziToast.min.js' %}"></script>
+  <script src="{% static 'js/family.js' %}"></script>
+{% endblock %}

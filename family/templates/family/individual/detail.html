@@ -1,0 +1,42 @@
+{% extends "base/page_content.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link href="{% static 'scss/form.css' %}" rel="stylesheet">
+    <link href="{% static 'scss/widgets.css' %}" rel="stylesheet">
+      <link href="{% static 'scss/family.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block main %}
+    <div class="list-content{% if theme_id %} theme-{{theme_id}}{% endif %}">
+        <form method="post" class="item-form px-2" enctype="multipart/form-data" id="article_form" data-item_id="{{ ed_item.id|cut:" " }}">{% csrf_token %}
+            <div class="row">
+                <div class="col">
+                    {{ form.sort.label_tag }}{{ form.sex }}
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-evenly mt-3 pb-5">
+                <button type="button" name="media_update" class="btn btn-info bi-save" onclick="updateMedia({{ tree_id }})" title="{% trans 'update media files'|capfirst %}">
+                    {% trans 'media'|capfirst %}
+                </button>
+                <button type="submit" name="item_save" class="btn btn-primary bi-save" title="{% trans 'save changes'|capfirst %}">
+                    {% trans 'save'|capfirst %}
+                </button>
+                <button type="submit" name="form_close" class="btn btn-secondary bi-x" title="{% trans 'close edit form'|capfirst %}">
+                    {% trans 'close'|capfirst %}
+                </button>
+                <button type="button" name="item_delete" class="btn btn-danger bi-trash" onclick="delItemConfirm('{{config.get_cur_role}}', '{{ban_on_deletion}}', '{{delete_question}} {{title}}?')" title="{% trans 'delete record'|capfirst %}">
+                    {% trans 'delete'|capfirst %}
+                </button>
+            </div>
+      
+        </div>
+    </form>
+{% endblock %}
+
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'js/form.js' %}"></script>
+{% endblock %}

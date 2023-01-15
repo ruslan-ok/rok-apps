@@ -22,6 +22,7 @@ APP_BACKUP = 'backup'
 APP_LOGS = 'logs'
 APP_SERVICE = 'service'
 APP_W_ACME = 'win-acme'
+APP_FAMILY = 'family'
 
 APP_ALL = 'all'
 
@@ -42,6 +43,7 @@ APP_NAME = {
     APP_HEALTH: 'health',
     APP_WORK: 'work',
     APP_PHOTO: 'photobank',
+    APP_FAMILY: 'family tree',
     APP_ADMIN: 'administration',
     APP_ALL: 'all applications',
     APP_BACKUP: 'backup',
@@ -202,7 +204,7 @@ ROLE_CERT_COPY = 'cert_copy'
 
 ALL_ROLES = (
     ROLE_TODO,
-    ROLE_NOTIFICATOR,             
+    ROLE_NOTIFICATOR,
     ROLE_NOTE,             
     ROLE_NEWS,             
     ROLE_STORE,
@@ -238,7 +240,7 @@ ALL_ROLES = (
     ROLE_PAY_TITLE,   
     ROLE_PAYMENT,     
     ROLE_PHOTO, 
-    ROLE_ACCOUNT,  
+    ROLE_ACCOUNT,
     ROLE_SEARCH_RESULTS,
     ROLE_BACKUP_SHORT,
     ROLE_BACKUP_FULL,

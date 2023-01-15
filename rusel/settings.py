@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'apart.apps.ApartConfig',
     'docs.apps.DocsConfig',
     'expen.apps.ExpenConfig',
+    'family.apps.FamilyConfig',
     'fuel.apps.FuelConfig',
     'health.apps.HealthConfig',
     'news.apps.NewsConfig',
@@ -73,7 +74,7 @@ MIDDLEWARE = [
     'django_cprofile_middleware.middleware.ProfilerMiddleware',
 ]
 
-DJANGO_CPROFILE_MIDDLEWARE_REQUIRE_STAFF = False
+DJANGO_CPROFILE_MIDDLEWARE_REQUIRE_STAFF = False # Profiling in Django
 
 ROOT_URLCONF = 'rusel.urls'
 
