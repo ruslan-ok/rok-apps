@@ -1,3 +1,4 @@
+import os, json, requests
 from decimal import Decimal
 from datetime import datetime, timedelta
 from django.http import Http404
@@ -137,7 +138,21 @@ def build_weight_chart(user_id: int):
     }
     return data
 
+def get_api_health_chart(user_id):
+    api_url = os.environ.get('DJANGO_HOST_LOG', '')
+    service_token = os.environ.get('DJANGO_SERVICE_TOKEN', '')
+    headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
+    verify = os.environ.get('DJANGO_CERT', '')
+    resp = requests.get(api_url + '/api/get_chart_data/?mark=health', headers=headers, verify=verify)
+    if (resp.status_code != 200):
+        return None
+    return json.loads(resp.content)
+
 def build_health_chart(user_id: int):
+    if os.environ.get('DJANGO_DEVICE', 'Nuc') != 'Nuc':
+        ret = get_api_health_chart(user_id)
+        if ret:
+            return ret
     x = []
     y = []
     values = Task.objects.filter(user=user_id, app_health=NUM_ROLE_MARKER).exclude(bio_weight=None).exclude(bio_weight=0).order_by('-event')
