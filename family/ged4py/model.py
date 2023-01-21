@@ -121,6 +121,7 @@ class Record:
         GEDCOM source dialect, one of the `Dialect` enums.
     """
     def __init__(self):
+        self.key = None
         self.level = None
         self.xref_id = None
         self.tag = None

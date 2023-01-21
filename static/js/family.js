@@ -42,7 +42,7 @@ function delItem() {
     const callback = function() {
         if (this.readyState == 4 && this.status == 204)
             window.location.href = redirect_url;
-        if (this.readyState == 2 && this.status != 200) {            
+        if (this.readyState == 2 && this.status != 200) {
             let info = `${this.status} ${this.statusText}`;
             iziToast.warning({message: info, position: 'bottomRight'});
         }

@@ -118,9 +118,9 @@
                         <li><button type="button" name="media_update" class="dropdown-item bi-save" onclick="updateMedia({{ tree_id }})" title="{% trans 'update media files'|capfirst %}">
                             {% trans 'media'|capfirst %}
                         </button></li>
-                        <li><button type="button" name="tree_check" class="dropdown-item bi-check2-circle" onclick="treeCheck()" title="{% trans 'check tree'|capfirst %}">
+                        <li><a class="dropdown-item bi-check2-circle" href="{% url 'family:pedigree-examine' tree_id %}" title="{% trans 'check tree'|capfirst %}">
                             {% trans 'check'|capfirst %}
-                        </button></li>
+                        </a></li>
                         <li><button type="button" name="tree_clone" class="dropdown-item bi-files" onclick="treeClone()" title="{% trans 'clone this tree'|capfirst %}">
                             {% trans 'clone'|capfirst %}
                         </button></li>

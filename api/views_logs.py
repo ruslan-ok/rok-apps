@@ -1,12 +1,14 @@
 import requests, json, os
-from datetime import datetime, timedelta
+from datetime import datetime
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import viewsets, permissions, renderers, status
 
-from logs.models import EventType, ServiceEvent
+from logs.models import EventType, ServiceEvent, ServiceTask, ServiceTaskStatus
 from api.serializers import LogsSerializer
 from task.const import *
+from family.gedcom_551.exp import export_params, export_start
+from family.views.examine import examine_params, examine_start
 
 class LogsViewSet(viewsets.ModelViewSet):
     serializer_class = LogsSerializer
@@ -89,3 +91,51 @@ class LogsViewSet(viewsets.ModelViewSet):
         info = request.GET.get('info', 'undefined')
         ServiceEvent.objects.create(device=device, app=app, service=service, type=type, name=name, info=info)
         return Response({'result': 'ok'})
+
+    @action(detail=False)
+    def create_task(self, request):
+        if 'app' not in request.GET or 'service' not in request.GET or 'item_id' not in request.GET:
+            return Response({'result': 'error', 'info': "Expected parameters 'app', 'service', 'item_id'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        app = request.GET.get('app', 'service')
+        service = request.GET.get('service', 'manager')
+        item_id = request.GET.get('item_id', 'info')
+        match (app, service):
+            case ('family', 'export'): total, info = export_params(request.user, item_id)
+            case ('family', 'examine'): total, info = examine_params(request.user, item_id)
+            case _: total, info = None, 'Unsupported app and service'
+        if total:
+            task = ServiceTask.objects.create(user=request.user, app=app, service=service, item_id=item_id, status=ServiceTaskStatus.READY)
+            return Response({'result': 'ok', 'task_id': task.id, 'total': total, 'info': info})
+        return Response({'result': 'error', 'task_id': 0, 'total': 0, 'info': info})
+
+    @action(detail=False)
+    def start_task(self, request):
+        if 'task_id' not in request.GET:
+            return Response({'result': 'error', 'info': "Expected parameter 'task_id'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        task_id = request.GET.get('task_id', '0')
+        if (task_id):
+            if ServiceTask.objects.filter(id=task_id).exists():
+                task = ServiceTask.objects.filter(id=task_id).get()
+                match (task.app, task.service):
+                    case ('family', 'export'): ret = export_start(request.user, task.item_id, task.id)
+                    case ('family', 'examine'): ret = examine_start(request.user, task.item_id, task.id)
+                    case _: ret = {'info': 'Unsupported app and service'}
+                if 'status' in ret and 'info' in ret and ret['status'] == 'completed':
+                    task = ServiceTask.objects.filter(id=task_id).get()
+                    return Response({'result': 'ok', 'value': task.done, 'info': ret['info']})
+                return Response({'result': ret['status'], 'info': ret['info']})
+        return Response({'result': 'warning', 'info': f'Not found task with id {task_id}'})
+
+    @action(detail=False)
+    def get_task_status(self, request):
+        if 'task_id' not in request.GET:
+            return Response({'result': 'error', 'info': "Expected parameter 'task_id'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        task_id = request.GET.get('task_id', '0')
+        if (task_id):
+            if ServiceTask.objects.filter(id=task_id).exists():
+                task = ServiceTask.objects.filter(id=task_id).get()
+                return Response({'result': 'ok', 'value': task.done})
+        return Response({'result': 'error', 'info': f'Not found task with id {task_id}'})

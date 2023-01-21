@@ -145,3 +145,20 @@ class ServiceEvent(models.Model):
         if hlt:
             ret.append(hlt)
         return ret
+
+class ServiceTaskStatus(models.TextChoices):
+        READY = 'ready', _('Ready to start')
+        RUNING = 'runing', _('Runing')
+        ABORTED = 'aborted', _('Aborted')
+        DONE = 'done', _('Done')
+        
+class ServiceTask(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Service Task User')
+    app = models.CharField('App name', max_length=50, blank=False, default=APP_TODO, null=True)
+    service = models.CharField('Service name', max_length=50, blank=False, null=True)
+    item_id = models.IntegerField('Item id', blank=True, null=True)
+    status = models.CharField('Task status', max_length=10, blank=False, choices=ServiceTaskStatus.choices, default=ServiceTaskStatus.READY)
+    total = models.IntegerField('Total task iteration', blank=True, null=True)
+    done = models.IntegerField('Done task iteration', blank=True, null=True)
+    created = models.DateTimeField('Creation time', blank=True, default=datetime.now)
+    last_mod = models.DateTimeField('Last modification time', blank=True, auto_now=True)

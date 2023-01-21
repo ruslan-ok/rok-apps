@@ -49,7 +49,7 @@ class FamTreeViewSet(viewsets.ModelViewSet):
             return Response({'Error': "Expected parameter 'folder'"},
                             status=status.HTTP_400_BAD_REQUEST)
         folder = self.request.query_params['folder']
-        mgr = ExpGedcom551(request)
+        mgr = ExpGedcom551(request.user)
         res = mgr.export_gedcom_551(folder, pk)
         return Response(res)
     
@@ -72,8 +72,7 @@ class FamTreeViewSet(viewsets.ModelViewSet):
         if FamTreeUser.objects.filter(user_id=request.user.id, tree_id=pk).exists():
             if FamTree.objects.filter(id=pk).exists():
                 tree = FamTree.objects.filter(id=pk).get()
-                mgr = ExpGedcom551(request)
+                mgr = ExpGedcom551(request.user)
                 gedcom = mgr.export_gedcom_551_str(tree)
                 return Response({'result': 'ok', 'tree': gedcom})
         return Response({'result': 'error', 'info': 'Specified family tree not found.'})
-

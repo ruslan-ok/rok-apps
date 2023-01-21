@@ -1,0 +1,34 @@
+// Smallest devices
+@media (min-width: 200px) {
+    .progress {
+        width: 100px;
+    }
+}
+
+@media (min-width: 400px) {
+    .progress {
+        width: 240px;
+    }
+}
+
+// Small devices (landscape phones, 576px and up)
+@media (min-width: 576px) {
+    .progress {
+        width: 400px;
+    }
+}
+
+// Medium devices (tablets, 768px and up)
+@media (min-width: 768px) {
+    .progress {
+        width: 400px;
+    }
+}
+
+// Large devices (desktops, 992px and up)
+@media (min-width: 992px) {
+    .progress {
+        width: 600px;
+    }
+}
+

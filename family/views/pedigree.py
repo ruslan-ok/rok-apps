@@ -81,7 +81,7 @@ class PedigreeDetailsView(GenealogyDetailsView):
 
 def export_tree(request, pk):
     tree = FamTree.objects.filter(id=pk).get()
-    mgr = ExpGedcom551(request)
+    mgr = ExpGedcom551(request.user)
     gedcom = mgr.export_gedcom_551_str(tree)
     response = HttpResponse(gedcom, content_type='application/text charset=utf-8')
     response['Content-Disposition'] = f'attachment; filename="{tree.file}"'

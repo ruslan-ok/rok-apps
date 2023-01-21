@@ -130,7 +130,6 @@ class FamTree(models.Model):
                 if os.path.exists(filepath):
                     os.remove(filepath)
 
-
     def is_leaf(self):
         return True
 
@@ -143,6 +142,17 @@ class FamTree(models.Model):
             else:
                 name = self.file
         return name
+
+    def get_file_name(self):
+        fname = self.file
+        if not fname:
+            if self.name:
+                fname = f'{self.name}.ged'
+            else:
+                fname = f'family_tree_{self.id}.ged'
+        if (fname[-4:] != '.ged' and fname[-4:] != '.GED'):
+            fname += '.ged'
+        return fname
 
 @receiver(pre_delete)
 def delete_fam_tree(sender, instance, **kwargs):

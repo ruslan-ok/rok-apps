@@ -3,10 +3,12 @@ from __future__ import annotations
 import os, glob
 from dataclasses import dataclass, field
 from typing import Optional
-from ged4py.parser import GedcomReader
-from ged4py.model import Record
-
-work_folder = 'C:/Web/apps/rusel/family/validator'
+from django.shortcuts import get_object_or_404
+from logs.models import ServiceTask, ServiceTaskStatus
+from family.ged4py.parser import GedcomReader
+from family.ged4py.model import Record
+from family.models import FamTreeUser, FamTree
+from family.gedcom_551.exp import ExpGedcom551
 
 class ParserError(Exception):
     pass
@@ -231,20 +233,55 @@ class GedcomSpec:
 
 class Validator:
     gedcom_specs: list[GedcomSpec]
+    task: ServiceTask
 
-    def __init__(self, version=None):
+    def __init__(self, user, version=None):
         super().__init__()
         self.gedcom_specs = []
-        os.chdir(work_folder)
+        folder = self.init_work_dir(user) + '\\validator\\'
+        os.chdir(folder)
         files = glob.glob('*.spec')
         for file in files:
             if version and version not in file:
                 continue
             self.gedcom_specs.append(GedcomSpec(file))
 
+    def init_work_dir(self, user):
+        storage_path = os.environ.get('FAMILY_STORAGE_PATH', '')
+        folder = storage_path.format(user.username)
+        if not os.path.isdir(folder):
+            os.mkdir(folder)
+        return folder
 
-    def check_tree(self, file_name, version=None):
+    def check_tree(self, user, pk):
+        get_object_or_404(FamTreeUser.objects.filter(user_id=user.id, tree_id=pk))
+        tree = get_object_or_404(FamTree.objects.filter(id=pk))
+        work_dir = self.init_work_dir(user) + '\\pedigree\\'
+        mgr = ExpGedcom551(user)
+        mgr.export_gedcom_551(work_dir, pk)
+        fname = tree.get_file_name()
+        ret = self.check_tree_file(fname)
+        print(f'done: file_ok={ret["file_ok"]}, gedcom_ver={ret["gedcom_ver"]}')
+
+    def inc_task_value(self):
+        if self.task:
+            if self.task.done:
+                self.task.done += 1
+            else:
+                self.task.done = 1
+            self.task.save()
+
+    def get_tree_file_obj_num(self, file_name):
+        ret = 0
+        with GedcomReader(file_name) as parser:
+            for item in parser.records0():
+                ret += 1
+        return ret
+
+    def check_tree_file(self, file_name, version=None, task_id=None):
         file_ok = False
+        if task_id and ServiceTask.objects.filter(id=task_id).exists():
+            self.task = ServiceTask.objects.filter(id=task_id).get()
         gedcom_ver = ''
         for specification in self.gedcom_specs:
             self._specification = specification
@@ -252,6 +289,7 @@ class Validator:
             ok = True
             with GedcomReader(file_name) as parser:
                 for item in parser.records0():
+                    self.inc_task_value()
                     if not self.validate_structure(item, dataset, ''):
                         ok = False
                         break
@@ -262,7 +300,7 @@ class Validator:
                 file_ok = True
                 gedcom_ver = specification.version
                 break
-        print(f'done: {file_ok=}, {gedcom_ver=}')
+        return {'file_ok': file_ok, 'gedcom_ver': gedcom_ver}
 
     # def check_cardinality(self, item, struct):
     #     pass
@@ -315,7 +353,3 @@ class Validator:
             if self.fits_with_sub_records(item, leaf, key):
                 return True
         return False
-
-if __name__ == '__main__':
-    validator = Validator()
-    validator.check_tree('C:/Web/apps/rusel/family/validator/zhmailik.ged')

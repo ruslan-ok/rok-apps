@@ -1,19 +1,22 @@
 import os, io
 from django.shortcuts import get_object_or_404
-from family.models import (AssociationStructure, FamTree, IndividualRecord, FamRecord, MultimediaLink, MultimediaRecord, #PersonalNamePieces, 
+from family.models import (FamTreeUser, AssociationStructure, FamTree, IndividualRecord, FamRecord, MultimediaLink, MultimediaRecord, #PersonalNamePieces, 
     PersonalNameStructure, SourceRecord, AlbumRecord, ChangeDate, SubmitterRecord, NoteStructure, NamePhoneticVariation, 
     NameRomanizedVariation, SourceCitation, IndividualEventStructure, IndividualAttributeStructure, ChildToFamilyLink, 
     UserReferenceNumber, FamilyEventStructure, NoteRecord, RepositoryRecord, SourceRepositoryCitation,
     MultimediaFile)
 from family.const import *
+from logs.models import ServiceTask, ServiceTaskStatus
 
 class ExpGedcom551:
-    def __init__(self, request, *args, **kwargs):
+    task: ServiceTask
+
+    def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.user = request.user
+        self.user = user
         self.custom_fields = True
 
-    def export_gedcom_551(self, folder, pk=0):
+    def export_gedcom_551(self, folder, pk=0, task_id=None):
         if (not os.path.isdir(folder)):
             return {
                 'result': 'error', 
@@ -23,11 +26,13 @@ class ExpGedcom551:
         self.use_xref = False
         if pk:
             tree = get_object_or_404(FamTree.objects.filter(id=pk))
-            if self.valid_tree(tree):
+            if self.can_export(tree):
+                if task_id and ServiceTask.objects.filter(id=task_id).exists():
+                    self.task = ServiceTask.objects.filter(id=task_id).get()
                 self.exp_tree_to_file(folder, tree)
         else:
             for tree in FamTree.objects.all():
-                if self.valid_tree(tree):
+                if self.can_export(tree):
                     self.exp_tree_to_file(folder, tree)
         return {'result': 'ok'}
 
@@ -37,20 +42,13 @@ class ExpGedcom551:
         self.exp_tree(tree)
         return self.f.getvalue()
 
-    def valid_tree(self, tree):
+    def can_export(self, tree):
         q1 = (len(IndividualRecord.objects.filter(tree=tree)) > 0)
         q2 = (len(FamRecord.objects.filter(tree=tree)) > 0)
         return (q1 or q2)
 
     def exp_tree_to_file(self, folder, tree):
-        fname = tree.file
-        if not fname:
-            if tree.name:
-                fname = f'{tree.name}.ged'
-            else:
-                fname = f'{tree.id}.ged'
-        if (fname[-4:] != '.ged' and fname[-4:] != '.GED'):
-            fname += '.ged'
+        fname = tree.get_file_name()
         self.f = open(folder + '\\' + fname, 'w', encoding='utf-8-sig')
         self.exp_tree(tree)
         self.f.close()
@@ -125,6 +123,7 @@ class ExpGedcom551:
             self.write_note_link(1, x)
         self.write_chan(1, subm.chan)
         self.write_custom(1, '_UID', subm._uid)
+        self.inc_task_value()
 
     def indi_record(self, indi):
         self.write_id('INDI', indi._sort, indi.id)
@@ -155,6 +154,15 @@ class ExpGedcom551:
             self.write_media_link(1, x)
         self.write_custom(1, '_UPD', indi._upd)
         self.write_custom(1, '_UID', indi._uid)
+        self.inc_task_value()
+            
+    def inc_task_value(self):
+        if hasattr(self, 'task') and self.task:
+            if self.task.done:
+                self.task.done += 1
+            else:
+                self.task.done = 1
+            self.task.save()
 
     def make_xref(self, tag, xref, id=None):
         liter = LITERS[tag]
@@ -186,6 +194,7 @@ class ExpGedcom551:
         self.write_custom(1, '_UID', fam._uid)
         self.write_custom(1, '_UPD', fam._upd)
         self.write_custom(1, '_MSTAT', fam._mstat)
+        self.inc_task_value()
 
     def media_record(self, obje):
         self.write_id('OBJE', obje._sort, obje.id)
@@ -216,6 +225,7 @@ class ExpGedcom551:
         if obje._albu:
             self.write_custom(1, '_ALBUM', self.make_xref('_ALBUM', obje._albu._sort, obje._albu.id))
         self.write_custom(1, '_UID', obje._uid )
+        self.inc_task_value()
 
     def source_record(self, sour):
         self.write_id('SOUR', sour._sort, sour.id)
@@ -244,6 +254,7 @@ class ExpGedcom551:
         self.write_custom(1, '_TYPE', sour._type)
         self.write_custom(1, '_MEDI', sour._medi)
         self.write_custom(1, '_UID', sour._uid)
+        self.inc_task_value()
 
     def repo_record(self, repo):
         self.write_id('REPO', repo._sort, repo.id)
@@ -255,15 +266,18 @@ class ExpGedcom551:
             self.write_refn(1, x)
         self.write_optional(1, 'RIN', repo.rin)
         self.write_chan(1, repo.chan)
+        self.inc_task_value()
 
     def note_record(self, note):
         self.write_text(0, self.make_xref('NOTE', note._sort, note.id) + ' NOTE', note.note)
+        self.inc_task_value()
 
 
     def album_record(self, albu):
         self.write_id('_ALBUM', albu._sort, albu.id)
         self.write_optional(1, 'TITL', albu.titl)
         self.write_custom(1, '_UPD', albu._upd)
+        self.inc_task_value()
 
     # ------ Tools --------
 
@@ -537,3 +551,31 @@ class ExpGedcom551:
             else:
                 self.write_required(level, 'OBJE', '@M' + str(media.obje.id) + '@')
 
+def export_params(user, item_id) -> tuple[int, str]:
+    total = 0
+    if FamTreeUser.objects.filter(user_id=user.id, tree_id=item_id, can_view=True).exists():
+        if FamTree.objects.filter(id=item_id).exists():
+            tree = FamTree.objects.filter(id=item_id).get()
+            total += len(IndividualRecord.objects.filter(tree=tree.id))
+            total += len(FamRecord.objects.filter(tree=tree.id))
+            total += len(NoteRecord.objects.filter(tree=tree.id))
+            total += len(RepositoryRecord.objects.filter(tree=tree.id))
+            total += len(SourceRecord.objects.filter(tree=tree.id))
+            total += len(SubmitterRecord.objects.filter(tree=tree.id))
+            total += len(AlbumRecord.objects.filter(tree=tree.id))
+            total += len(MultimediaRecord.objects.filter(tree=tree.id))
+            total += len(NoteStructure.objects.filter(tree=tree.id))
+            if total == 0:
+                return 0, f'Empty family tree with ID {item_id}'
+            return total, ''
+    return 0, f'Family tree with ID {item_id} not found'
+
+def export_start(user, item_id, task_id) -> dict:
+    if FamTreeUser.objects.filter(user_id=user.id, tree_id=item_id, can_view=True).exists():
+        tree = FamTree.objects.filter(id=item_id).get()
+        storage_path = os.environ.get('FAMILY_STORAGE_PATH', '')
+        store_dir = storage_path.format(user.username) + '\\pedigree\\'
+        mgr = ExpGedcom551(user)
+        mgr.export_gedcom_551(store_dir, pk=tree.id, task_id=task_id)
+        return {'status':'completed', 'info': ''}
+    return {'status':'warning', 'info': f'Family tree with id {task_id} not found'}
