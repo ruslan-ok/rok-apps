@@ -163,8 +163,8 @@ class UploadGedcomView(FormView, GenealogyContext, LoginRequiredMixin):
         return reverse_lazy('family:pedigree-list')
 
     def init_store_dir(self, user):
-        storage_path = os.environ.get('DJANGO_STORAGE_PATH')
-        self.store_dir = storage_path.format(user.username) + 'pedigree\\'
+        storage_path = os.environ.get('FAMILY_STORAGE_PATH')
+        self.store_dir = storage_path + '\\pedigree\\'
         if not os.path.isdir(self.store_dir):
             os.mkdir(self.store_dir)
 
@@ -215,5 +215,5 @@ class UploadGedcomView(FormView, GenealogyContext, LoginRequiredMixin):
                 destination.write(chunk)
         mgr = ImpGedcom551(self.request)
         res = mgr.import_gedcom_551(filepath)
-        if res['result'] == 'ok' and res['tree_id']:
+        if 'result' in res and 'tree_id' in res and res['result'] == 'ok' and res['tree_id']:
             self.imported_tree = int(res['tree_id'])

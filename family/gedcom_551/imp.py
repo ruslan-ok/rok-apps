@@ -1,5 +1,6 @@
-import os, glob
+import os, glob, requests
 from datetime import datetime
+from PIL import Image
 from family.ged4py.parser import GedcomReader
 from family.models import (FamTree, AddressStructure, IndividualRecord, SubmitterRecord, RepositoryRecord, 
     ChangeDate, NoteStructure, PersonalNameStructure, NamePhoneticVariation, NameRomanizedVariation, 
@@ -506,6 +507,14 @@ class ImpGedcom551:
                 case 'TITL': file.titl = x.value
                 case '_FDTE': file._fdte = x.value
                 case '_FPLC': file._fplc = x.value
+        if 'https://' in item.value and '.com/' in item.value and file.obje and file.obje.tree:
+            headers = {'User-Agent': 'Mozilla/5.0'}
+            im = Image.open(requests.get(item.value, headers=headers, stream=True).raw)
+            folder = os.environ.get('FAMILY_STORAGE_PATH', '') + '\\pedigree\\' + file.obje.tree.get_file_name() + '_media\\'
+            if not os.path.exists(folder):
+                os.mkdir(folder)
+            fname = item.value.split('/')[-1]
+            im.save(folder + fname)
         file.save()
         return file
 

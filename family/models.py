@@ -1,4 +1,4 @@
-import os
+import os, shutil
 from datetime import datetime
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -122,12 +122,14 @@ class FamTree(models.Model):
             item.before_delete()
 
     def delete_gedcom_file(self, user):
-        storage_path = os.environ.get('DJANGO_STORAGE_PATH')
+        storage_path = os.environ.get('FAMILY_STORAGE_PATH')
         if storage_path:
-            store_dir = storage_path.format(user.username) + 'pedigree\\'
+            store_dir = storage_path + '\\pedigree\\'
             if store_dir and self.file:
                 filepath = store_dir + self.file
                 if os.path.exists(filepath):
+                    if os.path.exists(filepath + '_media'):
+                        shutil.rmtree(filepath + '_media')
                     os.remove(filepath)
 
     def is_leaf(self):
