@@ -50,6 +50,7 @@ class PedigreeListView(GenealogyListView):
         context = super().get_context_data()
         context['add_item_template'] = 'base/add_item_upload.html'
         context['add_item_placeholder'] = f'{_("Upload GEDCOM-file")}'
+        context['api_role'] = 'famtree'
         return context
 
     def post(self, request):

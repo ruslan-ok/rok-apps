@@ -1,7 +1,7 @@
 import os, glob, requests
 from datetime import datetime
 from PIL import Image
-from logs.models import ServiceTask, ServiceTaskStatus
+from logs.models import ServiceTask, ServiceEvent, EventType
 from family.ged4py.parser import GedcomReader
 from family.models import (FamTree, AddressStructure, IndividualRecord, SubmitterRecord, RepositoryRecord, 
     ChangeDate, NoteStructure, PersonalNameStructure, NamePhoneticVariation, NameRomanizedVariation, 
@@ -93,6 +93,7 @@ class ImpGedcom551:
         return qnt
 
     def imp_tree(self, filepath):
+        self.log_info('imp_tree', 'start')
         self.result = 'ok'
         self.stat = {}
         self.head_subm = 0
@@ -124,9 +125,6 @@ class ImpGedcom551:
         self.stat['submitter'] = len(SubmitterRecord.objects.filter(tree=self.tree))
         self.stat['album'] = len(AlbumRecord.objects.filter(tree=self.tree))
 
-        if self.result == 'ok':
-            FamTreePermission.objects.create(user=self.user, tree=self.tree, can_view=True, can_clone=True, can_change=False, can_delete=True, can_merge=False)
-
         ret = {
             'result': self.result,
             'file': os.path.basename(filepath),
@@ -136,11 +134,19 @@ class ImpGedcom551:
             }
         if (self.result != 'ok'):
             ret['error'] = self.error_descr
+        self.log_info('imp_tree', '-')
         return ret
+    
+    def log_error(self, name, info):
+        ServiceEvent.objects.create(name=name, device='Nuc', app='family', service='import', type=EventType.ERROR, info=info,)
+
+    def log_info(self, name, info):
+        ServiceEvent.objects.create(name=name, device='Nuc', app='family', service='import', type=EventType.INFO, info=info,)
 
     # ------------- FamTree ---------------
 
     def read_header(self, item, file):
+        self.log_info('read_header', 'start')
         name = file.replace('.ged', '').replace('.GED', '')
         num = 0
         ft = FamTreeUser.objects.filter(user_id=self.user.id)
@@ -161,6 +167,8 @@ class ImpGedcom551:
             name = f'{name} ({num})'
 
         tree = FamTree.objects.create(depth=0, name=name)
+        FamTreePermission.objects.create(user=self.user, tree=tree, can_view=True, can_clone=True, can_change=False, can_delete=True, can_merge=False)
+
         for x in item.sub_tags(follow=False):
             match x.tag:
                 case 'SOUR': self.header_source(tree, x)
@@ -200,10 +208,13 @@ class ImpGedcom551:
                 case '_PROJECT_GUID': tree.mh_prj_id = x.value
                 case '_EXPORTED_FROM_SITE_ID': tree.mh_id = x.value
                 case _: self.unexpected_tag(x)
-        tree.save()
-        if (self.result != 'ok'):
-            return None
-        self.tree = tree
+        try:
+            tree.save()
+        except Exception as ex:
+            self.log_error('FamTree', str(ex))
+        if (self.result == 'ok'):
+            self.tree = tree
+        self.log_info('read_header', '-')
 
     def header_source(self, tree, item):
         tree.sour = item.value
@@ -240,12 +251,16 @@ class ImpGedcom551:
     # ------------- Family ---------------
     def family_record(self, item):
         xref = self.extract_xref(item.tag, item.xref_id)
+        self.log_info('family_record', f'+ {xref=}')
         sort = len(FamRecord.objects.filter(tree=self.tree).exclude(_sort=None)) + 1
         if FamRecord.objects.filter(tree=self.tree, xref=xref).exists():
             fam = FamRecord.objects.filter(tree=self.tree, xref=xref).get()
             if (not fam._sort):
                 fam._sort = sort
-                fam.save()
+                try:
+                    fam.save()
+                except Exception as ex:
+                    self.log_error('FamRecord', str(ex))
         else:
             fam = FamRecord.objects.create(tree=self.tree, xref=xref, _sort=sort)
         for x in item.sub_tags(follow=False):
@@ -264,7 +279,11 @@ class ImpGedcom551:
                 case '_UPD': fam._upd = x.value
                 case '_MSTAT': fam._mstat = x.value
                 case _: self.unexpected_tag(x)
-        fam.save()
+        try:
+            fam.save()
+        except Exception as ex:
+            self.log_error('FamRecord', str(ex))
+        self.log_info('family_record', '-')
 
     def family_child(self, fam, child_id):
         indi = self.find_person(child_id)
@@ -291,11 +310,15 @@ class ImpGedcom551:
             even.value = 'Y'
         if item.tag in ('ANUL', 'CENS', 'DIV', 'DIVF',) and (even.value == 'Y'):
             even.value = ''
-        even.save()
+        try:
+            even.save()
+        except Exception as ex:
+            self.log_error('FamilyEventStructure', str(ex))
 
     # ------------- Individual ---------------
     def indi_record(self, item):
         xref = self.extract_xref(item.tag, item.xref_id)
+        self.log_info('indi_record', f'+ {xref=}')
         sort = len(IndividualRecord.objects.filter(tree=self.tree)) + 1
         indi = IndividualRecord.objects.create(tree=self.tree, xref=xref, _sort=sort)
         for x in item.sub_tags(follow=False):
@@ -318,15 +341,22 @@ class ImpGedcom551:
                 case '_UPD': indi._upd = x.value
                 case '_UID': indi._uid = x.value
                 case _: self.unexpected_tag(x)
-        indi.save()
+        try:
+            indi.save()
+        except Exception as ex:
+            self.log_error('IndividualRecord', str(ex))
+        self.log_info('indi_record', '-')
 
     def spouse_to_family(self, item):
+        self.log_info('spouse_to_family', f'+ {item.value=}')
         xref = self.extract_xref('FAM', item.value)
         if not FamRecord.objects.filter(tree=self.tree, xref=xref).exists():
             FamRecord.objects.create(tree=self.tree, xref=xref)
+        self.log_info('spouse_to_family', '-')
 
     def child_to_family(self, indi, item):
         xref = self.extract_xref('FAM', item.value)
+        self.log_info('child_to_family', f'+ {item.value=}')
         if FamRecord.objects.filter(tree=self.tree, xref=xref).exists():
             fam = FamRecord.objects.filter(tree=self.tree, xref=xref).get()
         else:
@@ -340,9 +370,14 @@ class ImpGedcom551:
                 case 'PEDI': famc.pedi = x.value
                 case 'NOTE': self.note_struct(x, famc=famc)
                 case _: self.unexpected_tag(x)
-        famc.save()
+        try:
+            famc.save()
+        except Exception as ex:
+            self.log_error('ChildToFamilyLink', str(ex))
+        self.log_info('child_to_family', '-')
 
     def person_name(self, item, indi):
+        self.log_info('person_name', f'+ {item.value=}')
         sort = len(PersonalNameStructure.objects.filter(indi=indi)) + 1
         name = PersonalNameStructure.objects.create(indi=indi, _sort=sort, name=item.value)
         empty = True
@@ -359,7 +394,11 @@ class ImpGedcom551:
         if empty:
             name.delete()
         else:
-            name.save()
+            try:
+                name.save()
+            except Exception as ex:
+                self.log_error('PersonalNameStructure', str(ex))
+        self.log_info('person_name', '-')
 
     def phonetic(self, item, name=None, plac=None):
         vari = NamePhoneticVariation.objects.create(name=name, plac=plac, value=item.value)
@@ -368,7 +407,10 @@ class ImpGedcom551:
                 case 'TYPE': vari.type = x.value
                 case 'NPFX'|'GIVN'|'NICK'|'SPFX'|'SURN'|'NSFX'|'_MARNM': vari.piec = self.name_pieces(x, vari.piec)
                 case _: self.unexpected_tag(x)
-        vari.save()
+        try:
+            vari.save()
+        except Exception as ex:
+            self.log_error('NamePhoneticVariation', str(ex))
 
     def romanized(self, item, name=None, plac=None):
         vari = NameRomanizedVariation.objects.create(name=name, plac=plac, value=item.value)
@@ -377,7 +419,10 @@ class ImpGedcom551:
                 case 'TYPE': vari.type = x.value
                 case 'NPFX'|'GIVN'|'NICK'|'SPFX'|'SURN'|'NSFX'|'_MARNM': vari.piec = self.name_pieces(x, vari.piec)
                 case _: self.unexpected_tag(x)
-        vari.save()
+        try:
+            vari.save()
+        except Exception as ex:
+            self.log_error('NameRomanizedVariation', str(ex))
 
     def name_pieces(self, x, piec):
         if not piec:
@@ -391,10 +436,14 @@ class ImpGedcom551:
             case 'NSFX': piec.nsfx = x.value
             case '_MARNM': piec._marnm = x.value
             case _: self.unexpected_tag(x)
-        piec.save()
+        try:
+            piec.save()
+        except Exception as ex:
+            self.log_error('PersonalNamePieces', str(ex))
         return piec
 
     def pers_attr(self, indi, item):
+        self.log_info('pers_attr', f'+ {item.tag=}')
         sort = len(IndividualAttributeStructure.objects.filter(indi=indi)) + 1
         attr = IndividualAttributeStructure.objects.create(indi=indi, tag=item.tag, value=item.value, _sort=sort)
         age = None
@@ -412,9 +461,14 @@ class ImpGedcom551:
                 attr.value = note.note.note
                 note.note.delete()
                 note.delete()
-        attr.save()
+        try:
+            attr.save()
+        except Exception as ex:
+            self.log_error('IndividualAttributeStructure', str(ex))
+        self.log_info('pers_attr', '-')
         
     def pers_event(self, indi, item):
+        self.log_info('pers_event', f'+ {item.tag=}')
         sort = len(IndividualEventStructure.objects.filter(indi=indi)) + 1
         even = IndividualEventStructure.objects.create(indi=indi, tag=item.tag, value=item.value, _sort=sort)
         age = None
@@ -436,12 +490,17 @@ class ImpGedcom551:
             and even.value:
             self.note_struct_for_value(even.value, even=even.deta)
             even.value = ''
-        even.save()
+        try:
+            even.save()
+        except Exception as ex:
+            self.log_error('IndividualEventStructure', str(ex))
         if (even.tag == 'BIRT') and empty:
             even.delete()
+        self.log_info('pers_event', '-')
 
 
     def association_struct(self, indi, item):
+        self.log_info('association_struct', f'+ {item.value=}')
         xref = self.extract_xref('INDI', item.value)
         link = self.find_person(xref)
         sort = len(AssociationStructure.objects.filter(indi=indi)) + 1
@@ -452,12 +511,17 @@ class ImpGedcom551:
                 case 'SOUR': self.source_citat(x, asso=asso)
                 case 'NOTE': self.note_struct(x, asso=asso)
                 case _: self.unexpected_tag(x)
-        asso.save()
+        try:
+            asso.save()
+        except Exception as ex:
+            self.log_error('AssociationStructure', str(ex))
+        self.log_info('association_struct', '-')
 
     # ------------- Media ---------------
     def media_record(self, item, xref=None):
         if not xref:
             xref = self.extract_xref(item.tag, item.xref_id)
+        self.log_info('media_record', f'+ {xref=}')
         if MultimediaRecord.objects.filter(tree=self.tree, xref=xref).exists():
             obje = MultimediaRecord.objects.filter(tree=self.tree, xref=xref).get()
         else:
@@ -492,17 +556,22 @@ class ImpGedcom551:
                     obje._albu = self.album_record(x, xref)
                 case '_UID': obje._uid = x.value
                 case _: self.unexpected_tag(x)
-        obje.save()
+        try:
+            obje.save()
+        except Exception as ex:
+            self.log_error('MultimediaRecord', str(ex))
         #  5.5 structure, implemented in MyHeritage
         if file and (form or titl):
             file.form = form
             file.titl = titl
             file.save()
+        self.log_info('media_record', '-')
         return obje
 
     def media_file(self, item, obje):
         sort = len(MultimediaFile.objects.filter(obje=obje)) + 1
-        file = MultimediaFile.objects.create(obje=obje, file=item.value, _sort=sort)
+        fname = item.value.split('/')[-1]
+        file = MultimediaFile.objects.create(obje=obje, file=fname, _sort=sort)
         for x in item.sub_tags(follow=False):
             match x.tag:
                 case 'FORM': 
@@ -521,9 +590,11 @@ class ImpGedcom551:
             folder = FamTree.get_import_path() + file.obje.tree.file + '_media\\'
             if not os.path.exists(folder):
                 os.mkdir(folder)
-            fname = item.value.split('/')[-1]
             im.save(folder + fname)
-        file.save()
+        try:
+            file.save()
+        except Exception as ex:
+            self.log_error('MultimediaFile', str(ex))
         return file
 
     def media_link(self, item, fam=None, indi=None, cita=None, sour=None, subm=None, even=None):
@@ -531,9 +602,11 @@ class ImpGedcom551:
             xref = self.extract_xref('OBJE', item.value)
         else:
             xref = len(MultimediaRecord.objects.filter(tree=self.tree)) + 1
+        self.log_info('media_link', f'+ {xref=}')
         obje = self.media_record(item, xref)
         sort = len(MultimediaLink.objects.filter(obje=obje, fam=fam, indi=indi, cita=cita, sour=sour, subm=subm, even=even)) + 1
         MultimediaLink.objects.create(obje=obje, fam=fam, indi=indi, cita=cita, sour=sour, subm=subm, even=even, _sort=sort)
+        self.log_info('media_link', '-')
         
     # ------------- Note ---------------
     def note_record(self, item, xref=None, value=None):
@@ -542,6 +615,7 @@ class ImpGedcom551:
                 xref = self.extract_xref(item.tag, item.xref_id)
             else:
                 xref = len(NoteRecord.objects.filter(tree=self.tree)) + 1
+        self.log_info('note_record', f'+ {xref=}')
         if NoteRecord.objects.filter(tree=self.tree, xref=xref).exists():
             note = NoteRecord.objects.filter(tree=self.tree, xref=xref).get()
         else:
@@ -559,14 +633,20 @@ class ImpGedcom551:
                     case None: text += x.value.replace('\n', '')
                     case _: self.unexpected_tag(x)
         note.note = text
-        note.save()
+        try:
+            note.save()
+        except Exception as ex:
+            self.log_error('NoteRecord', str(ex))
+        self.log_info('note_record', '-')
         return note
 
     def note_struct(self, item, mode=0, fam=None, indi=None, cita=None, asso=None, chan=None, famc=None, obje=None, repo=None, sour=None, srci=None, subm=None, even=None, pnpi=None, plac=None):
         xref = self.extract_xref('NOTE', item.value)
+        self.log_info('note_struct', f'+ {xref=}')
         note = self.note_record(item, xref=xref)
         sort = len(NoteStructure.objects.filter(mode=mode, tree=self.tree, fam=fam, indi=indi, cita=cita, asso=asso, chan=chan, famc=famc, obje=obje, repo=repo, sour=sour, srci=srci, subm=subm, even=even, pnpi=pnpi, plac=plac)) + 1
         note_stru = NoteStructure.objects.create(mode=mode, tree=self.tree, note=note, fam=fam, indi=indi, cita=cita, asso=asso, chan=chan, famc=famc, obje=obje, repo=repo, sour=sour, srci=srci, subm=subm, even=even, pnpi=pnpi, plac=plac, _sort=sort)
+        self.log_info('note_struct', '-')
         return note_stru
 
     def note_struct_for_value(self, value, mode=0, fam=None, indi=None, cita=None, asso=None, chan=None, famc=None, obje=None, repo=None, sour=None, srci=None, subm=None, even=None, pnpi=None, plac=None):
@@ -578,6 +658,7 @@ class ImpGedcom551:
     # ------------- Repo ---------------
     def repo_record(self, item):
         xref = self.extract_xref(item.tag, item.xref_id)
+        self.log_info('repo_record', f'+ {xref=}')
         if RepositoryRecord.objects.filter(tree=self.tree, xref=xref).exists():
             repo = RepositoryRecord.objects.filter(tree=self.tree, xref=xref).get()
         else:
@@ -592,11 +673,16 @@ class ImpGedcom551:
                 case 'RIN':  repo.rin  = x.value
                 case 'CHAN': repo.chan = x.value
                 case _: self.unexpected_tag(x)
-        repo.save()
+        try:
+            repo.save()
+        except Exception as ex:
+            self.log_error('RepositoryRecord', str(ex))
+        self.log_info('repo_record', '-')
 
     # ------------- Source ---------------
     def source_record(self, item):
         xref = self.extract_xref(item.tag, item.xref_id)
+        self.log_info('source_record', f'+ {xref=}')
         if SourceRecord.objects.filter(tree=self.tree, xref=xref).exists():
             sour = SourceRecord.objects.filter(tree=self.tree, xref=xref).get()
         else:
@@ -621,7 +707,11 @@ class ImpGedcom551:
                 case '_MEDI': sour._medi = x.value
                 case '_UID': sour._uid = x.value
                 case _: self.unexpected_tag(x)
-        sour.save()
+        try:
+            sour.save()
+        except Exception as ex:
+            self.log_error('SourceRecord', str(ex))
+        self.log_info('source_record', '-')
 
     def source_data(self, item, sour):
         for x in item.sub_tags(follow=False):
@@ -655,10 +745,14 @@ class ImpGedcom551:
                             case _: self.unexpected_tag(y)
                 case 'NOTE': self.note_struct(x, srci=srci)
                 case _: self.unexpected_tag(x)
-        srci.save()
+        try:
+            srci.save()
+        except Exception as ex:
+            self.log_error('SourceRepositoryCitation', str(ex))
 
     def source_citat(self, item, fam=None, indi=None, asso=None, obje=None, even=None, pnpi=None, note=None, ):
         xref = self.extract_xref('SOUR', item.value)
+        self.log_info('source_citat', f'+ {xref=}')
         if SourceRecord.objects.filter(tree=self.tree, xref=xref).exists():
             sour = SourceRecord.objects.filter(tree=self.tree, xref=xref).get()
         else:
@@ -690,11 +784,16 @@ class ImpGedcom551:
                 case '_TYPE': cita._type = x.value
                 case '_MEDI': cita._medi = x.value
                 case _: self.unexpected_tag(x)
-        cita.save()
+        try:
+            cita.save()
+        except Exception as ex:
+            self.log_error('SourceCitation', str(ex))
+        self.log_info('source_citat', '-')
 
     # ------------- Submitter ---------------
     def submit_record(self, item):
         xref = self.extract_xref(item.tag, item.xref_id)
+        self.log_info('submit_record', f'+ {xref=}')
         sort = len(SubmitterRecord.objects.filter(tree=self.tree)) + 1
         subm = SubmitterRecord.objects.create(tree=self.tree, xref=xref, _sort=sort)
         if (self.head_subm == xref):
@@ -710,12 +809,17 @@ class ImpGedcom551:
                 case 'CHAN': subm.chan = self.change_date(x, 'SubmitterRecord_' + str(subm.id))
                 case '_UID': subm._uid = x.value
                 case _: self.unexpected_tag(x)
-        subm.save()
+        try:
+            subm.save()
+        except Exception as ex:
+            self.log_error('SubmitterRecord', str(ex))
+        self.log_info('submit_record', '-')
 
     # ------------- Album ---------------
     def album_record(self, item, xref=None):
         if not xref:
             xref = self.extract_xref('_ALBUM', item.xref_id)
+        self.log_info('album_record', f'+ {xref=}')
         if AlbumRecord.objects.filter(tree=self.tree.id, xref=xref).exists():
             album = AlbumRecord.objects.filter(tree=self.tree.id, xref=xref).get()
         else:
@@ -728,7 +832,11 @@ class ImpGedcom551:
                 case '_UPD': album._upd = x.value
                 case 'RIN':  album.rin  = x.value
                 case _: self.unexpected_tag(x)
-        album.save()
+        try:
+            album.save()
+        except Exception as ex:
+            self.log_error('AlbumRecord', str(ex))
+        self.log_info('album_record', '-')
         return album
 
     # ------------- Tools ---------------
@@ -789,7 +897,10 @@ class ImpGedcom551:
             for post in POSTS:
                 value = self.check_addr_post(addr, value, post)
 
-        addr.save()
+        try:
+            addr.save()
+        except Exception as ex:
+            self.log_error('AddressStructure', str(ex))
         return addr
 
     def check_addr_ctry(self, addr, addr_value, value):
@@ -827,10 +938,14 @@ class ImpGedcom551:
                 case 'LONG': plac.map_long = x.value
                 case 'NOTE': self.note_struct(x, plac=plac)
                 case _: self.unexpected_tag(x)
-        plac.save()
+        try:
+            plac.save()
+        except Exception as ex:
+            self.log_error('PlaceStructure', str(ex))
         return plac
         
     def change_date(self, item, owner):
+        self.log_info('change_date', f'+ {item.value=}')
         chan = ChangeDate.objects.create(owner=owner)
         if item.value:
             chan.date = str(item.value)
@@ -848,7 +963,11 @@ class ImpGedcom551:
             chan.date = datetime.strptime(chan.date + ' ' + chan.time, '%d/%m/%y %H:%M:%S')
         except:
             pass
-        chan.save()
+        try:
+            chan.save()
+        except Exception as ex:
+            self.log_error('ChangeDate', str(ex))
+        self.log_info('change_date', '-')
         return chan
 
     def event_detail(self, x, deta):
@@ -870,7 +989,10 @@ class ImpGedcom551:
             case 'NOTE': self.note_struct(x, even=deta)
             case 'OBJE': self.media_link(x, even=deta)
             case _: self.unexpected_tag(x)
-        deta.save()
+        try:
+            deta.save()
+        except Exception as ex:
+            self.log_error('EventDetail', str(ex))
         return deta, age
 
     def find_person(self, xref):
@@ -895,13 +1017,18 @@ class ImpGedcom551:
             return int(value.split('@' + liter)[1].split('@')[0])
 
     def user_ref_num(self, item, indi=None, obje=None, note=None, repo=None, sour=None):
+        self.log_info('user_ref_num', f'+ {item.value=}')
         sort = len(UserReferenceNumber.objects.filter(indi=indi, obje=obje, note=note, repo=repo, sour=sour)) + 1
         refn = UserReferenceNumber.objects.create(refn=item.value, indi=indi, obje=obje, note=note, repo=repo, sour=sour, _sort=sort)
         for x in item.sub_tags(follow=False):
             match x.tag:
                 case 'TYPE': refn.type = x.value
                 case _: self.unexpected_tag(x)
-        refn.save()
+        try:
+            refn.save()
+        except Exception as ex:
+            self.log_error('UserReferenceNumber', str(ex))
+        self.log_info('user_ref_num', '-')
 
 
     def raise_error(self, descr):

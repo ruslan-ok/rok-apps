@@ -6,6 +6,11 @@
     <link href="{% static 'scss/family.css' %}" rel="stylesheet">
 {% endblock %}
 
+{% block main %}
+  [ {{ api_role }} ]
+  {{ block.super }}
+{% endblock %}
+
 {% block extrascript %}
   {{ block.super }}
   <script src="{% static 'js/uploadFile.js' %}"></script>

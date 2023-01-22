@@ -528,7 +528,7 @@ class PersonalNameStructure(models.Model):
 
 #--------------------------------------------------
 class PlaceStructure(models.Model):
-    name = models.CharField(_('place name'), max_length=120, blank=True, null=True)
+    name = models.CharField(_('place name'), max_length=500, blank=True, null=True) # in the spec it is a recursive definition of size 120. In MyHeritage discovered 160 symbols
     map_lati = models.CharField(_('latitude'), max_length=10, blank=True, null=True)
     map_long = models.CharField(_('longitude'), max_length=11, blank=True, null=True)
 
@@ -637,7 +637,7 @@ class FamilyEventStructure(models.Model):
 class IndividualEventStructure(models.Model):
     indi = models.ForeignKey(IndividualRecord, on_delete=models.CASCADE, verbose_name=_('individual'), related_name='event_structure_individual')
     tag = models.CharField(_('tag'), max_length=4, blank=True, null=True)
-    value = models.CharField(_('event descriptor'), max_length=90, blank=True, null=True)
+    value = models.CharField(_('event descriptor'), max_length=500, blank=True, null=True) # max_length=90 - spec, but in MyHeritage discovered 150
     age = models.CharField(_('age at event'), max_length=13, blank=True, null=True)
     famc = models.ForeignKey(FamRecord, on_delete=models.SET_NULL, verbose_name=_('child'), related_name='event_structure_child', null=True)
     adop = models.CharField(_('adopted by which parent'), max_length=4, blank=True, null=True)
@@ -652,7 +652,7 @@ class IndividualEventStructure(models.Model):
 class IndividualAttributeStructure(models.Model):
     indi = models.ForeignKey(IndividualRecord, on_delete=models.CASCADE, verbose_name=_('individual'), related_name='attributes_individual', null=True)
     tag = models.CharField(_('tag'), max_length=4, blank=True, null=True)
-    value = models.CharField(_('event descriptor'), max_length=90, blank=True, null=True)
+    value = models.CharField(_('event descriptor'), max_length=500, blank=True, null=True) # 248 for DSCR attribute
     age = models.CharField(_('age at event'), max_length=13, blank=True, null=True)
     type = models.CharField(_('user reference type'), max_length=40, blank=True, null=True)
     dscr = models.TextField(_('physical description'), blank=True, null=True)

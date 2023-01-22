@@ -120,11 +120,15 @@ class LogsViewSet(viewsets.ModelViewSet):
         if (task_id):
             if ServiceTask.objects.filter(id=task_id).exists():
                 task = ServiceTask.objects.filter(id=task_id).get()
-                match (task.app, task.service):
-                    case ('family', 'import'): ret = import_start(request.user, task.item_id, task.id)
-                    case ('family', 'export'): ret = export_start(request.user, task.item_id, task.id)
-                    case ('family', 'examine'): ret = examine_start(request.user, task.item_id, task.id)
-                    case _: ret = {'info': 'Unsupported app and service'}
+                try:
+                    match (task.app, task.service):
+                        case ('family', 'import'): ret = import_start(request.user, task.item_id, task.id)
+                        case ('family', 'export'): ret = export_start(request.user, task.item_id, task.id)
+                        case ('family', 'examine'): ret = examine_start(request.user, task.item_id, task.id)
+                        case _: ret = {'info': 'Unsupported app and service'}
+                except Exception as ex:
+                    return Response({'result': 'exception', 'value': task.done, 'info': str(ex)})
+
                 if 'status' in ret and 'info' in ret and ret['status'] == 'completed':
                     task = ServiceTask.objects.filter(id=task_id).get()
                     return Response({'result': 'ok', 'value': task.done, 'info': ret['info']})
