@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django.shortcuts import get_object_or_404
 from django.template import loader
 from family.views.base import GenealogyContext
-from family.models import FamTreeUser, FamTree, IndividualRecord, FamRecord, NoteRecord, RepositoryRecord, SourceRecord, SubmitterRecord, AlbumRecord, MultimediaRecord, NoteStructure
+from family.models import FamTreeUser, FamTree
 from family.config import app_config
 from family.validator.validator import Validator
 
@@ -19,7 +19,6 @@ def examine_tree(request, pk):
     ctx.config.set_view(request)
     context = ctx.get_app_context(request.user.id, icon=ctx.config.view_icon)
     context['cur_tree_id'] = pk
-    context['task_id'] = '1'
     context['title'] = f'{_("Examine tree")} {tree.name}'
     template = loader.get_template('family/pedigree/examine.html')
     return HttpResponse(template.render(context, request))
@@ -28,9 +27,7 @@ def examine_params(user, item_id) -> tuple[int, str]:
     if FamTreeUser.objects.filter(user_id=user.id, tree_id=item_id, can_view=True).exists():
         if FamTree.objects.filter(id=item_id).exists():
             tree = FamTree.objects.filter(id=item_id).get()
-            storage_path = os.environ.get('FAMILY_STORAGE_PATH', '')
-            folder = storage_path.format(user.username) + '\\pedigree\\'
-            fname = folder + '\\' + tree.get_file_name()
+            fname = tree.get_export_file(user)
             validator = Validator(user)
             total = validator.get_tree_file_obj_num(fname)
             return total, ''
@@ -40,8 +37,7 @@ def examine_start(user, item_id, task_id) -> dict:
     if FamTreeUser.objects.filter(user_id=user.id, tree_id=item_id, can_view=True).exists():
         if FamTree.objects.filter(id=item_id).exists():
             tree = FamTree.objects.filter(id=item_id).get()
-            storage_path = os.environ.get('FAMILY_STORAGE_PATH', '')
-            fname = storage_path.format(user.username) + '\\pedigree\\' + tree.get_file_name()
+            fname = tree.get_export_file(user)
             validator = Validator(user)
             ret = validator.check_tree_file(fname, task_id=task_id)
             return {'status':'completed', 'info': f'GEDCOM version: {ret["gedcom_ver"]}\nFile valid: {ret["file_ok"]}'}

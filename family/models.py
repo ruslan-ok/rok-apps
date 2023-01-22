@@ -122,22 +122,23 @@ class FamTree(models.Model):
             item.before_delete()
 
     def delete_gedcom_file(self, user):
-        storage_path = os.environ.get('FAMILY_STORAGE_PATH')
-        if storage_path:
-            store_dir = storage_path + '\\pedigree\\'
-            if store_dir and self.file:
-                filepath = store_dir + self.file
-                if os.path.exists(filepath):
-                    if os.path.exists(filepath + '_media'):
-                        shutil.rmtree(filepath + '_media')
-                    os.remove(filepath)
+        folder = FamTree.get_import_path()
+        if folder and self.file:
+            filepath = folder + self.file
+            if os.path.exists(filepath):
+                if os.path.exists(filepath + '_media'):
+                    shutil.rmtree(filepath + '_media')
+                os.remove(filepath)
+        filepath = self.get_export_file(user)
+        if filepath and os.path.exists(filepath):
+            os.remove(filepath)
 
     def is_leaf(self):
         return True
 
     def store_name(self):
         name = self.name
-        if not name:
+        if not name and self.file:
             pos = self.file.rfind('.')
             if pos:
                 name = self.file[:pos]
@@ -155,6 +156,26 @@ class FamTree(models.Model):
         if (fname[-4:] != '.ged' and fname[-4:] != '.GED'):
             fname += '.ged'
         return fname
+
+    @classmethod
+    def get_import_path(cls):
+        folder = os.environ.get('FAMILY_STORAGE_PATH', '') + '\\pedigree\\'
+        if not os.path.exists(folder):
+            os.mkdir(folder)
+        return folder
+
+    def get_export_path(self, user):
+        folder = os.environ.get('DJANGO_STORAGE_PATH', '').format(user.username) + 'family\\'
+        if not os.path.exists(folder):
+            os.mkdir(folder)
+        return folder
+
+    def get_export_file(self, user):
+        folder = self.get_export_path(user)
+        fname = self.get_file_name()
+        if os.path.exists(folder + fname):
+            return folder + fname
+        return None
 
 @receiver(pre_delete)
 def delete_fam_tree(sender, instance, **kwargs):
@@ -241,6 +262,12 @@ class FamTreeUser(models.Model):
 
     def get_absolute_url(self):
         return reverse('family:pedigree-detail', args=(self.tree_id,))
+    
+    def set_active(self, user):
+        if FamTree.objects.filter(id=self.tree_id).exists():
+            tree = FamTree.objects.filter(id=self.tree_id).get()
+            Params.set_cur_tree(user, tree)
+
 
 #--------------------------------------------------
 class IndividualRecord(models.Model):

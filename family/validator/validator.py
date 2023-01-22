@@ -8,7 +8,6 @@ from logs.models import ServiceTask, ServiceTaskStatus
 from family.ged4py.parser import GedcomReader
 from family.ged4py.model import Record
 from family.models import FamTreeUser, FamTree
-from family.gedcom_551.exp import ExpGedcom551
 
 class ParserError(Exception):
     pass
@@ -238,7 +237,7 @@ class Validator:
     def __init__(self, user, version=None):
         super().__init__()
         self.gedcom_specs = []
-        folder = self.init_work_dir(user) + '\\validator\\'
+        folder = os.environ.get('FAMILY_STORAGE_PATH', '') + '\\validator\\'
         os.chdir(folder)
         files = glob.glob('*.spec')
         for file in files:
@@ -246,22 +245,15 @@ class Validator:
                 continue
             self.gedcom_specs.append(GedcomSpec(file))
 
-    def init_work_dir(self, user):
-        storage_path = os.environ.get('FAMILY_STORAGE_PATH', '')
-        folder = storage_path.format(user.username)
-        if not os.path.isdir(folder):
-            os.mkdir(folder)
-        return folder
-
     def check_tree(self, user, pk):
         get_object_or_404(FamTreeUser.objects.filter(user_id=user.id, tree_id=pk))
         tree = get_object_or_404(FamTree.objects.filter(id=pk))
-        work_dir = self.init_work_dir(user) + '\\pedigree\\'
-        mgr = ExpGedcom551(user)
-        mgr.export_gedcom_551(work_dir, pk)
-        fname = tree.get_file_name()
-        ret = self.check_tree_file(fname)
-        print(f'done: file_ok={ret["file_ok"]}, gedcom_ver={ret["gedcom_ver"]}')
+        fname = tree.get_export_file(user)
+        if fname and os.path.exists(fname):
+            ret = self.check_tree_file(fname)
+            print(f'done: file_ok={ret["file_ok"]}, gedcom_ver={ret["gedcom_ver"]}')
+        else:
+            print('Tree not exported')
 
     def inc_task_value(self):
         if self.task:

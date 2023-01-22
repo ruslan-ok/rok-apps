@@ -1,6 +1,7 @@
 import os, glob, requests
 from datetime import datetime
 from PIL import Image
+from logs.models import ServiceTask, ServiceTaskStatus
 from family.ged4py.parser import GedcomReader
 from family.models import (FamTree, AddressStructure, IndividualRecord, SubmitterRecord, RepositoryRecord, 
     ChangeDate, NoteStructure, PersonalNameStructure, NamePhoneticVariation, NameRomanizedVariation, 
@@ -11,12 +12,14 @@ from family.models import (FamTree, AddressStructure, IndividualRecord, Submitte
 from family.const import *
 
 class ImpGedcom551:
-    def __init__(self, request, *args, **kwargs):
+    task: ServiceTask
+
+    def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.user = request.user
+        self.user = user
         self.only_clear = False
 
-    def import_gedcom_551(self, path):
+    def import_gedcom_551(self, path, task_id=None):
         if self.only_clear:
             qnt = self.db_del_trees()
             return {'result': 'ok', 'number of deleted trees': qnt,}
@@ -27,6 +30,8 @@ class ImpGedcom551:
                 'path': path,
                 'description': 'The specified path does not exist.',
                 }
+        if task_id and ServiceTask.objects.filter(id=task_id).exists():
+            self.task = ServiceTask.objects.filter(id=task_id).get()
         folder = None
         file = None
         if os.path.isdir(path):
@@ -106,6 +111,9 @@ class ImpGedcom551:
                     case 'ALBUM'|'_ALBUM': self.album_record(item)
                     case 'TRLR': pass
                     case _: self.unexpected_tag(item.tag)
+                if hasattr(self, 'task') and self.task and self.task.done != None:
+                    self.task.done += 1
+                    self.task.save()
 
         self.stat['family'] = len(FamRecord.objects.filter(tree=self.tree))
         self.stat['indi'] = len(IndividualRecord.objects.filter(tree=self.tree))
@@ -507,10 +515,10 @@ class ImpGedcom551:
                 case 'TITL': file.titl = x.value
                 case '_FDTE': file._fdte = x.value
                 case '_FPLC': file._fplc = x.value
-        if 'https://' in item.value and '.com/' in item.value and file.obje and file.obje.tree:
+        if 'https://' in item.value and '.com/' in item.value and file.obje and file.obje.tree and file.obje.tree.file:
             headers = {'User-Agent': 'Mozilla/5.0'}
             im = Image.open(requests.get(item.value, headers=headers, stream=True).raw)
-            folder = os.environ.get('FAMILY_STORAGE_PATH', '') + '\\pedigree\\' + file.obje.tree.get_file_name() + '_media\\'
+            folder = FamTree.get_import_path() + file.obje.tree.file + '_media\\'
             if not os.path.exists(folder):
                 os.mkdir(folder)
             fname = item.value.split('/')[-1]
@@ -970,3 +978,26 @@ class ImpGedcom551:
         return None
     """
 
+def import_params(user, fname) -> tuple[int, str]:
+    total = 0
+    folder = FamTree.get_import_path()
+    if folder + fname:
+        with GedcomReader(folder + fname) as parser:
+            for item in parser.records0():
+                total += 1
+    return total, ''
+
+def import_start(user, fname, task_id) -> dict:
+    folder = FamTree.get_import_path()
+    fpath = folder + fname
+    if fpath:
+        mgr = ImpGedcom551(user)
+        ret = mgr.import_gedcom_551(fpath, task_id=task_id)
+        status = ret.get('result', 'error')
+        if status == 'ok':
+            status = 'completed'
+            info = str(ret.get('tree_id', '0'))
+        else:
+            info = ret.get('error', '')
+        return {'status': status, 'info': info}
+    return {'status':'error', 'info': 'File not found'}

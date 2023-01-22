@@ -13,7 +13,6 @@ from rusel.utils import extract_get_params
 from family.models import (FamTree, FamTreeUser, FamRecord, IndividualRecord, MultimediaRecord, RepositoryRecord, 
     NoteStructure, SourceRecord, SubmitterRecord, Params, IndiInfo)
 from family.config import app_config
-from family.gedcom_551.imp import ImpGedcom551
 
 
 class GenealogyContext(Context):
@@ -151,31 +150,22 @@ def default_avatar(size: int) -> HttpResponse:
 
 class UploadGedcomView(FormView, GenealogyContext, LoginRequiredMixin):
     form_class = UploadForm
-    #success_url = reverse_lazy('family:pedigree-list')
+    file: str
 
     def __init__(self):
         super().__init__()
-        self.imported_tree = None
+        self.file = ''
 
     def get_success_url(self):
-        if self.imported_tree:
-            return reverse_lazy('family:pedigree-detail', args=(self.imported_tree,))
-        return reverse_lazy('family:pedigree-list')
-
-    def init_store_dir(self, user):
-        storage_path = os.environ.get('FAMILY_STORAGE_PATH')
-        self.store_dir = storage_path + '\\pedigree\\'
-        if not os.path.isdir(self.store_dir):
-            os.mkdir(self.store_dir)
+        return reverse_lazy('family:pedigree-import') + '?file=' + self.file
 
     def post(self, request):
-        self.init_store_dir(request.user)
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         files = request.FILES.getlist('upload')
         if form.is_valid():
             for f in files:
-                self.handle_uploaded_file(f)
+                self.handle_uploaded_file(request.user, f)
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
@@ -207,13 +197,10 @@ class UploadGedcomView(FormView, GenealogyContext, LoginRequiredMixin):
             return f'{file_path}\\{file_name}.{file_ext}'
         return f'{file_path}\\{file_name} ({num}).{file_ext}'
 
-    def handle_uploaded_file(self, f):
-        path = self.store_dir
+    def handle_uploaded_file(self, user, f):
+        path = FamTree.get_import_path()
         filepath = self.avoid_duplication(path + f.name)
         with open(filepath, 'wb+') as destination:
             for chunk in f.chunks():
                 destination.write(chunk)
-        mgr = ImpGedcom551(self.request)
-        res = mgr.import_gedcom_551(filepath)
-        if 'result' in res and 'tree_id' in res and res['result'] == 'ok' and res['tree_id']:
-            self.imported_tree = int(res['tree_id'])
+        self.file = filepath.split('\\')[-1]

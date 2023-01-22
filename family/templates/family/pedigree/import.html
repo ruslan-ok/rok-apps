@@ -1,0 +1,45 @@
+{% extends "base/page_content.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link href="{% static 'scss/family.css' %}" rel="stylesheet">
+    <link href="{% static 'iziToast/css/iziToast.min.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block main %}
+{% include "base/title.html" %}
+<form method="post" enctype="multipart/form-data" id="gedcom_import_form">{% csrf_token %}</form>
+  {% include "base/form_errors.html" %}
+  {{ form.upload.errors }}
+  <input type="file" style="display:none;" id="id_upload" name="upload" onchange="fileSelected()">
+  <button type="submit" id="id_submit" name="file_upload" class="d-none"></button>
+  <ul class="list-group">
+    <li class="list-group-item d-flex justify-content-between align-items-start">
+      <div class="ms-2 me-auto">
+        <div class="d-flex">
+            <div class="bi-circle mx-3"></div>
+            <div class="d-none spinner-border spinner-border-sm text-secondary mx-3" role="status">
+                <span class="visually-hidden">Importing...</span>
+            </div>
+            <div class="d-flex flex-wrap">
+                <span class="">{% trans 'Import from GEDCOM-file' %}</span>
+                <div id="import" class="d-none progress mx-3 my-1" role="progressbar" aria-label="Import from GEDCOM-file" aria-valuenow="0" aria-valuemin="0" aria-valuemax="0">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+      </div>
+      <span class="badge bg-primary rounded-pill"></span>
+    </li>
+  </ul>
+  <p id="examine-result" class="my-3"></p>
+  <a href="{% url 'family:pedigree-list' %}" class="btn btn-secondary m-3 bi-x">{% trans 'Return to Pedigree list' %}</a>
+  {% endblock %}
+
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'iziToast/js/iziToast.min.js' %}"></script>
+  <script src="{% static 'js/progress.js' %}"></script>
+  <script src="{% static 'js/family-import.js' %}"></script>
+{% endblock %}

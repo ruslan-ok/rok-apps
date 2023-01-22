@@ -55,31 +55,22 @@ class ExpGedcom551:
 
     def exp_tree(self, tree):
         self.write_header(tree)
-        print('header done')
         for x in SubmitterRecord.objects.filter(tree=tree).order_by('_sort'):
             self.submitter_record(x)
-        print('submitter done')
         for x in AlbumRecord.objects.filter(tree=tree).order_by('_sort'):
             self.album_record(x)
-        print('album done')
         for x in IndividualRecord.objects.filter(tree=tree).order_by('_sort'):
             self.indi_record(x)
-        print('individual done')
         for x in FamRecord.objects.filter(tree=tree).order_by('_sort'):
             self.fam_record(x)
-        print('family done')
         for x in MultimediaRecord.objects.filter(tree=tree).order_by('_sort'):
             self.media_record(x)
-        print('multimedia done')
         for x in SourceRecord.objects.filter(tree=tree).order_by('_sort'):
             self.source_record(x)
-        print('source done')
         for x in RepositoryRecord.objects.filter(tree=tree).order_by('_sort'):
             self.repo_record(x)
-        print('repository done')
         for x in NoteRecord.objects.filter(tree=tree).order_by('_sort'):
             self.note_record(x)
-        print('note done')
         self.write_required(0, 'TRLR')
 
     # TODO: print self values
@@ -157,11 +148,8 @@ class ExpGedcom551:
         self.inc_task_value()
             
     def inc_task_value(self):
-        if hasattr(self, 'task') and self.task:
-            if self.task.done:
-                self.task.done += 1
-            else:
-                self.task.done = 1
+        if hasattr(self, 'task') and self.task and self.task.done != None:
+            self.task.done += 1
             self.task.save()
 
     def make_xref(self, tag, xref, id=None):
@@ -285,7 +273,7 @@ class ExpGedcom551:
         self.f.write('0 ' + self.make_xref(tag, xref, id) + ' ' + tag + '\n')
 
     def write_link(self, level, tag, xref, id=None):
-        if (id != None):
+        if self.use_xref or (id != None):
             self.write_optional(level, tag, self.make_xref(tag, xref, id))
 
     def write_required(self, level, tag, value=''):
@@ -443,10 +431,7 @@ class ExpGedcom551:
         self.write_name_pieces(level+1, roma.piec)
 
     def write_citate(self, level, cita):
-        if self.use_xref:
-            self.write_link(level, 'SOUR', cita.sour._sort)
-        else:
-            self.write_link(level, 'SOUR', cita.sour.id)
+        self.write_link(level, 'SOUR', cita.sour._sort, cita.sour.id)
         self.write_optional(level+1, 'PAGE', cita.page)
         self.write_optional(level+1, 'EVEN', cita.even_even)
         self.write_optional(level+2, 'ROLE', cita.even_role)
@@ -461,10 +446,7 @@ class ExpGedcom551:
         self.write_optional(level+1, 'QUAY', cita.quay)
 
     def write_repo_citate(self, level, srci):
-        if self.use_xref:
-            self.write_link(level, 'REPO', srci.repo._sort)
-        else:
-            self.write_link(level, 'REPO', srci.repo.id)
+        self.write_link(level, 'REPO', srci.repo._sort, srci.repo.id)
         self.write_optional(level+1, 'CALN', srci.caln)
         self.write_optional(level+2, 'MEDI', srci.caln_medi)
 
@@ -573,8 +555,7 @@ def export_params(user, item_id) -> tuple[int, str]:
 def export_start(user, item_id, task_id) -> dict:
     if FamTreeUser.objects.filter(user_id=user.id, tree_id=item_id, can_view=True).exists():
         tree = FamTree.objects.filter(id=item_id).get()
-        storage_path = os.environ.get('FAMILY_STORAGE_PATH', '')
-        store_dir = storage_path.format(user.username) + '\\pedigree\\'
+        store_dir = tree.get_export_path(user)
         mgr = ExpGedcom551(user)
         mgr.export_gedcom_551(store_dir, pk=tree.id, task_id=task_id)
         return {'status':'completed', 'info': ''}

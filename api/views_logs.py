@@ -7,6 +7,7 @@ from rest_framework import viewsets, permissions, renderers, status
 from logs.models import EventType, ServiceEvent, ServiceTask, ServiceTaskStatus
 from api.serializers import LogsSerializer
 from task.const import *
+from family.gedcom_551.imp import import_params, import_start
 from family.gedcom_551.exp import export_params, export_start
 from family.views.examine import examine_params, examine_start
 
@@ -99,13 +100,14 @@ class LogsViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
         app = request.GET.get('app', 'service')
         service = request.GET.get('service', 'manager')
-        item_id = request.GET.get('item_id', 'info')
+        item_id = request.GET.get('item_id', '')
         match (app, service):
+            case ('family', 'import'): total, info = import_params(request.user, item_id)
             case ('family', 'export'): total, info = export_params(request.user, item_id)
             case ('family', 'examine'): total, info = examine_params(request.user, item_id)
             case _: total, info = None, 'Unsupported app and service'
         if total:
-            task = ServiceTask.objects.create(user=request.user, app=app, service=service, item_id=item_id, status=ServiceTaskStatus.READY)
+            task = ServiceTask.objects.create(user=request.user, app=app, service=service, item_id=item_id, status=ServiceTaskStatus.READY, done=0)
             return Response({'result': 'ok', 'task_id': task.id, 'total': total, 'info': info})
         return Response({'result': 'error', 'task_id': 0, 'total': 0, 'info': info})
 
@@ -119,6 +121,7 @@ class LogsViewSet(viewsets.ModelViewSet):
             if ServiceTask.objects.filter(id=task_id).exists():
                 task = ServiceTask.objects.filter(id=task_id).get()
                 match (task.app, task.service):
+                    case ('family', 'import'): ret = import_start(request.user, task.item_id, task.id)
                     case ('family', 'export'): ret = export_start(request.user, task.item_id, task.id)
                     case ('family', 'examine'): ret = examine_start(request.user, task.item_id, task.id)
                     case _: ret = {'info': 'Unsupported app and service'}

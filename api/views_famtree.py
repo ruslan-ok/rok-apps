@@ -21,12 +21,16 @@ class FamTreeViewSet(viewsets.ModelViewSet):
         if FamTreePermission.objects.filter(user=request.user.id, tree=tree.id).exists():
             ftp = FamTreePermission.objects.filter(user=request.user.id, tree=tree.id).get()
             can_delete = ftp.can_delete
-        if can_delete:
-            tree.delete_gedcom_file(request.user)
-            return super().destroy(request, pk)
-        else:
-             return Response(status=status.HTTP_403_FORBIDDEN)
-
+        if not can_delete:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        tree.delete_gedcom_file(request.user)
+        cur_tree = Params.get_cur_tree(request.user)
+        change_active = cur_tree == tree
+        ret = super().destroy(request, pk)
+        if change_active and FamTreeUser.objects.filter(user_id=request.user.id).exists():
+            ftu = FamTreeUser.objects.filter(user_id=request.user.id)[0]
+            ftu.set_active(request.user)
+        return ret
 
     def get_queryset(self):
         ftu = FamTreeUser.objects.filter(user_id=self.request.user.id, can_view=True)
@@ -39,7 +43,7 @@ class FamTreeViewSet(viewsets.ModelViewSet):
             return Response({'Error': "Expected parameter 'folder'"},
                             status=status.HTTP_400_BAD_REQUEST)
         folder = self.request.query_params['folder']
-        mgr = ImpGedcom551(request)
+        mgr = ImpGedcom551(request.user)
         res = mgr.import_gedcom_551(folder)
         return Response(res)
 
@@ -61,10 +65,8 @@ class FamTreeViewSet(viewsets.ModelViewSet):
     @action(detail=True)
     def set_active(self, request, pk=None):
         if FamTreeUser.objects.filter(user_id=request.user.id, tree_id=pk).exists():
-            if FamTree.objects.filter(id=pk).exists():
-                tree = FamTree.objects.filter(id=pk).get()
-                Params.set_cur_tree(self.request.user, tree)
-                return Response({'result': 'ok', 'tree_id': pk})
+            FamTreeUser.objects.filter(user_id=request.user.id, tree_id=pk).get().set_active(request.user)
+            return Response({'result': 'ok', 'tree_id': pk})
         return Response({'result': 'error', 'info': 'Specified family tree not found.'})
 
     @action(detail=True)

@@ -1,0 +1,132 @@
+.layer-1 {
+    background-color: azure;
+    display: flex;
+    flex-direction: column;
+    margin: 5px;
+    .layer-2 {
+        background-color: beige;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        margin: 5px;
+        .layer-3 {
+            background-color: honeydew;
+            display: flex;
+            flex-direction: row;
+            margin: 5px;
+            padding: 15px;
+        }
+    }
+}
+
+#window {
+    background-color: #fafafa;
+    font-family: sans-serif;
+}
+
+.link {
+    fill: none;
+    stroke: #aaa;
+    stroke-width: 1px;
+}
+
+.person {
+    rect {
+        stroke: #6c6;
+        stroke-width: 1px;
+        fill: #fff;
+        &.male {
+            stroke: rgb(102, 102, 204);
+        }
+        &.female {
+            stroke: rgb(204, 102, 102);
+        }
+    }
+}
+
+svg .action {
+    fill: #fff;
+    stroke: rgb(100, 100, 100);
+}
+
+.plus {
+    fill: #fff;
+    cursor: pointer;
+    stroke: #333;
+    stroke-width: 1px;
+}
+
+.person .lifespan {
+    font-size: 0.7rem;
+}
+
+table.people {
+    .name {
+        min-width: 150px;
+    }
+    .char {
+        min-width: 20px;
+    }
+    .age {
+        min-width: 50px;
+    }
+    .date {
+        min-width: 120px;
+    }
+    .place {
+        min-width: 150px;
+    }
+    tr:hover {
+        background-color: rgb(231, 231, 231);
+    }
+    tr {
+        cursor: pointer;
+    }
+}
+
+.person_fam_link rect {
+    stroke: rgb(152, 153, 152);
+    stroke-width: 1px;
+    fill: rgb(220, 218, 218);
+}
+
+tr
+
+td.photo {
+    padding: 0;
+}
+
+// Smallest devices
+@media (min-width: 200px) {
+    .progress {
+        width: 100px;
+    }
+}
+
+@media (min-width: 400px) {
+    .progress {
+        width: 240px;
+    }
+}
+
+// Small devices (landscape phones, 576px and up)
+@media (min-width: 576px) {
+    .progress {
+        width: 400px;
+    }
+}
+
+// Medium devices (tablets, 768px and up)
+@media (min-width: 768px) {
+    .progress {
+        width: 400px;
+    }
+}
+
+// Large devices (desktops, 992px and up)
+@media (min-width: 992px) {
+    .progress {
+        width: 600px;
+    }
+}
+

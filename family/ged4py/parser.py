@@ -387,6 +387,15 @@ class GedcomReader:
             line = line.lstrip().rstrip(b"\r\n")
 
             match = _re_GedcomLine.match(line)
+            if not match and prev_gline and prev_gline.tag in ('NOTE', 'CONC'):
+                if prev_gline.tag == 'NOTE':
+                    tmp_level = str(prev_gline.level+1)
+                else:
+                    tmp_level = str(prev_gline.level)
+                tmp_prefix = tmp_level + ' CONC '
+                tmp_bytes = bytes(tmp_prefix, encoding=self._encoding)
+                line = tmp_bytes + line
+                match = _re_GedcomLine.match(line)
             if not match:
                 self._file.seek(offset)
                 lineno = guess_lineno(self._file)
