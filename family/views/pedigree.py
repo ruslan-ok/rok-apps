@@ -1,9 +1,10 @@
+import os
 from dataclasses import dataclass
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.template import loader
-from django.http import HttpResponse
+from django.http import HttpResponse, FileResponse, HttpResponseNotFound
 from django.utils.translation import gettext_lazy as _
 from family.views.base import GenealogyListView, GenealogyDetailsView, UploadGedcomView, GenealogyContext
 from family.forms import CreateFamTreeForm, EditFamTreeForm
@@ -119,4 +120,16 @@ def get_gedcom_file(request, pk):
             response['Content-Disposition'] = f'attachment; filename="{fname}"'
             return response
     return HttpResponse('File not found')
+
+def get_doc(request, role, pk, fname):
+    if role != 'pedigree':
+        return HttpResponseNotFound()
+    get_object_or_404(FamTreeUser.objects.filter(user_id=request.user.id, tree_id=pk))
+    tree = get_object_or_404(FamTree.objects.filter(id=pk))
+    path = os.environ.get('DJANGO_MEDIA_ROOT', '') + f'\\family\\pedigree\\{tree.file}_media\\'
+    try:
+        fsock = open(path + fname, 'rb')
+        return FileResponse(fsock)
+    except IOError:
+        return HttpResponseNotFound()
 

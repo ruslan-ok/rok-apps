@@ -1,4 +1,6 @@
 import os, io
+from datetime import datetime
+from django.urls import reverse
 from django.shortcuts import get_object_or_404
 from family.models import (FamTreeUser, AssociationStructure, FamTree, IndividualRecord, FamRecord, MultimediaLink, MultimediaRecord, #PersonalNamePieces, 
     PersonalNameStructure, SourceRecord, AlbumRecord, ChangeDate, SubmitterRecord, NoteStructure, NamePhoneticVariation, 
@@ -75,19 +77,23 @@ class ExpGedcom551:
 
     # TODO: print self values
     def write_header(self, tree):
+        site = os.environ.get('DJANGO_HOST_MAIL', '')
+        addr = os.environ.get('DJANGO_HOST_ADDR', '')
+        name = tree.name
+        if not name:
+            name = tree.file
         self.write_required(0, 'HEAD')
-        self.write_required(1, 'SOUR', tree.sour)
-        self.write_optional(2, 'VERS', tree.sour_vers)
-        self.write_optional(2, 'NAME', tree.sour_name)
-        self.write_optional(2, 'CORP', tree.sour_corp)
-        self.write_address(3, tree.sour_corp_addr)
-        self.write_custom(2, '_RTLSAVE', tree.mh_rtl)
-        self.write_optional(2, 'DATA', tree.sour_data)
-        self.write_optional(3, 'DATE', tree.sour_data_date)
-        self.write_text(3, 'COPR', tree.sour_data_copr)
-        self.write_optional(1, 'DEST', tree.dest)
-        self.write_optional(1, 'DATE', tree.date)
-        self.write_optional(2, 'TIME', tree.time)
+        self.write_required(1, 'SOUR', site.upper())
+        self.write_optional(2, 'VERS', '5.5.1')
+        self.write_optional(2, 'NAME', f'Family Tree "{name}" from {site}')
+        self.write_required(2, 'CORP', site)
+        self.write_required(3, 'ADDR')
+        self.write_optional(4, 'CITY', addr.split(',')[0].strip())
+        self.write_optional(4, 'STAE', addr.split(',')[1].strip())
+        self.write_optional(4, 'CTRY', addr.split(',')[2].strip())
+        self.write_optional(1, 'DEST', site.upper())
+        self.write_optional(1, 'DATE', datetime.now().strftime('%d %b %Y').upper())
+        self.write_optional(2, 'TIME', datetime.now().strftime('%H:%M:%S'))
         if tree.subm_id:
             subm = SubmitterRecord.objects.filter(id=tree.subm_id).get()
             self.write_link(1, 'SUBM', subm._sort, subm.id)
@@ -100,8 +106,6 @@ class ExpGedcom551:
         self.write_optional(2, 'VERS', tree.char_vers)
         self.write_optional(1, 'LANG', tree.lang)
         self.write_text(1, 'NOTE', tree.note)
-        self.write_custom(1, '_PROJECT_GUID', tree.mh_prj_id)
-        self.write_custom(1, '_EXPORTED_FROM_SITE_ID', tree.mh_id)
 
     def submitter_record(self, subm):
         self.write_id('SUBM', subm._sort, subm.id)
@@ -187,7 +191,11 @@ class ExpGedcom551:
     def media_record(self, obje):
         self.write_id('OBJE', obje._sort, obje.id)
         for x in MultimediaFile.objects.filter(obje=obje.id).order_by('_sort'):
-            self.write_optional(1, 'FILE', x.file)
+            if x.file:
+                fname = x.file.split('/')[-1]
+                host = os.environ.get('DJANGO_HOST_API', '')
+                url = host + reverse('family:doc', args=('pedigree', obje.tree.id, fname))
+                self.write_optional(1, 'FILE', url)
             self.write_optional(2, 'FORM', x.form)
             self.write_optional(3, 'TYPE', x.type)
             self.write_optional(2, 'TITL', x.titl)

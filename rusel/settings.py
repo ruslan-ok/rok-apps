@@ -141,7 +141,7 @@ LOCALE_PATHS = ( os.path.join(BASE_DIR, 'locale'), os.path.join(BASE_DIR, 'rusel
 
 if HOST == 'localhost':
     STATICFILES_DIRS = [ os.path.join(BASE_DIR, os.environ.get('DJANGO_STATIC_ROOT')), ]
-    MEDIA_ROOT = os.path.dirname(os.environ.get('DJANGO_MEDIA_ROOT'))
+    MEDIA_ROOT = os.environ.get('DJANGO_MEDIA_ROOT')
 else:
     STATIC_ROOT = os.path.join(BASE_DIR, os.environ.get('DJANGO_STATIC_ROOT'))
     MEDIA_ROOT = os.path.join(BASE_DIR, os.environ.get('DJANGO_MEDIA_ROOT'))
