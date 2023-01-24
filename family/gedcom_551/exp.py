@@ -17,8 +17,10 @@ class ExpGedcom551:
         super().__init__(*args, **kwargs)
         self.user = user
         self.custom_fields = True
+        self.light_version = False
 
     def export_gedcom_551(self, folder, pk=0, task_id=None):
+        self.light_version = False
         if (not os.path.isdir(folder)):
             return {
                 'result': 'error', 
@@ -40,6 +42,14 @@ class ExpGedcom551:
 
     def export_gedcom_551_str(self, tree: FamTree):
         self.use_xref = False
+        self.light_version = False
+        self.f = io.StringIO()
+        self.exp_tree(tree)
+        return self.f.getvalue()
+
+    def export_gedcom_551_light(self, tree: FamTree):
+        self.use_xref = False
+        self.light_version = True
         self.f = io.StringIO()
         self.exp_tree(tree)
         return self.f.getvalue()
@@ -77,6 +87,8 @@ class ExpGedcom551:
 
     # TODO: print self values
     def write_header(self, tree):
+        if self.light_version:
+            return
         site = os.environ.get('DJANGO_HOST_MAIL', '')
         addr = os.environ.get('DJANGO_HOST_ADDR', '')
         name = tree.name
@@ -108,6 +120,8 @@ class ExpGedcom551:
         self.write_text(1, 'NOTE', tree.note)
 
     def submitter_record(self, subm):
+        if self.light_version:
+            return
         self.write_id('SUBM', subm._sort, subm.id)
         self.write_optional(1, 'NAME', subm.name)
         self.write_address(1, subm.addr)
@@ -127,28 +141,33 @@ class ExpGedcom551:
         self.write_optional(1, 'SEX', indi.sex)
         for x in IndividualEventStructure.objects.filter(indi=indi.id).order_by('_sort'):
             self.write_indi_event(1, x)
-        for x in IndividualAttributeStructure.objects.filter(indi=indi.id).order_by('_sort'):
-            self.write_indi_attr(1, x)
+        if not self.light_version:
+            for x in IndividualAttributeStructure.objects.filter(indi=indi.id).order_by('_sort'):
+                self.write_indi_attr(1, x)
         for x in ChildToFamilyLink.objects.filter(chil=indi.id).order_by('_sort'):
             self.write_child_family(1, x)
         for x in FamRecord.objects.filter(husb=indi.id).order_by('_sort'):
             self.write_spouse(1, x)
         for x in FamRecord.objects.filter(wife=indi.id).order_by('_sort'):
             self.write_spouse(1, x)
-        for x in AssociationStructure.objects.filter(indi=indi.id).order_by('_sort'):
-            self.write_asso_link(1, x)
-        for x in UserReferenceNumber.objects.filter(indi=indi.id).order_by('_sort'):
-            self.write_refn(1, x)
-        self.write_optional(1, 'RIN', indi.rin)
-        self.write_chan(1, indi.chan)
-        for x in NoteStructure.objects.filter(indi=indi.id).order_by('_sort'):
-            self.write_note_link(1, x)
-        for x in SourceCitation.objects.filter(indi=indi.id).order_by('_sort'):
-            self.write_citate(1, x)
+        if not self.light_version:
+            for x in AssociationStructure.objects.filter(indi=indi.id).order_by('_sort'):
+                self.write_asso_link(1, x)
+            for x in UserReferenceNumber.objects.filter(indi=indi.id).order_by('_sort'):
+                self.write_refn(1, x)
+            self.write_optional(1, 'RIN', indi.rin)
+            self.write_chan(1, indi.chan)
+            for x in NoteStructure.objects.filter(indi=indi.id).order_by('_sort'):
+                self.write_note_link(1, x)
+            for x in SourceCitation.objects.filter(indi=indi.id).order_by('_sort'):
+                self.write_citate(1, x)
         for x in MultimediaLink.objects.filter(indi=indi.id).order_by('_sort'):
             self.write_media_link(1, x)
-        self.write_custom(1, '_UPD', indi._upd)
-        self.write_custom(1, '_UID', indi._uid)
+            if self.light_version:
+                break
+        if not self.light_version:
+            self.write_custom(1, '_UPD', indi._upd)
+            self.write_custom(1, '_UID', indi._uid)
         self.inc_task_value()
             
     def inc_task_value(self):
@@ -164,28 +183,30 @@ class ExpGedcom551:
 
     def fam_record(self, fam):
         self.write_id('FAM', fam._sort, fam.id)
-        for x in FamilyEventStructure.objects.filter(fam=fam.id).order_by('_sort'):
-            self.write_fam_event(1, x)
+        if not self.light_version:
+            for x in FamilyEventStructure.objects.filter(fam=fam.id).order_by('_sort'):
+                self.write_fam_event(1, x)
         if fam.husb:
             self.write_optional(1, 'HUSB', self.make_xref('INDI', fam.husb._sort, fam.husb.id))
         if fam.wife:
             self.write_optional(1, 'WIFE', self.make_xref('INDI', fam.wife._sort, fam.wife.id))
         for x in ChildToFamilyLink.objects.filter(fami=fam.id).order_by('_sort'):
             self.write_family_child(1, x)
-        self.write_optional(1, 'NCHI', fam.nchi)
-        for x in UserReferenceNumber.objects.filter(fam=fam.id).order_by('_sort'):
-            self.write_refn(1, x)
-        self.write_optional(1, 'RIN', fam.rin)
-        self.write_chan(1, fam.chan)
-        for x in NoteStructure.objects.filter(fam=fam.id).order_by('_sort'):
-            self.write_note_link(1, x)
-        for x in SourceCitation.objects.filter(fam=fam.id).order_by('_sort'):
-            self.write_citate(1, x)
-        for x in MultimediaLink.objects.filter(fam=fam.id).order_by('_sort'):
-            self.write_media_link(1, x)
-        self.write_custom(1, '_UID', fam._uid)
-        self.write_custom(1, '_UPD', fam._upd)
-        self.write_custom(1, '_MSTAT', fam._mstat)
+        if not self.light_version:
+            self.write_optional(1, 'NCHI', fam.nchi)
+            for x in UserReferenceNumber.objects.filter(fam=fam.id).order_by('_sort'):
+                self.write_refn(1, x)
+            self.write_optional(1, 'RIN', fam.rin)
+            self.write_chan(1, fam.chan)
+            for x in NoteStructure.objects.filter(fam=fam.id).order_by('_sort'):
+                self.write_note_link(1, x)
+            for x in SourceCitation.objects.filter(fam=fam.id).order_by('_sort'):
+                self.write_citate(1, x)
+            for x in MultimediaLink.objects.filter(fam=fam.id).order_by('_sort'):
+                self.write_media_link(1, x)
+            self.write_custom(1, '_UID', fam._uid)
+            self.write_custom(1, '_UPD', fam._upd)
+            self.write_custom(1, '_MSTAT', fam._mstat)
         self.inc_task_value()
 
     def media_record(self, obje):
@@ -193,37 +214,44 @@ class ExpGedcom551:
         for x in MultimediaFile.objects.filter(obje=obje.id).order_by('_sort'):
             if x.file:
                 fname = x.file.split('/')[-1]
-                host = os.environ.get('DJANGO_HOST_API', '')
+                host = ''
+                if not self.light_version:
+                    host = os.environ.get('DJANGO_HOST_API', '')
                 url = host + reverse('family:doc', args=('pedigree', obje.tree.id, fname))
                 self.write_optional(1, 'FILE', url)
+            if self.light_version:
+                break
             self.write_optional(2, 'FORM', x.form)
             self.write_optional(3, 'TYPE', x.type)
             self.write_optional(2, 'TITL', x.titl)
-        for x in UserReferenceNumber.objects.filter(obje=obje.id).order_by('_sort'):
-            self.write_refn(1, x)
-        self.write_optional(1, 'RIN', obje.rin)
-        for x in NoteStructure.objects.filter(obje=obje.id).order_by('_sort'):
-            self.write_note_link(1, x)
-        for x in SourceCitation.objects.filter(obje=obje.id).order_by('_sort'):
-            self.write_citate(1, x)
-        self.write_chan(1, obje.chan)
-        self.write_custom(1, '_FILESIZE', obje._size)
-        self.write_custom(1, '_DATE', obje._date)
-        self.write_custom(1, '_PLACE', obje._plac)
-        self.write_custom(1, '_PRIM', obje._prim)
-        self.write_custom(1, '_CUTOUT', obje._cuto)
-        self.write_custom(1, '_PARENTRIN', obje._pari)
-        self.write_custom(1, '_PERSONALPHOTO', obje._pers)
-        self.write_custom(1, '_PRIM_CUTOUT', obje._prcu)
-        self.write_custom(1, '_PARENTPHOTO', obje._pare)
-        self.write_custom(1, '_PHOTO_RIN', obje._prin)
-        self.write_custom(1, '_POSITION', obje._posi)
-        if obje._albu:
-            self.write_custom(1, '_ALBUM', self.make_xref('_ALBUM', obje._albu._sort, obje._albu.id))
-        self.write_custom(1, '_UID', obje._uid )
+        if not self.light_version:
+            for x in UserReferenceNumber.objects.filter(obje=obje.id).order_by('_sort'):
+                self.write_refn(1, x)
+            self.write_optional(1, 'RIN', obje.rin)
+            for x in NoteStructure.objects.filter(obje=obje.id).order_by('_sort'):
+                self.write_note_link(1, x)
+            for x in SourceCitation.objects.filter(obje=obje.id).order_by('_sort'):
+                self.write_citate(1, x)
+            self.write_chan(1, obje.chan)
+            self.write_custom(1, '_FILESIZE', obje._size)
+            self.write_custom(1, '_DATE', obje._date)
+            self.write_custom(1, '_PLACE', obje._plac)
+            self.write_custom(1, '_PRIM', obje._prim)
+            self.write_custom(1, '_CUTOUT', obje._cuto)
+            self.write_custom(1, '_PARENTRIN', obje._pari)
+            self.write_custom(1, '_PERSONALPHOTO', obje._pers)
+            self.write_custom(1, '_PRIM_CUTOUT', obje._prcu)
+            self.write_custom(1, '_PARENTPHOTO', obje._pare)
+            self.write_custom(1, '_PHOTO_RIN', obje._prin)
+            self.write_custom(1, '_POSITION', obje._posi)
+            if obje._albu:
+                self.write_custom(1, '_ALBUM', self.make_xref('_ALBUM', obje._albu._sort, obje._albu.id))
+            self.write_custom(1, '_UID', obje._uid )
         self.inc_task_value()
 
     def source_record(self, sour):
+        if self.light_version:
+            return
         self.write_id('SOUR', sour._sort, sour.id)
         if (sour.data_even or sour.data_date or sour.data_plac or sour.data_agnc):
             self.write_required(1, 'DATA')
@@ -253,6 +281,8 @@ class ExpGedcom551:
         self.inc_task_value()
 
     def repo_record(self, repo):
+        if self.light_version:
+            return
         self.write_id('REPO', repo._sort, repo.id)
         self.write_required(1, 'NAME', repo.name)
         self.write_address(1, repo.addr)
@@ -265,11 +295,15 @@ class ExpGedcom551:
         self.inc_task_value()
 
     def note_record(self, note):
+        if self.light_version:
+            return
         self.write_text(0, self.make_xref('NOTE', note._sort, note.id) + ' NOTE', note.note)
         self.inc_task_value()
 
 
     def album_record(self, albu):
+        if self.light_version:
+            return
         self.write_id('_ALBUM', albu._sort, albu.id)
         self.write_optional(1, 'TITL', albu.titl)
         self.write_custom(1, '_UPD', albu._upd)
@@ -459,12 +493,13 @@ class ExpGedcom551:
         self.write_optional(level+2, 'MEDI', srci.caln_medi)
 
     def write_indi_event(self, level, even):
-        self.write_required(level, even.tag, even.value)
-        self.write_event_detail(level+1, even.deta)
-        self.write_optional(level+1, 'AGE',  even.age)
-        #self.write_child(level, even.famc) # ???
-        if even.famc:
-            self.write_optional(level+1, 'ADOP', even.adop)
+        if not self.light_version or even.tag and even.tag in ('BIRT', 'DEAT'):
+            self.write_required(level, even.tag, even.value)
+            self.write_event_detail(level+1, even.deta)
+            self.write_optional(level+1, 'AGE',  even.age)
+            #self.write_child(level, even.famc) # ???
+            if even.famc:
+                self.write_optional(level+1, 'ADOP', even.adop)
 
     def write_indi_attr(self, level, attr):
         if attr.value and (len(attr.value) > 120):

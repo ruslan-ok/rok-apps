@@ -137,6 +137,8 @@ var Stamboom = (function() {
                 family.relations = gedcom.relations(selectedPerson);
             }
 
+            let imageArray = [{ path: "/static/genea-app/img/unknown.png", width: "512px", height: "682px" }];
+
             function draw() {
                 // Node drawing
                 var node = {
@@ -164,10 +166,10 @@ var Stamboom = (function() {
                     label: function(person) {
                         // Format name and split over multiple lines
                         var maxLength = 15;
-                        if (!person.name) {
-                            person.name = "";
+                        if (!person.caption) {
+                            person.caption = "";
                         }
-                        var parts = person.name.split(" ");
+                        var parts = person.caption.split(" ");
                         var output = [""];
                         for (var i = 0; i < parts.length; i++) {
                             if (parts[i].length + (output[output.length - 1]).length > maxLength) {
@@ -194,7 +196,12 @@ var Stamboom = (function() {
                         }
                     },
                     image: function(person) {
-                        return "/static/genea-app/img/unknown.png";
+                        if (person.image) {
+                            imageArray.push({ path: person.image, width: "512px", height: "682px" });
+                            return person.image;
+                        }
+                        else
+                            return "/static/genea-app/img/unknown.png";
                     }
                 }
 
@@ -309,10 +316,7 @@ var Stamboom = (function() {
 
                 // Render dot graph
                 hpccWasm.graphviz.layout(dot, "svg", "dot", {
-                    images:
-                        [
-                            { path: "/static/genea-app/img/unknown.png", width: "512px", height: "682px" }
-                        ]
+                    images: imageArray
                 }).then(function (svg) {
                     this.tree.innerHTML = svg;
                     // Scroll selected person into center of the view

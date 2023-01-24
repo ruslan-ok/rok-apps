@@ -154,6 +154,11 @@ var Gedcom = (function() {
             var birth = (((person.items.find(detail => detail.tag == "BIRT") || {}).items || []).find(detail => detail.tag == "DATE") || {}).value
             var death = (((person.items.find(detail => detail.tag == "DEAT") || {}).items || []).find(detail => detail.tag == "DATE") || {}).value
             var caption = `${name} (${parseDate(birth).getFullYear() || "?"} - ${parseDate(death).getFullYear() || "?"})`;
+            var image = '';
+            var media_item = this.data.filter(item => item.tag == "OBJE" && item.pointer == (person.items.find(item => item.tag == "OBJE") || {}).value);
+            if (media_item.length == 1)
+                if (media_item[0].items.length > 0 && media_item[0].items[0].value)
+                    image = media_item[0].items[0].value;
             return {
                 "id": id,
                 "name": name,
@@ -161,7 +166,8 @@ var Gedcom = (function() {
                 "birth": birth,
                 "death": death,
                 "caption": caption,
-                "items": person.items
+                "items": person.items,
+                "image": image
             };
         } else {
             return {}; // Person not found

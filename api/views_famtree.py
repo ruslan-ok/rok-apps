@@ -75,6 +75,6 @@ class FamTreeViewSet(viewsets.ModelViewSet):
             if FamTree.objects.filter(id=pk).exists():
                 tree = FamTree.objects.filter(id=pk).get()
                 mgr = ExpGedcom551(request.user)
-                gedcom = mgr.export_gedcom_551_str(tree)
+                gedcom = mgr.export_gedcom_551_light(tree)
                 return Response({'result': 'ok', 'tree': gedcom})
         return Response({'result': 'error', 'info': 'Specified family tree not found.'})
