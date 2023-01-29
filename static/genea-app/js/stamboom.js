@@ -157,7 +157,7 @@ var Stamboom = (function() {
                             `<td border="0" fixedsize="true" height="53" width="45">` +
                             `<img src="${node.image(person)}" scale="both" />` +
                             `</td>` +
-                            `<td border="0" fixedsize="true" align="left">` +
+                            `<td border="0" fixedsize="true" align="left" balign="left">` +
                             `<b>${node.label(person)}</b>` +
                             `</td>` +
                             `</tr>` +
@@ -178,7 +178,7 @@ var Stamboom = (function() {
                                 output[output.length - 1] = output[output.length - 1] + " " + parts[i];
                             }
                         }
-                        output = output.map(part => { return (part.length < maxLength ? part : part.substr(0, maxLength) + "...") });
+                        output = output.map(part => { return (part.length <= (maxLength+1) ? part : part.substr(0, maxLength) + "...") });
                         return output.join("<br/>");
                     },
                     color: function(person) {
