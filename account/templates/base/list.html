@@ -19,9 +19,9 @@
 
       <div class="list-header__info">
         {% for item in summary %}
-          <span class="sort">
+          <span class="sort {{ item.color }}">
             <i class="sort__icon bi-star"></i>
-            <span class="sort__name">{{ item }}</span>
+            <span class="sort__name">{{ item.value }}</span>
           </span>
         {% endfor %}
       </div>

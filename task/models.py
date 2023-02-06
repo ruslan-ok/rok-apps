@@ -133,10 +133,7 @@ class Group(models.Model):
         return self.expen_byn, self.expen_usd, self.expen_eur, self.expen_gbp
 
     def expen_get_totals(self):
-        byn = 0
-        usd = 0
-        eur = 0
-        gbp = 0
+        byn = usd = eur = gbp = 0
         in_byn, in_usd, in_eur, in_gbp = self.expen_what_totals()
         for exp in TaskGroup.objects.filter(group=self.id):
             if in_byn:
@@ -148,19 +145,43 @@ class Group(models.Model):
             if in_gbp:
                 gbp += exp.task.expen_amount('GBP')
         return byn, usd, eur, gbp
+    
+    def expen_get_amounts(self): # is
+        byn = usd = eur = gbp = 0
+        in_byn, in_usd, in_eur, in_gbp = self.expen_what_totals()
+        for exp in TaskGroup.objects.filter(group=self.id):
+            if exp.task.expen_qty:
+                if in_byn and exp.task.expen_price:
+                    byn += exp.task.expen_price * exp.task.expen_qty
+                if in_usd and exp.task.expen_usd:
+                    usd += exp.task.expen_usd * exp.task.expen_qty
+                if in_eur and exp.task.expen_eur:
+                    eur += exp.task.expen_eur * exp.task.expen_qty
+                if in_gbp and exp.task.expen_gbp:
+                    gbp += exp.task.expen_gbp * exp.task.expen_qty
+        return byn, usd, eur, gbp
 
     def expen_summary(self):
         in_byn, in_usd, in_eur, in_gbp = self.expen_what_totals()
-        byn, usd, eur, gbp = self.expen_get_totals()
+        t_byn, t_usd, t_eur, t_gbp = self.expen_get_totals()
+        a_byn, a_usd, a_eur, a_gbp = self.expen_get_amounts()
         res = []
+        if in_usd and a_usd:
+            res.append(currency_repr(a_usd, '$'))
+        if in_eur and a_eur:
+            res.append(currency_repr(a_eur, '€'))
+        if in_gbp and a_gbp:
+            res.append(currency_repr(a_gbp, '£'))
+        if in_byn and a_byn:
+            res.append(currency_repr(a_byn, ' BYN'))
         if in_usd:
-            res.append(currency_repr(usd, '$'))
+            res.append(currency_repr(t_usd, '$', 'bg-primary text-white'))
         if in_eur:
-            res.append(currency_repr(eur, '€'))
+            res.append(currency_repr(t_eur, '€', 'bg-primary text-white'))
         if in_gbp:
-            res.append(currency_repr(gbp, '£'))
+            res.append(currency_repr(t_gbp, '£', 'bg-primary text-white'))
         if in_byn:
-            res.append(currency_repr(byn, ' BYN'))
+            res.append(currency_repr(t_byn, ' BYN', 'bg-primary text-white'))
         return res
 
     def get_absolute_url(self):
@@ -816,36 +837,40 @@ class Task(models.Model):
 
         return 0
 
-    def expen_summary(self):
+    def expen_get_amounts(self):
+        byn = usd = eur = gbp = 0
         if TaskGroup.objects.filter(task=self.id, role=ROLE_EXPENSE).exists():
             tg = TaskGroup.objects.filter(task=self.id, role=ROLE_EXPENSE).get()
             in_byn, in_usd, in_eur, in_gbp = tg.group.expen_what_totals()
         else:
             in_byn, in_usd, in_eur, in_gbp = True, False, False, False
-        usd = eur = byn = gbp = None
-        if in_usd:
-            usd = self.expen_amount('USD')
-        if in_eur:
-            eur = self.expen_amount('EUR')
-        if in_gbp:
-            gbp = self.expen_amount('GBP')
-        if in_byn:
-            byn = self.expen_amount('BYN')
+        if self.expen_qty:
+            if in_byn and self.expen_price:
+                byn += self.expen_price * self.expen_qty
+            if in_usd and self.expen_usd:
+                usd += self.expen_usd * self.expen_qty
+            if in_eur and self.expen_eur:
+                eur += self.expen_eur * self.expen_qty
+            if in_gbp and self.expen_gbp:
+                gbp += self.expen_gbp * self.expen_qty
+        return byn, usd, eur, gbp
 
+    def expen_item_summary(self):
+        byn, usd, eur, gbp = self.expen_get_amounts()
         res = []
-        if in_usd and usd:
+        if usd:
             res.append(currency_repr(usd, '$'))
-        if in_eur and eur:
+        if eur:
             res.append(currency_repr(eur, '€'))
-        if in_gbp and gbp:
+        if gbp:
             res.append(currency_repr(gbp, '£'))
-        if in_byn and self.event:
+        if byn and self.event:
             if (self.event < datetime(2016, 6, 1)):
                 res.append(currency_repr(byn, ' BYR'))
             else:
                 res.append(currency_repr(byn, ' BYN'))
         return res
-    
+
     def correct_groups_qty(self, mode, group_id=None, role=None):
         if (mode == GIQ_ADD_TASK) and Group.objects.filter(id=group_id).exists():
             group = Group.objects.filter(id=group_id).get()
@@ -1024,10 +1049,19 @@ class TaskRoleInfo(models.Model):
     info = models.CharField(_('role specific info'), max_length=500, blank=True, default=None, null=True)
     files_qnt = models.IntegerField(_('number of attached files'), default=0, null=True)
 
-def currency_repr(value, currency):
+def currency_item_repr(value, currency):
     if (round(value, 2) % 1):
-        return '{:,.2f}{}'.format(value, currency).replace(',', '`')
-    return '{:,.0f}{}'.format(value, currency).replace(',', '`')
+        value = '{:,.2f}{}'.format(value, currency).replace(',', '`')
+    else:
+        value = '{:,.0f}{}'.format(value, currency).replace(',', '`')
+    return value
+
+def currency_repr(value, currency, color_class=''):
+    if (round(value, 2) % 1):
+        value = '{:,.2f}{}'.format(value, currency).replace(',', '`')
+    else:
+        value = '{:,.0f}{}'.format(value, currency).replace(',', '`')
+    return {'value': value, 'color': color_class}
 
 
 class Hist(models.Model):

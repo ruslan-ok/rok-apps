@@ -52,7 +52,7 @@ class DetailView(LoginRequiredMixin, BaseDetailView):
             context['expen_usd'] = grp.expen_usd
             context['expen_eur'] = grp.expen_eur
             context['expen_gbp'] = grp.expen_gbp
-        context['summary'] = self.object.expen_summary()
+        context['summary'] = self.object.expen_item_summary()
         context['amount_nc'] = currency_repr(self.object.expen_amount('BYN'))
         return context
 
