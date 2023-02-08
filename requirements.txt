@@ -6,7 +6,7 @@ certifi==2022.12.7
 cffi==1.15.1
 charset-normalizer==2.0.10
 convertdate==2.4.0
-cryptography==36.0.1
+cryptography==39.0.1
 Django==4.1.6
 django-filter==22.1
 djangorestframework==3.14.0
@@ -39,7 +39,7 @@ pyasn1-modules==0.2.8
 pycparser==2.21
 pycryptodomex==3.15.0
 PyMeeus==0.5.12
-pyOpenSSL==22.0.0
+pyOpenSSL==23.0.0
 pyparsing==3.0.6
 pytz==2021.3
 pyzipper==0.3.6
