@@ -3,7 +3,7 @@
 
 {% block extrastyle %}
     {{ block.super }}
-    <link href="{% static 'scss/family.css' %}" rel="stylesheet">
+    <link href="{% static 'scss/family/progress.css' %}" rel="stylesheet">
     <link href="{% static 'iziToast/css/iziToast.min.css' %}" rel="stylesheet">
 {% endblock %}
 
@@ -55,6 +55,6 @@
 {% block extrascript %}
   {{ block.super }}
   <script src="{% static 'iziToast/js/iziToast.min.js' %}"></script>
-  <script src="{% static 'js/progress.js' %}"></script>
-  <script src="{% static 'js/family-examine.js' %}"></script>
+  <script src="{% static 'js/family/progress.js' %}"></script>
+  <script src="{% static 'js/family/examine.js' %}"></script>
 {% endblock %}

@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.template import loader
 from family.views.base import GenealogyContext
-from family.models import Params
+from family.models import Params, UserSettings
 from family.config import app_config
 
 
@@ -12,7 +12,7 @@ def diagram_start(request):
     cur_tree = Params.get_cur_tree(request.user)
     if not cur_tree:
         return HttpResponseRedirect(reverse('family:pedigree-list'))
-    cur_indi = Params.get_cur_indi(request.user, cur_tree)
+    cur_indi = UserSettings.get_sel_indi(request.user, cur_tree)
     if not cur_indi:
         return HttpResponseRedirect(reverse('family:pedigree-list'))
     return HttpResponseRedirect(reverse('family:diagram', args=(cur_tree.id,)) + f'#/@I{cur_indi.id}@')
@@ -24,8 +24,10 @@ def diagram(request, tree_id):
     ctx.set_config(app_config, 'tree')
     ctx.config.set_view(request)
     context = ctx.get_app_context(request.user.id, icon=ctx.config.view_icon)
-    context['cur_tree_id'] = 1
-    context['cur_indi_id'] = '1'
+    tree = Params.get_cur_tree(request.user)
+    indi = UserSettings.get_sel_indi(request.user, tree)
+    context['cur_tree_id'] = tree.id if tree else None
+    context['cur_indi_id'] = indi.id if indi else None
     template = loader.get_template('family/diagram.html')
     return HttpResponse(template.render(context, request))
 

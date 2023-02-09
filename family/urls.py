@@ -13,6 +13,6 @@ urlpatterns = [
     path('pedigree/<int:pk>/export/', pedigree.export_tree, name='pedigree-export'),
     path('pedigree/<int:pk>/export/file/', pedigree.get_gedcom_file, name='pedigree-file'),
     path('pedigree/<int:pk>/examine/', examine.examine_tree, name='pedigree-examine'),
-    path('pedigree/<int:ft>/individual/<str:pk>/<str:view>', individual.IndividualDetailsView.as_view(), name='individual-detail'),
+    path('<int:ft>/individual/@I<str:pk>@/<str:view>', individual.IndividualDetailsView.as_view(), name='individual-detail'),
     path('<str:role>/<int:pk>/doc/<str:fname>', pedigree.get_doc, name='doc'),
 ]

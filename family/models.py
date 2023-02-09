@@ -920,31 +920,39 @@ class Params(models.Model):
                 params.cur_tree = tree
                 params.save()
 
+class UserSettings(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='user', related_name = 'settings_user')
+    tree = models.ForeignKey(FamTree, on_delete=models.SET_NULL, verbose_name='family tree', related_name='users_tree', null=True)
+    indi_self = models.ForeignKey(IndividualRecord, on_delete=models.CASCADE, verbose_name=_('user in the tree'), related_name='individual_self', null=True)
+    indi_sel = models.ForeignKey(IndividualRecord, on_delete=models.CASCADE, verbose_name=_('selected person'), related_name='individual_selected', null=True)
+
     @classmethod
-    def get_cur_indi(cls, user, tree=None):
-        if not tree:
-            tree = cls.get_cur_tree(user)
-        if not tree:
-            return None
-        if tree.cur_indi:
-            if IndividualRecord.objects.filter(id=tree.cur_indi).exists():
-                indi = IndividualRecord.objects.filter(id=tree.cur_indi).get()
-                return indi
-            cls.set_cur_indi(tree, None)
-        if IndividualRecord.objects.filter(tree=tree.id).exists():
-            indi = IndividualRecord.objects.filter(tree=tree.id)[0]
-            Params.set_cur_indi(tree, indi)
-            return indi
+    def get_sel_indi(cls, user, tree):
+        if tree and FamTreeUser.objects.filter(user_id=user.id, tree_id=tree.id).exists():
+            if not UserSettings.objects.filter(user=user.id, tree=tree.id).exists():
+                if IndividualRecord.objects.filter(tree=tree.id).exists():
+                    indi = IndividualRecord.objects.filter(tree=tree.id)[0]
+                    cls.set_sel_indi(user, tree, None)
+                    return indi
+            else:
+                us = UserSettings.objects.filter(user=user.id, tree=tree.id).get()
+                if us.indi_sel:
+                    return us.indi_sel
+                if IndividualRecord.objects.filter(tree=tree.id).exists():
+                    indi = IndividualRecord.objects.filter(tree=tree.id)[0]
+                    cls.set_sel_indi(user, tree, None)
+                    return indi
         return None
             
     @classmethod
-    def set_cur_indi(cls, tree, indi):
-        if tree:
-            if not indi:
-                tree.cur_indi = None
+    def set_sel_indi(cls, user, tree, indi):
+        if user and tree and indi:
+            if not UserSettings.objects.filter(user=user.id, tree=tree.id).exists():
+                UserSettings.objects.create(user=user, tree=tree, indi_sel=indi)
             else:
-                tree.cur_indi = indi.id
-        tree.save()
+                us = UserSettings.objects.filter(user=user.id, tree=tree.id).get()
+                us.indi_sel = indi
+                us.save()
 
 #####################################################################################################
 # Views
@@ -1072,3 +1080,8 @@ class IndiSpouses(models.Model):
             return reverse('family:thumbnail_100', args=(self.tree_id,)) + '?mmr=' + str(self.spou_mmr_id)
         return '/static/img/man.jpg'
 
+class Gedcom(models.Model):
+    tree = models.ForeignKey(FamTree, on_delete=models.CASCADE, verbose_name=_('family tree'), related_name='gedcom_tree')
+    row_num = models.IntegerField('Row number', null=False)
+    value = models.CharField('Row walue', max_length=500, blank=False, null=False)
+    used_by_chart = models.BooleanField('Used by chart', default=True)

@@ -68,6 +68,9 @@ var Stamboom = (function() {
                 }
                 onselectCallback(selectedPerson);
             }
+            Stamboom.prototype.selectIndi = function(tree_id, indi_id) {
+                gedcom.selectIndi(tree_id, indi_id);
+            }
             Stamboom.prototype.getPerson = function(id) {
                 return gedcom.person(id);
             }

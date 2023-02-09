@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from api.family import FamTreeSerializer
 from family.gedcom_551.exp import ExpGedcom551
 from family.gedcom_551.imp import ImpGedcom551
-from family.models import FamTreeUser, FamTree, Params, FamTreePermission
+from family.models import FamTreeUser, FamTree, Params, FamTreePermission, Gedcom, IndividualRecord, UserSettings
 from family.utils import update_media
 
 
@@ -72,9 +72,31 @@ class FamTreeViewSet(viewsets.ModelViewSet):
     @action(detail=True)
     def get_tree(self, request, pk):
         if FamTreeUser.objects.filter(user_id=request.user.id, tree_id=pk).exists():
-            if FamTree.objects.filter(id=pk).exists():
-                tree = FamTree.objects.filter(id=pk).get()
-                mgr = ExpGedcom551(request.user)
-                gedcom = mgr.export_gedcom_551_light(tree)
+            gedcom = ''
+            for row in Gedcom.objects.filter(tree=pk, used_by_chart=True).order_by('row_num'):
+                gedcom += row.value + '\n'
+            if gedcom:
                 return Response({'result': 'ok', 'tree': gedcom})
+            else:
+                return Response({'result': 'error', 'info': 'GEDCOM data not generated.'})
         return Response({'result': 'error', 'info': 'Specified family tree not found.'})
+
+    @action(detail=True)
+    def make_gedcom(self, request, pk=None):
+        mgr = ExpGedcom551(request.user)
+        ret = mgr.make_gedcom(pk)
+        return Response(ret)
+
+    @action(detail=True)
+    def set_sel_indi(self, request, pk=None):
+        if not FamTreeUser.objects.filter(user_id=request.user.id, tree_id=pk).exists():
+            return Response({'result': 'error', 'info': 'Specified family tree not found.'})
+        if 'indi_id' not in self.request.query_params:
+            return Response({'Error': "Expected parameter 'indi_id'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        str_indi_id = self.request.query_params['indi_id']
+        indi_id = int(str_indi_id.replace('@I', '').replace('@', ''))
+        indi = IndividualRecord.objects.filter(id=indi_id).get()
+        tree = FamTree.objects.filter(id=pk).get()
+        UserSettings.set_sel_indi(request.user, tree, indi)
+        return Response({'result': 'ok', 'tree_id': pk, 'indi_id': str_indi_id})

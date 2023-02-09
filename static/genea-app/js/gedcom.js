@@ -422,6 +422,20 @@ var Gedcom = (function() {
         xhttp.send();
     }
 
+    Gedcom.prototype.selectIndi = function(tree_id, indi_id) {
+        const api = `/api/famtree/${tree_id}/set_sel_indi/?format=json&indi_id=${indi_id}`;
+        const callback = function() {};
+        const url = window.location.protocol + '//' + window.location.host + api;
+        let xhttp = new XMLHttpRequest();
+        xhttp.open('GET', url, true);
+        let y = document.getElementsByName('csrfmiddlewaretoken');
+        let crsf = y[0].value; 
+        xhttp.setRequestHeader('X-CSRFToken', crsf);
+        xhttp.setRequestHeader('Content-type', 'application/json');
+        xhttp.onreadystatechange = callback;
+        xhttp.send();
+    }
+
     // Private methods
     function parseDate(date) {
         try {
