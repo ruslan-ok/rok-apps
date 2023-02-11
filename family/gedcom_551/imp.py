@@ -586,11 +586,14 @@ class ImpGedcom551:
                 case '_FPLC': file._fplc = x.value
         if 'https://' in item.value and '.com/' in item.value and file.obje and file.obje.tree and file.obje.tree.file:
             headers = {'User-Agent': 'Mozilla/5.0'}
-            im = Image.open(requests.get(item.value, headers=headers, stream=True).raw)
-            folder = FamTree.get_import_path() + file.obje.tree.file + '_media\\'
-            if not os.path.exists(folder):
-                os.mkdir(folder)
-            im.save(folder + fname)
+            try:
+                im = Image.open(requests.get(item.value, headers=headers, stream=True).raw)
+                folder = FamTree.get_import_path() + file.obje.tree.file + '_media\\'
+                if not os.path.exists(folder):
+                    os.mkdir(folder)
+                im.save(folder + fname)
+            except Exception as ex:
+                pass
         try:
             file.save()
         except Exception as ex:
@@ -1055,55 +1058,6 @@ class ImpGedcom551:
         else:
             return value
 
-
-    """
-    def pers_description(self, person):
-        person.height = self.get_tag('HEIGHT')
-        person.weight = self.get_tag('WEIGHT')
-        person.hair_color = self.get_tag('HAIR')
-        person.eye_color = self.get_tag('EYES')
-
-    def spec_pers_attr(self, person, category, type, value):
-        if (not category):
-            if (type == 'Hobbies'):
-                person.interests = value
-            elif (type == 'Activities'):
-                person.activities = value
-            elif (type == 'Favorite music'):
-                person.music = value
-            elif (type == 'Favorite movies'):
-                person.movies = value
-            elif (type == 'Favorite TV shows'):
-                person.tv_shows = value
-            elif (type == 'Favorite books'):
-                person.books = value
-            elif (type == 'Sports'):
-                person.sports = value
-            elif (type == 'Favorite restaurants'):
-                person.restaurants = value
-            elif (type == 'Favorite food'):
-                person.cuisines = value
-            elif (type == 'Idols'):
-                person.people = value
-            elif (type == 'Vacation spots'):
-                person.getaways = value
-            elif (type == 'Favorite quotes'):
-                person.quotes = value
-            elif (type == 'Language spoken'):
-                person.lang_spoken = value
-            elif (type == 'Political view'):
-                person.political_views = value
-            else:
-                return False
-            person.save()
-            return True
-        return False
-
-    def get_tag(self, attr):
-        if (attr in x.value):
-            return x.value.split('<' + attr + '>')[1].split('</' + attr + '>')[0]
-        return None
-    """
 
 def import_params(user, fname) -> tuple[int, str]:
     total = 0

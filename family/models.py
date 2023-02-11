@@ -102,6 +102,7 @@ class FamTree(models.Model):
         return reverse('family:pedigree-detail', args=(self.id,))
 
     def before_delete(self):
+        Gedcom.objects.filter(tree=self.id).delete()
         if self.sour_corp_addr:
             self.sour_corp_addr.delete()
         for item in SubmitterRecord.objects.filter(tree=self.id):

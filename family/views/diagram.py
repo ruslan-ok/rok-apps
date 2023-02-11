@@ -30,15 +30,3 @@ def diagram(request, tree_id):
     context['cur_indi_id'] = indi.id if indi else None
     template = loader.get_template('family/diagram.html')
     return HttpResponse(template.render(context, request))
-
-@login_required(login_url='account:login')
-def diagram_debug(request):
-    ctx = GenealogyContext()
-    ctx.request = request
-    ctx.set_config(app_config, 'tree')
-    ctx.config.set_view(request)
-    context = ctx.get_app_context(request.user.id, icon=ctx.config.view_icon)
-    context['cur_tree_id'] = 1
-    context['cur_indi_id'] = '1'
-    template = loader.get_template('family/diagram_debug.html')
-    return HttpResponse(template.render(context, request))

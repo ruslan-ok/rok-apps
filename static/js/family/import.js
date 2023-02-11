@@ -11,11 +11,18 @@ const importFinish = function(info) {
     window.location.href = redirect_url;
 };
 
+const app = 'family';
+
+const saveGedcom = function(info) {
+    console.log('build Gedcom: ' + info);
+    tree_id = +info;
+    createTask(app, 'gedcom', tree_id, 'gedcom', importFinish); };
+
 function importStart()
 {
     let queryParams = new URLSearchParams(window.location.search);
     filename = queryParams.get('file');
-    createTask('family', 'import', filename, 'import', importFinish);
+    createTask(app, 'import', filename, 'import', saveGedcom);
 }
 
 hideActions();

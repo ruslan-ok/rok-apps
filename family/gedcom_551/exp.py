@@ -64,13 +64,13 @@ class ExpGedcom551:
         self.exp_tree(tree)
         return self.f.getvalue()
 
-    def make_gedcom(self, tree_id):
+    def make_gedcom(self, tree_id, task_id=None):
         if not FamTreeUser.objects.filter(user_id=self.user.id, tree_id=tree_id).exists():
             return {'result': 'error', 'info': 'The specified tree does not exist or the user does not have permission to view it.'}
-        if not FamTreeUser.objects.filter(user_id=self.user.id, tree_id=tree_id, can_change=True).exists():
-            return {'result': 'error', 'info': 'The user does not have permission to change the specified tree.'}
         if not FamTree.objects.filter(id=tree_id).exists():
             return {'result': 'error', 'info': 'The specified tree does not exist.'}
+        if task_id and ServiceTask.objects.filter(id=task_id).exists():
+            self.task = ServiceTask.objects.filter(id=task_id).get()
         self.tree = FamTree.objects.filter(id=tree_id).get()
         Gedcom.objects.filter(tree=tree_id).delete()
         self.light_version = False
@@ -641,3 +641,35 @@ def export_start(user, item_id, task_id) -> dict:
         mgr.export_gedcom_551(store_dir, pk=tree.id, task_id=task_id)
         return {'status':'completed', 'info': ''}
     return {'status':'warning', 'info': f'Family tree with id {task_id} not found'}
+
+def gedcom_params(user, str_tree_id: str) -> tuple[int, str]:
+    item_id = int(str_tree_id)
+    total = 0
+    if FamTreeUser.objects.filter(user_id=user.id, tree_id=item_id, can_view=True).exists():
+        if FamTree.objects.filter(id=item_id).exists():
+            tree = FamTree.objects.filter(id=item_id).get()
+            total += len(IndividualRecord.objects.filter(tree=tree.id))
+            total += len(FamRecord.objects.filter(tree=tree.id))
+            total += len(NoteRecord.objects.filter(tree=tree.id))
+            total += len(RepositoryRecord.objects.filter(tree=tree.id))
+            total += len(SourceRecord.objects.filter(tree=tree.id))
+            total += len(SubmitterRecord.objects.filter(tree=tree.id))
+            total += len(AlbumRecord.objects.filter(tree=tree.id))
+            total += len(MultimediaRecord.objects.filter(tree=tree.id))
+            total += len(NoteStructure.objects.filter(tree=tree.id))
+            if total == 0:
+                return 0, f'Empty family tree with ID {item_id}'
+            return total, ''
+    return 0, f'Family tree with ID {str_tree_id} not found'
+
+def gedcom_start(user, item_id, task_id) -> dict:
+    if FamTreeUser.objects.filter(user_id=user.id, tree_id=item_id, can_view=True).exists():
+        mgr = ExpGedcom551(user)
+        ret = mgr.make_gedcom(item_id, task_id)
+        status = ret.get('result', 'error')
+        info = ret.get('info', '')
+        if status == 'ok':
+            status = 'completed'
+            info = str(item_id)
+        return {'status': status, 'info': info}
+    return {'status':'warning', 'info': f'Family tree with id {item_id} not found'}

@@ -8,7 +8,7 @@ from logs.models import EventType, ServiceEvent, ServiceTask, ServiceTaskStatus
 from api.serializers import LogsSerializer
 from task.const import *
 from family.gedcom_551.imp import import_params, import_start
-from family.gedcom_551.exp import export_params, export_start
+from family.gedcom_551.exp import export_params, export_start, gedcom_params, gedcom_start
 from family.views.examine import examine_params, examine_start
 
 class LogsViewSet(viewsets.ModelViewSet):
@@ -103,6 +103,7 @@ class LogsViewSet(viewsets.ModelViewSet):
         item_id = request.GET.get('item_id', '')
         match (app, service):
             case ('family', 'import'): total, info = import_params(request.user, item_id)
+            case ('family', 'gedcom'): total, info = gedcom_params(request.user, item_id)
             case ('family', 'export'): total, info = export_params(request.user, item_id)
             case ('family', 'examine'): total, info = examine_params(request.user, item_id)
             case _: total, info = None, 'Unsupported app and service'
@@ -123,6 +124,7 @@ class LogsViewSet(viewsets.ModelViewSet):
                 try:
                     match (task.app, task.service):
                         case ('family', 'import'): ret = import_start(request.user, task.item_id, task.id)
+                        case ('family', 'gedcom'): ret = gedcom_start(request.user, task.item_id, task.id)
                         case ('family', 'export'): ret = export_start(request.user, task.item_id, task.id)
                         case ('family', 'examine'): ret = examine_start(request.user, task.item_id, task.id)
                         case _: ret = {'info': 'Unsupported app and service'}

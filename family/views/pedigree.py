@@ -131,5 +131,12 @@ def get_doc(request, role, pk, fname):
         fsock = open(path + fname, 'rb')
         return FileResponse(fsock)
     except IOError:
-        return HttpResponseNotFound()
+        try:
+            path = os.environ.get('DJANGO_STATIC_ROOT', '')
+            path = os.path.join(path, 'genea-app\\img\\')
+            fname = 'unknown.png'
+            fsock = open(path + fname, 'rb')
+            return FileResponse(fsock)
+        except IOError:
+            return HttpResponseNotFound()
 
