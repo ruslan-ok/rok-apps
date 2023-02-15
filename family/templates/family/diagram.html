@@ -3,7 +3,6 @@
 
 {% block extrastyle %}
   <link href="" rel="stylesheet">
-    <!-- <script src="{% static 'genea-app/resources/vuejs/vue.js' %}"></script> -->
     <script src="{% static 'genea-app/resources/wasm/index.min.js' %}"></script>
     <script>
         var hpccWasm = window["@hpcc-js/wasm"];
@@ -13,7 +12,6 @@
     <script type="application/javascript" src="{% static 'genea-app/js/tags.js' %}"></script>
     <script type="application/javascript" src="{% static 'genea-app/js/gedcom.js' %}"></script>
     <script type="application/javascript" src="{% static 'genea-app/js/stamboom.js' %}"></script>
-    <!-- <script type="application/javascript" src="{% static 'genea-app/components/tree.js' %}"></script> -->
 {% endblock %}
 
 {% block header_content %}
@@ -40,7 +38,7 @@
                 <button type="button" class="btn btn-outline-secondary bi-toggles" onclick="ftViewOptions()" title="{% trans 'View options' %}"></button>
             </div>
             <div class="btn-group m-2" role="group">
-                <a href="{% url 'family:individual-detail' cur_tree_id cur_indi_id 'essencial' %}" class="btn btn-outline-secondary bi-person" title="{% trans 'Person profile' %}"></a>
+                <a id="person-profile-link" href="{% url 'family:individual-detail' cur_tree_id cur_indi_id 'life' %}" class="btn btn-outline-secondary bi-person" title="{% trans 'Person profile' %}"></a>
             </div>
             <div class="btn-group m-2" role="group">
                 <a href="#" class="btn btn-outline-secondary bi-plus" title="{% trans 'Add person' %}"></a>
@@ -78,8 +76,11 @@
         stamboom.onselect(tree_onselect);
 
         function router() {
-            var url = document.location.hash.split("/");
-            stamboom.select(url[1]);
+            const indi_id = document.location.hash.split("/")[1];
+            stamboom.select(indi_id);
+            const ppl = document.getElementById("person-profile-link");
+            const new_url = ppl.href.split('@I')[0] + indi_id + ppl.href.split('@I')[1].split('@')[1];
+            ppl.href = new_url;
         }
 
         window.addEventListener("hashchange", router);

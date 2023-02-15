@@ -1,11 +1,13 @@
 import os, shutil
 from datetime import datetime
+from django.utils.translation import get_language
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.db import models
 from django.db.models.signals import pre_delete 
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
+from family.ged4py.date import DateValue
 from family.const import *
 
 #--------------------------------------------------
@@ -294,7 +296,12 @@ class IndividualRecord(models.Model):
         if self.chan:
             self.chan.delete()
 
-    def name(self):
+    def get_sex(self):
+        if self.id.sex:
+            return self.id.sex
+        return 'M'
+
+    def get_name(self):
         ret = ''
         if PersonalNameStructure.objects.filter(indi=self.id).exists():
             pns = PersonalNameStructure.objects.filter(indi=self.id)[0]
@@ -305,6 +312,34 @@ class IndividualRecord(models.Model):
                     if ret:
                         ret += ' '
                     ret += pns.piec.givn
+        return ret
+    
+    def get_given_name(self):
+        ret = ''
+        if PersonalNameStructure.objects.filter(indi=self.id).exists():
+            pns = PersonalNameStructure.objects.filter(indi=self.id)[0]
+            if pns.piec:
+                if pns.piec.givn:
+                    ret = pns.piec.givn
+        return ret
+    
+    def name(self):
+        return self.get_name()
+
+    def get_life_info(self):
+        indi_id = self.id.id # WTF
+        indi_family = IndiLifeFamily.objects.filter(indi_id=indi_id).get()
+        children = IndiLifeChildren.objects.filter(indi_id=indi_id)
+        spouses = IndiLifeSpouses.objects.filter(indi_id=indi_id)
+        events = IndiLifeEvents.objects.filter(indi_id=indi_id).order_by('_sort')
+        ret = {
+            'biography': indi_family.get_biography(),
+            'indi_family': indi_family,
+            'children': children, 
+            'spouses': spouses, 
+            'map': None, 
+            'events': events,
+        }
         return ret
 
     def short_name(self):
@@ -547,6 +582,39 @@ class EventDetail(models.Model):
             self.plac.delete()
         if self.addr:
             self.addr.delete()
+
+    def get_age(self, on_date: datetime, lang: str) -> str:
+        ret = prefix = ''
+        years = None
+        date = DateValue.parse(self.date)
+        event_date = date.get_date()
+        if event_date and on_date:
+            if event_date and on_date:
+                years = on_date.year - event_date.year
+                dt = datetime(on_date.year, event_date.month, event_date.day)
+                if dt < on_date:
+                    years -= 1
+        else:
+            event_year = str(date.date)
+            try:
+                year = int(event_year)
+                if year > 1000 and year <= datetime.now().year:
+                    years = on_date.year - year
+                    match lang:
+                        case 'ru': prefix = 'около '
+                        case _:    prefix = 'about '
+            except:
+                pass
+        if years:
+            ret = f'{prefix}{years}'
+            if lang == 'ru':
+                match years % 10:
+                    case 1: ret += ' год'
+                    case 2: ret += ' года'
+                    case 3: ret += ' года'
+                    case 4: ret += ' года'
+                    case _: ret += ' лет'
+        return ret
 
 class NamePhoneticVariation(models.Model):
     name = models.ForeignKey(PersonalNameStructure, on_delete=models.CASCADE, verbose_name=_('name'), related_name='name_phonetic', null=True)
@@ -958,128 +1026,341 @@ class UserSettings(models.Model):
 #####################################################################################################
 # Views
 #             
-
-class IndiInfo(models.Model):
-    id = models.IntegerField('id', primary_key=True, null=False)
-    tree_id = models.IntegerField(_('tree id'), null=False)
-    sex = models.CharField(_('sex'), max_length=1, blank=True, null=True)
-    pns_id = models.IntegerField(_('person name structure id'), null=True)
-    pnp_id = models.IntegerField(_('person name pieces id'), null=True)
-    givn = models.CharField(_('given name'), max_length=120, blank=True, null=True)
-    surn = models.CharField(_('surname'), max_length=120, blank=True, null=True)
-    _marnm = models.CharField(_('custom field: married name'), max_length=120, blank=True, null=True)
-    birth_date = models.CharField(_('date of birth'), max_length=15, blank=True, null=True)
-    birth_place = models.CharField(_('place of birth'), max_length=120, blank=True, null=True)
-    death_date = models.CharField(_('date of death'), max_length=15, blank=True, null=True)
-    death_place = models.CharField(_('place of death'), max_length=120, blank=True, null=True)
-    age = models.IntegerField(_('age'), null=True)
-    mmr_id = models.IntegerField(_('multimedia record id'), null=True)
-    mmr_prim = models.CharField(_('primary'), max_length=1, blank=True, null=True)
-    file = models.CharField(_('file name'), max_length=259, blank=True, null=True)
-    mmr_posi = models.CharField(_('positions'), max_length=50, blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'family_vw_indi'
-
-    def thumbnail(self):
-        if self.mmr_id:
-            return reverse('family:thumbnail', args=(self.tree_id,)) + '?mmr=' + str(self.mmr_id)
-        if self.sex == 'M':
-            return '/static/img/man.jpg'
-        return '/static/img/woman.jpg'
-
-    def name(self):
-        return self.givn + ' ' + self.surn
-
-PEDI_SELECT   = [('birth', _('birth')), ('adopted', _('adopted')), ('foster', _('foster'))]
-
-class IndiFamilies(models.Model):
-    id = models.IntegerField(_('id'), primary_key=True, null=False)
-    tree_id = models.IntegerField(_('tree id'), null=False)
-    chil_id = models.IntegerField(_('child id'), null=False)
-    fami_id = models.IntegerField(_('family id'), null=False)
-    husb_id = models.IntegerField(_('husband id'), null=False)
-    husb_givn = models.CharField(_('husband given name'), max_length=120, blank=True, null=True)
-    husb_surn = models.CharField(_('husband surname'), max_length=120, blank=True, null=True)
-    husb_role = models.CharField(_('husband role'), choices=PARENT_RELAT_SELECT, max_length=20, blank=True, null=True)
-    husb_mmr_id = models.IntegerField(_('husband multimedia record id'), null=True)
-    wife_id = models.IntegerField(_('wife id'), null=False)
-    wife_givn = models.CharField(_('wife given name'), max_length=120, blank=True, null=True)
-    wife_surn = models.CharField(_('wife surname'), max_length=120, blank=True, null=True)
-    wife_role = models.CharField(_('wife role'), choices=PARENT_RELAT_SELECT, max_length=20, blank=True, null=True)
-    wife_mmr_id = models.IntegerField(_('wife multimedia record id'), null=True)
-    pedi = models.CharField(_('pedigree linkage type').capitalize(), max_length=20, blank=True, null=True, choices=PEDI_SELECT, default='birth')
+class IndiLifeFamily(models.Model):
+    indi_id = models.IntegerField(_('individual id'), primary_key=True, null=False)
+    indi_sex = models.CharField(_('individual sex'), max_length=1, blank=True, null=True)
+    indi_full_name = models.CharField(_('individual full name'), max_length=250, blank=True, null=True)
+    indi_birth_date = models.CharField(_('individual date of birth'), max_length=15, blank=True, null=True)
+    indi_birth_place = models.CharField(_('individual place of birth'), max_length=120, blank=True, null=True)
+    indi_birth_place_lati = models.CharField(_('individual place of birth latitude'), max_length=10, blank=True, null=True)
+    indi_birth_place_long = models.CharField(_('individual place of birth longitude'), max_length=11, blank=True, null=True)
+    indi_death_date = models.CharField(_('individual date of death'), max_length=15, blank=True, null=True)
+    indi_death_place = models.CharField(_('individual place of death'), max_length=120, blank=True, null=True)
+    indi_death_place_lati = models.CharField(_('individual place of death latitude'), max_length=10, blank=True, null=True)
+    indi_death_place_long = models.CharField(_('individual place of death longitude'), max_length=11, blank=True, null=True)
+    fam_id = models.IntegerField(_('family id'), null=False)
+    father_id = models.IntegerField(_('father id'), null=False)
+    father_sex = models.CharField(_('father sex'), max_length=1, blank=True, null=True)
+    father_full_name = models.CharField(_('father full name'), max_length=250, blank=True, null=True)
+    father_birth_date = models.CharField(_('father date of birth'), max_length=15, blank=True, null=True)
+    father_birth_place = models.CharField(_('father place of birth'), max_length=120, blank=True, null=True)
+    father_birth_place_lati = models.CharField(_('father place of birth latitude'), max_length=10, blank=True, null=True)
+    father_birth_place_long = models.CharField(_('father place of birth longitude'), max_length=11, blank=True, null=True)
+    father_death_date = models.CharField(_('father date of death'), max_length=15, blank=True, null=True)
+    father_death_place = models.CharField(_('father place of death'), max_length=120, blank=True, null=True)
+    father_death_place_lati = models.CharField(_('father place of death latitude'), max_length=10, blank=True, null=True)
+    father_death_place_long = models.CharField(_('father place of death longitude'), max_length=11, blank=True, null=True)
+    mother_id = models.IntegerField(_('mother id'), null=False)
+    mother_sex = models.CharField(_('mother sex'), max_length=1, blank=True, null=True)
+    mother_full_name = models.CharField(_('mother full name'), max_length=250, blank=True, null=True)
+    mother_birth_date = models.CharField(_('mother date of birth'), max_length=15, blank=True, null=True)
+    mother_birth_place = models.CharField(_('mother place of birth'), max_length=120, blank=True, null=True)
+    mother_birth_place_lati = models.CharField(_('mother place of birth latitude'), max_length=10, blank=True, null=True)
+    mother_birth_place_long = models.CharField(_('mother place of birth longitude'), max_length=11, blank=True, null=True)
+    mother_death_date = models.CharField(_('mother date of death'), max_length=15, blank=True, null=True)
+    mother_death_place = models.CharField(_('mother place of death'), max_length=120, blank=True, null=True)
+    mother_death_place_lati = models.CharField(_('mother place of death latitude'), max_length=10, blank=True, null=True)
+    mother_death_place_long = models.CharField(_('mother place of death longitude'), max_length=11, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'family_vw_indi_families'
+        db_table = 'family_vw_indi_life_family'
 
-    def husb_thumbnail(self):
-        if self.husb_mmr_id:
-            return reverse('family:thumbnail_100', args=(self.tree_id,)) + '?mmr=' + str(self.husb_mmr_id)
-        return '/static/img/man.jpg'
+    def get_sex(self):
+        if self.indi_sex:
+            return self.indi_sex
+        return 'M'
 
-    def wife_thumbnail(self):
-        if self.wife_mmr_id:
-            return reverse('family:thumbnail_100', args=(self.tree_id,)) + '?mmr=' + str(self.wife_mmr_id)
-        return '/static/img/woman.jpg'
+    def get_event_date_in(self, lang: str, birth_date: str | None):
+        when = None
+        if birth_date:
+            date = DateValue.parse(birth_date)
+            when = date.get_when(lang)
+        return when
 
-class IndiSpouses(models.Model):
+    def get_event_place_in(self, lang: str, place: str | None):
+        ret = None
+        if not place:
+            ret = ''
+        else:
+            match lang:
+                case 'ru':  ret = 'в ' + place
+                case _:     ret = 'in ' + place
+        return ret
+
+    def indi_age_on_event_date(self, s_indi_birth: str | None, s_event_date: str | None, lang: str, genitive=False):
+        ret = prefix = ''
+        years = None
+        o_birth_date = DateValue.parse(s_indi_birth)
+        birth_date = o_birth_date.get_date()
+        o_event_date = DateValue.parse(s_event_date)
+        event_date = o_event_date.get_date()
+        if birth_date and event_date:
+            years = event_date.year - birth_date.year
+            dt = datetime(event_date.year, birth_date.month, birth_date.day)
+            if dt < event_date:
+                years -= 1
+        else:
+            birth_year = event_year = None
+            if birth_date:
+                birth_year = birth_date.year
+            else:
+                try:
+                    birth_year = int(s_indi_birth)
+                except:
+                    birth_year = None
+            if event_date:
+                event_year = event_date.year
+            else:
+                try:
+                    event_year = int(s_event_date)
+                except:
+                    event_year = None
+            if birth_year and event_year and birth_year > 1000 and birth_year <= datetime.now().year and event_year > 1000 and event_year <= datetime.now().year:
+                years = event_year - birth_year
+                match lang:
+                    case 'ru': prefix = 'около '
+                    case _:    prefix = 'about '
+        if years:
+            ret = f'{prefix}{years}'
+            if lang == 'ru':
+                if genitive:
+                    match years % 10:
+                        case 1: ret += ' года'
+                        case _: ret += ' лет'
+                else:
+                    match years % 10:
+                        case 1: ret += ' год'
+                        case 2: ret += ' года'
+                        case 3: ret += ' года'
+                        case 4: ret += ' года'
+                        case _: ret += ' лет'
+        return ret
+
+    def get_birth_info(self, lang):
+        ret = ''
+        if not self.indi_full_name:
+            return ret
+        birth_date_in = self.get_event_date_in(lang, self.indi_birth_date)
+        birth_place_in = self.get_event_place_in(lang, self.indi_birth_place)
+        if birth_date_in and birth_place_in:
+            birth_place_in = ' ' + birth_place_in
+        if birth_date_in or birth_place_in:
+            match lang, self.indi_sex:
+                case 'ru', 'F': ret = f'{self.indi_full_name} родилась {birth_date_in}{birth_place_in}'
+                case 'ru', 'M': ret = f'{self.indi_full_name} родился {birth_date_in}{birth_place_in}'
+                case _:         ret = f'{self.indi_full_name} was born {birth_date_in}{birth_place_in}'
+        return ret
+    
+    def get_death_info(self, lang):
+        ret = ''
+        if not self.indi_full_name:
+            return ret
+        death_date_in = self.get_event_date_in(lang, self.indi_death_date)
+        death_place_in = self.get_event_place_in(lang, self.indi_death_place)
+        if death_date_in and death_place_in:
+            death_place_in = ' ' + death_place_in
+        death_age = self.indi_age_on_event_date(self.indi_birth_date, self.indi_death_date, lang, True)
+        if death_age:
+            match lang:
+                case 'ru':  death_age = f' в возрасте {death_age}'
+                case _:     death_age = f' at the age of {death_age}'
+        if death_date_in or death_place_in:
+            match lang, self.indi_sex:
+                case 'ru', 'F': ret += f'умерла {death_date_in}{death_place_in}{death_age}'
+                case 'ru', 'M': ret += f'умер {death_date_in}{death_place_in}{death_age}'
+                case _:         ret += f'died {death_date_in}{death_place_in}{death_age}'
+        return ret
+    
+    def get_parents_age(self, lang):
+        father_name = self.father_full_name
+        father_age = self.indi_age_on_event_date(self.father_birth_date, self.indi_birth_date, lang)
+        mother_name = self.mother_full_name
+        mother_age = self.indi_age_on_event_date(self.mother_birth_date, self.indi_birth_date, lang)
+        match lang, self.indi_sex:
+            case 'ru', 'F': pronoun = 'её'
+            case 'ru', 'M': pronoun = 'его'
+            case 'en', 'F': pronoun = 'her'
+            case 'en', 'M': pronoun = 'his'
+            case _:         pronoun = 'his'
+        ret = ''
+        if father_age and father_age == mother_age:
+            match lang:
+                case 'ru': ret = f', {pronoun} отец {father_name} и мать {mother_name} были в возрасте {father_age}'
+                case _:    ret = f', {pronoun} father, {father_name}, and {pronoun} mother, {mother_name}, were {father_age}'
+        else:
+            if father_age and mother_age:
+                match lang:
+                    case 'ru': ret = f', {pronoun} отец {father_name} был в возрасте {father_age}, а мать {mother_name} в возрасте {mother_age}'
+                    case _:    ret = f', {pronoun} father, {father_name}, was {father_age} and {pronoun} mother, {mother_name}, was {mother_age}'
+            if father_age and not mother_age:
+                match lang:
+                    case 'ru': ret = f', {pronoun} отец {father_name} был в возрасте {father_age}'
+                    case _:    ret = f', {pronoun} father, {father_name}, was {father_age}'
+            if not father_age and mother_age:
+                match lang:
+                    case 'ru': ret = f', {pronoun} мать {mother_name} была в возрасте {mother_age}'
+                    case _:    ret = f', {pronoun} mother, {mother_name}, was {mother_age}'
+        return ret
+
+    def get_spouses_and_children(self):
+        ret = []
+        match self.get_sex():
+            case 'F':   indi_fams = FamRecord.objects.filter(wife=self.indi_id)
+            case _:     indi_fams = FamRecord.objects.filter(husb=self.indi_id)
+        for fam in indi_fams:
+            children = ChildToFamilyLink.objects.filter(fami=fam.id)
+            match self.get_sex():
+                case 'F':   spouse = fam.husb
+                case _:     spouse = fam.wife
+            spouse_name = ''
+            if spouse:
+                spouse_name = spouse.get_name()
+            ret.append({'spouse_name': spouse_name, 'child_num': len(children)})
+        return ret
+    
+    def get_indi_children(self, lang: str, info: str):
+        ret = ''
+        is_fem = self.get_sex() == 'F'
+        is_info = info != ''
+        is_first = True
+        fams = self.get_spouses_and_children()
+        for fam in fams:
+            spouse_name = fam['spouse_name']
+            if lang == 'ru':
+                if ret:
+                    ret += ', в'
+                else:
+                    ret += 'В'
+                if not spouse_name:
+                    spouse_name = 'неизвестным партнером'
+
+                ret += ' браке с ' + spouse_name
+                match is_first, is_fem, is_info:
+                    case True, True, True:  ret += ' у неё '
+                    case True, False, True: ret += ' у него '
+                    case True, _, False:    ret += f' у {self.indi_full_name} '
+                    case False, _, _:       ret += ' - '
+
+                match fam['child_num']:
+                    case 0: ret += 'детей нет'
+                    case 1: ret += '1 ребенок'
+                    case 2: ret += 'двое детей'
+                    case 3: ret += 'трое детей'
+                    case 4: ret += 'четверо детей'
+                    case 5: ret += 'пятеро детей'
+                    case _: ret += str(fam['child_num']) + ' детей'
+            else:
+                if ret:
+                    ret += ' and '
+                else:
+                    match is_first, is_fem, is_info:
+                        case True, True, True:  ret += 'She has '
+                        case True, False, True: ret += 'He has '
+                        case True, _, False:    ret += f'{self.indi_full_name} has '
+                        case False, _, _:       ret += ''
+
+                match fam['child_num']:
+                    case 0: ret += 'no children'
+                    case 1: ret += 'one child'
+                    case 2: ret += 'two children'
+                    case 3: ret += 'three children'
+                    case 4: ret += 'four children'
+                    case 5: ret += 'five children'
+                    case _: ret += str(fam['child_num']) + ' children'
+                if not spouse_name:
+                    spouse_name = 'unknown partner'
+                ret += ' with ' + spouse_name
+            is_first = False
+        if ret:
+            ret += '.'
+        return ret
+
+    def get_biography(self):
+        lang = get_language()
+        birth_info = self.get_birth_info(lang)
+        parents_age = self.get_parents_age(lang)
+        prefix = ''
+        if birth_info and parents_age:
+            match lang:
+                case 'ru':  prefix = 'Когда '
+                case _:     prefix = 'When '
+        ret = f'{prefix}{birth_info}{parents_age}'
+        death_info = self.get_death_info(lang)
+        if death_info:
+            if prefix:
+                ret += f'. {self.indi_full_name} {death_info}'
+            else:
+                if ret:
+                    match lang:
+                        case 'ru':  ret += f', а {death_info}'
+                        case _:     ret += f' and {death_info}'
+        if ret:
+            ret += '. '
+        indi_children = self.get_indi_children(lang, ret)
+        ret += indi_children
+        if not ret and self.indi_full_name:
+            match lang:
+                case 'ru':  ret = f'О {self.indi_full_name} нет никакой информации.'
+                case _:     ret = f'There is no information about {self.indi_full_name}.'
+        return ret
+    
+class IndiLifeChildren(models.Model):
     id = models.IntegerField(_('id'), primary_key=True, null=False)
-    spou_sort = models.CharField(_('spouses sorting field'), max_length=50, blank=True, null=True)
-    tree_id = models.IntegerField(_('tree id'), null=False)
-    fami_id = models.IntegerField(_('family id'), null=False)
-    indi_id = models.IntegerField(_('person id'), null=False)
-    spou_id = models.IntegerField(_('spouse id'), null=False)
-    spou_mmr_id = models.IntegerField(_('spouse multimedia record id'), null=True)
-    givn = models.CharField(_('spouse given name'), max_length=120, blank=True, null=True)
-    surn = models.CharField(_('spouse surname'), max_length=120, blank=True, null=True)
-    _marnm = models.CharField(_('spouse marriage name'), max_length=120, blank=True, null=True)
-    tag = models.CharField(_('family event tag'), max_length=10, blank=True, null=True)
-    value = models.CharField(_('family event value'), max_length=150, blank=True, null=True)
-    desc = models.CharField(_('family event description'), max_length=250, blank=True, null=True)
-    husb_age = models.CharField(_('husband age'), max_length=20, blank=True, null=True)
-    wife_age = models.CharField(_('wife age'), max_length=20, blank=True, null=True)
+    tree_id = models.IntegerField(_('family tree id'), null=False)
+    fam_id = models.IntegerField(_('family id'), null=False)
+    indi_id = models.IntegerField(_('individual id'), null=False)
+    spouse_id = models.IntegerField(_('spouse id'), null=False)
+    spouse_sex = models.CharField(_('spouse sex'), max_length=1, blank=True, null=True)
+    spouse_full_name = models.CharField(_('spouse full name'), max_length=250, blank=True, null=True)
+    child_id = models.IntegerField(_('child id'), null=False)
+    child_sex = models.CharField(_('child sex'), max_length=1, blank=True, null=True)
+    child_full_name = models.CharField(_('child full name'), max_length=250, blank=True, null=True)
+    child_birth_date = models.CharField(_('child date of birth'), max_length=15, blank=True, null=True)
+    child_death_date = models.CharField(_('child date of death'), max_length=15, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'family_vw_indi_life_children'
+
+class IndiLifeSpouses(models.Model):
+    tree_id = models.IntegerField(_('family tree id'), null=False)
+    fam_id = models.IntegerField(_('family id'), null=False)
+    role = models.CharField(_('the role of the individual in a couple'), max_length=27, blank=True, null=True)
+    indi_id = models.IntegerField(_('individual id'), null=False)
+    spouse_id = models.IntegerField(_('spouse id'), null=False)
+    indi_sex = models.CharField(_('individual sex'), max_length=1, blank=True, null=True)
+    indi_full_name = models.CharField(_('individual full name'), max_length=250, blank=True, null=True)
+    indi_birth_date = models.CharField(_('individual date of birth'), max_length=15, blank=True, null=True)
+    indi_birth_place = models.CharField(_('individual place of birth'), max_length=120, blank=True, null=True)
+    indi_death_date = models.CharField(_('individual date of death'), max_length=15, blank=True, null=True)
+    indi_death_place = models.CharField(_('individual place of death'), max_length=120, blank=True, null=True)
+    spouse_sex = models.CharField(_('spouse sex'), max_length=1, blank=True, null=True)
+    spouse_full_name = models.CharField(_('spouse full name'), max_length=250, blank=True, null=True)
+    spouse_birth_date = models.CharField(_('spouse date of birth'), max_length=15, blank=True, null=True)
+    spouse_birth_place = models.CharField(_('spouse place of birth'), max_length=120, blank=True, null=True)
+    spouse_death_date = models.CharField(_('spouse date of death'), max_length=15, blank=True, null=True)
+    spouse_death_place = models.CharField(_('spouse place of death'), max_length=120, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'family_vw_indi_life_spouses'
+
+class IndiLifeEvents(models.Model):
+    id = models.IntegerField(_('id'), primary_key=True, null=False)
+    indi_id = models.IntegerField(_('individual id'), null=False)
+    _sort = models.CharField(_('sort order'), max_length=20, blank=True, null=True)
+    tag = models.CharField(_('tag'), max_length=4, blank=True, null=True)
     type = models.CharField(_('event or fact classification'), max_length=90, blank=True, null=True)
-    date = models.CharField(_('family event date'), max_length=50, blank=True, null=True)
-    sort = models.CharField(_('family event date in sortable format'), max_length=50, blank=True, null=True)
-    agnc = models.CharField(_('responsible agency'), max_length=120, blank=True, null=True)
-    reli = models.CharField(_('religious affiliation'), max_length=90, blank=True, null=True)
+    value = models.CharField(_('event descriptor'), max_length=500, blank=True, null=True)
+    date = models.CharField(_('date value'), max_length=35, blank=True, null=True)
     caus = models.CharField(_('cause of event'), max_length=90, blank=True, null=True)
-    plac = models.CharField(_('place name'), max_length=120, blank=True, null=True)
-    map_lati = models.CharField(_('latitude'), max_length=10, blank=True, null=True)
-    map_long = models.CharField(_('longitude'), max_length=11, blank=True, null=True)
-    addr = models.CharField(_('address value'), max_length=500, blank=True, null=True)
-    addr_adr1 = models.CharField(_('address line 1'), max_length=60, blank=True, null=True)
-    addr_adr2 = models.CharField(_('address line 2'), max_length=60, blank=True, null=True)
-    addr_adr3 = models.CharField(_('address line 3'), max_length=60, blank=True, null=True)
-    addr_city = models.CharField(_('city'), max_length=60, blank=True, null=True)
-    addr_stae = models.CharField(_('state'), max_length=60, blank=True, null=True)
-    addr_post = models.CharField(_('postal code'), max_length=10, blank=True, null=True)
-    addr_ctry = models.CharField(_('country'), max_length=60, blank=True, null=True)
-    phon = models.CharField(_('phone number'), max_length=25, blank=True, null=True)
-    phon2 = models.CharField(_('phone number 2'), max_length=25, blank=True, null=True)
-    phon3 = models.CharField(_('phone number 3'), max_length=25, blank=True, null=True)
-    email = models.CharField(_('email'), max_length=120, blank=True, null=True)
-    email2 = models.CharField(_('email 2'), max_length=120, blank=True, null=True)
-    email3 = models.CharField(_('email 3'), max_length=120, blank=True, null=True)
-    fax = models.CharField(_('fax'), max_length=60, blank=True, null=True)
-    fax2 = models.CharField(_('fax 2'), max_length=60, blank=True, null=True)
-    fax3 = models.CharField(_('fax 3'), max_length=60, blank=True, null=True)
-    www = models.CharField(_('web page'), max_length=2047, blank=True, null=True)
-    www2 = models.CharField(_('web page 2'), max_length=2047, blank=True, null=True)
-    www3 = models.CharField(_('web page 3'), max_length=2047, blank=True, null=True)
-    owner = models.CharField(_('owner of this record'), max_length=20, blank=True, null=True)
+    plac = models.CharField(_('place name'), max_length=500, blank=True, null=True)
+    addr = models.CharField(_('address'), max_length=500, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'family_vw_indi_spouses'
-
-    def spou_thumbnail(self):
-        if self.spou_mmr_id:
-            return reverse('family:thumbnail_100', args=(self.tree_id,)) + '?mmr=' + str(self.spou_mmr_id)
-        return '/static/img/man.jpg'
+        db_table = 'family_vw_indi_life_events'
 
 class Gedcom(models.Model):
     tree = models.ForeignKey(FamTree, on_delete=models.CASCADE, verbose_name=_('family tree'), related_name='gedcom_tree')

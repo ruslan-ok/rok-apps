@@ -10,8 +10,7 @@ from django.shortcuts import get_object_or_404
 from rusel.base.context import Context
 from rusel.base.dir_forms import UploadForm
 from rusel.utils import extract_get_params
-from family.models import (FamTree, FamTreeUser, FamRecord, IndividualRecord, MultimediaRecord, RepositoryRecord, 
-    NoteStructure, SourceRecord, SubmitterRecord, Params, IndiInfo)
+from family.models import FamTree, FamTreeUser, FamRecord, IndividualRecord, MultimediaRecord, RepositoryRecord, NoteStructure, SourceRecord, SubmitterRecord, Params
 from family.config import app_config
 
 
@@ -25,7 +24,6 @@ class GenealogyContext(Context):
                 return []
             tree_id = int(tree.id)
             match group.view_id:
-                case 'individual': return IndiInfo.objects.filter(tree_id=tree_id)
                 case 'family': return FamRecord.objects.filter(tree=tree_id)
                 case 'media': return MultimediaRecord.objects.filter(tree=tree_id)
                 case 'repo': return RepositoryRecord.objects.filter(tree=tree_id)

@@ -8,16 +8,22 @@ app_config = {
     'main_view': 'diagram',
     'group_entity': 'tree',
     'views': {
+        'diagram': {
+            'title': _('Diagram'),
+            'icon': 'diagram-3', 
+            'hide_qty': True,
+        },
         'pedigree': {
             'title': _('Pedigree'),
             'icon': 'collection', 
             'use_important': True,
             'role': 'pedigree',
         },
-        'diagram': {
-            'title': _('Diagram'),
-            'icon': 'diagram-3', 
+        'person': {
+            'title': _('Person'),
+            'icon': 'person', 
             'hide_qty': True,
+            'role': 'individual',
         },
     }
 }

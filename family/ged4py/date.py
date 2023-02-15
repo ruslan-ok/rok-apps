@@ -12,6 +12,7 @@ __all__ = [
 import abc
 import enum
 import re
+from datetime import datetime
 
 from .calendar import CalendarDate, GregorianDate, DATE
 
@@ -271,6 +272,13 @@ class DateValue(metaclass=abc.ABCMeta):
     def __repr__(self):
         raise NotImplementedError()
 
+    @abc.abstractmethod
+    def get_date(self):
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def get_when(self, lang: str):
+        raise NotImplementedError()
 
 class DateValueSimple(DateValue):
     """Implementation of `DateValue` interface for simple single-value DATE.
@@ -306,6 +314,49 @@ class DateValueSimple(DateValue):
     def __repr__(self):
         return "{}(date={})".format(self.__class__.__name__, self.date)
 
+    def get_date(self):
+        sdt = str(self.date)
+        try:
+            return datetime.strptime(sdt, '%d %b %Y')
+        except:
+            return None
+    
+    def get_year(self):
+        sdt = str(self.date)
+        try:
+            return int(sdt)
+        except:
+            return None
+    
+    def get_when(self, lang: str):
+        dt = self.get_date()
+        ret = ''
+        if dt:
+            match lang:
+                case 'ru':  ret = f'{dt.day} {RU_MONTHS[dt.month-1]} {dt.year} года'
+                case _:     ret = 'in ' + dt.strftime('%B %d, %Y')
+        else:
+            yr = self.get_year()
+            if yr:
+                match lang:
+                    case 'ru':  ret = f'в {yr} году'
+                    case _:     ret = f'in {yr}'
+        return ret
+
+RU_MONTHS = [
+    'января',
+    'февраля',
+    'марта',
+    'апреля',
+    'мая',
+    'июня',
+    'июля',
+    'августа',
+    'сентября',
+    'октября',
+    'ноября',
+    'декабря',
+]
 
 class DateValueFrom(DateValue):
     """Implementation of `DateValue` interface for FROM date.
@@ -719,6 +770,13 @@ class DateValuePhrase(DateValue):
 
     def __repr__(self):
         return "{}(phrase={})".format(self.__class__.__name__, self.phrase)
+
+    def get_date(self):
+        return None
+    
+    def get_when(self, lang: str):
+        sdt = str(self.date)
+        return sdt
 
 
 DATES = (

@@ -1,6 +1,6 @@
---drop view family_vw_indi_spouses;
+--drop view family_vw_indi_spouse_events;
 
-create view family_vw_indi_spouses as
+create view family_vw_indi_spouse_events as
 with cte_events as (
 	select
 		d.id,
