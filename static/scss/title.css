@@ -1,0 +1,44 @@
+.dark-theme, .dark-theme:hover {
+  color: white;
+}
+
+h3.dark-theme {
+  color: rgb(216, 216, 216);
+}
+
+a.dark-theme, a.dark-theme:hover {
+  color: rgb(200, 237, 253);
+}
+
+.content-title {
+  font-size: 1.5rem;
+  display: flex;
+}
+.content-title .title {
+  display: flex;
+}
+.content-title .possible-related {
+  height: 44px;
+}
+.content-title__icon {
+  padding: 10px 20px;
+}
+.content-title__href {
+  margin: 10px 0;
+}
+.content-title__text {
+  margin: 10px 0;
+}
+.content-title__separator {
+  margin: 10px 5px;
+}
+
+.folder-mod-btn {
+  color: lightseagreen;
+  font-size: 0.8rem;
+}
+
+p.errornote {
+  color: #ba2121;
+  font-size: 0.8rem;
+}/*# sourceMappingURL=title.css.map */

@@ -35,8 +35,9 @@ class GenealogyContext(Context):
 
     def get_app_context(self, user_id, search_qty=None, icon=None, nav_items=None, role=None):
         self.config.set_view(self.request)
-        context = super().get_app_context(user_id, search_qty, icon, nav_items)
         cur_tree = Params.get_cur_tree(self.request.user)
+        title = cur_tree.name
+        context = super().get_app_context(user_id, search_qty, icon, nav_items, title=title)
         if cur_tree:
             context['current_group'] = str(cur_tree.id)
         context['api_role'] = 'famtree'

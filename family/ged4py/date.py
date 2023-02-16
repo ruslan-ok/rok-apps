@@ -322,6 +322,9 @@ class DateValueSimple(DateValue):
             return None
     
     def get_year(self):
+        as_date = self.get_date()
+        if as_date:
+            return str(as_date.year)
         sdt = str(self.date)
         try:
             return int(sdt)
@@ -772,6 +775,9 @@ class DateValuePhrase(DateValue):
         return "{}(phrase={})".format(self.__class__.__name__, self.phrase)
 
     def get_date(self):
+        return None
+    
+    def get_year(self):
         return None
     
     def get_when(self, lang: str):

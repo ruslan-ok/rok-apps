@@ -1,0 +1,132 @@
+.sidebar__fix-item {
+  display: flex !important;
+  justify-content: space-between !important;
+  overflow-x: auto;
+}
+.sidebar__fix-item.active {
+  background-color: rgba(112, 76, 167, 0.2);
+}
+.sidebar .dirs {
+  display: flex;
+  flex-direction: column;
+  max-width: 270px;
+}
+.sidebar .dirs .item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  padding: 2px 0;
+  margin-left: 0.25rem;
+  white-space: nowrap;
+}
+.sidebar .dirs .item a:hover {
+  background-color: inherit;
+}
+.sidebar .dirs .item .icon {
+  font-size: 0.6rem;
+}
+.sidebar .dirs .item .qty {
+  padding: 0 4px;
+}
+.sidebar .dirs .item:hover {
+  background-color: rgba(121, 82, 179, 0.1);
+}
+.sidebar .dirs .item.hidden {
+  display: none;
+}
+.sidebar .dirs .item.visible {
+  display: flex;
+  justify-content: space-between;
+}
+.sidebar .dirs .item.active {
+  background-color: rgba(112, 76, 167, 0.2);
+}
+.sidebar .dirs .item .level-0 {
+  margin-left: 0px;
+}
+.sidebar .dirs .item .level-1 {
+  margin-left: 10px;
+}
+.sidebar .dirs .item .level-2 {
+  margin-left: 20px;
+}
+.sidebar .dirs .item .level-3 {
+  margin-left: 30px;
+}
+.sidebar .dirs .item .level-4 {
+  margin-left: 40px;
+}
+.sidebar .dirs .item .level-5 {
+  margin-left: 50px;
+}
+.sidebar .dirs .item .level-6 {
+  margin-left: 60px;
+}
+.sidebar__groups {
+  display: flex !important;
+  flex-direction: column;
+}
+.sidebar__groups a.sidebar__group-hidden {
+  display: none;
+}
+.sidebar__groups a.sidebar__group-visible {
+  display: flex !important;
+  justify-content: space-between !important;
+}
+.sidebar__groups a.sidebar__group-visible.active {
+  background-color: rgba(112, 76, 167, 0.2);
+}
+.sidebar__groups a.sidebar__group-visible .level-0 {
+  margin-left: 0px;
+}
+.sidebar__groups a.sidebar__group-visible .level-1 {
+  margin-left: 10px;
+}
+.sidebar__groups a.sidebar__group-visible .level-2 {
+  margin-left: 20px;
+}
+.sidebar__groups a.sidebar__group-visible .level-3 {
+  margin-left: 30px;
+}
+.sidebar__groups a.sidebar__group-visible .level-4 {
+  margin-left: 40px;
+}
+.sidebar__groups a.sidebar__group-visible .level-5 {
+  margin-left: 50px;
+}
+.sidebar__groups a.sidebar__group-visible .level-6 {
+  margin-left: 60px;
+}
+.sidebar .add-form {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+.sidebar .add-form input {
+  border: 1px solid #aeaeae;
+  border-radius: 0.25rem;
+  padding: 5px;
+}
+.sidebar .add-form p.errornote {
+  color: #ba2121;
+}
+
+@media (max-width: 767.98px) {
+  .bd-sidebar {
+    margin: 0;
+  }
+}
+.bd-links {
+  font-weight: 400;
+  font-size: 0.9rem;
+}
+
+@media (min-width: 768px) {
+  .bd-links {
+    position: sticky;
+    top: 5rem;
+    display: block !important;
+    height: calc(100vh - 90px);
+    padding-left: 0.25rem;
+    margin-left: -0.25rem;
+    overflow-y: auto;
+  }
+}/*# sourceMappingURL=sidebar.css.map */

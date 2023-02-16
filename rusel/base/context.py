@@ -16,7 +16,10 @@ class Context:
     def get_app_context(self, user_id, search_qty=None, icon=None, nav_items=None, **kwargs):
         context = {}
         if hasattr(self, 'object') and self.object:
-            title = self.object.name
+            if callable(self.object.name):
+                title = self.object.name()
+            else:
+                title = self.object.name
         else:
             if 'title' in kwargs:
                 title = kwargs['title']

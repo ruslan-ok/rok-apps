@@ -27,8 +27,6 @@ class LogsView(Context, TuneData):
 @login_required(login_url='account:login')
 def log_view(request):
     view = LogsView(request)
-    context = view.get_app_context(request.user.id, icon=view.config.view_icon)
-    context['log_title'] = view.config.title
     dev = None
     if 'dev' in request.GET:
         dev = request.GET.get('dev')
@@ -47,8 +45,13 @@ def log_view(request):
                 case (const.APP_SERVICE, const.ROLE_MANAGER): data = BackgroundLogData()
                 case (const.APP_LOGS, const.ROLE_APACHE): data = ApacheLogData()
                 case _: data = ServiceLog(dev=dev, app=app, svc=svc)
+    context = {}
+    title = None
     if data:
         context.update(data.get_extra_context(request))
+        title = context.get('title', view.config.title)
+    context.update(view.get_app_context(request.user.id, icon=view.config.view_icon, title=title))
+    context['log_title'] = view.config.title
     template = loader.get_template(f'logs/{data.template_name}.html')
     return HttpResponse(template.render(context, request))
 

@@ -16,8 +16,8 @@ firebase-messaging-sw.js
 .project
 .pydevproject
 rusel-by-firebase-adminsdk-*.json
-static/scss/*.css
-static/scss/*.css.map
+scss/**/*.css
+scss/**/*.css.map
 static/backgrounds/*/*.*
 MailBackup.vbs
 *.pem
