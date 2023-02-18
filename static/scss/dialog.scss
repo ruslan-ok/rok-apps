@@ -16,32 +16,33 @@ body {
   max-width: 330px;
   padding: 15px;
   margin: auto;
-}
 
-.dialog-form .form-floating:focus-within {
-  z-index: 2;
-}
-
-.dialog-form input[type="text"] {
-  margin-top: 10px;
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
-.dialog-form input[type="email"] {
-  margin-top: 10px;
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
-.dialog-form input[type="password"] {
-  margin-top: 10px;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-}
-
-.dialog-form button {
-  margin-top: 10px;
+  .form-floating:focus-within {
+    z-index: 2;
+  }
+  
+  input[type="text"] {
+    margin-top: 10px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+  
+  input[type="email"] {
+    margin-top: 10px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+  
+  input[type="password"] {
+    margin-top: 10px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+  
+  button {
+    margin-top: 10px;
+  }
+  
 }
 
 ul.errorlist {

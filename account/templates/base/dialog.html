@@ -11,8 +11,8 @@
       {% if config.app_title %}{{ config.app_title }}{% if title %} - {% endif %}{% endif %}{% if title %}{{ title }}{% endif %}
     </title>
     <link rel="icon" type="image/png" href="/static/favicon.ico">
-    <link href="{% static 'scss/custom.css' %}" rel="stylesheet">
-    <link href="{% static 'css/dialog.css' %}" rel="stylesheet">
+    <link href="{% static 'css/common/custom.css' %}" rel="stylesheet">
+    <link href="{% static 'css/dialog.min.css' %}" rel="stylesheet">
     {% block extrastyle %}{% endblock %}
   </head>
   <body class="text-center">

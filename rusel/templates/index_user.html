@@ -3,11 +3,11 @@
 
 {% block extrastyle %}
   {{ block.super }}
-  <link href="{% static 'scss/tune.css' %}" rel="stylesheet">
-  <link href="{% static 'scss/home.css' %}" rel="stylesheet">
+  <link href="{% static 'css/tune.min.css' %}" rel="stylesheet">
+  <link href="{% static 'css/home.min.css' %}" rel="stylesheet">
   {% for widget in hp_widgets %}
     {% if widget.css %}
-      <link href="/static/scss/hp_widget/{{widget.css}}.css" rel="stylesheet">
+      <link href="/static/css/{{widget.css}}.min.css" rel="stylesheet">
     {% endif %}
   {% endfor %}
 {% endblock %}
