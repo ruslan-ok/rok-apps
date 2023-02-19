@@ -1,14 +1,5 @@
 {% extends "base/list.html" %}
-{% load static i18n %}
-
-{% block extrastyle %}
-    {{ block.super }}
-    <link href="{% static 'css/family.min.css' %}" rel="stylesheet">
-{% endblock %}
-
-{% block main %}
-  {{ block.super }}
-{% endblock %}
+{% load static %}
 
 {% block extrascript %}
   {{ block.super }}
