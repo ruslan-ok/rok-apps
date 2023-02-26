@@ -1,9 +1,12 @@
+import json
 from datetime import datetime
 from task.const import ROLE_FUEL, ROLE_APP, NUM_ROLE_FUEL
 from task.models import Task
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic.edit import FormView
 from rusel.base.views import BaseListView, BaseDetailView
+from rusel.base.context import Context
 from fuel.forms.fuel import CreateForm, EditForm
 from fuel.config import app_config
 
@@ -14,16 +17,23 @@ class ListView(LoginRequiredMixin, BaseListView):
     model = Task
     form_class = CreateForm
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+    def __init__(self):
+        super().__init__(app_config, role)
+
+    def get(self, request):
+        view = request.GET.get('view', '')
+        if view == 'map':
+            return FuelMapView.as_view()(request) 
+        ret = super().get(request)
+        return ret
 
 
 class DetailView(LoginRequiredMixin, BaseDetailView):
     model = Task
     form_class = EditForm
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+    def __init__(self):
+        super().__init__(app_config, role)
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -75,3 +85,27 @@ def get_info(item):
     attr.append({'text': _('summa: ') + '{:.2f}'.format(item.fuel_volume * item.fuel_price)})
     item.actualize_role_info(app, role, attr)
 
+class FuelMapView(LoginRequiredMixin, Context, FormView):
+    model = Task
+    form_class = CreateForm
+    template_name = 'fuel/map.html'
+
+    def __init__(self):
+        super().__init__()
+        self.set_config(app_config, ROLE_FUEL)
+
+    def get_context_data(self):
+        self.config.set_view(self.request)
+        context = super().get_context_data()
+        context.update(self.get_app_context(self.request.user.id))
+        tasks = Task.objects.filter(user=self.request.user.id).exclude(app_fuel=0).exclude(latitude=None).exclude(longitude=None)
+        gps_data = []
+        for task in tasks:
+            gps_data.append({
+                'name': task.name,
+                'url': task.get_absolute_url(),
+                'lat': task.latitude,
+                'lon': task.longitude,
+            })
+        context['gps_data'] = json.dumps(gps_data)
+        return context

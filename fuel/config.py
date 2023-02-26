@@ -51,6 +51,11 @@ app_config = {
                 ('start', _('date of commencement')),
             ],
         },
+        'map': {
+            'icon': 'geo-alt', 
+            'title': _('On the map'),
+            'hide_qty': True,
+        },
     }
 }
 
