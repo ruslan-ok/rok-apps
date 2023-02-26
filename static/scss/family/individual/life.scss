@@ -1,4 +1,3 @@
-
 :root {
     --ui-text-color: #262626;
     --ui-inverted-text-color: #fff;
@@ -7,14 +6,10 @@
     --ui-hr-color: rgba(0,0,0,0.1);
 }
 
-
 h1, h2, h3, h4, h5, h6 {
     font: 14.5px/1.33 ui-sans,Helvetica Neue,Arial,sans-serif;
     color: inherit;
     margin: 0;
-}
-
-address, caption, cite, code, em, h1, h2, h3, h4, h5, h6, th {
     font-style: normal;
     font-weight: 400;
 }
@@ -55,16 +50,16 @@ p {
     box-sizing: border-box;
 }
 
-.topSpacing {
+.topSpace {
     margin-top: 10px!important;
 }
 
-.storylineSection {
+.lifelineSection {
     position: relative;
 }
 
-.lifeStoryEvents {
-    .storyContent {
+.lifeEvents {
+    .lifeContent {
         position: relative;
         z-index: 2;
     }
@@ -79,41 +74,13 @@ p {
         min-height: 68px;
         padding: 0;
         position: relative;
-
-        .storyHiding {
-            display: none;
-        }
     }
-}
-
-.lifeStory {
-    .mapFigure .staticMap[src^=https], .timelineItemMapVisible .staticMap[src^=https] {
-        visibility: visible;
-    }
-
-    .showMapModal img {
-        height: 100%;
-        width: 100%;
-    }
-}
-
-.photo>img {
-    max-height: 100%;
-    max-width: 100%;
-    vertical-align: middle;
-}
-
-.page, .pageHeaderCenter, .pageIntro, .pageTitle {
-    max-width: 100%;
 }
 
 .page {
     margin: 0 auto;
-    width: 990px;
-}
-
-.pageWidth2 {
     width: 100%;
+    max-width: 100%;
 }
 
 @media (max-width: 1005px) {
@@ -126,33 +93,33 @@ p {
 }
 
 @media screen and (max-width: 767px) {
-    .personViewPages {
+    .indiPage {
         margin-bottom: -10px;
     }
 }
 
-.storyline {
+.lifeline {
     padding-left: 100px;
 }
 
 @media (max-width: 767px) {
-    .storyline:not(.storylineList) {
+    .lifeline:not(.lifelineList) {
         padding-left: 50px;
     }
 }
 
-.personPageStory .lifeStory {
+.indiLife .lifeInfo {
     margin: 0 auto;
     max-width: 950px;
     position: relative;
     z-index: 1;
 
-    .lifeStorySec {
+    .lifeSection {
         position: relative;
     }
 }
 
-.topSpacingBlock {
+.topSpaceBlock {
     margin-top: 20px!important;
 }
 
@@ -198,15 +165,15 @@ p {
     word-wrap: break-word;
 }
 
-.noTopSpacing, .noTopSpacing.topSpacing:first-child, .noTopSpacing.topSpacingBlock:first-child {
+.noTopSpace, .noTopSpace.topSpace:first-child, .noTopSpace.topSpaceBlock:first-child {
     margin-top: 0!important;
 }
 
-.ancBtn.silver.bgLight.bgLight, .bgDark .bgLight .ancBtn.silver, .callout .ancBtn.silver, .card .ancBtn.silver, .con:not(.conNoBorder) .ancBtn.silver, .conSecond:not(.conNoBorder) .ancBtn.silver, .modalHeader .ancBtn.silver, .pageHeader.bgColor8 .ancBtn.silver, .pageHeader .bgColor8 .ancBtn.silver, .sidebarScrollArea .ancBtn.silver {
+.lifeBtn.silver.bgLight.bgLight, .bgDark .bgLight .lifeBtn.silver, .callout .lifeBtn.silver, .card .lifeBtn.silver, .con:not(.conNoBorder) .lifeBtn.silver, .conSecond:not(.conNoBorder) .lifeBtn.silver, .modalHeader .lifeBtn.silver, .pageHeader.bgColor8 .lifeBtn.silver, .pageHeader .bgColor8 .lifeBtn.silver, .sidebarScrollArea .lifeBtn.silver {
     background: #ebebeb;
 }
 
-.lifeStoryNarrative {
+.lifeNarrative {
     .narrativeCon .conHeader {
         height: 0;
         position: relative;
@@ -220,16 +187,16 @@ p {
     }
 }
 
-.conHeader .ancBtn {
+.conHeader .lifeBtn {
     float: right;
 }
 
-.ancBtn.silver, .bgColor8 .ancBtn.silver {
+.lifeBtn.silver, .bgColor8 .lifeBtn.silver {
     background: #e2e0dd;
     color: var(--ui-text-color)!important;
 }
 
-.ancBtn {
+.lifeBtn {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
@@ -258,13 +225,9 @@ p {
     vertical-align: middle;
 }
 
-.ancGrid {
-    margin-left: -20px;
-    word-wrap: break-word;
-}
-
-.ancGridSmall {
+.lifeGrid {
     margin-left: -10px;
+    word-wrap: break-word;
 }
 
 .conTitle {
@@ -284,7 +247,7 @@ p {
     position: relative;
 }
 
-.lifeStoryNarrative .narrativeText {
+.lifeNarrative .narrativeText {
     min-height: 49px;
     margin-top: 0;
     white-space: pre-wrap;
@@ -294,7 +257,7 @@ p {
     margin-top: 0;
 }
 
-.lifeStoryFamily {
+.lifeFamily {
     .familyWrap {
         position: relative;
         z-index: 2;
@@ -306,7 +269,7 @@ p {
 }
 
 @media screen and (min-width: 768px), print {
-    .lifeStoryFamily {
+    .lifeFamily {
         .familyTree {
             section {
                 position: relative;
@@ -326,7 +289,7 @@ p {
     }
 }
 
-.hideVisually:not(:focus), .screenReaderText {
+.hideVisually:not(:focus) {
     height: 1px!important;
     line-height: 2em;
     margin: -1px;
@@ -337,11 +300,11 @@ p {
     width: 1px!important;
 }
 
-.colornormal, .textdefault, a.colornormal, a.textdefault {
+.colornormal, a.colornormal {
     color: var(--ui-text-color);
 }
 
-.lifeStoryNarrative .narrativeFooter, .lifeStoryNarrative .narrativeMenu {
+.lifeNarrative .narrativeFooter {
     display: none;
 }
 
@@ -415,14 +378,14 @@ p {
     text-size-adjust: 100%;
 }
 
-.storylineBullet.storylineBulletSize1 {
+.lifelineBullet.lifelineBulletSize1 {
     height: 40px;
     left: -80px;
     top: 5px;
     width: 40px;
 }
 
-.storylineBullet {
+.lifelineBullet {
     background-color: #7a7a77;
     border-radius: 50%;
     cursor: default;
@@ -434,18 +397,18 @@ p {
     z-index: 2;
 }
 
-.storylineBullet.storylineBulletSize1.icon:before {
+.lifelineBullet.lifelineBulletSize1.icon:before {
     font-size: 16px;
 }
 
 @media (max-width: 767px) {
-    .storylineBullet, .storylineBullet.storylineBulletSize1 {
+    .lifelineBullet, .lifelineBullet.lifelineBulletSize1 {
         left: -50px;
         top: 0;
     }
 }
 
-.storylineBullet.icon:before {
+.lifelineBullet.icon:before {
     color: #f5f5f5;
     font-size: 25px;
     height: 1em;
@@ -458,30 +421,30 @@ p {
     z-index: 0;
 }
 
-.storylineBulletHasText {
+.lifelineBulletHasText {
     color: var(--ui-inverted-text-color);
     display: table;
     text-align: center;
     text-transform: uppercase;
 
-    .storylineBulletText {
+    .lifelineBulletText {
         display: table-cell;
         vertical-align: middle;
     }
 
-    .storylineBulletSubtitle {
+    .lifelineBulletSubtitle {
         display: block;
         font-size: 12px;
         line-height: 1.1;
         margin: 0;
     }
 
-    .storylineBulletSubtitle+.storylineBulletTitle {
+    .lifelineBulletSubtitle+.lifelineBulletTitle {
         margin-top: -2px;
         margin-bottom: 0;
     }
 
-    .storylineBulletTitle {
+    .lifelineBulletTitle {
         display: block;
         font-size: 19px;
         font-weight: 700;
@@ -489,12 +452,12 @@ p {
     }
 }
 
-.personViewPages .lifeStory .storylineHasTrail::after {
+.indiPage .lifeInfo .lifelineHasTrail::after {
     height: calc(100% + 30px);
     top: 10px;
 }
 
-.storylineHasTrail:after {
+.lifelineHasTrail:after {
     background-color: #7a7a77;
     content: "";
     display: block;
@@ -507,7 +470,7 @@ p {
 }
 
 @media (max-width: 767px) {
-    .storylineHasTrail:after {
+    .lifelineHasTrail:after {
         left: -32px;
     }
 }
@@ -545,32 +508,6 @@ ul.userList {
     margin-top: 0;
 }
 
-#ropebagSkinnyFamily .svg .path {
-    stroke: var(--ui-genderless-connection-color);
-}
-
-.ropebag {
-    bottom: 0;
-    left: 0;
-    pointer-events: none;
-    position: absolute;
-    right: 0;
-    top: 0;
-    z-index: 1;
-
-    .svg {
-        display: block;
-        height: 100%;
-        position: absolute;
-        width: 100%;
-    }
-}
-
-.iconAvatarFemale:after, .userCardImg.icon.iconAvatarFemale:after, .userCardImg.icon.iconFemale:after {
-    color: #9d4225!important;
-    content: "\e913";
-}
-
 .bgDark {
     color: var(--ui-inverted-text-color);
 }
@@ -579,16 +516,11 @@ ul.userList {
     color: var(--ui-inverted-text-color);
 }
 
-.iconAvatarFemale:before, .userCardImg.icon.iconAvatarFemale:before, .userCardImg.icon.iconFemale:before {
-    color: #d06e54!important;
-    content: "\e912";
-}
-
 .bgDark.userCard, .bgDark .userCard, .bgDark .userCardContent, .bgDark .userCardInfo, .bgDark .userCardName {
     color: #f5f5f5;
 }
 
-.bgDark>.link, .bgDark>a {
+.bgDark>a {
     color: inherit;
 }
 
@@ -606,47 +538,15 @@ h4.userCardTitle {
     font-weight: 700;
 }
 
-.iconAvatarFemale, .userCardImg.icon.iconAvatarFemale, .userCardImg.icon.iconFemale {
+.userCardImg.icon.iconF {
     background-color: #eec4b2;
 }
 
-.bulleted li, .list li, .numbered li {
-    line-height: 1.4;
-    margin-top: 8px;
-}
-
-.list {
-    margin: 10px 0 0;
-}
-
-.iconArrowDown:before, .iconArrowDownAfter:after {
-    content: "\e621";
-    margin: 0;
-}
-
-.iconAfter:after {
-    margin-left: 0.25em;
-}
-
-.link {
-    -webkit-appearance: none;
-    background: none;
-    border: 0;
-    -webkit-box-shadow: none;
-    box-shadow: none;
-    color: var(--ui-link-color);
-    cursor: pointer;
-    font-size: inherit;
-    padding: 0;
-    text-align: left;
+.icon:active, .icon:focus, .icon:hover, a.icon, button.icon {
     text-decoration: none;
 }
 
-.icon:active, .icon:focus, .icon:hover, .iconAfter:active, .iconAfter:focus, .iconAfter:hover, a.icon, button.icon, button.iconAfter {
-    text-decoration: none;
-}
-
-.lifeStoryFamily {
+.lifeFamily {
 
     .card {
         padding: 0;
@@ -684,18 +584,6 @@ h4.userCardTitle {
     .userList:not(.showAll) .toggleSkinnyFamilyLI ul {
         display: none;
     }
-
-    .link {
-        background-color: transparent;
-        border-radius: 0;
-        margin-bottom: 7px;
-        padding-left: 7px;
-        padding-right: 7px;
-        text-align: left;
-        vertical-align: top;
-        white-space: nowrap;
-        width: 100%;
-    }
 }
 
 .userCardSize2 .userCardTitle {
@@ -710,13 +598,7 @@ h4.userCardTitle {
     width: 100%;
 }
 
-.iconAvatarMale:after, .userCardImg.icon.iconAvatarMale:after, .userCardImg.icon.iconMale:after {
-    color: #404a63!important;
-    content: "\e915";
-}
-
-.icon:before, .iconAfter:after {
-    font: normal 100%/0 ancestry-icon;
+.icon:before {
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;
     position: relative;
@@ -725,16 +607,12 @@ h4.userCardTitle {
     top: 0.12em;
 }
 
-.icon:after, .icon:before, .iconAfter:after {
+.icon:after, .icon:before {
     -webkit-print-color-adjust: exact;
 }
 
 .icon:before, span.icon {
     margin-right: 0.25em;
-}
-
-.iconFemale:before, .iconMale:before {
-    content: "\e64a";
 }
 
 .icon:empty:before {
@@ -750,8 +628,7 @@ h4.userCardTitle {
     position: static;
 }
 
-.iconAvatarFemale:after, .iconAvatarFemale:before, .iconAvatarMale:after, .iconAvatarMale:before, .iconAvatarPerson:before, .userCardImg.icon.iconFemale:after, .userCardImg.icon.iconFemale:before, .userCardImg.icon.iconMale:after, .userCardImg.icon.iconMale:before, .userCardImg.icon.iconPerson:before {
-    font: normal 1em/1em ancestry-icon;
+.userCardImg.icon.iconF:after, .userCardImg.icon.iconF:before, .userCardImg.icon.iconM:after, .userCardImg.icon.iconM:before {
     left: 0;
     position: absolute;
     speak: none;
@@ -759,17 +636,12 @@ h4.userCardTitle {
     top: 0;
 }
 
-.iconAvatarMale:before, .userCardImg.icon.iconAvatarMale:before, .userCardImg.icon.iconMale:before {
-    color: #7facc0!important;
-    content: "\e914";
-}
-
 .userCardSize2 .userCardImg.icon:before {
     font-size: 18px;
     line-height: 30px;
 }
 
-.userCardImg.icon.iconAvatarFemale.iconAvatarFemale:before, .userCardImg.icon.iconAvatarMale.iconAvatarMale:before, .userCardImg.icon.iconAvatarPerson.iconAvatarPerson:before, .userCardImg.icon.iconFemale.iconFemale:before, .userCardImg.icon.iconMale.iconMale:before, .userCardImg.icon.iconPerson.iconPerson:before {
+.userCardImg.icon.iconF.iconF:before, .userCardImg.icon.iconM.iconM:before {
     font-size: 1em;
     line-height: 1em;
 }
@@ -790,7 +662,7 @@ h4.userCardTitle {
     width: 50px;
 }
 
-.userCardImgNode, .userCardImgSquare {
+.userCardImgSquare {
     border-radius: 50% 0 50% 50%;
 }
 
@@ -810,11 +682,11 @@ h4.userCardTitle {
     width: 30px;
 }
 
-.iconAvatarMale, .userCardImg.icon.iconAvatarMale, .userCardImg.icon.iconMale {
+.userCardImg.icon.iconM {
     background-color: #c8dbe5;
 }
 
-.userCardImg.icon.iconAvatarFemale, .userCardImg.icon.iconAvatarMale, .userCardImg.icon.iconAvatarPerson, .userCardImg.icon.iconFemale, .userCardImg.icon.iconMale, .userCardImg.icon.iconPerson {
+.userCardImg.icon.iconF, .userCardImg.icon.iconM {
     border-radius: 50% 0 50% 50%;
     font-size: 50px;
     left: 0;
@@ -822,7 +694,7 @@ h4.userCardTitle {
     position: absolute;
 }
 
-.userCardSize2 .userCardImg.iconAvatarFemale, .userCardSize2 .userCardImg.iconAvatarMale, .userCardSize2 .userCardImg.iconAvatarPerson, .userCardSize2 .userCardImg.iconFemale, .userCardSize2 .userCardImg.iconMale, .userCardSize2 .userCardImg.iconPerson {
+.userCardSize2 .userCardImg.iconF, .userCardSize2 .userCardImg.iconM {
     font-size: 30px;
 }
 
@@ -847,7 +719,7 @@ h4.userCardTitle {
     padding-left: 40px;
 }
 
-.lifeStoryFamily.conNoBorder {
+.lifeFamily.conNoBorder {
     position: relative;
     text-align: left;
 }
@@ -856,7 +728,7 @@ input, select {
     padding: 0 6px;
 }
 
-label:not(.ancBtn), legend {
+label:not(.lifeBtn), legend {
     color: var(--ui-text-color);
     display: block;
     font-size: 14px;
@@ -892,7 +764,6 @@ label:not(.ancBtn), legend {
     font-weight: 700;
 }
 
-
-
-
-
+#map {
+    height: 300px; 
+}

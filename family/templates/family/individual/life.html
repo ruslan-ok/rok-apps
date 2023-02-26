@@ -1,0 +1,241 @@
+{% extends "base/page_content.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/life.min.css' %}" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+{% endblock %}
+
+{% block main %}
+    <div class="personView">
+        <header class="pageHeader bgDark bgColor1" "=""></header>
+        <hr class=" noTopSpace">
+        <div class="indiPage page" id="personTabsContent">
+            <div class="active" id="" tabindex="-1">
+                <div class="indiLife con conNoBorder" id="indiLife">
+                    <div class="lifeInfo lifeline">
+                        <section class="lifeSection lifeNarrative lifelineHasTrail topSpaceBlock"
+                            tabindex="-1">
+                            <div class="con conHasArrow conHasArrowLeftTop narrativeCon noTopSpace">
+                                <div class="conHeader"> 
+                                    <button class="lifeBtn silver sml editButton" onclick="onEdit();" type="button">{% trans 'Edit' %}</button>
+                                    <h2 class="conTitle hideVisually">{% trans 'Summary' %}</h2>
+                                </div>
+                                <div class="conBody lifeEvents">
+                                    <div class="narrativeText colornormal text3xlrg smallLineHeight"
+                                        id="narrativeText"
+                                        style="display: block;">{{ life_info.biography }}
+                                    </div>
+                                    <footer class="conFooter narrativeFooter noTopSpace">
+                                        <div class="lifeGrid topSpace">
+                                            <div class="lifeCol topSpace"> 
+                                                <button class="lifeBtn bgDark" type="button" onclick="onSave();">{% trans 'Save' %}</button>
+                                            </div>
+                                            <div class="lifeCol topSpace"> 
+                                                <button class="lifeBtn silver bgDark" onclick=" onCancel();" type="button">{% trans 'Cancel' %}</button> 
+                                            </div>
+                                        </div>
+                                    </footer>
+                                </div>
+                                <div class="conArrow"></div>
+                            </div>
+                            <div class="icon bi-book lifelineBullet lifelineBulletSize1">
+                            </div>
+                        </section>
+
+                        <section
+                            class="con conNoBorder lifeSection lifeFamily textWrap topSpaceBlock lifelineHasTrail">
+                            <div class="icon bi-people lifelineBullet lifelineBulletSize1">
+                            </div>
+                            <div class="conHeader hideVisually">
+                                <h2 class="conTitle">{{ life_info.family_title }}</h2>
+                            </div>
+                            <div class="conBody">
+                                <div class="familyWrap">
+                                    <div class="familyTree">
+                                        <section class="">
+                                            <h3 class="hideVisually">Children</h3>
+                                            <!-- Children -->
+                                            {% for child in life_info.children %}
+                                            <div class="card">
+                                                <ul class="userList" id="childrenList">
+                                                    <li class="userItem">
+                                                        <a class="userPerson"
+                                                            href="{% url 'family:individual-detail' tree_id child.get_id 'life' %}"
+                                                            id="belayConnect">
+                                                            <div class="userCard userCardSize2">
+                                                                <div class="userCardImg userCardImgSquare icon {% if child.get_sex == 'F' %}iconF{% else %}iconM{% endif %} bi-person">
+                                                                </div>
+                                                                <div class="userCardContent">
+                                                                    <h4 class="userCardTitle">{% if child.get_name %}{{ child.get_name }}{% endif %}</h4>
+                                                                </div>
+                                                            </div>
+                                                        </a>
+                                                    </li>
+                                                    <div class="treeSecSplit"></div>
+                                                </ul>
+                                            </div>
+                                            {% endfor %}
+                                        </section>
+                                        <section class="treeSec">
+                                            <h3 class="hideVisually">Selected person</h3>
+                                            <!-- Individual -->
+                                            <div class="treeSecSplit">
+                                                <div class="card bgColor1 bgDark"> <a class="userPerson"
+                                                        href="{% url 'family:individual-detail' tree_id life_info.indi_family.indi_id 'life' %}"
+                                                        id="SkinnyFocusPerson">
+                                                        <div class="userCard userCardSize2">
+                                                            <div class="userCardImg userCardImgSquare icon {% if life_info.indi_family.indi_sex == 'F' %}iconF{% else %}iconM{% endif %} bi-person"></div>
+                                                            <div class="userCardContent">
+                                                                <h4 class="userCardTitle">{% if life_info.indi_family.indi_full_name %}{{ life_info.indi_family.indi_full_name }}{% endif %}</h4>
+                                                            </div>
+                                                        </div>
+                                                    </a> </div>
+                                            </div>
+                                            <!-- Spouses -->
+                                            {% for spouse in life_info.spouses %}
+                                            <div class="treeSecSplit">
+                                                <div class="card">
+                                                    <ul class="userList showDefault1" id="childrenList">
+                                                        <li class="userItem">
+                                                            <a class="userPerson"
+                                                                href="{% url 'family:individual-detail' tree_id spouse.get_id 'life' %}"
+                                                                id="belayConnect">
+                                                                <div class="userCard userCardSize2">
+                                                                    <div class="userCardImg userCardImgSquare icon {% if spouse.get_sex == 'F' %}iconF{% else %}iconM{% endif %} bi-person"></div>
+                                                                    <div class="userCardContent">
+                                                                        <h4 class="userCardTitle">{% if spouse.get_name %}{{ spouse.get_name }}{% endif %}</h4>
+                                                                    </div>
+                                                                </div>
+                                                            </a>
+                                                        </li>
+                                                        <div class="treeSecSplit"></div>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </section>
+                                        <!-- Parents -->
+                                        <section class="treeSec">
+                                            <h3 class="hideVisually">Parents</h3>
+                                            <div class="treeSecSplit">
+                                                <div class="card"> 
+                                                    {% if life_info.indi_family.father_id %}
+                                                    <a class="userPerson SkinnyFocusPerson"
+                                                        href="{% url 'family:individual-detail' tree_id life_info.indi_family.father_id 'life' %}">
+                                                    {% endif %}
+                                                        <div class="userCard userCardSize2">
+                                                            <div class="userCardImg userCardImgSquare icon {% if life_info.indi_family.father_sex == 'F' %}iconF{% else %}iconM{% endif %} bi-person"></div>
+                                                            <div class="userCardContent">
+                                                                <h4 class="userCardTitle">{% if life_info.indi_family.father_full_name %}{{ life_info.indi_family.father_full_name }}{% endif %}</h4>
+                                                            </div>
+                                                        </div>
+                                                    {% if life_info.indi_family.father_id %}
+                                                    </a>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="treeSecSplit">
+                                                <div class="card"> 
+                                                    {% if life_info.indi_family.mother_id %}
+                                                    <a class="userPerson SkinnyFocusPerson"
+                                                        href="{% url 'family:individual-detail' tree_id life_info.indi_family.mother_id 'life' %}">
+                                                    {% endif %}
+                                                        <div class="userCard userCardSize2">
+                                                            <div class="userCardImg userCardImgSquare icon {% if life_info.indi_family.mother_sex == 'F' %}iconF{% else %}iconM{% endif %} bi-person"></div>
+                                                            <div class="userCardContent">
+                                                                <h4 class="userCardTitle">{% if life_info.indi_family.mother_full_name %}{{ life_info.indi_family.mother_full_name }}{% endif %}</h4>
+                                                            </div>
+                                                        </div>
+                                                    {% if life_info.indi_family.mother_id %}
+                                                    </a>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </section>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Map -->
+                        <section id="map-section" class="lifeSection topSpaceBlock lifelineHasTrail">
+                            <div class="icon bi-geo-alt lifelineBullet lifelineBulletSize1"></div>
+                            <div class="con conHasArrow conHasArrowLeftTop">
+                                <div class="conHeader hideVisually">
+                                    <h2 class="conTitle">{{ life_info.indi_family.map_title }}</h2>
+                                </div>
+                                <div class="conBody">
+                                    <div id="map">
+                                        <span id="map-points" class="d-none">{{ life_info.map_points }}</span>
+                                    </div>
+                                </div>
+                                <div class="conArrow"></div>
+                            </div>
+                        </section>
+
+                        <!-- Events -->
+                        <section class="lifeSection lifeEvents topSpaceBlock">
+                            <h2 class="hideVisually">Life Events</h2>
+                            <ul class="timelineList">
+                                {% for event in life_info.events %}
+                                <li class="topSpace lifelineSection {% if not event.is_last %}lifelineHasTrail{% endif %} timelineItem"
+                                    id="event-{{ event.id }}" tabindex="-1">
+                                    <div class="lifelineBullet lifelineBulletHasText">
+                                        <div class="lifelineBulletText">
+                                            <p class="lifelineBulletSubtitle">{{ event.date.day_month }}</p>
+                                            <h3 class="lifelineBulletTitle">{{ event.date.year|escape }}</h3>
+                                            {% if event.age %}<p class="lifelineBulletSubtitle">{% trans 'AGE' %} {{ event.age }}</p>{% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="lifeContent conHasArrow conHasArrowLeftTop {% if event.bg_white %}conSecond{% else %}conThird{% endif %}">
+                                        <div class="conHeader">
+                                            <h4 class="conTitle storyType">{{ event.type_name }}</h4>
+                                        </div>
+                                        <div class="conBody">
+                                            <p class="storyNarr text2xlrg">{{ event.descr }}</p>
+                                            {% if event.person %}
+                                                <div class="topSpaceBlock">
+                                                    <a class="targetPerson"
+                                                        href="{% url 'family:individual-detail' tree_id event.person.get_id 'life' %}">
+                                                        <div
+                                                            class="noTopSpace userCard userCardSize2 userCardInline">
+                                                            <div class="userCardImg userCardImgSquare icon {% if event.person.get_sex == 'F' %}iconF{% else %}iconM{% endif %} bi-person">
+                                                            </div>
+                                                            <div class="userCardContent textWrap">
+                                                                <h4 class="userCardTitle">{{ event.person.get_name }}</h4>
+                                                                <p class="userCardSubTitle noTopSpace">{{ event.person.get_live_time }}</p>
+                                                            </div>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                            {% endif %}
+                                            <p class="bold">
+                                                {% if event.date %}
+                                                    <span class="">{{ event.date.full }}</span>
+                                                    {% if event.place %}&nbsp;•&nbsp;<span class="">{{ event.place }}</span>{% endif %}
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                        <div class="conArrow"></div>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'js/family/life.js' %}"></script>
+{% endblock %}
