@@ -1,5 +1,3 @@
-let mymap;
-
 getLocation();
 
 function getLocation() {
@@ -30,41 +28,32 @@ function getQueryVariable(variable) {
 
 function showMap(latitude, longitude)
 {
-  mymap = L.map('mapid');
+  var map = L.map('mapid');
 
   let gps_data = document.getElementById('id_data').value;
   let gps_corr = gps_data.replace(/'/g,'"');
   let photos = JSON.parse(gps_corr);
-  
-  if (photos.length == 0)
-    mymap.setView([latitude, longitude], 7);
-  else
-    if (photos.length == 1)
-      mymap.setView([photos[0]["lat"], photos[0]["lon"]], 11); // Чем больше, тем ближе
-    else
-    {
-      let corner1 = L.latLng(photos[0]["lat"], photos[0]["lon"]),
-      corner2 = L.latLng(photos[1]["lat"], photos[1]["lon"]),
-      bounds = L.latLngBounds(corner1, corner2);  
-      for (i = 2; i < photos.length; i++) {
-        bounds.extend([photos[i]["lat"], photos[i]["lon"]]);
-      }
-      mymap.fitBounds(bounds);
-    }
 
-  L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-    maxZoom: 18,
-    id: 'mapbox/streets-v11',
-    tileSize: 512,
-    zoomOffset: -1,
-    accessToken: 'pk.eyJ1IjoicnVzbGFuLW9rIiwiYSI6ImNrYmlkYjZ2NzBjMTYydHFpOWZqbm1lbDEifQ.dIV9rLOkKDBE7GzJplVzRA'
-  }).addTo(mymap);
+  L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+  
+  if (photos.length == 0) {
+    map.setView([latitude, longitude], 7);
+    return;
+  }
 
   const folder = getQueryVariable('folder');
-
+  var markers = L.markerClusterGroup();
+  
   for (i = 0; i < photos.length; i++) {
-    let marker = L.marker([photos[i]["lat"], photos[i]["lon"]]).addTo(mymap);
-    marker.bindPopup(photos[i]["name"] + '<br><a href="/photo/image/?folder=' + folder + '&photo_num=' + photos[i]["num"] + '"><img src="/photo/get_mini/' + photos[i]["id"] + '">').openPopup();
+    var a = photos[i];
+    var title = a["name"] + '<br><a href="/photo/image/?folder=' + folder + '&photo_num=' + a["num"] + '"><img src="/photo/get_mini/' + a["id"] + '">';
+    var marker = L.marker(new L.LatLng(a['lat'], a['lon']));
+    marker.bindPopup(title);
+    markers.addLayer(marker);
   }
+
+  map.addLayer(markers);
+  map.fitBounds(markers.getBounds().pad(0.5), {maxZoom: 13});
 }

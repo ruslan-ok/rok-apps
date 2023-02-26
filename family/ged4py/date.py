@@ -273,11 +273,7 @@ class DateValue(metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def get_date(self):
-        raise NotImplementedError()
-
-    @abc.abstractmethod
-    def get_when(self, lang: str):
+    def get_str_date(self):
         raise NotImplementedError()
 
 class DateValueSimple(DateValue):
@@ -314,38 +310,18 @@ class DateValueSimple(DateValue):
     def __repr__(self):
         return "{}(date={})".format(self.__class__.__name__, self.date)
 
-    def get_date(self):
+    def get_str_date(self):
         sdt = str(self.date)
         try:
-            return datetime.strptime(sdt, '%d %b %Y')
+            dt = datetime.strptime(sdt, '%d %b %Y')
+            return dt.strftime('%Y-%m-%d')
         except:
-            return None
+            try:
+                yr = int(sdt)
+                return str(yr)
+            except:
+                return ''
     
-    def get_year(self):
-        as_date = self.get_date()
-        if as_date:
-            return str(as_date.year)
-        sdt = str(self.date)
-        try:
-            return int(sdt)
-        except:
-            return None
-    
-    def get_when(self, lang: str):
-        dt = self.get_date()
-        ret = ''
-        if dt:
-            match lang:
-                case 'ru':  ret = f'{dt.day} {RU_MONTHS[dt.month-1]} {dt.year} года'
-                case _:     ret = 'in ' + dt.strftime('%B %d, %Y')
-        else:
-            yr = self.get_year()
-            if yr:
-                match lang:
-                    case 'ru':  ret = f'в {yr} году'
-                    case _:     ret = f'in {yr}'
-        return ret
-
 RU_MONTHS = [
     'января',
     'февраля',
@@ -774,17 +750,9 @@ class DateValuePhrase(DateValue):
     def __repr__(self):
         return "{}(phrase={})".format(self.__class__.__name__, self.phrase)
 
-    def get_date(self):
-        return None
+    def get_str_date(self):
+        return ''
     
-    def get_year(self):
-        return None
-    
-    def get_when(self, lang: str):
-        sdt = str(self.date)
-        return sdt
-
-
 DATES = (
     (re.compile(DATE_PERIOD, re.X | re.I), DateValuePeriod),
     (re.compile(DATE_PERIOD_FROM, re.X | re.I), DateValueFrom),

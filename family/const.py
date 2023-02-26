@@ -81,7 +81,7 @@ FOST_PL = 3
 # SEAL_PL = 4
 
 PEDIGREE_LINK_MODE = [
-    (UNKN_PL, _('-------')),   # unknown
+    (UNKN_PL, '-------'),      # unknown
     (ADOP_PL, _('adopted')),   # indicates adoptive parents
     (BIRT_PL, _('birth')),     # indicates birth parents
     (FOST_PL, _('foster')),    # indicates child was included in a foster or guardian family
