@@ -1326,24 +1326,6 @@ class TaskInfo(models.Model):
 
 
 
-class HealthStat(models.Model):
-    """
-    Health statistics
-    """
-    user_id = models.IntegerField('User id', null=False)
-    mark = models.CharField('Metrics', max_length=20, blank=True)
-    max_value = models.DecimalField('Max value', blank=True, null=True, max_digits=10, decimal_places=1)
-    min_value = models.DecimalField('Min value', blank=True, null=True, max_digits=10, decimal_places=1)
-    max_date = models.DateField('Max date', blank=True, null=True)
-    min_date = models.DateField('Min date', blank=True, null=True)
-    max_value_date = models.DateField('Max value date', blank=True, null=True)
-    min_value_date = models.DateField('Min value date', blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'vw_health_stat'
-
-
 CURRENT = 1
 HISTORICAL = 2
 FORECASTED_HOURLY = 3
