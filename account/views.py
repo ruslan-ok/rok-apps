@@ -28,7 +28,7 @@ from account.forms import (LoginForm, RegisterForm, PasswordResetForm, SetPasswo
 
 from django.core.mail import send_mail
 from django.core.exceptions import ValidationError
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 
 import hashlib
 from django.utils.crypto import get_random_string
@@ -212,6 +212,8 @@ def register(request):
                 newUser.activation_key = activation_key
                 newUser.user = u
                 newUser.save()
+                main_group = Group.objects.get(name='Users')
+                u.groups.add(main_group)
                 return HttpResponseRedirect(reverse_lazy('account:login'))
     else:
         f = RegisterForm()
@@ -478,7 +480,9 @@ def avatar(request):
 def demo(request):
     demouserpassword = os.environ.get('DJANGO_DEMOUSER_PWRD')
     if not User.objects.filter(username = 'demouser').exists():
-        User.objects.create_user('demouser', 'demouser@rusel.by', demouserpassword)
+        user = User.objects.create_user('demouser', 'demouser@rusel.by', demouserpassword)
+        main_group = Group.objects.get(name='Users')
+        user.groups.add(main_group)
     user = authenticate(username='demouser', password=demouserpassword)
     if user is not None:
         login(request, user)

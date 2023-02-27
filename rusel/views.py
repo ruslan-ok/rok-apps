@@ -34,16 +34,27 @@ class ListView(BaseListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         hp_widgets = []
-        hp_widgets.append({'id': 'weather', 'css': 'weather', })
-        hp_widgets.append({'id': 'currency', 'css': 'currency', })
-        if (self.request.user.username == 'ruslan.ok'):
-            hp_widgets.append({'id': 'crypto', 'css': 'crypto', })
-            hp_widgets.append({'id': 'health', })
-            hp_widgets.append({'id': 'logs', 'css': 'logs', })
-        hp_widgets.append({'id': 'todo', 'css': 'todo', 'js': 'todo', })
-        hp_widgets.append({'id': 'visited', 'css': 'visited', })
+        for hpw in HP_WIDGETS:
+            id = hpw[0]
+            css = hpw[1]
+            perm = hpw[2]
+            if perm and not self.request.user.has_perm(perm):
+                continue
+            if perm and self.request.user.is_superuser:
+                continue
+            hp_widgets.append({'id': id, 'css': css, })        
         context['hp_widgets'] = hp_widgets
         return context
+    
+HP_WIDGETS = [
+    ('weather', 'weather', ''),
+    ('currency', 'currency', ''),
+    ('crypto', 'crypto', 'task.view_entry'),
+    ('health', '', 'task.view_health'),
+    ('logs', 'logs', 'task.view_logs'),
+    ('todo', 'todo', 'task.view_todo'),
+    ('visited', 'visited', ''),
+]
 
 def get_doc(request, role, pk, fname):
     return get_app_doc(request, role, pk, fname)

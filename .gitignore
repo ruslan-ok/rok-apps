@@ -21,6 +21,7 @@ static/css/*.css.map
 static/backgrounds/*/*.*
 MailBackup.vbs
 *.pem
+unpublished/*
 
 
 # Windows image file caches

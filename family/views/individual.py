@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import List
 from dataclasses import dataclass
 from django.utils.translation import gettext_lazy as _, pgettext_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.utils.formats import date_format
 from family.ged4py.date import DateValue
 from family.views.base import GenealogyDetailsView
@@ -95,10 +96,11 @@ class IndiEvent:
             'map': event_map,
         }
 
-class IndividualDetailsView(GenealogyDetailsView):
+class IndividualDetailsView(GenealogyDetailsView, LoginRequiredMixin, PermissionRequiredMixin):
     model = IndividualRecord
     form_class = EditIndividualForm
     template_name = 'family/individual/life.html'
+    permission_required = 'family.change_pedigree'
 
     def get_template_names(self) -> List[str]:
         ret = super().get_template_names()

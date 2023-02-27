@@ -2,6 +2,7 @@ import os
 from dataclasses import dataclass
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.shortcuts import get_object_or_404
 from django.template import loader
 from django.http import HttpResponse, FileResponse, HttpResponseNotFound
@@ -27,10 +28,11 @@ class Pedigree:
         return [{'text': self.mod_date}, {'text': f'{self.num_indi} Individuals'}, {'text': f'{self.num_fam} Families'}]
 
 
-class PedigreeListView(GenealogyListView):
+class PedigreeListView(GenealogyListView, LoginRequiredMixin, PermissionRequiredMixin):
     model = FamTreeUser
     form_class = CreateFamTreeForm
     template_name = 'family/pedigree/list.html'
+    permission_required = 'family.view_pedigree'
 
     def get_queryset(self):
         ft = FamTreeUser.objects.filter(user_id=self.request.user.id, can_view=True)
@@ -57,10 +59,11 @@ class PedigreeListView(GenealogyListView):
     def post(self, request):
         return UploadGedcomView.as_view()(request) 
 
-class PedigreeDetailsView(GenealogyDetailsView):
+class PedigreeDetailsView(GenealogyDetailsView, LoginRequiredMixin, PermissionRequiredMixin):
     model = FamTree
     form_class = EditFamTreeForm
     template_name = 'family/pedigree/detail.html'
+    permission_required = 'family.change_pedigree'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

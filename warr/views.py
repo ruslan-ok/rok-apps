@@ -1,5 +1,5 @@
 from datetime import datetime, date
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from task.const import ROLE_WARR, ROLE_APP
 from task.models import Task
 from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView
@@ -19,16 +19,18 @@ class TuneData:
                 return data.filter(stop__lt=datetime.today())
         return data
 
-class ListView(LoginRequiredMixin, BaseListView, TuneData):
+class ListView(LoginRequiredMixin, PermissionRequiredMixin, BaseListView, TuneData):
     model = Task
     form_class = CreateForm
+    permission_required = 'task.view_warranty'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
-class DetailView(LoginRequiredMixin, BaseDetailView, TuneData):
+class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView, TuneData):
     model = Task
     form_class = EditForm
+    permission_required = 'task.change_warranty'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)

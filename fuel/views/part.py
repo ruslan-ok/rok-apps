@@ -1,6 +1,6 @@
 from datetime import datetime
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from task.const import NUM_ROLE_PART, ROLE_PART, ROLE_APP
 from task.models import Task
 from rusel.base.views import BaseListView, BaseDetailView
@@ -11,9 +11,10 @@ from fuel.utils import month_declination
 role = ROLE_PART
 app = ROLE_APP[role]
 
-class ListView(LoginRequiredMixin, BaseListView):
+class ListView(LoginRequiredMixin, PermissionRequiredMixin, BaseListView):
     model = Task
     form_class = CreateForm
+    permission_required = 'task.view_fuel'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
@@ -22,9 +23,10 @@ class ListView(LoginRequiredMixin, BaseListView):
         return ['fuel/list.html']
 
 
-class DetailView(LoginRequiredMixin, BaseDetailView):
+class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView):
     model = Task
     form_class = EditForm
+    permission_required = 'task.change_fuel'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)

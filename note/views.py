@@ -1,4 +1,4 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from task.const import ROLE_NOTE, ROLE_APP
 from task.models import Task
 from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView
@@ -9,17 +9,19 @@ from note.get_info import get_info
 role = ROLE_NOTE
 app = ROLE_APP[role]
 
-class ListView(LoginRequiredMixin, BaseListView):
+class ListView(LoginRequiredMixin, PermissionRequiredMixin, BaseListView):
     model = Task
     form_class = CreateForm
+    permission_required = 'task.view_note'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
 
-class DetailView(LoginRequiredMixin, BaseDetailView):
+class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView):
     model = Task
     form_class = EditForm
+    permission_required = 'task.change_note'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)

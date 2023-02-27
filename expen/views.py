@@ -1,5 +1,5 @@
 from django.utils.translation import gettext_lazy as _, pgettext_lazy
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.utils import formats
 from task.const import ROLE_EXPENSE, ROLE_APP
 from task.models import Task, TaskGroup
@@ -11,9 +11,10 @@ from expen.get_info import get_info
 role = ROLE_EXPENSE
 app = ROLE_APP[role]
 
-class ListView(LoginRequiredMixin, BaseListView):
+class ListView(LoginRequiredMixin, PermissionRequiredMixin, BaseListView):
     model = Task
     form_class = CreateForm
+    permission_required = 'task.view_expense'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
@@ -26,9 +27,10 @@ class ListView(LoginRequiredMixin, BaseListView):
         return context
 
 
-class DetailView(LoginRequiredMixin, BaseDetailView):
+class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView):
     model = Task
     form_class = EditForm
+    permission_required = 'task.change_expense'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)

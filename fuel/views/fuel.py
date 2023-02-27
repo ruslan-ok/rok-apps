@@ -3,7 +3,7 @@ from datetime import datetime
 from task.const import ROLE_FUEL, ROLE_APP, NUM_ROLE_FUEL
 from task.models import Task
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.views.generic.edit import FormView
 from rusel.base.views import BaseListView, BaseDetailView
 from rusel.base.context import Context
@@ -13,9 +13,10 @@ from fuel.config import app_config
 role = ROLE_FUEL
 app = ROLE_APP[role]
 
-class ListView(LoginRequiredMixin, BaseListView):
+class ListView(LoginRequiredMixin, PermissionRequiredMixin, BaseListView):
     model = Task
     form_class = CreateForm
+    permission_required = 'task.view_fuel'
 
     def __init__(self):
         super().__init__(app_config, role)
@@ -28,9 +29,10 @@ class ListView(LoginRequiredMixin, BaseListView):
         return ret
 
 
-class DetailView(LoginRequiredMixin, BaseDetailView):
+class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView):
     model = Task
     form_class = EditForm
+    permission_required = 'task.change_fuel'
 
     def __init__(self):
         super().__init__(app_config, role)
@@ -85,10 +87,11 @@ def get_info(item):
     attr.append({'text': _('summa: ') + '{:.2f}'.format(item.fuel_volume * item.fuel_price)})
     item.actualize_role_info(app, role, attr)
 
-class FuelMapView(LoginRequiredMixin, Context, FormView):
+class FuelMapView(LoginRequiredMixin, PermissionRequiredMixin, Context, FormView):
     model = Task
     form_class = CreateForm
     template_name = 'fuel/map.html'
+    permission_required = 'task.view_fuel'
 
     def __init__(self):
         super().__init__()

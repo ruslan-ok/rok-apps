@@ -1,6 +1,6 @@
 from datetime import datetime
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.http import HttpResponse
 from django.template import loader
 from task.const import ROLE_STORE, ROLE_APP, NUM_ROLE_STORE
@@ -22,17 +22,19 @@ class TuneData:
                 return data.filter(completed=True)
         return data
 
-class ListView(LoginRequiredMixin, BaseListView, TuneData):
+class ListView(LoginRequiredMixin, PermissionRequiredMixin, BaseListView, TuneData):
     model = Task
     form_class = CreateForm
+    permission_required = 'task.view_entry'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
 
-class DetailView(LoginRequiredMixin, BaseDetailView, TuneData):
+class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView, TuneData):
     model = Task
     form_class = EditForm
+    permission_required = 'task.change_entry'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
@@ -111,8 +113,8 @@ def params(request):
 
 class GroupView(LoginRequiredMixin, BaseGroupView, TuneData):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+    def __init__(self):
+        super().__init__(app_config, role)
 
 def get_store_params(user):
     if PassParams.objects.filter(user = user.id).exists():

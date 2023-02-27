@@ -4,13 +4,15 @@ from datetime import datetime, timedelta
 from django.http import Http404
 from django.views.generic import TemplateView
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from rusel.base.views import Context
 from health.config import app_config
 from task.const import NUM_ROLE_MARKER, ROLE_CHART_WEIGHT, ROLE_CHART_WAIST, ROLE_CHART_TEMP
 from task.models import Task
 
-class WeightView(TemplateView, Context):
+class WeightView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView, Context):
     template_name = "health/chart.html"
+    permission_required = 'task.view_health'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -27,8 +29,9 @@ class WeightView(TemplateView, Context):
         context['hide_add_item_input'] = True
         return context
 
-class WaistView(TemplateView, Context):
+class WaistView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView, Context):
     template_name = "health/chart.html"
+    permission_required = 'task.view_health'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -45,8 +48,9 @@ class WaistView(TemplateView, Context):
         context['hide_add_item_input'] = True
         return context
 
-class TempView(TemplateView, Context):
+class TempView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView, Context):
     template_name = "health/chart.html"
+    permission_required = 'task.view_health'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

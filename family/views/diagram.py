@@ -1,4 +1,4 @@
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.template import loader
@@ -8,6 +8,7 @@ from family.config import app_config
 
 
 @login_required(login_url='account:login')
+@permission_required('family.view_pedigree')
 def diagram_start(request):
     cur_tree = Params.get_cur_tree(request.user)
     if not cur_tree:
@@ -18,6 +19,7 @@ def diagram_start(request):
     return HttpResponseRedirect(reverse('family:diagram', args=(cur_tree.id,)) + f'#/@I{cur_indi.id}@')
 
 @login_required(login_url='account:login')
+@permission_required('family.view_pedigree')
 def diagram(request, tree_id):
     ctx = GenealogyContext()
     ctx.request = request

@@ -1,5 +1,5 @@
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from task.const import APP_APART, ROLE_APART, NUM_ROLE_SERVICE, NUM_ROLE_METER, NUM_ROLE_PRICE, NUM_ROLE_BILL
 from task.models import Task
 from rusel.base.views import BaseListView, BaseDetailView
@@ -9,17 +9,19 @@ from apart.config import app_config
 app = APP_APART
 role = ROLE_APART
 
-class ListView(LoginRequiredMixin, BaseListView):
+class ListView(LoginRequiredMixin, PermissionRequiredMixin, BaseListView):
     model = Task
     form_class = CreateForm
+    permission_required = 'task.view_apart'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
 
-class DetailView(LoginRequiredMixin, BaseDetailView):
+class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView):
     model = Task
     form_class = EditForm
+    permission_required = 'task.change_apart'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)

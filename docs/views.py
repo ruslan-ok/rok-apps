@@ -1,6 +1,7 @@
 import os, urllib.parse
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.http import FileResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.urls import reverse
 from task.const import APP_DOCS, ROLE_DOC, ROLE_APP
@@ -10,7 +11,8 @@ from docs.config import app_config
 role = ROLE_DOC
 app = ROLE_APP[role]
 
-class FolderView(LoginRequiredMixin, BaseDirView):
+class FolderView(LoginRequiredMixin, PermissionRequiredMixin, BaseDirView):
+    permission_required = 'task.view_docs'
 
     def __init__(self, *args, **kwargs):
         self.template_name = 'docs/folder.html'
@@ -53,6 +55,8 @@ def get_name_from_request(request, param='file'):
         return ''
     return urllib.parse.unquote_plus(query)
 
+@login_required(login_url='account:login')
+@permission_required('task.view_docs')
 def get_file(request):
     try:
         storage_path = os.environ.get('DJANGO_STORAGE_PATH')

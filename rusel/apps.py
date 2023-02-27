@@ -3,21 +3,21 @@ from django.utils.translation import gettext_lazy as _
 from task.const import *
 
 APPS = {
-    APP_HOME:    ('house-door',    '/'),
-    APP_TODO:    ('check2-square', '/todo/'),
-    APP_NOTE:    ('sticky',        '/note/'),
-    APP_NEWS:    ('newspaper',     '/news/'),
-    APP_STORE:   ('key',           '/store/'),
-    APP_EXPEN:   ('piggy-bank',    '/expen/'),
-    APP_FAMILY:  ('diagram-3',     '/family/'),
-    APP_FUEL:    ('fuel-pump',     '/fuel/'),
-    APP_APART:   ('building',      '/bill/'),
-    APP_HEALTH:  ('heart',         '/health/'),
-    APP_DOCS:    ('file-text',     '/docs/'),
-    APP_WARR:    ('award',         '/warr/'),
-    APP_PHOTO:   ('image',         '/photo/'),
-    APP_ADMIN:   ('people',        '/admin/'),
-    APP_LOGS:    ('card-list',     '/logs/'),
+    APP_HOME:    ('house-door',    '/',         ''),
+    APP_TODO:    ('check2-square', '/todo/',    'task.view_todo'),
+    APP_NOTE:    ('sticky',        '/note/',    'task.view_note'),
+    APP_NEWS:    ('newspaper',     '/news/',    'task.view_news'),
+    APP_STORE:   ('key',           '/store/',   'task.view_entry'),
+    APP_EXPEN:   ('piggy-bank',    '/expen/',   'task.view_expense'),
+    APP_FUEL:    ('fuel-pump',     '/fuel/',    'task.view_fuel'),
+    APP_APART:   ('building',      '/bill/',    'task.view_apart'),
+    APP_HEALTH:  ('heart',         '/health/',  'task.view_health'),
+    APP_DOCS:    ('file-text',     '/docs/',    'task.view_docs'),
+    APP_WARR:    ('award',         '/warr/',    'task.view_warranty'),
+    APP_PHOTO:   ('image',         '/photo/',   'task.view_photo'),
+    APP_FAMILY:  ('diagram-3',     '/family/',  'family.view_pedigree'),
+    APP_LOGS:    ('card-list',     '/logs/',    'task.view_logs'),
+    APP_ADMIN:   ('people',        '/admin/',   'task.administrate_site'),
 }
 
 def _get_app_human_name(app):
@@ -68,11 +68,14 @@ def get_app_human_name(app):
 def get_apps_list(user, current):
     apps = []
     for app in APPS:
-        if (app in (APP_STORE, APP_TRIP, APP_APART, APP_WORK, APP_HEALTH, APP_WARR, APP_DOCS, APP_PHOTO, APP_LOGS, APP_FAMILY)) and (user.username != 'ruslan.ok'):
+        icon = APPS[app][0]
+        href = APPS[app][1]
+        perm = APPS[app][2]
+        if perm and not user.has_perm(perm):
             continue
-        if (app == APP_ADMIN) and (user.username != 'admin'):
+        if perm and user.is_superuser and app != APP_ADMIN:
             continue
-        apps.append({'icon': APPS[app][0], 'href': APPS[app][1], 'name': get_main_menu_item(app), 'active': current==app})
+        apps.append({'icon': icon, 'href': href, 'name': get_main_menu_item(app), 'active': current==app})
     return apps
 
 def get_main_menu_item(app):

@@ -6,7 +6,8 @@ from django.shortcuts import get_object_or_404
 from django.http import FileResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic.edit import FormView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from task.const import APP_PHOTO, ROLE_PHOTO, ROLE_APP
 from task.models import Photo
 from rusel.base.dir_views import BaseDirView
@@ -16,7 +17,8 @@ from photo.forms import PhotoForm
 role = ROLE_PHOTO
 app = ROLE_APP[role]
 
-class FolderView(LoginRequiredMixin, BaseDirView):
+class FolderView(LoginRequiredMixin, PermissionRequiredMixin, BaseDirView):
+    permission_required = 'task.view_photo'
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
@@ -107,8 +109,9 @@ class FolderView(LoginRequiredMixin, BaseDirView):
         self.store_dir = get_storage(user, 'photo')
 
 #----------------------------------
-class PhotoView(LoginRequiredMixin, FormView):
+class PhotoView(LoginRequiredMixin, PermissionRequiredMixin, FormView):
     form_class = PhotoForm
+    permission_required = 'task.view_photo'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -212,6 +215,8 @@ def get_name_from_request(request, param='file'):
         return ''
     return urllib.parse.unquote_plus(query)
 
+@login_required(login_url='account:login')
+@permission_required('task.view_photo')
 def get_photo(request): # Для отображения полноразмерного фото
     folder = get_name_from_request(request, 'folder')
     file = get_name_from_request(request, 'file')

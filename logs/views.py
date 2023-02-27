@@ -1,4 +1,4 @@
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponse
 from django.template import loader
 from logs.services.apache import ApacheLogData
@@ -25,6 +25,7 @@ class LogsView(Context, TuneData):
         self.config.set_view(request)
 
 @login_required(login_url='account:login')
+@permission_required('task.view_logs')
 def log_view(request):
     view = LogsView(request)
     dev = None
