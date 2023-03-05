@@ -148,7 +148,7 @@ class DescriptorIndi():
                 case 3: ret += _('three children')
                 case 4: ret += _('four children')
                 case 5: ret += _('five children')
-                case _: ret += fam["child_num"] + ' ' + _("children")
+                case _: ret += str(fam["child_num"]) + ' ' + _("children")
             if not spouse_name:
                 spouse_name = _('unknown partner')
             ret += ' ' + _("with") + ' ' + spouse_name

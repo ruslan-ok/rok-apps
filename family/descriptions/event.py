@@ -1,26 +1,34 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from django.utils.translation import gettext_lazy as _, pgettext_lazy
-from family.ged4py.date import DateValue
-from family.models import IndividualRecord, IndividualEventStructure
+from family.models import IndividualRecord, FamilyEventStructure, FamRecord
+from family.views.life_date import EventDate
+from family.descriptions.tags import TAGS
 
 @dataclass
 class DescriptorEvent():
+    tag: str
+    date: EventDate
+    place: str
     indi: IndividualRecord
+    relative: IndividualRecord
     role: str
-    event: IndividualEventStructure
+    fam: FamRecord | None = field(init=False)
+    role_name: str = field(init=False)
+    relative_sex: str = field(init=False)
 
-    def get_str_date(self):
-        if self.event.deta:
-            ev_date = DateValue.parse(self.event.deta.date)
-            if ev_date:
-                return ev_date.get_str_date()
-        return ''
+    def __post_init__(self):
+        self.relative_sex = self.relative.get_sex()
+        match self.role, self.relative_sex:
+            case 'child', 'F':  self.role_name = _('daughter')
+            case 'child', 'M':  self.role_name = _('son')
+            case 'father', _:   self.role_name = _('father')
+            case 'mother', _:   self.role_name = _('mother')
+            case 'spouse', 'F': self.role_name = _('wife')
+            case 'spouse', 'M': self.role_name = _('husband')
+            case _: self.role_name = ''
 
     def get_place(self):
-        place = ''
-        if self.event.deta and self.event.deta.plac:
-            place = self.event.deta.plac.name
-        return place
+        return self.place
     
     def get_where(self):
         where = ''
@@ -29,28 +37,28 @@ class DescriptorEvent():
             where = f' {_("in")} {place}'
         return where
     
-    def get_descr_indi_birth(self, date):
+    def get_descr_indi_birth(self):
         father_name = ''
         father_age = ''
         mother_name = ''
         mother_age = ''
-        father, mother = self.indi.get_parents()
-        event_str_date = self.get_str_date()
+        father, mother = self.relative.get_parents()
+        event_str_date = self.date.str_date
         if father:
             father_name = father.get_name()
             father_age = father.get_age(event_str_date)
             if not father_age:
                 father_age = ''
             else:
-                father_age = _(', age s%(age)s') % {'age': father_age}
+                father_age = _(', age %(age)s') % {'age': father_age}
         if mother:
             mother_name = mother.get_name()
             mother_age = mother.get_age(event_str_date)
             if not mother_age:
                 mother_age = ''
             else:
-                mother_age = _(', age s%(age)s') % {'age': mother_age}
-        match self.indi.get_sex():
+                mother_age = _(', age %(age)s') % {'age': mother_age}
+        match self.relative_sex:
             case 'F': action = pgettext_lazy('female', 'was born')
             case _: action = pgettext_lazy('male', 'was born')
         parents_info = ''
@@ -61,81 +69,153 @@ class DescriptorEvent():
                 'father_name': father_name,
                 'father_age': father_age,
             }
-        ret = '%(name)s %(action)s %(when)s%(where)s%(parents_info)s.' % {
-            'name': self.indi.get_name(), 
+        return '%(name)s %(action)s %(when)s%(where)s%(parents_info)s.' % {
+            'name': self.relative.get_name(), 
             'action': action,
-            'when': date['when'],
+            'when': self.date.when,
             'where': self.get_where(),
             'parents_info': parents_info,
         }
-        return ret
     
-    def get_descr_indi_death(self, date):
-        match self.indi.get_sex():
+    def get_descr_indi_christ(self):
+        return ''
+    
+    def get_descr_age(self, indi_sex: str, age: int | None, capitalize=False):
+        if not age:
+            return ''
+        match indi_sex:
             case 'F': pronoun = pgettext_lazy('dative', 'she')
             case _: pronoun = pgettext_lazy('dative', 'he')
-        match self.indi.get_sex():
+        if capitalize:
+            return _('%(pronoun)s was %(age)s years old') % {'pronoun': pronoun.capitalize(), 'age': age}
+        return _('when %(pronoun)s was %(age)s years old') % {'pronoun': pronoun, 'age': age}
+    
+    def get_descr_indi_death(self):
+        age_descr = self.get_descr_age(self.indi.get_sex(), self.indi.get_age(self.date.str_date))
+        if age_descr:
+            age_descr = ' ' + age_descr
+        match self.relative_sex:
             case 'F': action = pgettext_lazy('female', 'died')
             case _: action = pgettext_lazy('male', 'died')
-        ret = _('%(name)s %(action)s %(when)s%(where)s when %(pronoun)s was %(age)s years old.') % {
-            'name': self.indi.get_name(), 
+        return '%(name)s %(action)s %(when)s%(where)s%(age_descr)s.' % {
+            'name': self.relative.get_name(), 
             'action': action,
-            'when': date['when'],
+            'when': self.date.when,
             'where': self.get_where(),
-            'pronoun': pronoun,
-            'age': self.indi.get_age(date['sort']),
+            'age_descr': age_descr,
         }
-        return ret
     
-    def get_descr_child_birth(self, date, indi):
-        match indi.get_sex():
+    def get_descr_child_birth(self):
+        match self.indi.get_sex():
             case 'F': pronoun = _('Her')
             case _: pronoun = _('His')
-        match self.indi.get_sex():
-            case 'F': role = _('daughter')
-            case _: role = _('son')
-        match self.indi.get_sex():
+        match self.relative_sex:
             case 'F': action = pgettext_lazy('female', 'was born')
             case _: action = pgettext_lazy('male', 'was born')
-        ret = _('%(pronoun)s %(role)s %(name)s %(action)s %(when)s%(where)s.') % {
+        return _('%(pronoun)s %(role)s %(name)s %(action)s %(when)s%(where)s.') % {
             'pronoun': pronoun,
-            'role': role,
-            'name': self.indi.get_name('given'),
+            'role': self.role_name,
+            'name': self.relative.get_name('given'),
             'action': action,
-            'when': date['when'],
+            'when': self.date.when,
             'where': self.get_where(),
         }
-        return ret
 
-    def get_descr_death(self, date, indi, role):
-        match indi.get_sex():
+    def get_descr_child_christ(self):
+        return ''
+
+    def get_descr_death(self):
+        match self.indi.get_sex():
             case 'F': pronoun = _('Her')
             case _: pronoun = _('His')
-        match self.indi.get_sex():
+        match self.relative_sex:
             case 'F': action = pgettext_lazy('female', 'passed away')
             case _: action = pgettext_lazy('male', 'passed away')
-        ret = _('%(pronoun)s %(role)s %(name)s %(action)s %(when)s%(where)s at the age of %(age)s.') % {
+        return _('%(pronoun)s %(role)s %(name)s %(action)s %(when)s%(where)s at the age of %(age)s.') % {
             'pronoun': pronoun,
-            'role': role,
-            'name': self.indi.get_name('given'),
+            'role': self.role_name,
+            'name': self.relative.get_name('given'),
             'action': action,
-            'when': date['when'],
+            'when': self.date.when,
             'where': self.get_where(),
-            'age': self.indi.get_age(date['sort']),
+            'age': self.relative.get_age(self.date.str_date),
         }
-        return ret
     
-    def get_descr(self, date, indi):
-        ret = '???'
-        match self.role, self.indi.get_sex(), self.event.tag:
-            case 'indi', _, 'BIRT': ret = self.get_descr_indi_birth(date)
-            case 'indi', _, 'DEAT': ret = self.get_descr_indi_death(date)
-            case 'child', _, 'BIRT': ret = self.get_descr_child_birth(date, indi)
-            case 'child', 'F', 'DEAT': ret = self.get_descr_death(date, indi, _('daughter'))
-            case 'child', 'M', 'DEAT': ret = self.get_descr_death(date, indi, _('son'))
-            case 'father', _, 'DEAT': ret = self.get_descr_death(date, indi, _('father'))
-            case 'mother', _, 'DEAT': ret = self.get_descr_death(date, indi, _('mother'))
-            case 'spouse', 'F', 'DEAT': ret = self.get_descr_death(date, indi, _('wife'))
-            case 'spouse', 'M', 'DEAT': ret = self.get_descr_death(date, indi, _('husband'))
-            case _: ret = '?'
+    def get_descr_marriage(self):
+        match self.indi.get_sex():
+            case 'F': action = pgettext_lazy('female', 'married')
+            case _: action = pgettext_lazy('male', 'married')
+        where_descr = self.get_where()
+        if where_descr:
+            where_descr = where_descr + ', '
+        age_descr = self.get_descr_age(self.indi.get_sex(), self.indi.get_age(self.date.str_date))
+        if age_descr:
+            age_descr = ', ' + age_descr + '.'
+        return '%(self_name)s %(action)s %(spouse_name)s%(where)s%(when)s%(age)s' % {
+            'self_name': self.indi.get_name(),
+            'action': action,
+            'spouse_name': self.relative.get_name(),
+            'where': where_descr,
+            'when': self.date.when,
+            'age': age_descr,
+        }
+    
+    def get_descr_marriage_date(self) -> str:
+        if FamilyEventStructure.objects.filter(fam=self.fam, tag='MARR').exists():
+            marr = FamilyEventStructure.objects.filter(fam=self.fam, tag='MARR').get()
+            if marr.deta and marr.deta.date:
+                ed = EventDate(marr.deta.date)
+                return ed.str_date
+        return ''
+
+    def get_descr_divorce(self):
+        duration = self.indi.get_age(self.date.str_date, self.get_descr_marriage_date())
+        after = _('after %(duration)d years of marriage') % {'duration': duration}
+        if after:
+            after = ' ' + after
+        age_descr = self.get_descr_age(self.indi.get_sex(), self.indi.get_age(self.date.str_date), capitalize=True)
+        if age_descr:
+            age_descr = ' ' + age_descr + '.'
+        return '%(self_name)s %(and)s %(spouse_name)s %(action)s %(when)s%(where)s%(after)s.%(age)s' % {
+            'self_name': self.indi.get_name(),
+            'and': _('and'),
+            'spouse_name': self.relative.get_name(),
+            'action': _('were divorced'),
+            'when': self.date.when,
+            'where': self.get_where(),
+            'after': after,
+            'age': age_descr,
+        }
+    
+    def get_event_descr(self):
+        match self.role, self.tag:
+            case 'indi', 'BIRT': ret = self.get_descr_indi_birth()
+            case 'indi', 'CHR': ret = self.get_descr_indi_christ()
+            case 'indi', 'DEAT': ret = self.get_descr_indi_death()
+            case 'child', 'BIRT': ret = self.get_descr_child_birth()
+            case 'child', 'CHR': ret = self.get_descr_child_christ()
+            case _, 'DEAT': ret = self.get_descr_death()
+            case _, 'MARR': ret = self.get_descr_marriage()
+            case _, 'DIV': ret = self.get_descr_divorce()
+            case _: ret = ''
+        return ret.replace('..', '.')
+
+    def get_event_title(self):
+        title = TAGS.get(self.tag, self.tag)
+
+        match self.role, self.relative_sex:
+            case 'indi', _: role = ''
+            case 'father', _: role = _('of father')
+            case 'mother', _: role = _('of mother')
+            case 'spouse', 'F': role = _('of wife')
+            case 'spouse', 'M': role = _('of husband')
+            case 'child', 'F': role = _('of daughter')
+            case 'child', 'M': role = _('of son')
+            case _: role = self.role
+
+        ret = title
+        if role and self.tag not in ('MARR', 'MARL', 'DIV'):
+            ret = title + ' ' + role
+        
         return ret
+

@@ -417,6 +417,21 @@ class IndividualRecord(models.Model):
         if y1 and y2:
             return y2 - y1
         return None
+    
+    def get_photo_url(self):
+        fname = ''
+        indi_id = self.get_id()
+        if MultimediaLink.objects.filter(indi=indi_id).exists():
+            mml = MultimediaLink.objects.filter(indi=indi_id).order_by('_sort')[0]
+            if MultimediaRecord.objects.filter(id=mml.obje.id).exists():
+                mmr = MultimediaRecord.objects.filter(id=mml.obje.id).order_by('_sort')[0]
+                if MultimediaFile.objects.filter(obje=mmr.id).exists():
+                    mmf =  MultimediaFile.objects.filter(obje=mmr.id).order_by('_sort')[0]
+                    if mmf.file:
+                        fname = mmf.file.split('/')[-1]
+        if fname:
+            return reverse('family:doc', args=('pedigree', self.tree.id, fname))
+        return ''
 
 class PersonalNamePieces(models.Model):
     npfx = models.CharField(_('Prefix'), max_length=30, blank=True, null=True)
@@ -552,6 +567,9 @@ class FamRecord(models.Model):
         if self.chan:
             self.chan.delete()
 
+    def get_id(self):
+        return self.id
+
     def marr_date(self):
         ret = ''
         for x in FamilyEventStructure.objects.filter(fam=self.id):
@@ -571,6 +589,14 @@ class FamRecord(models.Model):
         if self.wife:
             return self.wife.name()
         return ''
+    
+    def get_spouse(self, spouse: IndividualRecord):
+        if self.husb.id == spouse.get_id():
+            return self.wife
+        return self.husb
+    
+    def get_events(self):
+        return FamilyEventStructure.objects.filter(fam=self.id)
 
 class ChildToFamilyLink(models.Model):
     fami = models.ForeignKey(FamRecord, on_delete=models.CASCADE, verbose_name=_('Family'), related_name='family_children')

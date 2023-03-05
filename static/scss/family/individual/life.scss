@@ -767,3 +767,41 @@ label:not(.lifeBtn), legend {
 #map {
     height: 300px; 
 }
+
+.userCardSize4 .userCardImg {
+    font-size: 27px;
+    height: 80px;
+    line-height: 80px;
+    margin: 0 0 -80px -92px;
+    width: 80px;
+}
+
+img {
+    border: none;
+}
+
+.userCardImg img {
+    font-size: 13px;
+    margin-left: 50%;
+    margin-top: 50%;
+    max-height: 100%;
+    max-width: 100%;
+    -webkit-transform: translate(-50%,-50%);
+    transform: translate(-50%,-50%);
+    vertical-align: top;
+}
+
+.userCardImg:not(.userCardImgOriginal) img {
+    height: 100%;
+    -o-object-fit: cover;
+    object-fit: cover;
+    -o-object-position: center center;
+    object-position: center center;
+    width: 100%;
+}
+
+.userCardSize4 {
+    line-height: 80px;
+    min-height: 80px;
+    padding-left: 92px;
+}

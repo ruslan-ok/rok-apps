@@ -66,13 +66,13 @@
                                                 <ul class="userList" id="childrenList">
                                                     <li class="userItem">
                                                         <a class="userPerson"
-                                                            href="{% url 'family:individual-detail' tree_id child.get_id 'life' %}"
+                                                            href="{% url 'family:individual-detail' tree_id child.id 'life' %}"
                                                             id="belayConnect">
                                                             <div class="userCard userCardSize2">
-                                                                <div class="userCardImg userCardImgSquare icon {% if child.get_sex == 'F' %}iconF{% else %}iconM{% endif %} bi-person">
+                                                                <div class="userCardImg userCardImgSquare icon {% if child.sex == 'F' %}iconF{% else %}iconM{% endif %} bi-person">
                                                                 </div>
                                                                 <div class="userCardContent">
-                                                                    <h4 class="userCardTitle">{% if child.get_name %}{{ child.get_name }}{% endif %}</h4>
+                                                                    <h4 class="userCardTitle">{% if child.name %}{{ child.name }}{% endif %}</h4>
                                                                 </div>
                                                             </div>
                                                         </a>
@@ -87,12 +87,12 @@
                                             <!-- Individual -->
                                             <div class="treeSecSplit">
                                                 <div class="card bgColor1 bgDark"> <a class="userPerson"
-                                                        href="{% url 'family:individual-detail' tree_id life_info.indi_family.indi_id 'life' %}"
+                                                        href="{% url 'family:individual-detail' tree_id life_info.indi.id 'life' %}"
                                                         id="SkinnyFocusPerson">
                                                         <div class="userCard userCardSize2">
-                                                            <div class="userCardImg userCardImgSquare icon {% if life_info.indi_family.indi_sex == 'F' %}iconF{% else %}iconM{% endif %} bi-person"></div>
+                                                            <div class="userCardImg userCardImgSquare icon {% if life_info.indi.sex == 'F' %}iconF{% else %}iconM{% endif %} bi-person"></div>
                                                             <div class="userCardContent">
-                                                                <h4 class="userCardTitle">{% if life_info.indi_family.indi_full_name %}{{ life_info.indi_family.indi_full_name }}{% endif %}</h4>
+                                                                <h4 class="userCardTitle">{% if life_info.indi.name %}{{ life_info.indi.name }}{% endif %}</h4>
                                                             </div>
                                                         </div>
                                                     </a> </div>
@@ -104,12 +104,12 @@
                                                     <ul class="userList showDefault1" id="childrenList">
                                                         <li class="userItem">
                                                             <a class="userPerson"
-                                                                href="{% url 'family:individual-detail' tree_id spouse.get_id 'life' %}"
+                                                                href="{% url 'family:individual-detail' tree_id spouse.id 'life' %}"
                                                                 id="belayConnect">
                                                                 <div class="userCard userCardSize2">
-                                                                    <div class="userCardImg userCardImgSquare icon {% if spouse.get_sex == 'F' %}iconF{% else %}iconM{% endif %} bi-person"></div>
+                                                                    <div class="userCardImg userCardImgSquare icon {% if spouse.sex == 'F' %}iconF{% else %}iconM{% endif %} bi-person"></div>
                                                                     <div class="userCardContent">
-                                                                        <h4 class="userCardTitle">{% if spouse.get_name %}{{ spouse.get_name }}{% endif %}</h4>
+                                                                        <h4 class="userCardTitle">{% if spouse.name %}{{ spouse.name }}{% endif %}</h4>
                                                                     </div>
                                                                 </div>
                                                             </a>
@@ -125,34 +125,34 @@
                                             <h3 class="hideVisually">Parents</h3>
                                             <div class="treeSecSplit">
                                                 <div class="card"> 
-                                                    {% if life_info.indi_family.father_id %}
+                                                    {% if life_info.father.id %}
                                                     <a class="userPerson SkinnyFocusPerson"
-                                                        href="{% url 'family:individual-detail' tree_id life_info.indi_family.father_id 'life' %}">
+                                                        href="{% url 'family:individual-detail' tree_id life_info.father.id 'life' %}">
                                                     {% endif %}
                                                         <div class="userCard userCardSize2">
-                                                            <div class="userCardImg userCardImgSquare icon {% if life_info.indi_family.father_sex == 'F' %}iconF{% else %}iconM{% endif %} bi-person"></div>
+                                                            <div class="userCardImg userCardImgSquare icon {% if life_info.father.sex == 'F' %}iconF{% else %}iconM{% endif %} bi-person"></div>
                                                             <div class="userCardContent">
-                                                                <h4 class="userCardTitle">{% if life_info.indi_family.father_full_name %}{{ life_info.indi_family.father_full_name }}{% endif %}</h4>
+                                                                <h4 class="userCardTitle">{% if life_info.father.name %}{{ life_info.father.name }}{% endif %}</h4>
                                                             </div>
                                                         </div>
-                                                    {% if life_info.indi_family.father_id %}
+                                                    {% if life_info.father.id %}
                                                     </a>
                                                     {% endif %}
                                                 </div>
                                             </div>
                                             <div class="treeSecSplit">
                                                 <div class="card"> 
-                                                    {% if life_info.indi_family.mother_id %}
+                                                    {% if life_info.mother.id %}
                                                     <a class="userPerson SkinnyFocusPerson"
-                                                        href="{% url 'family:individual-detail' tree_id life_info.indi_family.mother_id 'life' %}">
+                                                        href="{% url 'family:individual-detail' tree_id life_info.mother.id 'life' %}">
                                                     {% endif %}
                                                         <div class="userCard userCardSize2">
-                                                            <div class="userCardImg userCardImgSquare icon {% if life_info.indi_family.mother_sex == 'F' %}iconF{% else %}iconM{% endif %} bi-person"></div>
+                                                            <div class="userCardImg userCardImgSquare icon {% if life_info.mother.sex == 'F' %}iconF{% else %}iconM{% endif %} bi-person"></div>
                                                             <div class="userCardContent">
-                                                                <h4 class="userCardTitle">{% if life_info.indi_family.mother_full_name %}{{ life_info.indi_family.mother_full_name }}{% endif %}</h4>
+                                                                <h4 class="userCardTitle">{% if life_info.mother.name %}{{ life_info.mother.name }}{% endif %}</h4>
                                                             </div>
                                                         </div>
-                                                    {% if life_info.indi_family.mother_id %}
+                                                    {% if life_info.mother.id %}
                                                     </a>
                                                     {% endif %}
                                                 </div>
@@ -168,7 +168,7 @@
                             <div class="icon bi-geo-alt lifelineBullet lifelineBulletSize1"></div>
                             <div class="con conHasArrow conHasArrowLeftTop">
                                 <div class="conHeader hideVisually">
-                                    <h2 class="conTitle">{{ life_info.indi_family.map_title }}</h2>
+                                    <h2 class="conTitle">{{ life_info.map_title }}</h2>
                                 </div>
                                 <div class="conBody">
                                     <div id="map">
@@ -193,23 +193,31 @@
                                             {% if event.age %}<p class="lifelineBulletSubtitle">{% trans 'AGE' %} {{ event.age }}</p>{% endif %}
                                         </div>
                                     </div>
-                                    <div class="lifeContent conHasArrow conHasArrowLeftTop {% if event.bg_white %}conSecond{% else %}conThird{% endif %}">
+                                    <div class="lifeContent conHasArrow conHasArrowLeftTop {% if event.is_editable %}conSecond{% else %}conThird{% endif %}">
                                         <div class="conHeader">
-                                            <h4 class="conTitle storyType">{{ event.type_name }}</h4>
+                                            {% if event.is_editable %}
+                                            <button class="lifeBtn sml silver editButton" type="button" onclick="editEvent()">Edit</button>
+                                            {% endif %}
+                                            <h4 class="conTitle storyType">{{ event.title }}</h4>
                                         </div>
                                         <div class="conBody">
                                             <p class="storyNarr text2xlrg">{{ event.descr }}</p>
-                                            {% if event.person %}
+                                            {% if event.indi %}
                                                 <div class="topSpaceBlock">
                                                     <a class="targetPerson"
-                                                        href="{% url 'family:individual-detail' tree_id event.person.get_id 'life' %}">
+                                                        href="{% url 'family:individual-detail' tree_id event.indi.id 'life' %}">
                                                         <div
-                                                            class="noTopSpace userCard userCardSize2 userCardInline">
-                                                            <div class="userCardImg userCardImgSquare icon {% if event.person.get_sex == 'F' %}iconF{% else %}iconM{% endif %} bi-person">
-                                                            </div>
+                                                            class="noTopSpace userCard {% if event.is_editable %}userCardSize4 userCardStacked320{% else %}userCardSize2 userCardInline{% endif %}">
+                                                            {% if event.indi.img_href %}
+                                                                <div class="userCardImg userCardImgSquare">
+                                                                    <img alt="" src="{{ event.indi.img_href }}">
+                                                                </div> 
+                                                            {% else %}
+                                                                <div class="userCardImg userCardImgSquare icon {% if event.indi.sex == 'F' %}iconF{% else %}iconM{% endif %} bi-person"></div>
+                                                            {% endif %}
                                                             <div class="userCardContent textWrap">
-                                                                <h4 class="userCardTitle">{{ event.person.get_name }}</h4>
-                                                                <p class="userCardSubTitle noTopSpace">{{ event.person.get_live_time }}</p>
+                                                                <h4 class="userCardTitle">{{ event.indi.name }}</h4>
+                                                                <p class="userCardSubTitle noTopSpace">{{ event.indi.live_time }}</p>
                                                             </div>
                                                         </div>
                                                     </a>
