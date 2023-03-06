@@ -257,6 +257,18 @@ class Backup():
             os.remove(f)
         self.log(EventType.INFO, 'method', '-backup_mail() finished')
 
+    def backup_env(self, zf):
+        self.log(EventType.INFO, 'method', '+backup_env() started')
+        file = 'env.csv'
+        with open(file, 'w', encoding='utf-8') as f:
+            f.write('name, value\n')
+            for name, value in os.environ.items():
+                f.write(f'{name}, {value}\n')
+        zf.write(file)
+        os.remove(file)
+        self.log(EventType.INFO, 'method', '-backup_env() finished')
+
+
     # Архивирование
     def archivate(self):
         self.log(EventType.INFO, 'method', '+archivate() started')
@@ -286,6 +298,7 @@ class Backup():
                     zf.write(dirname)
                     for filename in files:
                         zf.write(os.path.join(dirname, filename))
+        self.backup_env(zf)
         zf.close()
         sz = os.path.getsize(dir_file)
         if (sz > 1000):
