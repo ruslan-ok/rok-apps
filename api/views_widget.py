@@ -2,6 +2,7 @@ from rest_framework.decorators import api_view, permission_classes, renderer_cla
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
 from rest_framework.response import Response
+from django.http import HttpResponse
 from rest_framework.status import HTTP_400_BAD_REQUEST
 from todo.hp_widget.todo import get_todo
 from logs.hp_widget.logs import get_logs
@@ -28,6 +29,8 @@ def get_widget(request):
         case 'health': template_name, context = 'hp_widget/health.html', {}
     if not template_name:
         template_name = 'widgets/fail.html'
+    elif template_name == 'hide':
+        return HttpResponse('')
     return Response(context, template_name=template_name)
 
 ALL_CHART_MARKS = [

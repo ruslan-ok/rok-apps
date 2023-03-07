@@ -28,6 +28,8 @@ def get_todo(request):
     lv = ListView()
     lv.request = request
     lv.object_list = lv.get_queryset()
+    if not lv.object_list or len(lv.object_list) == 0:
+        return 'hide', {}
     context = lv.get_context_data()
     template_name = 'hp_widget/todo.html'
     return template_name, context

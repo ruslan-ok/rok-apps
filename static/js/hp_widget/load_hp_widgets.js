@@ -6,9 +6,13 @@ document.querySelectorAll('.hp-widget').forEach(function(el) {
     xmlHttp.onreadystatechange = function() { 
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
             el.innerHTML = xmlHttp.responseText;
-            const chartList = ['health', 'crypto', 'currency', 'weather'];
-            if (chartList.includes(id))
-                buildChart(id);
+            if (el.innerHTML == '')
+                el.classList.add('d-none');
+            else {
+                const chartList = ['health', 'crypto', 'currency', 'weather'];
+                if (chartList.includes(id))
+                    buildChart(id);
+            }
         }
     }
     xmlHttp.open("GET", url, true);
