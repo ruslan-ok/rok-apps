@@ -1030,6 +1030,7 @@ class Urls(models.Model):
                                 self.title = al[start+7:stop]
                             else:
                                 self.title = al[start+7:start+190] + '...'
+                            self.title = ''.join(x if ord(x) < 65536 else '*' for x in self.title)
                             self.ststus = 4
             self.save()
         if (self.hostname and self.title):
