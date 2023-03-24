@@ -281,7 +281,7 @@ class PasswordResetView(PasswordContextMixin, FormView):
         return super().form_valid(form)
 
 
-INTERNAL_RESET_SESSION_TOKEN = '_password_reset_token'
+INTERNAL_RESET_SESSION_TOKEN = os.environ.get('DJANGO_PWD_RESET_TOKEN', '_password_reset_token')
 
 
 class PasswordResetDoneView(PasswordContextMixin, TemplateView):
