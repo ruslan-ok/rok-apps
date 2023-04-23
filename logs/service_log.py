@@ -13,7 +13,8 @@ class ServiceLog():
         self.svc = svc
         self.local_log = False
         this_device = os.environ.get('DJANGO_DEVICE', '')
-        self.use_log_api = (this_device != 'Nuc')
+        self.log_device = os.environ.get('DJANGO_LOG_DEVICE', 'Nuc')
+        self.use_log_api = (this_device != self.log_device)
         self.api_host = os.environ.get('DJANGO_HOST_LOG', '')
         self.api_url = f'{self.api_host}/en/api/logs/?format=json'
         service_token = os.environ.get('DJANGO_SERVICE_TOKEN', '')

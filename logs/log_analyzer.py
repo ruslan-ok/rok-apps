@@ -46,8 +46,9 @@ class LogAnalyzer(SiteService):
 
     def read_log_sz(self):
         log_sz = 0
-        sl = ServiceLog(dev='Nuc', app=APP_LOGS, svc=ROLE_APACHE)
-        log_sz_events = sl.get_events(device='Nuc', app=APP_LOGS, service=ROLE_APACHE, type=EventType.INFO, name='log_size')
+        log_device = os.environ.get('DJANGO_LOG_DEVICE', 'Nuc')
+        sl = ServiceLog(dev=log_device, app=APP_LOGS, svc=ROLE_APACHE)
+        log_sz_events = sl.get_events(device=log_device, app=APP_LOGS, service=ROLE_APACHE, type=EventType.INFO, name='log_size')
         if len(log_sz_events) > 0:
             log_sz = int(log_sz_events[0].info)
         return log_sz

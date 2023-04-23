@@ -1,6 +1,6 @@
 """Site service manager
 """
-import os, json
+import os, json, traceback
 from datetime import datetime, date
 from logs.models import ServiceEvent, EventType
 from backup.backuper import Backuper
@@ -9,6 +9,7 @@ from todo.notificator import Notificator
 from fuel.serv_interval import ServInterval
 from logs.log_analyzer import LogAnalyzer
 from task.models import Group, Task
+from rusel.settings import ENV, DB
 
 def log_event(name, type=EventType.INFO, info=None):
     device = os.environ.get('DJANGO_DEVICE')
@@ -39,13 +40,13 @@ def process_service(service_task):
         completed = service.process()
         log_event('process_completed', info=str(completed))
         return completed
-    except Exception as ex:
-        log_event('exception', info=f'Exception {str(ex)}', type=EventType.ERROR)
+    except:
+        log_event('exception', info=f'Exception {traceback.format_exc()}', type=EventType.ERROR)
         return False
 
 def _check_services(started):
     log_event('start' if started else 'work')
-    svc_grp = int(os.environ.get('DJANGO_SERVICE_GROUP'))
+    svc_grp = int(os.environ.get('DJANGO_SERVICE_GROUP' + ENV + DB))
     grp = Group.objects.filter(id=svc_grp).get()
     services = Task.objects.filter(groups=grp, completed=False)
     now = datetime.now()
@@ -60,8 +61,9 @@ def _check_services(started):
 def check_services(started):
     try:
         ret = _check_services(started)
-    except Exception as ex:
-        ret_dict = {'result': 'error', 'exception': str(ex)}
-        log_event('exception', info=f'in _check_services(): {str(ex)}', type=EventType.ERROR)
+    except:
+        ex = traceback.format_exc()
+        ret_dict = {'result': 'error', 'exception': ex}
+        log_event('exception', info=f'in _check_services(): {ex}', type=EventType.ERROR)
         ret = json.dumps(ret_dict)
     return ret

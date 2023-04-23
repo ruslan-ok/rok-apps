@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, date, timedelta
 from django.db import models
 from django.contrib.auth.models import User
@@ -121,7 +122,7 @@ class ServiceEvent(models.Model):
         for event in events:
             day = event.created.date()
             day_num = (date.today() - day).days
-            event_device = event.device if event.device else 'Nuc'
+            event_device = event.device if event.device else os.environ.get('DJANGO_LOG_DEVICE', 'Nuc')
             if event_device != dev or event.app != app or event.service != svc:
                 if hlt:
                     ret.append(hlt)

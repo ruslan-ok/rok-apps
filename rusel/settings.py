@@ -10,6 +10,15 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
+ENV = 'DEV' # 'DEV' or 'PRD'
+DB  = 'M'   # 'L' - sqlite, 'M' - mysql
+
+if ENV:
+    ENV = '_' + ENV
+
+if DB:
+    DB = '_' + DB
+
 import os
 from pathlib import Path
 
@@ -21,14 +30,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'default_value')
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY' + ENV, 'default_value')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = (os.environ.get('DJANGO_DEBUG', '0') == '1')
 
 HOST = os.environ.get('DJANGO_HOST', 'localhost')
 ALLOWED_HOSTS = [HOST]
-
 
 # Application definition
 
@@ -101,8 +109,8 @@ WSGI_APPLICATION = 'rusel.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-DB_ENGINE = os.environ.get('DJANGO_DB_ENGINE', 'sqlite3')
-DB_NAME = os.environ.get('DJANGO_DB_NAME', 'db.sqlite3')
+DB_ENGINE = os.environ.get('DJANGO_DB_ENGINE' + ENV + DB, 'sqlite3')
+DB_NAME = os.environ.get('DJANGO_DB_NAME' + ENV + DB, 'db.sqlite3')
 
 DATABASES = {
     'default': {
@@ -138,13 +146,8 @@ USE_L10N = True
 USE_TZ = False
 USE_THOUSAND_SEPARATOR = True
 LOCALE_PATHS = ( os.path.join(BASE_DIR, 'locale'), os.path.join(BASE_DIR, 'rusel\\locale') )
-
-if HOST == 'localhost':
-    STATICFILES_DIRS = [ os.path.join(BASE_DIR, os.environ.get('DJANGO_STATIC_ROOT')), ]
-    MEDIA_ROOT = os.path.dirname(os.environ.get('DJANGO_MEDIA_ROOT'))
-else:
-    STATIC_ROOT = os.path.join(BASE_DIR, os.environ.get('DJANGO_STATIC_ROOT'))
-    MEDIA_ROOT = os.path.join(BASE_DIR, os.environ.get('DJANGO_MEDIA_ROOT'))
+STATICFILES_DIRS = [os.path.join(BASE_DIR, os.path.join(BASE_DIR, os.environ.get('DJANGO_STATIC_ROOT' + ENV, '/static/'))),]
+MEDIA_ROOT = os.path.join(BASE_DIR, os.environ.get('DJANGO_MEDIA_ROOT', '/media/'))
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/

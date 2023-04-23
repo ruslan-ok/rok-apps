@@ -29,11 +29,12 @@ class OverviewLogData(ServiceLog):
 
     def get_health(self, depth):
         this_device = os.environ.get('DJANGO_DEVICE')
+        log_device = os.environ.get('DJANGO_LOG_DEVICE', 'Nuc')
         if self.use_log_api:
             svc_list = self.get_service_health_api(depth)
             svc_list += ServiceEvent.get_health(depth, app=APP_SERVICE, service=ROLE_MANAGER)
         else:
-            exclude_background_svc = self.device != 'Nuc'
+            exclude_background_svc = self.device != log_device
             svc_list = ServiceEvent.get_health(depth, exclude_background_svc=exclude_background_svc)
         services = []
         for svc in svc_list:
@@ -54,7 +55,7 @@ class OverviewLogData(ServiceLog):
                     if svc['days'][day_num] == EventType.ERROR:
                         color = 'salmon'
                     elif svc['days'][day_num] == EventType.WARNING:
-                        color = 'cadetblue'
+                        color = '#c3955c'
                     else:
                         color = '#a3c4bb'
                     match svc['qnt'][day_num]:

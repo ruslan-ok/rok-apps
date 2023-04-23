@@ -54,9 +54,10 @@ class LogsViewSet(viewsets.ModelViewSet):
     def get_btc_price(self, request, pk=None):
         api_url = os.getenv('API_COIN_RATE')
         api_key = os.getenv('API_COIN_RATE_KEY')
+        log_device = os.environ.get('DJANGO_LOG_DEVICE', 'Nuc')
         if not api_url or not api_key:
             info = 'Not specified variables API_COIN_RATE and/or API_COIN_RATE_KEY.'
-            ServiceEvent.objects.create(device='Nuc', app=APP_SERVICE, service=ROLE_MANAGER, type=EventType.WARNING, name='os.getenv', info=info)
+            ServiceEvent.objects.create(device=log_device, app=APP_SERVICE, service=ROLE_MANAGER, type=EventType.WARNING, name='os.getenv', info=info)
             ret = {'result': 'warning', 'info': info}
             return Response(ret)
         else:
@@ -64,7 +65,7 @@ class LogsViewSet(viewsets.ModelViewSet):
             resp = requests.get(api_url + 'price', headers=headers)
             if (resp.status_code != 200):
                 info = 'Failed call for BTC price. Status = ' + str(resp.status_code) + '. ' + str(resp.content)
-                ServiceEvent.objects.create(device='Nuc', app=APP_SERVICE, service=ROLE_MANAGER, type=EventType.WARNING, name='requests', info=info)
+                ServiceEvent.objects.create(device=log_device, app=APP_SERVICE, service=ROLE_MANAGER, type=EventType.WARNING, name='requests', info=info)
                 ret = {'result': 'warning', 'info': info}
             else:
                 ret = json.loads(resp.content)

@@ -138,10 +138,10 @@ class ImpGedcom551:
         return ret
     
     def log_error(self, name, info):
-        ServiceEvent.objects.create(name=name, device='Nuc', app='family', service='import', type=EventType.ERROR, info=info,)
+        ServiceEvent.objects.create(name=name, device=os.environ.get('DJANGO_LOG_DEVICE', 'Nuc'), app='family', service='import', type=EventType.ERROR, info=info,)
 
     def log_info(self, name, info):
-        ServiceEvent.objects.create(name=name, device='Nuc', app='family', service='import', type=EventType.INFO, info=info,)
+        ServiceEvent.objects.create(name=name, device=os.environ.get('DJANGO_LOG_DEVICE', 'Nuc'), app='family', service='import', type=EventType.INFO, info=info,)
 
     # ------------- FamTree ---------------
 

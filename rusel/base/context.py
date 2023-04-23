@@ -8,6 +8,7 @@ from rusel.base.config import Config
 from rusel.base.forms import CreateGroupForm
 from rusel.context import get_base_context
 from rusel.utils import extract_get_params
+from rusel.settings import ENV, DB
 
 class Context:
     def set_config(self, config, cur_view):
@@ -135,7 +136,7 @@ class Context:
             data = data.filter(group_id=group.id)
         else:
             if group.view_id == 'planned' and not group.services_visible:
-                svc_grp_id = int(os.environ.get('DJANGO_SERVICE_GROUP', '0'))
+                svc_grp_id = int(os.environ.get('DJANGO_SERVICE_GROUP' + ENV + DB, '0'))
                 data = data.exclude(group_id=svc_grp_id)
         
         if hasattr(self, 'tune_dataset'):

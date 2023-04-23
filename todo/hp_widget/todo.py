@@ -5,6 +5,7 @@ from rusel.base.views import BaseListView
 from task.const import NUM_ROLE_TODO, ROLE_ACCOUNT
 from task.models import TaskInfo
 from rusel.config import app_config
+from rusel.settings import ENV, DB
 
 class ListView(BaseListView):
     model = TaskInfo
@@ -17,7 +18,7 @@ class ListView(BaseListView):
         data = super().get_queryset()
         if data:
             lookups = Q(stop__lte=(datetime.now() + timedelta(1))) | Q(in_my_day=True) | Q(important=True)
-            svc_grp_id = int(os.environ.get('DJANGO_SERVICE_GROUP', '0'))
+            svc_grp_id = int(os.environ.get('DJANGO_SERVICE_GROUP' + ENV + DB, '0'))
             return data.filter(num_role=NUM_ROLE_TODO).filter(lookups).exclude(completed=True).exclude(group_id=svc_grp_id)
 
     def get_context_data(self, **kwargs):

@@ -153,7 +153,7 @@ def get_api_health_chart(user_id):
     return json.loads(resp.content)
 
 def build_health_chart(user_id: int):
-    if os.environ.get('DJANGO_DEVICE', 'Nuc') != 'Nuc':
+    if os.environ.get('DJANGO_DEVICE', 'Nuc') != os.environ.get('DJANGO_LOG_DEVICE', 'Nuc'):
         ret = get_api_health_chart(user_id)
         if ret:
             return ret

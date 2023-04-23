@@ -23,7 +23,7 @@ class Notificator(SiteService):
         True if any.
         """
         if 'localhost' in self.host:
-            return False
+            return False, False
         now = datetime.now()
         self.tasks = Task.objects.filter(completed=False, remind__lt=now).exclude(remind=None)
         self.log_event(EventType.INFO, 'ripe', 'result = ' + str(len(self.tasks) > 0), one_per_day=True)

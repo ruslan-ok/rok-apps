@@ -417,7 +417,7 @@ class IndividualRecord(models.Model):
         if y1 and y2:
             return y2 - y1
         return None
-    
+
     def get_photo_url(self):
         fname = ''
         indi_id = self.get_id()
@@ -589,7 +589,7 @@ class FamRecord(models.Model):
         if self.wife:
             return self.wife.name()
         return ''
-    
+
     def get_spouse(self, spouse: IndividualRecord):
         if self.husb.id == spouse.get_id():
             return self.wife

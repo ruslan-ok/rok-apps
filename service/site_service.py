@@ -15,6 +15,7 @@ class SiteService():
     def __init__(self, app, service_name, service_descr=None, device=None, local_log=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
         this_device = os.environ.get('DJANGO_DEVICE')
+        log_device = os.environ.get('DJANGO_LOG_DEVICE', 'Nuc')
         if device:
             self.device = device
         else:
@@ -26,7 +27,7 @@ class SiteService():
         self.user = os.environ.get('DJANGO_MAIL_USER')
         self.pwrd = os.environ.get('DJANGO_MAIL_PWRD')
         self.recipients = os.environ.get('DJANGO_MAIL_ADMIN')
-        self.use_log_api = (this_device != 'Nuc')
+        self.use_log_api = (this_device != log_device)
         self.local_log = local_log
         self.api_host = os.environ.get('DJANGO_HOST_LOG')
         self.api_url = f'{self.api_host}/en/api/logs/?format=json'

@@ -314,8 +314,10 @@ WITH cte_roles AS (
 		ON b.num_role = bi.num_role
 	GROUP BY
 		r.id,
-		r.num_role,
 		r.app,
+		r.num_role,
+		ri.role,
+		COALESCE(ri.icon, 'search-results'),
 		CASE WHEN r.num_role != 1 OR t.stop IS NULL THEN NULL ELSE DATEDIFF(t.stop, CURRENT_DATE()) END,
 		t.completed,
 		t.task_2_id,
@@ -445,4 +447,5 @@ WITH cte_roles AS (
 	LEFT JOIN cte_task_info ti
 		ON s.id = ti.task_id
 ;
+
 */
