@@ -114,7 +114,9 @@ class Sync():
     def fill_remote(self, root_dir, dir_role):
         self.log(EventType.INFO, 'method', 'fill_remote')
         ok = False
-        resp = requests.get(self.api_url + '/api/get_dir/?dir_role=' + dir_role, headers=self.headers, verify=self.verify)
+        import urllib3
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        resp = requests.get(self.api_url + '/api/get_dir/?dir_role=' + dir_role, headers=self.headers, verify=False) #, verify=self.verify)
         if (resp.status_code != 200):
             self.log(EventType.ERROR, 'api_call', 'Status = ' + str(resp.status_code) + '. ' + str(resp.content))
         else:
