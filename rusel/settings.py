@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 ENV = 'DEV' # 'DEV' or 'PRD'
-DB  = 'M'   # 'L' - sqlite, 'M' - mysql
+DB  = 'L'   # 'L' - sqlite, 'M' - mysql
 
 if ENV:
     ENV = '_' + ENV
@@ -43,6 +43,7 @@ ALLOWED_HOSTS = [HOST]
 INSTALLED_APPS = [
     'account.apps.AccountConfig',
     'apart.apps.ApartConfig',
+    'cram.apps.CramConfig',
     'docs.apps.DocsConfig',
     'expen.apps.ExpenConfig',
     'family.apps.FamilyConfig',

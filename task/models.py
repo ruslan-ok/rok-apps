@@ -416,6 +416,9 @@ class Task(models.Model):
 
     @classmethod
     def get_role_tasks(cls, user_id, app, role, nav_item=None):
+        if (app == APP_CRAM):
+            return []
+        
         if user_id:
             data = TaskInfo.objects.filter(user_id=user_id)
         else:

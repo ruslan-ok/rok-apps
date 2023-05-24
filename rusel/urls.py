@@ -30,6 +30,7 @@ urlpatterns = i18n_patterns(
     path('', views.ListView.as_view(), name='index'),
     path('account/',include('account.urls')),
     path('bill/',   include('apart.urls')),
+    path('cram/',   include('cram.urls')),
     path('docs/',   include('docs.urls')),
     path('expen/',  include('expen.urls')),
     path('family/', include('family.urls')),
