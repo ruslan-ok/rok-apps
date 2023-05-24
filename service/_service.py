@@ -20,7 +20,7 @@ class ApiCallStatus(Enum):
 class Params:
     host: str = os.environ.get('DJANGO_HOST', '')
     api_host: str = os.environ.get('DJANGO_HOST_API', '')
-    verify: str = '' # os.environ.get('DJANGO_CERT', '')
+    verify: str = os.environ.get('DJANGO_CERT', '')
     mail_host: str = os.environ.get('DJANGO_HOST_MAIL', '')
     user: str = os.environ.get('DJANGO_MAIL_USER', '')
     pwrd: str = os.environ.get('DJANGO_MAIL_PWRD', '')
