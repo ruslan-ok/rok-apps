@@ -1,0 +1,15 @@
+{% extends "base/page_content.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+  {{ block.super }}
+{% endblock %}
+
+{% block main %}
+<form method="post" class="d-none">{% csrf_token %}</form>
+Hello, phrases
+{% endblock %}
+
+{% block extrascript %}
+  {{ block.super }}
+{% endblock %}
