@@ -1,4 +1,5 @@
-import os.path
+import os.path, requests, json
+from datetime import datetime
 
 from datetime import datetime, timedelta
 from django.shortcuts import get_object_or_404
@@ -9,7 +10,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from task import const
-from task.models import Task, Group, TaskGroup, GIQ_ADD_TASK, GIQ_DEL_TASK
+from task.models import Task, Group, TaskGroup, GIQ_ADD_TASK, GIQ_DEL_TASK, CurrencyRate
 from rusel.utils import nice_date
 from api.serializers import TaskSerializer
 
@@ -639,3 +640,64 @@ class TaskViewSet(viewsets.ModelViewSet):
         for task in Task.objects.all():
             self._get_info(task)
         return Response({'result': 'ok'})
+        return Response(ret)
+
+    @action(detail=False)
+    def correct_expen_amount(self, request, pk=None):
+        ret = Task.correct_expen_amount()
+        return Response(ret)
+
+    @action(detail=False)
+    def update_exchange_rate(self, request, pk=None):
+        ret = Task.update_exchange_rate()
+        return Response(ret)
+
+    @action(detail=False)
+    def get_exchange_rate(self, request, pk=None):
+        ret_status = status.HTTP_400_BAD_REQUEST
+        if 'currency' not in request.query_params:
+            return Response({'result': 'error', 'info': "The 'currency' parameter expected"}, status=ret_status)
+        currency = request.query_params['currency']
+        if 'date' not in request.query_params:
+            return Response({'result': 'error', 'info': "The 'date' parameter expected"}, status=ret_status)
+        s_date = request.query_params['date']
+        try:
+            date = datetime.strptime(s_date, '%Y-%m-%d')
+        except:
+            return Response({'result': 'error', 'info': "The 'date' paramener must be in the format 'YYYY-MM-DD'"}, status=ret_status)
+
+        if CurrencyRate.objects.filter(currency=currency, date=date).exists():
+            cr = CurrencyRate.objects.filter(currency=currency, date=date).get()
+            return Response({'result': 'ok', 'num_units': cr.num_units, 'rate_usd': cr.rate_usd})
+
+        api_url = os.environ.get('API_CURR_RATE', '')
+        if not api_url:
+            return Response({'result': 'error', 'info': "API_CURR_RATE environment variable not set"}, status=ret_status)
+        token = os.environ.get('API_CURR_TOKEN', '')
+        if not token:
+            return Response({'result': 'error', 'info': "API_CURR_TOKEN environment variable not set"}, status=ret_status)
+        if '{currency}' not in api_url or '{date}' not in api_url or '{token}' not in api_url:
+            return Response({'result': 'error', 'info': "The value of the API_CURR_RATE environment variable does not contain the expected substrings '{token}', '{currency}' and '{date}'"}, status=ret_status)
+        url = api_url.replace('{token}', token).replace('{currency}', currency).replace('{date}', s_date)
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        resp = requests.get(url, headers=headers)
+        if (resp.status_code != 200):
+            ret = json.loads(resp.content)
+            ret['result'] = 'error'
+            ret_status = resp.status_code
+        else:
+            try:
+                value = json.loads(resp.content)
+                rate_usd = value['data'][currency]['value']
+                if rate_usd:
+                    ret = {'result': 'ok', 'num_units': 1, 'rate_usd': rate_usd}
+                    ret_status = status.HTTP_200_OK
+                    CurrencyRate.objects.create(currency=currency, date=date, num_units=1, rate_usd=rate_usd)
+                else:
+                    info = 'Zero rate in responce from call to API_CURR_RATE. ' + str(resp.content)
+                    ret = {'result': 'warning', 'info': info}
+            except:
+                ret = json.loads(resp.content)
+                ret['result'] = 'error'
+        return Response(ret, status=ret_status)
+    

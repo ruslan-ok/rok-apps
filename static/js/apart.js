@@ -1,7 +1,7 @@
 afterCalendarChanged(1, 1);
 
-function afterCalendarChanged(init, field) {
-  getRateOnDate('USD', init, 'id_event', 'id_bill_rate');
+function afterCalendarChanged(init, field, django_host_api) {
+  getRateOnDate(init, 'id_event', 'id_currency', 'id_bill_rate', django_host_api);
 }
 
 function showInfo(text) {

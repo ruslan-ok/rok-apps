@@ -22,25 +22,17 @@
     </div>
     <div class="row mb-3">
       <div class="col">{{ form.expen_qty.errors }}{{ form.expen_qty.label_tag }}{{ form.expen_qty }}</div>
-      {% if expen_byn %}
-        <div class="col">{{ form.expen_price.errors }}{{ form.expen_price.label_tag }}{{ form.expen_price }}</div>
-        <div class="col">
-          <label for="id_amount_nc">{% trans 'Amount in NC:' %}</label>
-          <input type="text" name="amount_nc" value="{{ amount_nc|escape }}" class="form-control" readonly id="id_amount_nc">
-        </div>
-      {% endif %}
-      {% if expen_usd %}
-        <div class="col">{{ form.expen_rate_usd.errors }}{{ form.expen_rate_usd.label_tag }}{{ form.expen_rate_usd }}</div>
-        <div class="col">{{ form.expen_usd.errors }}{{ form.expen_usd.label_tag }}{{ form.expen_usd }}</div>
-      {% endif %}
-      {% if expen_eur %}
-        <div class="col">{{ form.expen_rate_eur.errors }}{{ form.expen_rate_eur.label_tag }}{{ form.expen_rate_eur }}</div>
-        <div class="col">{{ form.expen_eur.errors }}{{ form.expen_eur.label_tag }}{{ form.expen_eur }}</div>
-      {% endif %}
-      {% if expen_gbp %}
-        <div class="col">{{ form.expen_rate_gbp.errors }}{{ form.expen_rate_gbp.label_tag }}{{ form.expen_rate_gbp }}</div>
-        <div class="col">{{ form.expen_gbp.errors }}{{ form.expen_gbp.label_tag }}{{ form.expen_gbp }}</div>
-      {% endif %}
+      <div class="col">{{ form.expen_price.errors }}{{ form.expen_price.label_tag }}{{ form.expen_price }}</div>
+      <div class="col">{{ form.price_unit.errors }}{{ form.price_unit.label_tag }}{{ form.price_unit }}</div>
+      <div class="col">
+        <label for="id_amount_curr">{% trans 'Amount:' %}</label>
+        <input type="text" name="amount_curr" value="{{ amount_curr|escape }}" class="form-control" readonly id="id_amount_curr">
+      </div>
+      <div class="col">{{ form.expen_rate_usd.errors }}{{ form.expen_rate_usd.label_tag }}{{ form.expen_rate_usd }}</div>
+      <div class="col">
+        <label for="id_amount_usd">{% trans 'Amount in USD:' %}</label>
+        <input type="text" name="amount_usd" value="{{ amount_usd|escape }}" class="form-control" readonly id="id_amount_usd">
+      </div>
     </div>
     <div class="row mb-3">
       <div class="col">

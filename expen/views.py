@@ -48,14 +48,9 @@ class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView):
             title = formats.date_format(self.object.event, 'd N Y')
 
         context['title'] = title
-        grp = self.get_group()
-        if grp:
-            context['expen_byn'] = grp.expen_byn
-            context['expen_usd'] = grp.expen_usd
-            context['expen_eur'] = grp.expen_eur
-            context['expen_gbp'] = grp.expen_gbp
         context['summary'] = self.object.expen_item_summary()
-        context['amount_nc'] = currency_repr(self.object.expen_amount('BYN'))
+        context['amount_curr'] = currency_repr(self.object.expen_amount())
+        context['amount_usd'] = currency_repr(self.object.expen_amount('USD'))
         return context
 
     def get_group(self):

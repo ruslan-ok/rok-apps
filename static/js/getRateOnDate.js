@@ -1,4 +1,4 @@
-function getRateOnDate(currency, init, id_date, id_rate) {
+function getRateOnDate(init, id_date, id_currency, id_rate, django_host_api='http://localhost:8000') {  // DJANGO_HOST_API
   var el_rate = document.getElementById(id_rate);
 
   if (!el_rate)
@@ -10,9 +10,6 @@ function getRateOnDate(currency, init, id_date, id_rate) {
       return;
   }
   
-  const request = new XMLHttpRequest();
-  const url = "https://www.nbrb.by/api/exrates/rates/" + currency;
-  
   var el_date = document.getElementById(id_date);
   if (!el_date)
     return;
@@ -21,18 +18,34 @@ function getRateOnDate(currency, init, id_date, id_rate) {
   if (dt == "")
     return;
   var z1 = new Date(dt);
-  const params = "?ondate=" + z1.toISOString().split('T')[0] + '&parammode=2';
+  s_date = z1.toISOString().split('T')[0]
+
+  var el_curr = document.getElementById(id_currency);
+  if (!el_curr)
+    return;
+
+  var currency = el_curr.value;
+  if (currency == "")
+    return;
+
+  const request = new XMLHttpRequest();
+  const url = `${django_host_api}/api/tasks/get_exchange_rate/?currency=${currency}&date=${s_date}&format=json`;
   request.responseType = "json";
-  request.open("GET", url + params, true);
+  request.open("GET", url, true);
   request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
   request.addEventListener("readystatechange", () => {
+    if (request.readyState === 4 && request.status === 422)
+      el_rate.value = '';
     if (request.readyState === 4 && request.status === 200) {
-      let obj = request.response;
-      console.log(obj);       
-      // Здесь мы можем обращаться к свойству объекта и получать его значение
-      var rate = obj.Cur_OfficialRate;
-      console.log(rate);
-      el_rate.value = rate;
+      if (!request.response)
+        console.log('[x] Empty response');
+      else {
+        let obj = request.response;
+        console.log(obj);
+        var rate = obj.rate_usd;
+        console.log(rate);
+        el_rate.value = rate;
+      }
     }
   });
  
