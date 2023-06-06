@@ -5,7 +5,7 @@ from rusel.base.forms import BaseCreateForm, BaseEditForm
 from task.models import Task, Group
 from task.const import ROLE_EXPENSE
 from expen.config import app_config
-from rusel.widgets import UrlsInput, CategoriesInput, SwitchInput, DateInput, NegativeNumberInput
+from rusel.widgets import UrlsInput, CategoriesInput, DateInput, NegativeNumberInput
 from rusel.base.forms import GroupForm
 
 role = ROLE_EXPENSE
@@ -63,7 +63,6 @@ class EditForm(BaseEditForm):
         fields = ['event', 'name', 'grp', 'expen_qty', 'expen_price', 'price_unit', 'expen_rate_usd', 'expen_kontr', 'info', 
         'url', 'categories', 'upload']
         widgets = {
-            'event': forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'class': 'form-control datetime mb-3', 'type': 'datetime-local'}),
             'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),
             'expen_kontr': forms.TextInput(attrs={'class': 'form-control'}),
         }

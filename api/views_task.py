@@ -35,7 +35,7 @@ from health.views.incident import get_info as incident_get_info
 from warr.views import get_info as warr_get_info
 from expen.views import get_info as expen_get_info
 from fuel.views.car import get_info as car_get_info
-from fuel.views.fuel import get_info as fuel_get_info
+from fuel.fuel_get_info import get_info as fuel_get_info
 from fuel.views.part import get_info as part_get_info
 from fuel.views.serv import get_info as serv_get_info
 
@@ -643,8 +643,8 @@ class TaskViewSet(viewsets.ModelViewSet):
         return Response(ret)
 
     @action(detail=False)
-    def correct_expen_amount(self, request, pk=None):
-        ret = Task.correct_expen_amount()
+    def correct_currency_amount(self, request, pk=None):
+        ret = Task.correct_currency_amount()
         return Response(ret)
 
     @action(detail=False)
@@ -661,43 +661,6 @@ class TaskViewSet(viewsets.ModelViewSet):
         if 'date' not in request.query_params:
             return Response({'result': 'error', 'info': "The 'date' parameter expected"}, status=ret_status)
         s_date = request.query_params['date']
-        try:
-            date = datetime.strptime(s_date, '%Y-%m-%d')
-        except:
-            return Response({'result': 'error', 'info': "The 'date' paramener must be in the format 'YYYY-MM-DD'"}, status=ret_status)
-
-        if CurrencyRate.objects.filter(currency=currency, date=date).exists():
-            cr = CurrencyRate.objects.filter(currency=currency, date=date).get()
-            return Response({'result': 'ok', 'num_units': cr.num_units, 'rate_usd': cr.rate_usd})
-
-        api_url = os.environ.get('API_CURR_RATE', '')
-        if not api_url:
-            return Response({'result': 'error', 'info': "API_CURR_RATE environment variable not set"}, status=ret_status)
-        token = os.environ.get('API_CURR_TOKEN', '')
-        if not token:
-            return Response({'result': 'error', 'info': "API_CURR_TOKEN environment variable not set"}, status=ret_status)
-        if '{currency}' not in api_url or '{date}' not in api_url or '{token}' not in api_url:
-            return Response({'result': 'error', 'info': "The value of the API_CURR_RATE environment variable does not contain the expected substrings '{token}', '{currency}' and '{date}'"}, status=ret_status)
-        url = api_url.replace('{token}', token).replace('{currency}', currency).replace('{date}', s_date)
-        headers = {'User-Agent': 'Mozilla/5.0'}
-        resp = requests.get(url, headers=headers)
-        if (resp.status_code != 200):
-            ret = json.loads(resp.content)
-            ret['result'] = 'error'
-            ret_status = resp.status_code
-        else:
-            try:
-                value = json.loads(resp.content)
-                rate_usd = value['data'][currency]['value']
-                if rate_usd:
-                    ret = {'result': 'ok', 'num_units': 1, 'rate_usd': rate_usd}
-                    ret_status = status.HTTP_200_OK
-                    CurrencyRate.objects.create(currency=currency, date=date, num_units=1, rate_usd=rate_usd)
-                else:
-                    info = 'Zero rate in responce from call to API_CURR_RATE. ' + str(resp.content)
-                    ret = {'result': 'warning', 'info': info}
-            except:
-                ret = json.loads(resp.content)
-                ret['result'] = 'error'
-        return Response(ret, status=ret_status)
+        ret, stat = Task.get_exchange_rate(currency, s_date)
+        return Response(ret, status=stat)
     

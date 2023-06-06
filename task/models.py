@@ -17,6 +17,7 @@ from django.core.exceptions import ValidationError
 from django.urls import NoReverseMatch
 from django.utils import formats
 
+from rest_framework import status
 from rest_framework.reverse import reverse
 
 from task import const
@@ -27,6 +28,7 @@ from rusel.files import get_files_list_by_path
 from fuel.utils import get_rest
 from news.get_info import get_info as news_get_info
 from expen.get_info import get_info as expen_get_info
+from fuel.fuel_get_info import get_info as fuel_get_info
 
 
 class Group(models.Model):
@@ -848,7 +850,50 @@ class Task(models.Model):
                 tri.save()
 
     @classmethod
-    def correct_expen_amount(cls):
+    def correct_currency_amount(cls, mode='fuel'):
+        match mode:
+            case 'fuel': return cls.correct_fuel_currency_amount()
+            case 'expen': return cls.correct_expen_currency_amount()
+            case _: return None
+
+    @classmethod
+    def correct_fuel_currency_amount(cls):
+        total = byr = byn = pln = eur = undef = upd = 0
+        undef_ids = []
+        for t in Task.objects.filter(app_fuel=NUM_ROLE_FUEL):
+            total += 1
+            prc = None
+            if t.fuel_price:
+                if not t.event:
+                    undef += 1
+                    undef_ids.append(t.id)
+                else:
+                    if t.event < datetime(2016, 6, 1):
+                        byr += 1
+                        prc = (t.fuel_price, 'BYR')
+                    elif t.event < datetime(2023, 4, 1):
+                        byn += 1
+                        prc = (t.fuel_price, 'BYN')
+                    elif t.event >= datetime(2023, 4, 29) and t.event <= datetime(2023, 5, 4):
+                        eur += 1
+                        prc = (t.fuel_price, 'EUR')
+                    else:
+                        pln += 1
+                        prc = (t.fuel_price, 'PLN')
+            if prc and (not t.price_unit or not t.expen_rate_usd):
+                upd += 1
+                t.fuel_price = prc[0]
+                t.price_unit = prc[1]
+                if t.event:
+                    rate, stat = cls.get_exchange_rate(prc[1], t.event.strftime('%Y-%m-%d'))
+                    if rate['result'] == 'ok':
+                        t.expen_rate_usd = rate['rate_usd']
+                t.save()
+            fuel_get_info(t)
+        return {'result': 'ok', 'total': total, 'byr': byr, 'byn': byn, 'pln': pln, 'eur': eur, 'undef': undef, 'undef_ids': undef_ids, 'upd': upd}
+
+    @classmethod
+    def correct_expen_currency_amount(cls):
         total = byr = byn = usd = eur = gbp = undef = conflict = upd = ins = 0
         undef_ids = []
         conflict_ids = []
@@ -912,6 +957,53 @@ class Task(models.Model):
             'inserted count': ins
         }
 
+    @classmethod
+    def get_exchange_rate(cls, currency, s_date):
+        ret_status = status.HTTP_400_BAD_REQUEST
+        try:
+            date = datetime.strptime(s_date, '%Y-%m-%d')
+        except:
+            return {'result': 'error', 'info': "The 'date' paramener must be in the format 'YYYY-MM-DD'"}, ret_status
+
+        if CurrencyRate.objects.filter(currency=currency, date=date).exists():
+            cr = CurrencyRate.objects.filter(currency=currency, date=date).get()
+            return {'result': 'ok', 'num_units': cr.num_units, 'rate_usd': cr.rate_usd}, status.HTTP_200_OK
+        
+        if datetime.today() < datetime(2023, 7, 7):
+            CurrencyRate.objects.create(currency=currency, date=date, num_units=1, rate_usd=None)
+            return {'result': 'error', 'info': 'You used all your monthly requests. Please upgrade your plan at https://app.currencyapi.com/subscription'}, ret_status
+
+        api_url = os.environ.get('API_CURR_RATE', '')
+        if not api_url:
+            return {'result': 'error', 'info': "API_CURR_RATE environment variable not set"}, ret_status
+        token = os.environ.get('API_CURR_TOKEN', '')
+        if not token:
+            return {'result': 'error', 'info': "API_CURR_TOKEN environment variable not set"}, ret_status
+        if '{currency}' not in api_url or '{date}' not in api_url or '{token}' not in api_url:
+            return {'result': 'error', 'info': "The value of the API_CURR_RATE environment variable does not contain the expected substrings '{token}', '{currency}' and '{date}'"}, ret_status
+        url = api_url.replace('{token}', token).replace('{currency}', currency).replace('{date}', s_date)
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        resp = requests.get(url, headers=headers)
+        if (resp.status_code != 200):
+            ret = json.loads(resp.content)
+            ret['result'] = 'error'
+            ret_status = resp.status_code
+        else:
+            try:
+                value = json.loads(resp.content)
+                rate_usd = value['data'][currency]['value']
+                if rate_usd:
+                    ret = {'result': 'ok', 'num_units': 1, 'rate_usd': rate_usd}
+                    ret_status = status.HTTP_200_OK
+                    CurrencyRate.objects.create(currency=currency, date=date, num_units=1, rate_usd=rate_usd)
+                else:
+                    info = 'Zero rate in responce from call to API_CURR_RATE. ' + str(resp.content)
+                    ret = {'result': 'warning', 'info': info}
+            except:
+                ret = json.loads(resp.content)
+                ret['result'] = 'error'
+        return ret, ret_status
+
 def count_rate(row):
     match row['price_unit']:
         case 'BYR': ret = row['expen_rate_usd']
@@ -921,6 +1013,7 @@ def count_rate(row):
         case 'GBP': ret = row['expen_rate_usd'] / row['expen_rate_gbp'] if row['expen_rate_usd'] and row['expen_rate_gbp'] else None
         case _: ret = None
     return ret
+
 
 
 GIQ_ADD_TASK = 1 # Task created

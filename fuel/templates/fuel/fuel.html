@@ -4,11 +4,12 @@
 {% block item_detail %}
     <div class="row mb-3">
         <div class="col">{{ form.car_odometr.label_tag }}{{ form.car_odometr }}</div>
-        <div class="col">{{ form.event.label_tag }}{{ form.event }}</div>
+        <div class="col">{{ form.event }}</div>
         <div class="col">{{ form.fuel_volume.label_tag }}{{ form.fuel_volume.errors }}{{ form.fuel_volume }}</div>
         <div class="col">{{ form.fuel_price.label_tag }}{{ form.fuel_price.errors }}{{ form.fuel_price }}</div>
-    </div>
-    <div class="row mb-3">
+        <div class="col">{{ form.price_unit.label_tag }}{{ form.price_unit.errors }}{{ form.price_unit }}</div>
+        <div class="col">{{ form.expen_rate_usd.errors }}{{ form.expen_rate_usd.label_tag }}{{ form.expen_rate_usd }}</div>
+        <div class="row mb-3">
         <div class="col">
             {{ form.info.label_tag }}{{ form.info }}
             {{ form.url.label_tag }}{{ form.url }}
@@ -27,4 +28,5 @@
 {% block extrascript %}
   {{ block.super }}
   <script src="{% static 'js/geolocation.js' %}"></script>
+  <script src="{% static 'js/fuel.js' %}"></script>
 {% endblock %}
