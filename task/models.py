@@ -350,7 +350,7 @@ class Task(models.Model):
     #------------- Health --------------
     diagnosis = models.CharField(_('diagnosis'), max_length=1000, blank=True)
     bio_height = models.IntegerField(_('height, cm'), blank=True, null=True)
-    bio_weight = models.DecimalField(_('weight, kg'), blank=True, null=True, max_digits=5, decimal_places=1)
+    bio_weight = models.DecimalField(_('weight, kg'), blank=True, null=True, max_digits=5, decimal_places=2)
     bio_temp = models.DecimalField(_('temperature'), blank=True, null=True, max_digits=4, decimal_places=1)
     bio_waist = models.IntegerField(_('waist circumference'), blank=True, null=True)
     bio_systolic = models.IntegerField(_('systolic blood pressure'), blank=True, null=True)

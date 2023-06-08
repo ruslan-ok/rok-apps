@@ -27,8 +27,8 @@ class EditForm(BaseEditForm):
         widgets = {
             'event': DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'label': _('Event date'), 'type': 'datetime-local'}),
             'bio_height': NumberInput(attrs={'label':_('Height, cm'), 'step': '1'}),
-            'bio_weight': NumberInput(attrs={'label':_('Weight, kg'), 'step': '0.1'}),
-            'bio_temp': NumberInput(attrs={'label':_('Temperature, °C'), 'step': '0.01'}),
+            'bio_weight': NumberInput(attrs={'label':_('Weight, kg'), 'step': '0.01'}),
+            'bio_temp': NumberInput(attrs={'label':_('Temperature, °C'), 'step': '0.1'}),
             'bio_waist': NumberInput(attrs={'label':_('Waist circumference, cm'), 'step': '1'}),
             'bio_systolic': NumberInput(attrs={'label':_('Systolic blood pressure'), 'step': '1'}),
             'bio_diastolic': NumberInput(attrs={'label':_('Diastolic blood pressure'), 'step': '1'}),
