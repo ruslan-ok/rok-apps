@@ -41,7 +41,7 @@ class FolderForm(GroupForm):
         }
 #----------------------------------
 class UploadForm(forms.Form):
-    upload = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
+    upload = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': False}))
 
 class PhotoForm(forms.Form):
     class Meta:
