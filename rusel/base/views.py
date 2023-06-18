@@ -15,7 +15,7 @@ from rusel.base.forms import GroupForm
 from rusel.base.context import Context
 from rusel.search import search_in_files
 from task.const import *
-from task.models import Task, Group, TaskGroup, Urls, GIQ_ADD_TASK, GIQ_DEL_TASK
+from task.models import Task, Group, TaskGroup, Urls, GIQ_ADD_TASK, GIQ_DEL_TASK #, GRP_PLANNED_NONE, GRP_PLANNED_EARLIER, GRP_PLANNED_TODAY, GRP_PLANNED_TOMORROW, GRP_PLANNED_ON_WEEK, GRP_PLANNED_LATER, GRP_PLANNED_DONE, SUBGROUP_NAME
 
 BG_IMAGES = [
     'beach',
@@ -56,13 +56,13 @@ class BaseListView(ListView, Context):
 
     def get_queryset(self):
         if not self.request.user.is_authenticated:
-            return []
+            return None
         query = None
         if (self.request.method == 'GET'):
             query = self.request.GET.get('q')
             app = self.request.GET.get('app')
             if (app == APP_DOCS or app == APP_PHOTO):
-                return query
+                return None
         data = self.get_sorted_items(query)
         if self.config.limit_list:
             data = data[:self.config.limit_list]
@@ -106,6 +106,10 @@ class BaseListView(ListView, Context):
         if use_sub_groups:
             sub_groups = self.load_sub_groups()
             for task in self.object_list:
+                """
+                subgroup_id, subgroup_name = task.get_subgroup()
+                group = self.find_sub_group(sub_groups, subgroup_id, subgroup_name)
+                """
                 group = self.find_sub_group(sub_groups, task.subgroup_id, task.subgroup_name)
                 group['items'].append(task)
             self.save_sub_groups(sub_groups)

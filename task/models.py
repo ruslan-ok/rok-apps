@@ -389,33 +389,46 @@ class Task(models.Model):
         nav_role = cls.get_nav_role(app)
         if (not nav_role or not active_nav_item_id):
             return None
-        nav_items = Task.get_role_tasks(user_id, app, nav_role)
-        for task_info in nav_items.filter(active=True):
-            task = Task.objects.filter(id=task_info.id).get()
-            task.active = False
-            task.save()
-        nav_item_info = nav_items.filter(id=active_nav_item_id).get()
-        nav_item = Task.objects.filter(id=nav_item_info.id).get()
-        nav_item.active = True
-        nav_item.save()
-        return nav_item
+        role_id = ROLES_IDS[app][nav_role]
+        cur_active = None
+        if (app == APP_APART) and Task.objects.filter(user=user_id, app_apart=role_id, active=True).exists():
+            cur_active = Task.objects.filter(user=user_id, app_apart=role_id, active=True).get()
+        if (app == APP_FUEL) and Task.objects.filter(user=user_id, app_fuel=role_id, active=True).exists():
+            cur_active = Task.objects.filter(user=user_id, app_fuel=role_id, active=True).get()
+        if not cur_active:
+            return None
+        if cur_active.id == active_nav_item_id:
+            return cur_active
+        cur_active.active = False
+        cur_active.save()
+        if Task.objects.filter(user=user_id, id=active_nav_item_id).exists():
+            new_active = Task.objects.filter(user=user_id, id=active_nav_item_id).get()
+            new_active.active = True
+            new_active.save()
+            return new_active
+        return None
 
     @classmethod
     def get_active_nav_item(cls, user_id, app):
         nav_role = cls.get_nav_role(app)
-        if nav_role:
-            nav_items = Task.get_role_tasks(user_id, app, nav_role)
-            ti = None
-            if nav_items.filter(active=True).exists():
-                ti = nav_items.filter(active=True).order_by('name')[0]
-            elif (len(nav_items) > 0):
-                ti = nav_items.order_by('name')[0]
-            if ti:
-                return Task.objects.filter(id=ti.id).get()
-        return None
+        if not nav_role:
+            return None
+        role_id = ROLES_IDS[app][nav_role]
+        cur_active = None
+        if (app == APP_APART) and Task.objects.filter(user=user_id, app_apart=role_id, active=True).exists():
+            cur_active = Task.objects.filter(user=user_id, app_apart=role_id, active=True).get()
+        if (app == APP_FUEL) and Task.objects.filter(user=user_id, app_fuel=role_id, active=True).exists():
+            cur_active = Task.objects.filter(user=user_id, app_fuel=role_id, active=True).get()
+        return cur_active
 
     @classmethod
     def get_role_tasks(cls, user_id, app, role, nav_item=None):
+        """
+        if user_id:
+            data = Task.objects.filter(user=user_id)
+        else:
+            data = Task.objects.all()
+        """
         if user_id:
             data = TaskInfo.objects.filter(user_id=user_id)
         else:
@@ -426,6 +439,22 @@ class Task(models.Model):
 
         if (app != APP_ALL) and (app != APP_HOME):
             role_id = ROLES_IDS[app][role]
+            """
+            match app:
+                case const.APP_TODO: data = data.filter(app_task=role_id)
+                case const.APP_NOTE: data = data.filter(app_note=role_id)
+                case const.APP_NEWS: data = data.filter(app_news=role_id)
+                case const.APP_STORE: data = data.filter(app_store=role_id)
+                case const.APP_DOCS: data = data.filter(app_doc=role_id)
+                case const.APP_WARR: data = data.filter(app_warr=role_id)
+                case const.APP_EXPEN: data = data.filter(app_expen=role_id)
+                case const.APP_TRIP: data = data.filter(app_trip=role_id)
+                case const.APP_FUEL: data = data.filter(app_fuel=role_id)
+                case const.APP_APART: data = data.filter(app_apart=role_id)
+                case const.APP_HEALTH: data = data.filter(app_health=role_id)
+                case const.APP_WORK: data = data.filter(app_work=role_id)
+                case const.APP_PHOTO: data = data.filter(app_photo=role_id)
+            """
             data = data.filter(num_role=role_id)
         return data
 
@@ -941,7 +970,101 @@ class Task(models.Model):
                 tri.info = str_info
                 tri.files_qnt = qnt
                 tri.save()
+"""
+    def get_custom_attr(self, app=APP_TODO, role=NUM_ROLE_TODO):
+        if TaskRoleInfo.objects.filter(task=self.id, app=app, role=role).exists():
+            custom_attr = TaskRoleInfo.objects.filter(task=self.id, app=app, role=role).get()
+            if custom_attr and custom_attr.info:
+                return json.loads(custom_attr.info)
+        return None
 
+    def get_subgroup_id(self):
+        if self.completed:
+            return GRP_PLANNED_DONE
+        if self.app_task == NUM_ROLE_TODO:
+            termin = None
+            if self.stop:
+                termin = (self.stop - datetime.today()).days
+            if not termin:
+                return GRP_PLANNED_NONE
+            if termin < 0:
+                return GRP_PLANNED_EARLIER
+            if termin == 0:
+                return GRP_PLANNED_TODAY
+            if termin == 1:
+                return GRP_PLANNED_TOMORROW
+            if termin < 8:
+                return GRP_PLANNED_ON_WEEK
+            return GRP_PLANNED_LATER
+        if self.app_fuel == NUM_ROLE_SERVICE:
+            return self.task_2.id
+        if self.app_apart == NUM_ROLE_PRICE:
+            return self.price_service
+        return None
+
+    def get_subgroup(self):
+        subgroup_id = self.get_subgroup_id()
+        subgroup_name = ''
+        if self.app_apart == NUM_ROLE_PRICE:
+            if self.task_2:
+                subgroup_name = self.task_2.name
+        else:
+            role_id = None
+            if self.app_task == NUM_ROLE_TODO:
+                role_id = NUM_ROLE_TODO
+            if self.app_fuel == NUM_ROLE_SERVICE:
+                role_id = NUM_ROLE_SERVICE
+            if role_id:
+                subgroup_name = SUBGROUP_NAME[role_id][subgroup_id]
+        return subgroup_id, subgroup_name
+
+
+GRP_PLANNED_NONE     = 0
+GRP_PLANNED_EARLIER  = 1
+GRP_PLANNED_TODAY    = 2
+GRP_PLANNED_TOMORROW = 3
+GRP_PLANNED_ON_WEEK  = 4
+GRP_PLANNED_LATER    = 5
+GRP_PLANNED_DONE     = 6
+
+SUBGROUP_NAME = {
+    NUM_ROLE_TODO: {
+        GRP_PLANNED_NONE: '',
+        GRP_PLANNED_EARLIER: _('earlier'),
+        GRP_PLANNED_TODAY: _('today'),
+        GRP_PLANNED_TOMORROW: _('tomorrow'),
+        GRP_PLANNED_ON_WEEK: _('on the week'),
+        GRP_PLANNED_LATER: _('later'),
+        GRP_PLANNED_DONE: _('completed'),
+    },
+    NUM_ROLE_SERVICE: {
+        0: 'не задано',
+        1: 'электроснабжение',
+        2: 'газоснабжение',
+        3: 'вода',
+        4: 'водоснабжение',
+        5: 'водоотведение',
+        6: 'не задано',
+        7: '!?-7',
+        9: '!?-8',
+        10: 'kill',
+        11: 'электроснабжение',
+        12: '!?-11',
+        13: 'kill-1',
+        14: 'kill-3',
+        15: 'kill-2',
+        16: '!?-15',
+        17: 'членские взносы',
+        18: '!?-17',
+        19: '!?-18',
+        20: '!?-19',
+        21: '!?-20',
+    },
+    NUM_ROLE_PRICE: {
+
+    },
+}
+"""
 
 GIQ_ADD_TASK = 1 # Task created
 GIQ_DEL_TASK = 2 # Task deleted

@@ -9,6 +9,9 @@ from apart.config import app_config
 from apart.views.meter import next_period
 from apart.calc_tarif import HSC, INTERNET, PHONE, get_bill_info
 
+import time
+import cProfile, pstats, sys
+
 app = APP_APART
 role = ROLE_BILL
 
@@ -24,6 +27,18 @@ class ListView(LoginRequiredMixin, PermissionRequiredMixin, BaseListView):
         form.instance.app_apart = NUM_ROLE_BILL
         response = super().form_valid(form)
         return response
+    
+    def get(self, request):
+        start = time.time()
+        prof = cProfile.Profile()
+        prof.enable()
+        ret = super().get(request)
+        prof.disable()
+        end = time.time()
+        print("get(): " + str(end-start) + "s")
+        ps = pstats.Stats(prof)
+        ps.dump_stats('c:\\Xlam\\stats.txt')
+        return ret
 
 class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView):
     model = Task
