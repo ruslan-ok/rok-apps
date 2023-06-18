@@ -4,9 +4,9 @@ from urllib.parse import urlparse
 from django.utils.crypto import get_random_string
 import requests
 from datetime import date
-import pandas as pd
 from collections import Counter
 from decimal import Decimal
+import pandas as pd
 
 from datetime import date, time, datetime, timedelta
 from django.db import models
@@ -324,7 +324,7 @@ class Task(models.Model):
     #------------- Health --------------
     diagnosis = models.CharField(_('diagnosis'), max_length=1000, blank=True)
     bio_height = models.IntegerField(_('height, cm'), blank=True, null=True)
-    bio_weight = models.DecimalField(_('weight, kg'), blank=True, null=True, max_digits=5, decimal_places=1)
+    bio_weight = models.DecimalField(_('weight, kg'), blank=True, null=True, max_digits=5, decimal_places=2)
     bio_temp = models.DecimalField(_('temperature'), blank=True, null=True, max_digits=4, decimal_places=1)
     bio_waist = models.IntegerField(_('waist circumference'), blank=True, null=True)
     bio_systolic = models.IntegerField(_('systolic blood pressure'), blank=True, null=True)
@@ -1436,6 +1436,9 @@ class Weather(models.Model):
 
 class CurrencyRate(models.Model):
     currency = models.CharField('Currency', max_length=10, blank=False)
+    base = models.CharField('Base currency', max_length=10, blank=True, default='USD')
     date = models.DateField('Rate Date', blank=False, null=False)
     num_units = models.IntegerField('Number of units exchanged', null=False, default=1)
-    rate_usd = models.DecimalField('Exchange rate to USD', blank=True, null=True, max_digits=15, decimal_places=4)
+    value = models.DecimalField('Exchange rate to USD', blank=True, null=True, max_digits=15, decimal_places=4)
+    source = models.CharField('Data source', max_length=200, blank=True)
+    info = models.CharField('Comment', max_length=1000, blank=True)

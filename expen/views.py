@@ -65,6 +65,8 @@ class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView):
         return response
 
 def currency_repr(value):
+    if not value:
+        return '0'
     if (round(value, 2) % 1):
         return '{:,.2f}'.format(value).replace(',', '`')
     return '{:,.0f}'.format(value).replace(',', '`')
