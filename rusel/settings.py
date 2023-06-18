@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 ENV = 'DEV' # 'DEV' or 'PRD'
-DB  = 'M'   # 'L' - sqlite, 'M' - mysql
+DB  = 'L'   # 'L' - sqlite, 'M' - mysql
 
 if ENV:
     ENV = '_' + ENV

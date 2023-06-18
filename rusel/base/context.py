@@ -94,20 +94,21 @@ class Context:
                         url += '?'
                     url += 'folder=' + folder
             active = (self.config.cur_view_group.determinator == determinator) and (self.config.cur_view_group.view_id == view_id)
-            hide_qty = False
-            if ('hide_qty' in value):
-                hide_qty = value['hide_qty']
-            if hide_qty:
-                qty = None
-                if active and hasattr(self, 'object_list'):
-                    qty = len(self.object_list)
-            else:
-                if (view_id == self.config.group_entity):
-                    _nav_item = None
+            qty = None
+            if not self.config.global_hide_qty:
+                hide_qty = False
+                if ('hide_qty' in value):
+                    hide_qty = value['hide_qty']
+                if hide_qty:
+                    if active and hasattr(self, 'object_list'):
+                        qty = len(self.object_list)
                 else:
-                    _nav_item = nav_item
-                fix_group = detect_group(self.request.user, self.config.app, determinator, view_id, value['title'].capitalize())
-                qty = self.get_view_qty(fix_group, _nav_item)
+                    if (view_id == self.config.group_entity):
+                        _nav_item = None
+                    else:
+                        _nav_item = nav_item
+                    fix_group = detect_group(self.request.user, self.config.app, determinator, view_id, value['title'].capitalize())
+                    qty = self.get_view_qty(fix_group, _nav_item)
             fix = {
                 'determinator': determinator,
                 'id': view_id, 
@@ -159,10 +160,13 @@ class Context:
             sort = nav_item_group.items_sort
         ret = []
         for item in Task.get_role_tasks(self.request.user.id, self.config.app, nav_role).order_by(sort):
+            qty = None
+            if not self.config.global_hide_qty:
+                qty = len(Task.get_role_tasks(self.request.user.id, self.config.app, self.config.cur_view_group.view_id, item))
             ret.append({
                 'id': item.id, 
                 'name': item.name, 
-                'qty': len(Task.get_role_tasks(self.request.user.id, self.config.app, self.config.cur_view_group.view_id, item)), 
+                'qty': qty,
                 'href': href, 
                 })
         return ret

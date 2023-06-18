@@ -18,6 +18,15 @@ class ListView(LoginRequiredMixin, PermissionRequiredMixin, BaseListView):
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
 
+    def get_queryset(self):
+        data = super().get_queryset()
+        query = None
+        if (self.request.method == 'GET'):
+            query = self.request.GET.get('q')
+        if not data or query:
+            return data
+        return data[:12]
+
     def form_valid(self, form):
         form.instance.app_apart = NUM_ROLE_METER
         response = super().form_valid(form)
