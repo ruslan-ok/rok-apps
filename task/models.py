@@ -3,16 +3,21 @@ import os, calendar, json, urllib
 from urllib.parse import urlparse
 from django.utils.crypto import get_random_string
 import requests
+from datetime import date
+from collections import Counter
+from decimal import Decimal
+import pandas as pd
 
 from datetime import date, time, datetime, timedelta
 from django.db import models
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy, gettext_lazy as _
 from django.contrib.auth.models import User
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
 from django.urls import NoReverseMatch
 from django.utils import formats
 
+from rest_framework import status
 from rest_framework.reverse import reverse
 
 from task import const
@@ -23,6 +28,7 @@ from rusel.files import get_files_list_by_path
 from fuel.utils import get_rest
 from news.get_info import get_info as news_get_info
 from expen.get_info import get_info as expen_get_info
+from fuel.fuel_get_info import get_info as fuel_get_info
 
 
 class Group(models.Model):
@@ -53,6 +59,7 @@ class Group(models.Model):
     expen_usd = models.BooleanField(_('totals in USD'), null=True)
     expen_eur = models.BooleanField(_('totals in EUR'), null=True)
     expen_gbp = models.BooleanField(_('totals in GBP'), null=True)
+    currency = models.CharField(_('default currency'), max_length=10, blank=True)
 
     class Meta:
         verbose_name=_('task group')
@@ -127,61 +134,28 @@ class Group(models.Model):
         self.items_sort = ''
         self.save()
 
-    def expen_what_totals(self):
-        if (not self.expen_byn) and (not self.expen_usd) and (not self.expen_eur) and (not self.expen_gbp):
-            return True, False, False, False
-        return self.expen_byn, self.expen_usd, self.expen_eur, self.expen_gbp
-
-    def expen_get_totals(self):
-        byn = usd = eur = gbp = 0
-        in_byn, in_usd, in_eur, in_gbp = self.expen_what_totals()
+    def expen_get_amounts(self) -> tuple[Counter, Decimal]:
+        amount_usd = 0
+        cnt = Counter()
         for exp in TaskGroup.objects.filter(group=self.id):
-            if in_byn:
-                byn += exp.task.expen_amount('BYN')
-            if in_usd:
-                usd += exp.task.expen_amount('USD')
-            if in_eur:
-                eur += exp.task.expen_amount('EUR')
-            if in_gbp:
-                gbp += exp.task.expen_amount('GBP')
-        return byn, usd, eur, gbp
-    
-    def expen_get_amounts(self): # is
-        byn = usd = eur = gbp = 0
-        in_byn, in_usd, in_eur, in_gbp = self.expen_what_totals()
-        for exp in TaskGroup.objects.filter(group=self.id):
-            if exp.task.expen_qty:
-                if in_byn and exp.task.expen_price:
-                    byn += exp.task.expen_price * exp.task.expen_qty
-                if in_usd and exp.task.expen_usd:
-                    usd += exp.task.expen_usd * exp.task.expen_qty
-                if in_eur and exp.task.expen_eur:
-                    eur += exp.task.expen_eur * exp.task.expen_qty
-                if in_gbp and exp.task.expen_gbp:
-                    gbp += exp.task.expen_gbp * exp.task.expen_qty
-        return byn, usd, eur, gbp
+            if exp.task.expen_qty and exp.task.expen_price and exp.task.price_unit:
+                currency = exp.task.price_unit
+                amount = exp.task.expen_price * exp.task.expen_qty
+                cnt[currency] += amount
+                if currency == 'USD':
+                    amount_usd += amount
+                elif exp.task.expen_rate_usd:
+                    amount_usd += amount / exp.task.expen_rate_usd
+        return cnt, amount_usd
 
     def expen_summary(self):
-        in_byn, in_usd, in_eur, in_gbp = self.expen_what_totals()
-        t_byn, t_usd, t_eur, t_gbp = self.expen_get_totals()
-        a_byn, a_usd, a_eur, a_gbp = self.expen_get_amounts()
+        amounts, amount_usd = self.expen_get_amounts()
+
         res = []
-        if in_usd and a_usd:
-            res.append(currency_repr(a_usd, '$'))
-        if in_eur and a_eur:
-            res.append(currency_repr(a_eur, '€'))
-        if in_gbp and a_gbp:
-            res.append(currency_repr(a_gbp, '£'))
-        if in_byn and a_byn:
-            res.append(currency_repr(a_byn, ' BYN'))
-        if in_usd:
-            res.append(currency_repr(t_usd, '$', 'bg-primary text-white'))
-        if in_eur:
-            res.append(currency_repr(t_eur, '€', 'bg-primary text-white'))
-        if in_gbp:
-            res.append(currency_repr(t_gbp, '£', 'bg-primary text-white'))
-        if in_byn:
-            res.append(currency_repr(t_byn, ' BYN', 'bg-primary text-white'))
+        if len(amounts) > 0 or 'USD' not in amounts:
+            for currency, value in amounts.items():
+                res.append(currency_repr(value, currency))
+        res.append(currency_repr(amount_usd, '$', 'bg-primary text-white'))
         return res
 
     def get_absolute_url(self):
@@ -274,8 +248,8 @@ class Task(models.Model):
     longitude = models.CharField('Longitude', max_length=15, blank=True, null=True)
     #------------ Expenses ------------
     expen_qty = models.DecimalField(_('Quantity'), blank=True, null=True, max_digits=15, decimal_places=3)
-    expen_price = models.DecimalField(_('Price in NC'), blank=True, null=True, max_digits=15, decimal_places=2)
-    expen_rate_usd = models.DecimalField(_('USD exchange rate'), blank=True, null=True, max_digits=15, decimal_places=4)
+    expen_price = models.DecimalField(pgettext_lazy('Expen', 'Price'), blank=True, null=True, max_digits=15, decimal_places=2)
+    expen_rate_usd = models.DecimalField(_('Exchange rate to USD'), blank=True, null=True, max_digits=15, decimal_places=5)
     expen_rate_eur = models.DecimalField(_('EUR exchange rate'), blank=True, null=True, max_digits=15, decimal_places=4)
     expen_rate_gbp = models.DecimalField(_('GBP exchange rate'), blank=True, null=True, max_digits=15, decimal_places=4)
     expen_usd = models.DecimalField(_('amount in USD'), blank=True, null=True, max_digits=15, decimal_places=2)
@@ -314,7 +288,7 @@ class Task(models.Model):
     price_tarif2 = models.DecimalField(_('tariff 2'), null=True, max_digits=15, decimal_places=5)
     price_border2 = models.DecimalField(_('border 2'), null=True, max_digits=15, decimal_places=4)
     price_tarif3 = models.DecimalField(_('tariff 3'), null=True, max_digits=15, decimal_places=5)
-    price_unit = models.CharField(_('unit'), max_length=100, blank=True, null=True)
+    price_unit = models.CharField(_('currency'), max_length=100, blank=True, null=True)
     #------------- Bill ---------------
     bill_residents = models.IntegerField(_('number of residents'), null=True)
     bill_el_pay = models.DecimalField('electro - payment', null=True, max_digits=15, decimal_places=2)
@@ -814,90 +788,23 @@ class Task(models.Model):
         else:
             return _('Add in "My day"')
 
-    def expen_amount(self, currency):
-        byn = 0
+    def expen_amount(self, currency=None):
+        amount = None
         if self.expen_price:
-            byn = self.expen_price
+            amount = self.expen_price
             if self.expen_qty:
-                byn = self.expen_price * self.expen_qty
+                amount = self.expen_price * self.expen_qty
 
-        if (currency == 'USD'):
-            if self.expen_usd:
-                if self.expen_qty:
-                    return self.expen_usd * self.expen_qty
-                return self.expen_usd
-            if byn and self.expen_rate_usd:
-                return byn / self.expen_rate_usd
+        if amount and (currency == 'USD') and (self.price_unit != 'USD') and self.expen_rate_usd:
+            amount = amount / self.expen_rate_usd
 
-        if (currency == 'EUR'):
-            if self.expen_eur:
-                if self.expen_qty:
-                    return self.expen_eur * self.expen_qty
-                return self.expen_eur
-            if byn and self.expen_rate_eur:
-                return byn / self.expen_rate_eur
-
-        if (currency == 'GBP'):
-            if self.expen_gbp:
-                if self.expen_qty:
-                    return self.expen_gbp * self.expen_qty
-                return self.expen_gbp
-            if byn and self.expen_rate_gbp:
-                return byn / self.expen_rate_gbp
-
-        if (currency == 'BYN'):
-            if self.expen_price:
-                return byn
-
-            if self.expen_usd and self.expen_rate_usd:
-                if self.expen_qty:
-                    return self.expen_usd * self.expen_qty * self.expen_rate_usd
-                return self.expen_usd * self.expen_rate_usd
-
-            if self.expen_eur and self.expen_rate_eur:
-                if self.expen_qty:
-                    return self.expen_eur * self.expen_qty * self.expen_rate_eur
-                return self.expen_eur * self.expen_rate_eur
-
-            if self.expen_gbp and self.expen_rate_gbp:
-                if self.expen_qty:
-                    return self.expen_gbp * self.expen_qty * self.expen_rate_gbp
-                return self.expen_gbp * self.expen_rate_gbp
-
-        return 0
-
-    def expen_get_amounts(self):
-        byn = usd = eur = gbp = 0
-        if TaskGroup.objects.filter(task=self.id, role=ROLE_EXPENSE).exists():
-            tg = TaskGroup.objects.filter(task=self.id, role=ROLE_EXPENSE).get()
-            in_byn, in_usd, in_eur, in_gbp = tg.group.expen_what_totals()
-        else:
-            in_byn, in_usd, in_eur, in_gbp = True, False, False, False
-        if self.expen_qty:
-            if in_byn and self.expen_price:
-                byn += self.expen_price * self.expen_qty
-            if in_usd and self.expen_usd:
-                usd += self.expen_usd * self.expen_qty
-            if in_eur and self.expen_eur:
-                eur += self.expen_eur * self.expen_qty
-            if in_gbp and self.expen_gbp:
-                gbp += self.expen_gbp * self.expen_qty
-        return byn, usd, eur, gbp
+        return amount
 
     def expen_item_summary(self):
-        byn, usd, eur, gbp = self.expen_get_amounts()
         res = []
-        if usd:
-            res.append(currency_repr(usd, '$'))
-        if eur:
-            res.append(currency_repr(eur, '€'))
-        if gbp:
-            res.append(currency_repr(gbp, '£'))
-        if byn and self.event:
-            if (self.event < datetime(2016, 6, 1)):
-                res.append(currency_repr(byn, ' BYR'))
-            else:
-                res.append(currency_repr(byn, ' BYN'))
+        if self.expen_qty and self.expen_price and self.price_unit:
+            value = self.expen_price * self.expen_qty
+            res.append(currency_repr(value, self.price_unit))
         return res
 
     def correct_groups_qty(self, mode, group_id=None, role=None):
@@ -970,101 +877,172 @@ class Task(models.Model):
                 tri.info = str_info
                 tri.files_qnt = qnt
                 tri.save()
-"""
-    def get_custom_attr(self, app=APP_TODO, role=NUM_ROLE_TODO):
-        if TaskRoleInfo.objects.filter(task=self.id, app=app, role=role).exists():
-            custom_attr = TaskRoleInfo.objects.filter(task=self.id, app=app, role=role).get()
-            if custom_attr and custom_attr.info:
-                return json.loads(custom_attr.info)
-        return None
 
-    def get_subgroup_id(self):
-        if self.completed:
-            return GRP_PLANNED_DONE
-        if self.app_task == NUM_ROLE_TODO:
-            termin = None
-            if self.stop:
-                termin = (self.stop - datetime.today()).days
-            if not termin:
-                return GRP_PLANNED_NONE
-            if termin < 0:
-                return GRP_PLANNED_EARLIER
-            if termin == 0:
-                return GRP_PLANNED_TODAY
-            if termin == 1:
-                return GRP_PLANNED_TOMORROW
-            if termin < 8:
-                return GRP_PLANNED_ON_WEEK
-            return GRP_PLANNED_LATER
-        if self.app_fuel == NUM_ROLE_SERVICE:
-            return self.task_2.id
-        if self.app_apart == NUM_ROLE_PRICE:
-            return self.price_service
-        return None
+    @classmethod
+    def correct_currency_amount(cls, mode='fuel'):
+        match mode:
+            case 'fuel': return cls.correct_fuel_currency_amount()
+            case 'expen': return cls.correct_expen_currency_amount()
+            case _: return None
 
-    def get_subgroup(self):
-        subgroup_id = self.get_subgroup_id()
-        subgroup_name = ''
-        if self.app_apart == NUM_ROLE_PRICE:
-            if self.task_2:
-                subgroup_name = self.task_2.name
+    @classmethod
+    def correct_fuel_currency_amount(cls):
+        total = byr = byn = pln = eur = undef = upd = 0
+        undef_ids = []
+        for t in Task.objects.filter(app_fuel=NUM_ROLE_FUEL):
+            total += 1
+            prc = None
+            if t.fuel_price:
+                if not t.event:
+                    undef += 1
+                    undef_ids.append(t.id)
+                else:
+                    if t.event < datetime(2016, 6, 1):
+                        byr += 1
+                        prc = (t.fuel_price, 'BYR')
+                    elif t.event < datetime(2023, 4, 1):
+                        byn += 1
+                        prc = (t.fuel_price, 'BYN')
+                    elif t.event >= datetime(2023, 4, 29) and t.event <= datetime(2023, 5, 4):
+                        eur += 1
+                        prc = (t.fuel_price, 'EUR')
+                    else:
+                        pln += 1
+                        prc = (t.fuel_price, 'PLN')
+            if prc and (not t.price_unit or not t.expen_rate_usd):
+                upd += 1
+                t.fuel_price = prc[0]
+                t.price_unit = prc[1]
+                if t.event:
+                    rate, stat = cls.get_exchange_rate(prc[1], t.event.strftime('%Y-%m-%d'))
+                    if rate['result'] == 'ok':
+                        t.expen_rate_usd = rate['rate_usd']
+                t.save()
+            fuel_get_info(t)
+        return {'result': 'ok', 'total': total, 'byr': byr, 'byn': byn, 'pln': pln, 'eur': eur, 'undef': undef, 'undef_ids': undef_ids, 'upd': upd}
+
+    @classmethod
+    def correct_expen_currency_amount(cls):
+        total = byr = byn = usd = eur = gbp = undef = conflict = upd = ins = 0
+        undef_ids = []
+        conflict_ids = []
+        for t in Task.objects.exclude(app_expen=0):
+            total += 1
+            sums = []
+            if t.expen_price:
+                if not t.event:
+                    undef += 1
+                    undef_ids.append(t.id)
+                else:
+                    if t.event < datetime(2016, 6, 1):
+                        byr += 1
+                        sums.append((t.expen_price, 'BYR'))
+                    else:
+                        byn += 1
+                        sums.append((t.expen_price, 'BYN'))
+            if t.expen_usd:
+                usd += 1
+                sums.append((t.expen_usd, 'USD'))
+            if t.expen_eur:
+                eur += 1
+                sums.append((t.expen_eur, 'EUR'))
+            if t.expen_gbp:
+                gbp += 1
+                sums.append((t.expen_gbp, 'GBP'))
+            if len(sums) > 1:
+                conflict += 1
+                conflict_ids.append(t.id)
+            if len(sums) > 0 and not t.price_unit:
+                for i, s in enumerate(sums):
+                    if i == 0:
+                        upd += 1
+                    else:
+                        ins += 1
+                        t.pk = None
+                    t.expen_price = s[0]
+                    t.price_unit = s[1]
+                    t.save()
+        return {'result': 'ok', 'total': total, 'byr': byr, 'byn': byn, 'usd': usd, 'eur': eur, 'gbp': gbp, 'undef': undef, 'undef_ids': undef_ids, 'conflict': conflict, 'conflict_ids': conflict_ids, 'ins': ins, 'upd': upd}
+
+    @classmethod
+    def update_exchange_rate(cls):
+        items1 = Task.objects.exclude(price_unit=None).exclude(event=None)
+        df = pd.DataFrame(items1.values())
+        df['d_event'] = pd.to_datetime(df['event']).dt.date
+        df = df[['d_event', 'price_unit', 'expen_rate_usd', 'expen_rate_eur', 'expen_rate_gbp']].drop_duplicates()
+        df['expen_rate'] = df.apply(lambda row: count_rate(row), axis=1)
+        df = df.reset_index()
+        CurrencyRate.objects.all().delete()
+        ins = 0
+        for index, row in df.iterrows():
+            if row['expen_rate'] and row['price_unit'] != 'USD':
+                CurrencyRate.objects.create(currency=row['price_unit'],
+                                            date=row['d_event'],
+                                            num_units=1,
+                                            rate_usd=row['expen_rate'])
+                ins += 1
+        return {
+            'result': 'ok', 
+            'inserted count': ins
+        }
+
+    @classmethod
+    def get_exchange_rate(cls, currency, s_date):
+        ret_status = status.HTTP_400_BAD_REQUEST
+        try:
+            date = datetime.strptime(s_date, '%Y-%m-%d')
+        except:
+            return {'result': 'error', 'info': "The 'date' paramener must be in the format 'YYYY-MM-DD'"}, ret_status
+
+        if CurrencyRate.objects.filter(currency=currency, date=date).exists():
+            cr = CurrencyRate.objects.filter(currency=currency, date=date).get()
+            return {'result': 'ok', 'num_units': cr.num_units, 'rate_usd': cr.rate_usd}, status.HTTP_200_OK
+        
+        if datetime.today() < datetime(2023, 7, 7):
+            CurrencyRate.objects.create(currency=currency, date=date, num_units=1, rate_usd=None)
+            return {'result': 'error', 'info': 'You used all your monthly requests. Please upgrade your plan at https://app.currencyapi.com/subscription'}, ret_status
+
+        api_url = os.environ.get('API_CURR_RATE', '')
+        if not api_url:
+            return {'result': 'error', 'info': "API_CURR_RATE environment variable not set"}, ret_status
+        token = os.environ.get('API_CURR_TOKEN', '')
+        if not token:
+            return {'result': 'error', 'info': "API_CURR_TOKEN environment variable not set"}, ret_status
+        if '{currency}' not in api_url or '{date}' not in api_url or '{token}' not in api_url:
+            return {'result': 'error', 'info': "The value of the API_CURR_RATE environment variable does not contain the expected substrings '{token}', '{currency}' and '{date}'"}, ret_status
+        url = api_url.replace('{token}', token).replace('{currency}', currency).replace('{date}', s_date)
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        resp = requests.get(url, headers=headers)
+        if (resp.status_code != 200):
+            ret = json.loads(resp.content)
+            ret['result'] = 'error'
+            ret_status = resp.status_code
         else:
-            role_id = None
-            if self.app_task == NUM_ROLE_TODO:
-                role_id = NUM_ROLE_TODO
-            if self.app_fuel == NUM_ROLE_SERVICE:
-                role_id = NUM_ROLE_SERVICE
-            if role_id:
-                subgroup_name = SUBGROUP_NAME[role_id][subgroup_id]
-        return subgroup_id, subgroup_name
+            try:
+                value = json.loads(resp.content)
+                rate_usd = value['data'][currency]['value']
+                if rate_usd:
+                    ret = {'result': 'ok', 'num_units': 1, 'rate_usd': rate_usd}
+                    ret_status = status.HTTP_200_OK
+                    CurrencyRate.objects.create(currency=currency, date=date, num_units=1, rate_usd=rate_usd)
+                else:
+                    info = 'Zero rate in responce from call to API_CURR_RATE. ' + str(resp.content)
+                    ret = {'result': 'warning', 'info': info}
+            except:
+                ret = json.loads(resp.content)
+                ret['result'] = 'error'
+        return ret, ret_status
 
+def count_rate(row):
+    match row['price_unit']:
+        case 'BYR': ret = row['expen_rate_usd']
+        case 'BYN': ret = row['expen_rate_usd']
+        case 'USD': ret = 1.
+        case 'EUR': ret = row['expen_rate_usd'] / row['expen_rate_eur'] if row['expen_rate_usd'] and row['expen_rate_eur'] else None
+        case 'GBP': ret = row['expen_rate_usd'] / row['expen_rate_gbp'] if row['expen_rate_usd'] and row['expen_rate_gbp'] else None
+        case _: ret = None
+    return ret
 
-GRP_PLANNED_NONE     = 0
-GRP_PLANNED_EARLIER  = 1
-GRP_PLANNED_TODAY    = 2
-GRP_PLANNED_TOMORROW = 3
-GRP_PLANNED_ON_WEEK  = 4
-GRP_PLANNED_LATER    = 5
-GRP_PLANNED_DONE     = 6
-
-SUBGROUP_NAME = {
-    NUM_ROLE_TODO: {
-        GRP_PLANNED_NONE: '',
-        GRP_PLANNED_EARLIER: _('earlier'),
-        GRP_PLANNED_TODAY: _('today'),
-        GRP_PLANNED_TOMORROW: _('tomorrow'),
-        GRP_PLANNED_ON_WEEK: _('on the week'),
-        GRP_PLANNED_LATER: _('later'),
-        GRP_PLANNED_DONE: _('completed'),
-    },
-    NUM_ROLE_SERVICE: {
-        0: 'не задано',
-        1: 'электроснабжение',
-        2: 'газоснабжение',
-        3: 'вода',
-        4: 'водоснабжение',
-        5: 'водоотведение',
-        6: 'не задано',
-        7: '!?-7',
-        9: '!?-8',
-        10: 'kill',
-        11: 'электроснабжение',
-        12: '!?-11',
-        13: 'kill-1',
-        14: 'kill-3',
-        15: 'kill-2',
-        16: '!?-15',
-        17: 'членские взносы',
-        18: '!?-17',
-        19: '!?-18',
-        20: '!?-19',
-        21: '!?-20',
-    },
-    NUM_ROLE_PRICE: {
-
-    },
-}
-"""
 
 GIQ_ADD_TASK = 1 # Task created
 GIQ_DEL_TASK = 2 # Task deleted
@@ -1175,16 +1153,16 @@ class TaskRoleInfo(models.Model):
 
 def currency_item_repr(value, currency):
     if (round(value, 2) % 1):
-        value = '{:,.2f}{}'.format(value, currency).replace(',', '`')
+        value = '{:,.2f} {}'.format(value, currency).replace(',', '`')
     else:
-        value = '{:,.0f}{}'.format(value, currency).replace(',', '`')
+        value = '{:,.0f} {}'.format(value, currency).replace(',', '`')
     return value
 
 def currency_repr(value, currency, color_class=''):
     if (round(value, 2) % 1):
-        value = '{:,.2f}{}'.format(value, currency).replace(',', '`')
+        value = '{:,.2f} {}'.format(value, currency).replace(',', '`')
     else:
-        value = '{:,.0f}{}'.format(value, currency).replace(',', '`')
+        value = '{:,.0f} {}'.format(value, currency).replace(',', '`')
     return {'value': value, 'color': color_class}
 
 
@@ -1483,3 +1461,12 @@ class Weather(models.Model):
     prec_total = models.DecimalField('Precipitation total', null=True, max_digits=10, decimal_places=1)
     prec_type = models.CharField('Precipitation type', max_length=10, blank=True)
     cloud_cover = models.IntegerField('Cloud cover', null=True)
+
+class CurrencyRate(models.Model):
+    currency = models.CharField('Currency', max_length=10, blank=False)
+    base = models.CharField('Base currency', max_length=10, blank=True, default='USD')
+    date = models.DateField('Rate Date', blank=False, null=False)
+    num_units = models.IntegerField('Number of units exchanged', null=False, default=1)
+    value = models.DecimalField('Exchange rate to USD', blank=True, null=True, max_digits=15, decimal_places=4)
+    source = models.CharField('Data source', max_length=200, blank=True)
+    info = models.CharField('Comment', max_length=1000, blank=True)

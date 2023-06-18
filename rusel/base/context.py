@@ -3,7 +3,7 @@ from django.http import Http404
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 from task.const import *
-from task.models import Task, Group, detect_group
+from task.models import Task, detect_group
 from rusel.base.config import Config
 from rusel.base.forms import CreateGroupForm
 from rusel.context import get_base_context
@@ -134,18 +134,10 @@ class Context:
         data = Task.get_role_tasks(self.request.user.id, self.config.app, cur_role, nav_item)
 
         if (not group.determinator) or (group.determinator == 'group'):
-            """
-            grp = Group.objects.filter(id=group.id).get()
-            data = data.filter(groups=grp)
-            """
             data = data.filter(group_id=group.id)
         else:
             if group.view_id == 'planned' and not group.services_visible:
                 svc_grp_id = int(os.environ.get('DJANGO_SERVICE_GROUP' + ENV + DB, '0'))
-                """
-                grp = Group.objects.filter(id=svc_grp_id).get()
-                data = data.exclude(groups=grp)
-                """
                 data = data.exclude(group_id=svc_grp_id)
         
         if hasattr(self, 'tune_dataset'):
@@ -166,14 +158,6 @@ class Context:
         nav_item_group = detect_group(self.request.user, self.config.app, 'role', nav_role, '')
         if nav_item_group and nav_item_group.items_sort:
             sort = nav_item_group.items_sort
-        """
-        role_id = ROLES_IDS[self.config.app][nav_role]
-        ret = []
-        if (self.config.app == APP_APART):
-            ret = Task.objects.filter(user=self.request.user.id, app_apart=role_id)
-        if (self.config.app == APP_FUEL):
-            ret = Task.objects.filter(user=self.request.user.id, app_fuel=role_id)
-        """
         ret = []
         for item in Task.get_role_tasks(self.request.user.id, self.config.app, nav_role).order_by(sort):
             qty = None

@@ -93,7 +93,7 @@
                             <i class="bi-journals"></i>
                             <span class="">{{ node.name }}</span>
                         </div>
-                        <span class="">{{ node.qty }}</span>
+                        <span class="">{% if node.qty %}{{ node.qty }}{% endif %}</span>
                     </a>
                 {% endfor %}
             </div>

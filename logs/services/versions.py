@@ -13,7 +13,8 @@ class VersionsLogData():
         host = os.environ.get('DJANGO_HOST', '')
         api_host = os.environ.get('DJANGO_HOST_API', '')
         if host != 'localhost':
-            response = urllib.request.urlopen(api_host)
+            ssl_context = ssl._create_unverified_context()
+            response = urllib.request.urlopen(api_host, context=ssl_context)
             versions = response.headers['Server'].split(' ')
             for ver in versions:
                 if 'Apache' in ver:

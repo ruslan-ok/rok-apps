@@ -1,4 +1,5 @@
-import os.path
+import os.path, requests, json
+from datetime import datetime
 
 from datetime import datetime, timedelta
 from django.shortcuts import get_object_or_404
@@ -9,7 +10,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from task import const
-from task.models import Task, Group, TaskGroup, GIQ_ADD_TASK, GIQ_DEL_TASK
+from task.models import Task, Group, TaskGroup, GIQ_ADD_TASK, GIQ_DEL_TASK, CurrencyRate
 from rusel.utils import nice_date
 from api.serializers import TaskSerializer
 
@@ -34,7 +35,7 @@ from health.views.incident import get_info as incident_get_info
 from warr.views import get_info as warr_get_info
 from expen.views import get_info as expen_get_info
 from fuel.views.car import get_info as car_get_info
-from fuel.views.fuel import get_info as fuel_get_info
+from fuel.fuel_get_info import get_info as fuel_get_info
 from fuel.views.part import get_info as part_get_info
 from fuel.views.serv import get_info as serv_get_info
 
@@ -639,3 +640,27 @@ class TaskViewSet(viewsets.ModelViewSet):
         for task in Task.objects.all():
             self._get_info(task)
         return Response({'result': 'ok'})
+        return Response(ret)
+
+    @action(detail=False)
+    def correct_currency_amount(self, request, pk=None):
+        ret = Task.correct_currency_amount()
+        return Response(ret)
+
+    @action(detail=False)
+    def update_exchange_rate(self, request, pk=None):
+        ret = Task.update_exchange_rate()
+        return Response(ret)
+
+    @action(detail=False)
+    def get_exchange_rate(self, request, pk=None):
+        ret_status = status.HTTP_400_BAD_REQUEST
+        if 'currency' not in request.query_params:
+            return Response({'result': 'error', 'info': "The 'currency' parameter expected"}, status=ret_status)
+        currency = request.query_params['currency']
+        if 'date' not in request.query_params:
+            return Response({'result': 'error', 'info': "The 'date' parameter expected"}, status=ret_status)
+        s_date = request.query_params['date']
+        ret, stat = Task.get_exchange_rate(currency, s_date)
+        return Response(ret, status=stat)
+    
