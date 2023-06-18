@@ -28,7 +28,6 @@ from rusel.files import get_files_list_by_path
 from fuel.utils import get_rest
 from news.get_info import get_info as news_get_info
 from expen.get_info import get_info as expen_get_info
-from fuel.fuel_get_info import get_info as fuel_get_info
 
 
 class Group(models.Model):
@@ -849,91 +848,27 @@ class Task(models.Model):
                 tri.files_qnt = qnt
                 tri.save()
 
-    @classmethod
-    def correct_currency_amount(cls, mode='fuel'):
-        match mode:
-            case 'fuel': return cls.correct_fuel_currency_amount()
-            case 'expen': return cls.correct_expen_currency_amount()
-            case _: return None
+    def get_apart_meter_name(self):
+        if self.name in APART_METER.keys():
+            return APART_METER[self.name]
+        return self.name
+    
+    def get_apart_service_name(self):
+        if self.name in APART_SERVICE.keys():
+            return APART_SERVICE[self.name]
+        return self.name
+    
+    def get_apart_meter_value(self):
+        return self.meter_zkx
 
-    @classmethod
-    def correct_fuel_currency_amount(cls):
-        total = byr = byn = pln = eur = undef = upd = 0
-        undef_ids = []
-        for t in Task.objects.filter(app_fuel=NUM_ROLE_FUEL):
-            total += 1
-            prc = None
-            if t.fuel_price:
-                if not t.event:
-                    undef += 1
-                    undef_ids.append(t.id)
-                else:
-                    if t.event < datetime(2016, 6, 1):
-                        byr += 1
-                        prc = (t.fuel_price, 'BYR')
-                    elif t.event < datetime(2023, 4, 1):
-                        byn += 1
-                        prc = (t.fuel_price, 'BYN')
-                    elif t.event >= datetime(2023, 4, 29) and t.event <= datetime(2023, 5, 4):
-                        eur += 1
-                        prc = (t.fuel_price, 'EUR')
-                    else:
-                        pln += 1
-                        prc = (t.fuel_price, 'PLN')
-            if prc and (not t.price_unit or not t.expen_rate_usd):
-                upd += 1
-                t.fuel_price = prc[0]
-                t.price_unit = prc[1]
-                if t.event:
-                    rate, stat = cls.get_exchange_rate(prc[1], t.event.strftime('%Y-%m-%d'))
-                    if rate['result'] == 'ok':
-                        t.expen_rate_usd = rate['rate_usd']
-                t.save()
-            fuel_get_info(t)
-        return {'result': 'ok', 'total': total, 'byr': byr, 'byn': byn, 'pln': pln, 'eur': eur, 'undef': undef, 'undef_ids': undef_ids, 'upd': upd}
+    def get_apart_service_tarif(self):
+        return self.price_tarif
 
-    @classmethod
-    def correct_expen_currency_amount(cls):
-        total = byr = byn = usd = eur = gbp = undef = conflict = upd = ins = 0
-        undef_ids = []
-        conflict_ids = []
-        for t in Task.objects.exclude(app_expen=0):
-            total += 1
-            sums = []
-            if t.expen_price:
-                if not t.event:
-                    undef += 1
-                    undef_ids.append(t.id)
-                else:
-                    if t.event < datetime(2016, 6, 1):
-                        byr += 1
-                        sums.append((t.expen_price, 'BYR'))
-                    else:
-                        byn += 1
-                        sums.append((t.expen_price, 'BYN'))
-            if t.expen_usd:
-                usd += 1
-                sums.append((t.expen_usd, 'USD'))
-            if t.expen_eur:
-                eur += 1
-                sums.append((t.expen_eur, 'EUR'))
-            if t.expen_gbp:
-                gbp += 1
-                sums.append((t.expen_gbp, 'GBP'))
-            if len(sums) > 1:
-                conflict += 1
-                conflict_ids.append(t.id)
-            if len(sums) > 0 and not t.price_unit:
-                for i, s in enumerate(sums):
-                    if i == 0:
-                        upd += 1
-                    else:
-                        ins += 1
-                        t.pk = None
-                    t.expen_price = s[0]
-                    t.price_unit = s[1]
-                    t.save()
-        return {'result': 'ok', 'total': total, 'byr': byr, 'byn': byn, 'usd': usd, 'eur': eur, 'gbp': gbp, 'undef': undef, 'undef_ids': undef_ids, 'conflict': conflict, 'conflict_ids': conflict_ids, 'ins': ins, 'upd': upd}
+    def get_apart_service_accrued(self):
+        return self.bill_tv_bill
+
+    def get_apart_service_payment(self):
+        return self.bill_tv_pay
 
     @classmethod
     def update_exchange_rate(cls):
@@ -958,51 +893,140 @@ class Task(models.Model):
         }
 
     @classmethod
-    def get_exchange_rate(cls, currency, s_date):
-        ret_status = status.HTTP_400_BAD_REQUEST
-        try:
-            date = datetime.strptime(s_date, '%Y-%m-%d')
-        except:
-            return {'result': 'error', 'info': "The 'date' paramener must be in the format 'YYYY-MM-DD'"}, ret_status
+    def get_db_exchange_rate(cls, currency: str, date: date):
+        if CurrencyRate.objects.filter(base='USD', currency=currency, date__lte=date).exists():
+            last_dt = CurrencyRate.objects.filter(base='USD', currency=currency, date__lte=date).order_by('-date')[0].date
+            rate = CurrencyRate.objects.filter(base='USD', currency=currency, date=last_dt).order_by('source')[0]
+            return rate
+        return None
 
-        if CurrencyRate.objects.filter(currency=currency, date=date).exists():
-            cr = CurrencyRate.objects.filter(currency=currency, date=date).get()
-            return {'result': 'ok', 'num_units': cr.num_units, 'rate_usd': cr.rate_usd}, status.HTTP_200_OK
-        
+
+    @classmethod
+    def get_net_exchange_rate(cls, currency: str, date: date) -> dict:
         if datetime.today() < datetime(2023, 7, 7):
-            CurrencyRate.objects.create(currency=currency, date=date, num_units=1, rate_usd=None)
-            return {'result': 'error', 'info': 'You used all your monthly requests. Please upgrade your plan at https://app.currencyapi.com/subscription'}, ret_status
+            return {
+                'rate': None,
+                'status': status.HTTP_428_PRECONDITION_REQUIRED,
+                'info': 'You used all your monthly requests. Please upgrade your plan at https://app.currencyapi.com/subscription',
+            }
 
         api_url = os.environ.get('API_CURR_RATE', '')
         if not api_url:
-            return {'result': 'error', 'info': "API_CURR_RATE environment variable not set"}, ret_status
+            return {
+                'rate': None,
+                'status': status.HTTP_400_BAD_REQUEST,
+                'info': 'API_CURR_RATE environment variable not set'
+            }
         token = os.environ.get('API_CURR_TOKEN', '')
         if not token:
-            return {'result': 'error', 'info': "API_CURR_TOKEN environment variable not set"}, ret_status
+            return {
+                'rate': None,
+                'status': status.HTTP_400_BAD_REQUEST,
+                'info': 'API_CURR_TOKEN environment variable not set'
+            }
         if '{currency}' not in api_url or '{date}' not in api_url or '{token}' not in api_url:
-            return {'result': 'error', 'info': "The value of the API_CURR_RATE environment variable does not contain the expected substrings '{token}', '{currency}' and '{date}'"}, ret_status
-        url = api_url.replace('{token}', token).replace('{currency}', currency).replace('{date}', s_date)
+            return {
+                'rate': None,
+                'status': status.HTTP_400_BAD_REQUEST,
+                'info': "The value of the API_CURR_RATE environment variable does not contain the expected substrings '{token}', '{currency}' and '{date}'"
+            }
+        url = api_url.replace('{token}', token).replace('{currency}', currency).replace('{date}', date.strftime('%Y-%m-%d'))
         headers = {'User-Agent': 'Mozilla/5.0'}
         resp = requests.get(url, headers=headers)
-        if (resp.status_code != 200):
+        if (resp.status_code != status.HTTP_200_OK):
             ret = json.loads(resp.content)
             ret['result'] = 'error'
-            ret_status = resp.status_code
+            ret['rate'] = None
+            ret['status'] = resp.status_code
+            return ret
         else:
             try:
                 value = json.loads(resp.content)
                 rate_usd = value['data'][currency]['value']
                 if rate_usd:
-                    ret = {'result': 'ok', 'num_units': 1, 'rate_usd': rate_usd}
-                    ret_status = status.HTTP_200_OK
-                    CurrencyRate.objects.create(currency=currency, date=date, num_units=1, rate_usd=rate_usd)
+                    rate = CurrencyRate.objects.create(base='USD', currency=currency, date=date, num_units=1, value=rate_usd, source=api_url)
+                    return {
+                        'rate': rate,
+                        'status': resp.status_code,
+                        'info': ''
+                    }
                 else:
-                    info = 'Zero rate in responce from call to API_CURR_RATE. ' + str(resp.content)
-                    ret = {'result': 'warning', 'info': info}
+                    return {
+                        'rate': None,
+                        'status': resp.status_code,
+                        'info': 'Zero rate in responce from call to API_CURR_RATE. ' + str(resp.content)
+                    }
             except:
-                ret = json.loads(resp.content)
-                ret['result'] = 'error'
-        return ret, ret_status
+                return {
+                    'rate': None,
+                    'status': status.HTTP_400_BAD_REQUEST,
+                    'info': json.loads(resp.content)
+                }
+
+
+    @classmethod
+    def get_exchange_rate(cls, currency: str, date: date) -> dict:
+        rate_db = cls.get_db_exchange_rate(currency, date)
+        if rate_db:
+            if rate_db.date == date:
+                return {
+                    'result': 'ok',
+                    'status': status.HTTP_200_OK,
+                    'rate': rate_db,
+                }
+        
+        rate_net = cls.get_net_exchange_rate(currency, date)
+
+        if rate_net['rate']:
+            return {
+                'result': 'ok',
+                'status': status.HTTP_200_OK,
+                'rate': rate_net['rate'],
+            }
+        
+        if rate_db:
+            return {
+                'result': 'warning',
+                'status': status.HTTP_200_OK,
+                'rate': rate_db,
+                'info': 'Not actual date',
+            }
+        
+        return {
+            'result': 'error',
+            'status': rate_net['status'],
+            'info': rate_net['info'],
+        }
+    
+    @classmethod
+    def get_hist_exchange_rates(cls, currency: str, beg: date, end: date) -> list:
+        ret = []
+        rates = CurrencyRate.objects.filter(base='USD', currency=currency, date__range=(beg, end))
+        df = pd.DataFrame(rates.values())
+        date = beg
+        while date <= end:
+            a = df[df['date'] == date]
+            rate = None
+            if not len(a):
+                rate_info = cls.get_exchange_rate(currency, date)
+                if rate_info and rate_info['result'] == 'ok' and 'rate' in rate_info and rate_info['rate']:
+                    rate = rate_info['rate'].value
+            elif len(a) == 1:
+                rate = a.iloc[0].at['value']
+            else:
+                rate = a.sort_values(by=['source'], key=lambda x: sort_exchange_rate_by_source(x)).iloc[0].at['value']
+            ret.append(rate)
+            date = date + timedelta(1)
+        return ret
+    
+def sort_exchange_rate_by_source(source):
+    s = source.replace({'nbrb.by': 1, 'GoogleFinanse': 2})
+    # match source:
+    #     case 'nbrb.by': return 1
+    #     case 'GoogleFinanse': return 2
+    #     case _: return 3
+    return s
+
 
 def count_rate(row):
     match row['price_unit']:

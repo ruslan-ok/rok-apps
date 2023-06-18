@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from task.const import APP_APART, ROLE_METER, NUM_ROLE_METER, NUM_ROLE_BILL
+from task.const import APP_APART, ROLE_METER, NUM_ROLE_METER, NUM_ROLE_BILL, NUM_ROLE_METER_VALUE
 from task.models import Task
 from rusel.base.views import BaseListView, BaseDetailView
 from apart.forms.meter import CreateForm, EditForm
@@ -38,6 +38,7 @@ class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView):
             context['ban_on_deletion'] = _('deletion is prohibited because there are bills for this meters data').capitalize()
         if Task.objects.filter(app_apart=NUM_ROLE_METER, task_1=self.object.task_1.id, start__gt=self.object.start).exists():
             context['ban_on_deletion'] = _('deletion is prohibited because there is an entry with a higher date').capitalize()
+        context['apart_meters'] = Task.objects.filter(app_apart=NUM_ROLE_METER_VALUE, task_1=self.object.task_1.id, start=self.object.start)
         return context
 
     def form_valid(self, form):

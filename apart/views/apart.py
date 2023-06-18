@@ -1,6 +1,6 @@
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from task.const import APP_APART, ROLE_APART, NUM_ROLE_SERVICE, NUM_ROLE_METER, NUM_ROLE_PRICE, NUM_ROLE_BILL
+from task.const import APP_APART, ROLE_APART, NUM_ROLE_SERVICE, NUM_ROLE_METER, NUM_ROLE_PRICE, NUM_ROLE_BILL, NUM_ROLE_METER_PROP, NUM_ROLE_SERV_PROP
 from task.models import Task
 from rusel.base.views import BaseListView, BaseDetailView
 from apart.forms.apart import CreateForm, EditForm
@@ -23,22 +23,24 @@ class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView):
     form_class = EditForm
     permission_required = 'task.change_apart'
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+    def __init__(self):
+        super().__init__(app_config, role)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(self.get_app_context(self.request.user.id))
-        #context['title'] = self.object.name
         context['delete_question'] = _('delete apartment').capitalize()
-        if Task.objects.filter(app_apart=NUM_ROLE_SERVICE, task_1=self.object.id).exists():
+        apart = self.object
+        if Task.objects.filter(app_apart=NUM_ROLE_SERVICE, task_1=apart.id).exists():
             context['ban_on_deletion'] = _('deletion is prohibited because there are services for this apartment').capitalize()
-        elif Task.objects.filter(app_apart=NUM_ROLE_PRICE, task_1=self.object.id).exists():
+        elif Task.objects.filter(app_apart=NUM_ROLE_PRICE, task_1=apart.id).exists():
             context['ban_on_deletion'] = _('deletion is prohibited because there are tariffs for this apartment').capitalize()
-        elif Task.objects.filter(app_apart=NUM_ROLE_METER, task_1=self.object.id).exists():
+        elif Task.objects.filter(app_apart=NUM_ROLE_METER, task_1=apart.id).exists():
             context['ban_on_deletion'] = _('deletion is prohibited because there are meters data for this apartment').capitalize()
-        elif Task.objects.filter(app_apart=NUM_ROLE_BILL, task_1=self.object.id).exists():
+        elif Task.objects.filter(app_apart=NUM_ROLE_BILL, task_1=apart.id).exists():
             context['ban_on_deletion'] = _('deletion is prohibited because there are bills for this apartment').capitalize()
+        context['apart_meters'] = Task.objects.filter(app_apart=NUM_ROLE_METER_PROP, task_1=apart.id)
+        context['apart_services'] = Task.objects.filter(app_apart=NUM_ROLE_SERV_PROP, task_1=apart.id)
         return context
 
     def form_valid(self, form):

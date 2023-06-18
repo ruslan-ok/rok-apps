@@ -10,7 +10,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from task import const
-from task.models import Task, Group, TaskGroup, GIQ_ADD_TASK, GIQ_DEL_TASK, CurrencyRate
+from task.models import Task, Group, TaskGroup, GIQ_ADD_TASK, GIQ_DEL_TASK
 from rusel.utils import nice_date
 from api.serializers import TaskSerializer
 
@@ -40,6 +40,10 @@ from fuel.views.part import get_info as part_get_info
 from fuel.views.serv import get_info as serv_get_info
 
 from service.background_services import check_services
+
+from apart.multi_currency import multi_currency_init as multi_currency_init_apart
+from expen.multi_currency import multi_currency_init as multi_currency_init_expen
+from fuel.multi_currency import multi_currency_init as multi_currency_init_fuel
 
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
@@ -643,8 +647,8 @@ class TaskViewSet(viewsets.ModelViewSet):
         return Response(ret)
 
     @action(detail=False)
-    def correct_currency_amount(self, request, pk=None):
-        ret = Task.correct_currency_amount()
+    def multi_currency_init(self, request, pk=None):
+        ret = multi_currency_init_apart(request.user)
         return Response(ret)
 
     @action(detail=False)
@@ -661,6 +665,10 @@ class TaskViewSet(viewsets.ModelViewSet):
         if 'date' not in request.query_params:
             return Response({'result': 'error', 'info': "The 'date' parameter expected"}, status=ret_status)
         s_date = request.query_params['date']
-        ret, stat = Task.get_exchange_rate(currency, s_date)
-        return Response(ret, status=stat)
+        try:
+            date = datetime.strptime(s_date, '%Y-%m-%d')
+            ret, stat = Task.get_exchange_rate(currency, date)
+            return Response(ret, status=stat)
+        except:
+            return {'result': 'error', 'info': "The 'date' paramener must be in the format 'YYYY-MM-DD'"}, ret_status
     

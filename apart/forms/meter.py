@@ -25,10 +25,6 @@ class EditForm(BaseEditForm):
         label=False,
         required=True,
         widget=DateInput(format='%Y-%m-%d', attrs={'label': _('Period')}))
-    event = forms.DateTimeField(
-        label=False,
-        required=True,
-        widget=DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'label': _('Meters reading date')}))
     meter_el = forms.IntegerField(
         label=False,
         required=False,
@@ -56,7 +52,7 @@ class EditForm(BaseEditForm):
 
     class Meta:
         model = Task
-        fields = ['start', 'event', 'meter_el', 'meter_hw', 'meter_cw', 'meter_ga', 'info', 'url']
+        fields = ['start', 'meter_el', 'meter_hw', 'meter_cw', 'meter_ga', 'info', 'url']
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)

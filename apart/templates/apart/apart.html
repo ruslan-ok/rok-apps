@@ -6,22 +6,114 @@
     {{ form.info.errors }}{{ form.info.label_tag }}{{ form.info }}
     <div class="row">
       <div class="col">
-        {{ form.apart_has_el }}
-        {{ form.apart_has_hw }}
-        {{ form.apart_has_cw }}
+        {{ form.sort.label_tag }}{{ form.sort }}
       </div>
       <div class="col">
-        {{ form.apart_has_gas }}
-        {{ form.apart_has_tv }}
-        {{ form.apart_has_phone }}
-      </div>
-      <div class="col">
-        {{ form.apart_has_zkx }}
-        {{ form.apart_has_ppo }}
-        {{ form.sort }}
+        {{ form.price_unit.label_tag }}{{ form.price_unit }}
       </div>
     </div>
-
     {% include "widgets/attachments.html" %}
+    
+    <ul class="nav nav-tabs" id="apartTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="meter-tab" data-bs-toggle="tab" data-bs-target="#meter-tab-pane" type="button" role="tab" aria-controls="meter-tab-pane" aria-selected="true">Счетчики</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="service-tab" data-bs-toggle="tab" data-bs-target="#service-tab-pane" type="button" role="tab" aria-controls="service-tab-pane" aria-selected="false">Услуги</button>
+      </li>
+    </ul>
+    <div class="tab-content" id="apartTabContent">
+      <div class="tab-pane fade show active" id="meter-tab-pane" role="tabpanel" aria-labelledby="meter-tab" tabindex="0">
+        <table class="table table-light">
+          <thead>
+            <tr>
+              <th scope="col">с</th>
+              <th scope="col">по</th>
+              <th scope="col">Ресурс</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for meter in apart_meters %}
+              <tr>
+                <td scope="row">{{ meter.get_dt_from }}</td>
+                <td>{{ meter.get_dt_until }}</td>
+                <td>{{ meter.get_apart_meter_name }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div class="row">
+          <div class="col">
+            <a href="#" class="mx-3 float-end"  data-bs-toggle="modal" data-bs-target="#addProperty" data-bs-whatever="@fat">Добавить</a>
+          </div>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="service-tab-pane" role="tabpanel" aria-labelledby="service-tab" tabindex="0">
+        <table class="table table-light">
+          <thead>
+            <tr>
+              <th scope="col">с</th>
+              <th scope="col">по</th>
+              <th scope="col">Услуга</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for service in apart_services %}
+              <tr>
+                <td scope="row">{{ service.get_dt_from }}</td>
+                <td>{{ service.get_dt_until }}</td>
+                <td>{{ service.get_apart_service_name }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div class="row">
+          <div class="col">
+            <a href="#" class="mx-3 float-end"  data-bs-toggle="modal" data-bs-target="#addProperty" data-bs-whatever="@fat">Добавить</a>
+          </div>
+        </div>
+      </div>
+  </div>
+
+{% endblock %}
+
+{% block footer_detail %}
+  {{ block.super }}
+
+  <div class="modal fade" id="addProperty" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Новый атрибут</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="mb-3">
+              <label for="is-select-prop" class="col-form-label">Наименование</label>
+              <select class="form-select" id="is-select-prop">
+                <option selected>... выбор атрибута ...</option>
+                {% for prop in all_properties %}
+                  <option value="{{ prop.code }}">{{ prop.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="id_date_from" class="col-form-label">Дата с:</label>
+              <input type="date" name="date_from" class="form-control" id="id_date_from" value=""">
+            </div>
+            <div class="mb-3">
+              <label for="id_date_until" class="col-until-label">Дата по:</label>
+              <input type="date" name="date_until" class="form-control" id="id_date_until" value=""">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+          <button type="button" class="btn btn-primary">Добавить</button>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}
 

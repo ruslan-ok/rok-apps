@@ -1,8 +1,9 @@
 from datetime import datetime
 from decimal import *
+from typing import assert_never
 from django.utils.translation import gettext_lazy as _
 from task.models import Task
-from task.const import NUM_ROLE_PRICE
+from task.const import NUM_ROLE_PRICE, NUM_ROLE_METER_PROP
 
 ELECTRICITY = 1
 GAS = 2
@@ -247,3 +248,30 @@ def get_bill_info(bill):
         }
     return ret
 
+def get_meter_value(code, meter):
+    match code:
+        case 'el_meter': return meter.meter_el
+        case 'gas_meter': return meter.meter_ga
+        case 'hw_meter': return meter.meter_hw
+        case 'cw_meter': return meter.meter_cw
+        case _: assert_never(code)
+
+def get_bill_meters(bill):
+    prev = bill.task_2
+    curr = bill.task_3
+    ret = []
+    props = Task.objects.filter(task_1=bill.task_1, app_apart=NUM_ROLE_METER_PROP)
+    for prop in props:
+        if prop.start and prop.start > bill.start:
+            continue
+        if prop.stop and prop.stop < bill.start:
+            continue
+        prev_value = get_meter_value(prop.name, prev)
+        curr_value = get_meter_value(prop.name, curr)
+        ret.append({
+            'name': prop.get_apart_meter_name(),
+            'prev_value': prev_value,
+            'curr_value': curr_value,
+            'value': curr_value - prev_value,
+        })
+    return ret

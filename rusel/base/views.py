@@ -301,8 +301,8 @@ class BaseListView(ListView, Context):
 #----------------------------------------------------------------------
 class BaseDetailView(UpdateView, Context):
 
-    def __init__(self, config, cur_role, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, config, cur_role):
+        super().__init__()
         self.set_config(config, cur_role)
         self.template_name = config['name'] + '/' + self.config.get_cur_role() + '.html'
 

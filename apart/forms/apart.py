@@ -60,10 +60,14 @@ class EditForm(BaseEditForm):
         label=False, 
         required=False, 
         widget=SwitchInput(attrs={'class': 'ms-1 mb-3', 'label': _('Has PPO')}))
+    price_unit = forms.CharField(
+        label=_('Default currency'),
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control mb-3'}))
 
     class Meta:
         model = Task
-        fields = ['name', 'info', 'sort', 'apart_has_el', 'apart_has_hw', 'apart_has_cw', 'apart_has_gas', 'apart_has_tv', 'apart_has_phone', 'apart_has_zkx', 'apart_has_ppo']
+        fields = ['name', 'info', 'sort', 'apart_has_el', 'apart_has_hw', 'apart_has_cw', 'apart_has_gas', 'apart_has_tv', 'apart_has_phone', 'apart_has_zkx', 'apart_has_ppo', 'price_unit']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
             'info': forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize':''}),

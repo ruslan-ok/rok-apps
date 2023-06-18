@@ -49,7 +49,7 @@ class ListView(BaseListView):
     
 HP_WIDGETS = [
     ('weather', 'weather', '', ''),
-    #('currency', 'currency', '', ''),
+    ('currency', 'currency', '', ''),
     ('crypto', 'crypto', '', 'task.view_entry'),
     ('health', '', '', 'task.view_health'),
     ('logs', 'logs', '', 'task.view_logs'),

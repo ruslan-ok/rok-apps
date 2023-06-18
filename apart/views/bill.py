@@ -1,13 +1,13 @@
 from datetime import datetime
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from task.const import APP_APART, ROLE_BILL, NUM_ROLE_BILL, NUM_ROLE_METER
+from task.const import APP_APART, ROLE_BILL, NUM_ROLE_BILL, NUM_ROLE_METER, NUM_ROLE_SERV_VALUE
 from task.models import Task
 from rusel.base.views import BaseListView, BaseDetailView
 from apart.forms.bill import CreateForm, EditForm
 from apart.config import app_config
 from apart.views.meter import next_period
-from apart.calc_tarif import HSC, INTERNET, PHONE, get_bill_info
+from apart.calc_tarif import HSC, INTERNET, PHONE, get_bill_info, get_bill_meters
 
 app = APP_APART
 role = ROLE_BILL
@@ -24,7 +24,7 @@ class ListView(LoginRequiredMixin, PermissionRequiredMixin, BaseListView):
         form.instance.app_apart = NUM_ROLE_BILL
         response = super().form_valid(form)
         return response
-
+    
 class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView):
     model = Task
     form_class = EditForm
@@ -37,24 +37,11 @@ class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView):
         self.config.set_view(self.request)
         context = super().get_context_data(**kwargs)
         bill = self.get_object()
-        if bill.task_2:
-            context['prev'] = bill.task_2
-        if bill.task_3:
-            context['curr'] = bill.task_3
-        if bill.task_2 and bill.task_3:
-            context['bill_info'] = get_bill_info(bill)
-        apart = bill.task_1
-        context['apart_has_el'] = apart.apart_has_el
-        context['apart_has_gas'] = apart.apart_has_gas
-        context['apart_has_cw'] = apart.apart_has_cw
-        context['apart_has_hw'] = apart.apart_has_hw
-        context['tv_title'] = _('Interet/TV')
-        context['phone_title'] = _('phone').capitalize()
-        context['ZKX_title'] = _('HCS')
-        context['PoO_title'] = _('PoO')
         context['delete_question'] = _('delete bill').capitalize()
         if Task.objects.filter(app_apart=NUM_ROLE_BILL, task_1=bill.task_1.id, start__gt=bill.start).exists():
             context['ban_on_deletion'] = _('deletion is prohibited because it is not the last bill').capitalize()
+        context['apart_period_meters'] = get_bill_meters(bill)
+        context['apart_period_services'] = Task.objects.filter(app_apart=NUM_ROLE_SERV_VALUE, task_1=self.object.task_1.id, start=self.object.start)
         return context
 
     def form_valid(self, form):
