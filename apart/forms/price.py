@@ -27,10 +27,10 @@ class CreateForm(BaseCreateForm):
         service_sorts = {}
         for service in ApartService.objects.filter(user=nav_item.user.id, app_apart=NUM_ROLE_SERV_PROP, task_1=nav_item.id).order_by('sort'):
             if service.name not in service_sorts.keys():
-                service_sorts[service.name] = service.sort
+                service_sorts[service.name] = service.sort if service.sort else ''
             else:
                 if service_sorts[service.name] < service.sort:
-                    service_sorts[service.name] = service.sort
+                    service_sorts[service.name] = service.sort if service.sort else ''
         service_codes = [code for code in service_sorts]
         service_codes = sorted(service_codes, key=lambda x: service_sorts[x])
         service_choices = [(APART_SERVICE[code][0], APART_SERVICE[code][1]) for code in service_codes]

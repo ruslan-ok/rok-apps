@@ -187,14 +187,7 @@ class ApartMeter(models.Model):
 
     def get_initial_value_str(self):
         value = self.get_initial_value()
-        if not value:
-            return '0'
-        normalized = value.normalize()
-        sign, digits, exponent = normalized.as_tuple()
-        if exponent > 0:
-            return str(Decimal((sign, digits + (0,) * exponent, 0)))
-        else:
-            return str(normalized)
+        return decimal_to_str(value)
 
     def get_from(self):
         return self.start
@@ -361,7 +354,7 @@ class PeriodMeters(models.Model):
                                     prev_value = MeterValue.objects.filter(user=user.id, app_apart=NUM_ROLE_METER_VALUE, task_1=apart.id, name=code, start=tmp_svc.task_2.start).get()
                                     if prev_value.meter_zkx and last_value.meter_zkx > prev_value.meter_zkx:
                                         value += round(last_value.meter_zkx - prev_value.meter_zkx)
-            MeterValue.objects.create(user=user, app_apart=NUM_ROLE_METER_VALUE, task_1=apart, name=code, start=period, meter_zkx=value, event=dt_from)
+            MeterValue.objects.create(user=user, app_apart=NUM_ROLE_METER_VALUE, task_1=apart, name=code, start=period, meter_zkx=value, event=dt_from, sort=apart_meters[code]['sort'])
         task = Task.objects.filter(id=meter.id).get()
         return task
 
@@ -427,15 +420,7 @@ class MeterValue(models.Model):
         return self.meter_zkx
 
     def get_value_str(self):
-        if not self.meter_zkx:
-            return '0'
-        value = Decimal(str(self.meter_zkx))
-        normalized = value.normalize()
-        sign, digits, exponent = normalized.as_tuple()
-        if exponent > 0:
-            return str(Decimal((sign, digits + (0,) * exponent, 0)))
-        else:
-            return str(normalized)
+        return decimal_to_str(self.meter_zkx)
 
 class PeriodServices(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='User', related_name = 'period_service_user')
@@ -649,3 +634,23 @@ class ServiceAmount(models.Model):
         if not self.bill_tv_pay:
             return Decimal(0)
         return self.bill_tv_pay
+    
+    def get_tarif_str(self) -> str:
+        return decimal_to_str(self.price_tarif)
+
+    def get_accrued_str(self) -> str:
+        return decimal_to_str(self.bill_tv_bill)
+
+    def get_payment_str(self) -> str:
+        return decimal_to_str(self.bill_tv_pay)
+
+
+def decimal_to_str(value: Decimal|None) -> str:
+    if not value:
+        return '0'
+    normalized = value.normalize()
+    sign, digits, exponent = normalized.as_tuple()
+    if exponent > 0:
+        return str(Decimal((sign, digits + (0,) * exponent, 0)))
+    else:
+        return str(normalized)

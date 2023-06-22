@@ -254,7 +254,7 @@ def get_bill_meters(bill):
     curr = bill.task_3
     ret = []
     apart_id = bill.task_1.id
-    props = ApartMeter.objects.filter(task_1=apart_id, app_apart=NUM_ROLE_METER_PROP)
+    props = ApartMeter.objects.filter(task_1=apart_id, app_apart=NUM_ROLE_METER_PROP).order_by('sort')
     future = PeriodMeters.next_period(bill.start)
     for prop in props:
         if prop.start and prop.start >= future:

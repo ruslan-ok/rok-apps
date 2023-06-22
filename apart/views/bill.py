@@ -48,7 +48,7 @@ class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView):
         if PeriodServices.objects.filter(app_apart=NUM_ROLE_BILL, task_1=bill.task_1.id, start__gt=bill.start).exists():
             context['ban_on_deletion'] = _('deletion is prohibited because it is not the last bill').capitalize()
         context['bill_meters'] = get_bill_meters(bill)
-        context['bill_services'] = ServiceAmount.objects.filter(app_apart=NUM_ROLE_SERV_VALUE, task_1=self.object.task_1.id, start=self.object.start)
+        context['bill_services'] = ServiceAmount.objects.filter(app_apart=NUM_ROLE_SERV_VALUE, task_1=self.object.task_1.id, start=self.object.start).order_by('sort')
         return context
 
     def form_valid(self, form):

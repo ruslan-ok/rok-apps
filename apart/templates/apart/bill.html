@@ -69,14 +69,14 @@
                 data-bs-code="{{ service.get_code }}"
                 data-bs-period="{{ service.get_period }}"
                 data-bs-name="{{ service.get_name }}"
-                data-bs-tariff="{{ service.get_tarif|default_if_none:"" }}"
-                data-bs-accrued="{{ service.get_accrued|default_if_none:"" }}"
-                data-bs-payment="{{ service.get_payment|default_if_none:"" }}"
+                data-bs-tariff="{{ service.get_tarif_str }}"
+                data-bs-accrued="{{ service.get_accrued_str }}"
+                data-bs-payment="{{ service.get_payment_str }}"
                 data-bs-event="{{ service.event|date:'Y-m-d' }}"> 
                 <td scope="row">{{ service.get_name }}</td>
-                <td>{{ service.get_tarif|default_if_none:"" }}</td>
-                <td>{{ service.get_accrued|default_if_none:"" }}</td>
-                <td>{{ service.get_payment|default_if_none:"" }}</td>
+                <td>{{ service.get_tarif_str }}</td>
+                <td>{{ service.get_accrued_str }}</td>
+                <td>{{ service.get_payment_str }}</td>
                 <td>{{ service.event|date:"d M Y" }}</td>
             </tr>
             {% endfor %}
