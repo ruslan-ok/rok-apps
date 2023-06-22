@@ -1,25 +1,10 @@
 from datetime import datetime
 from decimal import *
-from typing import assert_never
 from django.utils.translation import gettext_lazy as _
 from task.models import Task
-from task.const import NUM_ROLE_PRICE, NUM_ROLE_METER_PROP
-
-ELECTRICITY = 1
-GAS = 2
-WATER = 3
-WATER_SUPPLY = 4
-SEWERAGE = 5
-NOT_SET = 6
-ELECTRICITY_2 = 7
-LAND_TAX = 8
-TV = 9
-INTERNET = 10
-PHONE = 11
-COLD_WATER = 20
-HOT_WATER = 21
-HSC = 22
-POO = 23
+from task.const import NUM_ROLE_PRICE, NUM_ROLE_METER_PROP, NUM_ROLE_METER_VALUE
+from apart.models import ApartMeter, PeriodMeters, MeterValue
+from apart.const import *
 
 def used(bill, service_id):
     excl = service_excluded(bill, service_id)
@@ -249,29 +234,46 @@ def get_bill_info(bill):
     return ret
 
 def get_meter_value(code, meter):
-    match code:
-        case 'el_meter': return meter.meter_el
-        case 'gas_meter': return meter.meter_ga
-        case 'hw_meter': return meter.meter_hw
-        case 'cw_meter': return meter.meter_cw
-        case _: assert_never(code)
+    if MeterValue.objects.filter(app_apart=NUM_ROLE_METER_VALUE, task_1=meter.task_1, start=meter.start, name=code).exists():
+        meter_value = MeterValue.objects.filter(app_apart=NUM_ROLE_METER_VALUE, task_1=meter.task_1, start=meter.start, name=code).get()
+        return meter_value.get_value()
+    return None
+
+def get_value_str(value: Decimal|None):
+    if not value:
+        return '0'
+    normalized = value.normalize()
+    sign, digits, exponent = normalized.as_tuple()
+    if exponent > 0:
+        return str(Decimal((sign, digits + (0,) * exponent, 0)))
+    else:
+        return str(normalized)
 
 def get_bill_meters(bill):
     prev = bill.task_2
     curr = bill.task_3
     ret = []
-    props = Task.objects.filter(task_1=bill.task_1, app_apart=NUM_ROLE_METER_PROP)
+    apart_id = bill.task_1.id
+    props = ApartMeter.objects.filter(task_1=apart_id, app_apart=NUM_ROLE_METER_PROP)
+    future = PeriodMeters.next_period(bill.start)
     for prop in props:
-        if prop.start and prop.start > bill.start:
+        if prop.start and prop.start >= future:
             continue
         if prop.stop and prop.stop < bill.start:
             continue
         prev_value = get_meter_value(prop.name, prev)
         curr_value = get_meter_value(prop.name, curr)
+        value = None
+        if prev_value and curr_value:
+            value = curr_value - prev_value
         ret.append({
-            'name': prop.get_apart_meter_name(),
+            'name': prop.get_name(),
             'prev_value': prev_value,
             'curr_value': curr_value,
-            'value': curr_value - prev_value,
+            'value': value,
+            'prev_value_str': get_value_str(prev_value),
+            'curr_value_str': get_value_str(curr_value),
+            'value_str': get_value_str(value),
         })
     return ret
+

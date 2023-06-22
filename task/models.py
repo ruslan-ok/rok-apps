@@ -24,10 +24,11 @@ from task import const
 from task.const import *
 from rusel.utils import nice_date
 from rusel.categories import CATEGORY_DESIGN
-from rusel.files import get_files_list_by_path
+from rusel.files import get_files_list_by_path, get_files_list_by_path_v2
 from fuel.utils import get_rest
 from news.get_info import get_info as news_get_info
 from expen.get_info import get_info as expen_get_info
+from apart.const import apart_service_name_by_id
 
 
 class Group(models.Model):
@@ -204,14 +205,14 @@ class Task(models.Model):
     An Entity that can be a Task or something else
     """
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'), related_name = 'task_user')
-    name = models.CharField(_('Name'), max_length=200, blank=False)
+    name = models.CharField(_('Name'), max_length=200, blank=True, null=True)
     event = models.DateTimeField(_('Event date'), blank=True, null=True)
     start = models.DateField(_('Start date'), blank=True, null=True)
     stop = models.DateTimeField(_('Termin'), blank=True, null=True)
-    completed = models.BooleanField(_('Completed'), default=False)
+    completed = models.BooleanField(_('Completed'), default=False, null=True)
     completion = models.DateTimeField(_('Completion time'), blank=True, null=True)
-    in_my_day = models.BooleanField(_('In My day'), default=False)
-    important = models.BooleanField(_('Important'), default=False)
+    in_my_day = models.BooleanField(_('In My day'), default=False, null=True)
+    important = models.BooleanField(_('Important'), default=False, null=True)
     remind = models.DateTimeField(_('Remind'), blank=True, null=True)
     first_remind = models.DateTimeField(_('First remind'), blank=True, null=True)
     last_remind = models.DateTimeField(_('Last remind'), blank=True, null=True)
@@ -242,7 +243,7 @@ class Task(models.Model):
     task_2 = models.ForeignKey('self', on_delete=models.SET_NULL, verbose_name=_('linked task #2'), related_name='task_link_2', blank=True, null=True)
     task_3 = models.ForeignKey('self', on_delete=models.SET_NULL, verbose_name=_('linked task #3'), related_name='task_link_3', blank=True, null=True)
     item_attr = models.CharField(_('Item attributes'), max_length=2000, blank=True, null=True)
-    sort = models.CharField(_('sort code'), max_length=50, blank=True)
+    sort = models.CharField(_('sort code'), max_length=50, blank=True, null=True)
     latitude = models.CharField('Latitude', max_length=15, blank=True, null=True)
     longitude = models.CharField('Longitude', max_length=15, blank=True, null=True)
     #------------ Expenses ------------
@@ -279,7 +280,7 @@ class Task(models.Model):
     meter_hw = models.IntegerField(_('hot water'), null=True)
     meter_cw = models.IntegerField(_('cold water'), null=True)
     meter_ga = models.IntegerField(_('gas'), null=True)
-    meter_zkx = models.DecimalField('account amount', null=True, max_digits=15, decimal_places=2)
+    meter_zkx = models.DecimalField('account amount', null=True, max_digits=15, decimal_places=3)
     #------------- Price --------------
     price_service = models.IntegerField(_('service code'), null=True)
     price_tarif = models.DecimalField(_('tariff 1'), null=True, max_digits=15, decimal_places=5)
@@ -321,7 +322,7 @@ class Task(models.Model):
     repl_part_num = models.CharField(_('catalog number'), max_length=100, null=True, blank=True)
     repl_descr = models.CharField(_('name'), max_length=1000, null=True, blank=True)
     #------------- Health --------------
-    diagnosis = models.CharField(_('diagnosis'), max_length=1000, blank=True)
+    diagnosis = models.CharField(_('diagnosis'), max_length=1000, blank=True, null=True)
     bio_height = models.IntegerField(_('height, cm'), blank=True, null=True)
     bio_weight = models.DecimalField(_('weight, kg'), blank=True, null=True, max_digits=5, decimal_places=2)
     bio_temp = models.DecimalField(_('temperature'), blank=True, null=True, max_digits=4, decimal_places=1)
@@ -337,7 +338,9 @@ class Task(models.Model):
         verbose_name_plural = _('tasks')
 
     def __str__(self):
-        return self.name
+        if self.name:
+            return self.name
+        return '?'
 
     @classmethod
     def use_name(cls, app, role):
@@ -396,12 +399,6 @@ class Task(models.Model):
 
     @classmethod
     def get_role_tasks(cls, user_id, app, role, nav_item=None):
-        """
-        if user_id:
-            data = Task.objects.filter(user=user_id)
-        else:
-            data = Task.objects.all()
-        """
         if user_id:
             data = TaskInfo.objects.filter(user_id=user_id)
         else:
@@ -412,22 +409,6 @@ class Task(models.Model):
 
         if (app != APP_ALL) and (app != APP_HOME):
             role_id = ROLES_IDS[app][role]
-            """
-            match app:
-                case const.APP_TODO: data = data.filter(app_task=role_id)
-                case const.APP_NOTE: data = data.filter(app_note=role_id)
-                case const.APP_NEWS: data = data.filter(app_news=role_id)
-                case const.APP_STORE: data = data.filter(app_store=role_id)
-                case const.APP_DOCS: data = data.filter(app_doc=role_id)
-                case const.APP_WARR: data = data.filter(app_warr=role_id)
-                case const.APP_EXPEN: data = data.filter(app_expen=role_id)
-                case const.APP_TRIP: data = data.filter(app_trip=role_id)
-                case const.APP_FUEL: data = data.filter(app_fuel=role_id)
-                case const.APP_APART: data = data.filter(app_apart=role_id)
-                case const.APP_HEALTH: data = data.filter(app_health=role_id)
-                case const.APP_WORK: data = data.filter(app_work=role_id)
-                case const.APP_PHOTO: data = data.filter(app_photo=role_id)
-            """
             data = data.filter(num_role=role_id)
         return data
 
@@ -552,7 +533,7 @@ class Task(models.Model):
                 case (const.ROLE_APART, const.NUM_ROLE_APART):
                     ret = APP_APART + '/' + self.name
                 case (const.ROLE_PRICE, const.NUM_ROLE_PRICE):
-                    ret = APP_APART + '/' + self.task_1.name + '/price/' + APART_SERVICE[self.price_service] + '/' + self.start.strftime('%Y.%m.%d')
+                    ret = APP_APART + '/' + self.task_1.name + '/price/' + apart_service_name_by_id(self.price_service) + '/' + self.start.strftime('%Y.%m.%d')
                 case (const.ROLE_METER, const.NUM_ROLE_METER):
                     ret = APP_APART + '/' + self.task_1.name + '/meter/' + str(self.start.year) + '/' + str(self.start.month).zfill(2)
                 case (const.ROLE_BILL, const.NUM_ROLE_BILL):
@@ -877,28 +858,6 @@ class Task(models.Model):
                 tri.files_qnt = qnt
                 tri.save()
 
-    def get_apart_meter_name(self):
-        if self.name in APART_METER.keys():
-            return APART_METER[self.name]
-        return self.name
-    
-    def get_apart_service_name(self):
-        if self.name in APART_SERVICE.keys():
-            return APART_SERVICE[self.name]
-        return self.name
-    
-    def get_apart_meter_value(self):
-        return self.meter_zkx
-
-    def get_apart_service_tarif(self):
-        return self.price_tarif
-
-    def get_apart_service_accrued(self):
-        return self.bill_tv_bill
-
-    def get_apart_service_payment(self):
-        return self.bill_tv_pay
-
     @classmethod
     def update_exchange_rate(cls):
         items1 = Task.objects.exclude(price_unit=None).exclude(event=None)
@@ -1174,6 +1133,24 @@ class TaskRoleInfo(models.Model):
     last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now=True)
     info = models.CharField(_('role specific info'), max_length=500, blank=True, default=None, null=True)
     files_qnt = models.IntegerField(_('number of attached files'), default=0, null=True)
+
+    @classmethod
+    def actualize(cls, user, item_id: int, role: str, info, attach_path: str):
+        app = ROLE_APP[role]
+        files_list = get_files_list_by_path_v2(user, role, item_id, attach_path)
+        files_qty = len(files_list)
+        if files_qty == 0 and info == None:
+            TaskRoleInfo.objects.filter(task=item_id, app=app, role=role).delete()
+        else:
+            if not TaskRoleInfo.objects.filter(task=item_id, app=app, role=role).exists():
+                item = Task.objects.filter(id=item_id).get()
+                str_info = json.dumps(info)
+                TaskRoleInfo.objects.create(task=item, app=app, role=role, info=str_info, files_qnt=files_qty)
+            else:
+                tri = TaskRoleInfo.objects.filter(task=item_id, app=app, role=role).get()
+                tri.info = json.dumps(info)
+                tri.files_qnt = files_qty
+                tri.save()
 
 def currency_item_repr(value, currency):
     if (round(value, 2) % 1):
@@ -1494,3 +1471,4 @@ class CurrencyRate(models.Model):
     value = models.DecimalField('Exchange rate to USD', blank=True, null=True, max_digits=15, decimal_places=4)
     source = models.CharField('Data source', max_length=200, blank=True)
     info = models.CharField('Comment', max_length=1000, blank=True)
+

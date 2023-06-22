@@ -14,8 +14,10 @@ from rusel.utils import extract_get_params, get_search_mode
 from rusel.base.forms import GroupForm
 from rusel.base.context import Context
 from rusel.search import search_in_files
+from rusel.files import get_files_list_by_path_v2
 from task.const import *
 from task.models import Task, Group, TaskGroup, Urls, GIQ_ADD_TASK, GIQ_DEL_TASK
+from apart.const import apart_service_name_by_id
 
 BG_IMAGES = [
     'beach',
@@ -194,7 +196,7 @@ class BaseListView(ListView, Context):
         if not use_sub_groups:
             return 0, ''
         if (task.app_apart == NUM_ROLE_PRICE):
-            return task.price_service, APART_SERVICE[task.price_service]
+            return task.price_service, apart_service_name_by_id(task.price_service)
         if (task.app_fuel == NUM_ROLE_SERVICE):
             if not task.task_2:
                 return 0, ''
@@ -302,8 +304,8 @@ class BaseListView(ListView, Context):
 #----------------------------------------------------------------------
 class BaseDetailView(UpdateView, Context):
 
-    def __init__(self, config, cur_role):
-        super().__init__()
+    def __init__(self, config, cur_role, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.set_config(config, cur_role)
         self.template_name = config['name'] + '/' + self.config.get_cur_role() + '.html'
 
@@ -342,13 +344,18 @@ class BaseDetailView(UpdateView, Context):
                 fake_url.href = '#'
                 urls.append(fake_url)
         context['urls'] = urls
-        context['files'] = self.object.get_files_list(self.config.get_cur_role())
+        task_id = self.object.id
+        if hasattr(self.object, 'get_attach_path_v2'):
+            context['files'] = get_files_list_by_path_v2(self.request.user, self.config.get_cur_role(), task_id, self.object.get_attach_path_v2())
+        else:
+            context['files'] = self.object.get_files_list(self.config.get_cur_role())
         context['ban_on_deletion'] = ''
         context['delete_question'] = _('delete').capitalize()
         context['ban_on_attach_deletion'] = ''
         context['attach_delete_question'] = _('delete file').capitalize()
         context['item'] = self.object
-        related_roles, possible_related = get_related_roles(self.get_object(), self.config)
+        task = Task.objects.filter(id=task_id).get()
+        related_roles, possible_related = get_related_roles(task, self.config)
         context['related_roles'] = related_roles
         context['possible_related'] = possible_related
         context['add_item_placeholder'] = '{} {}'.format(_('add').capitalize(), self.config.item_name if self.config.item_name else self.config.get_cur_role_loc())
@@ -356,7 +363,7 @@ class BaseDetailView(UpdateView, Context):
 
     def form_valid(self, form):
         self.config.set_view(self.request, detail=True)
-        item = form.instance
+        item = Task.objects.filter(id=form.instance.id).get()
         role = self.config.get_cur_role()
         old_item = Task.objects.filter(id=item.id).get()
         old_item.correct_groups_qty(GIQ_DEL_TASK, role=role)

@@ -302,7 +302,6 @@ TRIP_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_PERSON, _('person')), (NUM_R
 FUEL_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_CAR, _('cars')), (NUM_ROLE_FUEL, _('fueling')), (NUM_ROLE_PART, _('car part service interval')), (NUM_ROLE_SERVICE, _('service'))]
 APART_ROLE_CHOICE  = [(NONE, '--------'), 
                       (NUM_ROLE_APART, _('apartment')), 
-                      (NUM_ROLE_SERVICE, _('service')), 
                       (NUM_ROLE_METER, _('meter')), 
                       (NUM_ROLE_METER_PROP, _('meter property')), 
                       (NUM_ROLE_METER_VALUE, _('meter value')), 
@@ -487,69 +486,3 @@ ROLE_APP = {
     ROLE_ACCOUNT: APP_HOME,
     ROLE_SEARCH_RESULTS: NONE,
 }
-
-APART_SERVICE = [
-    'не задано',
-    'электроснабжение',
-    'газоснабжение',
-    'вода',
-    'водоснабжение',
-    'водоотведение',
-    'не задано',
-    '!?-7',
-    '!?-8',
-    'kill',
-    'электроснабжение',
-    '!?-11',
-    'kill-1',
-    'kill-3',
-    'kill-2',
-    '!?-15',
-    'членские взносы',
-    '!?-17',
-    '!?-18',
-    '!?-19',
-    '!?-20',
-]
-"""
-APART_PROPS = {
-    'el_meter': {'type': 'flow_meter', 'name': 'электросчетчик'},
-    'el_stove': {'type': 'equipment', 'name': 'электроплита'},
-    'cw_meter': {'type': 'flow_meter', 'name': 'счетчик холодной воды'},
-    'hw_meter': {'type': 'flow_meter', 'name': 'счетчик горячей воды'},
-    'water_supply': {'type': 'service', 'name': 'водоснабжение'},
-    'sewerage': {'type': 'service', 'name': 'водоотведение'},
-    'ht_meter': {'type': 'flow_meter', 'name': 'счетчик тепловой энергии'},
-    'internet': {'type': 'service', 'name': 'интернет'},
-    'tv': {'type': 'service', 'name': 'телевидение'},
-    'phone': {'type': 'service', 'name': 'стационарный (городской) телефон'},
-    'mobile': {'type': 'service', 'name': 'мобильный телефон'},
-    'gas_meter': {'type': 'flow_meter', 'name': 'газовый счетчик'},
-    'zkx': {'type': 'service', 'name': 'жилищно-коммунальные услуги'},
-    'ppo': {'type': 'service', 'name': 'платежи товариществу собственников'},
-}
-"""
-
-APART_METER = {
-    'el_meter': 'электричество',
-    'cw_meter': 'холодная вода',
-    'hw_meter': 'горячая вода',
-    'ht_meter': 'тепловая энергия',
-    'gas_meter': 'газ',
-}
-
-APART_SERVICE = {
-    'gas_supply': 'газоснабжение',
-    'el_supply': 'электроснабжение',
-    'water_supply': 'водоснабжение',
-    'sewerage': 'водоотведение',
-    'internet': 'интернет',
-    'tv': 'телевидение',
-    'phone': 'стационарный (городской) телефон',
-    'mobile': 'мобильный телефон',
-    'zkx': 'жилищно-коммунальные услуги',
-    'ppo': 'платежи товариществу собственников',
-    'rent': 'арендная плата',
-    'parking': 'аренда парковки',
-}
-

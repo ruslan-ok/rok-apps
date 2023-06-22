@@ -91,3 +91,21 @@ def get_files_list_by_path(role, task_id, path):
         return ret
     except FileNotFoundError:
         return []
+
+def get_files_list_by_path_v2(user, role, task_id, path):
+    storage_path = os.environ.get('DJANGO_STORAGE_PATH', '')
+    full_path = storage_path.format(user.username) + 'attachments/' + path + '/'
+    fs = FileSystemStorage(location=full_path, base_url=file_storage_url)
+    try:
+        ret = []
+        npp = 1
+        for fname in fs.listdir('')[1]:
+            name = os.path.splitext(fname)[0]
+            ext = os.path.splitext(fname)[1][1:]
+            size = os.path.getsize(full_path + fname)
+            fl = File(role, task_id, npp, name, ext, size)
+            npp += 1
+            ret.append(fl)
+        return ret
+    except FileNotFoundError:
+        return []

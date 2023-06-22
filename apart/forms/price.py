@@ -3,9 +3,10 @@ from django.utils.translation import gettext_lazy as _
 
 from rusel.base.forms import BaseCreateForm, BaseEditForm
 from rusel.widgets import DateInput, Select, NumberInput, UrlsInput
-from task.const import APART_SERVICE
-from task.models import Task
+from apart.const import APART_SERVICE, apart_service_name_by_id
+from apart.models import ApartService, ApartPrice
 from apart.config import app_config
+from task.const import NUM_ROLE_SERV_PROP
 
 role = 'price'
 
@@ -18,19 +19,21 @@ class CreateForm(BaseCreateForm):
         widget=Select(attrs={'label': _('Service'), 'class': 'col-md-3', 'style': 'width:180px;'}))
 
     class Meta:
-        model = Task
+        model = ApartPrice
         fields = ['new_service']
 
     def __init__(self, nav_item, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
-        service_choices = []
-        if nav_item.apart_has_el:
-            service_choices.append((1, 'электроснабжение'),)
-        if nav_item.apart_has_gas:
-            service_choices.append((2, 'газоснабжение'),)
-        if nav_item.apart_has_hw or nav_item.apart_has_cw:
-            service_choices.append((4, 'водоснабжение'),)
-            service_choices.append((5, 'водоотведение'),)
+        service_sorts = {}
+        for service in ApartService.objects.filter(user=nav_item.user.id, app_apart=NUM_ROLE_SERV_PROP, task_1=nav_item.id).order_by('sort'):
+            if service.name not in service_sorts.keys():
+                service_sorts[service.name] = service.sort
+            else:
+                if service_sorts[service.name] < service.sort:
+                    service_sorts[service.name] = service.sort
+        service_codes = [code for code in service_sorts]
+        service_codes = sorted(service_codes, key=lambda x: service_sorts[x])
+        service_choices = [(APART_SERVICE[code][0], APART_SERVICE[code][1]) for code in service_codes]
         self.fields['new_service'].choices = service_choices
         
 #----------------------------------
@@ -73,14 +76,9 @@ class EditForm(BaseEditForm):
         widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('Add link')}))
 
     class Meta:
-        model = Task
+        model = ApartPrice
         fields = ['start', 'service_name', 'price_tarif', 'price_border', 'price_tarif2', 'price_border2', 'price_tarif3', 'info', 'url']
-
-    def check_none(self, value):
-        if value:
-            return value
-        return 0
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
-        self.fields['service_name'].initial = APART_SERVICE[kwargs['instance'].price_service]
+        self.fields['service_name'].initial = apart_service_name_by_id(kwargs['instance'].price_service)

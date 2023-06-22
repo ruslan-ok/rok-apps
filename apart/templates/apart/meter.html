@@ -2,15 +2,42 @@
 {% load static i18n %}
 
 {% block item_detail %}
-    <div class="row">
+    {% comment %} <!-- **************************** Form **************************** --> {% endcomment %}
+    <div class="row mb-3">
         {{ form.start.errors }}{{ form.start }}
     </div>
-    <div class="row mb-3">
-        {{ form.meter_el.errors }}{{ form.meter_el }}
-        {{ form.meter_hw.errors }}{{ form.meter_hw }}
-        {{ form.meter_cw.errors }}{{ form.meter_cw }}
-        {{ form.meter_ga.errors }}{{ form.meter_ga }}
+
+    <div class="row">
+        <div class="col">
+            <span>Счётчики [{{ meter_value|length }}]</span>
+            <table class="table table-light table-hover">
+            <thead>
+                <tr>
+                <th scope="col">Натменование</th>
+                <th scope="col">Значение</th>
+                <th scope="col">Показания сняты</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for meter in meter_value %}
+                <tr role="button" data-bs-toggle="modal" data-bs-target="#editMeterValue"
+                    data-bs-id="{{ meter.id|safe }}"
+                    data-bs-apart="{{ meter.get_apart.id|safe }}"
+                    data-bs-code="{{ meter.get_code }}"
+                    data-bs-period="{{ meter.get_period }}"
+                    data-bs-name="{{ meter.get_name }}"
+                    data-bs-value="{{ meter.get_value_str }}"
+                    data-bs-event="{{ meter.event|date:'Y-m-d' }}"> 
+                    <td scope="row">{{ meter.get_name }}</td>
+                    <td>{{ meter.get_value_str }}</td>
+                    <td>{{ meter.event|date:"d M Y" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            </table>
+        </div>
     </div>
+
     {{ form.info.errors }}{{ form.info.label_tag }}{{ form.info }}
     <div class="row">
         <div class="col">{{ form.url.errors }}{{ form.url.label_tag }}{{ form.url }}</div>
@@ -19,30 +46,51 @@
 
     {% include "widgets/url_list.html" %}
     {% include "widgets/attachments.html" %}
-
-    <div class="row">
-        <div class="col">
-            <span>Счётчики</span>
-            <table class="table table-light">
-            <thead>
-                <tr>
-                <th scope="col">Натменование</th>
-                <th scope="col">Показания сняты</th>
-                <th scope="col">Значение</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for meter in apart_meters %}
-                <tr>
-                    <td scope="row">{{ meter.get_apart_meter_name }}</td>
-                    <td>{{ meter.event }}</td>
-                    <td>{{ meter.get_apart_meter_value }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-            </table>
-        </div>
-    </div>
   
 {% endblock %}
 
+{% block footer_detail %}
+  {{ block.super }}
+
+{% comment %} <!-- **************************** Edit Meter **************************** --> {% endcomment %}
+<div class="modal fade" id="editMeterValue" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="edit_meter_label">Описание счетчика</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <input type="hidden" name="meter-id" id="id_edit_meter_id">
+          <input type="hidden" name="meter-apart" id="id_edit_meter_apart">
+          <input type="hidden" name="meter-period" id="id_edit_meter_period">
+          <input type="hidden" name="meter-code" id="id_edit_meter_code">
+          <div class="mb-3">
+            <label for="id_edit_meter_name" class="col-form-label">Ресурс</label>
+            <input type="text" name="meter-name" class="form-control" id="id_edit_meter_name" readonly>
+          </div>
+          <div class="mb-3">
+            <label for="id_edit_meter_value" class="col-form-label">Значение</label>
+            <input type="number" name="meter-value" class="form-control" id="id_edit_meter_value">
+          </div>
+          <div class="mb-3">
+            <label for="id_edit_meter_event" class="col-form-label">Дата снятия показаний</label>
+            <input type="date" name="meter_event" class="form-control" id="id_edit_meter_event">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="saveMeterValue('{{ django_host_api }}')">Сохранить</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'js/apart.js' %}"></script>
+{% endblock %}

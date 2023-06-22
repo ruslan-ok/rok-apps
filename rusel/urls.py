@@ -16,6 +16,7 @@ from api import views_logs as api_logs
 from api import views_famtree as api_family
 from api import views_widget as api_widget
 from api import views_service as api_service
+from apart.api import views as api_apart
 
 api_router = routers.DefaultRouter()
 api_router.register(r'groups', api_grp.GroupViewSet, basename='group')
@@ -25,6 +26,13 @@ api_router.register(r'urls', api_urls.UrlsViewSet, basename='urls')
 api_router.register(r'profile', api_profile.ProfileViewSet, basename='profile')
 api_router.register(r'logs', api_logs.LogsViewSet, basename='logs')
 api_router.register(r'famtree', api_family.FamTreeViewSet, basename='famtree')
+api_router.register(r'apart/estate', api_apart.ApartView, basename='apart')
+api_router.register(r'apart/property/meter', api_apart.ApartMeterView, basename='apart-meter')
+api_router.register(r'apart/property/service', api_apart.ApartServiceView, basename='apart-service')
+api_router.register(r'apart/period/meter', api_apart.PeriodMetersView, basename='period-meter')
+api_router.register(r'apart/period/meter_value', api_apart.MeterValueView, basename='meter-value')
+api_router.register(r'apart/period/service', api_apart.PeriodServicesView, basename='period-service')
+api_router.register(r'apart/period/service_amount', api_apart.ServiceAmountView, basename='service-amount')
 
 urlpatterns = i18n_patterns(
     path('', views.ListView.as_view(), name='index'),

@@ -7,20 +7,24 @@
 {% endblock %}
 
 {% block item_detail %}
-    <div class="row mb-3" name="period_date_rate">
+  {% comment %} <!-- **************************** Form **************************** --> {% endcomment %}
+  <div class="row mb-3" name="period_date_rate">
       {{ form.start.errors }} {{ form.start }}
       {{ form.bill_residents.errors }} {{ form.bill_residents }}
     </div>
 
     <ul class="nav nav-tabs" id="billTab" role="tablist">
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="meter-tab" data-bs-toggle="tab" data-bs-target="#meter-tab-pane" type="button" role="tab" aria-controls="meter-tab-pane" aria-selected="true">Счетчики {{ apart_period_meters|length }}</button>
+        <button class="nav-link" id="meter-tab" data-bs-toggle="tab" data-bs-target="#meter-tab-pane" type="button" role="tab" 
+          aria-controls="meter-tab-pane" aria-selected="true">Счетчики [{{ bill_meters|length }}]</button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="service-tab" data-bs-toggle="tab" data-bs-target="#service-tab-pane" type="button" role="tab" aria-controls="service-tab-pane" aria-selected="false">Услуги {{ apart_period_services|length }}</button>
+        <button class="nav-link active" id="service-tab" data-bs-toggle="tab" data-bs-target="#service-tab-pane" type="button" role="tab" 
+          aria-controls="service-tab-pane" aria-selected="false">Услуги [{{ bill_services|length }}]</button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="attach-tab" data-bs-toggle="tab" data-bs-target="#attach-tab-pane" type="button" role="tab" aria-controls="attach-tab-pane" aria-selected="false">Вложения {{ files|length }}</button>
+        <button class="nav-link" id="attach-tab" data-bs-toggle="tab" data-bs-target="#attach-tab-pane" type="button" role="tab" 
+          aria-controls="attach-tab-pane" aria-selected="false">Вложения [{{ files|length }}]</button>
       </li>
     </ul>
     <div class="tab-content" id="billTabContent">
@@ -35,19 +39,19 @@
             </tr>
           </thead>
           <tbody>
-            {% for meter in apart_period_meters %}
+            {% for meter in bill_meters %}
               <tr>
                 <td scope="row">{{ meter.name }}</td>
-                <td>{{ meter.prev_value }}</td>
-                <td>{{ meter.curr_value }}</td>
-                <td>{{ meter.value }}</td>
+                <td>{{ meter.prev_value_str }}</td>
+                <td>{{ meter.curr_value_str }}</td>
+                <td>{{ meter.value_str }}</td>
               </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
       <div class="tab-pane fade show active" id="service-tab-pane" role="tabpanel" aria-labelledby="service-tab" tabindex="0">
-        <table class="table table-light">
+        <table class="table table-light table-hover">
           <thead>
             <tr>
               <th scope="col">Сервис</th>
@@ -58,22 +62,26 @@
           </tr>
           </thead>
           <tbody>
-            {% for service in apart_period_services %}
-              <tr>
-                <td scope="row">{{ service.get_apart_service_name }}</td>
-                <td>{{ service.get_apart_service_tarif|default_if_none:"" }}</td>
-                <td>{{ service.get_apart_service_accrued|default_if_none:"" }}</td>
-                <td>{{ service.get_apart_service_payment|default_if_none:"" }}</td>
+            {% for service in bill_services %}
+              <tr role="button" data-bs-toggle="modal" data-bs-target="#editServiceAmount"
+                data-bs-id="{{ service.id|safe }}"
+                data-bs-apart="{{ service.get_apart.id|safe }}"
+                data-bs-code="{{ service.get_code }}"
+                data-bs-period="{{ service.get_period }}"
+                data-bs-name="{{ service.get_name }}"
+                data-bs-tariff="{{ service.get_tarif|default_if_none:"" }}"
+                data-bs-accrued="{{ service.get_accrued|default_if_none:"" }}"
+                data-bs-payment="{{ service.get_payment|default_if_none:"" }}"
+                data-bs-event="{{ service.event|date:'Y-m-d' }}"> 
+                <td scope="row">{{ service.get_name }}</td>
+                <td>{{ service.get_tarif|default_if_none:"" }}</td>
+                <td>{{ service.get_accrued|default_if_none:"" }}</td>
+                <td>{{ service.get_payment|default_if_none:"" }}</td>
                 <td>{{ service.event|date:"d M Y" }}</td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
-        <div class="row">
-          <div class="col">
-            <a href="#" class="mx-3 float-end"  data-bs-toggle="modal" data-bs-target="#addProperty" data-bs-whatever="@fat">Добавить</a>
-          </div>
-        </div>
       </div>
       <div class="tab-pane fade" id="attach-tab-pane" role="tabpanel" aria-labelledby="attach-tab" tabindex="0">
         {{ form.upload }}
@@ -91,37 +99,45 @@
 {% block footer_detail %}
   {{ block.super }}
 
-  <div class="modal fade" id="addProperty" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  {% comment %} <!-- **************************** Edit Service Amount **************************** --> {% endcomment %}
+
+  <div class="modal fade" id="editServiceAmount" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5" id="exampleModalLabel">Новый атрибут</h1>
+          <h1 class="modal-title fs-5" id="edit_service_label">Оплата услуги</h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <form>
+            <input type="hidden" name="service-id" id="id_edit_service_id">
+            <input type="hidden" name="service-apart" id="id_edit_service_apart">
+            <input type="hidden" name="service-period" id="id_edit_service_period">
+            <input type="hidden" name="service-code" id="id_edit_service_code">
             <div class="mb-3">
-              <label for="is-select-prop" class="col-form-label">Наименование</label>
-              <select class="form-select" id="is-select-prop">
-                <option selected>... выбор атрибута ...</option>
-                {% for prop in all_properties %}
-                  <option value="{{ prop.code }}">{{ prop.name }}</option>
-                {% endfor %}
-              </select>
+              <label for="id_edit_service_name" class="col-form-label">Услуга</label>
+              <input type="text" name="service-name" class="form-control" id="id_edit_service_name" readonly>
             </div>
             <div class="mb-3">
-              <label for="id_date_from" class="col-form-label">Дата с:</label>
-              <input type="date" name="date_from" class="form-control" id="id_date_from" value=""">
+              <label for="id_edit_service_tariff" class="col-form-label">Тариф</label>
+              <input type="number" name="service-tariff" class="form-control" id="id_edit_service_tariff" readonly>
             </div>
             <div class="mb-3">
-              <label for="id_date_until" class="col-until-label">Дата по:</label>
-              <input type="date" name="date_until" class="form-control" id="id_date_until" value=""">
+              <label for="id_edit_service_accrued" class="col-form-label">Начислено</label>
+              <input type="number" name="service-accrued" class="form-control" id="id_edit_service_accrued">
+            </div>
+            <div class="mb-3">
+              <label for="id_edit_service_payment" class="col-form-label">Оплачено</label>
+              <input type="number" name="service-payment" class="form-control" id="id_edit_service_payment">
+            </div>
+            <div class="mb-3">
+              <label for="id_edit_service_event" class="col-form-label">Дата оплаты</label>
+              <input type="date" name="service_event" class="form-control" id="id_edit_service_event">
             </div>
           </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-          <button type="button" class="btn btn-primary">Добавить</button>
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="saveServiceAmount('{{ django_host_api }}')">Сохранить</button>
         </div>
       </div>
     </div>

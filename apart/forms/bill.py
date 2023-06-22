@@ -3,8 +3,8 @@ from django.utils.translation import gettext_lazy as _, gettext
 
 from rusel.base.forms import BaseCreateForm, BaseEditForm
 from rusel.widgets import DateInput, NumberInput, UrlsInput
-from task.models import Task
 from apart.config import app_config
+from apart.models import PeriodServices
 
 role = 'bill'
 
@@ -12,8 +12,8 @@ role = 'bill'
 class CreateForm(BaseCreateForm):
 
     class Meta:
-        model = Task
-        fields = ['name']
+        model = PeriodServices
+        fields = ['start']
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
@@ -38,8 +38,8 @@ class EditForm(BaseEditForm):
         widget=UrlsInput(attrs={'class': 'form-control mb-3', 'placeholder': _('Add link')}))
 
     class Meta:
-        model = Task
-        fields = ['start', 'event', 'info', 'url',]
+        model = PeriodServices
+        fields = ['start', 'bill_residents', 'info', 'url',]
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)

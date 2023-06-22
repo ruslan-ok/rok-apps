@@ -1,6 +1,8 @@
 from task.models import Task
+from apart.models import PeriodMeters, PeriodServices
 from task.const import NUM_ROLE_METER_VALUE, NUM_ROLE_METER_PROP, NUM_ROLE_SERV_VALUE, NUM_ROLE_SERV_PROP, NUM_ROLE_APART, NUM_ROLE_METER, NUM_ROLE_BILL
-from apart.calc_tarif import HSC, INTERNET, PHONE, get_bill_info
+from apart.calc_tarif import get_bill_info
+
 
 def apart_check_meter_prop(user, apart, prop, code) -> int:
     if prop:
@@ -17,6 +19,7 @@ def apart_check_serv_prop(user, apart, prop, code) -> int:
 def apart_check_meters(user, apart) -> int:
     ret = 0
     for meter in Task.objects.filter(user=user.id, app_apart=NUM_ROLE_METER, task_1=apart.id):
+        meter_id = meter.id
         if apart.apart_has_el:
             meter.id = None
             meter.app_apart = NUM_ROLE_METER_VALUE
@@ -45,6 +48,8 @@ def apart_check_meters(user, apart) -> int:
             meter.meter_zkx = meter.meter_ga
             meter.save()
             ret += 1
+        meter = PeriodMeters.objects.filter(id=meter_id).get()
+        meter.role_info()
     return ret
 
 def ins_service(bill, code, used, tariff, accrued, payment):
@@ -62,6 +67,9 @@ def ins_service(bill, code, used, tariff, accrued, payment):
 def apart_check_services(user, apart) -> int:
     ret = 0
     for bill in Task.objects.filter(user=user.id, app_apart=NUM_ROLE_BILL, task_1=apart.id):
+        bill_id = bill.id
+        if apart.name in ['Жодино'] and bill.start.strftime('%Y-%m') == '2022-07':
+            pass
         if bill.task_2 and bill.task_3:
             bill_info = get_bill_info(bill)
             ret += ins_service(bill, code='internet', used=bill_info['internet']['used'], tariff=None, accrued=bill.bill_tv_bill, payment=bill.bill_tv_pay)
@@ -71,9 +79,11 @@ def apart_check_services(user, apart) -> int:
             ret += ins_service(bill, code='parking', used=bill_info['zkx']['used'] and apart.name in ['Wrocław'], tariff=None, accrued=bill.bill_zhirovka, payment=bill.bill_zkx_pay)
             ret += ins_service(bill, code='ppo', used=bill_info['poo']['used'] and apart.name in ['Лесной'], tariff=None, accrued=bill.bill_poo, payment=bill.bill_poo_pay)
             ret += ins_service(bill, code='rent', used=bill_info['poo']['used'] and apart.name in ['Wrocław'], tariff=None, accrued=bill.bill_poo, payment=bill.bill_poo_pay)
-            ret += ins_service(bill, code='el_supply', used=bill_info['electro']['used'], tariff=bill_info['electro']['tarif'], accrued=None, payment=bill.bill_el_pay)
-            ret += ins_service(bill, code='gas_supply', used=bill_info['gas']['used'], tariff=bill_info['gas']['tarif'], accrued=None, payment=bill.bill_gas_pay)
-            ret += ins_service(bill, code='water_supply', used=bill_info['water']['used'], tariff=bill_info['water']['tarif'], accrued=None, payment=bill.bill_water_pay)
+            ret += ins_service(bill, code='el_supply', used=bill_info['electro']['used'], tariff=bill_info['electro']['tarif'], accrued=bill_info['electro']['accrued'], payment=bill.bill_el_pay)
+            ret += ins_service(bill, code='gas_supply', used=bill_info['gas']['used'], tariff=bill_info['gas']['tarif'], accrued=bill_info['gas']['accrued'], payment=bill.bill_gas_pay)
+            ret += ins_service(bill, code='water_supply', used=bill_info['water']['used'], tariff=bill_info['water']['tarif'], accrued=bill_info['water']['accrued'], payment=bill.bill_water_pay)
+        bill = PeriodServices.objects.filter(id=bill_id).get()
+        bill.role_info()
     return ret
 
 def multi_currency_init(user):
