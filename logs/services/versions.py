@@ -1,4 +1,10 @@
-import os, datetime, django, rest_framework, OpenSSL, ssl, urllib.request
+import os
+import datetime
+import django
+import rest_framework
+import OpenSSL
+import ssl
+import urllib.request
 from platform import python_version
 from rusel.mysql_ver import get_mysql_ver
 

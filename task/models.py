@@ -6,7 +6,6 @@ import requests
 from datetime import date
 from collections import Counter
 from decimal import Decimal
-import pandas as pd
 
 from datetime import date, time, datetime, timedelta
 from django.db import models
@@ -859,28 +858,6 @@ class Task(models.Model):
                 tri.save()
 
     @classmethod
-    def update_exchange_rate(cls):
-        items1 = Task.objects.exclude(price_unit=None).exclude(event=None)
-        df = pd.DataFrame(items1.values())
-        df['d_event'] = pd.to_datetime(df['event']).dt.date
-        df = df[['d_event', 'price_unit', 'expen_rate_usd', 'expen_rate_eur', 'expen_rate_gbp']].drop_duplicates()
-        df['expen_rate'] = df.apply(lambda row: count_rate(row), axis=1)
-        df = df.reset_index()
-        CurrencyRate.objects.all().delete()
-        ins = 0
-        for index, row in df.iterrows():
-            if row['expen_rate'] and row['price_unit'] != 'USD':
-                CurrencyRate.objects.create(currency=row['price_unit'],
-                                            date=row['d_event'],
-                                            num_units=1,
-                                            rate_usd=row['expen_rate'])
-                ins += 1
-        return {
-            'result': 'ok', 
-            'inserted count': ins
-        }
-
-    @classmethod
     def get_db_exchange_rate(cls, currency: str, date: date):
         if CurrencyRate.objects.filter(base='USD', currency=currency, date__lte=date).exists():
             last_dt = CurrencyRate.objects.filter(base='USD', currency=currency, date__lte=date).order_by('-date')[0].date
@@ -891,7 +868,7 @@ class Task(models.Model):
 
     @classmethod
     def get_net_exchange_rate(cls, currency: str, date: date) -> dict:
-        if datetime.today() < datetime(2023, 7, 7):
+        if datetime.today().date() < datetime(2023, 7, 7):
             return {
                 'rate': None,
                 'status': status.HTTP_428_PRECONDITION_REQUIRED,
@@ -990,41 +967,30 @@ class Task(models.Model):
     def get_hist_exchange_rates(cls, currency: str, beg: date, end: date) -> list:
         ret = []
         rates = CurrencyRate.objects.filter(base='USD', currency=currency, date__range=(beg, end))
-        df = pd.DataFrame(rates.values())
+        all_rates = []
+        for rate in rates:
+            all_rates.append((rate.date, rate.value, sort_exchange_rate_by_source(rate.source)))
         date = beg
         while date <= end:
-            a = df[df['date'] == date]
             rate = None
-            if not len(a):
+            day_rates = [x for x in all_rates if x[0] == date]
+            day_rates = sorted(day_rates, key=lambda x: x[2])
+            if len(day_rates):
+                rate = day_rates[0][1]
+            else:
                 rate_info = cls.get_exchange_rate(currency, date)
                 if rate_info and rate_info['result'] == 'ok' and 'rate' in rate_info and rate_info['rate']:
                     rate = rate_info['rate'].value
-            elif len(a) == 1:
-                rate = a.iloc[0].at['value']
-            else:
-                rate = a.sort_values(by=['source'], key=lambda x: sort_exchange_rate_by_source(x)).iloc[0].at['value']
             ret.append(rate)
             date = date + timedelta(1)
         return ret
     
 def sort_exchange_rate_by_source(source):
-    s = source.replace({'nbrb.by': 1, 'GoogleFinanse': 2})
-    # match source:
-    #     case 'nbrb.by': return 1
-    #     case 'GoogleFinanse': return 2
-    #     case _: return 3
-    return s
-
-
-def count_rate(row):
-    match row['price_unit']:
-        case 'BYR': ret = row['expen_rate_usd']
-        case 'BYN': ret = row['expen_rate_usd']
-        case 'USD': ret = 1.
-        case 'EUR': ret = row['expen_rate_usd'] / row['expen_rate_eur'] if row['expen_rate_usd'] and row['expen_rate_eur'] else None
-        case 'GBP': ret = row['expen_rate_usd'] / row['expen_rate_gbp'] if row['expen_rate_usd'] and row['expen_rate_gbp'] else None
-        case _: ret = None
-    return ret
+    match source:
+        case 'nbrb.by': return 1
+        case 'etalonline.by': return 2
+        case 'GoogleFinanse': return 3
+        case _: return 4
 
 
 GIQ_ADD_TASK = 1 # Task created

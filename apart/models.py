@@ -320,13 +320,13 @@ class PeriodMeters(models.Model):
             if meter_prop.start and meter_prop.start >= period and meter_prop.start < future:
                 value = meter_prop.get_initial_value()
             if meter_prop.name not in apart_meters:
-                apart_meters[meter_prop.name] = {'value': value, 'sort': meter_prop.sort, 'from': meter_prop.start }
+                apart_meters[meter_prop.name] = {'value': value, 'sort': meter_prop.sort if meter_prop.sort else '', 'from': meter_prop.start }
             else:
                 if apart_meters[meter_prop.name]['from'] < meter_prop.start:
                     apart_meters[meter_prop.name]['from'] = meter_prop.start
                     if apart_meters[meter_prop.name]['value'] != value:
                         apart_meters[meter_prop.name]['value'] = value
-                    if apart_meters[meter_prop.name]['sort'] < meter_prop.sort:
+                    if meter_prop.sort and apart_meters[meter_prop.name]['sort'] < meter_prop.sort:
                         apart_meters[meter_prop.name]['sort'] = meter_prop.sort
         code_list = sorted(apart_meters.keys(), key=lambda x: apart_meters[x]['sort'])
         for code in code_list:
@@ -336,7 +336,8 @@ class PeriodMeters(models.Model):
                 dt_from = None
                 if last and MeterValue.objects.filter(user=user.id, app_apart=NUM_ROLE_METER_VALUE, task_1=apart.id, name=code, start=last.start).exists():
                     last_value = MeterValue.objects.filter(user=user.id, app_apart=NUM_ROLE_METER_VALUE, task_1=apart.id, name=code, start=last.start).get()
-                    meter_values = MeterValue.objects.filter(user=user.id, app_apart=NUM_ROLE_METER_VALUE, task_1=apart.id, name=code).order_by('start')
+                    prev_year = datetime(last_value.start.year - 1, last_value.start.month, 1)
+                    meter_values = MeterValue.objects.filter(user=user.id, app_apart=NUM_ROLE_METER_VALUE, task_1=apart.id, name=code, start__gte=prev_year).order_by('start')
                     if dt_from:
                         meter_values = meter_values.filter(event__gte=dt_from).order_by('start')
                     first_value = meter_values[0]
@@ -465,6 +466,7 @@ class PeriodServices(models.Model):
             prev = last.task_3
             curr = PeriodMeters.objects.filter(user=user.id, app_apart=NUM_ROLE_METER, task_1=apart.id, start=period).get()
         service = PeriodServices.objects.create(user=user, app_apart=NUM_ROLE_BILL, task_1=apart, task_2=prev, task_3=curr, start=period, bill_residents=apart.bill_residents)
+        service.set_name()
         future = PeriodMeters.next_period(period)
         serv_list = {}
         for serv_prop in ApartService.objects.filter(user=user.id, app_apart=NUM_ROLE_SERV_PROP, task_1=apart.id).exclude(start__gte=future).exclude(stop__lt=period):

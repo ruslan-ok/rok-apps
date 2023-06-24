@@ -14,9 +14,9 @@ class TuneData:
     def tune_dataset(self, data, group):
         if (group.determinator == 'view'):
             if (group.view_id == 'active'):
-                return data.filter(stop__gt=datetime.today())
+                return data.filter(stop__gt=datetime.today().date())
             if (group.view_id == 'expired'):
-                return data.filter(stop__lt=datetime.today())
+                return data.filter(stop__lt=datetime.today().date())
         return data
 
 class ListView(LoginRequiredMixin, PermissionRequiredMixin, BaseListView, TuneData):

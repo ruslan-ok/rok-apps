@@ -6,7 +6,7 @@
         {% for curr in currencies %}
             <div class="currency-info" title="{{ curr.code }} - {{ curr.date }}">
                 <i class="{{ curr.icon }} {{ curr.style }}"></i>
-                <span class="{{ curr.style }}">{{ curr.rate }}</span>
+                <span class="{{ curr.style }}">{{ curr.abbr }} {{ curr.rate }}</span>
             </div>
         {% endfor %}
     </div>

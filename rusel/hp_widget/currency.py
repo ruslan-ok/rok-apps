@@ -1,7 +1,10 @@
-import os, requests, json
+import os
 from datetime import datetime, timedelta
 from task.models import Task
-from task.const import NUM_ROLE_EXPENSE, NUM_ROLE_FUEL
+from task.const import NUM_ROLE_EXPENSE, NUM_ROLE_FUEL, NUM_ROLE_APART, NUM_ROLE_SERV_VALUE
+from apart.models import Apart, ServiceAmount
+from core.currency.utils import get_exchange_rate, get_hist_exchange_rates
+from core.currency.exchange_rate_api import *
 
 #CURR_LIST = ('PLN', 'BYN')
 CURR_LIST = ('EUR', 'BYN', 'PLN', 'GBP')
@@ -17,9 +20,17 @@ CURR_COLOR = {
 CURR_ICON = {
     'USD': 'bi-currency-dollar',
     'EUR': 'bi-currency-euro',
-    'PLN': 'bi-currency-yen',
-    'BYN': 'bi-currency-rupee',
+    'PLN': '',
+    'BYN': '',
     'GBP': 'bi-currency-pound',
+}
+
+CURR_ABBR = {
+    'USD': '',
+    'EUR': '',
+    'PLN': 'PLN',
+    'BYN': 'BYN',
+    'GBP': '',
 }
 
 PERIOD = 30
@@ -29,14 +40,14 @@ def get_currency(request):
     for curr in CURR_LIST:
         if not currency_used(request.user.id, curr):
             continue
-        rate_info = Task.get_exchange_rate(curr, datetime.today())
-        if rate_info and 'rate' in rate_info and rate_info['rate']:
-            icon = 'bi-currency-dollar'
+        rate_info = get_exchange_rate(curr, datetime.today().date())
+        if rate_info and rate_info.result == CA_Status.ok and rate_info.rate:
             currencies.append({
                 'icon': CURR_ICON[curr], 
+                'abbr': CURR_ABBR[curr], 
                 'style': f'{curr.lower()}-rate', 
-                'rate': rate_info['rate'].value, 
-                'date': rate_info['rate'].date,
+                'rate': round(rate_info.rate.value, 2),
+                'date': rate_info.rate.date,
                 'code': curr,
             })
     context = {
@@ -76,25 +87,28 @@ def get_chart_data(user_id: int):
     for curr in CURR_LIST:
         if not currency_used(user_id, curr):
             continue
-        rates = Task.get_hist_exchange_rates(curr, startdate, enddate)
+        rates = get_hist_exchange_rates(curr, startdate, enddate)
         a = [x for x in rates if x]
-        min_rate = min(a)
-        max_rate = max(a)
-        rates = [(x-min_rate)/(max_rate-min_rate) if x else x for x in rates]
-        data['data']['datasets'].append({
-            'label': curr,
-            'data': rates,
-            'backgroundColor': f'rgba({CURR_COLOR[curr]}, 0.2)',
-            'borderColor': f'rgba({CURR_COLOR[curr]}, 1)',
-            'borderWidth': 1,
-            'tension': 0.4,
-            })
+        if len(a):
+            min_rate = min(a)
+            max_rate = max(a)
+            rates = [(x-min_rate)/(max_rate-min_rate) if x else x for x in rates]
+            data['data']['datasets'].append({
+                'label': curr,
+                'data': rates,
+                'backgroundColor': f'rgba({CURR_COLOR[curr]}, 0.2)',
+                'borderColor': f'rgba({CURR_COLOR[curr]}, 1)',
+                'borderWidth': 1,
+                'tension': 0.4,
+                })
     return data
 
 def currency_used(user_id, currency):
-    ret = False
     if Task.objects.filter(user=user_id, app_expen=NUM_ROLE_EXPENSE, price_unit=currency, event__gt=(datetime.now()-timedelta(PERIOD))).exists():
-        ret = True
-    elif Task.objects.filter(user=user_id, app_fuel=NUM_ROLE_FUEL, price_unit=currency, event__gt=(datetime.now()-timedelta(PERIOD))).exists():
-        ret = True
-    return ret
+        return True
+    if Task.objects.filter(user=user_id, app_fuel=NUM_ROLE_FUEL, price_unit=currency, event__gt=(datetime.now()-timedelta(PERIOD))).exists():
+        return True
+    for apart in Apart.objects.filter(user=user_id, app_apart=NUM_ROLE_APART, price_unit=currency):
+        if ServiceAmount.objects.filter(user=user_id, app_apart=NUM_ROLE_SERV_VALUE, task_1=apart.id, event__gt=(datetime.now()-timedelta(PERIOD))).exists():
+            return True
+    return False
