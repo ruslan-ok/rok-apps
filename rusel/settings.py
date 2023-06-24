@@ -44,6 +44,7 @@ ALLOWED_HOSTS = [HOST, 'localhost']
 INSTALLED_APPS = [
     'account.apps.AccountConfig',
     'apart.apps.ApartConfig',
+    'core.apps.CoreConfig',
     'docs.apps.DocsConfig',
     'expen.apps.ExpenConfig',
     'family.apps.FamilyConfig',
