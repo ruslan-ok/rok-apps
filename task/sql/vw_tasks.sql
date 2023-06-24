@@ -108,7 +108,7 @@ WITH cte_roles AS (
 		t.task_2_id,
 		t.price_service,
 		CASE 
-			WHEN t.completed = 1 THEN 6 -- Completed
+			WHEN t.num_role = 1 AND t.completed = 1 THEN 6 -- Completed
 			WHEN t.num_role = 1 AND t.termin IS NULL THEN 0
 			WHEN t.num_role = 1 AND t.termin < 0 THEN 1 -- Earler
 			WHEN t.num_role = 1 AND t.termin = 0 THEN 2 -- Today
@@ -335,7 +335,7 @@ WITH cte_roles AS (
 		t.task_2_id,
 		t.price_service,
 		CASE 
-			WHEN t.completed = 1 THEN 6
+			WHEN t.num_role = 1 AND t.completed = 1 THEN 6
 			WHEN t.num_role = 1 AND t.termin IS NULL THEN 0
 			WHEN t.num_role = 1 AND t.termin < 0 THEN 1
 			WHEN t.num_role = 1 AND t.termin = 0 THEN 2
