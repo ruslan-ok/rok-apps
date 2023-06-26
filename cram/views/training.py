@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from django.http import Http404
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from rusel.base.views import Context
+from core.views import Context
 from cram.config import app_config
 from task.const import ROLE_CRAM
 

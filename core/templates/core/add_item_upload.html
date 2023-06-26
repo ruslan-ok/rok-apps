@@ -1,6 +1,6 @@
 {% load static i18n %}
 <form class="body" method="post" enctype="multipart/form-data" id="photo_form">{% csrf_token %}
-    {% include "base/form_errors.html" %}
+    {% include "core/form_errors.html" %}
     {{ form.upload.errors }}
     <input type="file" style="display:none;" id="id_upload" name="upload" onchange="fileSelected()">
     <button type="button" class="btn bi-cloud-upload" id="loadPhoto" onclick="uploadFile()" title="{{ add_item_placeholder }}">

@@ -1,6 +1,6 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
-from rusel.base.forms import BaseCreateForm, BaseEditForm
+from core.forms import BaseCreateForm, BaseEditForm
 from rusel.widgets import UrlsInput, CategoriesInput, DateInput
 from task.const import ROLE_INCIDENT
 from task.models import Task

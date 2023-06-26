@@ -51,7 +51,7 @@ class PedigreeListView(GenealogyListView, LoginRequiredMixin, PermissionRequired
 
     def get_context_data(self):
         context = super().get_context_data()
-        context['add_item_template'] = 'base/add_item_upload.html'
+        context['add_item_template'] = 'core/add_item_upload.html'
         context['add_item_placeholder'] = f'{_("Upload GEDCOM-file")}'
         context['api_role'] = 'famtree'
         return context
@@ -83,7 +83,7 @@ class PedigreeDetailsView(GenealogyDetailsView, LoginRequiredMixin, PermissionRe
         context['pedigree_source'] = tree.sour_name
         context['pedigree_info'] = f'GEDCOM {tree.gedc_vers}'
         context['pedigree_extra'] = _('Extra fields')
-        context['add_item_template'] = 'base/add_item_upload.html'
+        context['add_item_template'] = 'core/add_item_upload.html'
         context['add_item_placeholder'] = '{}'.format(_('Upload GEDCOM-file'))
         return context
 

@@ -1,4 +1,4 @@
-from rusel.base.views import BaseListView
+from core.views import BaseListView
 from task.const import ROLE_ACCOUNT
 from task.models import Task
 from logs.services.overview import OverviewLogData

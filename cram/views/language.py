@@ -7,7 +7,7 @@ from task.const import APP_CRAM, ROLE_LANG
 from cram.models import *
 from cram.forms.language import CreateForm, EditForm
 from cram.config import app_config
-from rusel.base.context import Context
+from core.context import Context
 
 app = APP_CRAM
 role = ROLE_LANG

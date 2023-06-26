@@ -7,7 +7,7 @@ from logs.services.backup_check import BackupCheckLogData
 from logs.services.overview import OverviewLogData
 from logs.services.versions import VersionsLogData
 from logs.service_log import ServiceLog
-from rusel.base.views import Context
+from core.views import Context
 from logs.config import app_config
 from task import const
 

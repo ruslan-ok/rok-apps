@@ -5,8 +5,8 @@ from task.models import Task
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.views.generic.edit import FormView
-from rusel.base.views import BaseListView, BaseDetailView
-from rusel.base.context import Context
+from core.views import BaseListView, BaseDetailView
+from core.context import Context
 from fuel.forms.fuel import CreateForm, EditForm
 from fuel.config import app_config
 from fuel.fuel_get_info import get_info

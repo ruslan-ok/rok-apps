@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from rusel.base.forms import BaseCreateForm, BaseEditForm
+from core.forms import BaseCreateForm, BaseEditForm
 from rusel.widgets import DateInput, Select, NumberInput, UrlsInput
 from apart.const import APART_SERVICE, apart_service_name_by_id
 from apart.models import ApartService, ApartPrice

@@ -3,7 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.utils import formats
 from task.const import ROLE_EXPENSE, ROLE_APP
 from task.models import Task, TaskGroup
-from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView
+from core.views import BaseListView, BaseDetailView, BaseGroupView
 from expen.forms import CreateForm, EditForm, ProjectForm
 from expen.config import app_config
 from expen.get_info import get_info

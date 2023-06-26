@@ -5,7 +5,7 @@ from django.http import Http404
 from django.views.generic import TemplateView
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from rusel.base.views import Context
+from core.views import Context
 from health.config import app_config
 from task.const import NUM_ROLE_MARKER, ROLE_CHART_WEIGHT, ROLE_CHART_WAIST, ROLE_CHART_TEMP
 from task.models import Task

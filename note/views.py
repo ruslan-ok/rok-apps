@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from task.const import ROLE_NOTE, ROLE_APP
 from task.models import Task
-from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView
+from core.views import BaseListView, BaseDetailView, BaseGroupView
 from note.forms import CreateForm, EditForm
 from note.config import app_config
 from note.get_info import get_info

@@ -13,6 +13,7 @@ class ApiCallStatus(Enum):
     connected = 'connected'
     disconnected = 'disconnected'
     error = 'error'
+    debug = 'debug'
 
 @dataclass
 class ApiCallState:
@@ -109,7 +110,7 @@ def call_api(params: Params, api_state: ApiCallState):
         if not resp or not resp.status_code:
             status = ApiCallStatus.error
             subject = f'{params.this_server} API call: empty responce'
-            message = f'{params.api_host} API server returned empty responce.'
+            message = f'{params.api_host} API server returned empty responce. Called to {params.api_url + extra_param}'
         else:
             if (resp.status_code != 200):
                 status = ApiCallStatus.error
@@ -150,6 +151,7 @@ if (__name__ == '__main__'):
             call_api(params, api_state)
 
             if api_state.status == ApiCallStatus.error:
+                console_log(params.log_base, api_state.status, api_state.message)
                 notify(params, api_state.status, api_state.subject, api_state.message, api_state.format)
 
             time.sleep(params.timer_interval_sec)

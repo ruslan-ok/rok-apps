@@ -1,12 +1,12 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from rusel.base.forms import BaseCreateForm, BaseEditForm
+from core.forms import BaseCreateForm, BaseEditForm
 from task.models import Task, Group
 from task.const import ROLE_EXPENSE
 from expen.config import app_config
 from rusel.widgets import UrlsInput, CategoriesInput, DateInput, NegativeNumberInput
-from rusel.base.forms import GroupForm
+from core.forms import GroupForm
 
 role = ROLE_EXPENSE
 

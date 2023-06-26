@@ -6,11 +6,11 @@ from django.http import HttpResponse
 from rest_framework.status import HTTP_400_BAD_REQUEST
 from todo.hp_widget.todo import get_todo
 from logs.hp_widget.logs import get_logs
-from rusel.hp_widget.visited import get_visited
+from core.hp_widget.visited import get_visited
 from health.views.chart import get_chart_data as get_health_data
-from rusel.hp_widget.currency import get_currency, get_chart_data as get_currency_data
-from rusel.hp_widget.crypto import get_crypto, get_chart_data as get_crypto_data
-from rusel.hp_widget.weather import get_weather, get_chart_data as get_weather_data
+from core.hp_widget.currency import get_currency, get_chart_data as get_currency_data
+from core.hp_widget.crypto import get_crypto, get_chart_data as get_crypto_data
+from core.hp_widget.weather import get_weather, get_chart_data as get_weather_data
 
 @api_view()
 @permission_classes([IsAuthenticated])

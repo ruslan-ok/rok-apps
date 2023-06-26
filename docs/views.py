@@ -5,7 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.http import FileResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.urls import reverse
 from task.const import APP_DOCS, ROLE_DOC, ROLE_APP
-from rusel.base.dir_views import BaseDirView
+from core.dir_views import BaseDirView
 from docs.config import app_config
 
 role = ROLE_DOC
@@ -37,7 +37,7 @@ class FolderView(LoginRequiredMixin, PermissionRequiredMixin, BaseDirView):
         self.store_dir = self.storage_path.format(self.request.user.username) + 'docs/'
         context = super().get_context_data(**kwargs)
         context['list_href'] = '/docs/'
-        context['add_item_template'] = 'base/add_item_upload.html'
+        context['add_item_template'] = 'core/add_item_upload.html'
         context['add_item_placeholder'] = '{}'.format(_('Upload document'))
         return context
 

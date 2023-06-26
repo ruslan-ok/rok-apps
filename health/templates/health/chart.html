@@ -1,4 +1,4 @@
-{% extends "base/page_content.html" %}
+{% extends "core/page_content.html" %}
 {% load static %}
 
 {% block extrastyle %}
@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block main %}
-    {% include 'base/title.html' %}
+    {% include 'core/title.html' %}
     <div class="chart-container" style="width: 100%;">
         <div class="loader"></div>
         <canvas id="healthChart"></canvas>

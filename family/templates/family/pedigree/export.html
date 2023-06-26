@@ -1,4 +1,4 @@
-{% extends "base/page_content.html" %}
+{% extends "core/page_content.html" %}
 {% load static i18n %}
 
 {% block extrastyle %}
@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block main %}
-{% include "base/title.html" %}
+{% include "core/title.html" %}
 <form method="post" class="d-none">{% csrf_token %}</form>
   <ul class="list-group">
     <li class="list-group-item d-flex justify-content-between align-items-start">

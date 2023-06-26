@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from task.const import APP_NEWS, ROLE_NEWS
 from task.models import Task
-from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView
+from core.views import BaseListView, BaseDetailView, BaseGroupView
 from news.forms import CreateForm, EditForm
 from news.config import app_config
 from news.get_info import get_info

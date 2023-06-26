@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from task.const import NUM_ROLE_PART, ROLE_PART, ROLE_APP
 from task.models import Task
-from rusel.base.views import BaseListView, BaseDetailView
+from core.views import BaseListView, BaseDetailView
 from fuel.forms.part import CreateForm, EditForm
 from fuel.config import app_config
 from fuel.utils import month_declination
