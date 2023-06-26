@@ -1,5 +1,6 @@
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from task import const
 from task.const import *
 
 APPS = {
@@ -16,46 +17,33 @@ APPS = {
     APP_WARR:    ('award',         '/warr/',    'task.view_warranty'),
     APP_PHOTO:   ('image',         '/photo/',   'task.view_photo'),
     APP_FAMILY:  ('diagram-3',     '/family/',  'family.view_pedigree'),
+    APP_CRAM:    ('translate',     '/cram/',    'cram.view_phrase'),
     APP_LOGS:    ('card-list',     '/logs/',    'task.view_logs'),
     APP_ADMIN:   ('people',        '/admin/',   'task.administrate_site'),
 }
 
 def _get_app_human_name(app):
-    if (app == APP_HOME):
-        return 'rusel.by'
-    if (app == APP_TODO):
-        return _('tasks')
-    if (app == APP_NOTE):
-        return _('notes')
-    if (app == APP_NEWS):
-        return _('news')
-    if (app == APP_STORE):
-        return _('passwords')
-    if (app == APP_DOCS):
-        return _('documents')
-    if (app == APP_WARR):
-        return _('warranties')
-    if (app == APP_EXPEN):
-        return _('expenses')
-    if (app == APP_TRIP):
-        return _('trips')
-    if (app == APP_FUEL):
-        return _('fuelings')
-    if (app == APP_APART):
-        return _('communal')
-    if (app == APP_WORK):
-        return _('work')
-    if (app == APP_PHOTO):
-        return _('photobank')
-    if (app == APP_FAMILY):
-        return _('family tree')
-    if (app == APP_HEALTH):
-        return _('health')
-    if (app == APP_ADMIN):
-        return _('administrative tools')
-    if (app == APP_LOGS):
-        return _('logs')
-    return None
+    match app:
+        case const.APP_HOME: ret = 'rusel.by'
+        case const.APP_TODO: ret = _('tasks')
+        case const.APP_NOTE: ret = _('notes')
+        case const.APP_NEWS: ret = _('news')
+        case const.APP_STORE: ret = _('passwords')
+        case const.APP_DOCS: ret = _('documents')
+        case const.APP_WARR: ret = _('warranties')
+        case const.APP_EXPEN: ret = _('expenses')
+        case const.APP_TRIP: ret = _('trips')
+        case const.APP_FUEL: ret = _('fuelings')
+        case const.APP_APART: ret = _('communal')
+        case const.APP_WORK: ret = _('work')
+        case const.APP_PHOTO: ret = _('photobank')
+        case const.APP_FAMILY: ret = _('family tree')
+        case const.APP_HEALTH: ret = _('health')
+        case const.APP_ADMIN: ret = _('administrative tools')
+        case const.APP_LOGS: ret = _('logs')
+        case const.APP_CRAM: ret = _('cram')
+        case _: ret = None
+    return ret
 
 def get_app_human_name(app):
     name = _get_app_human_name(app)

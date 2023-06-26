@@ -5,16 +5,22 @@ app_config = {
     'name': APP_CRAM,
     'app_title': _('cram'),
     'icon': 'card-list',
-    'role': ROLE_CRAM,
-    'main_view': 'prases',
+    'main_view': 'training',
     'use_groups': True,
     'sort': [
         ('name', _('name')),
     ],
     'views': {
+        'languages': {
+            'icon': 'translate',
+            'title': _('Languages'),
+            'item_name': _('language'),
+            'role': ROLE_LANG,
+        },
         'prases': {
             'icon': 'heart',
             'title': _('Prases'),
+            'role': ROLE_PHRASE,
         },
         'training': {
             'icon': 'card-list',

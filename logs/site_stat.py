@@ -3,7 +3,7 @@ import collections
 from datetime import datetime
 from django.utils.translation import gettext_lazy as _
 from logs.models import IPInfo, AccessLog, SiteStat
-from rusel.apps import APPS
+from core.applications import APPS
 
 def get_site_stat(user):
     """Processing a new portion of log file records.

@@ -7,9 +7,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
-from task.models import Group, Task, TaskGroup
+from task.models import Group, TaskGroup
 from task.const import ALL_ROLES
-from rusel.apps import APPS
 from api.serializers import GroupSerializer
 
 class GroupViewSet(viewsets.ModelViewSet):
