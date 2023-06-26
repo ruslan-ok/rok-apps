@@ -1,26 +1,57 @@
-import os, requests, json
+import os
 from datetime import datetime, timedelta
+from task.models import Task
+from task.const import NUM_ROLE_EXPENSE, NUM_ROLE_FUEL, NUM_ROLE_APART, NUM_ROLE_SERV_VALUE
+from apart.models import Apart, ServiceAmount
+from core.currency.utils import get_exchange_rate, get_hist_exchange_rates
+from core.currency.exchange_rate_api import *
+
+#CURR_LIST = ('PLN', 'BYN')
+CURR_LIST = ('EUR', 'BYN', 'PLN', 'GBP')
+
+CURR_COLOR = {
+    'USD': '72, 118, 47',
+    'EUR': '61, 86, 170',
+    'PLN': '179, 52, 52',
+    'BYN': '132, 170, 61',
+    'GBP': '136, 61, 170',
+}
+
+CURR_ICON = {
+    'USD': 'bi-currency-dollar',
+    'EUR': 'bi-currency-euro',
+    'PLN': '',
+    'BYN': '',
+    'GBP': 'bi-currency-pound',
+}
+
+CURR_ABBR = {
+    'USD': '',
+    'EUR': '',
+    'PLN': 'PLN',
+    'BYN': 'BYN',
+    'GBP': '',
+}
+
+PERIOD = 30
 
 def get_currency(request):
-    rate_usd = 1.
-    rate_eur = 1.
-    headers = {'Content-type': 'application/x-www-form-urlencoded'}
-    api_url = os.getenv('API_NBRB')
-    if api_url:
-        url = api_url + '%?ondate=' + datetime.today().strftime('%Y-%m-%d') + '&parammode=2'
-        resp = requests.get(url.replace('%', 'USD'), headers=headers)
-        if resp.status_code == 200:
-            ret = json.loads(resp.content)
-            rate_usd = float(ret['Cur_OfficialRate'])
-        resp = requests.get(url.replace('%', 'EUR'), headers=headers)
-        if resp.status_code == 200:
-            ret = json.loads(resp.content)
-            rate_eur = float(ret['Cur_OfficialRate'])
+    currencies = []
+    for curr in CURR_LIST:
+        if not currency_used(request.user.id, curr):
+            continue
+        rate_info = get_exchange_rate(curr, datetime.today().date())
+        if rate_info and rate_info.result == CA_Status.ok and rate_info.rate:
+            currencies.append({
+                'icon': CURR_ICON[curr], 
+                'abbr': CURR_ABBR[curr], 
+                'style': f'{curr.lower()}-rate', 
+                'rate': round(rate_info.rate.value, 2),
+                'date': rate_info.rate.date,
+                'code': curr,
+            })
     context = {
-        'usd_rate_url': os.getenv('API_NBRB_STAT', '#'), 
-        'eur_rate_url': os.getenv('API_NBRB_STAT', '#'),
-        'usd_rate_value': f'{rate_usd:,.2f}',
-        'eur_rate_value': f'{rate_eur:,.2f}',
+        'currencies': currencies,
         'copyright_url': os.getenv('API_NBRB_CR_URL', '#'),
         'copyright_info': os.getenv('API_NBRB_CR_INFO', ''), 
     }
@@ -28,45 +59,17 @@ def get_currency(request):
     return template_name, context
 
 def get_chart_data(user_id: int):
+    enddate = datetime.today().date()
+    startdate = enddate - timedelta(PERIOD)
+    date = startdate
     x = []
-    usd = []
-    eur = []
-    startdate = datetime.today() - timedelta(30)
-    enddate = datetime.today()
-    headers = {'Content-type': 'application/x-www-form-urlencoded'}
-    api_url = os.getenv('API_NBRB')
-    if api_url:
-        url = api_url + 'dynamics/%?startdate=' + startdate.strftime('%Y-%m-%d') + '&enddate=' + enddate.strftime('%Y-%m-%d')
-        resp = requests.get(url.replace('%', '431'), headers=headers)
-        if resp.status_code == 200:
-            ret = json.loads(resp.content)
-            for rate in ret:
-                x.append(datetime.strptime(rate['Date'], '%Y-%m-%dT%H:%M:%S').date().strftime('%m.%d'))
-                usd.append(float(rate['Cur_OfficialRate']))
-        resp = requests.get(url.replace('%', '451'), headers=headers)
-        if resp.status_code == 200:
-            ret = json.loads(resp.content)
-            for rate in ret:
-                eur.append(float(rate['Cur_OfficialRate']))
+    while date <= enddate:
+        x.append(date.strftime('%m.%d'))
+        date = date + timedelta(1)
     data = {
         'type': 'line',
         'data': {'labels': x,
-            'datasets': [{
-                'label': 'USD',
-                'data': usd,
-                'backgroundColor': 'rgba(72, 118, 47, 0.2)',
-                'borderColor': 'rgba(72, 118, 47, 1)',
-                'borderWidth': 1,
-                'tension': 0.4,
-            },
-            {
-                'label': 'EUR',
-                'data': eur,
-                'backgroundColor': 'rgba(61, 86, 170, 0.2)',
-                'borderColor': 'rgba(61, 86, 170, 1)',
-                'borderWidth': 1,
-                'tension': 0.4,
-            }]
+            'datasets': []
         },
         'options': {
             'plugins': {
@@ -81,4 +84,31 @@ def get_chart_data(user_id: int):
             },
         },
     }
+    for curr in CURR_LIST:
+        if not currency_used(user_id, curr):
+            continue
+        rates = get_hist_exchange_rates(curr, startdate, enddate)
+        a = [x for x in rates if x]
+        if len(a):
+            min_rate = min(a)
+            max_rate = max(a)
+            rates = [(x-min_rate)/(max_rate-min_rate) if x else x for x in rates]
+            data['data']['datasets'].append({
+                'label': curr,
+                'data': rates,
+                'backgroundColor': f'rgba({CURR_COLOR[curr]}, 0.2)',
+                'borderColor': f'rgba({CURR_COLOR[curr]}, 1)',
+                'borderWidth': 1,
+                'tension': 0.4,
+                })
     return data
+
+def currency_used(user_id, currency):
+    if Task.objects.filter(user=user_id, app_expen=NUM_ROLE_EXPENSE, price_unit=currency, event__gt=(datetime.now()-timedelta(PERIOD))).exists():
+        return True
+    if Task.objects.filter(user=user_id, app_fuel=NUM_ROLE_FUEL, price_unit=currency, event__gt=(datetime.now()-timedelta(PERIOD))).exists():
+        return True
+    for apart in Apart.objects.filter(user=user_id, app_apart=NUM_ROLE_APART, price_unit=currency):
+        if ServiceAmount.objects.filter(user=user_id, app_apart=NUM_ROLE_SERV_VALUE, task_1=apart.id, event__gt=(datetime.now()-timedelta(PERIOD))).exists():
+            return True
+    return False

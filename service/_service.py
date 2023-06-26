@@ -9,18 +9,25 @@ from dataclasses import dataclass
 from enum import Enum
 
 class ApiCallStatus(Enum):
-    ok = 'ok'
-    warning = 'warning'
-    error = 'error'
-    exception = 'exception'
     started = 'started'
-    work = 'work'
+    connected = 'connected'
+    disconnected = 'disconnected'
+    error = 'error'
+
+@dataclass
+class ApiCallState:
+    status: ApiCallStatus
+    subject: str
+    message: str
+    format: str
+
 
 @dataclass(frozen=True)
 class Params:
+    this_server = os.environ.get('DJANGO_DEVICE', '???')
     host: str = os.environ.get('DJANGO_HOST', '')
     api_host: str = os.environ.get('DJANGO_HOST_API', '')
-    verify: str = '' # os.environ.get('DJANGO_CERT', '')
+    verify: str = os.environ.get('DJANGO_CERT', '')
     mail_host: str = os.environ.get('DJANGO_HOST_MAIL', '')
     user: str = os.environ.get('DJANGO_MAIL_USER', '')
     pwrd: str = os.environ.get('DJANGO_MAIL_PWRD', '')
@@ -29,13 +36,23 @@ class Params:
     service_token: str = os.environ.get('DJANGO_SERVICE_TOKEN', '')
     timer_interval_sec: int = int(os.environ.get('DJANGO_SERVICE_INTERVAL_SEC', 60))
     log_base: str = os.environ.get('DJANGO_LOG_BASE', '')
+    con_subject_template = '{} connection: {}->{}'
+    con_message_template = 'A background service (/service/_service.py) on the {} server changed the connection status to the {} server from {} to {}.'
 
     def headers(self):
         return {'Authorization': 'Token ' + self.service_token, 'User-Agent': 'Mozilla/5.0'}
 
+
+def change_connection_status(params: Params, api_state: ApiCallState, new_status: ApiCallStatus):
+    subject = params.con_subject_template.format(params.this_server, api_state.status.value, new_status.value)
+    message = params.con_message_template.format(params.this_server, params.api_host, api_state.status.value, new_status.value)
+    notify(params, api_state.status, subject, message)
+    api_state.status = new_status
+
+
 """ Notification that do not require email
 """
-def console_log(log_base: str, status: ApiCallStatus=ApiCallStatus.ok, message: str=''):
+def console_log(log_base: str, status: ApiCallStatus, message: str=''):
     now = datetime.now()
     log_path = log_base + now.strftime('\\%Y\\%m')
     if not os.path.exists(log_path):
@@ -59,8 +76,10 @@ def notify(params: Params, status: ApiCallStatus, subject: str, message: str, fo
     msg['To'] = params.recipients
     msg['Subject'] = subject
 
-    if format == 'plain':
+    if format == 'plain' and api_state.status == ApiCallStatus.error:
         msg.set_content(f'Background process for host {params.host} (/service/_service.py):\n\n' + message)
+    elif format == 'plain':
+        msg.set_content(message)
     else:
         msg.set_content(message, maintype='text', subtype=format)
     s.send_message(msg)
@@ -69,69 +88,72 @@ def notify(params: Params, status: ApiCallStatus, subject: str, message: str, fo
 
 """ API call
 """
-def call_api(params, started):
+def call_api(params: Params, api_state: ApiCallState):
     extra_param = ''
-    if started:
+    if api_state.status == ApiCallStatus.started:
         extra_param = '&started=true'
     resp = None
-    status:ApiCallStatus = ApiCallStatus.ok
-    subject = None
+    status = api_state.status
+    subject = ''
     message = ''
     format = 'plain'
-    resp = requests.get(params.api_url + extra_param, headers=params.headers(), verify=params.verify)
+    try:
+        resp = requests.get(params.api_url + extra_param, headers=params.headers(), verify=params.verify)
+        if status == ApiCallStatus.started or status == ApiCallStatus.disconnected:
+            change_connection_status(params, api_state, ApiCallStatus.connected)
+    except requests.exceptions.ConnectionError as ex:
+        if status != ApiCallStatus.disconnected:
+            change_connection_status(params, api_state, ApiCallStatus.disconnected)
 
-    if not resp or not resp.status_code:
-        status = ApiCallStatus.error
-        message = f'API server {params.api_host} is not available.'
-    else:
-        if (resp.status_code != 200):
+    if status == ApiCallStatus.connected:
+        if not resp or not resp.status_code:
             status = ApiCallStatus.error
-            try:
-                message = resp.content.decode()
-            except (UnicodeDecodeError, AttributeError):
-                message = str(resp.content)
-            message = f'{resp.status_code=}. {message}'
+            subject = f'{params.this_server} API call: empty responce'
+            message = f'{params.api_host} API server returned empty responce.'
         else:
-            data_str = resp.json()
-            data = json.loads(data_str)
-            if ('result' not in data):
+            if (resp.status_code != 200):
                 status = ApiCallStatus.error
-                message = 'Unexpected API response. Attribute "result" not found: ' + data_str
+                try:
+                    message = resp.content.decode()
+                except (UnicodeDecodeError, AttributeError):
+                    message = str(resp.content)
+                subject = f'{params.this_server} API call: {resp.status_code}'
+                message = f'{params.api_host} API server returned status {resp.status_code}. {message}.'
             else:
-                if data['result'] != 'ok':
+                data_str = resp.json()
+                data = json.loads(data_str)
+                if ('result' not in data):
                     status = ApiCallStatus.error
-                    message = data_str
+                    subject = f'{params.this_server} API call: bad response'
+                    message = f'{params.api_host} API call: Unexpected API response. Attribute "result" not found: ' + data_str
+                else:
+                    if data['result'] != 'ok':
+                        status = ApiCallStatus.error
+                        subject = f'{params.this_server} API call: bad result'
+                        message = data_str
 
-    if '<html' in message:
-        format = 'html'
+        if '<html' in message:
+            format = 'html'
 
-    if not subject:
-        subject = f'Background service notification. {status=}'
-
-    return status, subject, message, format
+        api_state.status = status
+        api_state.subject = subject
+        api_state.message = message
+        api_state.format = format
 
 if (__name__ == '__main__'):
     params = Params()
-    started = True
+    api_state = ApiCallState(status=ApiCallStatus.started, subject='', message='', format='plain')
+
     try:
         while True:
-            if started:
-                console_log(params.log_base, ApiCallStatus.started)
-            else:
-                console_log(params.log_base, ApiCallStatus.work)
+            console_log(params.log_base, api_state.status)
+            call_api(params, api_state)
 
-            status, subject, message, format = call_api(params, started)
-
-            if status != ApiCallStatus.ok:
-                if status == ApiCallStatus.warning:
-                    console_log(params.log_base, status, message)
-                else:
-                    notify(params, status, subject, message, format)
-
-            if started:
-                started = False
+            if api_state.status == ApiCallStatus.error:
+                notify(params, api_state.status, api_state.subject, api_state.message, api_state.format)
 
             time.sleep(params.timer_interval_sec)
     except:
-        console_log(params.log_base, ApiCallStatus.exception, traceback.format_exc())
-        notify(params, ApiCallStatus.exception, 'Background service interrupted', traceback.format_exc())
+        message = traceback.format_exc()
+        console_log(params.log_base, ApiCallStatus.error, message)
+        notify(params, ApiCallStatus.error, f'{params.this_server} exception', message)

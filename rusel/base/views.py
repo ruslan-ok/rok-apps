@@ -14,8 +14,10 @@ from rusel.utils import extract_get_params, get_search_mode
 from rusel.base.forms import GroupForm
 from rusel.base.context import Context
 from rusel.search import search_in_files
+from rusel.files import get_files_list_by_path_v2
 from task.const import *
 from task.models import Task, Group, TaskGroup, Urls, GIQ_ADD_TASK, GIQ_DEL_TASK
+from apart.const import apart_service_name_by_id
 
 BG_IMAGES = [
     'beach',
@@ -56,13 +58,13 @@ class BaseListView(ListView, Context):
 
     def get_queryset(self):
         if not self.request.user.is_authenticated:
-            return []
+            return None
         query = None
         if (self.request.method == 'GET'):
             query = self.request.GET.get('q')
             app = self.request.GET.get('app')
             if (app == APP_DOCS or app == APP_PHOTO):
-                return query
+                return None
         data = self.get_sorted_items(query)
         if self.config.limit_list:
             data = data[:self.config.limit_list]
@@ -105,9 +107,10 @@ class BaseListView(ListView, Context):
         context['use_sub_groups'] = use_sub_groups
         if use_sub_groups:
             sub_groups = self.load_sub_groups()
-            for task in self.object_list:
-                group = self.find_sub_group(sub_groups, task.subgroup_id, task.subgroup_name)
-                group['items'].append(task)
+            if self.object_list:
+                for task in self.object_list:
+                    group = self.find_sub_group(sub_groups, task.subgroup_id, task.subgroup_name)
+                    group['items'].append(task)
             self.save_sub_groups(sub_groups)
             context['sub_groups'] = sorted(sub_groups, key = lambda group: group['id'])
 
@@ -193,7 +196,7 @@ class BaseListView(ListView, Context):
         if not use_sub_groups:
             return 0, ''
         if (task.app_apart == NUM_ROLE_PRICE):
-            return task.price_service, APART_SERVICE[task.price_service]
+            return task.price_service, apart_service_name_by_id(task.price_service)
         if (task.app_fuel == NUM_ROLE_SERVICE):
             if not task.task_2:
                 return 0, ''
@@ -341,13 +344,18 @@ class BaseDetailView(UpdateView, Context):
                 fake_url.href = '#'
                 urls.append(fake_url)
         context['urls'] = urls
-        context['files'] = self.object.get_files_list(self.config.get_cur_role())
+        task_id = self.object.id
+        if hasattr(self.object, 'get_attach_path_v2'):
+            context['files'] = get_files_list_by_path_v2(self.request.user, self.config.get_cur_role(), task_id, self.object.get_attach_path_v2())
+        else:
+            context['files'] = self.object.get_files_list(self.config.get_cur_role())
         context['ban_on_deletion'] = ''
         context['delete_question'] = _('delete').capitalize()
         context['ban_on_attach_deletion'] = ''
         context['attach_delete_question'] = _('delete file').capitalize()
         context['item'] = self.object
-        related_roles, possible_related = get_related_roles(self.get_object(), self.config)
+        task = Task.objects.filter(id=task_id).get()
+        related_roles, possible_related = get_related_roles(task, self.config)
         context['related_roles'] = related_roles
         context['possible_related'] = possible_related
         context['add_item_placeholder'] = '{} {}'.format(_('add').capitalize(), self.config.item_name if self.config.item_name else self.config.get_cur_role_loc())
@@ -355,7 +363,7 @@ class BaseDetailView(UpdateView, Context):
 
     def form_valid(self, form):
         self.config.set_view(self.request, detail=True)
-        item = form.instance
+        item = Task.objects.filter(id=form.instance.id).get()
         role = self.config.get_cur_role()
         old_item = Task.objects.filter(id=item.id).get()
         old_item.correct_groups_qty(GIQ_DEL_TASK, role=role)

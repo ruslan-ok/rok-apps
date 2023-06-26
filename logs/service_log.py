@@ -113,12 +113,14 @@ class ServiceLog():
             extra_param += f'&order_by={order_by}'
         resp = requests.get(self.api_url + extra_param, headers=self.headers, verify=self.verify)
         if (resp.status_code != 200):
-            ServiceEvent.objects.create(device=self.device, app=const.APP_SERVICE, service=const.ROLE_MANAGER, type=EventType.ERROR, name='log_api_get', info='[x] error ' + str(resp.status_code) + '. ' + str(resp.content))
+            ServiceEvent.objects.create(device=self.dev, app=const.APP_SERVICE, service=const.ROLE_MANAGER, type=EventType.ERROR, name='log_api_get', info='[x] error ' + str(resp.status_code) + '. ' + str(resp.content))
             return []
         ret = json.loads(resp.content)
         ret2 = [EventFromApi(x) for x in ret]
-        return ret2    
-
+        return ret2
+    
+    def write(self, type: EventType, name: str, info: str):
+        ServiceEvent.objects.create(device=self.dev, app=self.app, service=self.svc, type=type, name=name, info=info)
 
 class EventFromApi():
 

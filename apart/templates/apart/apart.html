@@ -2,26 +2,291 @@
 {% load static i18n %}
 
 {% block item_detail %}
+  {% comment %} <!-- **************************** Form **************************** --> {% endcomment %}
     {{ form.name.errors }}{{ form.name.label_tag }}{{ form.name }}
     {{ form.info.errors }}{{ form.info.label_tag }}{{ form.info }}
     <div class="row">
       <div class="col">
-        {{ form.apart_has_el }}
-        {{ form.apart_has_hw }}
-        {{ form.apart_has_cw }}
+        {{ form.sort.label_tag }}{{ form.sort }}
       </div>
       <div class="col">
-        {{ form.apart_has_gas }}
-        {{ form.apart_has_tv }}
-        {{ form.apart_has_phone }}
+        {{ form.bill_residents.label_tag }}{{ form.bill_residents }}
       </div>
       <div class="col">
-        {{ form.apart_has_zkx }}
-        {{ form.apart_has_ppo }}
-        {{ form.sort }}
+        {{ form.price_unit.label_tag }}{{ form.price_unit }}
       </div>
     </div>
-
     {% include "widgets/attachments.html" %}
+    
+    <ul class="nav nav-tabs" id="apartTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link{% if active_tab != 'service' %} active{% endif %}" id="meter-tab" data-bs-toggle="tab" data-bs-target="#meter-tab-pane" 
+          type="button" role="tab" aria-controls="meter-tab-pane" aria-selected="true">Счетчики [{{ apart_meters|length }}]</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link{% if active_tab == 'service' %} active{% endif %}" id="service-tab" data-bs-toggle="tab" data-bs-target="#service-tab-pane" 
+          type="button" role="tab" aria-controls="service-tab-pane" aria-selected="false">Услуги [{{ apart_services|length }}]</button>
+      </li>
+    </ul>
+
+    {% comment %} <!-- **************************** Meters **************************** --> {% endcomment %}
+    <div class="tab-content" id="apartTabContent">
+      <div class="tab-pane fade{% if active_tab != 'service' %} show active{% endif %}" id="meter-tab-pane" role="tabpanel" aria-labelledby="meter-tab" tabindex="0">
+        <table class="table table-light table-hover">
+          <thead>
+            <tr>
+              <th scope="col">Сортировка</th>
+              <th scope="col">Ресурс</th>
+              <th scope="col">Исходное значение</th>
+              <th scope="col">С</th>
+              <th scope="col">По</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for meter in apart_meters %}
+              <tr role="button" data-bs-toggle="modal" data-bs-target="#editMeter"
+                data-bs-id="{{ meter.id|safe }}"
+                data-bs-apart="{{ meter.get_apart.id|safe }}"
+                data-bs-code="{{ meter.get_code }}"
+                data-bs-name="{{ meter.get_name }}"
+                data-bs-sort="{{ meter.get_sort }}"
+                data-bs-value="{{ meter.get_initial_value_str }}"
+                data-bs-from="{{ meter.get_from|date:'Y-m-d' }}"
+                data-bs-until="{{ meter.get_until|date:'Y-m-d' }}"> 
+                <td scope="row">{{ meter.get_sort }}</td>
+                <td>{{ meter.get_name }}</td>
+                <td>{{ meter.get_initial_value_str|default_if_none:"" }}</td>
+                <td>{{ meter.get_from|date:"d M Y" }}</td>
+                <td>{{ meter.get_until|date:"d M Y" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div class="row">
+          <div class="col">
+            <a href="#" class="mx-3 float-end"  data-bs-toggle="modal" data-bs-target="#addMeter" data-bs-apart="{{ apart_id|safe }}">Добавить</a>
+          </div>
+        </div>
+      </div>
+
+      {% comment %} <!-- **************************** Services **************************** --> {% endcomment %}
+      <div class="tab-pane fade{% if active_tab == 'service' %} show active{% endif %}" id="service-tab-pane" role="tabpanel" aria-labelledby="service-tab" tabindex="0">
+        <table class="table table-light table-hover">
+          <thead>
+            <tr> 
+              <th scope="col">Сортировка</th>
+              <th scope="col">Услуга</th>
+              <th scope="col">С</th>
+              <th scope="col">По</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for service in apart_services %}
+              <tr role="button" data-bs-toggle="modal" data-bs-target="#editService"
+                data-bs-id="{{ service.id|safe }}"
+                data-bs-apart="{{ service.get_apart.id|safe }}"
+                data-bs-code="{{ service.get_code }}"
+                data-bs-name="{{ service.get_name }}"
+                data-bs-sort="{{ service.get_sort }}"
+                data-bs-from="{{ service.get_from|date:'Y-m-d' }}"
+                data-bs-until="{{ service.get_until|date:'Y-m-d' }}"> 
+                <td scope="row">{{ service.get_sort }}</td>
+                <td>{{ service.get_name }}</td>
+                <td>{{ service.get_from|date:"d M Y" }}</td>
+                <td>{{ service.get_until|date:"d M Y" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div class="row">
+          <div class="col">
+            <a href="#" class="mx-3 float-end"  data-bs-toggle="modal" data-bs-target="#addService" data-bs-apart="{{ apart_id|safe }}">Добавить</a>
+          </div>
+        </div>
+      </div>
+  </div>
+
 {% endblock %}
 
+{% block footer_detail %}
+  {{ block.super }}
+
+  {% comment %} <!-- **************************** Add Meter **************************** --> {% endcomment %}
+  <div class="modal fade" id="addMeter" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="add_meter_label">Описание счетчика</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <input type="hidden" name="meter-id" id="id_add_meter_id">
+            <input type="hidden" name="meter-apart" id="id_add_meter_apart">
+            <input type="hidden" name="meter-code" id="id_add_meter_code">
+            <div class="mb-3">
+              <label for="id_add_meter_sort" class="col-form-label">Код для сортировки</label>
+              <input type="text" name="meter-sort" class="form-control" id="id_add_meter_sort">
+            </div>
+            <div class="mb-3">
+              <label for="id-add_select-meter" class="col-form-label">Ресурс</label>
+              <select class="form-select" id="id-add_select-meter">
+                <option selected>... выбор ресурса ...</option>
+                {% for meter in meter_kinds %}
+                  <option value="{{ meter.code }}">{{ meter.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="id_add_meter_value" class="col-form-label">Исходное значение</label>
+              <input type="number" name="meter-value" class="form-control" id="id_add_meter_value">
+            </div>
+            <div class="mb-3">
+              <label for="id_add_meter_from" class="col-form-label">Дата с:</label>
+              <input type="date" name="date_from" class="form-control" id="id_add_meter_from">
+            </div>
+            <div class="mb-3">
+              <label for="id_add_meter_until" class="col-until-label">Дата по:</label>
+              <input type="date" name="date_until" class="form-control" id="id_add_meter_until">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="addApartMeter('{{ django_host_api }}')">Добавить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% comment %} <!-- **************************** Edit Meter **************************** --> {% endcomment %}
+  <div class="modal fade" id="editMeter" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="edit_meter_label">Описание счетчика</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <input type="hidden" name="meter-id" id="id_edit_meter_id">
+            <input type="hidden" name="meter-apart" id="id_edit_meter_apart">
+            <input type="hidden" name="meter-code" id="id_edit_meter_code">
+            <div class="mb-3">
+              <label for="id_edit_meter_sort" class="col-form-label">Код для сортировки</label>
+              <input type="text" name="meter-sort" class="form-control" id="id_edit_meter_sort">
+            </div>
+            <div class="mb-3">
+              <label for="id_edit_meter_name" class="col-form-label">Ресурс</label>
+              <input type="text" name="meter-name" class="form-control" id="id_edit_meter_name" readonly>
+            </div>
+            <div class="mb-3">
+              <label for="id_edit_meter_value" class="col-form-label">Исходное значение</label>
+              <input type="number" name="meter-value" class="form-control" id="id_edit_meter_value">
+            </div>
+            <div class="mb-3">
+              <label for="id_edit_meter_from" class="col-form-label">Дата с:</label>
+              <input type="date" name="date_from" class="form-control" id="id_edit_meter_from">
+            </div>
+            <div class="mb-3">
+              <label for="id_edit_meter_until" class="col-until-label">Дата по:</label>
+              <input type="date" name="date_until" class="form-control" id="id_edit_meter_until">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="saveApartMeter('{{ django_host_api }}')">Сохранить</button>
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick="deleteApartMeter('{{ django_host_api }}')">Удалить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% comment %} <!-- **************************** Add Service **************************** --> {% endcomment %}
+  <div class="modal fade" id="addService" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="add_service_label">Описание услуги</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <input type="hidden" name="service-id" id="id_add_service_id">
+            <input type="hidden" name="service-apart" id="id_add_service_apart">
+            <input type="hidden" name="service-code" id="id_add_service_code">
+            <div class="mb-3">
+              <label for="id_add_service_sort" class="col-form-label">Код для сортировки</label>
+              <input type="text" name="service-sort" class="form-control" id="id_add_service_sort">
+            </div>
+            <div class="mb-3">
+              <label for="id-select-service" class="col-form-label">Услуга</label>
+              <select class="form-select" id="id-select-service">
+                <option selected>... выбор услуги ...</option>
+                {% for service in service_kinds %}
+                  <option value="{{ service.code }}">{{ service.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="id_add_service_from" class="col-form-label">Дата с:</label>
+              <input type="date" name="date_from" class="form-control" id="id_add_service_from">
+            </div>
+            <div class="mb-3">
+              <label for="id_add_service_until" class="col-until-label">Дата по:</label>
+              <input type="date" name="date_until" class="form-control" id="id_add_service_until">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="addApartService('{{ django_host_api }}')">Добавить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% comment %} <!-- **************************** Edit Service **************************** --> {% endcomment %}
+  <div class="modal fade" id="editService" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="edit_service_label">Описание услуги</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <input type="hidden" name="service-id" id="id_edit_service_id">
+            <input type="hidden" name="service-apart" id="id_edit_service_apart">
+            <input type="hidden" name="service-code" id="id_edit_service_code">
+            <div class="mb-3">
+              <label for="id_edit_service_sort" class="col-form-label">Код для сортировки</label>
+              <input type="text" name="service-sort" class="form-control" id="id_edit_service_sort">
+            </div>
+            <div class="mb-3">
+              <label for="id_edit_service_name" class="col-form-label">Услуга</label>
+              <input type="text" name="service-name" class="form-control" id="id_edit_service_name" readonly>
+            </div>
+            <div class="mb-3">
+              <label for="id_edit_service_from" class="col-form-label">Дата с:</label>
+              <input type="date" name="date_from" class="form-control" id="id_edit_service_from">
+            </div>
+            <div class="mb-3">
+              <label for="id_edit_service_until" class="col-until-label">Дата по:</label>
+              <input type="date" name="date_until" class="form-control" id="id_edit_service_until">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="saveApartService('{{ django_host_api }}')">Сохранить</button>
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick="deleteApartService('{{ django_host_api }}')">Удалить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'js/apart.js' %}"></script>
+{% endblock %}

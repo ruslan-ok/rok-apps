@@ -1,4 +1,10 @@
-import os, datetime, django, rest_framework, OpenSSL, ssl, urllib.request
+import os
+import datetime
+import django
+import rest_framework
+import OpenSSL
+import ssl
+import urllib.request
 from platform import python_version
 from rusel.mysql_ver import get_mysql_ver
 
@@ -13,7 +19,8 @@ class VersionsLogData():
         host = os.environ.get('DJANGO_HOST', '')
         api_host = os.environ.get('DJANGO_HOST_API', '')
         if host != 'localhost':
-            response = urllib.request.urlopen(api_host)
+            ssl_context = ssl._create_unverified_context()
+            response = urllib.request.urlopen(api_host, context=ssl_context)
             versions = response.headers['Server'].split(' ')
             for ver in versions:
                 if 'Apache' in ver:

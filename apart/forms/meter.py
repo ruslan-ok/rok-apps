@@ -1,11 +1,10 @@
 from django import forms
-from django.forms.widgets import HiddenInput
 from django.utils.translation import gettext_lazy as _
 
-from rusel.base.forms import BaseCreateForm, BaseEditForm, GroupForm
-from rusel.widgets import DateInput, DateTimeInput, NumberInput, UrlsInput
-from task.models import Task, Group
+from rusel.base.forms import BaseCreateForm, BaseEditForm
+from rusel.widgets import DateInput, UrlsInput
 from apart.config import app_config
+from apart.models import *
 
 role = 'meter'
 
@@ -13,8 +12,8 @@ role = 'meter'
 class CreateForm(BaseCreateForm):
 
     class Meta:
-        model = Task
-        fields = ['name']
+        model = PeriodMeters
+        fields = ['start']
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
@@ -25,26 +24,6 @@ class EditForm(BaseEditForm):
         label=False,
         required=True,
         widget=DateInput(format='%Y-%m-%d', attrs={'label': _('Period')}))
-    event = forms.DateTimeField(
-        label=False,
-        required=True,
-        widget=DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'label': _('Meters reading date')}))
-    meter_el = forms.IntegerField(
-        label=False,
-        required=False,
-        widget=NumberInput(attrs={'label': _('Electricity')}))
-    meter_hw = forms.IntegerField(
-        label=False,
-        required=False,
-        widget=NumberInput(attrs={'label': _('Hot water')}))
-    meter_cw = forms.IntegerField(
-        label=False,
-        required=False,
-        widget=NumberInput(attrs={'label': _('Cold water')}))
-    meter_ga = forms.IntegerField(
-        label=False,
-        required=False,
-        widget=NumberInput(attrs={'label': _('Gas')}))
     url = forms.CharField(
         label=_('URLs'),
         required=False,
@@ -55,18 +34,9 @@ class EditForm(BaseEditForm):
         widget=forms.Textarea(attrs={'class': 'form-control mb-3', 'data-autoresize': ''}))
 
     class Meta:
-        model = Task
-        fields = ['start', 'event', 'meter_el', 'meter_hw', 'meter_cw', 'meter_ga', 'info', 'url']
+        model = PeriodMeters
+        fields = ['start', 'info', 'url']
 
     def __init__(self, *args, **kwargs):
         super().__init__(app_config, role, *args, **kwargs)
-        apart = kwargs['instance'].task_1
-        if (not apart.apart_has_el):
-            self.fields['meter_el'].widget = HiddenInput()
-        if (not apart.apart_has_hw):
-            self.fields['meter_hw'].widget = HiddenInput()
-        if (not apart.apart_has_cw):
-            self.fields['meter_cw'].widget = HiddenInput()
-        if (not apart.apart_has_gas):
-            self.fields['meter_ga'].widget = HiddenInput()
 

@@ -106,7 +106,7 @@ def get_related_roles(task, config):
     return related_roles, possible_related
 
 def check_role(related_roles, possible_related, num_role, config, task_id):
-    if (num_role != NONE):
+    if num_role and (num_role != NONE):
         role = ROLE_BY_NUM[num_role]
         if (role != config.get_cur_role()):
             related_role = {'name': role}

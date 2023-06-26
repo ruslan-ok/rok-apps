@@ -3,14 +3,12 @@
 <div class="currency-container">
     <div class="loader"></div>
     <div class="currency-current">
-        <div class="currency-info">
-            <i class="bi-currency-dollar usd-rate"></i>
-            <span class="usd-rate">{{ usd_rate_value }}</span>
-        </div>
-        <div class="currency-info">
-            <i class="bi-currency-euro eur-rate"></i>
-            <span class="eur-rate">{{ eur_rate_value }}</span>
-        </div>
+        {% for curr in currencies %}
+            <div class="currency-info" title="{{ curr.code }} - {{ curr.date }}">
+                <i class="{{ curr.icon }} {{ curr.style }}"></i>
+                <span class="{{ curr.style }}">{{ curr.abbr }} {{ curr.rate }}</span>
+            </div>
+        {% endfor %}
     </div>
     <canvas id="currencyChart"></canvas>
     <div class="copyright"><a class="text-end" href="{{ copyright_url }}">{{ copyright_info }}</a></div>

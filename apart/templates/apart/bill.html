@@ -7,134 +7,141 @@
 {% endblock %}
 
 {% block item_detail %}
-    <div class="row mb-3" name="period_date_rate">
+  {% comment %} <!-- **************************** Form **************************** --> {% endcomment %}
+  <div class="row mb-3" name="period_date_rate">
       {{ form.start.errors }} {{ form.start }}
-      {{ form.event.errors }} {{ form.event }}
-      {{ form.bill_rate.errors }} {{ form.bill_rate }}
       {{ form.bill_residents.errors }} {{ form.bill_residents }}
     </div>
-    <div class="bill">
-      <div class="meters" name="meters_data">
-        <div class="meter">
-          <div class="title">{% trans 'resource'|capfirst %}</div>
-          <div class="title">{% trans 'old'|capfirst %}</div>
-          <div class="title">{% trans 'new'|capfirst %}</div>
-          <div class="title">{% trans 'volume'|capfirst %}</div>
-        </div>
-        {% if apart_has_el %}
-        <div class="meter">
-          <div class="title">{% trans 'electro'|capfirst %}</div>
-          <div class="value">{{ prev.meter_el }}</div>
-          <div class="value">{{ curr.meter_el }}</div>
-          <div class="value">{{ bill_info.volume.el }}</div>
-        </div>
-        {% endif %}
-        {% if apart_has_gas %}
-        <div class="meter">
-          <div class="title">{% trans 'gas'|capfirst %}</div>
-          <div class="value">{{ prev.meter_ga }}</div>
-          <div class="value">{{ curr.meter_ga }}</div>
-          <div class="value">{{ bill_info.volume.ga }}</div>
-        </div>
-        {% endif %}
-        {% if apart_has_cw %}
-        <div class="meter">
-          <div class="title">{% trans 'cold'|capfirst %}</div>
-          <div class="value">{{ prev.meter_cw }}</div>
-          <div class="value">{{ curr.meter_cw }}</div>
-          <div class="value">{{ bill_info.volume.wt }}</div>
-        </div>
-        {% endif %}
-        {% if apart_has_hw %}
-        <div class="meter">
-          <div class="title">{% trans 'hot'|capfirst %}</div>
-          <div class="value">{{ prev.meter_hw }}</div>
-          <div class="value">{{ curr.meter_hw }}</div>
-          <div class="value"></div>
-        </div>
-        {% endif %}
+
+    <ul class="nav nav-tabs" id="billTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="meter-tab" data-bs-toggle="tab" data-bs-target="#meter-tab-pane" type="button" role="tab" 
+          aria-controls="meter-tab-pane" aria-selected="true">Счетчики [{{ bill_meters|length }}]</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="service-tab" data-bs-toggle="tab" data-bs-target="#service-tab-pane" type="button" role="tab" 
+          aria-controls="service-tab-pane" aria-selected="false">Услуги [{{ bill_services|length }}]</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="attach-tab" data-bs-toggle="tab" data-bs-target="#attach-tab-pane" type="button" role="tab" 
+          aria-controls="attach-tab-pane" aria-selected="false">Вложения [{{ files|length }}]</button>
+      </li>
+    </ul>
+    <div class="tab-content" id="billTabContent">
+      <div class="tab-pane fade" id="meter-tab-pane" role="tabpanel" aria-labelledby="meter-tab" tabindex="0">
+        <table class="table table-light">
+          <thead>
+            <tr>
+              <th scope="col">Ресурс</th>
+              <th scope="col">Предыдущее</th>
+              <th scope="col">Текущее</th>
+              <th scope="col">Использовано</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for meter in bill_meters %}
+              <tr>
+                <td scope="row">{{ meter.name }}</td>
+                <td>{{ meter.prev_value_str }}</td>
+                <td>{{ meter.curr_value_str }}</td>
+                <td>{{ meter.value_str }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
+      <div class="tab-pane fade show active" id="service-tab-pane" role="tabpanel" aria-labelledby="service-tab" tabindex="0">
+        <table class="table table-light table-hover">
+          <thead>
+            <tr>
+              <th scope="col">Сервис</th>
+              <th scope="col">Тариф</th>
+              <th scope="col">Начислено</th>
+              <th scope="col">Оплачено</th>
+              <th scope="col">Дата оплаты</th>
+          </tr>
+          </thead>
+          <tbody>
+            {% for service in bill_services %}
+              <tr role="button" data-bs-toggle="modal" data-bs-target="#editServiceAmount"
+                data-bs-id="{{ service.id|safe }}"
+                data-bs-apart="{{ service.get_apart.id|safe }}"
+                data-bs-code="{{ service.get_code }}"
+                data-bs-period="{{ service.get_period }}"
+                data-bs-name="{{ service.get_name }}"
+                data-bs-tariff="{{ service.get_tarif_str }}"
+                data-bs-accrued="{{ service.get_accrued_str }}"
+                data-bs-payment="{{ service.get_payment_str }}"
+                data-bs-event="{{ service.event|date:'Y-m-d' }}"> 
+                <td scope="row">{{ service.get_name }}</td>
+                <td>{{ service.get_tarif_str }}</td>
+                <td>{{ service.get_accrued_str }}</td>
+                <td>{{ service.get_payment_str }}</td>
+                <td>{{ service.event|date:"d M Y" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="tab-pane fade" id="attach-tab-pane" role="tabpanel" aria-labelledby="attach-tab" tabindex="0">
+        {{ form.upload }}
+      </div>
+  </div>
 
-      <div class="separator"></div>
+  {{ form.info.label_tag }} {{ form.info }} 
+  {{ form.url.label_tag }} {{ form.url }}
 
-      <div class="accruals" name="pay_data_el_gas_water">
-        <div class="titles">
-          <div class="title">{% trans 'service'|capfirst %}</div>
-          <div class="title">{% trans 'tarif'|capfirst %}</div>
-          <div class="title">{% trans 'accrued'|capfirst %}</div>
-          <div class="title">{% trans 'payment'|capfirst %}</div>
+  {% include "widgets/url_list.html" %}
+  {% include "widgets/attachments.html" %}
+
+{% endblock %}
+
+{% block footer_detail %}
+  {{ block.super }}
+
+  {% comment %} <!-- **************************** Edit Service Amount **************************** --> {% endcomment %}
+
+  <div class="modal fade" id="editServiceAmount" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="edit_service_label">Оплата услуги</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        {% if bill_info.internet.used %}
-          <div class="service">
-            <div class="title">{{ bill_info.internet.title }}</div>
-            <div class="tarif"></div>
-            {{ form.bill_tv_bill }}
-            {{ form.bill_tv_pay }}
-          </div>
-        {% endif %}
-        {% if bill_info.phone.used %}
-          <div class="service">
-            <div class="title">{{ bill_info.phone.title }}</div>
-            <div class="tarif"></div>
-            {{ form.bill_phone_bill }}
-            {{ form.bill_phone_pay }}
-          </div>
-        {% endif %}
-        {% if bill_info.zkx.used %}
-          <div class="service">
-            <div class="title">{{ bill_info.zkx.title }}</div>
-            <div class="tarif"></div>
-            {{ form.bill_zhirovka }}
-            {{ form.bill_zkx_pay }}
-          </div>
-        {% endif %}
-        {% if bill_info.poo.used %}
-          <div class="service">
-            <div class="title">{{ bill_info.poo.title }}</div>
-            <div class="tarif"></div>
-            {{ form.bill_poo }}
-            {{ form.bill_poo_pay }}
-          </div>
-        {% endif %}
-        {% if bill_info.electro.used %}
-          <div class="service">
-            <div class="title">{{ bill_info.electro.title }}</div>
-            <div class="tarif">{{ bill_info.electro.tarif }}</div>
-            <div class="accrued">{{ bill_info.electro.accrued }}</div>
-            {{ form.bill_el_pay }}
-          </div>
-        {% endif %}
-        {% if bill_info.gas.used %}
-          <div class="service">
-            <div class="title">{{ bill_info.gas.title }}</div>
-            <div class="tarif">{{ bill_info.gas.tarif }}</div>
-            <div class="accrued">{{ bill_info.gas.accrued }}</div>
-            {{ form.bill_gas_pay }}
-          </div>
-        {% endif %}
-        {% if bill_info.water.used %}
-          <div class="service">
-            <div class="title">{{ bill_info.water.title }}</div>
-            <div class="tarif">{{ bill_info.water.tarif }}</div>
-            <div class="accrued">{{ bill_info.water.accrued }}</div>
-            {{ form.bill_water_pay }}
-          </div>
-        {% endif %}
-        <div class="titles">
-          <div class="title">{{ bill_info.total.title }}</div>
-          <div class="title"></div>
-          <div class="title">{{ bill_info.total.accrued }}</div>
-          <div class="title">{{ bill_info.total.paid }}</div>
+        <div class="modal-body">
+          <form>
+            <input type="hidden" name="service-id" id="id_edit_service_id">
+            <input type="hidden" name="service-apart" id="id_edit_service_apart">
+            <input type="hidden" name="service-period" id="id_edit_service_period">
+            <input type="hidden" name="service-code" id="id_edit_service_code">
+            <div class="mb-3">
+              <label for="id_edit_service_name" class="col-form-label">Услуга</label>
+              <input type="text" name="service-name" class="form-control" id="id_edit_service_name" readonly>
+            </div>
+            <div class="mb-3">
+              <label for="id_edit_service_tariff" class="col-form-label">Тариф</label>
+              <input type="number" name="service-tariff" class="form-control" id="id_edit_service_tariff" readonly>
+            </div>
+            <div class="mb-3">
+              <label for="id_edit_service_accrued" class="col-form-label">Начислено</label>
+              <input type="number" name="service-accrued" class="form-control" id="id_edit_service_accrued">
+            </div>
+            <div class="mb-3">
+              <label for="id_edit_service_payment" class="col-form-label">Оплачено</label>
+              <input type="number" name="service-payment" class="form-control" id="id_edit_service_payment">
+            </div>
+            <div class="mb-3">
+              <label for="id_edit_service_event" class="col-form-label">Дата оплаты</label>
+              <input type="date" name="service_event" class="form-control" id="id_edit_service_event">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="saveServiceAmount('{{ django_host_api }}')">Сохранить</button>
         </div>
       </div>
     </div>
-
-    {{ form.info.label_tag }} {{ form.info }} 
-    {{ form.url.label_tag }} {{ form.url }}
-    {{ form.upload }}
-
-    {% include "widgets/url_list.html" %}
-    {% include "widgets/attachments.html" %}
+  </div>
 {% endblock %}
 
 {% block extrascript %}

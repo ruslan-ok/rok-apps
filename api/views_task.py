@@ -1,4 +1,5 @@
-import os.path
+import os.path, requests, json
+from datetime import datetime
 
 from datetime import datetime, timedelta
 from django.shortcuts import get_object_or_404
@@ -13,9 +14,6 @@ from task.models import Task, Group, TaskGroup, GIQ_ADD_TASK, GIQ_DEL_TASK
 from rusel.utils import nice_date
 from api.serializers import TaskSerializer
 
-from apart.views.meter import add_meter
-from apart.views.price import add_price
-from apart.views.bill import add_bill
 from fuel.views.fuel import add_fuel
 from fuel.views.part import add_part
 from fuel.views.serv import add_serv
@@ -25,20 +23,21 @@ from store.views import add_item as add_store
 from note.get_info import get_info as note_get_info
 from news.get_info import get_info as news_get_info
 from store.get_info import get_info as store_get_info
-from apart.views.apart import get_info as apart_get_info
-from apart.views.price import get_info as price_get_info
-from apart.views.meter import get_info as meter_get_info
-from apart.views.bill import get_info as bill_get_info
 from health.views.marker import get_info as marker_get_info
 from health.views.incident import get_info as incident_get_info
 from warr.views import get_info as warr_get_info
 from expen.views import get_info as expen_get_info
 from fuel.views.car import get_info as car_get_info
-from fuel.views.fuel import get_info as fuel_get_info
+from fuel.fuel_get_info import get_info as fuel_get_info
 from fuel.views.part import get_info as part_get_info
 from fuel.views.serv import get_info as serv_get_info
 
+from apart.models import Apart, ApartPrice, PeriodMeters, PeriodServices
+
 from service.background_services import check_services
+
+from expen.multi_currency import multi_currency_init as multi_currency_init_expen
+from fuel.multi_currency import multi_currency_init as multi_currency_init_fuel
 
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
@@ -78,13 +77,17 @@ class TaskViewSet(viewsets.ModelViewSet):
         if (task.app_store == const.NUM_ROLE_STORE):
             store_get_info(task)
         if (task.app_apart == const.NUM_ROLE_APART):
-            apart_get_info(task)
+            item = Apart.objects.filter(id=task.id).get()
+            item.role_info()
         if (task.app_apart == const.NUM_ROLE_PRICE):
-            price_get_info(task)
+            item = ApartPrice.objects.filter(id=task.id).get()
+            item.role_info()
         if (task.app_apart == const.NUM_ROLE_METER):
-            meter_get_info(task)
+            item = PeriodMeters.objects.filter(id=task.id).get()
+            item.role_info()
         if (task.app_apart == const.NUM_ROLE_BILL):
-            bill_get_info(task)
+            item = PeriodServices.objects.filter(id=task.id).get()
+            item.role_info()
         if (task.app_health == const.NUM_ROLE_MARKER):
             marker_get_info(task)
         if (task.app_health == const.NUM_ROLE_INCIDENT):
@@ -184,11 +187,11 @@ class TaskViewSet(viewsets.ModelViewSet):
             case (const.APP_APART, const.ROLE_APART):
                 task = Task.objects.create(user=request.user, app_apart=const.NUM_ROLE_APART, name=name, event=datetime.now())
             case (const.APP_APART, const.ROLE_METER):
-                task = add_meter(request.user, ani)
+                task = PeriodMeters.add_item(request.user, ani)
             case (const.APP_APART, const.ROLE_PRICE):
-                task = add_price(request.user, ani, service_id)
+                task = ApartPrice.add_item(request.user, ani, service_id)
             case (const.APP_APART, const.ROLE_BILL):
-                task, message = add_bill(request.user, ani)
+                task, message = PeriodServices.add_item(request.user, ani)
             case (const.APP_HEALTH, const.ROLE_MARKER):
                 task = add_marker(request.user, name)
             case (const.APP_HEALTH, const.ROLE_INCIDENT):
@@ -604,7 +607,20 @@ class TaskViewSet(viewsets.ModelViewSet):
             case const.ROLE_EXPENSE: task.app_expen = 0
             case const.ROLE_PERSON | const.ROLE_TRIP | const.ROLE_SALDO: task.app_trip = 0
             case const.ROLE_FUEL | const.ROLE_PART | const.ROLE_SERVICE: task.app_fuel = 0
-            case const.ROLE_APART | const.ROLE_METER | const.ROLE_PRICE | const.ROLE_BILL: task.app_apart = 0
+            case const.ROLE_APART:
+                item = Apart.objects.filter(id=task.id).get()
+                item.delete_linked_items()
+                task.app_apart = 0
+            case const.ROLE_METER:
+                item = PeriodMeters.objects.filter(id=task.id).get()
+                item.delete_linked_items()
+                task.app_apart = 0
+            case const.ROLE_BILL:
+                item = PeriodServices.objects.filter(id=task.id).get()
+                item.delete_linked_items()
+                task.app_apart = 0
+            case const.ROLE_PRICE:
+                task.app_apart = 0
             case const.ROLE_MARKER | const.ROLE_INCIDENT: task.app_health = 0
             case const.ROLE_PERIOD | const.ROLE_DEPARTMENT | const.ROLE_DEP_HIST | const.ROLE_POST | const.ROLE_EMPLOYEE | const.ROLE_FIO_HIST | const.ROLE_CHILDREN | const.ROLE_APPOINTMENT | const.ROLE_EDUCATION | const.ROLE_EMPLOYEE_PERIOD | const.ROLE_PAY_TITLE | const.ROLE_PAYMENT: task.app_work = 0
             case const.ROLE_PHOTO: task.app_photo = 0
@@ -612,8 +628,8 @@ class TaskViewSet(viewsets.ModelViewSet):
         for tg in TaskGroup.objects.filter(task_id=task.id, role=role):
             task.correct_groups_qty(GIQ_DEL_TASK, role=role)
 
-        if ((task.app_task + task.app_note + task.app_news + task.app_store + task.app_doc + task.app_warr + task.app_expen + 
-            task.app_trip + task.app_fuel + task.app_apart + task.app_health + task.app_work + task.app_photo) == 0):
+        if not (task.app_task or task.app_note or task.app_news or task.app_store or task.app_doc or task.app_warr or task.app_expen or
+            task.app_trip or task.app_fuel or task.app_apart or task.app_health or task.app_work or task.app_photo):
             task.delete_linked_items()
             task.delete()
         else:
@@ -639,3 +655,30 @@ class TaskViewSet(viewsets.ModelViewSet):
         for task in Task.objects.all():
             self._get_info(task)
         return Response({'result': 'ok'})
+
+    @action(detail=False)
+    def multi_currency_init(self, request, pk=None):
+        ret = multi_currency_init_expen(request.user)
+        return Response(ret)
+
+    @action(detail=False)
+    def update_exchange_rate(self, request, pk=None):
+        ret = Task.update_exchange_rate()
+        return Response(ret)
+
+    @action(detail=False)
+    def get_exchange_rate(self, request, pk=None):
+        ret_status = status.HTTP_400_BAD_REQUEST
+        if 'currency' not in request.query_params:
+            return Response({'result': 'error', 'info': "The 'currency' parameter expected"}, status=ret_status)
+        currency = request.query_params['currency']
+        if 'date' not in request.query_params:
+            return Response({'result': 'error', 'info': "The 'date' parameter expected"}, status=ret_status)
+        s_date = request.query_params['date']
+        try:
+            date = datetime.strptime(s_date, '%Y-%m-%d')
+            ret, stat = Task.get_exchange_rate(currency, date)
+            return Response(ret, status=stat)
+        except:
+            return {'result': 'error', 'info': "The 'date' paramener must be in the format 'YYYY-MM-DD'"}, ret_status
+    

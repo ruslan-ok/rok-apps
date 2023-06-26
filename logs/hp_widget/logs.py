@@ -1,11 +1,11 @@
 from rusel.base.views import BaseListView
 from task.const import ROLE_ACCOUNT
-from task.models import TaskInfo
+from task.models import Task
 from logs.services.overview import OverviewLogData
 from rusel.config import app_config
 
 class ListView(BaseListView):
-    model = TaskInfo
+    model = Task
     fields = {'name'}
 
     def __init__(self):

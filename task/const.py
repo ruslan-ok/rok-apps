@@ -1,4 +1,4 @@
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy, gettext_lazy as _
 
 """
 Apps
@@ -23,7 +23,9 @@ APP_LOGS = 'logs'
 APP_SERVICE = 'service'
 APP_W_ACME = 'win-acme'
 APP_FAMILY = 'family'
+APP_CORE = 'core'
 APP_CRAM = 'cram'
+
 APP_ALL = 'all'
 
 NONE = 0
@@ -155,6 +157,10 @@ NUM_ROLE_BACKUP_SHORT = 40
 NUM_ROLE_BACKUP_FULL = 41
 NUM_ROLE_BACKUP_CHECK = 42
 NUM_ROLE_MANAGER = 43
+NUM_ROLE_METER_PROP = 44
+NUM_ROLE_SERV_PROP = 45
+NUM_ROLE_METER_VALUE = 46
+NUM_ROLE_SERV_VALUE = 47
 
 ROLE_TODO        = 'todo'
 ROLE_NOTIFICATOR = 'notificator'
@@ -174,6 +180,10 @@ ROLE_PART        = 'part'
 ROLE_APART       = 'apart'      
 ROLE_SERVICE     = 'service'      
 ROLE_METER       = 'meter'     
+ROLE_METER_PROP  = 'meter_prop'
+ROLE_SERV_PROP   = 'serv_prop'
+ROLE_METER_VALUE = 'meter_value'
+ROLE_SERV_VALUE  = 'serv_value'
 ROLE_PRICE       = 'price'     
 ROLE_BILL        = 'bill'      
 ROLE_MARKER      = 'marker'   
@@ -201,7 +211,8 @@ ROLE_BACKUP_FULL = 'full'
 ROLE_BACKUP_CHECK = 'check'
 ROLE_APACHE      = 'apache'
 ROLE_MANAGER     = 'manager'
-ROLE_CERT_COPY = 'cert_copy'
+ROLE_CERT_COPY   = 'cert_copy'
+ROLE_CURRENCY    = 'currency'
 ROLE_CRAM        = 'cram'
 
 ALL_ROLES = (
@@ -222,6 +233,10 @@ ALL_ROLES = (
     ROLE_SERVICE,        
     ROLE_APART,       
     ROLE_METER,      
+    ROLE_METER_PROP,
+    ROLE_SERV_PROP,
+    ROLE_METER_VALUE,
+    ROLE_SERV_VALUE,
     ROLE_PRICE,      
     ROLE_BILL,       
     ROLE_MARKER,    
@@ -262,7 +277,7 @@ ROLES_IDS = {
     APP_EXPEN: { ROLE_EXPENSE: NUM_ROLE_EXPENSE },
     APP_TRIP: { ROLE_PERSON: NUM_ROLE_PERSON, ROLE_TRIP: NUM_ROLE_TRIP, ROLE_SALDO: NUM_ROLE_SALDO },
     APP_FUEL: { ROLE_FUEL: NUM_ROLE_FUEL, ROLE_PART: NUM_ROLE_PART, ROLE_SERVICE: NUM_ROLE_SERVICE, ROLE_CAR: NUM_ROLE_CAR },
-    APP_APART: { ROLE_BILL: NUM_ROLE_BILL, ROLE_METER: NUM_ROLE_METER, ROLE_PRICE: NUM_ROLE_PRICE, ROLE_APART: NUM_ROLE_APART, },
+    APP_APART: { ROLE_BILL: NUM_ROLE_BILL, ROLE_METER: NUM_ROLE_METER, ROLE_METER_PROP: NUM_ROLE_METER_PROP, ROLE_METER_VALUE: NUM_ROLE_METER_VALUE, ROLE_PRICE: NUM_ROLE_PRICE, ROLE_APART: NUM_ROLE_APART, },
     APP_HEALTH: { ROLE_MARKER: NUM_ROLE_MARKER, ROLE_INCIDENT: NUM_ROLE_INCIDENT, ROLE_CHART_WEIGHT: NUM_ROLE_CHART_WEIGHT, ROLE_CHART_WAIST: NUM_ROLE_CHART_WAIST, ROLE_CHART_TEMP: NUM_ROLE_CHART_TEMP },
     APP_WORK: { ROLE_PERIOD: NUM_ROLE_PERIOD, ROLE_DEPARTMENT: NUM_ROLE_DEPARTMENT, ROLE_DEP_HIST: NUM_ROLE_DEP_HIST, 
                 ROLE_POST: NUM_ROLE_POST, ROLE_EMPLOYEE: NUM_ROLE_EMPLOYEE, ROLE_FIO_HIST: NUM_ROLE_FIO_HIST, 
@@ -290,7 +305,15 @@ WARR_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_WARR, _('warranty'))]
 EXPEN_ROLE_CHOICE  = [(NONE, '--------'), (NUM_ROLE_EXPENSE, _('operation'))]
 TRIP_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_PERSON, _('person')), (NUM_ROLE_TRIP, _('trip')), (NUM_ROLE_SALDO, _('saldo'))]
 FUEL_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_CAR, _('cars')), (NUM_ROLE_FUEL, _('fueling')), (NUM_ROLE_PART, _('car part service interval')), (NUM_ROLE_SERVICE, _('service'))]
-APART_ROLE_CHOICE  = [(NONE, '--------'), (NUM_ROLE_APART, _('apartment')), (NUM_ROLE_SERVICE, _('service')), (NUM_ROLE_METER, _('meter')), (NUM_ROLE_PRICE, _('price')), (NUM_ROLE_BILL, _('bill'))]
+APART_ROLE_CHOICE  = [(NONE, '--------'), 
+                      (NUM_ROLE_APART, _('apartment')), 
+                      (NUM_ROLE_METER, _('meter')), 
+                      (NUM_ROLE_METER_PROP, _('meter property')), 
+                      (NUM_ROLE_METER_VALUE, _('meter value')), 
+                      (NUM_ROLE_SERV_PROP, _('service property')), 
+                      (NUM_ROLE_SERV_VALUE, _('service amount')), 
+                      (NUM_ROLE_PRICE, pgettext_lazy('tarif', 'price')), 
+                      (NUM_ROLE_BILL, _('bill'))]
 HEALTH_ROLE_CHOICE = [(NONE, '--------'), (NUM_ROLE_MARKER, _('marker')), (NUM_ROLE_INCIDENT, _('incident')), (NUM_ROLE_CHART_WEIGHT, _('weight chart')), (NUM_ROLE_CHART_WAIST, _('waist chart')), (NUM_ROLE_CHART_TEMP, _('temperature chart'))]
 WORK_ROLE_CHOICE   = [(NONE, '--------'), (NUM_ROLE_PERIOD, _('period')), (NUM_ROLE_DEPARTMENT, _('department')), (NUM_ROLE_DEP_HIST, _('department history')), 
                         (NUM_ROLE_POST, _('post')), (NUM_ROLE_EMPLOYEE, _('employee')), (NUM_ROLE_FIO_HIST, _('surname history')), (NUM_ROLE_CHILD, _('child')), 
@@ -316,6 +339,10 @@ ROLE_BY_NUM = {
     NUM_ROLE_SERVICE      : ROLE_SERVICE     , 
     NUM_ROLE_APART        : ROLE_APART       , 
     NUM_ROLE_METER        : ROLE_METER       , 
+    NUM_ROLE_METER_PROP   : ROLE_METER_PROP  , 
+    NUM_ROLE_SERV_PROP    : ROLE_SERV_PROP   , 
+    NUM_ROLE_METER_VALUE  : ROLE_METER_VALUE ,
+    NUM_ROLE_SERV_VALUE   : ROLE_SERV_VALUE  ,
     NUM_ROLE_PRICE        : ROLE_PRICE       , 
     NUM_ROLE_BILL         : ROLE_BILL        , 
     NUM_ROLE_MARKER       : ROLE_MARKER      , 
@@ -357,6 +384,10 @@ ROLE_ICON = {
     ROLE_SERVICE: 'tools',
     ROLE_APART: 'building',
     ROLE_METER: 'speedometer2',
+    ROLE_METER_PROP: 'info-square',
+    ROLE_SERV_PROP: 'info-square',
+    ROLE_METER_VALUE: 'speedometer2',
+    ROLE_SERV_VALUE: 'speedometer2',
     ROLE_PRICE: 'tag',
     ROLE_BILL: 'receipt',
     ROLE_MARKER: 'heart',
@@ -392,6 +423,10 @@ ROLE_BASE = {
     ROLE_PART: ROLE_FUEL,
     ROLE_SERVICE: ROLE_FUEL,
     ROLE_METER: ROLE_APART,
+    ROLE_METER_PROP: ROLE_APART,
+    ROLE_SERV_PROP: ROLE_APART,
+    ROLE_METER_VALUE: ROLE_APART,
+    ROLE_SERV_VALUE: ROLE_APART,
     ROLE_PRICE: ROLE_APART,
     ROLE_BILL: ROLE_APART,
     ROLE_INCIDENT: ROLE_MARKER,
@@ -430,6 +465,10 @@ ROLE_APP = {
     ROLE_SERVICE: APP_FUEL,
     ROLE_APART: APP_APART,
     ROLE_METER: APP_APART,
+    ROLE_METER_PROP: APP_APART,
+    ROLE_SERV_PROP: APP_APART,
+    ROLE_METER_VALUE: APP_APART,
+    ROLE_SERV_VALUE: APP_APART,
     ROLE_PRICE: APP_APART,
     ROLE_BILL: APP_APART,
     ROLE_MARKER: APP_HEALTH,
@@ -454,27 +493,3 @@ ROLE_APP = {
     ROLE_SEARCH_RESULTS: NONE,
     ROLE_CRAM: APP_CRAM,
 }
-
-APART_SERVICE = [
-    'не задано',
-    'электроснабжение',
-    'газоснабжение',
-    'вода',
-    'водоснабжение',
-    'водоотведение',
-    'не задано',
-    '!?-7',
-    '!?-8',
-    'kill',
-    'электроснабжение',
-    '!?-11',
-    'kill-1',
-    'kill-3',
-    'kill-2',
-    '!?-15',
-    'членские взносы',
-    '!?-17',
-    '!?-18',
-    '!?-19',
-    '!?-20',
-]

@@ -9,6 +9,7 @@ from rusel.base.views import BaseListView, BaseDetailView
 from rusel.base.context import Context
 from fuel.forms.fuel import CreateForm, EditForm
 from fuel.config import app_config
+from fuel.fuel_get_info import get_info
 
 role = ROLE_FUEL
 app = ROLE_APP[role]
@@ -78,14 +79,6 @@ def add_fuel(user, car):
     event=datetime.now()
     task = Task.objects.create(user=user, app_fuel=NUM_ROLE_FUEL, task_1=car, event=event, name=get_item_name(event), car_odometr=new_odo, fuel_volume=new_vol, fuel_price=new_prc)
     return task
-
-def get_info(item):
-    attr = []
-    attr.append({'text': _('odometr: ') + '{:,}'.format(item.car_odometr)})
-    attr.append({'text': _('volume: ') + '{:.0f}'.format(item.fuel_volume)})
-    attr.append({'text': _('price: ') + '{:.2f}'.format(item.fuel_price)})
-    attr.append({'text': _('summa: ') + '{:.2f}'.format(item.fuel_volume * item.fuel_price)})
-    item.actualize_role_info(app, role, attr)
 
 class FuelMapView(LoginRequiredMixin, PermissionRequiredMixin, Context, FormView):
     model = Task

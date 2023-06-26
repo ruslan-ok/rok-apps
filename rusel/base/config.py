@@ -1,3 +1,4 @@
+import os
 from gettext import pgettext
 from django.utils.translation import gettext_lazy as _, pgettext
 from django.urls import reverse
@@ -37,6 +38,7 @@ class Config:
         self.default_sort = '-event'
         if 'sort' in config and config['sort']:
             self.app_sorts = config['sort']
+        self.global_hide_qty = os.environ.get('DJANGO_HIDE_QTY', 1)
     
     def is_num(self, value):
         try:

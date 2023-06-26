@@ -3,26 +3,31 @@ import os, calendar, json, urllib
 from urllib.parse import urlparse
 from django.utils.crypto import get_random_string
 import requests
+from datetime import date
+from collections import Counter
+from decimal import Decimal
 
 from datetime import date, time, datetime, timedelta
 from django.db import models
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy, gettext_lazy as _
 from django.contrib.auth.models import User
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
 from django.urls import NoReverseMatch
 from django.utils import formats
 
+from rest_framework import status
 from rest_framework.reverse import reverse
 
 from task import const
 from task.const import *
 from rusel.utils import nice_date
 from rusel.categories import CATEGORY_DESIGN
-from rusel.files import get_files_list_by_path
+from rusel.files import get_files_list_by_path, get_files_list_by_path_v2
 from fuel.utils import get_rest
 from news.get_info import get_info as news_get_info
 from expen.get_info import get_info as expen_get_info
+from apart.const import apart_service_name_by_id
 
 
 class Group(models.Model):
@@ -53,6 +58,7 @@ class Group(models.Model):
     expen_usd = models.BooleanField(_('totals in USD'), null=True)
     expen_eur = models.BooleanField(_('totals in EUR'), null=True)
     expen_gbp = models.BooleanField(_('totals in GBP'), null=True)
+    currency = models.CharField(_('default currency'), max_length=10, blank=True)
 
     class Meta:
         verbose_name=_('task group')
@@ -127,61 +133,28 @@ class Group(models.Model):
         self.items_sort = ''
         self.save()
 
-    def expen_what_totals(self):
-        if (not self.expen_byn) and (not self.expen_usd) and (not self.expen_eur) and (not self.expen_gbp):
-            return True, False, False, False
-        return self.expen_byn, self.expen_usd, self.expen_eur, self.expen_gbp
-
-    def expen_get_totals(self):
-        byn = usd = eur = gbp = 0
-        in_byn, in_usd, in_eur, in_gbp = self.expen_what_totals()
+    def expen_get_amounts(self) -> tuple[Counter, Decimal]:
+        amount_usd = 0
+        cnt = Counter()
         for exp in TaskGroup.objects.filter(group=self.id):
-            if in_byn:
-                byn += exp.task.expen_amount('BYN')
-            if in_usd:
-                usd += exp.task.expen_amount('USD')
-            if in_eur:
-                eur += exp.task.expen_amount('EUR')
-            if in_gbp:
-                gbp += exp.task.expen_amount('GBP')
-        return byn, usd, eur, gbp
-    
-    def expen_get_amounts(self): # is
-        byn = usd = eur = gbp = 0
-        in_byn, in_usd, in_eur, in_gbp = self.expen_what_totals()
-        for exp in TaskGroup.objects.filter(group=self.id):
-            if exp.task.expen_qty:
-                if in_byn and exp.task.expen_price:
-                    byn += exp.task.expen_price * exp.task.expen_qty
-                if in_usd and exp.task.expen_usd:
-                    usd += exp.task.expen_usd * exp.task.expen_qty
-                if in_eur and exp.task.expen_eur:
-                    eur += exp.task.expen_eur * exp.task.expen_qty
-                if in_gbp and exp.task.expen_gbp:
-                    gbp += exp.task.expen_gbp * exp.task.expen_qty
-        return byn, usd, eur, gbp
+            if exp.task.expen_qty and exp.task.expen_price and exp.task.price_unit:
+                currency = exp.task.price_unit
+                amount = exp.task.expen_price * exp.task.expen_qty
+                cnt[currency] += amount
+                if currency == 'USD':
+                    amount_usd += amount
+                elif exp.task.expen_rate_usd:
+                    amount_usd += amount / exp.task.expen_rate_usd
+        return cnt, amount_usd
 
     def expen_summary(self):
-        in_byn, in_usd, in_eur, in_gbp = self.expen_what_totals()
-        t_byn, t_usd, t_eur, t_gbp = self.expen_get_totals()
-        a_byn, a_usd, a_eur, a_gbp = self.expen_get_amounts()
+        amounts, amount_usd = self.expen_get_amounts()
+
         res = []
-        if in_usd and a_usd:
-            res.append(currency_repr(a_usd, '$'))
-        if in_eur and a_eur:
-            res.append(currency_repr(a_eur, '€'))
-        if in_gbp and a_gbp:
-            res.append(currency_repr(a_gbp, '£'))
-        if in_byn and a_byn:
-            res.append(currency_repr(a_byn, ' BYN'))
-        if in_usd:
-            res.append(currency_repr(t_usd, '$', 'bg-primary text-white'))
-        if in_eur:
-            res.append(currency_repr(t_eur, '€', 'bg-primary text-white'))
-        if in_gbp:
-            res.append(currency_repr(t_gbp, '£', 'bg-primary text-white'))
-        if in_byn:
-            res.append(currency_repr(t_byn, ' BYN', 'bg-primary text-white'))
+        if len(amounts) > 0 or 'USD' not in amounts:
+            for currency, value in amounts.items():
+                res.append(currency_repr(value, currency))
+        res.append(currency_repr(amount_usd, '$', 'bg-primary text-white'))
         return res
 
     def get_absolute_url(self):
@@ -231,14 +204,14 @@ class Task(models.Model):
     An Entity that can be a Task or something else
     """
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'), related_name = 'task_user')
-    name = models.CharField(_('Name'), max_length=200, blank=False)
+    name = models.CharField(_('Name'), max_length=200, blank=True, null=True)
     event = models.DateTimeField(_('Event date'), blank=True, null=True)
     start = models.DateField(_('Start date'), blank=True, null=True)
     stop = models.DateTimeField(_('Termin'), blank=True, null=True)
-    completed = models.BooleanField(_('Completed'), default=False)
+    completed = models.BooleanField(_('Completed'), default=False, null=True)
     completion = models.DateTimeField(_('Completion time'), blank=True, null=True)
-    in_my_day = models.BooleanField(_('In My day'), default=False)
-    important = models.BooleanField(_('Important'), default=False)
+    in_my_day = models.BooleanField(_('In My day'), default=False, null=True)
+    important = models.BooleanField(_('Important'), default=False, null=True)
     remind = models.DateTimeField(_('Remind'), blank=True, null=True)
     first_remind = models.DateTimeField(_('First remind'), blank=True, null=True)
     last_remind = models.DateTimeField(_('Last remind'), blank=True, null=True)
@@ -269,13 +242,13 @@ class Task(models.Model):
     task_2 = models.ForeignKey('self', on_delete=models.SET_NULL, verbose_name=_('linked task #2'), related_name='task_link_2', blank=True, null=True)
     task_3 = models.ForeignKey('self', on_delete=models.SET_NULL, verbose_name=_('linked task #3'), related_name='task_link_3', blank=True, null=True)
     item_attr = models.CharField(_('Item attributes'), max_length=2000, blank=True, null=True)
-    sort = models.CharField(_('sort code'), max_length=50, blank=True)
+    sort = models.CharField(_('sort code'), max_length=50, blank=True, null=True)
     latitude = models.CharField('Latitude', max_length=15, blank=True, null=True)
     longitude = models.CharField('Longitude', max_length=15, blank=True, null=True)
     #------------ Expenses ------------
     expen_qty = models.DecimalField(_('Quantity'), blank=True, null=True, max_digits=15, decimal_places=3)
-    expen_price = models.DecimalField(_('Price in NC'), blank=True, null=True, max_digits=15, decimal_places=2)
-    expen_rate_usd = models.DecimalField(_('USD exchange rate'), blank=True, null=True, max_digits=15, decimal_places=4)
+    expen_price = models.DecimalField(pgettext_lazy('Expen', 'Price'), blank=True, null=True, max_digits=15, decimal_places=2)
+    expen_rate_usd = models.DecimalField(_('Exchange rate to USD'), blank=True, null=True, max_digits=15, decimal_places=5)
     expen_rate_eur = models.DecimalField(_('EUR exchange rate'), blank=True, null=True, max_digits=15, decimal_places=4)
     expen_rate_gbp = models.DecimalField(_('GBP exchange rate'), blank=True, null=True, max_digits=15, decimal_places=4)
     expen_usd = models.DecimalField(_('amount in USD'), blank=True, null=True, max_digits=15, decimal_places=2)
@@ -306,7 +279,7 @@ class Task(models.Model):
     meter_hw = models.IntegerField(_('hot water'), null=True)
     meter_cw = models.IntegerField(_('cold water'), null=True)
     meter_ga = models.IntegerField(_('gas'), null=True)
-    meter_zkx = models.DecimalField('account amount', null=True, max_digits=15, decimal_places=2)
+    meter_zkx = models.DecimalField('account amount', null=True, max_digits=15, decimal_places=3)
     #------------- Price --------------
     price_service = models.IntegerField(_('service code'), null=True)
     price_tarif = models.DecimalField(_('tariff 1'), null=True, max_digits=15, decimal_places=5)
@@ -314,7 +287,7 @@ class Task(models.Model):
     price_tarif2 = models.DecimalField(_('tariff 2'), null=True, max_digits=15, decimal_places=5)
     price_border2 = models.DecimalField(_('border 2'), null=True, max_digits=15, decimal_places=4)
     price_tarif3 = models.DecimalField(_('tariff 3'), null=True, max_digits=15, decimal_places=5)
-    price_unit = models.CharField(_('unit'), max_length=100, blank=True, null=True)
+    price_unit = models.CharField(_('currency'), max_length=100, blank=True, null=True)
     #------------- Bill ---------------
     bill_residents = models.IntegerField(_('number of residents'), null=True)
     bill_el_pay = models.DecimalField('electro - payment', null=True, max_digits=15, decimal_places=2)
@@ -348,9 +321,9 @@ class Task(models.Model):
     repl_part_num = models.CharField(_('catalog number'), max_length=100, null=True, blank=True)
     repl_descr = models.CharField(_('name'), max_length=1000, null=True, blank=True)
     #------------- Health --------------
-    diagnosis = models.CharField(_('diagnosis'), max_length=1000, blank=True)
+    diagnosis = models.CharField(_('diagnosis'), max_length=1000, blank=True, null=True)
     bio_height = models.IntegerField(_('height, cm'), blank=True, null=True)
-    bio_weight = models.DecimalField(_('weight, kg'), blank=True, null=True, max_digits=5, decimal_places=1)
+    bio_weight = models.DecimalField(_('weight, kg'), blank=True, null=True, max_digits=5, decimal_places=2)
     bio_temp = models.DecimalField(_('temperature'), blank=True, null=True, max_digits=4, decimal_places=1)
     bio_waist = models.IntegerField(_('waist circumference'), blank=True, null=True)
     bio_systolic = models.IntegerField(_('systolic blood pressure'), blank=True, null=True)
@@ -364,7 +337,9 @@ class Task(models.Model):
         verbose_name_plural = _('tasks')
 
     def __str__(self):
-        return self.name
+        if self.name:
+            return self.name
+        return '?'
 
     @classmethod
     def use_name(cls, app, role):
@@ -389,30 +364,37 @@ class Task(models.Model):
         nav_role = cls.get_nav_role(app)
         if (not nav_role or not active_nav_item_id):
             return None
-        nav_items = Task.get_role_tasks(user_id, app, nav_role)
-        for task_info in nav_items.filter(active=True):
-            task = Task.objects.filter(id=task_info.id).get()
-            task.active = False
-            task.save()
-        nav_item_info = nav_items.filter(id=active_nav_item_id).get()
-        nav_item = Task.objects.filter(id=nav_item_info.id).get()
-        nav_item.active = True
-        nav_item.save()
-        return nav_item
+        role_id = ROLES_IDS[app][nav_role]
+        cur_active = None
+        if (app == APP_APART) and Task.objects.filter(user=user_id, app_apart=role_id, active=True).exists():
+            cur_active = Task.objects.filter(user=user_id, app_apart=role_id, active=True).get()
+        if (app == APP_FUEL) and Task.objects.filter(user=user_id, app_fuel=role_id, active=True).exists():
+            cur_active = Task.objects.filter(user=user_id, app_fuel=role_id, active=True).get()
+        if not cur_active:
+            return None
+        if cur_active.id == active_nav_item_id:
+            return cur_active
+        cur_active.active = False
+        cur_active.save()
+        if Task.objects.filter(user=user_id, id=active_nav_item_id).exists():
+            new_active = Task.objects.filter(user=user_id, id=active_nav_item_id).get()
+            new_active.active = True
+            new_active.save()
+            return new_active
+        return None
 
     @classmethod
     def get_active_nav_item(cls, user_id, app):
         nav_role = cls.get_nav_role(app)
-        if nav_role:
-            nav_items = Task.get_role_tasks(user_id, app, nav_role)
-            ti = None
-            if nav_items.filter(active=True).exists():
-                ti = nav_items.filter(active=True).order_by('name')[0]
-            elif (len(nav_items) > 0):
-                ti = nav_items.order_by('name')[0]
-            if ti:
-                return Task.objects.filter(id=ti.id).get()
-        return None
+        if not nav_role:
+            return None
+        role_id = ROLES_IDS[app][nav_role]
+        cur_active = None
+        if (app == APP_APART) and Task.objects.filter(user=user_id, app_apart=role_id, active=True).exists():
+            cur_active = Task.objects.filter(user=user_id, app_apart=role_id, active=True).get()
+        if (app == APP_FUEL) and Task.objects.filter(user=user_id, app_fuel=role_id, active=True).exists():
+            cur_active = Task.objects.filter(user=user_id, app_fuel=role_id, active=True).get()
+        return cur_active
 
     @classmethod
     def get_role_tasks(cls, user_id, app, role, nav_item=None):
@@ -553,7 +535,7 @@ class Task(models.Model):
                 case (const.ROLE_APART, const.NUM_ROLE_APART):
                     ret = APP_APART + '/' + self.name
                 case (const.ROLE_PRICE, const.NUM_ROLE_PRICE):
-                    ret = APP_APART + '/' + self.task_1.name + '/price/' + APART_SERVICE[self.price_service] + '/' + self.start.strftime('%Y.%m.%d')
+                    ret = APP_APART + '/' + self.task_1.name + '/price/' + apart_service_name_by_id(self.price_service) + '/' + self.start.strftime('%Y.%m.%d')
                 case (const.ROLE_METER, const.NUM_ROLE_METER):
                     ret = APP_APART + '/' + self.task_1.name + '/meter/' + str(self.start.year) + '/' + str(self.start.month).zfill(2)
                 case (const.ROLE_BILL, const.NUM_ROLE_BILL):
@@ -788,90 +770,23 @@ class Task(models.Model):
         else:
             return _('Add in "My day"')
 
-    def expen_amount(self, currency):
-        byn = 0
+    def expen_amount(self, currency=None):
+        amount = None
         if self.expen_price:
-            byn = self.expen_price
+            amount = self.expen_price
             if self.expen_qty:
-                byn = self.expen_price * self.expen_qty
+                amount = self.expen_price * self.expen_qty
 
-        if (currency == 'USD'):
-            if self.expen_usd:
-                if self.expen_qty:
-                    return self.expen_usd * self.expen_qty
-                return self.expen_usd
-            if byn and self.expen_rate_usd:
-                return byn / self.expen_rate_usd
+        if amount and (currency == 'USD') and (self.price_unit != 'USD') and self.expen_rate_usd:
+            amount = amount / self.expen_rate_usd
 
-        if (currency == 'EUR'):
-            if self.expen_eur:
-                if self.expen_qty:
-                    return self.expen_eur * self.expen_qty
-                return self.expen_eur
-            if byn and self.expen_rate_eur:
-                return byn / self.expen_rate_eur
-
-        if (currency == 'GBP'):
-            if self.expen_gbp:
-                if self.expen_qty:
-                    return self.expen_gbp * self.expen_qty
-                return self.expen_gbp
-            if byn and self.expen_rate_gbp:
-                return byn / self.expen_rate_gbp
-
-        if (currency == 'BYN'):
-            if self.expen_price:
-                return byn
-
-            if self.expen_usd and self.expen_rate_usd:
-                if self.expen_qty:
-                    return self.expen_usd * self.expen_qty * self.expen_rate_usd
-                return self.expen_usd * self.expen_rate_usd
-
-            if self.expen_eur and self.expen_rate_eur:
-                if self.expen_qty:
-                    return self.expen_eur * self.expen_qty * self.expen_rate_eur
-                return self.expen_eur * self.expen_rate_eur
-
-            if self.expen_gbp and self.expen_rate_gbp:
-                if self.expen_qty:
-                    return self.expen_gbp * self.expen_qty * self.expen_rate_gbp
-                return self.expen_gbp * self.expen_rate_gbp
-
-        return 0
-
-    def expen_get_amounts(self):
-        byn = usd = eur = gbp = 0
-        if TaskGroup.objects.filter(task=self.id, role=ROLE_EXPENSE).exists():
-            tg = TaskGroup.objects.filter(task=self.id, role=ROLE_EXPENSE).get()
-            in_byn, in_usd, in_eur, in_gbp = tg.group.expen_what_totals()
-        else:
-            in_byn, in_usd, in_eur, in_gbp = True, False, False, False
-        if self.expen_qty:
-            if in_byn and self.expen_price:
-                byn += self.expen_price * self.expen_qty
-            if in_usd and self.expen_usd:
-                usd += self.expen_usd * self.expen_qty
-            if in_eur and self.expen_eur:
-                eur += self.expen_eur * self.expen_qty
-            if in_gbp and self.expen_gbp:
-                gbp += self.expen_gbp * self.expen_qty
-        return byn, usd, eur, gbp
+        return amount
 
     def expen_item_summary(self):
-        byn, usd, eur, gbp = self.expen_get_amounts()
         res = []
-        if usd:
-            res.append(currency_repr(usd, '$'))
-        if eur:
-            res.append(currency_repr(eur, '€'))
-        if gbp:
-            res.append(currency_repr(gbp, '£'))
-        if byn and self.event:
-            if (self.event < datetime(2016, 6, 1)):
-                res.append(currency_repr(byn, ' BYR'))
-            else:
-                res.append(currency_repr(byn, ' BYN'))
+        if self.expen_qty and self.expen_price and self.price_unit:
+            value = self.expen_price * self.expen_qty
+            res.append(currency_repr(value, self.price_unit))
         return res
 
     def correct_groups_qty(self, mode, group_id=None, role=None):
@@ -944,6 +859,141 @@ class Task(models.Model):
                 tri.info = str_info
                 tri.files_qnt = qnt
                 tri.save()
+
+    @classmethod
+    def get_db_exchange_rate(cls, currency: str, date: date):
+        if CurrencyRate.objects.filter(base='USD', currency=currency, date__lte=date).exists():
+            last_dt = CurrencyRate.objects.filter(base='USD', currency=currency, date__lte=date).order_by('-date')[0].date
+            rate = CurrencyRate.objects.filter(base='USD', currency=currency, date=last_dt).order_by('source')[0]
+            return rate
+        return None
+
+
+    @classmethod
+    def get_net_exchange_rate(cls, currency: str, date: date) -> dict:
+        if datetime.today().date() < datetime(2023, 7, 7):
+            return {
+                'rate': None,
+                'status': status.HTTP_428_PRECONDITION_REQUIRED,
+                'info': 'You used all your monthly requests. Please upgrade your plan at https://app.currencyapi.com/subscription',
+            }
+
+        api_url = os.environ.get('API_CURR_RATE', '')
+        if not api_url:
+            return {
+                'rate': None,
+                'status': status.HTTP_400_BAD_REQUEST,
+                'info': 'API_CURR_RATE environment variable not set'
+            }
+        token = os.environ.get('API_CURR_TOKEN', '')
+        if not token:
+            return {
+                'rate': None,
+                'status': status.HTTP_400_BAD_REQUEST,
+                'info': 'API_CURR_TOKEN environment variable not set'
+            }
+        if '{currency}' not in api_url or '{date}' not in api_url or '{token}' not in api_url:
+            return {
+                'rate': None,
+                'status': status.HTTP_400_BAD_REQUEST,
+                'info': "The value of the API_CURR_RATE environment variable does not contain the expected substrings '{token}', '{currency}' and '{date}'"
+            }
+        url = api_url.replace('{token}', token).replace('{currency}', currency).replace('{date}', date.strftime('%Y-%m-%d'))
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        resp = requests.get(url, headers=headers)
+        if (resp.status_code != status.HTTP_200_OK):
+            ret = json.loads(resp.content)
+            ret['result'] = 'error'
+            ret['rate'] = None
+            ret['status'] = resp.status_code
+            return ret
+        else:
+            try:
+                value = json.loads(resp.content)
+                rate_usd = value['data'][currency]['value']
+                if rate_usd:
+                    rate = CurrencyRate.objects.create(base='USD', currency=currency, date=date, num_units=1, value=rate_usd, source=api_url)
+                    return {
+                        'rate': rate,
+                        'status': resp.status_code,
+                        'info': ''
+                    }
+                else:
+                    return {
+                        'rate': None,
+                        'status': resp.status_code,
+                        'info': 'Zero rate in responce from call to API_CURR_RATE. ' + str(resp.content)
+                    }
+            except:
+                return {
+                    'rate': None,
+                    'status': status.HTTP_400_BAD_REQUEST,
+                    'info': json.loads(resp.content)
+                }
+
+
+    @classmethod
+    def get_exchange_rate(cls, currency: str, date: date) -> dict:
+        rate_db = cls.get_db_exchange_rate(currency, date)
+        if rate_db:
+            if rate_db.date == date:
+                return {
+                    'result': 'ok',
+                    'status': status.HTTP_200_OK,
+                    'rate': rate_db,
+                }
+        
+        rate_net = cls.get_net_exchange_rate(currency, date)
+
+        if rate_net['rate']:
+            return {
+                'result': 'ok',
+                'status': status.HTTP_200_OK,
+                'rate': rate_net['rate'],
+            }
+        
+        if rate_db:
+            return {
+                'result': 'warning',
+                'status': status.HTTP_200_OK,
+                'rate': rate_db,
+                'info': 'Not actual date',
+            }
+        
+        return {
+            'result': 'error',
+            'status': rate_net['status'],
+            'info': rate_net['info'],
+        }
+    
+    @classmethod
+    def get_hist_exchange_rates(cls, currency: str, beg: date, end: date) -> list:
+        ret = []
+        rates = CurrencyRate.objects.filter(base='USD', currency=currency, date__range=(beg, end))
+        all_rates = []
+        for rate in rates:
+            all_rates.append((rate.date, rate.value, sort_exchange_rate_by_source(rate.source)))
+        date = beg
+        while date <= end:
+            rate = None
+            day_rates = [x for x in all_rates if x[0] == date]
+            day_rates = sorted(day_rates, key=lambda x: x[2])
+            if len(day_rates):
+                rate = day_rates[0][1]
+            else:
+                rate_info = cls.get_exchange_rate(currency, date)
+                if rate_info and rate_info['result'] == 'ok' and 'rate' in rate_info and rate_info['rate']:
+                    rate = rate_info['rate'].value
+            ret.append(rate)
+            date = date + timedelta(1)
+        return ret
+    
+def sort_exchange_rate_by_source(source):
+    match source:
+        case 'nbrb.by': return 1
+        case 'etalonline.by': return 2
+        case 'GoogleFinanse': return 3
+        case _: return 4
 
 
 GIQ_ADD_TASK = 1 # Task created
@@ -1053,18 +1103,36 @@ class TaskRoleInfo(models.Model):
     info = models.CharField(_('role specific info'), max_length=500, blank=True, default=None, null=True)
     files_qnt = models.IntegerField(_('number of attached files'), default=0, null=True)
 
+    @classmethod
+    def actualize(cls, user, item_id: int, role: str, info, attach_path: str):
+        app = ROLE_APP[role]
+        files_list = get_files_list_by_path_v2(user, role, item_id, attach_path)
+        files_qty = len(files_list)
+        if files_qty == 0 and info == None:
+            TaskRoleInfo.objects.filter(task=item_id, app=app, role=role).delete()
+        else:
+            if not TaskRoleInfo.objects.filter(task=item_id, app=app, role=role).exists():
+                item = Task.objects.filter(id=item_id).get()
+                str_info = json.dumps(info)
+                TaskRoleInfo.objects.create(task=item, app=app, role=role, info=str_info, files_qnt=files_qty)
+            else:
+                tri = TaskRoleInfo.objects.filter(task=item_id, app=app, role=role).get()
+                tri.info = json.dumps(info)
+                tri.files_qnt = files_qty
+                tri.save()
+
 def currency_item_repr(value, currency):
     if (round(value, 2) % 1):
-        value = '{:,.2f}{}'.format(value, currency).replace(',', '`')
+        value = '{:,.2f} {}'.format(value, currency).replace(',', '`')
     else:
-        value = '{:,.0f}{}'.format(value, currency).replace(',', '`')
+        value = '{:,.0f} {}'.format(value, currency).replace(',', '`')
     return value
 
 def currency_repr(value, currency, color_class=''):
     if (round(value, 2) % 1):
-        value = '{:,.2f}{}'.format(value, currency).replace(',', '`')
+        value = '{:,.2f} {}'.format(value, currency).replace(',', '`')
     else:
-        value = '{:,.0f}{}'.format(value, currency).replace(',', '`')
+        value = '{:,.0f} {}'.format(value, currency).replace(',', '`')
     return {'value': value, 'color': color_class}
 
 
@@ -1363,3 +1431,13 @@ class Weather(models.Model):
     prec_total = models.DecimalField('Precipitation total', null=True, max_digits=10, decimal_places=1)
     prec_type = models.CharField('Precipitation type', max_length=10, blank=True)
     cloud_cover = models.IntegerField('Cloud cover', null=True)
+
+class CurrencyRate(models.Model):
+    currency = models.CharField('Currency', max_length=10, blank=False)
+    base = models.CharField('Base currency', max_length=10, blank=True, default='USD')
+    date = models.DateField('Rate Date', blank=False, null=False)
+    num_units = models.IntegerField('Number of units exchanged', null=False, default=1)
+    value = models.DecimalField('Exchange rate to USD', blank=True, null=True, max_digits=15, decimal_places=4)
+    source = models.CharField('Data source', max_length=200, blank=True)
+    info = models.CharField('Comment', max_length=1000, blank=True)
+
