@@ -16,14 +16,9 @@ class ListView(BaseListView):
 
     def get_queryset(self):
         data = super().get_queryset()
-        if data != None:
+        if data:
             lookups = Q(stop__lte=(datetime.now() + timedelta(1))) | Q(in_my_day=True) | Q(important=True)
             svc_grp_id = int(os.environ.get('DJANGO_SERVICE_GROUP' + ENV + DB, '0'))
-            """
-            grp = Group.objects.filter(id=svc_grp_id).get()
-            data = data.filter(app_task=NUM_ROLE_TODO).filter(lookups).exclude(completed=True).exclude(groups=grp)
-            return data
-            """
             return data.filter(num_role=NUM_ROLE_TODO).filter(lookups).exclude(completed=True).exclude(group_id=svc_grp_id)
 
     def get_context_data(self, **kwargs):
