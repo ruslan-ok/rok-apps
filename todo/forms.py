@@ -1,6 +1,6 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
-from rusel.base.forms import BaseCreateForm, BaseEditForm
+from core.forms import BaseCreateForm, BaseEditForm
 from task.const import ROLE_TODO
 from task.models import Task
 from todo.config import app_config

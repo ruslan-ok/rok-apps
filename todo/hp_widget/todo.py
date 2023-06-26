@@ -1,7 +1,7 @@
 import os
 from datetime import datetime, timedelta
 from django.db.models import Q
-from rusel.base.views import BaseListView
+from core.views import BaseListView
 from task.const import NUM_ROLE_TODO, ROLE_ACCOUNT
 from task.models import TaskInfo
 from rusel.config import app_config

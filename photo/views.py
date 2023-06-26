@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from task.const import APP_PHOTO, ROLE_PHOTO, ROLE_APP
 from task.models import Photo
-from rusel.base.dir_views import BaseDirView
+from core.dir_views import BaseDirView
 from photo.config import app_config
 from photo.forms import PhotoForm
 
@@ -45,7 +45,7 @@ class FolderView(LoginRequiredMixin, PermissionRequiredMixin, BaseDirView):
             self.template_name = 'photo/map.html'
         context['list_href'] = '/photo/'
         context['cur_folder'] = self.cur_folder
-        context['add_item_template'] = 'base/add_item_upload.html'
+        context['add_item_template'] = 'core/add_item_upload.html'
         context['add_item_placeholder'] = '{}'.format(_('Upload photo'))
         return context
 

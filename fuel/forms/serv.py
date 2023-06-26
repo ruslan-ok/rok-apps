@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from rusel.base.forms import BaseCreateForm, BaseEditForm
+from core.forms import BaseCreateForm, BaseEditForm
 from task.models import Task
 from task.const import NUM_ROLE_PART, ROLE_SERVICE
 from fuel.config import app_config

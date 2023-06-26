@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from task.const import APP_APART, ROLE_APART, NUM_ROLE_METER, NUM_ROLE_PRICE, NUM_ROLE_BILL, NUM_ROLE_METER_PROP, NUM_ROLE_SERV_PROP
 from apart.models import *
-from rusel.base.views import BaseListView, BaseDetailView
+from core.views import BaseListView, BaseDetailView
 from apart.forms.apart import CreateForm, EditForm
 from apart.config import app_config
 from apart.const import APART_METER, APART_SERVICE

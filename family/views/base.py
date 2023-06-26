@@ -7,8 +7,8 @@ from django.http import HttpResponse, FileResponse
 from django.views.generic.list import ListView
 from django.views.generic.edit import FormView, UpdateView, FormMixin
 from django.shortcuts import get_object_or_404
-from rusel.base.context import Context
-from rusel.base.dir_forms import UploadForm
+from core.context import Context
+from core.dir_forms import UploadForm
 from rusel.utils import extract_get_params
 from family.models import FamTree, FamTreeUser, FamRecord, IndividualRecord, MultimediaRecord, RepositoryRecord, NoteStructure, SourceRecord, SubmitterRecord, Params
 from family.config import app_config

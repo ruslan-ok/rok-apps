@@ -1,8 +1,8 @@
 import os
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.edit import FormView
-from rusel.base.context import DirContext
-from rusel.base.dir_forms import UploadForm
+from core.context import DirContext
+from core.dir_forms import UploadForm
 from task.const import *
 
 #----------------------------------------------------------------------

@@ -2,8 +2,8 @@ from datetime import datetime, date
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from task.const import ROLE_WARR, ROLE_APP
 from task.models import Task
-from rusel.base.views import BaseListView, BaseDetailView, BaseGroupView
-from rusel.base.forms import GroupForm
+from core.views import BaseListView, BaseDetailView, BaseGroupView
+from core.forms import GroupForm
 from warr.forms import CreateForm, EditForm
 from warr.config import app_config
 

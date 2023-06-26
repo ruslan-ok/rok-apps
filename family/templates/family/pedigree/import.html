@@ -1,4 +1,4 @@
-{% extends "base/page_content.html" %}
+{% extends "core/page_content.html" %}
 {% load static i18n %}
 
 {% block extrastyle %}
@@ -8,9 +8,9 @@
 {% endblock %}
 
 {% block main %}
-{% include "base/title.html" %}
+{% include "core/title.html" %}
 <form method="post" enctype="multipart/form-data" id="gedcom_import_form">{% csrf_token %}</form>
-  {% include "base/form_errors.html" %}
+  {% include "core/form_errors.html" %}
   {{ form.upload.errors }}
   <input type="file" style="display:none;" id="id_upload" name="upload" onchange="fileSelected()">
   <button type="submit" id="id_submit" name="file_upload" class="d-none"></button>

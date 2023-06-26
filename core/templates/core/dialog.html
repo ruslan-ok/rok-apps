@@ -21,7 +21,7 @@
   <form method="post">{% csrf_token %}
     <img class="mb-4" src="{% static '/favicon.ico' %}">
     <h1 class="h3 mb-3 fw-normal">{{ title|capfirst }}</h1>
-    {% include "base/form_errors.html" %}
+    {% include "core/form_errors.html" %}
     {% block content %}{% endblock %}
   </form>
 </main>

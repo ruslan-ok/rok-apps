@@ -1,4 +1,4 @@
-{% extends "base/page_content.html" %}
+{% extends "core/page_content.html" %}
 {% load static i18n %}
 
 {% block extrastyle %}
@@ -26,7 +26,7 @@
 
 {% block main %}
   <div class="list-content{% if theme_id %} theme-{{theme_id}}{% endif %}">
-    {% include "base/title.html" %}
+    {% include "core/title.html" %}
     <input type="hidden" value="{{ gps_data|safe }}" id="id_data">
     <div id="mapid"></div>
   </div>

@@ -3,7 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from task.const import APP_APART, NUM_ROLE_APART, ROLE_PRICE, NUM_ROLE_PRICE
 from apart.const import apart_service_name_by_id
 from apart.models import Apart, ApartPrice
-from rusel.base.views import BaseListView, BaseDetailView
+from core.views import BaseListView, BaseDetailView
 from apart.forms.price import CreateForm, EditForm
 from apart.config import app_config
 

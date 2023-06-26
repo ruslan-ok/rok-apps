@@ -1,4 +1,4 @@
-{% extends "base/page_content.html" %}
+{% extends "core/page_content.html" %}
 {% load static i18n %}
 
 {% block extrastyle %}
@@ -9,7 +9,7 @@
 
 {% block main %}
 <div class="list-content{% if theme_id %} theme-{{theme_id}}{% endif %}">
-  {% include "base/title.html" %}
+  {% include "core/title.html" %}
 
   {% if file_list %}
     <table class="info-table">

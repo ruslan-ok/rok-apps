@@ -1,4 +1,4 @@
-{% extends "base/page_content.html" %}
+{% extends "core/page_content.html" %}
 {% load i18n static %}
 
 {% block extrastyle %}
@@ -9,8 +9,8 @@
 
 {% block main %}
   <form method="post" class="item-form px-2" enctype="multipart/form-data" id="article_form">{% csrf_token %}
-    {% include "base/title.html" %}
-    {% include "base/form_errors.html" %}
+    {% include "core/title.html" %}
+    {% include "core/form_errors.html" %}
 
     {{ form }}
 

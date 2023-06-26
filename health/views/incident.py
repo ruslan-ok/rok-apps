@@ -1,6 +1,6 @@
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from rusel.base.views import BaseListView, BaseDetailView
+from core.views import BaseListView, BaseDetailView
 from health.forms.incident import CreateForm, EditForm
 from task.const import ROLE_INCIDENT, ROLE_APP
 from task.models import Task

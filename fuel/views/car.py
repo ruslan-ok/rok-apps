@@ -2,7 +2,7 @@ from datetime import timedelta
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from task.const import ROLE_CAR, ROLE_APP
 from task.models import Task
-from rusel.base.views import BaseListView, BaseDetailView
+from core.views import BaseListView, BaseDetailView
 from fuel.forms.car import CreateForm, EditForm
 from fuel.config import app_config
 

@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from task.const import NUM_ROLE_PART, NUM_ROLE_SERVICE, ROLE_SERVICE, ROLE_APP, APP_FUEL
 from task.models import Task
-from rusel.base.views import BaseListView, BaseDetailView
+from core.views import BaseListView, BaseDetailView
 from fuel.forms.serv import CreateForm, EditForm
 from fuel.views.car import get_new_odometr
 from fuel.config import app_config

@@ -1,0 +1,11 @@
+{% extends "core/page_content.html" %}
+{% load static i18n %}
+
+{% block main %}
+Hello, lang list
+<ul></ul>
+{% for lang in object_list %}
+  <li>{{ lang.name }}</li>
+{% endfor %}
+</ul>
+{% endblock %}

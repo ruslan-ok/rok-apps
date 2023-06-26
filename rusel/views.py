@@ -1,6 +1,6 @@
 from task.const import ROLE_ACCOUNT
 from task.models import Task
-from rusel.base.views import BaseListView
+from core.views import BaseListView
 from rusel.config import app_config
 from rusel.app_doc import get_app_doc, get_app_thumbnail
 
@@ -19,7 +19,7 @@ class ListView(BaseListView):
         if (self.request.method == 'GET'):
             query = self.request.GET.get('q')
         if query:
-            return ['base/list.html']
+            return ['core/list.html']
         
         return ['index_user.html']
 

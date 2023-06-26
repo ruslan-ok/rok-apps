@@ -4,8 +4,8 @@ from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 from task.const import *
 from task.models import Task, detect_group
-from rusel.base.config import Config
-from rusel.base.forms import CreateGroupForm
+from core.config import Config
+from core.forms import CreateGroupForm
 from rusel.context import get_base_context
 from rusel.utils import extract_get_params
 from rusel.settings import ENV, DB
@@ -40,9 +40,9 @@ class Context:
         if nav_items:
             context['nav_items'] = nav_items
         if self.config.add_button:
-            context['add_item_template'] = 'base/add_item_button.html'
+            context['add_item_template'] = 'core/add_item_button.html'
         else:
-            context['add_item_template'] = 'base/add_item_input.html'
+            context['add_item_template'] = 'core/add_item_input.html'
 
         if (self.config.group_entity in self.request.GET):
             context['current_group'] = self.request.GET[self.config.group_entity]
