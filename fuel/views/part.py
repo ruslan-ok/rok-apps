@@ -46,5 +46,5 @@ def get_info(item):
     item.actualize_role_info(app, role, attr)
 
 def add_part(user, car, name):
-    task = Task.objects.create(user=user, app_fuel=NUM_ROLE_PART, name=name, event=datetime.now(), task_1=car)
+    task = Task.objects.create(user=user, app_fuel=NUM_ROLE_PART, name=name, event=datetime.now(), task_1=car, part_chg_km=10000, part_chg_mo=12)
     return task
