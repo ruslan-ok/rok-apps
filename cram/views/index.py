@@ -1,20 +1,19 @@
-from django.shortcuts import render
+import os
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.http.response import HttpResponseRedirect
 from django.http import Http404
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from cram.context import CramContext
 from cram.config import app_config
 from task.const import APP_CRAM, ROLE_CRAM
-from task.models import Group
-from cram.models import Phrase
+from cram.models import CramGroup, Lang, Phrase, LangPhrase
 
 app = APP_CRAM
 role = ROLE_CRAM
 
 class IndexView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView, CramContext):
-    #template_name = "cram/index.html"
     permission_required = 'cram.view_phrase'
 
     def __init__(self, *args, **kwargs):
@@ -26,19 +25,33 @@ class IndexView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView, CramC
             return ['cram/phrase_list.html']
         return ['cram/index.html']
 
-    def get(self, request, *args, **kwargs):
-        ret = super().get(request, *args, **kwargs)
-        # if not request.user.is_authenticated:
-        #     return ret
-        # active_group = self.get_active_group(self.config.cur_view_group)
-        # if ('group' not in request.GET) and self.config.cur_view_group:
-        #     self.
-        #     if not Group.objects.filter(user=request.user.id, app=self.config.cur_view_group.app, determinator=self.config.cur_view_group.determinator).exists():
-        #         return ret
-        #     nav_item = Group.objects.filter(user=request.user.id, app=app, role=ROLE_CRAM)[0]
-        #     if nav_item:
-        #         return HttpResponseRedirect(request.path + '?group=' + str(nav_item.id))
-        return ret
+    def get_queryset(self):
+        if 'group' in self.request.GET:
+            grp_id = int(self.request.GET.get('group', '0'))
+            if CramGroup.objects.filter(user=self.request.user.id, id=grp_id).exists():
+                grp = CramGroup.objects.filter(user=self.request.user.id, id=grp_id).get()
+                return Phrase.objects.filter(user=self.request.user.id, grp=grp.id).order_by('sort')
+        return []
+
+    def post(self, request, *args, **kwargs):
+        grp = None
+        text = ''
+        p_phrase = ''
+        if 'group' in self.request.GET:
+            grp_id = int(self.request.GET.get('group', '0'))
+            if CramGroup.objects.filter(user=self.request.user.id, id=grp_id).exists():
+                grp = CramGroup.objects.filter(user=self.request.user.id, id=grp_id).get()
+        if 'add_item_name' in self.request.POST:
+            text = self.request.POST.get('add_item_name', '')
+        if grp and text:
+            sort = 1
+            if Phrase.objects.filter(user=request.user.id, grp=grp).exists():
+                sort = Phrase.objects.filter(user=request.user.id, grp=grp).order_by('-sort')[0].sort + 1
+            phrase = Phrase.objects.create(user=self.request.user, grp=grp, sort=sort)
+            lang = Lang.objects.filter(user=self.request.user, code='ru').get()
+            LangPhrase.objects.create(phrase=phrase, lang=lang, text=text)
+            p_phrase = f'&phrase={phrase.id}'
+        return HttpResponseRedirect(reverse('cram:list') + f'?group={grp_id}{p_phrase}')
 
     def get_context_data(self, **kwargs):
         if not self.request.user.is_authenticated:
@@ -48,11 +61,41 @@ class IndexView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView, CramC
         context.update(self.get_app_context(self.request.user.id, None, icon=self.config.role_icon))
         context['title'] = _('Cram')
         context['add_item_template'] = 'cram/add_item_input.html'
-        # group = self.get_cur_group()
-        # phrase = None
-        # if group and Phrase.objects.filter(user=self.request.user.id, grp=group).exists():
-        #     phrase = Phrase.objects.filter(user=self.request.user.id, grp=group).order_by('sort')[0]
-        # context['group'] = group
-        # context['phrase'] = phrase
+        objects = []
+        sel_phrase = None
+        phrase_id = 0
+        if 'phrase' in self.request.GET:
+            phrase_id = int(self.request.GET.get('phrase', '0'))
+        for phrase in self.get_queryset():
+            p = {
+                'id': phrase.id,
+                'active': (phrase.id == phrase_id),
+                'name': phrase.name(),
+                'data': [],
+            }
+            for lang_code in ('ru', 'en', 'pl'):
+                text = ''
+                lang_phrase_id = 0
+                if Lang.objects.filter(user=self.request.user.id, code=lang_code).exists():
+                    lang = Lang.objects.filter(user=self.request.user.id, code=lang_code).get()
+                    if LangPhrase.objects.filter(phrase=phrase.id, lang=lang.id).exists():
+                        lp = LangPhrase.objects.filter(phrase=phrase.id, lang=lang.id).get()
+                        lang_phrase_id = lp.id
+                        if lp.text:
+                            text = lp.text
+                l = {
+                    'id': lang_phrase_id,
+                    'lang': lang_code,
+                    'text': text,
+                }
+                p['data'].append(l)
+            if (phrase.id == phrase_id):
+                sel_phrase = p
+            objects.append(p)
+        if not sel_phrase and len(objects):
+            sel_phrase = objects[0]
+        context['object_list'] = objects
+        context['sel_phrase'] = sel_phrase
+        context['django_host_api'] = os.environ.get('DJANGO_HOST_API', 'http://localhost:8000')
         return context
 

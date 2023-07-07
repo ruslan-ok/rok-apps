@@ -1,5 +1,5 @@
 from rest_framework import viewsets, permissions, renderers
-from api.serializers import ProfileSerializer
+from api.serializers.profile import ProfileSerializer
 from account.models import UserExt
 from rest_framework import mixins
 from rest_framework.decorators import action

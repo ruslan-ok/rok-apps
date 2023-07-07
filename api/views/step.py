@@ -3,7 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from task.models import Step
-from api.serializers import StepSerializer
+from api.serializers.step import StepSerializer
 from task.const import *
 
 class StepViewSet(viewsets.ModelViewSet):

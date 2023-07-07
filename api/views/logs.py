@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework import viewsets, permissions, renderers, status
 
 from logs.models import EventType, ServiceEvent, ServiceTask, ServiceTaskStatus
-from api.serializers import LogsSerializer
+from api.serializers.logs import LogsSerializer
 from task.const import *
 from family.gedcom_551.imp import import_params, import_start
 from family.gedcom_551.exp import export_params, export_start, gedcom_params, gedcom_start

@@ -20,21 +20,7 @@ class CramGroup(Group):
     def save(self, *args, **kwargs):
         self.app = APP_CRAM
         self.role = ROLE_CRAM
-        # self.user = self.request.user
         super().save(*args, **kwargs)
-
-# class CramGroupFlt(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='user', related_name='cram_group')
-#     app = models.CharField('app name', max_length=50, blank=False, default=APP_CRAM, null=True)
-#     role = models.CharField('role name', max_length=50, blank=False, default=ROLE_CRAM, null=True)
-#     node = models.ForeignKey('self', on_delete=models.CASCADE, verbose_name='node', blank=True, null=True)
-#     name = models.CharField('group name', max_length=200, blank=False)
-#     sort = models.CharField('sort code', max_length=50, blank=True)
-#     info = models.TextField('information', blank=True, null=True)
-
-#     class Meta:
-#         db_table = 'task_group'
-#         managed = False
 
 class Lang(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='User', related_name = 'lang_user')
@@ -54,18 +40,25 @@ class Lang(models.Model):
 class Phrase(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='User', related_name = 'cram_user')
     grp = models.ForeignKey(CramGroup, on_delete=models.CASCADE, verbose_name='Group', blank=True, null=True)
-    sort = models.fields.CharField('Sort code', max_length=10, null=True)
+    sort = models.fields.IntegerField('Sort code', null=False, default=1)
     categories = models.TextField('Categories', blank=True, null=True)
 
-    def __str__(self):
+    def name(self):
         text = ''
         if Lang.objects.filter(user=self.user.id, code="ru").exists():
             ru = Lang.objects.filter(user=self.user.id, code="ru").get()
             if LangPhrase.objects.filter(phrase=self.id, lang=ru.id).exists():
                 lp = LangPhrase.objects.filter(phrase=self.id, lang=ru.id).get()
                 text = lp.text
-        return f'Phrase {self.id} "{self.sort}" {text}'
+        if not text:
+            text = self.sort
+        if not text:
+            text = str(self.id)
+        return text
 
+    def __str__(self):
+        return f'Phrase {self.id} "{self.name()}"'
+    
 class LangPhrase(models.Model):
     phrase = models.ForeignKey(Phrase, on_delete=models.SET_NULL, verbose_name='Phrase Id', related_name='phrase', null=True)
     lang = models.ForeignKey(Lang, on_delete=models.SET_NULL, verbose_name='Language code', related_name='phrase_language_code', null=True)

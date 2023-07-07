@@ -16,7 +16,7 @@ from api.views import logs as api_logs
 from api.views import famtree as api_family
 from api.views import widget as api_widget
 from api.views import service as api_service
-from api.views import cram as api_cram
+from cram.api import views as api_cram
 from apart.api import views as api_apart
 
 api_router = routers.DefaultRouter()

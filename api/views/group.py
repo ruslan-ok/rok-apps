@@ -9,7 +9,7 @@ from rest_framework.reverse import reverse
 
 from task.models import Group, TaskGroup
 from task.const import ALL_ROLES
-from api.serializers import GroupSerializer
+from api.serializers.group import GroupSerializer
 
 class GroupViewSet(viewsets.ModelViewSet):
     serializer_class = GroupSerializer

@@ -1,5 +1,5 @@
 from rest_framework import viewsets, permissions, renderers, pagination
-from api.serializers import UrlsSerializer
+from api.serializers.urls import UrlsSerializer
 from task.models import Urls
 
 class UrlsViewSet(viewsets.ModelViewSet):

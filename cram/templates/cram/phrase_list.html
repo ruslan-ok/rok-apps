@@ -3,13 +3,45 @@
 
 {% block extrastyle %}
   {{ block.super }}
+  <link href="{% static 'css/cram.min.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block main %}
-<form method="post" class="d-none">{% csrf_token %}</form>
-Hello, phrases
-{% for lng in languages %}<a href="#">{{ lng.code }}</a>{% if not last %} | {% endif %}{% endfor %}
-{% include "core/title.html" %}
+  {% for lng in languages %}<a href="#">{{ lng.code }}</a>{% if not last %} | {% endif %}{% endfor %}
+  {% include "core/title.html" %}
+  <div class="list-group">
+    {% for phrase in object_list %}
+      <button type="button" data-bs-phrase-id="{{ phrase.id|escape }}" 
+        class="list-group-item list-group-item-action" 
+        {% if phrase.active %} aria-current="true"{% endif %}
+        id="phrase-{{ phrase.id|escape }}"
+        onclick="selectPhrase({{ phrase.id|escape }})">
+        {% for lang_phrase in phrase.data %}
+          {% if lang_phrase.lang == 'ru' %}
+            <div class="d-flex w-100 justify-content-between">
+              <h5 class="mb-1" data-bs-lang-phrase-id="{{ lang_phrase.id }}"><span class="phrase-lang">{{ lang_phrase.lang }}: </span><span>{{ lang_phrase.text }}</span></h5>
+            </div>
+          {% else %}
+            <p data-bs-lang-phrase-id="{{ lang_phrase.id }}" class="phrase"><span class="phrase-lang">{{ lang_phrase.lang }}: </span><span>{{ lang_phrase.text }}</span></p>
+          {% endif %}
+        {% endfor %}
+      </button>
+    {% endfor %}
+  </div>
+
+  <form class="mt-5" id="prase-edit-form" data-bs-phrase-id="{{ sel_phrase.id|escape }}">
+    {% for lang_phrase in sel_phrase.data %}
+      <div class="mb-1 d-flex">
+        <label for="{{ lang_phrase.lang }}-text" class="form-label me-3 lang-label">{{ lang_phrase.lang }}</label>
+        <input type="text" class="form-control" id="{{ lang_phrase.lang }}-text" data-bs-lang-phrase-id="{{ lang_phrase.id }}" value="{{ lang_phrase.text }}">
+      </div>
+    {% endfor %}
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-5">
+      <button type="button" class="btn btn-primary" onclick="savePhrases('{{ django_host_api }}')">Сохранить</button>
+      <button type="button" class="btn btn-danger" onclick="deletePhrases('{{ django_host_api }}')">Удалить</button>
+    </div>
+  </form>
+
 {% endblock %}
 
 {% block extrascript %}
