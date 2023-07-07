@@ -270,10 +270,11 @@ class Backup():
 
     def backup_reqs(self, zf):
         self.log(EventType.INFO, 'method', '+backup_reqs() started')
-        reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
+        python_exe = os.environ.get('DJANGO_PYTHON', 'python.exe')
+        reqs = subprocess.check_output([python_exe, '-Xfrozen_modules=off', '-m', 'pip', 'freeze'], universal_newlines=True)
         file = 'reqs.txt'
         with open(file, 'w', encoding='utf-8') as f:
-            f.write(repr(reqs.decode('utf-8')).replace('\\r\\n', '\n'))
+            f.write(reqs)
         zf.write(file)
         os.remove(file)
         self.log(EventType.INFO, 'method', '-backup_reqs() finished')

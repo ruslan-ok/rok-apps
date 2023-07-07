@@ -71,7 +71,7 @@ class SiteService():
             s.send_message(msg)
             del msg
             s.quit()
-            ServiceEvent.objects.create(device=self.device, app=self.app, service=self.service_name, type=EventType, name='mail', 
+            ServiceEvent.objects.create(device=self.device, app=self.app, service=self.service_name, type=EventType.INFO, name='mail', 
                 info=f'To:[{self.recipients}], Subject:"[{subject}], Body:[{info[:40]}...]')
 
     def log_event_api(self, type, name, info, one_per_day):
