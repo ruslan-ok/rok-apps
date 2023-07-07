@@ -161,6 +161,7 @@ NUM_ROLE_METER_PROP = 44
 NUM_ROLE_SERV_PROP = 45
 NUM_ROLE_METER_VALUE = 46
 NUM_ROLE_SERV_VALUE = 47
+#NUM_ROLE_CRAM_PARAM = 48
 
 ROLE_TODO        = 'todo'
 ROLE_NOTIFICATOR = 'notificator'
@@ -216,6 +217,7 @@ ROLE_CURRENCY    = 'currency'
 ROLE_LANG        = 'lang'
 ROLE_PHRASE      = 'phrase'
 ROLE_CRAM        = 'cram'
+ROLE_CRAM_PARAM  = 'cram_param'
 
 ALL_ROLES = (
     ROLE_TODO,

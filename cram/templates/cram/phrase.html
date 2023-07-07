@@ -1,6 +1,7 @@
-{% extends "base/page_content.html" %}
+{% extends "core/page_content.html" %}
 {% load static i18n %}
 
 {% block main %}
+<form method="post" class="d-none">{% csrf_token %}</form>
 Hello, phrase
 {% endblock %}

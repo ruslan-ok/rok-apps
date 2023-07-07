@@ -93,24 +93,32 @@ def call_api(params: Params, api_state: ApiCallState):
     extra_param = ''
     if api_state.status == ApiCallStatus.started:
         extra_param = '&started=true'
+    url = params.api_url + extra_param
     resp = None
     status = api_state.status
     subject = ''
     message = ''
     format = 'plain'
     try:
-        resp = requests.get(params.api_url + extra_param, headers=params.headers(), verify=params.verify)
+        resp = requests.get(url, headers=params.headers(), verify=params.verify)
         if status == ApiCallStatus.started or status == ApiCallStatus.disconnected:
             change_connection_status(params, api_state, ApiCallStatus.connected)
     except requests.exceptions.ConnectionError as ex:
         if status != ApiCallStatus.disconnected:
             change_connection_status(params, api_state, ApiCallStatus.disconnected)
+    except:
+        status = ApiCallStatus.error
+        subject = f'{params.this_server} API call: exception'
+        message = traceback.format_exc()
 
     if status == ApiCallStatus.connected:
         if not resp or not resp.status_code:
             status = ApiCallStatus.error
             subject = f'{params.this_server} API call: empty responce'
-            message = f'{params.api_host} API server returned empty responce. Called to {params.api_url + extra_param}'
+            resp_status_code = None
+            if resp:
+                resp_status_code = resp.status_code
+            message = f'{params.api_host} API server returned empty responce.\n{resp=}\n{resp_status_code=}\nCalled to {url}'
         else:
             if (resp.status_code != 200):
                 status = ApiCallStatus.error

@@ -1,0 +1,24 @@
+{% extends "core/page_content.html" %}
+{% load static i18n %}
+
+{% block main %}
+  <form method="post" class="d-none">{% csrf_token %}</form>
+  {% include "core/title.html" %}
+  
+  <br> List of languages: 
+    <a href="{% url 'cram:lang-item' 'ru' %}">ru</a> | 
+    <a href="{% url 'cram:lang-item' 'pl' %}">pl</a> | 
+    <a href="{% url 'cram:lang-item' 'en' %}">en</a>
+
+  <br> Statistics
+
+  {% if group %}
+    <br> Edit phrases for <a href="{% url 'cram:phrase-list' group.id %}">{{ group.name }}</a>
+
+    {% if phrase %}
+      <br> Start training
+        <a href="{% url 'cram:training' group.id phrase.id 'pl' %}">pl</a> | 
+        <a href="{% url 'cram:training' group.id phrase.id 'en' %}">en</a> for {{ group.name }}
+    {% endif %}
+  {% endif %}
+{% endblock %}

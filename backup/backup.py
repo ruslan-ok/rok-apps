@@ -1,4 +1,4 @@
-import os, glob, pyzipper, subprocess, time
+import os, glob, pyzipper, subprocess, time, sys
 from datetime import datetime, timedelta
 from backup.sync import Sync
 from logs.models import EventType
@@ -268,6 +268,17 @@ class Backup():
         os.remove(file)
         self.log(EventType.INFO, 'method', '-backup_env() finished')
 
+    def backup_reqs(self, zf):
+        self.log(EventType.INFO, 'method', '+backup_reqs() started')
+        python_exe = os.environ.get('DJANGO_PYTHON', 'python.exe')
+        reqs = subprocess.check_output([python_exe, '-Xfrozen_modules=off', '-m', 'pip', 'freeze'], universal_newlines=True)
+        file = 'reqs.txt'
+        with open(file, 'w', encoding='utf-8') as f:
+            f.write(reqs)
+        zf.write(file)
+        os.remove(file)
+        self.log(EventType.INFO, 'method', '-backup_reqs() finished')
+
 
     # Архивирование
     def archivate(self):
@@ -300,6 +311,7 @@ class Backup():
                     for filename in files:
                         zf.write(os.path.join(dirname, filename))
         self.backup_env(zf)
+        self.backup_reqs(zf)
         zf.close()
         sz = os.path.getsize(dir_file)
         if (sz > 1000):

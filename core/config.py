@@ -55,7 +55,7 @@ class Config:
         determinator = 'view'
 
         view_id = ''
-        if (self.app == APP_ALL) or (self.app == APP_HOME):
+        if (self.app == APP_ALL) or (self.app == APP_HOME) or (self.app == APP_CRAM):
             common_url = reverse('index')
         else:
             common_url = reverse(self.app + ':list')

@@ -3,30 +3,36 @@ from task.const import *
 
 app_config = {
     'name': APP_CRAM,
+    'role': ROLE_CRAM,
     'app_title': _('cram'),
     'icon': 'card-list',
-    'main_view': 'training',
+    'main_view': 'index',
     'use_groups': True,
     'sort': [
         ('name', _('name')),
     ],
     'views': {
-        'languages': {
+        'index': {
             'icon': 'translate',
-            'title': _('Languages'),
-            'item_name': _('language'),
-            'role': ROLE_LANG,
+            'title': _('Index'),
+            'role': ROLE_CRAM,
         },
-        'prases': {
-            'icon': 'heart',
-            'title': _('Prases'),
-            'role': ROLE_PHRASE,
-        },
-        'training': {
-            'icon': 'card-list',
-            'title': _('Training'),
-            'hide_qty': True,
-        },
+        # 'languages': {
+        #     'icon': 'translate',
+        #     'title': _('Languages'),
+        #     'item_name': _('language'),
+        #     'role': ROLE_LANG,
+        # },
+        # 'phrases': {
+        #     'icon': 'heart',
+        #     'title': _('Prases'),
+        #     'role': ROLE_PHRASE,
+        # },
+        # 'training': {
+        #     'icon': 'card-list',
+        #     'title': _('Training'),
+        #     'hide_qty': True,
+        # },
     }
 }
 

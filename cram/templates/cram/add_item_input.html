@@ -1,0 +1,10 @@
+{% load i18n %}
+
+<div class="d-flex py-2">
+    <input type="text" name="add_item_name" maxlength="200" id="id_add_item_name_{{ screen_size }}" class="add-item-name" placeholder="{{ add_item_placeholder }}" 
+    onkeydown="if (event.keyCode == 13) document.getElementById('id_add_item_button_{{ screen_size }}').click()">
+    <button type="button" class="btn btn-primary ms-2" id="id_add_item_button_{{ screen_size }}" 
+        onclick="addItem('{{ config.app }}', '{{ config.get_cur_role }}', {{ config.cur_view_group.id|escape }}, '{{ screen_size }}')">
+        {% trans 'add'|capfirst %}
+    </button>
+</div>

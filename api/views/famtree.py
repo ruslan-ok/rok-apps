@@ -2,7 +2,7 @@ from django.db.models import Subquery
 from rest_framework import viewsets, permissions, status, renderers
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from api.family import FamTreeSerializer
+from api.serializers.famtree import FamTreeSerializer
 from family.gedcom_551.exp import ExpGedcom551
 from family.gedcom_551.imp import ImpGedcom551
 from family.models import FamTreeUser, FamTree, Params, FamTreePermission, Gedcom, IndividualRecord, UserSettings

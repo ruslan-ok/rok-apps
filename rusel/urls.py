@@ -7,15 +7,16 @@ from django.views.i18n import JavaScriptCatalog
 from rest_framework import routers
 
 from . import views
-from api import views_group as api_grp
-from api import views_task as api_task
-from api import views_step as api_step
-from api import views_urls as api_urls
-from api import views_profile as api_profile
-from api import views_logs as api_logs
-from api import views_famtree as api_family
-from api import views_widget as api_widget
-from api import views_service as api_service
+from api.views import group as api_grp
+from api.views import task as api_task
+from api.views import step as api_step
+from api.views import urls as api_urls
+from api.views import profile as api_profile
+from api.views import logs as api_logs
+from api.views import famtree as api_family
+from api.views import widget as api_widget
+from api.views import service as api_service
+from api.views import cram as api_cram
 from apart.api import views as api_apart
 
 api_router = routers.DefaultRouter()
@@ -33,6 +34,10 @@ api_router.register(r'apart/period/meter', api_apart.PeriodMetersView, basename=
 api_router.register(r'apart/period/meter_value', api_apart.MeterValueView, basename='meter-value')
 api_router.register(r'apart/period/service', api_apart.PeriodServicesView, basename='period-service')
 api_router.register(r'apart/period/service_amount', api_apart.ServiceAmountView, basename='service-amount')
+api_router.register(r'cram/lang', api_cram.CramLangViewSet, basename='cram-lang')
+api_router.register(r'cram/group', api_cram.CramGroupViewSet, basename='cram-group')
+api_router.register(r'cram/phrase', api_cram.CramPhraseViewSet, basename='cram-phrase')
+api_router.register(r'cram/lang_phrase', api_cram.CramLangPhraseViewSet, basename='cram-lang-phrase')
 
 urlpatterns = i18n_patterns(
     path('', views.ListView.as_view(), name='index'),

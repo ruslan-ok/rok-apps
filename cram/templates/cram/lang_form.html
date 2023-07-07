@@ -3,10 +3,5 @@
 
 {% block main %}
 <form method="post" class="d-none">{% csrf_token %}</form>
-Hello, lang list
-<ul>
-{% for lang in object_list %}
-  <li>{{ lang.name }}</li>
-{% endfor %}
-</ul>
+Hello, lang form
 {% endblock %}
