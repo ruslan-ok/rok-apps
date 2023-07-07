@@ -107,7 +107,7 @@ class Notificator(SiteService):
             return
         
         mm = messaging.MulticastMessage(tokens=tokens, data=None, notification=n, android=None, webpush=wc, apns=None, fcm_options=None)
-        r = messaging.send_multicast(mm, dry_run=False, app=None)
+        r = messaging.send_each_for_multicast(mm, dry_run=False, app=None)
         ret_resp = '[' + str(len(r.responses)) + ']'
         if r.failure_count:
             type = EventType.WARNING

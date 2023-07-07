@@ -497,7 +497,7 @@ class Task(models.Model):
             news_get_info(self)
         if self.app_expen:
             expen_get_info(self)
-        self.correct_groups_qty(GIQ_CMP_TASK)
+        self.correct_groups_qty(GIQ_CMP_TASK, todo_only=True)
         next_task = None
         if self.completed and next: # Completed a stage of a recurring task and set a deadline for the next iteration
             if Task.objects.filter(user=self.user, app_task=self.app_task, name=self.name, completed=False).exists():
@@ -789,7 +789,7 @@ class Task(models.Model):
             res.append(currency_repr(value, self.price_unit))
         return res
 
-    def correct_groups_qty(self, mode, group_id=None, role=None):
+    def correct_groups_qty(self, mode, group_id=None, role=None, todo_only=False):
         if (mode == GIQ_ADD_TASK) and Group.objects.filter(id=group_id).exists():
             group = Group.objects.filter(id=group_id).get()
             if (group.determinator == 'group') or (group.determinator == None):
@@ -804,18 +804,20 @@ class Task(models.Model):
             tgs = TaskGroup.objects.filter(task=self.id, role=role)
             if (len(tgs) == 1):
                 group = tgs[0].group
-                if (not self.completed) and (group.act_items_qty > 0):
+                if (not self.completed) and group and (group.act_items_qty != None) and (group.act_items_qty > 0):
                     group.act_items_qty -= 1
                     group.save()
                 tgs[0].delete()
                 return True
         if (mode == GIQ_CMP_TASK):
             for tg in TaskGroup.objects.filter(task_id=self.id):
-                if self.completed:
-                    tg.group.act_items_qty -= 1
-                else:
-                    tg.group.act_items_qty += 1
-                tg.group.save()
+                if tg.group and tg.group.act_items_qty != None:
+                    if self.completed:
+                        if not todo_only or (tg.group.role == ROLE_TODO):
+                            tg.group.act_items_qty -= 1
+                    else:
+                        tg.group.act_items_qty += 1
+                    tg.group.save()
         return False
 
     def delete_linked_items(self):
