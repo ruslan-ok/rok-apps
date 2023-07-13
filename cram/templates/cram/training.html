@@ -1,7 +1,56 @@
-{% extends "core/page_content.html" %}
+{% extends "core/single_page.html" %}
 {% load static i18n %}
 
+{% block extrastyle %}
+  {{ block.super }}
+  <link href="{% static 'css/cram.min.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block main %}
-<form method="post" class="d-none">{% csrf_token %}</form>
-Hello, training
+    {% include "core/title.html" %}
+
+    <form method="post" class="mt-5" id="phrase-edit-form" data-bs-phrase-id="{{ sel_phrase.id|escape }}">{% csrf_token %}
+        {% for lang_phrase in test_phrase %}
+            <div class="mb-1 d-flex">
+                {% if lang_phrase.lang == 'ru' %}
+                    <textarea class="form-control" aria-label="{{ lang_phrase.lang }}" aria-describedby="addon-wrapping" id="{{ lang_phrase.lang }}-text" name="{{ lang_phrase.lang }}_text" 
+                        data-bs-lang-phrase-id="{{ lang_phrase.id|escape }}" rows="2" disabled>{{ lang_phrase.text }}</textarea>
+                {% else %}
+                    <input type="hidden" class="form-control" id="{{ lang_phrase.lang }}-text" name="{{ lang_phrase.lang }}_text" data-bs-lang-phrase-id="{{ lang_phrase.id|escape }}" value="{{ lang_phrase.text }}">
+                    <div class="input-group flex-nowrap">
+                        <span class="input-group-text {{ lang_phrase.status }}" id="{{ lang_phrase.lang }}-addon-wrapping">{{ lang_phrase.lang }}</span>
+                        <textarea class="form-control" aria-label="{{ lang_phrase.lang }}" aria-describedby="addon-wrapping" id="{{ lang_phrase.lang }}-check-text" name="{{ lang_phrase.lang }}_check_text" 
+                            data-bs-lang-phrase-id="{{ lang_phrase.id|escape }}" rows="2"{% if not lang_phrase.id %} disabled{% endif %}>{{ lang_phrase.check_text }}</textarea>
+                    </div>
+                {% endif %}
+            </div>
+            {% autoescape off %}
+                {% if lang_phrase.text_diff %}
+                    <div>{{ lang_phrase.text_diff }}</div>
+                {% endif %}
+                {% if lang_phrase.check_diff %}
+                    <div>{{ lang_phrase.check_diff }}</div>
+                {% endif %}
+            {% endautoescape %}
+        {% endfor %}
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-5">
+            <span class="mx-3 mt-2">{{ curr_pos }} / {{ object_list.count }}</span>
+            <a href="{% url 'cram:training' group_id prev_phrase_id %}" type="button" class="btn  btn-outline-primary{% if not prev_phrase_id %} disabled{% endif %}">Назад</a>
+            <button type="submit" class="btn btn-primary">Проверить</button>
+            <a href="{% url 'cram:training' group_id next_phrase_id %}" type="button" class="btn  btn-outline-primary{% if not next_phrase_id %} disabled{% endif %}">Следующий</a>
+        </div>
+    </form>
+
+    <div class="list-group">
+        {% for phrase in object_list %}
+            <a href="{% url 'cram:training' group_id phrase.id %}" type="button" data-bs-phrase-id="{{ phrase.id|escape }}" 
+                class="list-group-item list-group-item-action{% if phrase.id == active_id %} active{% endif %}" 
+                {% if phrase.id == active_id %} aria-current="true"{% endif %}
+                id="phrase-{{ phrase.id|escape }}">
+                    <i class="bi-app me-2 answer-icon"></i>
+                    <span>{{ phrase.name }}</span>
+            </a>
+        {% endfor %}
+    </div>
+
 {% endblock %}

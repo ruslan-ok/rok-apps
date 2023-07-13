@@ -1,24 +1,43 @@
-{% extends "core/page_content.html" %}
+{% extends "core/single_page.html" %}
 {% load static i18n %}
 
+{% block extrastyle %}
+  {{ block.super }}
+  <link href="{% static 'css/cram.min.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block main %}
-  <form method="post" class="d-none">{% csrf_token %}</form>
   {% include "core/title.html" %}
-  
-  <br> List of languages: 
-    <a href="{% url 'cram:lang-item' 'ru' %}">ru</a> | 
-    <a href="{% url 'cram:lang-item' 'pl' %}">pl</a> | 
-    <a href="{% url 'cram:lang-item' 'en' %}">en</a>
+  <div id="groups-tree" class="sidebar__groups list-group">
+    {% for node in groups %}
+        {% if node.is_leaf %}
+            <a href="{% url 'cram:phrases' node.id %}" 
+                class="sidebar__group-visible list-group-item"
+                data-id="{{ node.id|escape }}" data-parent="{{ node.node.id|escape }}" id="task_group_{{ node.id|escape }}">
+                <div>
+                    <i class="bi-journals level-{{ node.level }}"></i>
+                    <span class="">{{ node.name }}</span>
+                </div>
+                <span class="">{{ node.act_items_qty }}</span>
+            </a>
+        {% else %}
+            <a role="button" class="sidebar__group-hidden list-group-item" onclick="toggleGroup({{ node.id|escape }})"
+                    data-id="{{ node.id|escape }}" data-parent="{{ node.node.id|escape }}" id="task_group_{{ node.id|escape }}">
+                <div>
+                    <i class="bi-folder2 level-{{ node.level }}"></i>
+                    <span class="">{{ node.name }}</span>
+                </div>
+                <i class="bi-chevron-left"></i>
+            </a>
+        {% endif %}
+    {% endfor %}
+  </div>
+{% endblock %}
 
-  <br> Statistics
-
-  {% if group %}
-    <br> Edit phrases for <a href="{% url 'cram:phrase-list' group.id %}">{{ group.name }}</a>
-
-    {% if phrase %}
-      <br> Start training
-        <a href="{% url 'cram:training' group.id phrase.id 'pl' %}">pl</a> | 
-        <a href="{% url 'cram:training' group.id phrase.id 'en' %}">en</a> for {{ group.name }}
-    {% endif %}
-  {% endif %}
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'js/build-tree.js' %}"></script>
+  <script>
+    buildTree('groups-tree');
+  </script>
 {% endblock %}

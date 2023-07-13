@@ -161,7 +161,6 @@ NUM_ROLE_METER_PROP = 44
 NUM_ROLE_SERV_PROP = 45
 NUM_ROLE_METER_VALUE = 46
 NUM_ROLE_SERV_VALUE = 47
-#NUM_ROLE_CRAM_PARAM = 48
 
 ROLE_TODO        = 'todo'
 ROLE_NOTIFICATOR = 'notificator'
@@ -214,10 +213,7 @@ ROLE_APACHE      = 'apache'
 ROLE_MANAGER     = 'manager'
 ROLE_CERT_COPY   = 'cert_copy'
 ROLE_CURRENCY    = 'currency'
-ROLE_LANG        = 'lang'
-ROLE_PHRASE      = 'phrase'
 ROLE_CRAM        = 'cram'
-ROLE_CRAM_PARAM  = 'cram_param'
 
 ALL_ROLES = (
     ROLE_TODO,
@@ -266,9 +262,8 @@ ALL_ROLES = (
     ROLE_BACKUP_SHORT,
     ROLE_BACKUP_FULL,
     ROLE_BACKUP_CHECK,
-    ROLE_APACHE,    
-    ROLE_LANG,
-    ROLE_PHRASE,
+    ROLE_APACHE,
+    ROLE_MANAGER,
     ROLE_CRAM,
 )
 
@@ -420,8 +415,6 @@ ROLE_ICON = {
     ROLE_BACKUP_SHORT: 'save',
     ROLE_BACKUP_FULL: 'save-fill',
     ROLE_BACKUP_CHECK: 'card-list',
-    ROLE_LANG: 'translate',
-    ROLE_PHRASE: 'translate',
     ROLE_CRAM: 'translate',
 }
 
@@ -499,7 +492,5 @@ ROLE_APP = {
     ROLE_PHOTO: APP_PHOTO,
     ROLE_ACCOUNT: APP_HOME,
     ROLE_SEARCH_RESULTS: NONE,
-    ROLE_LANG: APP_CRAM,
-    ROLE_PHRASE: APP_CRAM,
     ROLE_CRAM: APP_CRAM,
 }

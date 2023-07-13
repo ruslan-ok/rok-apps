@@ -22,16 +22,17 @@ class GroupNode(serializers.PrimaryKeyRelatedField):
 class CramGroupSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')
     node = GroupNode(allow_null=True, queryset=CramGroup.objects.all(), required=False)
+    languages = serializers.CharField(source='currency')
     class Meta:
         model = CramGroup
-        fields = ['id', 'user', 'node', 'name', 'sort', 'info']
+        fields = ['id', 'user', 'node', 'name', 'sort', 'info', 'languages']
 
 class CramPhraseSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')
-    grp = GroupNode(allow_null=True, label='Group', queryset=CramGroup.objects.all(), required=False)
+    group = GroupNode(allow_null=True, label='Group', queryset=CramGroup.objects.all(), required=False)
     class Meta:
         model = Phrase
-        fields = ['id', 'user', 'grp', 'sort', 'categories']
+        fields = ['id', 'user', 'group', 'sort', 'categories']
 
 class CramLangSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')

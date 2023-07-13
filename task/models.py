@@ -3,7 +3,6 @@ import os, calendar, json, urllib
 from urllib.parse import urlparse
 from django.utils.crypto import get_random_string
 import requests
-from datetime import date
 from collections import Counter
 from decimal import Decimal
 
@@ -398,9 +397,6 @@ class Task(models.Model):
 
     @classmethod
     def get_role_tasks(cls, user_id, app, role, nav_item=None):
-        # if (app == APP_CRAM):
-        #     return []
-        
         if user_id:
             data = TaskInfo.objects.filter(user_id=user_id)
         else:

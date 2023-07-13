@@ -2,9 +2,11 @@ function selectPhrase(phraseId) {
     let listItem = document.getElementById(`phrase-${phraseId}`);
     if (!listItem)
         return;
-    let form = document.getElementById('prase-edit-form');
-    if (form)
+    let form = document.getElementById('phrase-edit-form');
+    if (form) {
         form.setAttribute('data-bs-phrase-id', phraseId);
+        form.classList.remove('d-none');
+    }
     for (var i = 0; i < listItem.children.length; i++) {
         let phrase;
         switch(listItem.children[i].tagName) {
@@ -13,8 +15,15 @@ function selectPhrase(phraseId) {
         }
         if (phrase) {
             const phraseId = phrase.getAttribute('data-bs-lang-phrase-id');
-            const lang = phrase.childNodes[0].innerText.replace(':', '').replace(' ', '');
-            const text = phrase.childNodes[1] == undefined ? '' : phrase.childNodes[1].textContent;
+            let lang;
+            let text;
+            if (phrase.tagName == 'H5') {
+                lang = 'ru';
+                text = phrase.childNodes[0] == undefined ? '' : phrase.childNodes[0].textContent;
+            } else {
+                lang = phrase.childNodes[0].innerText.replace(':', '').replace(' ', '');
+                text = phrase.childNodes[1] == undefined ? '' : phrase.childNodes[1].textContent;
+            }
             let phraseInput = document.getElementById(`${lang}-text`);
             if (phraseInput) {
                 phraseInput.value = text;
@@ -25,7 +34,7 @@ function selectPhrase(phraseId) {
 }
 
 async function savePhrases(django_host_api) {
-    const form = document.getElementById('prase-edit-form');
+    const form = document.getElementById('phrase-edit-form');
     if (!form)
         return;
     const phraseId = form.getAttribute('data-bs-phrase-id');
@@ -34,11 +43,12 @@ async function savePhrases(django_host_api) {
         langPhrase: []
     };
     for (var i = 0; i < form.children.length; i++) {
+        const phraseLabel = form.children[i].children[0];
         const phraseInput = form.children[i].children[1];
-        if (phraseInput && phraseInput.tagName == 'INPUT') {
+        if (phraseInput && phraseInput.tagName == 'TEXTAREA') {
             let lp = {
                 id: phraseInput.getAttribute('data-bs-lang-phrase-id'),
-                lang: phraseInput.id.replace('-text', ''),
+                lang: phraseLabel.id.replace('-label', ''),
                 text: phraseInput.value
             };
             data.langPhrase.push(lp);
@@ -74,10 +84,17 @@ async function savePhrases(django_host_api) {
                 case 'P':  phrase = listItem.children[i]; break;
             }
             if (phrase) {
-                const lang = phrase.childNodes[0].innerText.replace(':', '').replace(' ', '');
+                let phraseText;
+                if (phrase.tagName == 'H5') {
+                    lang = 'ru';
+                    phraseText = phrase.childNodes[0].innerText;
+                } else {
+                    lang = phrase.childNodes[0].innerText.replace(':', '').replace(' ', '');
+                    phraseText = phrase.childNodes[1].innerText;
+                }
                 let p_langPhrase = respData.data.langPhrase.filter(x => x.lang == lang)[0];
                 phrase.setAttribute('data-bs-lang-phrase-id', p_langPhrase.id);
-                phrase.childNodes[1].textContent = p_langPhrase.text == undefined ? '' : p_langPhrase.text;
+                phraseText.textContent = p_langPhrase.text == undefined ? '' : p_langPhrase.text;
             }
         }
     }
@@ -98,30 +115,21 @@ async function savePhrases(django_host_api) {
         }
     }
 
-    let url_parts = window.location.href.split('?');
-    let redirect_url = url_parts[0];
-    if (url_parts.length > 1) {
-        if (!url_parts[1].includes('phrase'))
-            url_parts[1] += '&phrase=' + respData.data.phraseId;
-        else {
-            let params = url_parts[1].split('&');
-            url_parts[1] = '';
-            for (var i = 0; i < params.length; i ++) {
-                if (url_parts[1] != '')
-                    url_parts[1] += '&';
-                if (!params[i].includes('phrase'))
-                    url_parts[1] += params[i];
-                else
-                    url_parts[1] += 'phrase=' + respData.data.phraseId;
-            }
-        }
-        redirect_url += '?' + url_parts[1];
-    }
+    let url_parts_1 = window.location.href.split('?');
+    let url_parts_2 = url_parts_1[0].split('/cram/phrases/');
+    let url_parts_3 = url_parts_2[1].split('/');
+    if (url_parts_3[1].length == 0)
+        url_parts_3.splice(1, 0, respData.data.phraseId);
+    else
+        url_parts_3[1] = respData.data.phraseId;
+    url_parts_2[1] = url_parts_3.join('/');
+    url_parts_1[0] = url_parts_2.join('/cram/phrases/');
+    let redirect_url = url_parts_1.join('?');
     window.location.href = redirect_url;
 }
 
 async function deletePhrases(django_host_api) {
-    const form = document.getElementById('prase-edit-form');
+    const form = document.getElementById('phrase-edit-form');
     if (!form)
         return;
     const phraseId = form.getAttribute('data-bs-phrase-id');

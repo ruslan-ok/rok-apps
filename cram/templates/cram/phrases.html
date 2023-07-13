@@ -1,0 +1,61 @@
+{% extends "core/single_page.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link href="{% static 'css/cram.min.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block main %}
+  {% for lng in languages %}<a href="#">{{ lng.code }}</a>{% if not last %} | {% endif %}{% endfor %}
+  {% include "core/title.html" %}
+
+  <div class="footer mb-3">
+    <a href="{% url 'cram:training' group_id first_phrase_id %}" type="button" class="btn btn-primary">Учить</a>
+    <!-- <a href="{% url 'cram:phrases_import' group_id %}" type="button" class="btn btn-secondary">Импорт</a> -->
+  </div>
+
+  {% if object_list %}
+    <form class="mt-5{% if not phrase_id %} d-none{% endif %}" id="phrase-edit-form" data-bs-phrase-id="{{ sel_phrase.id|escape }}">
+      {% for lang_phrase in sel_phrase.data %}
+        <div class="input-group flex-nowrap mb-1">
+          <span class="input-group-text" id="{{ lang_phrase.lang }}-label">{{ lang_phrase.lang }}</span>
+          <textarea class="form-control" aria-label="{{ lang_phrase.lang }}" aria-describedby="{{ lang_phrase.lang }}-label" 
+            id="{{ lang_phrase.lang }}-text" name="{{ lang_phrase.lang }}_text" data-bs-lang-phrase-id="{{ lang_phrase.id|escape }}" 
+            rows="2">{{ lang_phrase.text }}</textarea>
+        </div>
+      {% endfor %}
+      <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-5">
+        <button type="button" class="btn btn-primary" onclick="savePhrases('{{ django_host_api }}')">Сохранить</button>
+        <button type="button" class="btn btn-danger" onclick="deletePhrases('{{ django_host_api }}')">Удалить</button>
+      </div>
+    </form>
+  {% endif %}
+
+  <div class="list-group">
+    {% for phrase in object_list %}
+      <button type="button" data-bs-phrase-id="{{ phrase.id|escape }}" 
+        class="list-group-item list-group-item-action" 
+        {% if phrase.active %} aria-current="true"{% endif %}
+        id="phrase-{{ phrase.id|escape }}"
+        onclick="selectPhrase({{ phrase.id|escape }})">
+        {% for lang_phrase in phrase.data %}
+          {% if lang_phrase.lang == 'ru' %}
+            <div class="d-flex w-100 justify-content-between">
+              <h5 class="mb-1" data-bs-lang-phrase-id="{{ lang_phrase.id|escape }}"><span>{{ lang_phrase.text }}</span></h5>
+            </div>
+          {% else %}
+            <p data-bs-lang-phrase-id="{{ lang_phrase.id|escape }}" class="phrase"><span class="phrase-lang">{{ lang_phrase.lang }}: </span><span>{{ lang_phrase.text }}</span></p>
+          {% endif %}
+        {% endfor %}
+      </button>
+    {% endfor %}
+  </div>
+
+{% endblock %}
+
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'iziToast/js/iziToast.min.js' %}"></script>
+  <script src="{% static 'js/cram.js' %}"></script>
+{% endblock %}

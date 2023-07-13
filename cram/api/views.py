@@ -3,7 +3,7 @@ from rest_framework import viewsets, permissions, renderers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from cram.api.serializers import CramGroupSerializer, CramPhraseSerializer, CramLangSerializer, CramLangPhraseSerializer
-from cram.models import Lang, CramGroup, Phrase, LangPhrase
+from cram.models import Lang, CramGroup, Phrase, LangPhrase, GroupQuantityCorrectMode
 from task.const import APP_CRAM
 
 class CramGroupViewSet(viewsets.ModelViewSet):
@@ -31,10 +31,15 @@ class CramPhraseViewSet(viewsets.ModelViewSet):
     
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+        serializer.instance.correct_groups_qty(GroupQuantityCorrectMode.ADD_PHRASE, serializer.instance.group.id)
         name = self.request.query_params.get('name', '')
         if name:
             name = urllib.parse.unquote(name)
             LangPhrase.objects.create(phrase=serializer.instance.id, lang='ru', text=name)
+
+    def perform_destroy(self, instance):
+        instance.correct_groups_qty(GroupQuantityCorrectMode.DEL_PHRASE, instance.group.id)
+        return super().perform_destroy(instance)
 
     @action(detail=True, methods=['put'])
     def save_all(self, request, pk=None):

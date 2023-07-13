@@ -5,10 +5,27 @@ from django.urls import reverse
 from task.const import *
 from task.models import Task, detect_group
 from core.config import Config
+from core.applications import get_apps_list
 from core.forms import CreateGroupForm
 from rusel.context import get_base_context
 from rusel.utils import extract_get_params
 from rusel.settings import ENV, DB
+
+class AppContext:   
+    def __init__(self, user, app, role):
+        self.user = user
+        self.app = app
+        self.role = role
+
+    def get_context(self):
+        context = {}
+        context['apps'] = get_apps_list(self.user, self.app)
+        context['search_placeholder'] = _('Search')
+        if hasattr(self.user, 'userext') and self.user.userext.avatar_mini:
+            context['avatar'] = self.user.userext.avatar_mini.url
+        else:
+            context['avatar'] = '/static/Default-avatar.jpg'
+        return context
 
 class Context:
     def set_config(self, config, cur_view):
