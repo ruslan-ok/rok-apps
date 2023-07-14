@@ -53,3 +53,4 @@ class CurrencyApis(models.Model):
     value_path = models.CharField('json path to value', max_length=1000, blank=True)
     phrase = models.CharField('Phrase for exhausted limit', max_length=1000, blank=True)
     next_try = models.DateField('Next try Date', null=True)
+    today_avail = models.BooleanField('Today rate is available', null=True, default=True)
