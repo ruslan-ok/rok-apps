@@ -13,6 +13,8 @@ def get_db_exchange_rate(currency: str, date: date):
 def get_net_exchange_rate(currency: str, date: date, base: str='USD') -> CA_Result:
     ret = CA_Result(result=CA_Status.unimpl)
     for api in CurrencyApis.objects.exclude(next_try__gt=datetime.today().date()):
+        if date == datetime.today().date() and not api.today_avail:
+            continue
         api_obj = ExchangeRateApi(api)
         ret = api_obj.get_rate_on_date(currency, date, base)
         if ret.result == CA_Status.ok:

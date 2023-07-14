@@ -38,7 +38,7 @@ class ExchangeRateApi():
             if self.api.phrase and self.api.phrase in str(resp.content):
                 self.sleep(30)
             info = json.loads(resp.content)
-            self.log.write(type=EventType.ERROR, name='get_rate_on_date', info=f'[x] Rate {currency} to base {base} on {date.strftime("%Y-%m-%d")}: {self.api.name} - {info}')
+            self.log.write(type=EventType.ERROR, name='get_rate_on_date', info=f'[x] Rate {currency} to base {base} on {date.strftime("%Y-%m-%d")}: {self.api.name} - {resp.status_code} - {info}')
             return CA_Result(result=CA_Status.error, status=resp.status_code, info=info)
         try:
             resp_json = json.loads(resp.content)
