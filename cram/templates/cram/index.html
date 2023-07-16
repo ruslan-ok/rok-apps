@@ -8,29 +8,62 @@
 
 {% block main %}
   {% include "core/title.html" %}
-  <div id="groups-tree" class="sidebar__groups list-group">
-    {% for node in groups %}
-        {% if node.is_leaf %}
-            <a href="{% url 'cram:phrases' node.id %}" 
-                class="sidebar__group-visible list-group-item"
-                data-id="{{ node.id|escape }}" data-parent="{{ node.node.id|escape }}" id="task_group_{{ node.id|escape }}">
-                <div>
-                    <i class="bi-journals level-{{ node.level }}"></i>
-                    <span class="">{{ node.name }}</span>
-                </div>
-                <span class="">{{ node.act_items_qty }}</span>
-            </a>
-        {% else %}
-            <a role="button" class="sidebar__group-hidden list-group-item" onclick="toggleGroup({{ node.id|escape }})"
-                    data-id="{{ node.id|escape }}" data-parent="{{ node.node.id|escape }}" id="task_group_{{ node.id|escape }}">
-                <div>
-                    <i class="bi-folder2 level-{{ node.level }}"></i>
-                    <span class="">{{ node.name }}</span>
-                </div>
-                <i class="bi-chevron-left"></i>
-            </a>
-        {% endif %}
-    {% endfor %}
+  <div class="row">
+    <div id="groups-tree" class="sidebar__groups list-group col-4">
+      {% for node in groups %}
+          {% if node.is_leaf %}
+              <a href="{% url 'cram:phrases' node.id %}" 
+                  class="sidebar__group-visible list-group-item"
+                  data-id="{{ node.id|escape }}" data-parent="{{ node.node.id|escape }}" id="task_group_{{ node.id|escape }}">
+                  <div>
+                      <i class="bi-journals level-{{ node.level }}"></i>
+                      <span class="">{{ node.name }}</span>
+                  </div>
+                  <span class="">{{ node.act_items_qty }}</span>
+              </a>
+          {% else %}
+              <a role="button" class="sidebar__group-hidden list-group-item" onclick="toggleGroup({{ node.id|escape }})"
+                      data-id="{{ node.id|escape }}" data-parent="{{ node.node.id|escape }}" id="task_group_{{ node.id|escape }}">
+                  <div>
+                      <i class="bi-folder2 level-{{ node.level }}"></i>
+                      <span class="">{{ node.name }}</span>
+                  </div>
+                  <i class="bi-chevron-left"></i>
+              </a>
+          {% endif %}
+      {% endfor %}
+    </div>
+    <div class="list-group col">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Ratio</th>
+            <th scope="col">Group</th>
+            <th scope="col">Steps</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for train in trainings %}
+            <tr>
+              <td>{{ train.date|date:'d b' }}</td>
+              <td>{{ train.ratio|floatformat:2 }}</td>
+              <td>{{ train.group }}</td>
+              <td>
+                {% for lang in train.data %}
+                  <div class="lang-stat">
+                    <span>{{ lang.code }}</span>
+                    {% for step in lang.steps %}
+                      <i class="bi-{{ step.icon }} {{ step.color }}"></i>
+                    {% endfor %}
+                  </div>
+                {% endfor %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 {% endblock %}
 

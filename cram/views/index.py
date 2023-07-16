@@ -4,7 +4,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from task.const import APP_CRAM, ROLE_CRAM
 from core.context import AppContext
 from rusel.context import get_sorted_groups
-from cram.models import CramGroup
+from cram.models import CramGroup, Training
+from cram.views.training import get_statist
 
 class IndexView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     permission_required = 'cram.view_phrase'
@@ -20,6 +21,18 @@ class IndexView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
         groups = []
         get_sorted_groups(groups, self.request.user.id, ROLE_CRAM)
         context['groups'] = groups
+        trainings = []
+        sessions = Training.objects.filter(user=self.request.user.id).exclude(stop=None).exclude(ratio=0).order_by('-stop')
+        for session in sessions:
+            a = {
+                'id': session.id,
+                'date': session.stop,
+                'ratio': session.ratio,
+                'group': session.group.name,
+                'data': get_statist(session),
+            }
+            trainings.append(a)
+        context['trainings'] = trainings
         return context
     
     def post(self, request, *args, **kwargs):

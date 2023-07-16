@@ -103,21 +103,21 @@ class LangPhrase(models.Model):
     lang = models.ForeignKey(Lang, on_delete=models.SET_NULL, verbose_name='Language code', related_name='phrase_language_code', null=True)
     text = models.TextField('Phrase', blank=True, null=True)
 
-# class Training(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='User', related_name = 'training_user')
-#     token = models.fields.CharField('Language code', max_length=3, null=False, default='ru')
-#     group = models.ForeignKey(CramGroup, on_delete=models.CASCADE, verbose_name='Group', blank=True, null=True)
-#     start = models.DateTimeField('Training start time', null=False, default=datetime.now)
-#     stop = models.DateTimeField('Training stop time', null=True)
-#     ratio = models.DecimalField('Training ratio', null=True, max_digits=15, decimal_places=3)
-#     total = models.IntegerField('Total phrases', null=False)
-#     passed = models.IntegerField('Passed phrases', null=False, default=0)
+class Training(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='User', related_name = 'training_user')
+    group = models.ForeignKey(CramGroup, on_delete=models.CASCADE, verbose_name='Group', blank=True, null=True)
+    start = models.DateTimeField('Training start time', null=False, default=datetime.now)
+    stop = models.DateTimeField('Training stop time', null=True)
+    ratio = models.DecimalField('Training ratio', null=True, max_digits=15, decimal_places=3)
+    total = models.IntegerField('Total phrases', null=False)
+    passed = models.IntegerField('Passed phrases', null=False, default=0)
 
-# class TrainingPhrase(models.Model):
-#     training = models.ForeignKey(Training, on_delete=models.CASCADE, verbose_name='Training', related_name = 'tp_training')
-#     phrase = models.ForeignKey(Phrase, on_delete=models.SET_NULL, verbose_name='Phrase Id', related_name='tp_phrase', null=True)
-#     pass_time = models.DateTimeField('Pass time', null=False, default=datetime.now)
-#     ratio = models.DecimalField('Training ratio', null=True, max_digits=15, decimal_places=3)
+class TrainingPhrase(models.Model):
+    training = models.ForeignKey(Training, on_delete=models.CASCADE, verbose_name='Training', related_name = 'tp_training')
+    phrase = models.ForeignKey(Phrase, on_delete=models.SET_NULL, verbose_name='Phrase Id', related_name='tp_phrase', null=True)
+    lang = models.ForeignKey(Lang, on_delete=models.SET_NULL, verbose_name='Language code', related_name='training_phrase_language', null=True)
+    pass_time = models.DateTimeField('Pass time', null=False, default=datetime.now)
+    ratio = models.DecimalField('Training ratio', null=True, max_digits=15, decimal_places=3)
 
 
     

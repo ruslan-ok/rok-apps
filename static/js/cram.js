@@ -167,3 +167,33 @@ async function deletePhrases(django_host_api) {
     }
     window.location.href = redirect_url;
 }
+
+let trainingStart;
+
+function startTimer() {
+    let el = document.getElementById('training-time-id');
+    if (!el)
+        return;
+    let s_start = el.getAttribute('data-bs-start').replace(' ', 'T');
+    trainingStart = new Date(s_start);
+    setInterval(function() {
+        var delta = Math.floor((Date.now() - trainingStart) / 1000);
+        showDelta(delta);
+    }, 1000);
+    var delta = Math.floor((Date.now() - trainingStart) / 1000);
+    showDelta(delta);
+}
+
+function showDelta(delta) {
+    var h = Math.floor(delta / 3600);
+    var m = Math.floor((delta - h * 3600) / 60);
+    var s = delta - h * 3600 - m * 60;
+    let el = document.getElementById('training-time-id');
+    el.innerText = (h ? h + ':' : '') + checkTime(m) + ':' + checkTime(s);
+}
+
+function checkTime(i) {
+    if (i < 10)
+        i = '0' + i;  // add zero in front of numbers < 10
+    return i;
+}

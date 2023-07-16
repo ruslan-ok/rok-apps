@@ -51,10 +51,7 @@ class PhrasesView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         context['add_item_template'] = 'cram/add_item_input.html'
         objects = []
         sel_phrase = None
-        first_phrase_id = 0
         for phrase in self.get_queryset():
-            if not first_phrase_id:
-                first_phrase_id = phrase.id
             p = {
                 'id': phrase.id,
                 'active': (phrase.id == phrase_id),
@@ -82,7 +79,6 @@ class PhrasesView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
             sel_phrase = objects[0]
         context['object_list'] = objects
         context['sel_phrase'] = sel_phrase
-        context['first_phrase_id'] = first_phrase_id
         context['django_host_api'] = os.environ.get('DJANGO_HOST_API', 'http://localhost:8000')
         return context
 

@@ -10,6 +10,16 @@
     {% include "core/title.html" %}
 
     <form method="post" class="mt-5" id="phrase-edit-form" data-bs-phrase-id="{{ sel_phrase.id|escape }}">{% csrf_token %}
+
+        {% for lang in statist %}
+            <div class="lang-stat">
+                <span>{{ lang.code }}</span>
+                {% for step in lang.steps %}
+                    <i class="bi-{{ step.icon }} {{ step.color }}"></i>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
         {% for lang_phrase in test_phrase %}
             <div class="mb-1 d-flex">
                 {% if lang_phrase.lang == 'ru' %}
@@ -34,10 +44,14 @@
             {% endautoescape %}
         {% endfor %}
         <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-5">
+            <!-- <span class="mx-3 mt-2">Training Session: *{{ request.COOKIES.training_session }}*</span> -->
+            <span class="mx-3 mt-2" id="training-time-id" data-bs-start="{{ session.start|date:'Y-m-d G:i:s' }}"></span>
+            <span class="mx-3 mt-2">{{ session.ratio|floatformat:-2 }}</span>
             <span class="mx-3 mt-2">{{ curr_pos }} / {{ object_list.count }}</span>
             <a href="{% url 'cram:training' group_id prev_phrase_id %}" type="button" class="btn  btn-outline-primary{% if not prev_phrase_id %} disabled{% endif %}">Назад</a>
             <button type="submit" class="btn btn-primary">Проверить</button>
             <a href="{% url 'cram:training' group_id next_phrase_id %}" type="button" class="btn  btn-outline-primary{% if not next_phrase_id %} disabled{% endif %}">Следующий</a>
+            <a href="{% url 'cram:training_stop' group_id %}" type="button" class="btn btn-secondary">Закончить</a>
         </div>
     </form>
 
@@ -53,4 +67,12 @@
         {% endfor %}
     </div>
 
+{% endblock %}
+
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'js/cram.js' %}"></script>
+  <script>
+    startTimer();
+  </script>
 {% endblock %}

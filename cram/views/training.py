@@ -1,11 +1,12 @@
+from datetime import datetime
 from difflib import HtmlDiff, SequenceMatcher
-from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
-from django.http import Http404
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from core.context import AppContext
-from cram.models import CramGroup, Lang, Phrase, LangPhrase
+from cram.models import CramGroup, Lang, Phrase, LangPhrase, Training, TrainingPhrase
 from task.const import APP_CRAM, ROLE_CRAM
 
 class TrainingView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
@@ -19,11 +20,14 @@ class TrainingView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         app_context = AppContext(self.request.user, APP_CRAM, ROLE_CRAM)
         context = app_context.get_context()
-        context['title'] = _('Cram training')
         context['hide_add_item_input'] = True
         group_id = int(self.kwargs.get('group', '0'))
         phrase_id = int(self.kwargs.get('phrase', '0'))
         group = CramGroup.objects.filter(user=self.request.user.id, id=group_id).get()
+        context['config'] = {'app_title': _('Cram training')}
+        context['title'] = group.name
+        session = self.check_session(self.request.user, group_id)
+
         test_phrase = []
         for lang in group.get_languages():
             lp = None
@@ -72,22 +76,26 @@ class TrainingView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
         context['active_id'] = phrase_id
         context['prev_phrase_id'] = prev_phrase_id
         context['next_phrase_id'] = next_phrase_id
-        context['token'] = self.get_token(self.request)
+        context['statist'] = get_statist(session, phrase_id)
+        context['session'] = session
         return context
     
-    def get_token(self, request):
-        value = request.COOKIES.get('training_token')
-        if value is None:
-            value = '???'
-        return value
+    def check_session(self, user, group_id):
+        sessions = Training.objects.filter(user=user.id, group=group_id, stop=None)
+        if sessions.count():
+            session = sessions[0]
+        else:
+            group = CramGroup.objects.filter(user=user.id, id=group_id).get()
+            phrases = Phrase.objects.filter(user=user.id, group=group_id)
+            session = Training.objects.create(user=user, group=group, start=datetime.now(), stop=None, total=phrases.count(), ratio=0.0, passed=0)
+        return session
 
-    def get(self, request, *args, **kwargs):
-        response = super().get(request, *args, **kwargs)
-        value = self.get_token(request)
-        response.set_cookie('training_token', value)
-        return response
-
+    
     def post(self, request, *args, **kwargs):
+        group_id = int(self.kwargs.get('group', '0'))
+        phrase_id = int(self.kwargs.get('phrase', '0'))
+        phrase = Phrase.objects.filter(user=request.user.id, group=group_id, id=phrase_id).get()
+        session = self.check_session(self.request.user, group_id)
         values = {}
         d = HtmlDiff()
         for lang in Lang.objects.filter(user=request.user.id):
@@ -108,5 +116,66 @@ class TrainingView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
                 value['text_diff'] = tds[2].replace('<td nowrap="nowrap">', '')
                 value['check_diff'] = tds[5].replace('<td nowrap="nowrap">', '')
             values[lang.code] = value
+            if not TrainingPhrase.objects.filter(training=session.id, phrase=phrase.id, lang=lang.id).exists():
+                TrainingPhrase.objects.create(training=session, phrase=phrase, lang=lang, ratio=value['ratio'])
         kwargs['values'] = values
         return self.get(request, *args, **kwargs)
+    
+def training_start(request, group):
+    phrases = Phrase.objects.filter(user=request.user.id, group=group)
+    if not phrases.count():
+        return HttpResponseRedirect(reverse('cram:phrases', args=(group,)))
+    for session in Training.objects.filter(user=request.user.id, group=group, stop=None):
+        session.stop = datetime.now()
+        session.save()
+    first_phrase = phrases[0]
+    return HttpResponseRedirect(reverse('cram:training', args=(group, first_phrase.id)))
+
+def training_stop(request, group):
+    for session in Training.objects.filter(user=request.user.id, group=group, stop=None):
+        session.stop = datetime.now()
+        session.save()
+    return HttpResponseRedirect(reverse('cram:phrases', args=(group,)))
+
+def get_statist(session, active_phrase_id=0):
+    statist = []
+    all_total = all_correct = 0
+    for lang in session.group.get_languages():
+        if lang.code == 'ru':
+            continue
+        total = correct = 0
+        ls = {
+            'code': lang.code,
+            'steps': [],
+            'ratio': None,
+        }
+        for phrase in Phrase.objects.filter(user=session.user.id, group=session.group.id).order_by('sort'):
+            color = 'white'
+            icon = 'stop'
+            if TrainingPhrase.objects.filter(training=session.id, phrase=phrase.id, lang=lang.id).exists():
+                icon = 'stop-fill'
+                phrase_ratio = TrainingPhrase.objects.filter(training=session.id, phrase=phrase.id, lang=lang.id).get()
+                total += 1
+                all_total += 1
+                if phrase_ratio.ratio == 1:
+                    color = 'green'
+                    correct += 1
+                    all_correct += 1
+                else:
+                    color = 'red'
+            elif phrase.id == active_phrase_id:
+                    icon = 'stop-fill'
+                    color = 'black'
+            ls['steps'].append({
+                'id': phrase.id,
+                'icon': icon,
+                'color': color
+            })
+        if total:
+            ls['ratio'] = correct / total
+        statist.append(ls)
+    if all_total:
+        session.ratio = all_correct / all_total
+        session.save()
+    return statist
+

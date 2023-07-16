@@ -24,7 +24,7 @@ h5 {
     &__groups {
         display: flex !important;
         flex-direction: column;
-        width: 600px;
+        width: 500px;
         margin-top: 10px;
         a.sidebar__group-hidden {
             display: none;
@@ -78,11 +78,11 @@ h5 {
     background-color: green;
 }
 
-main {
-    .list-group {
-        // height: calc(100% - 120px);
-        //height: 300px;
-        // max-height: auto;
-        // overflow-y: scroll;
+.lang-stat {
+    i.green {
+        color: greenyellow;
+    }
+    i.red {
+        color: red;
     }
 }
