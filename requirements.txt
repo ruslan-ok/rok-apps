@@ -6,7 +6,7 @@ certifi==2023.5.7
 cffi==1.15.1
 charset-normalizer==3.1.0
 convertdate==2.4.0
-cryptography==41.0.1
+cryptography==41.0.2
 Django==4.2.3
 djangorestframework==3.14.0
 firebase-admin==6.2.0
@@ -28,6 +28,8 @@ mod-wsgi==4.9.4
 msgpack==1.0.5
 mysql-connector==2.2.9
 mysqlclient==2.2.0
+numpy==1.25.1
+pandas==2.0.3
 Pillow==10.0.0
 proto-plus==1.22.3
 protobuf==4.23.3
@@ -39,6 +41,7 @@ PyJWT==2.7.0
 PyMeeus==0.5.12
 pyOpenSSL==23.2.0
 pyparsing==3.1.0
+python-dateutil==2.8.2
 pytz==2023.3
 pyzipper==0.3.6
 requests==2.31.0
