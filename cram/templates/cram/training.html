@@ -44,8 +44,7 @@
             {% endautoescape %}
         {% endfor %}
         <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-5">
-            <!-- <span class="mx-3 mt-2">Training Session: *{{ request.COOKIES.training_session }}*</span> -->
-            <span class="mx-3 mt-2" id="training-time-id" data-bs-start="{{ session.start|date:'Y-m-d G:i:s' }}"></span>
+            <span class="mx-3 mt-2" id="training-time-id" data-bs-start="{{ session.start|date:'Y-m-d H:i:s' }}"></span>
             <span class="mx-3 mt-2">{{ session.ratio|floatformat:-2 }}</span>
             <span class="mx-3 mt-2">{{ curr_pos }} / {{ object_list.count }}</span>
             <a href="{% url 'cram:training' group_id prev_phrase_id %}" type="button" class="btn  btn-outline-primary{% if not prev_phrase_id %} disabled{% endif %}">Назад</a>

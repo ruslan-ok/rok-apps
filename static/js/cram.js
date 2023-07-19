@@ -176,6 +176,8 @@ function startTimer() {
         return;
     let s_start = el.getAttribute('data-bs-start').replace(' ', 'T');
     trainingStart = new Date(s_start);
+    if (trainingStart == 'Invalid Date')
+        return;
     setInterval(function() {
         var delta = Math.floor((Date.now() - trainingStart) / 1000);
         showDelta(delta);
