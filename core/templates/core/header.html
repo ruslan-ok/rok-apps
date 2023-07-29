@@ -13,7 +13,7 @@
     <ul class="navbar-nav flex-row flex-wrap bd-navbar-nav pt-2 py-md-0">
       {% for app in apps %}
         <li class="nav-item col-6 col-md-auto">
-          <a class="nav-link d-flex p-2{% if app.active %} active{% endif %}" href="{{ app.href }}"{% if app.active %} aria-current="true"{% endif %}>
+          <a class="nav-link d-flex p-2{% if app.active %} active{% endif %} immediate-link" href="{{ app.href }}"{% if app.active %} aria-current="true"{% endif %}>
             <i class="bi-{{app.icon}}"></i>
             {% if app.active %}
               <span class="d-md-none d-lg-block ms-1">{{ app.name }}</span>

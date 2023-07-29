@@ -99,3 +99,8 @@
     <script type="application/javascript" src="{% static 'js/family/diagram.js' %}"></script>
 
 {% endblock %}
+
+{% block extrascript %}
+  {{ block.super }}
+  <script src="{% static 'js/header.js' %}"></script>
+{% endblock %}

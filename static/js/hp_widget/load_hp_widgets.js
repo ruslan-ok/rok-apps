@@ -1,38 +1,50 @@
-document.querySelectorAll('.hp-widget').forEach(function(el) {
-    const id = el.id.replace('id_hp_widget_', '');
-    const api = '/api/get_widget/?id=' + id;
-    const url = window.location.protocol + '//' + window.location.host + api;
-    let xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function() { 
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-            el.innerHTML = xmlHttp.responseText;
-            if (el.innerHTML == '')
-                el.classList.add('d-none');
-            else {
-                const chartList = ['health', 'crypto', 'currency', 'weather'];
-                if (chartList.includes(id))
-                    buildChart(id);
-            }
-        }
-    }
-    xmlHttp.open("GET", url, true);
-    xmlHttp.send(null);
-});
-
-function buildChart(id) {
+async function buildChart(id) {
     const api = '/api/get_chart_data/?mark=' + id;
     const url = window.location.protocol + '//' + window.location.host + api;
-    let xmlHttp = new XMLHttpRequest();
-    xmlHttp.responseType = 'json';
-    xmlHttp.onreadystatechange = function() { 
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-            data = xmlHttp.response;
-            const chartEl = document.getElementById(id + 'Chart');
-            const ctx = chartEl.getContext('2d');
-            new Chart(ctx, data);
-            chartEl.parentNode.removeChild(chartEl.parentNode.firstElementChild);
-        }
+    const options = {
+        method: 'GET',
+        headers: {'Content-type': 'application/json'},
+    };
+    const response = await fetch(url, options);
+    if (!response.ok)
+        return;
+    let data = await response.json();
+    const chartEl = document.getElementById(id + 'Chart');
+    if (chartEl) {
+        const ctx = chartEl.getContext('2d');
+        new Chart(ctx, data);
+        chartEl.parentNode.removeChild(chartEl.parentNode.firstElementChild);
     }
-    xmlHttp.open("GET", url, true);
-    xmlHttp.send(null);
 }
+
+async function loadWidget(widget) {
+    const id = widget.id.replace('id_hp_widget_', '');
+    const api = '/api/get_widget/?id=' + id;
+    const url = window.location.protocol + '//' + window.location.host + api;
+    const options = {method: 'GET',};
+    const response = await fetch(url, options);
+
+    if (!response.ok) {
+        const mess = `HTTP error! Widget: ${id}, Status: ${response.status}`;
+        iziToast.error({title: 'Error', message: mess, position: 'bottomRight'});
+        throw new Error(mess);
+    }
+    let data = await response.text();
+    if (data == '')
+        widget.classList.add('d-none');
+    else {
+        widget.innerHTML = data;
+        const chartList = ['health', 'crypto', 'currency', 'weather'];
+        if (chartList.includes(id))
+            buildChart(id);
+    }
+}
+
+function loadAllWidgets() {
+    const widgets = Array.from(document.querySelectorAll('.hp-widget'));
+    for (const widget of widgets) {
+        loadWidget(widget)
+    }
+}
+
+loadAllWidgets();
