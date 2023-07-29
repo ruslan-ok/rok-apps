@@ -1068,7 +1068,7 @@ class Urls(models.Model):
                     self.hostname = parsed.hostname
                     hearders = {'headers':'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:51.0) Gecko/20100101 Firefox/51.0'}
                     try:
-                        n = requests.get(self.href, headers=hearders)
+                        n = requests.get(self.href, headers=hearders, timeout=5)
                     except:
                         self.status = -2
                     if (self.status > 0):
