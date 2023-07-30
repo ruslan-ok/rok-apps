@@ -1,3 +1,4 @@
+from datetime import datetime
 from dataclasses import dataclass
 from django.utils.translation import gettext_lazy as _, pgettext_lazy
 from family.models import IndividualRecord, FamRecord, ChildToFamilyLink
@@ -52,6 +53,19 @@ class DescriptorIndi():
             'pronoun': self.get_pronoun().capitalize(),
             'action': action,
             'when': event.get_when(),
+            'age': age,
+        }
+        return ret
+    
+    def get_age_info(self) -> str:
+        event = self.indi.get_event('DEAT')
+        if event:
+            return ''
+        dt = datetime.today().date()
+        str_date = dt.strftime('%Y-%m-%d')
+        age = self.indi.get_age(str_date)
+        ret = _('Now %(pronoun)s is %(age)s years old.') % {
+            'pronoun': self.get_pronoun(),
             'age': age,
         }
         return ret
@@ -160,9 +174,10 @@ class DescriptorIndi():
     def get_biography(self) -> str:
         birth_info = self.get_birth_info()
         death_info = self.get_death_info()
+        age_info = self.get_age_info()
         prefix, parents_age = self.get_parents_age()
         indi_children = self.get_indi_children(birth_info)
-        ret = prefix + birth_info + parents_age + indi_children + death_info
+        ret = prefix + birth_info + parents_age + indi_children + death_info + age_info
         if not ret and self.indi.get_name():
             ret = _('There is no information about %(name)s.') % {'name': self.indi.get_name()}
         return ret
