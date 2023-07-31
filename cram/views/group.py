@@ -38,3 +38,16 @@ class GroupView(LoginRequiredMixin, UpdateView):
         context['add_item_placeholder'] = '{} {}'.format(_('create new').capitalize(), pgettext_lazy('create new ... ', 'group'))
         context['form'] = GroupForm(instance=group)
         return context
+    
+    def get(self, *arg, **kwarg):
+        self.check_qty()
+        return super().get(*arg, **kwarg)
+    
+    def check_qty(self):
+        pk = self.kwargs.get('pk', '0')
+        if not Group.objects.filter(pk=pk).exists():
+            return
+        group = Group.objects.filter(pk=pk).get()
+        qty = len(Phrase.objects.filter(group=group.id))
+        group.act_items_qty = qty
+        group.save()
