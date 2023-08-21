@@ -1,0 +1,6 @@
+.hp_widgets {
+    display: flex;
+}
+.hp_widget {
+    border: 1 solid black;
+}

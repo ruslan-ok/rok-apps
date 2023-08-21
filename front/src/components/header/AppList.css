@@ -1,0 +1,37 @@
+.application ul {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+}
+
+.application ul li {
+    list-style: none;
+}
+
+.application ul li:hover {
+    background-color: var(--app_header_app_hover);
+}
+
+.application.mobile ul li {
+    width: 50%;
+}
+
+.application ul li a {
+    display: flex;
+    color: var(--app_header_app);
+    text-decoration: none;
+    padding: 0.5rem;
+}
+
+.application ul li a.active {
+    color: var(--app_header_app_active);
+    font-weight: 600;
+}
+
+.application ul li a span {
+    margin-left: 4px;
+}
+
+

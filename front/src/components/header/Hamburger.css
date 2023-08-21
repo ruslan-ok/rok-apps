@@ -1,0 +1,18 @@
+section.navbar-toggler {
+    margin-left: 1rem;
+    -webkit-appearance: button;
+    font-size: 1.25rem;
+    line-height: 1;
+    background-color: transparent;
+    border-radius: 0.25rem;
+    transition: box-shadow 0.15s ease-in-out;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.55);
+    padding: 0;
+    border: 0;
+}
+
+section.navbar-toggler:hover {
+    background-color: var(--app_header_app_hover);
+}
+

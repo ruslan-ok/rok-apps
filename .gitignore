@@ -21,7 +21,7 @@ static/css/*.css.map
 static/backgrounds/*/*.*
 MailBackup.vbs
 *.pem
-unpublished/*
+*/unpublished/*
 
 
 # Windows image file caches
@@ -67,3 +67,16 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+*/.vscode/*

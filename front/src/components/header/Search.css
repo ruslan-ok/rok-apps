@@ -1,0 +1,21 @@
+form.search {
+    display: flex;
+    align-items: center;
+    min-width: 100px;
+    max-width: 200px;
+    height: 100%;
+}
+
+#search-input {
+    margin: 0;
+    border-radius: 0.25rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    width: 100%;
+}
+
+#search-input:focus {
+    outline: 0;
+}
