@@ -1,7 +1,7 @@
 # ServerApps
 Personal site applications.
-Python 3.9.6
-Django 3.2.6
+Python 3.11.3
+Django 4.2.3
 
 This site provides the following functionality:
 
