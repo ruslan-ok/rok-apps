@@ -112,11 +112,21 @@ def get_protected_data(is_authorised: bool, user: User):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
+def header(request):
+    token = request.GET.get('userToken', '')
+    result = do_check_token(token)
+    data = get_header_data(result['ok'], result['user'])
+    json_data = json.dumps(data)
+    obj = PageData(json_data=json_data)
+    serializer = PageDataSerializer(obj)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def main_page(request):
     token = request.GET.get('userToken', '')
     result = do_check_token(token)
     data = {
-        'headerData': get_header_data(result['ok'], result['user']),
         'publicData': get_public_data(result['ok']),
         'protectedData': get_protected_data(result['ok'], result['user']),
     }

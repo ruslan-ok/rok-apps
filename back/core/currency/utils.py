@@ -8,6 +8,7 @@ def get_db_exchange_rate(currency: str, date: date):
         last_dt = CurrencyRate.objects.filter(base='USD', currency=currency, date__lte=date).order_by('-date')[0].date
         rate = CurrencyRate.objects.filter(base='USD', currency=currency, date=last_dt).order_by('source')[0]
         return rate
+    print('get_db_exchange_rate(currency=' + currency + ', date=' + date.strftime('%Y.%m.%d') + ')')
     return None
 
 def get_net_exchange_rate(currency: str, date: date, base: str='USD') -> CA_Result:
@@ -16,6 +17,7 @@ def get_net_exchange_rate(currency: str, date: date, base: str='USD') -> CA_Resu
         if date == datetime.today().date() and not api.today_avail:
             continue
         api_obj = ExchangeRateApi(api)
+        print('get_net_exchange_rate(currency=' + currency + ', date=' + date.strftime('%Y.%m.%d') + ', base=' + base + '), api = ' + api.name)
         ret = api_obj.get_rate_on_date(currency, date, base)
         if ret.result == CA_Status.ok:
             break

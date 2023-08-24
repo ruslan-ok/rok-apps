@@ -59,7 +59,7 @@ class ExchangeRateApi():
         return CurrencyRate.objects.create(base=base, currency=currency, date=date, num_units=num_units, value=value, source=self.api.name)
 
     def sleep(self, days: int=30):
-        if not self.api.next_try or self.api.next_try < datetime.today():
+        if not self.api.next_try or self.api.next_try < datetime.today().date():
             self.api.next_try = datetime.today().date() + timedelta(days)
             self.api.save()
             self.log.write(type=EventType.WARNING, name='sleep', info=f'API service {self.api.name} sleep until {self.api.next_try.strftime("%Y-%m-%d")}')

@@ -1,0 +1,27 @@
+.title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+}
+
+.section {
+    padding: 5px;
+}
+
+#current.section .value {
+    margin: 0 10px;
+}
+
+#change.section {
+    font-size: 0.9rem;
+}
+
+#change.section .value {
+    margin: 0 10px;
+}
+
+#period > select {
+    border: none;
+}
+

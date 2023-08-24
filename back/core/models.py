@@ -45,6 +45,9 @@ class CurrencyRate(models.Model):
     source = models.CharField('Data source', max_length=200, blank=True)
     info = models.CharField('Comment', max_length=1000, blank=True)
 
+    def __repr__(self):
+        return f'CurrencyRate {self.id} "{self.currency}" -> {self.base} [{self.date.strftime("%Y.%m.%d")}] = {self.value} ({self.source})'
+
 class CurrencyApis(models.Model):
     name = models.CharField('Name', max_length=100, blank=False)
     prioritet = models.IntegerField('Prioritet', default=1, null=False)

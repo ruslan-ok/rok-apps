@@ -1,0 +1,23 @@
+.styled-checkbox-label {
+    display: flex;
+  }
+  
+.styled-checkbox-label .styled-checkbox-label {
+    color: var(--basicssecondary);
+    font-family: var(--body-regular-font-family);
+    font-size: var(--body-regular-font-size);
+    font-style: var(--body-regular-font-style);
+    font-weight: var(--body-regular-font-weight);
+    letter-spacing: var(--body-regular-letter-spacing);
+    line-height: var(--body-regular-line-height);
+    margin-left: 6px;
+}
+  
+label.styled-checkbox-label input {
+    visibility: hidden;
+    display: block;
+    height: 0;
+    width: 0;
+    position: absolute;
+    overflow: hidden;
+}

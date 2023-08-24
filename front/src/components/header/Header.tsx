@@ -1,10 +1,7 @@
 import { useState } from 'react';
+import { useRouteLoaderData } from 'react-router-dom';
 
-import {
-  useLoaderData,
-} from 'react-router-dom';
-
-import { MainPageData } from '../MainPage';
+import type { AppData } from '../HeadedPage';
 import Logo from './Logo';
 import Search from './Search';
 import Hamburger from './Hamburger';
@@ -53,8 +50,8 @@ function Header({windowWidth}: {windowWidth: number}) {
     setExpanded(expanded ? 0 : 1);
   }
 
-  const data = useLoaderData() as MainPageData;
-  const headerData = data.headerData;
+  const data = useRouteLoaderData('root') as AppData;
+  const headerData = data.header;
 
   if (windowWidth < 768) {
     let section_top = 

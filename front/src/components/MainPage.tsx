@@ -1,23 +1,19 @@
-import { useState, useEffect } from 'react';
-import {
-  useRouteLoaderData,
-} from "react-router-dom";
+import { useRouteLoaderData } from 'react-router-dom';
 
-import { apiUrl, getAccessToken } from './Auth';
-import type { AuthProvider } from './Auth';
-import type { HeaderData } from './header/Header';
+import { appAuthProvider as auth, apiUrl, getAccessToken } from './Auth';
+import type { AppData } from './HeadedPage';
 import type { PublicData } from './MainPagePublic';
 import type { ProtectedData } from './MainPageProtected';
 import MainPagePublic from './MainPagePublic';
 import MainPageProtected from './MainPageProtected';
 
 export interface MainPageData {
-  headerData: HeaderData;
   publicData: PublicData;
   protectedData: ProtectedData;
 }
 
 export async function loader(): Promise<MainPageData> {
+  auth.init();
   const token = getAccessToken();
   const options = { 
     method: 'GET', 
@@ -32,29 +28,20 @@ export async function loader(): Promise<MainPageData> {
 }
 
 function MainPage() {
-  const [width, setWindowWidth] = useState(0);
+  const data = useRouteLoaderData('root') as AppData;
 
-  useEffect( () => {
-    updateDimensions();
-    window.addEventListener("resize", updateDimensions);
-    return () => window.removeEventListener("resize", updateDimensions);
-  }, []);
-
-  const updateDimensions = () => {
-    const width = window.innerWidth;
-    setWindowWidth(width);
-  };
-
-  const responsive = {
-    windowWidth: width
-  };
-
-  let auth = useRouteLoaderData('root') as AuthProvider;
-
-  if (!auth.isAuthenticated) {
-    return <MainPagePublic windowWidth={responsive.windowWidth} />;
+  let layout;
+  if (data.auth.isAuthenticated) {
+    layout = <MainPageProtected />;
+  } else {
+    layout = <MainPagePublic />;
   }
-  return <MainPageProtected windowWidth={responsive.windowWidth} />;
+
+  return (
+    <>
+      {layout}
+    </>
+  );
 }
   
 export default MainPage;  

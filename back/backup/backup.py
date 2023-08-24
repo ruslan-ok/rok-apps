@@ -10,6 +10,13 @@ from logs.models import EventType
 #         INFO = 'info'
 #         DEBUG = 'debug'
 
+except_dirs = [
+    'apps\\rusel\\.git',
+    'apps\\rusel\\front\\dist',
+    'apps\\rusel\\front\\media',
+    'apps\\rusel\\front\\node_modules',
+]
+
 class ArchItem():
     def __init__(self, name, age):
         super().__init__()
@@ -307,6 +314,13 @@ class Backup():
                     continue
                 self.log(EventType.INFO, 'archiving', dir)
                 for dirname, subdirs, files in os.walk(dir):
+                    skip = False
+                    for x in except_dirs:
+                        if x in dirname:
+                            skip = True
+                            break
+                    if skip:
+                        continue
                     zf.write(dirname)
                     for filename in files:
                         zf.write(os.path.join(dirname, filename))

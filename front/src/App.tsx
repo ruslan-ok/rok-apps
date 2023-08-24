@@ -1,24 +1,44 @@
+import { useEffect } from "react";
 import {
   createBrowserRouter,
-  Outlet,
   RouterProvider,
+  useNavigate,
 } from "react-router-dom";
 
-import { appAuthProvider as auth, loginAction, logoutAction } from './components/Auth';
+import { loginAction, logoutAction } from './components/Auth';
 import Login from './components/Login';
+import HeadedPage, { loader as appLoader } from './components/HeadedPage';
 import MainPage, { loader as mainPageLoader } from './components/MainPage';
+import CurrencyAnalyse, { loader as currencyLoader } from './components/CurrencyAnalyse';
+
+function FirstPage() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    navigate('/react');
+  }, []);
+  return <></>;
+}
 
 let router = createBrowserRouter([
   {
+    path: '/:lang?/',
+    Component: FirstPage,
+  },
+  {
     id: 'root',
     path: '/:lang?/react',
-    loader: auth.init,
-    Component: Outlet,
+    loader: appLoader,
+    Component: HeadedPage,
     children: [
       {
         index: true,
         Component: MainPage,
         loader: mainPageLoader,
+      },
+      {
+        path: 'currency',
+        Component: CurrencyAnalyse,
+        loader: currencyLoader,
       },
     ],
   },

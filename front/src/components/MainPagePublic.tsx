@@ -1,8 +1,5 @@
-import {
-  useLoaderData,
-} from 'react-router-dom';
+import { useLoaderData } from 'react-router-dom';
 
-import Header from './header/Header';
 import { MainPageData } from './MainPage';
 import './MainPagePublic.css';
 
@@ -30,7 +27,7 @@ interface parsedAppInfo {
   features: string[],
 }
 
-function MainPagePublic({windowWidth}: {windowWidth: number}) {
+function MainPagePublic() {
   let data = useLoaderData() as MainPageData;
   // console.log(data);
   let dataExt: parsedAppInfo[] = [];
@@ -73,7 +70,6 @@ function MainPagePublic({windowWidth}: {windowWidth: number}) {
 
   return (
       <>
-        <Header windowWidth={windowWidth} />
         <main>
             <div className='content'>
                 <p className="lead">This site provides the following functionality:</p>

@@ -135,4 +135,5 @@ button.primary:hover
   --form_input_border_color: #ced4da;
   --form_input_border_radius: 0;
   --form_button_border_radius: 0.3rem;
+  --spinner_border: #f3f3f3;
 }

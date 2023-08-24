@@ -1,3 +1,4 @@
+from datetime import datetime, date
 from rest_framework.decorators import api_view, permission_classes, renderer_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
@@ -11,6 +12,7 @@ from health.views.chart import get_chart_data as get_health_data
 from core.hp_widget.currency import get_currency, get_chart_data as get_currency_data
 from core.hp_widget.crypto import get_crypto, get_chart_data as get_crypto_data
 from core.hp_widget.weather import get_weather, get_chart_data as get_weather_data
+from core.hp_widget.delta import ChartPeriod, ChartDataVersion
 
 @api_view()
 @permission_classes([IsAuthenticated])
@@ -54,10 +56,45 @@ def get_chart_data(request):
     if mark not in ALL_CHART_MARKS:
         return Response({'Error': "The 'mark' parameter must have one of the following values: " + ', '.join(ALL_CHART_MARKS)},
                         status=HTTP_400_BAD_REQUEST)
+    s_period = request.GET.get('period', '')
+    s_version = request.GET.get('version', '1')
+    try:
+        period = ChartPeriod(s_period)
+    except:
+        period = ChartPeriod.p30d
+    try:
+        version = ChartDataVersion(s_version)
+    except:
+        version = ChartDataVersion.v1
+
     match mark:
-        case 'weight' | 'waist' | 'temp' | 'health': data = get_health_data(request.user.id, mark)
-        case 'currency': data = get_currency_data(request.user.id)
-        case 'crypto': data = get_crypto_data(request.user.id)
+        case 'weight' | 'waist' | 'temp' | 'health': data = get_health_data(request.user.id, mark, period, version)
+        case 'currency': data = get_currency_data(request.user.id, period, version)
+        case 'crypto': data = get_crypto_data(period, version)
         case 'weather': data = get_weather_data(request.user.id)
         case _: data = {}
+    return Response(data)
+
+@api_view()
+@permission_classes([IsAuthenticated])
+@renderer_classes([JSONRenderer])
+def get_hist_exchange_rates(request):
+    currency = request.GET.get('currency', '')
+    s_beg = request.GET.get('beg', '')
+    s_end = request.GET.get('end', '')
+    if not currency or not s_beg or not s_end:
+        return Response({'result': 'error', 'error': "Expected parameters 'currency', 'beg' and 'end'"},
+                        status=HTTP_400_BAD_REQUEST)
+    try:
+        d_beg: date = datetime.strptime(s_beg, '%Y-%m-%d').date()
+    except:
+        return Response({'result': 'error', 'error': "Expected parameter 'beg' as date in format 'YYYY-MM-DD'"},
+                        status=HTTP_400_BAD_REQUEST)
+    try:
+        d_end: date = datetime.strptime(s_end, '%Y-%m-%d').date()
+    except:
+        return Response({'result': 'error', 'error': "Expected parameter 'end' as date in format 'YYYY-MM-DD'"},
+                        status=HTTP_400_BAD_REQUEST)
+
+    data = get_db_hist_exchange_rates(currency, d_beg, d_end)
     return Response(data)

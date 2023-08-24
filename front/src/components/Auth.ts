@@ -2,7 +2,14 @@ import {
   redirect,
 } from "react-router-dom";
 
-export const apiUrl: string = 'http://localhost:8000/en-gb/';
+export function getApiUrl(): string {
+  const baseUrl: string = window.location.protocol + '//' + window.location.host + '/';
+  if (baseUrl.includes('localhost'))
+    return 'http://localhost:8000/en-gb/';
+  return baseUrl;
+}
+
+export const apiUrl: string = getApiUrl();
 
 export interface AuthProvider {
   username: null | string;

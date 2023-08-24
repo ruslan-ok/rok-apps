@@ -5,6 +5,7 @@ from task.const import NUM_ROLE_EXPENSE, NUM_ROLE_FUEL, NUM_ROLE_APART, NUM_ROLE
 from apart.models import Apart, ServiceAmount
 from core.currency.utils import get_exchange_rate, get_hist_exchange_rates
 from core.currency.exchange_rate_api import *
+from core.hp_widget.delta import get_start_date, approximate, ChartPeriod, ChartDataVersion, SourceData
 
 #CURR_LIST = ('PLN', 'BYN')
 CURR_LIST = ('EUR', 'BYN', 'PLN', 'GBP')
@@ -58,57 +59,126 @@ def get_currency(request):
     template_name = 'hp_widget/currency.html'
     return template_name, context
 
-def get_chart_data(user_id: int):
-    enddate = datetime.today().date()
-    startdate = enddate - timedelta(PERIOD)
-    date = startdate
-    x = []
-    while date <= enddate:
-        x.append(date.strftime('%m.%d'))
-        date = date + timedelta(1)
-    data = {
-        'type': 'line',
-        'data': {'labels': x,
-            'datasets': []
-        },
-        'options': {
-            'plugins': {
-                'legend': {
-                    'display': False,
-                },
-            },
-            'elements': {
-                'point': {
-                    'radius': 0,
-                },
-            },
-        },
-    }
+def get_db_currency_chart(user_id: int, period: ChartPeriod, version: ChartDataVersion):
+    enddate = datetime.today()
+    startdate = get_start_date(enddate, period)
+
+    currencies = []
+    currencies.append({
+        'id': 'usd',
+        'code': 'USD',
+        'currentRate': 1,
+        'color': {
+            'r': 1,
+            'g': 2,
+            'b': 3,
+        }
+    })
+    datasets = []
     for curr in CURR_LIST:
         if not currency_used(user_id, curr):
             continue
-        rates = get_hist_exchange_rates(curr, startdate, enddate)
+        rates = get_hist_exchange_rates(curr, startdate.date(), enddate.date())
+        src_data = []
+        days = (enddate-startdate).days
+        if not days:
+            days = 1
+        for i in range(days):
+            sd = SourceData(event=startdate + timedelta(i), value=rates[i])
+            src_data.append(sd)
+        values = approximate(period, src_data, 200)
         a = [x for x in rates if x]
         if len(a):
-            min_rate = min(a)
-            max_rate = max(a)
-            rates = [(x-min_rate)/(max_rate-min_rate) if x else x for x in rates]
-            data['data']['datasets'].append({
-                'label': curr,
-                'data': rates,
-                'backgroundColor': f'rgba({CURR_COLOR[curr]}, 0.2)',
-                'borderColor': f'rgba({CURR_COLOR[curr]}, 1)',
-                'borderWidth': 1,
-                'tension': 0.4,
+            min_rate = Decimal(min(a))
+            max_rate = Decimal(max(a))
+            if version == ChartDataVersion.v1:
+                values = [(item['y']-min_rate)/(max_rate-min_rate) if item['y'] else item['y'] for item in values]
+            if version == ChartDataVersion.v2:
+                rate = 1
+                if len(values):
+                    rate = values[-1]['y']
+                color = [int(x) for x in CURR_COLOR[curr].split(',')]
+                currencies.append({
+                    'id': curr.lower(),
+                    'code': curr,
+                    'currentRate': rate,
+                    'color': {
+                        'r': color[0],
+                        'g': color[1],
+                        'b': color[2],
+                    },
                 })
-    return data
+                datasets.append({
+                    'currencyId': curr.lower(),
+                    'rates': values,
+                })
+            else:
+                datasets.append({
+                    'label': curr,
+                    'data': values,
+                    'backgroundColor': f'rgba({CURR_COLOR[curr]}, 0.2)',
+                    'borderColor': f'rgba({CURR_COLOR[curr]}, 1)',
+                    'borderWidth': 1,
+                    'tension': 0.4,
+                    })
+
+    if version == ChartDataVersion.v2:
+        return {
+            'baseId': 'usd',
+            'periodId': period.value,
+            'currencyList': currencies,
+            'rates': datasets,
+        }
+    else:
+        date = startdate
+        x = []
+        while date <= enddate:
+            x.append(date.strftime('%m.%d'))
+            date = date + timedelta(1)
+        data = {
+            'type': 'line',
+            'data': {'labels': x,
+                'datasets': datasets
+            },
+            'options': {
+                'plugins': {
+                    'legend': {
+                        'display': False,
+                    },
+                },
+                'elements': {
+                    'point': {
+                        'radius': 0,
+                    },
+                },
+            },
+        }
+        return data
+
+def get_api_currency_chart(period: ChartPeriod, version: ChartDataVersion):
+    api_url = os.environ.get('DJANGO_HOST_LOG', '')
+    service_token = os.environ.get('DJANGO_SERVICE_TOKEN', '')
+    headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
+    verify = os.environ.get('DJANGO_CERT', '')
+    resp = requests.get(api_url + '/api/get_chart_data/?mark=currency&version=' + version.value + '&period=' + period.value, headers=headers, verify=verify)
+    if (resp.status_code != 200):
+        return None
+    return json.loads(resp.content)
+
+def get_chart_data(user_id: int, period: ChartPeriod, version: ChartDataVersion):
+    if os.environ.get('DJANGO_DEVICE', 'Nuc') != os.environ.get('DJANGO_LOG_DEVICE', 'Nuc'):
+        ret = get_api_currency_chart(period, version)
+        if ret:
+            return ret
+    return get_db_currency_chart(user_id, period, version)
 
 def currency_used(user_id, currency):
-    if Task.objects.filter(user=user_id, app_expen=NUM_ROLE_EXPENSE, price_unit=currency, event__gt=(datetime.now()-timedelta(PERIOD))).exists():
-        return True
-    if Task.objects.filter(user=user_id, app_fuel=NUM_ROLE_FUEL, price_unit=currency, event__gt=(datetime.now()-timedelta(PERIOD))).exists():
-        return True
-    for apart in Apart.objects.filter(user=user_id, app_apart=NUM_ROLE_APART, price_unit=currency):
-        if ServiceAmount.objects.filter(user=user_id, app_apart=NUM_ROLE_SERV_VALUE, task_1=apart.id, event__gt=(datetime.now()-timedelta(PERIOD))).exists():
-            return True
-    return False
+    return True
+    # if Task.objects.filter(user=user_id, app_expen=NUM_ROLE_EXPENSE, price_unit=currency, event__gt=(datetime.now()-timedelta(PERIOD))).exists():
+    #     return True
+    # if Task.objects.filter(user=user_id, app_fuel=NUM_ROLE_FUEL, price_unit=currency, event__gt=(datetime.now()-timedelta(PERIOD))).exists():
+    #     return True
+    # for apart in Apart.objects.filter(user=user_id, app_apart=NUM_ROLE_APART, price_unit=currency):
+    #     if ServiceAmount.objects.filter(user=user_id, app_apart=NUM_ROLE_SERV_VALUE, task_1=apart.id, event__gt=(datetime.now()-timedelta(PERIOD))).exists():
+    #         return True
+    # return False

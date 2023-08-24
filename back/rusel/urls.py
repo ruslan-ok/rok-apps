@@ -63,6 +63,7 @@ urlpatterns = i18n_patterns(
     path('api/',    include(api_router.urls)),
 
     path('assets/<str:file>', api_react.get_assets),
+    path('api/react/header', api_react.header),
     path('api/react/main_page', api_react.main_page),
     path('api/react/demo', api_react.demo),
     path('api/react/login', api_react.login),

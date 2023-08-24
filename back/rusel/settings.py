@@ -67,8 +67,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'rest_framework.authtoken',
     'corsheaders',
+    'rest_framework.authtoken',
 ]
 
 LOGIN_REDIRECT_URL = '/'
@@ -79,14 +79,16 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_cprofile_middleware.middleware.ProfilerMiddleware',
 ]
+
+CORS_ALLOW_CREDENTIALS = True
 
 DJANGO_CPROFILE_MIDDLEWARE_REQUIRE_STAFF = False # Profiling in Django
 

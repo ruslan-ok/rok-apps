@@ -1,6 +1,13 @@
-.hp_widgets {
+.static-widgets {
     display: flex;
+    flex-wrap: wrap;
 }
-.hp_widget {
-    border: 1 solid black;
+
+.widget {
+    margin: 10px;
+}
+
+.spinner-place {
+    width: 500px;
+    height: 335px;
 }

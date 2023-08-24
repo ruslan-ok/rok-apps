@@ -963,35 +963,6 @@ class Task(models.Model):
             'status': rate_net['status'],
             'info': rate_net['info'],
         }
-    
-    @classmethod
-    def get_hist_exchange_rates(cls, currency: str, beg: date, end: date) -> list:
-        ret = []
-        rates = CurrencyRate.objects.filter(base='USD', currency=currency, date__range=(beg, end))
-        all_rates = []
-        for rate in rates:
-            all_rates.append((rate.date, rate.value, sort_exchange_rate_by_source(rate.source)))
-        date = beg
-        while date <= end:
-            rate = None
-            day_rates = [x for x in all_rates if x[0] == date]
-            day_rates = sorted(day_rates, key=lambda x: x[2])
-            if len(day_rates):
-                rate = day_rates[0][1]
-            else:
-                rate_info = cls.get_exchange_rate(currency, date)
-                if rate_info and rate_info['result'] == 'ok' and 'rate' in rate_info and rate_info['rate']:
-                    rate = rate_info['rate'].value
-            ret.append(rate)
-            date = date + timedelta(1)
-        return ret
-    
-def sort_exchange_rate_by_source(source):
-    match source:
-        case 'nbrb.by': return 1
-        case 'etalonline.by': return 2
-        case 'GoogleFinanse': return 3
-        case _: return 4
 
 
 GIQ_ADD_TASK = 1 # Task created
