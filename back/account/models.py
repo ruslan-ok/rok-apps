@@ -19,8 +19,6 @@ class UserExt(models.Model):
     avatar_mini = models.ImageField(_('avatar thumbnail').capitalize(), blank=True, upload_to='avatars/thumbnails/', null=True)
     fuel_notice = models.DateTimeField(_('Service Interval Notification Time'), null=True)
     lang = models.IntegerField(_('Mailing list language'), choices=LANG_CHOICE, default=EN, null=True)
-    access_token = models.CharField(_('Access token'), max_length=255, null=True, blank=True)
-    expires = models.DateTimeField(_('Session key expiration'), null=True)
 
     class Meta:
         verbose_name = _('user extension')

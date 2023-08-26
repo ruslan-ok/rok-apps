@@ -5,13 +5,14 @@ import {
   useNavigate,
 } from "react-router-dom";
 
-import { loginAction, logoutAction } from './components/Auth';
-import Login from './components/Login';
+import Demo from './components/auth/Demo';
+import Login, { action as loginAction } from './components/auth/Login';
+import Logout from './components/auth/Logout';
 import HeadedPage, { loader as appLoader } from './components/HeadedPage';
 import MainPage, { loader as mainPageLoader } from './components/MainPage';
 import CurrencyAnalyse, { loader as currencyLoader } from './components/CurrencyAnalyse';
 
-function FirstPage() {
+function Root() {
   const navigate = useNavigate();
   useEffect(() => {
     navigate('/react');
@@ -22,10 +23,10 @@ function FirstPage() {
 let router = createBrowserRouter([
   {
     path: '/:lang?/',
-    Component: FirstPage,
+    Component: Root,
   },
   {
-    id: 'root',
+    id: 'header',
     path: '/:lang?/react',
     loader: appLoader,
     Component: HeadedPage,
@@ -43,14 +44,17 @@ let router = createBrowserRouter([
     ],
   },
   {
+    path: '/:lang?/react/demo',
+    Component: Demo,
+  },
+  {
     path: '/:lang?/react/login',
     action: loginAction,
     Component: Login,
   },
   {
     path: '/:lang?/react/logout',
-    loader: logoutAction,
-    element: <p></p>,
+    Component: Logout,
   },
 ]);
 

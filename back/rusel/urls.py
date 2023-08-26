@@ -68,7 +68,7 @@ urlpatterns = i18n_patterns(
     path('api/react/demo', api_react.demo),
     path('api/react/login', api_react.login),
     path('api/react/logout', api_react.logout),
-    path('api/react/check_token', api_react.check_token),
+    path('api/react/get_username', api_react.get_username),
 
     path('api/get_widget/', api_widget.get_widget, name='get_widget'),
     path('api/get_chart_data/', api_widget.get_chart_data, name='get_chart_data'),

@@ -29,7 +29,6 @@ interface parsedAppInfo {
 
 function MainPagePublic() {
   let data = useLoaderData() as MainPageData;
-  // console.log(data);
   let dataExt: parsedAppInfo[] = [];
 
   if (data && data.publicData) {

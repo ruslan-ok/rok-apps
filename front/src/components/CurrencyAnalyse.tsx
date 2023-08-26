@@ -1,7 +1,7 @@
 import { useLoaderData } from 'react-router-dom';
 import Currency from './widgets/Currency';
 
-import { apiUrl, getAccessToken } from './Auth';
+import { apiUrl } from './auth/Auth';
 import './CurrencyAnalyse.css';
 
 interface CurrencyInfo {
@@ -14,9 +14,8 @@ interface CurrencyData {
 }
 
 export async function loader(): Promise<CurrencyData> {
-  const token = getAccessToken();
   const options = {method: 'GET', headers: {'Content-type': 'application/json'}};
-  const res = await fetch(apiUrl +  'api/react/currency?userToken=' + token, options);
+  const res = await fetch(apiUrl +  'api/react/currency', options);
   const resp_data = await res.json();
   const data: CurrencyData = JSON.parse(resp_data.json_data);
   return data;

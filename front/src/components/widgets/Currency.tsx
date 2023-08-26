@@ -12,7 +12,7 @@ import {
 import { Line } from 'react-chartjs-2';
 
 import Spinner from '../Spinner';
-import { apiUrl } from '../Auth';
+import { apiUrl } from '../auth/Auth';
 import StyledCheckbox from './StyledCheckbox';
 
 import './Currency.css';
@@ -117,7 +117,6 @@ function Currency({width, height}: {width: number, height: number}) {
                 let resp_data: WidgetData = await response.json();
                 if (resp_data) {
                     setValues(resp_data);
-                    // console.log(resp_data);
                     setBase(resp_data.baseId);
                     setPeriod(resp_data.periodId);
                     setStatus('ready');
@@ -167,9 +166,7 @@ function Currency({width, height}: {width: number, height: number}) {
                 data.datasets.push(currInfo);
             }
         });
-        // console.log(data);
 
-        // console.log(options);
         return (
             <div className='widget'>
                 <div className='title'>

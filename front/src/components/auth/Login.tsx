@@ -1,14 +1,54 @@
-import type { postResponse } from './Auth'
-
-import { 
-  Form, 
+import {
   Link,
+  Form,
+  ActionFunctionArgs,
+  redirect,
   useActionData,
   useLocation,
   useNavigation,
-} from 'react-router-dom';
+} from "react-router-dom";
+import { auth } from './Auth';
 
 import './Login.css';
+
+export interface LoginResult {
+  ok: boolean,
+  info: string
+}
+
+export async function action({ request }: ActionFunctionArgs): Promise<LoginResult | Response>  {
+  let response: LoginResult = {
+    ok: false,
+    info: 'Unknown error.'
+  };
+
+  const formData = await request.formData();
+  const username = formData.get("username") as string | null;
+  const password = formData.get("password") as string | null;
+
+  // Validate our form inputs and return validation errors via useActionData()
+  if (!username || !password) {
+    response.info = 'You must provide a username and password to log in.';
+    return response;
+  }
+
+  try {
+    const tmp: any = await auth.login(username, password);
+    response = tmp;
+  } catch (error) {
+    // Unused as of now but this is how you would handle invalid
+    // username/password combinations - just like validating the inputs
+    // above
+    response.info = 'Invalid login attempt.';
+  }
+
+  if (response && response.ok) {
+    let redirectTo = (formData.get("redirectTo") || "/react") as string;
+    return redirect(redirectTo);
+  }
+
+  return response;
+}
 
 function Login() {
   let location = useLocation();
@@ -18,7 +58,7 @@ function Login() {
   let navigation = useNavigation();
   let isLoggingIn = navigation.formData?.get("username") != null;
 
-  const actionData = useActionData() as postResponse;
+  const actionData = useActionData() as LoginResult;
 
   return (
     <div className="form-container">

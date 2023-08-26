@@ -1,36 +1,24 @@
 import { useState, useEffect } from 'react';
 import { Outlet } from "react-router-dom";
   
-import { AuthProvider, appAuthProvider, apiUrl, getAccessToken } from './Auth';
+import { auth, apiUrl } from './auth/Auth';
 import type { HeaderData } from './header/Header';
 import Header from './header/Header';
 
-export interface AppData {
-    auth: AuthProvider;
-    header: HeaderData;
-};
-  
 export async function loader(): Promise<HeaderData> {
-    const auth: AuthProvider = await appAuthProvider.init();
-    // console.log(auth);
-    const token = getAccessToken();
+    await auth.init();
+    const cred: RequestCredentials = 'include';
     const options = { 
         method: 'GET', 
         headers: { 
         'Content-type': 'application/json'
-        } 
+        },
+        credentials: cred,
     };
-    const res = await fetch(apiUrl +  'api/react/header?userToken=' + token, options);
+    const res = await fetch(apiUrl +  'api/react/header', options);
     const resp_data = await res.json();
     const header: HeaderData = JSON.parse(resp_data.json_data);
-    // console.log(header);
-    const data: AppData = {
-        auth: auth,
-        header: header
-    };
-
-    // @ts-ignore
-    return data;
+    return header;
 }
   
 function HeadedPage() {

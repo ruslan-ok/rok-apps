@@ -12,7 +12,7 @@ import {
 import { Line } from 'react-chartjs-2';
 
 import Spinner from '../Spinner';
-import { apiUrl } from '../Auth';
+import { apiUrl } from '../auth/Auth';
 
 import './Crypto.css';
   
@@ -71,7 +71,6 @@ function Crypto() {
                 let resp_data = await response.json();
                 if (resp_data) {
                     data.datasets[0].data = resp_data.data;
-                    //console.log(data);
                     setValues(resp_data);
                     setStatus('ready');
                 }
