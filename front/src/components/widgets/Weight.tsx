@@ -50,10 +50,27 @@ let data = {
     }]
 }
 
-  
+function getOption(): string {
+    const tmp: string | null = localStorage.getItem('weight-period');
+    let ret: string = '30d';
+    if (tmp != null) {
+        ret = tmp;
+    }
+    return ret;
+}
+
+function setOption(value: string): void {
+    localStorage.setItem('weight-period', value);
+}
+
 function Weight() {
+    function setPeriodOption(value: string): void {
+        setPeriod(value);
+        setOption(value);
+    }
+    
     const [values, setValues] = useState<any>(null);
-    const [period, setPeriod] = useState('30d');
+    const [period, setPeriod] = useState(getOption());
     const [status, setStatus] = useState('init');
     const chartRef = useRef<any>(null);
     useEffect(() => {
@@ -92,7 +109,7 @@ function Weight() {
                     <span id='current' className='section'><span>Вес:</span><span className='value'>{current}</span><span>кг</span></span>
                     <span id='change' className='section'><span>Динамика:</span><span className='value'>{change}</span><span>кг</span></span>
                     <span id='period' className='section'>
-                        <select name='period' defaultValue={period} onChange={e => setPeriod(e.target.value)}>
+                        <select name='period' defaultValue={period} onChange={e => setPeriodOption(e.target.value)}>
                             <option value='7d'>неделя</option> 
                             <option value='30d'>месяц</option> 
                             <option value='3m'>3 месяца</option> 

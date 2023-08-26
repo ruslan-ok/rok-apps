@@ -50,10 +50,27 @@ let data = {
     }]
 }
 
-  
+function getOption(): string {
+    const tmp: string | null = localStorage.getItem('crypto-period');
+    let ret: string = '7d';
+    if (tmp != null) {
+        ret = tmp;
+    }
+    return ret;
+}
+
+function setOption(value: string): void {
+    localStorage.setItem('crypto-period', value);
+}
+
 function Crypto() {
+    function setPeriodOption(value: string): void {
+        setPeriod(value);
+        setOption(value);
+    }
+    
     const [values, setValues] = useState<any>(null);
-    const [period, setPeriod] = useState('7d');
+    const [period, setPeriod] = useState(getOption());
     const [status, setStatus] = useState('init');
     const chartRef = useRef<any>(null);
     useEffect(() => {
@@ -96,7 +113,7 @@ function Crypto() {
                     <span id='change' className='section'><span className='value'>{change}</span></span>
                     <a id='amount' className='section' href={amount_url}><i className='bi-wallet2 icon'></i><span className='value'>${amount}</span></a>
                     <span id='period' className='section'>
-                        <select name='period' defaultValue={period} onChange={e => setPeriod(e.target.value)}>
+                        <select name='period' defaultValue={period} onChange={e => setPeriodOption(e.target.value)}>
                             <option value='1h'>1 час</option> 
                             <option value='3h'>3 часа</option> 
                             <option value='12h'>12 часов</option> 

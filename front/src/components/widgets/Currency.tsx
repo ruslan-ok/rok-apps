@@ -88,7 +88,48 @@ let data: ChartData = {
     datasets: []
 };
 
+function getOption(kind: string): string {
+    const tmp: string | null = localStorage.getItem('currency-' + kind);
+    let ret: string = '';
+    if (tmp != null) {
+        ret = tmp;
+    } else {
+        switch (kind) {
+            case 'base':
+                ret = 'usd';
+                break;
+            case 'period':
+                ret = '7d';
+                break;
+            case 'hidden':
+                ret = '';
+                break;
+        }
+    }
+    return ret;
+}
+
+function setOption(kind: string, value: string): void {
+    localStorage.setItem('currency-' + kind, value);
+}
+
 function Currency({width, height}: {width: number, height: number}) {
+
+    function setBaseOption(value: string): void {
+        setBase(value);
+        setOption('base', value);
+    }
+    
+    function setPeriodOption(value: string): void {
+        setPeriod(value);
+        setOption('period', value);
+    }
+    
+    function setHiddenOption(values: string[]): void {
+        setHidden(values);
+        setOption('hidden', values.join(','));
+    }
+    
     const initData: WidgetData = {
         baseId: '',
         periodId: '',
@@ -96,9 +137,9 @@ function Currency({width, height}: {width: number, height: number}) {
         rates: [],
     };
     const [values, setValues] = useState<WidgetData>(initData);
-    const [base, setBase] = useState<string>('usd');
-    const [period, setPeriod] = useState<string>('7d');
-    const [hidden, setHidden] = useState<Array<string>>([]);
+    const [base, setBase] = useState<string>(getOption('base'));
+    const [period, setPeriod] = useState<string>(getOption('period'));
+    const [hidden, setHidden] = useState<Array<string>>(getOption('hidden').split(','));
     const [status, setStatus] = useState('init');
     const chartRef = useRef<any>(null);
 
@@ -117,8 +158,8 @@ function Currency({width, height}: {width: number, height: number}) {
                 let resp_data: WidgetData = await response.json();
                 if (resp_data) {
                     setValues(resp_data);
-                    setBase(resp_data.baseId);
-                    setPeriod(resp_data.periodId);
+                    setBaseOption(resp_data.baseId);
+                    setPeriodOption(resp_data.periodId);
                     setStatus('ready');
                 }
             }
@@ -140,7 +181,7 @@ function Currency({width, height}: {width: number, height: number}) {
                     hidden.push((currency as HTMLInputElement).name);
                 }
             }
-            setHidden(hidden);
+            setHiddenOption(hidden);
         }
         
         const currencyList = values.currencyList.map(item => { return (<option key={item.id} value={item.id}>{item.code}</option>); });
@@ -171,12 +212,12 @@ function Currency({width, height}: {width: number, height: number}) {
             <div className='widget'>
                 <div className='title'>
                     <span id='base-curr' className='section'>
-                        <select name='base-curr' defaultValue={base} onChange={e => setBase(e.target.value)}>
+                        <select name='base-curr' defaultValue={base} onChange={e => setBaseOption(e.target.value)}>
                             {currencyList}
                         </select>
                     </span>
                     <span id='period' className='section'>
-                        <select name='period' defaultValue={period} onChange={e => setPeriod(e.target.value)}>
+                        <select name='period' defaultValue={period} onChange={e => setPeriodOption(e.target.value)}>
                             <option value='7d'>неделя</option> 
                             <option value='30d'>месяц</option> 
                             <option value='3m'>3 месяца</option> 
