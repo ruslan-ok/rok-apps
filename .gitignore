@@ -72,10 +72,13 @@ logs
 *.log
 npm-debug.log*
 
+# Editor directories and files
+*/.vscode/*
+
+# Front
 node_modules
 dist
 dist-ssr
 *.local
-
-# Editor directories and files
-*/.vscode/*
+front/static/*
+front/media/*
