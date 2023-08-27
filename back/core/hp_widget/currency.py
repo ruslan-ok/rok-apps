@@ -131,8 +131,11 @@ def get_db_currency_chart(user_id: int, period: ChartPeriod, version: ChartDataV
             for curr_rates in rates_list:
                 if curr_rates.id == base:
                     continue
-                tmp = curr_rates.rates[i]
-                curr_rates.rates[i] = Decimal(tmp * usd_rates.rates[i])
+                if i < len(curr_rates.rates):
+                    tmp = curr_rates.rates[i]
+                    curr_rates.rates[i] = Decimal(tmp * usd_rates.rates[i])
+                else:
+                    curr_rates.rates.append(Decimal(0))
 
             base_rates.rates[i] = Decimal(1)
     rates_list.append(usd_rates)
