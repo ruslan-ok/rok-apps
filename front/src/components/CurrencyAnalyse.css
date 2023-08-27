@@ -1,9 +1,0 @@
-#currency-analyse .static-widgets {
-    display: flex;
-    flex-wrap: wrap;
-}
-
-#currency-analyse .static-widgets  .spinner-place {
-    width: 1200px;
-    height: 800px;
-}

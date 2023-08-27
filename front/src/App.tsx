@@ -10,7 +10,6 @@ import Login, { action as loginAction } from './components/auth/Login';
 import Logout from './components/auth/Logout';
 import HeadedPage, { loader as appLoader } from './components/HeadedPage';
 import MainPage, { loader as mainPageLoader } from './components/MainPage';
-import CurrencyAnalyse, { loader as currencyLoader } from './components/CurrencyAnalyse';
 
 function Root() {
   const navigate = useNavigate();
@@ -35,11 +34,6 @@ let router = createBrowserRouter([
         index: true,
         Component: MainPage,
         loader: mainPageLoader,
-      },
-      {
-        path: 'currency',
-        Component: CurrencyAnalyse,
-        loader: currencyLoader,
       },
     ],
   },

@@ -63,7 +63,7 @@ function setOption(value: string): void {
     localStorage.setItem('weight-period', value);
 }
 
-function Weight() {
+function Weight({screenWidth}: {screenWidth: number}) {
     function setPeriodOption(value: string): void {
         setPeriod(value);
         setOption(value);
@@ -100,31 +100,39 @@ function Weight() {
         }
     }, [period]);
 
+    const widgetWidth = screenWidth < 600 ? 410 : (screenWidth < 768 ? 500 : 600);
+    const widgetHeight = screenWidth < 600 ? 200 : (screenWidth < 768 ? 250 : 300);
     if (status == 'ready') {
         const current = Math.round(values.current).toLocaleString();
         const change = values.change?.toFixed(2).toLocaleString();
         return (
-            <div className='widget'>
-                <div className='title'>
-                    <span id='current' className='section'><span>Вес:</span><span className='value'>{current}</span><span>кг</span></span>
-                    <span id='change' className='section'><span>Динамика:</span><span className='value'>{change}</span><span>кг</span></span>
-                    <span id='period' className='section'>
-                        <select name='period' defaultValue={period} onChange={e => setPeriodOption(e.target.value)}>
-                            <option value='7d'>неделя</option> 
-                            <option value='30d'>месяц</option> 
-                            <option value='3m'>3 месяца</option> 
-                            <option value='1y'>год</option> 
-                            <option value='3y'>3 года</option> 
-                            <option value='5y'>5 лет</option> 
-                            <option value='10y'>10 лет</option> 
-                        </select>
-                    </span>
+            <div className='widget-container'>
+                <div className='widget-content' id='weight'>
+                    <div className='title'>
+                        <span id='current' className='section'><span>Вес:</span><span className='value'>{current}</span><span>кг</span></span>
+                        <span id='change' className='section'><span className='long-text'>Динамика:</span><span className='value'>{change}</span><span>кг</span></span>
+                        <span id='period' className='section'>
+                            <select name='period' defaultValue={period} onChange={e => setPeriodOption(e.target.value)}>
+                                <option value='7d'>неделя</option> 
+                                <option value='30d'>месяц</option> 
+                                <option value='3m'>3 месяца</option> 
+                                <option value='1y'>год</option> 
+                                <option value='3y'>3 года</option> 
+                                <option value='5y'>5 лет</option> 
+                                <option value='10y'>10 лет</option> 
+                            </select>
+                        </span>
+                        <span className='section value'>
+                            <input name='new_value' type='text' placeholder='Добавить'></input>
+                            <button className='button' type='button'><i className='bi-plus'></i></button>
+                        </span>
+                    </div>
+                    <Line ref={chartRef} options={options} data={data} width={widgetWidth} height={widgetHeight} key={Math.random()}/>
                 </div>
-                <Line ref={chartRef} options={options} data={data} width={500} height={300} key={Math.random()}/>
             </div>
         );
     } else {
-        return <Spinner />;
+        return <Spinner width={widgetWidth} height={widgetHeight} />;
     }
 }
   

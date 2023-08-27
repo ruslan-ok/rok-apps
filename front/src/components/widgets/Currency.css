@@ -1,39 +1,53 @@
-.title {
+#currency .title {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 40px;
+    padding: 0 10px;
 }
 
-.section {
+#currency .section {
     padding: 5px;
 }
 
-#current.section .icon {
+#current .section .icon {
     font-size: 1.1rem;
-}
-
-#amount.section .icon {
-    font-size: 0.9rem;
-}
-
-.section .icon {
     margin-right: 10px;
 }
 
-#change.section .value, 
-#amount.section .value {
+#currency .amount.section .icon {
     font-size: 0.9rem;
 }
 
-#current:link,
-#current:visited,
-#amount:link,
-#amount:visited {
+#currency .section .value {
+    font-size: 0.9rem;
+}
+
+#currency .current:link,
+#currency .current:visited,
+#currency .amount:link,
+#currency .amount:visited {
     text-decoration: none;
 }
 
-#period > select {
-    border: none;
+#currency .base-curr > select,
+#currency .period > select {
+        border: none;
+}
+
+#currency .visibility {
+    font-size: 0.8rem;
+    margin-right: 5px;
+}
+
+@media screen and (min-width: 768px) {
+    #currency .title {
+        padding: 0 40px;
+    }
+
+    #currency .visibility {
+        font-size: 1rem;
+        margin-right: 10px;
+    }
+    
 }
 

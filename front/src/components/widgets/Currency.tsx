@@ -108,7 +108,7 @@ function setOption(kind: string, value: string): void {
     localStorage.setItem('currency-' + kind, value);
 }
 
-function Currency({width, height}: {width: number, height: number}) {
+function Currency({screenWidth}: {screenWidth: number}) {
 
     function setBaseOption(value: string): void {
         setBase(value);
@@ -167,6 +167,9 @@ function Currency({width, height}: {width: number, height: number}) {
         }
     }, [period, base]);
 
+    const widgetWidth = screenWidth < 600 ? 410 : (screenWidth < 768 ? 500 : 600);
+    const widgetHeight = screenWidth < 600 ? 200 : (screenWidth < 768 ? 250 : 300);
+
     if (status == 'ready') {
 
         function switchVisible() {
@@ -184,7 +187,7 @@ function Currency({width, height}: {width: number, height: number}) {
         const noBaseList = values.currencies.filter(x => x.id != base).map(item => {
             const visible = !hidden.includes(item.id);
             return (
-                <StyledCheckbox key={item.id} id={item.id} text={item.id.toUpperCase()} r={item.color.r} g={item.color.g} b={item.color.b} checked={visible} onClick={switchVisible} />
+                <StyledCheckbox classes='visibility' key={item.id} id={item.id} text={item.id.toUpperCase()} r={item.color.r} g={item.color.g} b={item.color.b} checked={visible} onClick={switchVisible} />
             );
         });
         
@@ -202,31 +205,33 @@ function Currency({width, height}: {width: number, height: number}) {
         });
 
         return (
-            <div className='widget'>
-                <div className='title'>
-                    <span id='base-curr' className='section'>
-                        <select name='base-curr' defaultValue={base} onChange={e => setBaseOption(e.target.value)}>
-                            {currencies}
-                        </select>
-                    </span>
-                    <span id='period' className='section'>
-                        <select name='period' defaultValue={period} onChange={e => setPeriodOption(e.target.value)}>
-                            <option value='7d'>неделя</option> 
-                            <option value='30d'>месяц</option> 
-                            <option value='3m'>3 месяца</option> 
-                            <option value='1y'>год</option> 
-                            <option value='3y'>3 года</option> 
-                            <option value='5y'>5 лет</option> 
-                            <option value='10y'>10 лет</option> 
-                        </select>
-                    </span>
-                    {noBaseList}
+            <div className='widget-container'>
+                <div className='widget-content' id='currency'>
+                    <div className='title'>
+                        <span className='section base-curr'>
+                            <select name='base-curr' defaultValue={base} onChange={e => setBaseOption(e.target.value)}>
+                                {currencies}
+                            </select>
+                        </span>
+                        <span className='section period'>
+                            <select name='period' defaultValue={period} onChange={e => setPeriodOption(e.target.value)}>
+                                <option value='7d'>неделя</option> 
+                                <option value='30d'>месяц</option> 
+                                <option value='3m'>3 месяца</option> 
+                                <option value='1y'>год</option> 
+                                <option value='3y'>3 года</option> 
+                                <option value='5y'>5 лет</option> 
+                                <option value='10y'>10 лет</option> 
+                            </select>
+                        </span>
+                        {noBaseList}
+                    </div>
+                    <Line ref={chartRef} options={options} data={chartData} width={widgetWidth} height={widgetHeight} key={Math.random()}/>
                 </div>
-                <Line ref={chartRef} options={options} data={chartData} width={width} height={height} key={Math.random()}/>
             </div>
         );
     } else {
-        return <Spinner />;
+        return <Spinner width={widgetWidth} height={widgetHeight} />;
     }
 }
   

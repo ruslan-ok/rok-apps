@@ -5,35 +5,52 @@
     padding: 0 40px;
 }
 
-.section {
+#crypto .section {
     padding: 5px;
 }
 
-#current.section .icon {
-    font-size: 1.1rem;
-}
-
-#amount.section .icon {
+#crypto .current.section .icon {
     font-size: 0.9rem;
 }
 
-.section .icon {
-    margin-right: 10px;
+#crypto .amount.section .icon {
+    font-size: 0.7rem;
 }
 
-#change.section .value, 
-#amount.section .value {
-    font-size: 0.9rem;
+#crypto .section .icon {
+    margin-right: 5px;
 }
 
-#current:link,
-#current:visited,
-#amount:link,
-#amount:visited {
+#crypto .section .value {
+    font-size: 0.7rem;
+}
+
+#crypto .current:link,
+#crypto .current:visited,
+#crypto .amount:link,
+#crypto .amount:visited {
     text-decoration: none;
 }
 
-#period > select {
+#crypto .period > select {
     border: none;
+}
+
+@media screen and (min-width: 768px) {
+    #crypto .current.section .icon {
+        font-size: 1.1rem;
+    }
+    
+    #crypto .amount.section .icon {
+        font-size: 0.9rem;
+    }
+    
+    #crypto .section .icon {
+        margin-right: 10px;
+    }
+    
+    #crypto .section .value {
+        font-size: 0.9rem;
+    }
 }
 

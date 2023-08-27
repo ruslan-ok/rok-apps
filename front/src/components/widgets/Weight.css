@@ -2,7 +2,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 40px;
+    padding: 0 5px;
 }
 
 .section {
@@ -14,6 +14,7 @@
 }
 
 #change.section {
+    display: flex;
     font-size: 0.9rem;
 }
 
@@ -25,3 +26,28 @@
     border: none;
 }
 
+span.section.value > input[type=text] {
+    font-size: 0.8rem;
+    margin: 0;
+    padding: 5px;
+    width: 80px;
+}
+
+span.section.value > button {
+    font-size: 1rem;
+    padding: 0 5px;
+}
+
+.long-text {
+    display: none;
+}    
+
+@media screen and (min-width: 768px) {
+    .title {
+        padding: 0 20px;
+    }
+
+    .long-text {
+        display: block;
+    }    
+}
