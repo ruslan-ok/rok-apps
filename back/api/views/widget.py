@@ -58,10 +58,17 @@ def get_chart_data(request):
                         status=HTTP_400_BAD_REQUEST)
     s_period = request.GET.get('period', '')
     s_version = request.GET.get('version', '1')
+    base = request.GET.get('base', 'usd')
     try:
         period = ChartPeriod(s_period)
     except:
-        period = ChartPeriod.p30d
+        match mark:
+            case 'weight' | 'waist' | 'temp': period = ChartPeriod.p10y
+            case 'health': period = ChartPeriod.p30d
+            case 'currency': period = ChartPeriod.p7d
+            case 'crypto': period = ChartPeriod.p7d
+            case 'weather': period = ChartPeriod.p7d
+            case _: period = ChartPeriod.p30d
     try:
         version = ChartDataVersion(s_version)
     except:
@@ -69,7 +76,7 @@ def get_chart_data(request):
 
     match mark:
         case 'weight' | 'waist' | 'temp' | 'health': data = get_health_data(request.user.id, mark, period, version)
-        case 'currency': data = get_currency_data(request.user.id, period, version)
+        case 'currency': data = get_currency_data(request.user.id, period, version, base)
         case 'crypto': data = get_crypto_data(period, version)
         case 'weather': data = get_weather_data(request.user.id)
         case _: data = {}

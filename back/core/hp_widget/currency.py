@@ -1,14 +1,12 @@
-import os
-from datetime import datetime, timedelta
-from task.models import Task
-from task.const import NUM_ROLE_EXPENSE, NUM_ROLE_FUEL, NUM_ROLE_APART, NUM_ROLE_SERV_VALUE
-from apart.models import Apart, ServiceAmount
+import os, json, requests
+from datetime import date, datetime, timedelta
+from dataclasses import dataclass
+from decimal import Decimal
 from core.currency.utils import get_exchange_rate, get_hist_exchange_rates
-from core.currency.exchange_rate_api import *
+from core.currency.exchange_rate_api import CA_Status
 from core.hp_widget.delta import get_start_date, approximate, ChartPeriod, ChartDataVersion, SourceData
 
-#CURR_LIST = ('PLN', 'BYN')
-CURR_LIST = ('EUR', 'BYN', 'PLN', 'GBP')
+CURR_LIST = ('EUR', 'BYN', 'PLN', 'GBP', 'USD')
 
 CURR_COLOR = {
     'USD': '72, 118, 47',
@@ -39,10 +37,10 @@ PERIOD = 30
 def get_currency(request):
     currencies = []
     for curr in CURR_LIST:
-        if not currency_used(request.user.id, curr):
+        if curr == 'USD':
             continue
         rate_info = get_exchange_rate(curr, datetime.today().date())
-        if rate_info and rate_info.result == CA_Status.ok and rate_info.rate:
+        if rate_info and rate_info.result == CA_Status.ok and rate_info.rate and rate_info.rate.value:
             currencies.append({
                 'icon': CURR_ICON[curr], 
                 'abbr': CURR_ABBR[curr], 
@@ -59,24 +57,53 @@ def get_currency(request):
     template_name = 'hp_widget/currency.html'
     return template_name, context
 
-def get_db_currency_chart(user_id: int, period: ChartPeriod, version: ChartDataVersion):
+@dataclass
+class CurrRates:
+    id: str
+    rates: list[Decimal]
+    labels: list[str]
+    min_rate: Decimal | None = None
+    max_rate: Decimal | None = None
+    last_rate: Decimal | None = None
+
+    def get_info_v1(self):
+        values = []
+        if self.max_rate and self.min_rate and (self.max_rate > self.min_rate):
+            delta: Decimal = self.max_rate - self.min_rate
+            for i in range(len(self.labels)):
+                values.append({
+                    'x': self.labels[i],
+                    'y': (self.rates[i]-self.min_rate)/delta if self.rates[i] else self.rates[i]
+                })
+        return {
+            'label': self.id.upper(),
+            'data': values,
+            'backgroundColor': f'rgba({CURR_COLOR[self.id.upper()]}, 0.2)',
+            'borderColor': f'rgba({CURR_COLOR[self.id.upper()]}, 1)',
+            'borderWidth': 1,
+            'tension': 0.4,
+        }
+    
+    def get_info_v2(self):
+        color = [int(x) for x in CURR_COLOR[self.id.upper()].split(',')]
+        return {
+            'id': self.id,
+            'rate': self.last_rate,
+            'rates': self.rates,
+            'color': {
+                'r': color[0],
+                'g': color[1],
+                'b': color[2],
+            },
+        }
+
+def get_db_currency_chart(user_id: int, period: ChartPeriod, version: ChartDataVersion, base: str):
     enddate = datetime.today()
     startdate = get_start_date(enddate, period)
 
-    currencies = []
-    currencies.append({
-        'id': 'usd',
-        'code': 'USD',
-        'currentRate': 1,
-        'color': {
-            'r': 1,
-            'g': 2,
-            'b': 3,
-        }
-    })
-    datasets = []
+    rates_list: list[CurrRates] = []
     for curr in CURR_LIST:
-        if not currency_used(user_id, curr):
+        if curr == 'USD':
             continue
         rates = get_hist_exchange_rates(curr, startdate.date(), enddate.date())
         src_data = []
@@ -87,98 +114,80 @@ def get_db_currency_chart(user_id: int, period: ChartPeriod, version: ChartDataV
             sd = SourceData(event=startdate + timedelta(i), value=rates[i])
             src_data.append(sd)
         values = approximate(period, src_data, 200)
-        a = [x for x in rates if x]
+        labels = [v['x'] for v in values]
+        rates: list[Decimal] = [v['y'] for v in values]
+        curr_rates = CurrRates(id=curr.lower(), rates=rates, labels=labels)
+        rates_list.append(curr_rates)
+
+    usd_rates = CurrRates(id='usd', rates=[], labels=[])
+    if base != 'usd':
+        base_rates: CurrRates = [x for x in rates_list if x.id == base][0]
+        for i in range(len(base_rates.rates)):
+            base_rate = base_rates.rates[i]
+            if not base_rate:
+                base_rate = 1
+            usd_rates.rates.append(Decimal(1 / base_rate))
+
+            for curr_rates in rates_list:
+                if curr_rates.id == base:
+                    continue
+                tmp = curr_rates.rates[i]
+                curr_rates.rates[i] = Decimal(tmp * usd_rates.rates[i])
+
+            base_rates.rates[i] = Decimal(1)
+    rates_list.append(usd_rates)
+
+    for curr_rates in rates_list:
+        a = [x for x in curr_rates.rates if x]
         if len(a):
-            min_rate = Decimal(min(a))
-            max_rate = Decimal(max(a))
-            if version == ChartDataVersion.v1:
-                values = [(item['y']-min_rate)/(max_rate-min_rate) if item['y'] else item['y'] for item in values]
-            if version == ChartDataVersion.v2:
-                rate = 1
-                if len(values):
-                    rate = values[-1]['y']
-                color = [int(x) for x in CURR_COLOR[curr].split(',')]
-                currencies.append({
-                    'id': curr.lower(),
-                    'code': curr,
-                    'currentRate': rate,
-                    'color': {
-                        'r': color[0],
-                        'g': color[1],
-                        'b': color[2],
-                    },
-                })
-                datasets.append({
-                    'currencyId': curr.lower(),
-                    'rates': values,
-                })
-            else:
-                datasets.append({
-                    'label': curr,
-                    'data': values,
-                    'backgroundColor': f'rgba({CURR_COLOR[curr]}, 0.2)',
-                    'borderColor': f'rgba({CURR_COLOR[curr]}, 1)',
-                    'borderWidth': 1,
-                    'tension': 0.4,
-                    })
+            curr_rates.min_rate = Decimal(min(a))
+            curr_rates.max_rate = Decimal(max(a))
+            curr_rates.last_rate = a[-1]
 
-    if version == ChartDataVersion.v2:
-        return {
-            'baseId': 'usd',
-            'periodId': period.value,
-            'currencyList': currencies,
-            'rates': datasets,
-        }
-    else:
-        date = startdate
-        x = []
-        while date <= enddate:
-            x.append(date.strftime('%m.%d'))
-            date = date + timedelta(1)
-        data = {
-            'type': 'line',
-            'data': {'labels': x,
-                'datasets': datasets
-            },
-            'options': {
-                'plugins': {
-                    'legend': {
-                        'display': False,
+    match version:
+        case ChartDataVersion.v1:
+            data = {
+                'type': 'line',
+                'data': {
+                    'datasets': [x.get_info_v1() for x in rates_list]
+                },
+                'options': {
+                    'plugins': {
+                        'legend': {
+                            'display': False,
+                        },
+                    },
+                    'elements': {
+                        'point': {
+                            'radius': 0,
+                        },
                     },
                 },
-                'elements': {
-                    'point': {
-                        'radius': 0,
-                    },
-                },
-            },
-        }
-        return data
+            }
 
-def get_api_currency_chart(period: ChartPeriod, version: ChartDataVersion):
+        case ChartDataVersion.v2:
+            data = {
+                'base': base,
+                'period': period.value,
+                'labels': rates_list[0].labels,
+                'currencies': [x.get_info_v2() for x in rates_list],
+            }
+        case _: data = {}
+    return data
+
+def get_api_currency_chart(period: ChartPeriod, version: ChartDataVersion, base: str):
     api_url = os.environ.get('DJANGO_HOST_LOG', '')
     service_token = os.environ.get('DJANGO_SERVICE_TOKEN', '')
     headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
     verify = os.environ.get('DJANGO_CERT', '')
-    resp = requests.get(api_url + '/api/get_chart_data/?mark=currency&version=' + version.value + '&period=' + period.value, headers=headers, verify=verify)
+    resp = requests.get(api_url + '/api/get_chart_data/?mark=currency&version=' + version.value + '&period=' + period.value + '&base=' + base, headers=headers, verify=verify)
     if (resp.status_code != 200):
         return None
     return json.loads(resp.content)
 
-def get_chart_data(user_id: int, period: ChartPeriod, version: ChartDataVersion):
+def get_chart_data(user_id: int, period: ChartPeriod, version: ChartDataVersion, base: str):
     if os.environ.get('DJANGO_DEVICE', 'Nuc') != os.environ.get('DJANGO_LOG_DEVICE', 'Nuc'):
-        ret = get_api_currency_chart(period, version)
+        ret = get_api_currency_chart(period, version, base)
         if ret:
             return ret
-    return get_db_currency_chart(user_id, period, version)
-
-def currency_used(user_id, currency):
-    return True
-    # if Task.objects.filter(user=user_id, app_expen=NUM_ROLE_EXPENSE, price_unit=currency, event__gt=(datetime.now()-timedelta(PERIOD))).exists():
-    #     return True
-    # if Task.objects.filter(user=user_id, app_fuel=NUM_ROLE_FUEL, price_unit=currency, event__gt=(datetime.now()-timedelta(PERIOD))).exists():
-    #     return True
-    # for apart in Apart.objects.filter(user=user_id, app_apart=NUM_ROLE_APART, price_unit=currency):
-    #     if ServiceAmount.objects.filter(user=user_id, app_apart=NUM_ROLE_SERV_VALUE, task_1=apart.id, event__gt=(datetime.now()-timedelta(PERIOD))).exists():
-    #         return True
-    # return False
+    return get_db_currency_chart(user_id, period, version, base)

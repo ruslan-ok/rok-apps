@@ -48,26 +48,21 @@ type Color = {
 
 interface CurrencyInfo {
     id: string;
-    code: string;
-    currentRate: number;
+    rate: number;
+    rates: number[];
     color: Color;
 };
 
 interface Rate {
-    date: string;
-    rate: number;
-};
-
-interface CurrencyRates {
-    currencyId: string;
-    rates: Rate[];
+    x: string;
+    y: number;
 };
 
 interface WidgetData {
-    baseId: string;
-    periodId: string;
-    currencyList: CurrencyInfo[];
-    rates: CurrencyRates[];
+    base: string;
+    period: string;
+    labels: string[];
+    currencies: CurrencyInfo[];
 };
 
 
@@ -84,7 +79,7 @@ interface ChartData {
     datasets: DatasetInfo[];
 }
 
-let data: ChartData = {
+let chartData: ChartData = {
     datasets: []
 };
 
@@ -131,11 +126,12 @@ function Currency({width, height}: {width: number, height: number}) {
     }
     
     const initData: WidgetData = {
-        baseId: '',
-        periodId: '',
-        currencyList: [],
-        rates: [],
+        base: '',
+        period: '',
+        labels: [],
+        currencies: [],
     };
+
     const [values, setValues] = useState<WidgetData>(initData);
     const [base, setBase] = useState<string>(getOption('base'));
     const [period, setPeriod] = useState<string>(getOption('period'));
@@ -158,8 +154,8 @@ function Currency({width, height}: {width: number, height: number}) {
                 let resp_data: WidgetData = await response.json();
                 if (resp_data) {
                     setValues(resp_data);
-                    setBaseOption(resp_data.baseId);
-                    setPeriodOption(resp_data.periodId);
+                    setBaseOption(resp_data.base);
+                    setPeriodOption(resp_data.period);
                     setStatus('ready');
                 }
             }
@@ -174,9 +170,9 @@ function Currency({width, height}: {width: number, height: number}) {
     if (status == 'ready') {
 
         function switchVisible() {
-            const currencyList = document.getElementsByClassName('styled-checkbox');
+            const currencies = document.getElementsByClassName('styled-checkbox');
             let hidden: Array<string> = [];
-            for (const currency of currencyList) {
+            for (const currency of currencies) {
                 if (!(currency as HTMLInputElement).checked) {
                     hidden.push((currency as HTMLInputElement).name);
                 }
@@ -184,28 +180,25 @@ function Currency({width, height}: {width: number, height: number}) {
             setHiddenOption(hidden);
         }
         
-        const currencyList = values.currencyList.map(item => { return (<option key={item.id} value={item.id}>{item.code}</option>); });
-        const noBaseList = values.currencyList.filter(x => x.id != base).map(item => {
+        const currencies = values.currencies.map(item => { return (<option key={item.id} value={item.id}>{item.id.toUpperCase()}</option>); });
+        const noBaseList = values.currencies.filter(x => x.id != base).map(item => {
             const visible = !hidden.includes(item.id);
             return (
-                <StyledCheckbox key={item.id} id={item.id} text={item.code} r={item.color.r} g={item.color.g} b={item.color.b} checked={visible} onClick={switchVisible} />
+                <StyledCheckbox key={item.id} id={item.id} text={item.id.toUpperCase()} r={item.color.r} g={item.color.g} b={item.color.b} checked={visible} onClick={switchVisible} />
             );
         });
         
-        data.datasets = [];
-        values.rates.forEach(currencyRates => {
-            const currency: CurrencyInfo = values.currencyList.filter(x => x.id == currencyRates.currencyId)[0];
-            if (!hidden.includes(currency.id)) {
-                const currInfo: DatasetInfo = {
-                    label: currency.code,
-                    data: currencyRates.rates,
-                    backgroundColor: `rgba(${currency.color.r}, ${currency.color.g}, ${currency.color.b}, 0.2)`,
-                    borderColor: `rgba(${currency.color.r}, ${currency.color.g}, ${currency.color.b}, 1)`,
-                    borderWidth: 1,
-                    tension: 0.4,
-                };
-                data.datasets.push(currInfo);
-            }
+        chartData.datasets = [];
+        values.currencies.filter(x => x.id != base && !hidden.includes(x.id)).forEach(currency => {
+            const currInfo: DatasetInfo = {
+                label: currency.id.toUpperCase(),
+                data: currency.rates.map((rate, index) => { return {x: values.labels[index], y: rate } }),
+                backgroundColor: `rgba(${currency.color.r}, ${currency.color.g}, ${currency.color.b}, 0.2)`,
+                borderColor: `rgba(${currency.color.r}, ${currency.color.g}, ${currency.color.b}, 1)`,
+                borderWidth: 1,
+                tension: 0.4,
+            };
+            chartData.datasets.push(currInfo);
         });
 
         return (
@@ -213,7 +206,7 @@ function Currency({width, height}: {width: number, height: number}) {
                 <div className='title'>
                     <span id='base-curr' className='section'>
                         <select name='base-curr' defaultValue={base} onChange={e => setBaseOption(e.target.value)}>
-                            {currencyList}
+                            {currencies}
                         </select>
                     </span>
                     <span id='period' className='section'>
@@ -229,7 +222,7 @@ function Currency({width, height}: {width: number, height: number}) {
                     </span>
                     {noBaseList}
                 </div>
-                <Line ref={chartRef} options={options} data={data} width={width} height={height} key={Math.random()}/>
+                <Line ref={chartRef} options={options} data={chartData} width={width} height={height} key={Math.random()}/>
             </div>
         );
     } else {
