@@ -1,0 +1,322 @@
+#weather {
+    --title-color: black;
+    --title-backgr: rgb(235, 233, 233);
+    --period-color: white;
+    --period-backgr: rgb(0, 153, 255);
+    --period-active-backgr: rgba(0, 0, 0, 0.25);
+    --period-logo-backgr: #00296728;
+    --weather-now-color: white;
+    --kpi-list-backgr: rgba(0,0,0,.1);
+    --rain-backgr: #a1d7ff;
+    --week-day-work-color: rgb(0, 153, 255);
+    --week-end-day-color: rgb(204, 0, 0);
+    --night-backgr: rgba(0, 0, 0, 0.04);
+
+    .week-row {
+        display: flex;
+        flex-direction: row;
+
+        .week-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            width: 86px;
+
+            &.subtitle {
+                padding: 0 10px;
+            }
+        }
+    }
+
+    .widget-title {
+        font-size: 1.3rem;
+        margin: 0;
+        padding: 5px 15px;
+        background-color: var(--title-backgr);
+        color: var(--title-color);
+    }
+
+    .option-links {
+        background-color: var(--period-backgr);
+        min-height: 40px;
+
+        .nav-logo {
+            padding: 5px;
+            background-color: var(--period-logo-backgr);
+        }
+
+        .option-link {
+            text-transform: inherit;
+            font-size: 15px;
+            border: inherit;
+            border-radius: inherit;
+            padding: 3px 10px;
+            text-align: center;
+            word-wrap: break-word;
+            color: var(--period-color);
+            cursor: pointer;    
+            background-color: inherit;
+
+            &.active {
+                background-color: var(--period-active-backgr);
+            }
+        }
+    }
+    .period-container {
+
+        &.weather-now {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            text-size-adjust: none;
+            font-style: normal;
+            font-family: Arial,Helvetica,sans-serif;
+            background-image: url('/static/widgets/weather/d_c3.jpg');
+            background-size: cover;
+            color: var(--weather-now-color);
+    
+            .date-time {
+                font-weight: 400;
+                font-size: 17px;
+                line-height: 20px;
+                padding-top: 22px;    
+                margin: 0 auto;
+            }
+
+            .temp-and-icon {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+
+                div > img {
+                    width: 120px;
+                    height: 120px;
+                    margin: 20px;
+                }
+
+                span {
+                    font-weight: lighter;
+                    letter-spacing: -5px;
+                    line-height: 1;
+                    font-size: 120px;
+                    display: inline !important;
+
+                    span {
+                        left: -5px;
+                        position: relative;
+                        top: -10px;
+                        font-size: 90px;    
+                    }
+                }
+            }
+
+            .summary {
+                margin: 10px auto;
+            }
+
+            .kpi-list {
+                display: flex;
+                justify-content: space-around;
+                padding: 15px 30px;
+                background-color: var(--kpi-list-backgr);
+
+                .kpi {
+                    display: flex;
+                    flex-direction: column;
+
+                    .title {
+                        font-size: 0.8rem;
+                    }
+
+                    .description {
+                        display: flex;
+                        flex-direction: row;
+                        justify-content: center;
+                        align-items: center;
+
+                        .value {
+                            display: flex;
+                            flex-direction: row;
+                            justify-content: center;
+                            align-items: last baseline;
+
+                            .number {
+                                font-size: 2rem;
+                                margin-right: 5px;
+                            }
+                        }
+
+                        .info {
+                            font-size: 1.2rem;
+                            margin-left: 5px;
+
+                            i {
+                                display: block;
+                            }
+                        }
+                    }
+                }
+
+                .week-column.day-wind {
+                    display: flex;
+                    flex-direction: row;
+                    white-space: nowrap;
+                    align-items: center;
+                }
+            }
+        }
+
+        &.weather-day {
+
+            .table {
+                table-layout: fixed;
+            }
+
+            table > tbody > tr > td {
+                padding: 0;
+            }
+
+            .table>:not(caption)>*>* {
+                border-bottom-width: 0;
+            }
+
+            .hour-name {
+                width: 75px;
+                text-align: left;
+            }
+
+            .time-sup {
+                font-size: 0.6rem;
+            }
+
+            .hours-icon {
+                display: flex;
+                justify-content: center;
+            }
+
+            .bar {
+                background-color: white;
+                &.night {
+                    background-color: var(--night-backgr);
+                }
+
+                .bot {
+                    display: block;
+                    overflow: visible;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                }
+            }
+
+            .hour-wind {
+                text-align: center;
+                font-size: 0.8rem;
+
+                i {
+                    display: block;
+                    font-size: 1rem;
+                }
+            }
+
+            .hour-perci-td {
+                vertical-align: bottom;
+
+                .hour-preci {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: flex-end;
+                    align-items: center;
+                    font-size: 0.8rem;
+                    margin: auto;
+
+                    .bar {
+                        background-color: var(--rain-backgr);
+                        width: 100%;
+                    }
+                }
+            }
+        }
+
+        &.weather-week {
+            .week-row {
+                .week-column {
+                    &.blue {
+                        color: var(--week-day-work-color);
+                    }
+                    
+                    &.red {
+                        color: var(--week-end-day-color);
+                    }
+
+                    .day-name {
+                        margin: 0 auto;
+                    }
+                    
+                    .day-date {
+                        margin: 0 auto;
+                    }
+                    
+                    .day-icon {
+                        margin: 0 auto;
+        
+                        img.weather-icon {
+                            width: 45px;
+                            height: 45px;
+                            padding: 0;
+                            margin: 0 5px;
+                        }
+                    }
+
+                    &.bar {
+                        .top {
+                            display: flex;
+                            justify-content: center;
+                            align-items: end;
+                            background-color: var(--widget_background_color);
+                        }
+                        
+                        .mid {
+                            width: 100%;
+                            background-color: transparent;
+                            z-index: 2;
+                        }
+                        
+                        .bot {
+                            display: flex;
+                            justify-content: center;
+                            align-items: start;
+                            min-height: 25px;
+                            background-color: var(--widget_background_color);
+                        }
+                    }
+                }
+
+                &.week-wind {
+                    text-align: center;
+                    font-size: 0.9rem;
+
+                    .wind-icon {
+                        font-size: 1rem;
+                        padding: 3px;
+                    }
+                }
+
+                &.week-precipitation {
+                    text-align: center;
+                    font-size: 0.9rem;
+
+                    .day-preci {
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: flex-end;
+
+                        .bar {
+                            background-color: var(--rain-backgr);
+                            width: 100%;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -59,14 +59,10 @@ function getOption(): string {
     return ret;
 }
 
-function setOption(value: string): void {
-    localStorage.setItem('crypto-period', value);
-}
-
 function Crypto({screenWidth}: {screenWidth: number}) {
     function setPeriodOption(value: string): void {
         setPeriod(value);
-        setOption(value);
+        localStorage.setItem('crypto-period', value);
     }
     
     const [values, setValues] = useState<any>(null);
