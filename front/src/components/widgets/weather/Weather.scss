@@ -7,25 +7,25 @@
     --period-logo-backgr: #00296728;
     --weather-now-color: white;
     --kpi-list-backgr: rgba(0,0,0,.1);
+    --rain-color: #62b2ed;
     --rain-backgr: #a1d7ff;
     --week-day-work-color: rgb(0, 153, 255);
     --week-end-day-color: rgb(204, 0, 0);
-    --night-backgr: rgba(0, 0, 0, 0.04);
+    --twilight-backgr: rgba(0, 0, 255, 0.02);
+    --night-backgr: rgba(0, 0, 255, 0.04);
+    --weekend-backgr: rgba(255, 0, 0, 0.02);
+    --subtitle-backgr: rgba(255, 255, 255, 0.7);
 
-    .week-row {
-        display: flex;
-        flex-direction: row;
+    .table {
+        table-layout: fixed;
+    }
 
-        .week-column {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            width: 86px;
+    table > tbody > tr > td {
+        padding: 0;
+    }
 
-            &.subtitle {
-                padding: 0 10px;
-            }
-        }
+    .table>:not(caption)>*>* {
+        border-bottom-width: 0;
     }
 
     .widget-title {
@@ -37,6 +37,8 @@
     }
 
     .option-links {
+        display: flex;
+        flex-direction: row;
         background-color: var(--period-backgr);
         min-height: 40px;
 
@@ -63,6 +65,13 @@
         }
     }
     .period-container {
+
+        .overflow-td {
+            display: block;
+            overflow: visible;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
 
         &.weather-now {
             display: flex;
@@ -168,16 +177,29 @@
 
         &.weather-day {
 
-            .table {
-                table-layout: fixed;
+            .twilight {
+                background-color: var(--twilight-backgr);
             }
 
-            table > tbody > tr > td {
-                padding: 0;
+            .night {
+                background-color: var(--night-backgr);
             }
 
-            .table>:not(caption)>*>* {
-                border-bottom-width: 0;
+            .subtitle-backgr {
+                background-color: var(--subtitle-backgr);
+                padding: 0 5px;
+            }
+
+            .day-name {
+                font-size: 0.7rem;
+
+                &.blue {
+                    color: var(--week-day-work-color);
+                }
+                
+                &.red {
+                    color: var(--week-end-day-color);
+                }
             }
 
             .hour-name {
@@ -192,20 +214,6 @@
             .hours-icon {
                 display: flex;
                 justify-content: center;
-            }
-
-            .bar {
-                background-color: white;
-                &.night {
-                    background-color: var(--night-backgr);
-                }
-
-                .bot {
-                    display: block;
-                    overflow: visible;
-                    white-space: nowrap;
-                    text-overflow: ellipsis;
-                }
             }
 
             .hour-wind {
@@ -239,7 +247,12 @@
 
         &.weather-week {
             .week-row {
+                &.subtitle td {
+                    padding: 0 10px;
+                }
+
                 .week-column {
+
                     &.blue {
                         color: var(--week-day-work-color);
                     }
@@ -248,16 +261,24 @@
                         color: var(--week-end-day-color);
                     }
 
+                    &.weekend {
+                        background-color: var(--weekend-backgr);
+                    }
+
                     .day-name {
                         margin: 0 auto;
+                        text-align: center;
                     }
                     
                     .day-date {
                         margin: 0 auto;
+                        text-align: center;
                     }
                     
                     .day-icon {
+                        display: flex;
                         margin: 0 auto;
+                        justify-content: center;
         
                         img.weather-icon {
                             width: 45px;
@@ -272,13 +293,10 @@
                             display: flex;
                             justify-content: center;
                             align-items: end;
-                            background-color: var(--widget_background_color);
                         }
                         
                         .mid {
                             width: 100%;
-                            background-color: transparent;
-                            z-index: 2;
                         }
                         
                         .bot {
@@ -286,7 +304,6 @@
                             justify-content: center;
                             align-items: start;
                             min-height: 25px;
-                            background-color: var(--widget_background_color);
                         }
                     }
                 }
@@ -306,9 +323,7 @@
                     font-size: 0.9rem;
 
                     .day-preci {
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: flex-end;
+                        vertical-align: bottom;
 
                         .bar {
                             background-color: var(--rain-backgr);
@@ -318,5 +333,11 @@
                 }
             }
         }
+    }
+}
+
+@media screen and (min-width: 768px) {
+    #weather .period-container.weather-day .day-name{
+        font-size: 1rem;
     }
 }

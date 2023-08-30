@@ -1,15 +1,14 @@
 import type { TempBarHeight } from './WeatherUtils';
-import { getDayDate, getIconHref, getHourNum, getHourName, getTempBarsInfo } from './WeatherUtils';
+import { getDayName, getDayDate, getDayColor, getIconHref, getHourNum, getTempBarsInfo, checkNight } from './WeatherUtils';
 
 export default function WeatherForTheDay({values}: {values: any}) {
 
-    let d1_day;
-    let d2_day;
+    let d1_day: number | undefined;
+    let d2_day: number | undefined;
     let d1_span = 0;
     let d2_span = 0;
     let d1_span_correct = 0;
     let d2_span_correct = 0;
-    let days;
     for (let i = 0; i < values.for_day.length; i++) {
         const dt = new Date(values.for_day[i].event);
         if (i == 0)
@@ -47,42 +46,76 @@ export default function WeatherForTheDay({values}: {values: any}) {
     if (curr.length > 1)
         aggs.push(curr);
 
-    if (d2_day == undefined || d2_span == 0)
-        days = (
-            <td key={d1_day} colSpan={d1_span}>
-                {getDayDate(values.for_day[0].event, 0)}
-            </td>);
-    else
-        days = ([
-            <td key={d1_day} colSpan={d1_span + d1_span_correct}>
-                {getDayDate(values.for_day[0].event, 0)}
-            </td>,
-            <td key={d2_day} colSpan={d2_span + d2_span_correct}>
-                {getDayDate(values.for_day[d1_span].event, 1)}
-            </td>
-        ]);
+    const days = values.for_day.map((hour: any, index: number) => {
+        let cellClass: string[] = [];
+        checkNight(cellClass, hour.event, d1_span_correct);
 
-    const hours = aggs.map((group: number[]) => {
-        const name = getHourName(values.for_day[group[0]].event);
-        return (<td key={group[0]} colSpan={3} className='hour-name'>
-            {name}<sup className="time-sup">00</sup>
+        let name = '';
+        if (index == 0) {
+            name = getDayName(hour.event) + ' ' + getDayDate(hour.event, 0);
+            cellClass.push('day-name overflow-td ' + getDayColor(hour.event));
+        }
+        else {
+            if (d2_day != undefined && index == (d1_span + d1_span_correct)) {
+                name = getDayName(hour.event) + ' ' + getDayDate(hour.event, 0);
+                cellClass.push('day-name overflow-td ' + getDayColor(hour.event));
+            }
+        }
+        return (<td key={hour.event} className={cellClass.join(' ')}>{name}</td>);
+    });
+    
+    const hours = values.for_day.map((hour: any, index: number) => {
+        let cellClass: string[] = ['hour-name'];
+        checkNight(cellClass, hour.event, d1_span_correct);
+        const hourNum = getHourNum(hour.event, d1_span_correct);
+        let name = '', sup;
+        if (index % 3 == 0) {
+            name = hourNum.toString();
+            sup = <sup className="time-sup">00</sup>;
+        }
+        return (<td key={hour.event} className={cellClass.join(' ')}>
+            {name}{sup}
         </td>);
     });
     
-    const icons = aggs.map((group: number[]) => {
-    const href = getIconHref(values.for_day[group[1]].icon_num);
+    const icons = values.for_day.map((hour: any, index: number) => {
+        let cellClass: string[] = [];
+        checkNight(cellClass, hour.event, d1_span_correct);
+        if (index % 3 != 1) {
+            return (<td key={hour.event} className={cellClass.join(' ')}></td>);
+        }
+        cellClass.push('icon-td');
+        const href = getIconHref(values.for_day[index - d1_span_correct].icon_num);
         return (
-            <td key={group[0]} colSpan={3}>
+            <td key={hour.event} className={cellClass.join(' ')}>
                 <div className='hours-icon'><img className="weather-icon" src={href} /></div>
             </td>
         );
     });
 
+    function buildSubtitle(subtitle: string) {
+        return values.for_day.map((hour: any, index: number) => {
+            let cellClass: string[] = [];
+            checkNight(cellClass, hour.event, d1_span_correct);
+            if (index == 0) {
+                cellClass.push('overflow-td');
+                return (
+                    <td key={hour.event} className={cellClass.join(' ')}>
+                        <span className='subtitle-backgr'>{subtitle}</span>
+                    </td>
+                );
+            }
+            return (<td key={hour.event} className={cellClass.join(' ')}></td>);
+        });
+    }
+
+    const titleTemp = buildSubtitle('Температура воздуха, °C');
+    
     const tempBarHeights: TempBarHeight[] = getTempBarsInfo(values.for_day, false);
-    const tempBars = values.for_day.map((day: any, index: number) => {
+    const tempBars = values.for_day.map((hour: any, index: number) => {
+        let cellClass: string[] = ['bar day-column'];
+        checkNight(cellClass, hour.event, d1_span_correct);
         if (index < tempBarHeights.length) {
-            const hour = getHourNum(day.event) + d2_span_correct;
-            const night = (hour > 19 || hour < 7);
             const topStyle = {height: tempBarHeights[index].top};
             const midStyle = {
                 height: 15, 
@@ -92,31 +125,44 @@ export default function WeatherForTheDay({values}: {values: any}) {
             };
             const botStyle = {height: 25};
             return (
-                <td className={night ? 'bar day-column night' :  'bar day-column'} key={day.event}>
+                <td className={cellClass.join(' ')} key={hour.event}>
                     <div className='top' style={topStyle}></div>
                     <div className='mid' style={midStyle}></div>
-                    <div className='bot' style={botStyle}>{index % 3 == 1 ? tempBarHeights[index].avgTemp : ''}</div>
+                    <div className='bot overflow-td' style={botStyle}>{index % 3 == 1 ? tempBarHeights[index].avgTemp : ''}</div>
                 </td>
             );
         } else {
-            return (<div className='bar day-column'></div>);
+            return (<div className={cellClass.join(' ')}></div>);
         }
     });
 
-    const wind = values.for_day.map((day: any) => {
-        const value = Math.round(+day.wind_speed);
-        const windDirStyle = {transform: `rotate(${day.wind_angle}deg)`};
-        return (<td className='day-column hour-wind' key={day.event}>{value}<i className='bi-arrow-up wind-icon' style={windDirStyle}></i></td>);
+    const titleWind = buildSubtitle('Порывы ветра, м/c');
+    
+    const wind = values.for_day.map((hour: any) => {
+        let cellClass: string[] = ['day-column hour-wind'];
+        checkNight(cellClass, hour.event, d1_span_correct);
+        const value = Math.round(+hour.wind_speed);
+        const windDirStyle = {transform: `rotate(${hour.wind_angle}deg)`};
+        return (
+            <td className={cellClass.join(' ')} key={hour.event}>
+                {value}
+                <i className='bi-arrow-up wind-icon' style={windDirStyle}></i>
+            </td>
+        );
     });
 
+    const titlePreci = buildSubtitle('Осадки, мм');
+    
     const maxPreci = tempBarHeights.map(x => x.precipitation).reduce(function(prev: number, curr: number) { return prev > curr ? prev : curr; });
     const precipitation = values.for_day.map((hour: any) => {
+        let cellClass: string[] = ['day-column hour-perci-td'];
+        checkNight(cellClass, hour.event, d1_span_correct);
         const maxHeight = 20;
         const value = +hour.prec_total;
         const color = value == 0 ? 'gray' : '#62b2ed'; 
         const height = maxPreci == 0 ? 0 : maxHeight * value / maxPreci;
         return (
-            <td className='day-column hour-perci-td' key={hour.event}>
+            <td className={cellClass.join(' ')} key={hour.event}>
                 <div className='hour-preci'>
                     <div className='value' style={{color: color}}>{value}</div>
                     <div className='bar' style={{height: height}}></div>
@@ -145,25 +191,19 @@ export default function WeatherForTheDay({values}: {values: any}) {
                         {icons}
                     </tr>
                     <tr>
-                        <td colSpan={values.for_day.length}>
-                            Температура воздуха, °C
-                        </td>
+                        {titleTemp}
                     </tr>
                     <tr>
                         {tempBars}
                     </tr>
                     <tr>
-                        <td colSpan={values.for_day.length}>
-                            Порывы ветра, м/c
-                        </td>
+                       {titleWind}
                     </tr>
                     <tr>
                         {wind}
                     </tr>
                     <tr>
-                        <td colSpan={values.for_day.length}>
-                            Осадки, мм
-                        </td>
+                        {titlePreci}
                     </tr>
                     <tr>
                         {precipitation}

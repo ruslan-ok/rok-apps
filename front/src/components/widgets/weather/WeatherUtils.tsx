@@ -153,13 +153,37 @@ export function getDayDate(dayDate: string, index: number): string {
     return ret;
 }
 
-export function getHourNum(dayDate: string): number {
+export function getHourNum(dayDate: string, correct: number = 0): number {
     const dt = new Date(dayDate);
-    const hour = dt.getHours();
+    let hour = dt.getHours() - correct;
+    if (hour < 0) {
+        hour = 23;
+    }
+    if (hour > 23) {
+        hour = 0;
+    }
     return hour;
 }
 
 export function getHourName(dayDate: string): string {
     let hr = getHourNum(dayDate);
     return hr.toString();
+}
+
+export function checkNight(cellClass: string[], event: string, correct: number) {
+    const hour = getHourNum(event, correct);
+    if (hour > 22 || hour < 7) {
+        cellClass.push('night');
+    }
+    if (hour == 22 || hour == 7) {
+        cellClass.push('twilight');
+    }
+}
+
+export function checkWeekend(cellClass: string[], event: string) {
+    const dt = new Date(event);
+    const day = dt.getDay();
+    if (day == 0 || day == 6) {
+        cellClass.push('weekend');
+    }
 }
