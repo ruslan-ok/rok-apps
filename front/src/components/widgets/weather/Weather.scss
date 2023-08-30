@@ -28,6 +28,13 @@
         border-bottom-width: 0;
     }
 
+    .warning {
+        height: 200px;
+        width: 100%;
+        text-align: center;
+        vertical-align: middle;
+    }
+
     .widget-title {
         font-size: 1.3rem;
         margin: 0;
@@ -39,30 +46,58 @@
     .option-links {
         display: flex;
         flex-direction: row;
+        justify-content: space-between;
         background-color: var(--period-backgr);
         min-height: 40px;
 
-        .nav-logo {
-            padding: 5px;
-            background-color: var(--period-logo-backgr);
-        }
+        .left {
+            display: flex;
+            flex-direction: row;
 
-        .option-link {
-            text-transform: inherit;
-            font-size: 15px;
-            border: inherit;
-            border-radius: inherit;
-            padding: 3px 10px;
-            text-align: center;
-            word-wrap: break-word;
-            color: var(--period-color);
-            cursor: pointer;    
-            background-color: inherit;
-
-            &.active {
-                background-color: var(--period-active-backgr);
+            .nav-logo {
+                padding: 5px;
+                background-color: var(--period-logo-backgr);
+            }
+    
+            .option-link {
+                text-transform: inherit;
+                font-size: 15px;
+                border: inherit;
+                border-radius: inherit;
+                padding: 3px 10px;
+                text-align: center;
+                word-wrap: break-word;
+                color: var(--period-color);
+                cursor: pointer;    
+                background-color: inherit;
+    
+                &.active {
+                    background-color: var(--period-active-backgr);
+                }
             }
         }
+        form.right {
+            width: auto;
+            display: flex;
+            align-items: center;
+
+            .location-cb {
+                font-size: 2rem;;                
+                margin: 0 5px;
+            }
+            .location-name {
+                width: 100px;
+                margin: 0 5px;
+                padding: 3px;
+                border: none;
+                border-radius: 10px;
+            }
+            .location-btn {
+                padding: 3px 5px;
+                border-radius: 10px;
+            }
+        }
+            
     }
     .period-container {
 

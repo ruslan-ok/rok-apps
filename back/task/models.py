@@ -1385,6 +1385,7 @@ class Weather(models.Model):
     ev_type = models.IntegerField('Event type: current, historical, forecasted', null=False, choices=EVENT_TYPE, default=CURRENT)
     lat = models.CharField('Latitude', max_length=10, blank=True)
     lon = models.CharField('Longitude', max_length=10, blank=True)
+    location = models.CharField('Location', max_length=200, blank=True)
     elevation = models.IntegerField('Elevation', null=True)
     timezone = models.CharField('Timezone', max_length=20, blank=True)
     units = models.CharField('Units', max_length=10, blank=True)
@@ -1400,6 +1401,28 @@ class Weather(models.Model):
     prec_total = models.DecimalField('Precipitation total', null=True, max_digits=10, decimal_places=1)
     prec_type = models.CharField('Precipitation type', max_length=10, blank=True)
     cloud_cover = models.IntegerField('Cloud cover', null=True)
+
+    class Meta:
+        unique_together = ('location', 'lat', 'lon', 'ev_type', 'event', 'fixed')
+
+class Astro(models.Model):
+    date = models.DateField('Date of the astro events', blank=False, null=False)
+    lat = models.CharField('Latitude', max_length=10, blank=True)
+    lon = models.CharField('Longitude', max_length=10, blank=True)
+    location = models.CharField('Location', max_length=200, blank=True)
+    day_length = models.IntegerField('Length of the day', null=True)
+    sunrise = models.DateTimeField('Sunrise', blank=True, null=True)
+    sunset = models.DateTimeField('Sunset', blank=True, null=True)
+    solar_noon = models.DateTimeField('Solar noon', blank=True, null=True)
+    civil_twilight_begin = models.DateTimeField('Civil twilight begin', blank=True, null=True)
+    civil_twilight_end = models.DateTimeField('Civil twilight end', blank=True, null=True)
+    nautical_twilight_begin = models.DateTimeField('Nautical twilight begin', blank=True, null=True)
+    nautical_twilight_end = models.DateTimeField('Nautical twilight end', blank=True, null=True)
+    astronomical_twilight_begin = models.DateTimeField('Astronomical twilight begin', blank=True, null=True)
+    astronomical_twilight_end = models.DateTimeField('Astronomical twilight end', blank=True, null=True)
+
+    class Meta:
+        unique_together = ('location', 'lat', 'lon', 'date')
 
 class CurrencyRate(models.Model):
     currency = models.CharField('Currency', max_length=10, blank=False)

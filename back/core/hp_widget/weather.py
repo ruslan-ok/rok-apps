@@ -25,9 +25,10 @@ def get_weather():
             resp = requests.get(url, headers=headers)
             if resp.status_code == 200:
                 ret = json.loads(resp.content)
+                fixed = datetime.now().replace(second=0, microsecond=0)
                 weather = Weather.objects.create(
                     event=datetime.now(),
-                    fixed=datetime.now(),
+                    fixed=fixed,
                     ev_type=CURRENT,
                     lat=lat,
                     lon=lon,
@@ -48,7 +49,7 @@ def get_weather():
                 for hour in ret['hourly']['data']:
                     Weather.objects.create(
                         event=datetime.strptime(hour['date'], '%Y-%m-%dT%H:%M:%S'),
-                        fixed=datetime.now(),
+                        fixed=fixed,
                         ev_type=FORECASTED_HOURLY,
                         lat=lat,
                         lon=lon,
@@ -72,7 +73,7 @@ def get_weather():
                 for day in ret['daily']['data']:
                     Weather.objects.create(
                         event=datetime.strptime(day['day'], '%Y-%m-%d'),
-                        fixed=datetime.now(),
+                        fixed=fixed,
                         ev_type=FORECASTED_DAILY,
                         lat=lat,
                         lon=lon,
