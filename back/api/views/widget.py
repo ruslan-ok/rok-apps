@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, date
 from rest_framework.decorators import api_view, permission_classes, renderer_classes
 from rest_framework.permissions import IsAuthenticated
@@ -12,6 +13,7 @@ from health.views.chart import get_chart_data as get_health_data
 from core.hp_widget.currency import get_currency, get_chart_data as get_currency_data
 from core.hp_widget.crypto import get_crypto, get_chart_data as get_crypto_data
 from core.hp_widget.weather import get_weather, get_chart_data as get_weather_data
+from weather.utils import get_chart_data as get_forecast
 from core.hp_widget.delta import ChartPeriod, ChartDataVersion
 
 @api_view()
@@ -24,7 +26,7 @@ def get_widget(request):
     match id:
         case 'todo': template_name, context = get_todo(request)
         case 'logs': template_name, context = get_logs(request)
-        case 'weather': template_name, context = get_weather()
+        case 'weather': template_name, context = get_weather(request)
         case 'visited': template_name, context = get_visited(request)
         case 'crypto': template_name, context = get_crypto(request)
         case 'currency': template_name, context = get_currency(request)
@@ -59,7 +61,9 @@ def get_chart_data(request):
     s_period = request.GET.get('period', '')
     s_version = request.GET.get('version', '1')
     base = request.GET.get('base', 'usd')
-    place = request.GET.get('place', '')
+    location = request.GET.get('location', '')
+    lat = request.GET.get('lat', os.getenv('API_WEATHER_LAT'))
+    lon = request.GET.get('lon', os.getenv('API_WEATHER_LON'))
     try:
         period = ChartPeriod(s_period)
     except:
@@ -79,7 +83,11 @@ def get_chart_data(request):
         case 'weight' | 'waist' | 'temp' | 'health': data = get_health_data(request.user.id, mark, period, version)
         case 'currency': data = get_currency_data(request.user.id, period, version, base)
         case 'crypto': data = get_crypto_data(period, version)
-        case 'weather': data = get_weather_data(request.user, version, place)
+        case 'weather':
+            match version:
+                case ChartDataVersion.v1: data = get_weather_data(request.user.id)
+                case ChartDataVersion.v2: data = get_forecast(request.user, location, lat, lon)
+                case _: data = {}
         case _: data = {}
     return Response(data)
 

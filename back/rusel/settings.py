@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'task.apps.TaskConfig',
     'todo.apps.TodoConfig',
     'warr.apps.WarrConfig',
+    'weather.apps.WeatherConfig',
     'logs.apps.LogsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
