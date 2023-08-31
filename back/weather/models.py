@@ -3,8 +3,8 @@ from django.db import models
 class Place(models.Model):
     place_id = models.CharField('place_id', max_length=200, blank=False)
     name = models.CharField('name', max_length=100, blank=False)
-    adm_area1 = models.CharField('adm_area1', max_length=100, blank=True)
-    adm_area2 = models.CharField('adm_area2', max_length=100, blank=True)
+    adm_area1 = models.CharField('adm_area1', max_length=100, blank=True, null=True)
+    adm_area2 = models.CharField('adm_area2', max_length=100, blank=True, null=True)
     country = models.CharField('country', max_length=100, blank=True)
     lat = models.CharField('lat', max_length=12, blank=True)
     lon = models.CharField('lon', max_length=12, blank=True)
@@ -69,3 +69,12 @@ class Forecast(models.Model):
 
     class Meta:
         unique_together = ('place', 'fixed', 'ev_type', 'event')
+
+    def __repr__(self):
+        type = '?'
+        match self.ev_type:
+            case 1: type = 'CURRENT'
+            case 2: type = 'HISTORICAL'
+            case 3: type = 'HOURLY'
+            case 4: type = 'DAILY'
+        return self.place.name + ': ' + type + ' ' + str(self.event)

@@ -6,7 +6,8 @@ import Spinner from '../../Spinner';
 import WeatherNow from './WeatherNow';
 import WeatherForTheDay from './WeatherForTheDay';
 import WeatherForTheWeek from './WeatherForTheWeek';
-import WeatherSetLocation from './WeatherSetLocation';
+import WeatherMessage from './WeatherMessage';
+import { getIconHref } from './WeatherUtils';
 import '../../../../static/css/Weather.min.css';
 
 function getPeriodOption(): string {
@@ -40,6 +41,7 @@ export default function Weather({screenWidth}: {screenWidth: number}) {
     
     const [period, setPeriod] = useState(getPeriodOption());
     const [values, setValues] = useState<any>(null);
+    const [message, setMessage] = useState('');
     const [status, setStatus] = useState('init');
     const [brsrLoc, setBrsrLoc] = useState(getBrsrLocOption());
     const [location, setLocation] = useState(getLocationOption());
@@ -73,8 +75,10 @@ export default function Weather({screenWidth}: {screenWidth: number}) {
                 lon = coord.lon;
             }
 
-            if (!loc && !lat && ! lon)
-                setStatus('set_location');
+            if (!loc && !lat && ! lon) {
+                setStatus('mess');
+                setMessage('Define the location.');
+            }
             else{
                 const url = apiUrl + `api/get_chart_data/?mark=weather&version=v2&location=${loc}&lat=${lat}&lon=${lon}`;
                 const cred: RequestCredentials = 'include';
@@ -86,9 +90,14 @@ export default function Weather({screenWidth}: {screenWidth: number}) {
                 const response = await fetch(url, options);
                 if (response.ok) {
                     let resp_data = await response.json();
-                    if (resp_data && resp_data.result == 'ok') {
+                    if (resp_data) {
                         setValues(resp_data.data);
-                        setStatus('ready');
+                        if (resp_data.result == 'ok')
+                            setStatus('ready');
+                        else {
+                            setStatus('mess');
+                            setMessage(resp_data.procedure + ': ' + resp_data.info);
+                        }
                     }
                 }
             }
@@ -119,7 +128,9 @@ export default function Weather({screenWidth}: {screenWidth: number}) {
     const cr_info = (values && values.cr_info) ? values.cr_info : '???';
     const cr_url = (values && values.cr_url) ? values.cr_url : '#';
 
-    if (status != 'ready' && status != 'set_location') {
+    const ms_href = getIconHref(7);
+
+    if (status != 'ready' && status != 'mess') {
         return <Spinner width={widgetWidth} height={widgetHeight} />;
     } else {
         return (
@@ -127,7 +138,7 @@ export default function Weather({screenWidth}: {screenWidth: number}) {
                 <div className='widget-content' id='weather'>
                     <div className='week-row option-links'>
                         <div className='left'>
-                            <a className="nav-logo" title={cr_info} href={cr_url}>
+                            <a className="nav-logo big" title={cr_info} href={cr_url}>
                                 <svg width="99" height="15" viewBox="0 0 199 30" xmlns="http://www.w3.org/2000/svg">
                                     <title>Meteosource Weather API</title>
                                     <defs>
@@ -141,6 +152,11 @@ export default function Weather({screenWidth}: {screenWidth: number}) {
                                         <path d="M6.948 29h23.62l.37-.035C34.924 28.585 38 25.204 38 21.14c0-4.342-3.496-7.86-7.806-7.86-.661 0-1.31.083-1.938.244l-1.097.282-.144-1.124C26.384 7.742 22.187 4 17.194 4 11.725 4 7.29 8.462 7.29 13.969c0 .529.041 1.052.122 1.567l.164 1.046-1.054.104C3.403 16.994 1 19.646 1 22.828c0 3.275 2.54 5.973 5.768 6.161l.18.011z" stroke="url(#logo-meteosource.inverse-a)" strokeWidth="2"></path>
                                     </g>
                                 </svg>
+                                <span className="visually-hidden">Weather API</span>
+                            </a>
+
+                            <a className="nav-logo small" title={cr_info} href={cr_url}>
+                                <img className="weather-icon" src={ms_href} />
                                 <span className="visually-hidden">Weather API</span>
                             </a>
 
@@ -158,7 +174,7 @@ export default function Weather({screenWidth}: {screenWidth: number}) {
                         </Form>
                     </div>
                     {
-                        status == 'set_location' ? <WeatherSetLocation /> :
+                        status == 'mess' ? <WeatherMessage     message={message} /> :
                         period == 'now' ?  <WeatherNow         values={values} /> :
                         period == 'day' ?  <WeatherForTheDay   values={values} /> :
                         period == 'week' ? <WeatherForTheWeek  values={values} /> : 

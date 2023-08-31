@@ -15,6 +15,7 @@
     --night-backgr: rgba(0, 0, 255, 0.04);
     --weekend-backgr: rgba(255, 0, 0, 0.02);
     --subtitle-backgr: rgba(255, 255, 255, 0.7);
+    --location-backgr: rgb(200, 233, 255);
 
     .table {
         table-layout: fixed;
@@ -36,11 +37,22 @@
     }
 
     .widget-title {
+        display: flex;
+        justify-content: safe;
         font-size: 1.3rem;
         margin: 0;
         padding: 5px 15px;
         background-color: var(--title-backgr);
         color: var(--title-color);
+        .location {
+            overflow-x: scroll;
+            white-space: nowrap;
+            text-align: end;
+        }
+        .period {
+            width: auto;
+            white-space: nowrap;
+        }
     }
 
     .option-links {
@@ -57,6 +69,11 @@
             .nav-logo {
                 padding: 5px;
                 background-color: var(--period-logo-backgr);
+
+                &.small {
+                    width: 40px;
+                    height: 40px;
+                }
             }
     
             .option-link {
@@ -82,7 +99,7 @@
             align-items: center;
 
             .location-cb {
-                font-size: 2rem;;                
+                font-size: 2rem;
                 margin: 0 5px;
             }
             .location-name {
@@ -91,10 +108,13 @@
                 padding: 3px;
                 border: none;
                 border-radius: 10px;
+                background-color: var(--location-backgr);
             }
             .location-btn {
                 padding: 3px 5px;
                 border-radius: 10px;
+                color: var(--period-color);
+                background-color: var(--period-active-backgr);
             }
         }
             
@@ -142,7 +162,6 @@
                     font-weight: lighter;
                     letter-spacing: -5px;
                     line-height: 1;
-                    font-size: 120px;
                     display: inline !important;
 
                     span {
@@ -371,8 +390,33 @@
     }
 }
 
+@media screen and (min-width: 50px) {
+    #weather .period-container .temp-and-icon span {
+        font-size: 4rem;
+    }
+
+    .nav-logo.big {
+        display: none;
+    }
+    .nav-logo.small {
+        display: flex;
+    }
+}
+
 @media screen and (min-width: 768px) {
     #weather .period-container.weather-day .day-name{
         font-size: 1rem;
+    }
+
+    #weather .period-container .temp-and-icon span {
+        font-size: 6rem;
+    }
+
+    .nav-logo.big {
+        display: flex;
+        align-items: center;
+    }
+    .nav-logo.small {
+        display: none;
     }
 }

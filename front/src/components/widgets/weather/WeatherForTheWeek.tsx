@@ -108,7 +108,7 @@ export default function WeatherForTheWeek({values}: {values: any}) {
     return (
         <div className='weather-week period-container'>
             <div className='week-row widget-title'>
-                <span>Погода во Вроцлаве на 7 дней</span>
+                <span className='location'>{values.place}</span><span className='period'>: погода на неделю</span>
             </div>
             <table className="table table-borderles">
                 <tbody>

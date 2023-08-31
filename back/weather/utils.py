@@ -35,6 +35,15 @@ def get_place(location: str, lat: str, lon: str) -> Place:
         if resp.status_code != 200:
             raise WeatherError('get_place', f'(1) Bad response status code: {resp.status_code}')
         ret = json.loads(resp.content)
+        if type(ret) == list:
+            if len(ret) > 1:
+                tmp = [x for x in ret if x['country'] in ('Republic of Belarus', 'Poland')]
+                if len(tmp) > 0:
+                    ret = tmp[0]
+        if type(ret) == list and len(ret) > 0:
+            ret = ret[0]
+        if type(ret) != dict:
+            raise WeatherError('get_place', f'Wrong type of response data: {ret}')
         place = Place.objects.create(
             place_id = ret['place_id'],
             name = ret['name'],
@@ -354,18 +363,18 @@ def get_forecast_data(place: Place, forecast, astro: AstroData) -> dict:
 def get_db_chart_data(user, location: str, lat: str, lon: str) -> dict:
     place = get_place(location, lat, lon)
     lifetime = datetime.now() - timedelta(hours=2)
-    forecast = Forecast.objects.filter(place_id=place.id, event__gt=lifetime).order_by('event')
+    forecast = Forecast.objects.filter(place=place.id, fixed__gt=lifetime).order_by('event')
     astro = get_astro(place)
     if not len(forecast):
         get_forecast_api_data(place)
-        forecast = Forecast.objects.filter(place_id=place.id, event__gt=lifetime).order_by('event')
+        forecast = Forecast.objects.filter(place=place.id, fixed__gt=lifetime).order_by('event')
     ret = get_forecast_data(place, forecast, astro)
     return ret
 
 def get_chart_data(user, location: str, lat: str, lon: str):
     if os.environ.get('DJANGO_DEVICE', 'Nuc') != os.environ.get('DJANGO_LOG_DEVICE', 'Nuc'):
         ret = get_api_chart_data(location, lat, lon)
-        return {'result': 'ok', 'data': ret}
+        return ret
     try:
         ret = get_db_chart_data(user, location, lat, lon)
         return {'result': 'ok', 'data': ret}

@@ -21,7 +21,7 @@ export default function WeatherNow({values}: {values: any}) {
     return (
         <div className='weather-now period-container'>
             <div className='week-row widget-title'>
-                <span>Погода во Вроцлаве сейчас</span>
+                <span className='location'>{values.place}</span><span className='period'>: погода сейчас</span>
             </div>
             <div className='date-time'>{dateTime}</div>
             <div className='temp-and-icon'>

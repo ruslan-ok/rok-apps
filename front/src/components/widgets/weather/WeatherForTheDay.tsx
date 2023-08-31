@@ -180,7 +180,7 @@ export default function WeatherForTheDay({values}: {values: any}) {
     return (
         <div className='weather-day period-container'>
             <div className='week-row widget-title'>
-                <span>Погода во Вроцлаве на сутки</span>
+                <span className='location'>{values.place}</span><span className='period'>: погода на сутки</span>
             </div>
             <table className="table table-borderles">
             {/* <>table-bordered</>
