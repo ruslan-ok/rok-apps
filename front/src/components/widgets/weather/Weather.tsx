@@ -86,8 +86,8 @@ export default function Weather({screenWidth}: {screenWidth: number}) {
                 const response = await fetch(url, options);
                 if (response.ok) {
                     let resp_data = await response.json();
-                    if (resp_data) {
-                        setValues(resp_data);
+                    if (resp_data && resp_data.result == 'ok') {
+                        setValues(resp_data.data);
                         setStatus('ready');
                     }
                 }

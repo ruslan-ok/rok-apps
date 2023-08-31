@@ -170,12 +170,12 @@ export function getHourName(dayDate: string): string {
     return hr.toString();
 }
 
-export function checkNight(cellClass: string[], event: string, correct: number) {
+export function checkNight(cellClass: string[], event: string, correct: number, sunrize: number, sunset: number) {
     const hour = getHourNum(event, correct);
-    if (hour > 22 || hour < 7) {
+    if (hour > sunset || hour < sunrize) {
         cellClass.push('night');
     }
-    if (hour == 22 || hour == 7) {
+    if (hour == sunset || hour == sunrize) {
         cellClass.push('twilight');
     }
 }
