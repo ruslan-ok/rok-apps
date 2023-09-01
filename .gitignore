@@ -1,31 +1,47 @@
-db.sqlite3
-sqlite3.exe
+# Settings
+.vscode
+.project
+.pydevproject
+
+# Back
+back/react/templates/react/index.html
+back/static/assets
+back/static/css/*.css
+back/static/css/*.css.map
+
+# Front
+front/dist
+front/media
+front/static
+front/node_modules
+
+# Django
 *.pyc
+manage.py
 django.mo
 django.po
 migrations
-migrations_zen
-manage.py
-etalon.py
+
+# Secrets
 s.bat
-secret.py
-todo/fcm/
-DateTimeShortcuts.js
-firebase-messaging-sw.js
-.project
-.pydevproject
-rusel-by-firebase-adminsdk-*.json
-static/css/*.css
-static/css/*.css.map
-static/backgrounds/*/*.*
+db.sqlite3
+sqlite3.exe
 MailBackup.vbs
+firebase-messaging-sw.js
+rusel-by-firebase-adminsdk-*.json
+unpublished
 *.pem
-*/unpublished/*
+
+
+
 
 
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
+
+# Thumbnails
+._*
 
 # Folder config file
 Desktop.ini
@@ -42,19 +58,10 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# =========================
-# Operating System Files
-# =========================
-
 # OSX
-# =========================
-
 .DS_Store
 .AppleDouble
 .LSOverride
-
-# Thumbnails
-._*
 
 # Files that might appear on external disk
 .Spotlight-V100
@@ -71,14 +78,3 @@ Temporary Items
 logs
 *.log
 npm-debug.log*
-
-# Editor directories and files
-*/.vscode/*
-
-# Front
-node_modules
-dist
-dist-ssr
-*.local
-front/static/*
-front/media/*

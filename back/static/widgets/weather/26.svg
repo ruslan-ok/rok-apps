@@ -1,0 +1,9 @@
+<svg width="45" height="45" viewBox="0 0 45 45" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient x1="73.425%" y1="76.631%" x2="96.256%" y2="12.84%" id="ico-45-forecast-noc-jasno-a">
+            <stop stop-color="#2E3234" offset="0%"/>
+            <stop stop-color="#3F4448" offset="100%"/>
+        </linearGradient>
+    </defs>
+    <path d="M16.734 9.762a14.253 14.253 0 00-.505 3.771c0 7.863 6.375 14.238 14.238 14.238 1.306 0 2.57-.176 3.771-.505A12.9 12.9 0 0122.903 34C15.777 34 10 28.223 10 21.097a12.9 12.9 0 016.734-11.335z" stroke="url(#ico-45-forecast-noc-jasno-a)" stroke-width="2" fill="none" fill-rule="evenodd"/>
+</svg>

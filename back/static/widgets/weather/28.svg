@@ -1,0 +1,12 @@
+<svg width="45" height="45" viewBox="0 0 45 45" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient x1="73.425%" y1="76.631%" x2="96.256%" y2="12.84%" id="ico-45-forecast-noc-polojasno-a">
+            <stop stop-color="#2E3234" offset="0%"/>
+            <stop stop-color="#3F4448" offset="100%"/>
+        </linearGradient>
+    </defs>
+    <g fill="none" fill-rule="evenodd" stroke-width="2">
+        <path d="M28.094 35.085H9.479l-.282-.027a5.947 5.947 0 112.045-11.681l1.095.28.144-1.121a7.602 7.602 0 1115.044 2.174l-.165 1.047 1.055.104a4.624 4.624 0 01-.185 9.216l-.136.008z" stroke="#B3B3B3"/>
+        <path d="M23.188 13.644c.568-2.927 2.277-5.196 5.124-6.81-.726 5.201.49 9.036 3.65 11.503 3.158 2.468 6.495 3.295 10.012 2.481-2.599 3.686-5.48 5.436-8.641 5.249" stroke="url(#ico-45-forecast-noc-polojasno-a)"/>
+    </g>
+</svg>
