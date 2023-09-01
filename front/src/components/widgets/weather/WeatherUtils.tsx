@@ -204,5 +204,26 @@ export function getWindColor(value: number) {
         const color = windSpeedColors[sValue];
         return color;
     }
-    return '#ffffff';
+    return '#000';
+}
+
+export function pickUpImage(event: string, sunrise: string, sunset: string, cloud_cover: number) {
+    const event_dt = new Date(event);
+    const sunrise_dt = new Date(sunrise);
+    const sunset_dt = new Date(sunset);
+    const event_hr = event_dt.getHours();
+    const sunrise_hr = sunrise_dt.getHours();
+    const sunset_hr = sunset_dt.getHours();
+    const night = (event_hr > sunset_hr || event_hr < sunrise_hr) ? 'n' : 'd';
+    let cloud;
+    if (cloud_cover <= 25)
+        cloud = '0';
+    else if (cloud_cover <= 50)
+        cloud = '1';
+    else if (cloud_cover <= 75)
+        cloud = '2';
+    else
+        cloud = '3';
+    const img = `url('/static/widgets/weather/${night}_c${cloud}.jpg')`;
+    return img;
 }

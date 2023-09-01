@@ -2,6 +2,7 @@ import os, requests, json
 from dataclasses import dataclass, field
 from decimal import Decimal
 from datetime import datetime, timedelta
+from dateutil import tz
 from weather.models import Place, AstroData, Forecast, CURRENT, FORECASTED_DAILY, FORECASTED_HOURLY
 
 astro_api = 'https://api.sunrise-sunset.org/json?lat={lat}&lng={lon}&formatted={formatted}'
@@ -91,13 +92,18 @@ def get_place(location: str, lat: str, lon: str) -> Place:
     )
     return place
 
-def get_datetime_value(data: dict, field_name: str) -> datetime:
+def get_datetime_value(data: dict, field_name: str, timezone: str) -> datetime:
     value = data['results'][field_name]
     if '+' in value:
-        tz = value.split('+')[1]
-        if tz != '00:00':
+        tz_part = value.split('+')[1]
+        if tz_part != '00:00':
             raise WeatherError('get_datetime_value', 'Expected datetime value with timezone 00:00. Got: ' + value)
-        value = value.split('+')[0]
+        utc = datetime.strptime(value, '%Y-%m-%dT%H:%M:%S%z')
+        to_zone = tz.gettz(timezone)
+        local = utc.astimezone(to_zone)
+        s_local = local.strftime('%Y-%m-%dT%H:%M:%S')
+        ret = datetime.strptime(s_local, '%Y-%m-%dT%H:%M:%S')
+        return ret
     ret = datetime.strptime(value, '%Y-%m-%dT%H:%M:%S')
     return ret
 
@@ -116,15 +122,15 @@ def get_astro(place: Place) -> AstroData:
     if ret['status'] != 'OK':
         raise WeatherError('get_astro', f'(2) Bad status in API data: {ret}')
 
-    sunrise = get_datetime_value(ret, 'sunrise')
-    sunset = get_datetime_value(ret, 'sunset')
-    solar_noon = get_datetime_value(ret, 'solar_noon')
-    civil_twilight_begin = get_datetime_value(ret, 'civil_twilight_begin')
-    civil_twilight_end = get_datetime_value(ret, 'civil_twilight_end')
-    nautical_twilight_begin = get_datetime_value(ret, 'nautical_twilight_begin')
-    nautical_twilight_end = get_datetime_value(ret, 'nautical_twilight_end')
-    astronomical_twilight_begin = get_datetime_value(ret, 'astronomical_twilight_begin')
-    astronomical_twilight_end = get_datetime_value(ret, 'astronomical_twilight_end')
+    sunrise = get_datetime_value(ret, 'sunrise', place.timezone)
+    sunset = get_datetime_value(ret, 'sunset', place.timezone)
+    solar_noon = get_datetime_value(ret, 'solar_noon', place.timezone)
+    civil_twilight_begin = get_datetime_value(ret, 'civil_twilight_begin', place.timezone)
+    civil_twilight_end = get_datetime_value(ret, 'civil_twilight_end', place.timezone)
+    nautical_twilight_begin = get_datetime_value(ret, 'nautical_twilight_begin', place.timezone)
+    nautical_twilight_end = get_datetime_value(ret, 'nautical_twilight_end', place.timezone)
+    astronomical_twilight_begin = get_datetime_value(ret, 'astronomical_twilight_begin', place.timezone)
+    astronomical_twilight_end = get_datetime_value(ret, 'astronomical_twilight_end', place.timezone)
 
     astro = AstroData.objects.create(
         place = place,

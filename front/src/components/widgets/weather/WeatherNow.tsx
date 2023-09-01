@@ -1,4 +1,4 @@
-import { getIconHref } from './WeatherUtils';
+import { getIconHref, pickUpImage } from './WeatherUtils';
 
 export default function WeatherNow({values}: {values: any}) {
     const dt = new Date(values.current.event);
@@ -19,9 +19,10 @@ export default function WeatherNow({values}: {values: any}) {
     const value = Math.abs(values.current.temperature);
     const sunrise = values.sunrise.split(' ')[1];
     const sunset = values.sunset.split(' ')[1];
+    const image = {backgroundImage: pickUpImage(values.current.event, values.sunrise, values.sunset, values.current.cloud_cover)};
 
     return (
-        <div className='weather-now period-container'>
+        <div className='weather-now period-container' style={image}>
             <div className='week-row widget-title'>
                 <span className='location'>{values.place}</span><span className='period'>: погода сейчас</span>
             </div>
