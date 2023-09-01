@@ -1,5 +1,5 @@
 import type { TempBarHeight } from './WeatherUtils';
-import { getDayName, getDayDate, getDayColor, getIconHref, getHourNum, getTempBarsInfo, checkNight } from './WeatherUtils';
+import { getDayName, getDayDate, getDayColor, getIconHref, getHourNum, getTempBarsInfo, checkNight, getWindColor } from './WeatherUtils';
 
 export default function WeatherForTheDay({values}: {values: any}) {
 
@@ -46,14 +46,14 @@ export default function WeatherForTheDay({values}: {values: any}) {
     if (curr.length > 1)
         aggs.push(curr);
 
-    const sunrize_dt = new Date(values.sunrize);
+    const sunrise_dt = new Date(values.sunrise);
     const sunset_dt = new Date(values.sunset);
-    const sunrize = sunrize_dt.getHours();
+    const sunrise = sunrise_dt.getHours();
     const sunset = sunset_dt.getHours();
 
     const days = values.for_day.map((hour: any, index: number) => {
         let cellClass: string[] = [];
-        checkNight(cellClass, hour.event, d1_span_correct, sunrize, sunset);
+        checkNight(cellClass, hour.event, d1_span_correct, sunrise, sunset);
 
         let name = '';
         if (index == 0) {
@@ -71,7 +71,7 @@ export default function WeatherForTheDay({values}: {values: any}) {
     
     const hours = values.for_day.map((hour: any, index: number) => {
         let cellClass: string[] = ['hour-name'];
-        checkNight(cellClass, hour.event, d1_span_correct, sunrize, sunset);
+        checkNight(cellClass, hour.event, d1_span_correct, sunrise, sunset);
         const hourNum = getHourNum(hour.event, d1_span_correct);
         let name = '', sup;
         if (index % 3 == 0) {
@@ -85,7 +85,7 @@ export default function WeatherForTheDay({values}: {values: any}) {
     
     const icons = values.for_day.map((hour: any, index: number) => {
         let cellClass: string[] = [];
-        checkNight(cellClass, hour.event, d1_span_correct, sunrize, sunset);
+        checkNight(cellClass, hour.event, d1_span_correct, sunrise, sunset);
         if (index % 3 != 1) {
             return (<td key={hour.event} className={cellClass.join(' ')}></td>);
         }
@@ -101,7 +101,7 @@ export default function WeatherForTheDay({values}: {values: any}) {
     function buildSubtitle(subtitle: string) {
         return values.for_day.map((hour: any, index: number) => {
             let cellClass: string[] = [];
-            checkNight(cellClass, hour.event, d1_span_correct, sunrize, sunset);
+            checkNight(cellClass, hour.event, d1_span_correct, sunrise, sunset);
             if (index == 0) {
                 cellClass.push('overflow-td');
                 return (
@@ -119,7 +119,7 @@ export default function WeatherForTheDay({values}: {values: any}) {
     const tempBarHeights: TempBarHeight[] = getTempBarsInfo(values.for_day, false);
     const tempBars = values.for_day.map((hour: any, index: number) => {
         let cellClass: string[] = ['bar day-column'];
-        checkNight(cellClass, hour.event, d1_span_correct, sunrize, sunset);
+        checkNight(cellClass, hour.event, d1_span_correct, sunrise, sunset);
         if (index < tempBarHeights.length) {
             const topStyle = {height: tempBarHeights[index].top};
             const midStyle = {
@@ -145,11 +145,12 @@ export default function WeatherForTheDay({values}: {values: any}) {
     
     const wind = values.for_day.map((hour: any) => {
         let cellClass: string[] = ['day-column hour-wind'];
-        checkNight(cellClass, hour.event, d1_span_correct, sunrize, sunset);
+        checkNight(cellClass, hour.event, d1_span_correct, sunrise, sunset);
         const value = Math.round(+hour.wind_speed);
         const windDirStyle = {transform: `rotate(${hour.wind_angle}deg)`};
+        const windValueStyle = {color: getWindColor(value)};
         return (
-            <td className={cellClass.join(' ')} key={hour.event}>
+            <td className={cellClass.join(' ')} key={hour.event} style={windValueStyle}>
                 {value}
                 <i className='bi-arrow-up wind-icon' style={windDirStyle}></i>
             </td>
@@ -161,7 +162,7 @@ export default function WeatherForTheDay({values}: {values: any}) {
     const maxPreci = tempBarHeights.map(x => x.precipitation).reduce(function(prev: number, curr: number) { return prev > curr ? prev : curr; });
     const precipitation = values.for_day.map((hour: any) => {
         let cellClass: string[] = ['day-column hour-perci-td'];
-        checkNight(cellClass, hour.event, d1_span_correct, sunrize, sunset);
+        checkNight(cellClass, hour.event, d1_span_correct, sunrise, sunset);
         const maxHeight = 20;
         const value = +hour.prec_total;
         const color = value == 0 ? 'gray' : '#62b2ed'; 

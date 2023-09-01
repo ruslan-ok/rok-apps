@@ -266,7 +266,7 @@ class PeriodWeather:
     units: str
     cr_url: str
     cr_info: str
-    sunrize: datetime
+    sunrise: datetime
     sunset: datetime
     current: DayWeather
     for_day: list[DayWeather] = field(default_factory=list)
@@ -282,7 +282,7 @@ class PeriodWeather:
             "units": self.units,
             "cr_url": self.cr_url,
             "cr_info": self.cr_info,
-            "sunrize": self.sunrize.strftime('%Y-%m-%d %H:%M'),
+            "sunrise": self.sunrise.strftime('%Y-%m-%d %H:%M'),
             "sunset": self.sunset.strftime('%Y-%m-%d %H:%M'),
             "current": self.current.to_json(),
             "for_day": [x.to_json() for x in self.for_day],
@@ -314,7 +314,7 @@ def get_forecast_data(place: Place, forecast, astro: AstroData) -> dict:
         lat=currents[0].lat,
         lon=currents[0].lon,
         place=place.name,
-        sunrize=astro.sunrise,
+        sunrise=astro.sunrise,
         sunset=astro.sunset,
         elevation=currents[0].elevation,
         timezone=currents[0].timezone,

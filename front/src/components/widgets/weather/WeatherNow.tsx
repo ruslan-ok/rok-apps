@@ -17,6 +17,8 @@ export default function WeatherNow({values}: {values: any}) {
     const windDirStyle = {transform: `rotate(${values.current.wind_angle}deg)`};
     const sign = values.current.temperature == 0 ? '' : values.current.temperature > 0 ? '+' : '-';
     const value = Math.abs(values.current.temperature);
+    const sunrise = values.sunrise.split(' ')[1];
+    const sunset = values.sunset.split(' ')[1];
 
     return (
         <div className='weather-now period-container'>
@@ -42,6 +44,26 @@ export default function WeatherNow({values}: {values: any}) {
                             <div className='unit'>m/s</div>
                         </div>
                         <div className='info'><i className='bi-arrow-up wind-icon' style={windDirStyle}></i></div>
+                    </div>
+                </div>
+                <div className='kpi sunrise'>
+                    <div className='title'>Sunrise</div>
+                    <div className='description'>
+                        <div className='value'>
+                            <div className='number'>{sunrise}</div>
+                            <div className='unit'></div>
+                        </div>
+                        <div className='info'><i className='bi-sunrise'></i></div>
+                    </div>
+                </div>
+                <div className='kpi sunset'>
+                    <div className='title'>Sunset</div>
+                    <div className='description'>
+                        <div className='value'>
+                            <div className='number'>{sunset}</div>
+                            <div className='unit'></div>
+                        </div>
+                        <div className='info'><i className='bi-sunset'></i></div>
                     </div>
                 </div>
                 <div className='kpi clouds'>

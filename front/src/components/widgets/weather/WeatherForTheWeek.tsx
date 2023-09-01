@@ -1,5 +1,5 @@
 import type { TempBarHeight } from './WeatherUtils';
-import { getTempBarsInfo, getDayColor, getDayName, getDayDate, getIconHref, checkWeekend } from './WeatherUtils';
+import { getTempBarsInfo, getDayColor, getDayName, getDayDate, getIconHref, checkWeekend, getWindColor } from './WeatherUtils';
 
 export default function WeatherForTheWeek({values}: {values: any}) {
 
@@ -78,8 +78,9 @@ export default function WeatherForTheWeek({values}: {values: any}) {
         checkWeekend(cellClass, day.event);
         const value = Math.round(+day.wind_speed);
         const windDirStyle = {transform: `rotate(${day.wind_angle}deg)`};
+        const windValueStyle = {color: getWindColor(value)};
         return (
-            <td className={cellClass.join(' ')} key={day.event}>
+            <td className={cellClass.join(' ')} key={day.event} style={windValueStyle}>
                 {value}
                 <i className='bi-arrow-up wind-icon' style={windDirStyle}></i>
             </td>

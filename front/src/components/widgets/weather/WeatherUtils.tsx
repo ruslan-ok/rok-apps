@@ -1,3 +1,5 @@
+import { windSpeedColors, temperatureColors } from './Colors';
+
 const barColorGradient = [[0xff, 0xc5, 0xbf], [0xf0, 0xf4, 0xc1], [0xbf, 0xd9, 0xff]];
 const barColorOpacity = 0.5;
 const borderColorGradient = [[0xfd, 0x9e, 0x93], [0xcc, 0xee, 0x95], [0xa0, 0xc6, 0xff]];
@@ -5,6 +7,13 @@ const borderColorOpacity = 1;
 
 
 function getTempColor(temperature: number, border: boolean): string {
+    const roundedTemp = Math.round(temperature).toString();
+    if (roundedTemp in temperatureColors) {
+        // @ts-ignore
+        const color = temperatureColors[roundedTemp];
+        return color;
+    }
+
     let colorHot: number[], colorZero: number[], colorCold: number[], opacity: number;
     if (border) {
         colorHot = borderColorGradient[0];
@@ -170,12 +179,12 @@ export function getHourName(dayDate: string): string {
     return hr.toString();
 }
 
-export function checkNight(cellClass: string[], event: string, correct: number, sunrize: number, sunset: number) {
+export function checkNight(cellClass: string[], event: string, correct: number, sunrise: number, sunset: number) {
     const hour = getHourNum(event, correct);
-    if (hour > sunset || hour < sunrize) {
+    if (hour > sunset || hour < sunrise) {
         cellClass.push('night');
     }
-    if (hour == sunset || hour == sunrize) {
+    if (hour == sunset || hour == sunrise) {
         cellClass.push('twilight');
     }
 }
@@ -186,4 +195,14 @@ export function checkWeekend(cellClass: string[], event: string) {
     if (day == 0 || day == 6) {
         cellClass.push('weekend');
     }
+}
+
+export function getWindColor(value: number) {
+    const sValue = Math.round(value).toString();
+    if (sValue in windSpeedColors) {
+        // @ts-ignore
+        const color = windSpeedColors[sValue];
+        return color;
+    }
+    return '#ffffff';
 }

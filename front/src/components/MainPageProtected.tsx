@@ -4,7 +4,6 @@ import Weather from './widgets/weather/Weather';
 import Crypto from './widgets/Crypto';
 import Weight from './widgets/Weight';
 import Currency from './widgets/Currency';
-// import Todo from './widgets/Todo';
 
 import './widgets/widget.css';
 
@@ -39,7 +38,6 @@ function MainPageProtected() {
             <Weight screenWidth={width} />
             <Currency screenWidth={width} />
             <Crypto screenWidth={width} />
-            {/* <Todo /> */}
           </div>
         </div>
       </>
