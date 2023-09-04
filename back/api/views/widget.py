@@ -6,9 +6,9 @@ from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
 from rest_framework.response import Response
 from django.http import HttpResponse
 from rest_framework.status import HTTP_400_BAD_REQUEST
-from todo.hp_widget.todo import get_todo
+from todo.hp_widget.todo import get_todo, get_todo_v2
 from logs.hp_widget.logs import get_logs
-from core.hp_widget.visited import get_visited
+from core.hp_widget.visited import get_visited, get_visited_v2
 from health.views.chart import get_chart_data as get_health_data
 from core.hp_widget.currency import get_currency, get_chart_data as get_currency_data
 from core.hp_widget.crypto import get_crypto, get_chart_data as get_crypto_data
@@ -45,6 +45,8 @@ ALL_CHART_MARKS = [
     'currency',
     'crypto',
     'weather',
+    'visited',
+    'todo',
 ]
 
 @api_view()
@@ -83,6 +85,8 @@ def get_chart_data(request):
         case 'weight' | 'waist' | 'temp' | 'health': data = get_health_data(request.user.id, mark, period, version)
         case 'currency': data = get_currency_data(request.user.id, period, version, base)
         case 'crypto': data = get_crypto_data(period, version)
+        case 'visited': data = get_visited_v2(request)
+        case 'todo': data = get_todo_v2(request)
         case 'weather':
             match version:
                 case ChartDataVersion.v1: data = get_weather_data(request.user.id)

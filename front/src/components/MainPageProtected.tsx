@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 
+import TodoList from './widgets/todo/TodoList';
+import LastVisited from './widgets/LastVisited';
 import Weather from './widgets/weather/Weather';
 import Crypto from './widgets/Crypto';
 import Weight from './widgets/Weight';
@@ -34,6 +36,8 @@ function MainPageProtected() {
       <>
         <div className='hp_widgets'>
           <div className='widgets-area'>
+            <TodoList screenWidth={width} />
+            <LastVisited screenWidth={width} />
             <Weather screenWidth={width} />
             <Weight screenWidth={width} />
             <Currency screenWidth={width} />

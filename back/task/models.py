@@ -858,6 +858,12 @@ class Task(models.Model):
                 tri.files_qnt = qnt
                 tri.save()
 
+    def get_group_name(self, role):
+        if TaskGroup.objects.filter(task=self.id, role=role).exists():
+            task_group = TaskGroup.objects.filter(task=self.id, role=role).get()
+            return task_group.group.name
+        return ''
+
     @classmethod
     def get_db_exchange_rate(cls, currency: str, date: date):
         if CurrencyRate.objects.filter(base='USD', currency=currency, date__lte=date).exists():

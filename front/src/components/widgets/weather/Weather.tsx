@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Form } from 'react-router-dom';
-// import { getFakeData } from './WeatherUtils';
 import { apiUrl } from '../../auth/Auth';
 import Spinner from '../../Spinner';
 import WeatherNow from './WeatherNow';
