@@ -78,8 +78,8 @@ def get_weather(request):
 def get_chart_data(user_id: int):
     x = []
     y = []
-    lat = 54.093709
-    lon = 28.295668
+    lat = os.getenv('API_WEATHER_LAT')
+    lon = os.getenv('API_WEATHER_LON')
     lifetime = datetime.now() - timedelta(hours=4, minutes=1)
     weather = Weather.objects.filter(lat=lat, lon=lon, ev_type=FORECASTED_DAILY, fixed__gt=lifetime).order_by('-fixed')
     for day in weather:

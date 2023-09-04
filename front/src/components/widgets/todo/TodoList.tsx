@@ -24,7 +24,6 @@ export default function TodoList({screenWidth}: {screenWidth: number}) {
             if (response.ok) {
                 let resp_data = await response.json();
                 if (resp_data) {
-                    console.log(resp_data);
                     setValues(resp_data);
                     if (resp_data.result == 'ok') {
                         setStatus('ready');
