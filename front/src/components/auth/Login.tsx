@@ -9,8 +9,6 @@ import {
 } from "react-router-dom";
 import { auth } from './Auth';
 
-import './Login.css';
-
 export interface LoginResult {
   ok: boolean,
   info: string

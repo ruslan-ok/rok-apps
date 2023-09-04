@@ -14,8 +14,6 @@ import { Line } from 'react-chartjs-2';
 import Spinner from '../Spinner';
 import { apiUrl } from '../auth/Auth';
 
-import './Weight.css';
-  
 ChartJS.register(
     CategoryScale,
     LinearScale,

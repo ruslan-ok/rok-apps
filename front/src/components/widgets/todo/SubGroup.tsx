@@ -1,6 +1,5 @@
 import type { Todo } from './TodoItem';
 import TodoItem from './TodoItem';
-import './SubGroup.css';
 
 const subGroupIDs = ['none', 'completed', 'earler', 'today', 'tomorrow', 'onWeek', 'later'] as const;
 

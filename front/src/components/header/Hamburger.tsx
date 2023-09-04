@@ -1,5 +1,3 @@
-import './Hamburger.css';
-
 function Hamburger({onClick, hide}: {onClick: () => void, hide: boolean}) {
 
     if (hide)

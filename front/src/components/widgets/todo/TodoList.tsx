@@ -3,8 +3,6 @@ import Spinner from '../../Spinner';
 import { apiUrl } from '../../auth/Auth';
 import SubGroup, { SubGroupInfo, buildSubGroupList } from './SubGroup';
 
-import './TodoList.css';
-
 export default function TodoList({screenWidth}: {screenWidth: number}) {
     const [status, setStatus] = useState('init');
     const [values, setValues] = useState<any>(null);

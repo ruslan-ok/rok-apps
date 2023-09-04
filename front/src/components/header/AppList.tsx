@@ -1,5 +1,4 @@
 import type { Application } from './Header';
-import './AppList.css';
 
 function AppList({mobile, items}: {mobile: boolean, items: Application[]}) {
     let apps;

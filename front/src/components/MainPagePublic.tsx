@@ -1,7 +1,6 @@
 import { useLoaderData } from 'react-router-dom';
 
 import { MainPageData } from './MainPage';
-import './MainPagePublic.css';
 
 interface ApplicationDescr {
   app_id: string;

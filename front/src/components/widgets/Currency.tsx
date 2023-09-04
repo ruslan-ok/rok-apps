@@ -15,8 +15,6 @@ import Spinner from '../Spinner';
 import { apiUrl } from '../auth/Auth';
 import StyledCheckbox from './StyledCheckbox';
 
-import './Currency.css';
-  
 ChartJS.register(
     CategoryScale,
     LinearScale,

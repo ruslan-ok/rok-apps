@@ -1,5 +1,4 @@
 import { Form, useSearchParams } from 'react-router-dom';
-import './Search.css';
 
 function Search({placeholder, hide}: {placeholder: string, hide: boolean}) {
     if (hide)

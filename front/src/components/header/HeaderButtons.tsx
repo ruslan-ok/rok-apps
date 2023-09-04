@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import type { HeaderButton } from './Header';
-import './HeaderButtons.css';
 
 function HeaderButtons({items}: {items: HeaderButton[]}) {
   let buttons;

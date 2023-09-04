@@ -8,8 +8,6 @@ import AppList from './AppList';
 import UserMenu from './UserMenu';
 import HeaderButtons from './HeaderButtons';
 
-import "./Header.css";
-
 export interface Application {
   name: string;
   icon: string;

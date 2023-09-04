@@ -7,8 +7,6 @@ import Crypto from './widgets/Crypto';
 import Weight from './widgets/Weight';
 import Currency from './widgets/Currency';
 
-import './widgets/widget.css';
-
 interface WidgetInfo {
   id: string;
   name: string;

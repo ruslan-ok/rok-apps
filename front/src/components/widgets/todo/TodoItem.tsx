@@ -1,5 +1,3 @@
-import './TodoItem.css';
-
 interface Step {
     id: number;
     name: string;

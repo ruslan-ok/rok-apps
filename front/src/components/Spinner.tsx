@@ -1,5 +1,3 @@
-import './Spinner.css';
-
 function Spinner({width, height}: {width: number, height: number}) {
     const compStyle = {width: width, height: height};
     return (

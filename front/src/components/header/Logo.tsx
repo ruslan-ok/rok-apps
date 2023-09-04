@@ -1,5 +1,3 @@
-import './Logo.css';
-
 function Logo({icon, title}: {icon: string, title: undefined | string}) {
     let appTitle;
     if (title) {
