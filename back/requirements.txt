@@ -7,7 +7,7 @@ cffi==1.15.1
 charset-normalizer==3.1.0
 convertdate==2.4.0
 cryptography==41.0.3
-Django==4.2.3
+Django==4.2.5
 djangorestframework==3.14.0
 firebase-admin==6.2.0
 google-api-core==2.11.1
