@@ -19,10 +19,17 @@
 
       <div class="list-header__info">
         {% for item in summary %}
-          <span class="sort {{ item.color }}">
-            <i class="sort__icon bi-star"></i>
-            <span class="sort__name">{{ item.value }}</span>
-          </span>
+          {% if item.href %}
+            <a href="{{ item.href }}" class="sort {{ item.color }}">
+              <i class="sort__icon bi-star"></i>
+              <span class="sort__name">{{ item.value }}</span>
+            </a>
+            {% else %}
+            <span class="sort {{ item.color }}">
+              <i class="sort__icon bi-star"></i>
+              <span class="sort__name">{{ item.value }}</span>
+            </span>
+          {% endif %}
         {% endfor %}
       </div>
 
