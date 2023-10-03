@@ -50,6 +50,7 @@ class ExchangeRateApi():
         except:
             info = json.loads(resp.content)
             self.log.write(type=EventType.ERROR, name='get_rate_on_date', info=f'[x] Rate {currency} to base {base} on {date.strftime("%Y-%m-%d")}: {self.api.name} - {info}')
+            self.log.write(type=EventType.INFO, name='get_rate_on_date', info=f'{url=}')
             return CA_Result(result=CA_Status.error, status=status.HTTP_400_BAD_REQUEST, info=info)
         self.log.write(type=EventType.ERROR, name='get_rate_on_date', info=f'[x] Rate {currency} to base {base} on {date.strftime("%Y-%m-%d")}: unimplemented')
         return CA_Result(result=CA_Status.unimpl)
