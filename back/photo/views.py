@@ -275,7 +275,7 @@ def build_thumb(user, folder, name):
                 if lat and lon:
                     size = os.path.getsize(photo_storage(user) + folder + name)
                     get_photo_id(user, folder, name, size, lat, lon)
-            image.thumbnail((240, 240), Image.ANTIALIAS)
+            image.thumbnail((240, 240), Image.Resampling.LANCZOS)
             if ('exif' in image.info):
                 exif = image.info['exif']
                 image.save(path + name, exif=exif)
@@ -292,7 +292,7 @@ def build_mini(user, item):
     if not os.path.exists(mini_storage(user) + item.subdir() + item.name):
         try:
             image = Image.open(photo_storage(user) + item.subdir() + item.name)
-            image.thumbnail((100, 100), Image.ANTIALIAS)
+            image.thumbnail((100, 100), Image.Resampling.LANCZOS)
             if ('exif' in image.info):
                 exif = image.info['exif']
                 image.save(mini_storage(user) + item.subdir() + item.name, exif = exif)
