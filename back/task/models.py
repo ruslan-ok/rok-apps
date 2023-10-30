@@ -702,7 +702,7 @@ class Task(models.Model):
     def repeat_s_days(self):
         if (self.repeat == WEEKLY):
             if (self.repeat_days == 0):
-                return formats.date_format(self.stop, 'D')
+                return formats.date_format(self.stop if self.stop else self.start, 'D')
             if (self.repeat_days == 1+2+4+8+16):
                 return str(_('Work days'))
             ret = ''
