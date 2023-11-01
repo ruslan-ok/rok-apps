@@ -12,11 +12,16 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@fontsource/roboto": "^5.0.8",
+    "@mui/icons-material": "^5.14.7",
+    "@mui/material": "^5.14.7",
     "chart.js": "^4.0.0",
-    "react-chartjs-2": "^5.0.0",
     "localforage": "^1.10.0",
     "match-sorter": "^6.3.1",
     "react": "^18.2.0",
+    "react-chartjs-2": "^5.0.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.15.0",
     "sort-by": "^1.2.0"

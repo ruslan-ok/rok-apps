@@ -49,7 +49,7 @@ def get_place(location: str, lat: str, lon: str) -> Place:
             place_id = ret['place_id'],
             name = ret['name'],
             adm_area1 = ret['adm_area1'],
-            adm_area2 = ret['adm_area2'],
+            adm_area2 = ret['adm_area2'] if ret['adm_area2'] else '',
             country = ret['country'],
             lat = ret['lat'],
             lon = ret['lon'],
@@ -80,7 +80,7 @@ def get_place(location: str, lat: str, lon: str) -> Place:
         place_id = ret['place_id'],
         name = ret['name'],
         adm_area1 = ret['adm_area1'],
-        adm_area2 = ret['adm_area2'],
+        adm_area2 = ret['adm_area2'] if ret['adm_area2'] else '',
         country = ret['country'],
         lat = ret['lat'],
         lon = ret['lon'],
@@ -378,10 +378,10 @@ def get_db_chart_data(user, location: str, lat: str, lon: str) -> dict:
     return ret
 
 def get_chart_data(user, location: str, lat: str, lon: str):
-    if os.environ.get('DJANGO_DEVICE', 'Nuc') != os.environ.get('DJANGO_LOG_DEVICE', 'Nuc'):
-        ret = get_api_chart_data(location, lat, lon)
-        return ret
     try:
+        if os.environ.get('DJANGO_DEVICE', 'Nuc') != os.environ.get('DJANGO_LOG_DEVICE', 'Nuc'):
+            ret = get_api_chart_data(location, lat, lon)
+            return ret
         ret = get_db_chart_data(user, location, lat, lon)
         return {'result': 'ok', 'data': ret}
     except WeatherError as inst:
