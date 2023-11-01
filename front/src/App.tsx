@@ -1,8 +1,6 @@
-import { useEffect } from "react";
 import {
   createBrowserRouter,
   RouterProvider,
-  useNavigate,
 } from "react-router-dom";
 
 import Demo from './components/auth/Demo';
@@ -11,22 +9,10 @@ import Logout from './components/auth/Logout';
 import HeadedPage, { loader as appLoader } from './components/HeadedPage';
 import MainPage, { loader as mainPageLoader } from './components/MainPage';
 
-function Root() {
-  const navigate = useNavigate();
-  useEffect(() => {
-    navigate('/react');
-  }, []);
-  return <></>;
-}
-
 let router = createBrowserRouter([
   {
-    path: '/:lang?/',
-    Component: Root,
-  },
-  {
     id: 'header',
-    path: '/:lang?/react',
+    path: '/:lang?',
     loader: appLoader,
     Component: HeadedPage,
     children: [
@@ -38,16 +24,16 @@ let router = createBrowserRouter([
     ],
   },
   {
-    path: '/:lang?/react/demo',
+    path: '/:lang?/demo',
     Component: Demo,
   },
   {
-    path: '/:lang?/react/login',
+    path: '/:lang?/login',
     action: loginAction,
     Component: Login,
   },
   {
-    path: '/:lang?/react/logout',
+    path: '/:lang?/logout',
     Component: Logout,
   },
 ]);

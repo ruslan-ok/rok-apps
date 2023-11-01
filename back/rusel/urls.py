@@ -6,7 +6,7 @@ from django.conf.urls.static import static
 from django.views.i18n import JavaScriptCatalog
 from rest_framework import routers
 
-from . import views
+from . import views, views_old
 from api.views import group as api_grp
 from api.views import task as api_task
 from api.views import step as api_step
@@ -41,7 +41,7 @@ api_router.register(r'cram/phrase', api_cram.CramPhraseViewSet, basename='cram-p
 api_router.register(r'cram/lang_phrase', api_cram.CramLangPhraseViewSet, basename='cram-lang-phrase')
 
 urlpatterns = i18n_patterns(
-    path('', views.ListView.as_view(), name='index'),
+    path('', views.index, name='index'),
     path('account/',include('account.urls')),
     path('bill/',   include('apart.urls')),
     path('cram/',   include('cram.urls')),
@@ -53,7 +53,6 @@ urlpatterns = i18n_patterns(
     path('news/',   include('news.urls')),
     path('note/',   include('note.urls')),
     path('photo/',  include('photo.urls')),
-    path('react/',  include('react.urls')),
     path('store/',  include('store.urls')),
     path('todo/',   include('todo.urls')),
     path('warr/',   include('warr.urls')),
@@ -74,6 +73,6 @@ urlpatterns = i18n_patterns(
     path('api/get_chart_data/', api_widget.get_chart_data, name='get_chart_data'),
     path('api/get_dir/', api_service.get_dir, name='get_dir'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('<str:role>/<int:pk>/doc/<str:fname>', views.get_doc, name='doc'),
-    path('<str:role>/<int:pk>/thumbnail/<str:fname>', views.get_thumbnail, name='thumbnail'),
+    path('<str:role>/<int:pk>/doc/<str:fname>', views_old.get_doc, name='doc'),
+    path('<str:role>/<int:pk>/thumbnail/<str:fname>', views_old.get_thumbnail, name='thumbnail'),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

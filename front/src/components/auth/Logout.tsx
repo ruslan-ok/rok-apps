@@ -8,7 +8,7 @@ function Logout() {
     useEffect(() => {
         async function action() {
             await auth.logout();
-            navigate('/react');
+            navigate('/');
         }
         
         action();

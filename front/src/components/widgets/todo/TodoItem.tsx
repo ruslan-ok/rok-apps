@@ -33,5 +33,28 @@ export interface Todo {
 
 export default function TodoItem({todo}: {todo: Todo}) {
     const event = todo.stop.toISOString().split('T')[0]
-    return <a className='todo-item' href={ todo.url }>{ event }: { todo.name } - { todo.group.name }</a>
+    return (
+        <div className='todo-item'>
+            <button type="button" className="left-icon">
+                <i className="bi-circle"></i>
+            </button>
+            <a className='container' href={ todo.url }>
+                <div className='info'>
+                    <span className='name'>
+                        { todo.name }
+                        <span className='roles'>
+                            <object><a href={ todo.url } className="role-icon"><i className="bi-check2-square"></i></a></object>
+                        </span>
+                    </span>
+                    <div className='descr'>
+                        <div className='inline'>{ event }</div>
+                        <div className='inline'>{ todo.group.name }</div>
+                    </div>
+                </div>
+            </a>
+            <button type="button" className="right-icon">
+                <i className="bi-star"></i>
+            </button>
+        </div>
+    )
 }

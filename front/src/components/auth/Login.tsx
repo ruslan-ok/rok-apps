@@ -43,7 +43,7 @@ export async function action({ request }: ActionFunctionArgs): Promise<LoginResu
   }
 
   if (response && response.ok) {
-    let redirectTo = (formData.get("redirectTo") || "/react") as string;
+    let redirectTo = (formData.get("redirectTo") || "/") as string;
     return redirect(redirectTo);
   }
 
@@ -53,7 +53,7 @@ export async function action({ request }: ActionFunctionArgs): Promise<LoginResu
 function Login() {
   let location = useLocation();
   let params = new URLSearchParams(location.search);
-  let from = params.get("from") || "/react";
+  let from = params.get("from") || "/";
 
   let navigation = useNavigation();
   let isLoggingIn = navigation.formData?.get("username") != null;
@@ -82,10 +82,10 @@ function Login() {
         </div>
         <button className="primary" type="submit" disabled={isLoggingIn}>Login</button>
         <div className="password-reset-link">
-          <Link to="/react/password_reset">Forgotten your password or username?</Link>
+          <Link to="/password_reset">Forgotten your password or username?</Link>
         </div>
         <div className="password-reset-link">
-          <Link to="/react/register">Register</Link>
+          <Link to="/register">Register</Link>
         </div>
       </Form>
     </div>

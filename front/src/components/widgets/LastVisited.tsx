@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import Spinner from '../Spinner';
 import { apiUrl } from '../auth/Auth';
 
+import './LastVisited.css';
+
+
 export default function LastVisited({screenWidth}: {screenWidth: number}) {
     const [status, setStatus] = useState('init');
     const [values, setValues] = useState<any>(null);

@@ -8,7 +8,7 @@ function Demo() {
     useEffect(() => {
         async function action() {
             await auth.demo();
-            navigate('/react');
+            navigate('/');
         }
         
         action();

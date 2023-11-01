@@ -5,6 +5,53 @@ h5 {
 }
 
 #todo-list .sub-group-container .todo-item {
-    color: white;
-    margin-bottom: 10px;
+    display: flex !important;
+    justify-content: space-between !important;
+    min-height: 50px;
+    margin-bottom: 0.25rem !important;
+    border-radius: 5px;
+    background-color: #fff;
+    width: 100%;
+}
+
+.todo-item a.container {
+    display: flex;
+    min-height: 50px;
+    width: 100%;
+    padding: 0;
+}
+
+a.container .info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+a:link, a:visited {
+    text-decoration: none;
+}
+
+.info .name {
+    color: #2b576d;
+    font-size: small;
+}
+
+.name .roles {
+    padding-left: 15px;
+    font-size: .6rem;
+}
+
+.info .descr {
+    display: flex !important;
+    flex-wrap: wrap;
+    margin-bottom: 5px;
+}
+
+.descr .inline {
+    display: flex !important;
+    align-items: center;
+    font-size: .6rem;
+    padding: 0 3px;
+    border-radius: 2px;
+    margin-right: 2px;
 }

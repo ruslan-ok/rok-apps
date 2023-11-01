@@ -8,7 +8,7 @@ from django.http import FileResponse, HttpResponseNotFound
 
 from react.api.serializers import PageData, PageDataSerializer
 from core.applications import get_apps_list
-from rusel.views import get_hp_widgets
+from rusel.views_old import get_hp_widgets
 from rusel.settings import ENV
 
 def get_assets(request, file):
