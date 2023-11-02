@@ -54,11 +54,11 @@ ALL_CHART_MARKS = [
 @renderer_classes([JSONRenderer])
 def get_chart_data(request):
     if 'mark' not in request.query_params:
-        return Response({'result': 'error', 'error': "Expected parameter 'mark'"},
+        return Response({'result': 'error', 'info': "Expected parameter 'mark'"},
                         status=HTTP_400_BAD_REQUEST)
     mark = request.query_params['mark']
     if mark not in ALL_CHART_MARKS:
-        return Response({'Error': "The 'mark' parameter must have one of the following values: " + ', '.join(ALL_CHART_MARKS)},
+        return Response({'result': 'error', 'info': "The 'mark' parameter must have one of the following values: " + ', '.join(ALL_CHART_MARKS)},
                         status=HTTP_400_BAD_REQUEST)
     s_period = request.GET.get('period', '')
     s_version = request.GET.get('version', '1')
@@ -91,8 +91,8 @@ def get_chart_data(request):
             match version:
                 case ChartDataVersion.v1: data = get_weather_data(request.user.id)
                 case ChartDataVersion.v2: data = get_forecast(request.user, location, lat, lon)
-                case _: data = {}
-        case _: data = {}
+                case _: data = {'result': 'error', 'info': 'Unknown weather api version ' + str(version)}
+        case _: data = {'result': 'error', 'info': 'Unknown widget: ' + mark}
     return Response(data)
 
 @api_view()

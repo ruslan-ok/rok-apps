@@ -31,7 +31,11 @@ export default function LastVisited({screenWidth}: {screenWidth: number}) {
                     }
                     else {
                         setStatus('mess');
-                        setMessage(resp_data.procedure + ': ' + resp_data.info);
+                        let prefix = '';
+                        if (resp_data.procedure) {
+                            prefix = resp_data.procedure + ': ';
+                        }
+                        setMessage(prefix + resp_data.info);
                     }
                 }
             }
