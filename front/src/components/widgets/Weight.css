@@ -26,16 +26,23 @@
     border: none;
 }
 
-span.section.value > input[type=text] {
+#value {
+    width: auto;
+}
+
+span.section.value > input[type=number] {
     font-size: 0.8rem;
     margin: 0;
     padding: 5px;
     width: 80px;
+    border-radius: 5px;
 }
 
 span.section.value > button {
     font-size: 1rem;
     padding: 0 5px;
+    margin: 0 10px;
+    background-color: rgb(240, 240, 240);
 }
 
 .long-text {

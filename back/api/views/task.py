@@ -133,9 +133,19 @@ class TaskViewSet(viewsets.ModelViewSet):
         group = None
         group_id = None
         if 'group_id' in self.request.query_params:
-            group_id = int(self.request.query_params['group_id'])
-            if Group.objects.filter(user=request.user.id, id=group_id).exists():
-                group = Group.objects.filter(user=request.user.id, id=group_id).get()
+            str_group_id = self.request.query_params['group_id']
+            if str_group_id == 'health-marker':
+                role = const.ROLE_MARKER
+                app = const.ROLE_APP[role]
+                view_id = 'biomarker'
+                if Group.objects.filter(user=self.request.user.id, app=app, determinator='view', view_id=view_id).exists():
+                    group = Group.objects.filter(user=self.request.user.id, app=app, determinator='view', view_id=view_id).get()
+                    group_id = group.id
+            if str_group_id and not group_id:
+                group_id = int(str_group_id)
+                if group_id:
+                    if Group.objects.filter(user=request.user.id, id=group_id).exists():
+                        group = Group.objects.filter(user=request.user.id, id=group_id).get()
         service_id = 0
         if 'service_id' in self.request.query_params:
             service_id = int(self.request.query_params['service_id'])

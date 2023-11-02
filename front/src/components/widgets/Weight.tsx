@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { Form } from 'react-router-dom';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -72,6 +73,7 @@ function Weight({screenWidth}: {screenWidth: number}) {
     const [values, setValues] = useState<any>(null);
     const [period, setPeriod] = useState(getOption());
     const [status, setStatus] = useState('init');
+    const [redraw, setRedraw] = useState('1');
     const chartRef = useRef<any>(null);
     useEffect(() => {
         async function getData() {
@@ -98,7 +100,36 @@ function Weight({screenWidth}: {screenWidth: number}) {
         if (chart) {
             chart.update();
         }
-    }, [period]);
+    }, [period, redraw]);
+
+    function handleSubmit(e: any) {
+        e.preventDefault();
+        const form = e.target;
+        const formData = new FormData(form);
+        const formJson = Object.fromEntries(formData.entries());
+        const newWeight: number = !Number.isNaN(+formJson.weight) ? +formJson.weight : 0;
+        console.log(newWeight);
+        if (newWeight != 0)
+            saveNewWeight(newWeight);
+    }
+
+    async function saveNewWeight(newWeight: number) {
+        const value = newWeight.toString();
+        const url = apiUrl + `api/tasks/add_item/?format=json&app=health&role=marker&name=${value}&group_id=health-marker`;
+        const cred: RequestCredentials = 'include';
+        const options = {
+            method: 'GET',
+            headers: {'Content-type': 'application/json'},
+            credentials: cred,
+        };
+        const response = await fetch(url, options);
+        if (response.ok) {
+            let resp_data = await response.json();
+            if (resp_data) {
+                setRedraw(redraw == '0' ? '1' : '0');
+            }
+        }
+    }
 
     const widgetWidth = screenWidth < 600 ? 410 : (screenWidth < 768 ? 500 : 600);
     const widgetHeight = screenWidth < 600 ? 200 : (screenWidth < 768 ? 250 : 300);
@@ -122,10 +153,12 @@ function Weight({screenWidth}: {screenWidth: number}) {
                                 <option value='10y'>10 лет</option> 
                             </select>
                         </span>
-                        <span className='section value'>
-                            <input name='new_value' type='text' placeholder='Добавить'></input>
-                            <button className='button' type='button'><i className='bi-plus'></i></button>
-                        </span>
+                        <Form id='value' className='section' method="post" onSubmit={handleSubmit}>
+                            <span className='section value'>
+                                <input className='weight-value' type="number" name="weight" defaultValue={''}></input>
+                                <button className='weight-btn' type='submit'><i className='bi-plus'></i></button>
+                            </span>
+                        </Form>
                     </div>
                     <Line ref={chartRef} options={options} data={data} width={widgetWidth} height={widgetHeight} key={Math.random()}/>
                 </div>
