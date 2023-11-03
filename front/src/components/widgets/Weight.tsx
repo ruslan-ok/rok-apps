@@ -155,7 +155,7 @@ function Weight({screenWidth}: {screenWidth: number}) {
                         </span>
                         <Form id='value' className='section' method="post" onSubmit={handleSubmit}>
                             <span className='section value'>
-                                <input className='weight-value' type="number" name="weight" defaultValue={''}></input>
+                                <input className='weight-value' type="number" name="weight" defaultValue={''} step=".01"></input>
                                 <button className='weight-btn' type='submit'><i className='bi-plus'></i></button>
                             </span>
                         </Form>
