@@ -102,11 +102,11 @@ export function buildSubGroupList(items: any[]): SubGroupInfo[] {
     return subGroups;
 }
 
-export default function SubGroup({data}: {data: SubGroupInfo}) {
+export default function SubGroup({data, doRedraw}: {data: SubGroupInfo, doRedraw: () => void }) {
     let subGroupItems;
     if (data.isOpen) {
         subGroupItems = data.items.map((todo: Todo) => {
-            return <TodoItem key={todo.id} todo={todo} />
+            return <TodoItem key={todo.id} todo={todo} doRedraw={doRedraw} />
         });
     }
     return (

@@ -9,6 +9,7 @@ export default function TodoList({screenWidth}: {screenWidth: number}) {
     const [status, setStatus] = useState('init');
     const [values, setValues] = useState<any>(null);
     const [message, setMessage] = useState('');
+    const [redraw, setRedraw] = useState('1');
 
     useEffect(() => {
         async function getData() {
@@ -37,7 +38,11 @@ export default function TodoList({screenWidth}: {screenWidth: number}) {
         }
 
         getData();
-    }, [])
+    }, [redraw])
+
+    function doRedraw() {
+        setRedraw(redraw == '0' ? '1' : '0');
+    }
 
     const widgetWidth = screenWidth < 600 ? 410 : (screenWidth < 768 ? 500 : 600);
     const widgetHeight = screenWidth < 600 ? 200 : (screenWidth < 768 ? 250 : 300);
@@ -50,7 +55,7 @@ export default function TodoList({screenWidth}: {screenWidth: number}) {
         } else {
             const subGroups: SubGroupInfo[] = buildSubGroupList(values.data);
             const subGroupList = subGroups.map((sg: SubGroupInfo) => {
-                return (<SubGroup key={sg.id} data={sg} />);
+                return (<SubGroup key={sg.id} data={sg} doRedraw={doRedraw}/>);
             });
 
             return (
