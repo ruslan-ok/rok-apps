@@ -136,12 +136,19 @@ function Weight({screenWidth}: {screenWidth: number}) {
     if (status == 'ready') {
         const current = Math.round(values.current).toLocaleString();
         const change = values.change?.toFixed(2).toLocaleString();
+        let changeClass = 'value';
+        if (change > 0) {
+            changeClass += ' posotive';
+        }
+        if (change < 0) {
+            changeClass += ' negative';
+        }
         return (
             <div className='widget-container'>
                 <div className='widget-content' id='weight'>
                     <div className='title'>
                         <span id='current' className='section'><span>Вес:</span><span className='value'>{current}</span><span>кг</span></span>
-                        <span id='change' className='section'><span className='long-text'>Динамика:</span><span className='value'>{change}</span><span>кг</span></span>
+                        <span id='change' className='section'><span className='long-text'>Динамика:</span><span className={changeClass}>{change}</span><span>кг</span></span>
                         <span id='period' className='section'>
                             <select name='period' defaultValue={period} onChange={e => setPeriodOption(e.target.value)}>
                                 <option value='7d'>неделя</option> 

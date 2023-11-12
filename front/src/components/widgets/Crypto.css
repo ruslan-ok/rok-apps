@@ -25,6 +25,22 @@
     font-size: 0.7rem;
 }
 
+#crypto > div > span.section.change {
+    font-size: 0.9rem;
+}
+
+#crypto > div > span.section.change > span {
+    margin-left: 8px;
+}
+
+#crypto > div > span.section.change > span.value.posotive {
+    color: green;
+}
+
+#crypto > div > span.section.change > span.value.negative {
+    color: red;
+}
+
 #crypto .current:link,
 #crypto .current:visited,
 #crypto .amount:link,

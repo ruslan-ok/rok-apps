@@ -22,6 +22,14 @@
     margin: 0 10px;
 }
 
+#change.section .value.posotive {
+    color: red;
+}
+
+#change.section .value.negative {
+    color: green;
+}
+
 #period > select {
     border: none;
 }

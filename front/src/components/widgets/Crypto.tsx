@@ -103,6 +103,13 @@ function Crypto({screenWidth}: {screenWidth: number}) {
     if (status == 'ready') {
         const current = Math.round(values.current).toLocaleString();
         const change = values.change;
+        let changeClass = 'value';
+        if (change > 0) {
+            changeClass += ' posotive';
+        }
+        if (change < 0) {
+            changeClass += ' negative';
+        }
         const amount = Math.round(values.amount).toLocaleString();
         const price_url = values.price_url;
         const amount_url = values.amount_url;
@@ -111,7 +118,7 @@ function Crypto({screenWidth}: {screenWidth: number}) {
                 <div className='widget-content' id='crypto'> 
                     <div className='title'>
                         <a className='section current' href={price_url}><i className='bi-currency-bitcoin icon'></i><span className='value'>${current}</span></a>
-                        <span className='section change'><span className='value'>{change}</span></span>
+                        <span className='section change'>Динамика:<span className={changeClass}>{change}</span> %</span>
                         <a className='section amount' href={amount_url}><i className='bi-wallet2 icon'></i><span className='value'>${amount}</span></a>
                         <span className='section period'>
                             <select name='period' defaultValue={period} onChange={e => setPeriodOption(e.target.value)}>
