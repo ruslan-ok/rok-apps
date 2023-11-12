@@ -53,6 +53,13 @@ class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
+        if 'start' in form.changed_data:
+            old_start = form.initial['start']
+            new_start = form.cleaned_data['start']
+            services = ServiceAmount.objects.filter(app_apart=NUM_ROLE_SERV_VALUE, task_1=form.instance.task_1.id, start=old_start)
+            for service in services:
+                service.start = new_start
+                service.save()
         form.instance.set_name()
         form.instance.role_info()
         return response

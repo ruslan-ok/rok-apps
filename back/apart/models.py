@@ -451,20 +451,23 @@ class PeriodServices(models.Model):
     def add_item(cls, user, apart_task: Task):
         apart = Apart.objects.filter(id=apart_task.id).get()
         few_meters = PeriodMeters.objects.filter(user=user.id, app_apart=NUM_ROLE_METER, task_1=apart.id).order_by('start')[:3]
-        if len(few_meters) < 2:
-            return None, _('there are no meter readings').capitalize()
-        if not PeriodServices.objects.filter(user=user.id, app_apart=NUM_ROLE_BILL, task_1=apart.id).exists():
-            # First bill
-            prev = few_meters[0]
-            curr = few_meters[1]
-            period = curr.start
-        else:
-            last = PeriodServices.objects.filter(user=user.id, app_apart=NUM_ROLE_BILL, task_1=apart.id).order_by('-start')[0]
-            period = PeriodMeters.next_period(last.start)
-            if not PeriodMeters.objects.filter(user=user.id, app_apart=NUM_ROLE_METER, task_1=apart.id, start=period).exists(): 
-                return None, _('there are no meter readings for the next period').capitalize()
-            prev = last.task_3
-            curr = PeriodMeters.objects.filter(user=user.id, app_apart=NUM_ROLE_METER, task_1=apart.id, start=period).get()
+        prev = curr = None
+        period = datetime.today().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        if apart.name != 'Гараж':
+            if len(few_meters) < 2 and apart.name != 'Гараж':
+                return None, _('there are no meter readings').capitalize()
+            if not PeriodServices.objects.filter(user=user.id, app_apart=NUM_ROLE_BILL, task_1=apart.id).exists():
+                # First bill
+                prev = few_meters[0]
+                curr = few_meters[1]
+                period = curr.start
+            else:
+                last = PeriodServices.objects.filter(user=user.id, app_apart=NUM_ROLE_BILL, task_1=apart.id).order_by('-start')[0]
+                period = PeriodMeters.next_period(last.start)
+                if not PeriodMeters.objects.filter(user=user.id, app_apart=NUM_ROLE_METER, task_1=apart.id, start=period).exists(): 
+                    return None, _('there are no meter readings for the next period').capitalize()
+                prev = last.task_3
+                curr = PeriodMeters.objects.filter(user=user.id, app_apart=NUM_ROLE_METER, task_1=apart.id, start=period).get()
         service = PeriodServices.objects.create(user=user, app_apart=NUM_ROLE_BILL, task_1=apart, task_2=prev, task_3=curr, start=period, bill_residents=apart.bill_residents)
         service.set_name()
         future = PeriodMeters.next_period(period)

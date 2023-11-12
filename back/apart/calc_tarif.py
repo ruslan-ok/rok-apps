@@ -234,9 +234,10 @@ def get_bill_info(bill):
     return ret
 
 def get_meter_value(code, meter):
-    if MeterValue.objects.filter(app_apart=NUM_ROLE_METER_VALUE, task_1=meter.task_1, start=meter.start, name=code).exists():
-        meter_value = MeterValue.objects.filter(app_apart=NUM_ROLE_METER_VALUE, task_1=meter.task_1, start=meter.start, name=code).get()
-        return meter_value.get_value()
+    if meter:
+        if MeterValue.objects.filter(app_apart=NUM_ROLE_METER_VALUE, task_1=meter.task_1, start=meter.start, name=code).exists():
+            meter_value = MeterValue.objects.filter(app_apart=NUM_ROLE_METER_VALUE, task_1=meter.task_1, start=meter.start, name=code).get()
+            return meter_value.get_value()
     return None
 
 def get_value_str(value: Decimal|None):

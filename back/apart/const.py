@@ -24,6 +24,8 @@ POO = 23
 MOBILE = 31
 RENT = 32
 PARKING = 33
+GARAGE = 34
+GARBAGE = 35
 
 APART_SERVICE = {
     'el_supply': (ELECTRICITY, 'электроснабжение'),
@@ -38,6 +40,8 @@ APART_SERVICE = {
     'ppo': (POO, 'платежи товариществу собственников'),
     'rent': (RENT, 'арендная плата'),
     'parking': (PARKING, 'аренда парковки'),
+    'garage_fee': (GARAGE, 'членские взносы в гаражный кооператив'),
+    'garbage': (GARBAGE, 'вывоз мусора'),
 }
 
 def apart_service_name_by_id(id: int) -> str:
