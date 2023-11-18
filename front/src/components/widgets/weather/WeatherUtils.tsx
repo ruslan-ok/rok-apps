@@ -72,16 +72,16 @@ export function getTempBarsInfo(values: any, forWeek: boolean): TempBarHeight[] 
         let maxValue, maxValueStr, minValue, minValueStr, avgValue, avgValueStr, topHeight, midHeight, borderTopColor, borderBotColor;
         if (forWeek) {
             maxValue = Math.round(+day.temperature_max);
-            maxValueStr = (maxValue == 0? '' : (maxValue > 0 ? '+' : '-')) + maxValue;
+            maxValueStr = (maxValue == 0? '' : (maxValue > 0 ? '+' : '')) + maxValue;
             minValue = Math.round(+day.temperature_min);
-            minValueStr = (minValue == 0? '' : (minValue > 0 ? '+' : '-')) + minValue;
+            minValueStr = (minValue == 0? '' : (minValue > 0 ? '+' : '')) + minValue;
             topHeight = 25 + (maxPeriodValue - day.temperature_max) * 2;
             midHeight = 2 * (day.temperature_max - day.temperature_min);
             borderTopColor = getTempColor(day.temperature_max, true);
             borderBotColor = getTempColor(day.temperature_min, true);
         } else {
             avgValue = Math.round(+day.temperature);
-            avgValueStr = (avgValue == 0? '' : (avgValue > 0 ? '+' : '-')) + avgValue;
+            avgValueStr = (avgValue == 0? '' : (avgValue > 0 ? '+' : '')) + avgValue;
             topHeight = 5 + (maxPeriodValue - day.temperature) * 4;
             midHeight = 25;
             borderTopColor = getTempColor(day.temperature, true);
