@@ -4,6 +4,7 @@ from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.i18n import JavaScriptCatalog
+from django.views.generic import RedirectView
 from rest_framework import routers
 
 from . import views, views_old
@@ -75,4 +76,5 @@ urlpatterns = i18n_patterns(
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('<str:role>/<int:pk>/doc/<str:fname>', views_old.get_doc, name='doc'),
     path('<str:role>/<int:pk>/thumbnail/<str:fname>', views_old.get_thumbnail, name='thumbnail'),
+    path('favicon.ico', RedirectView.as_view(url='/static/favicon.ico')),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
