@@ -4,7 +4,7 @@ from core.applications import get_apps_list
 from task.models import Group, VisitedHistory
 from task.const import APP_HOME, APP_ALL, APP_NAME
 
-MAX_LAST_VISITED = 7
+MAX_LAST_VISITED = 9
 
 def get_base_context(request, app, role, group, detail, title, icon=None):
     context = {}
@@ -105,10 +105,10 @@ def save_last_visited(user, url, app, title_1, title_2, icon):
     
     str_app = APP_NAME[app]
     
-    pages = VisitedHistory.objects.filter(user=user.id).order_by('stamp')
+    pages = VisitedHistory.objects.filter(user=user.id).order_by('pinned', 'stamp')
     
     for page in pages:
-        if (page.url == url) and (page.app == str_app):
+        if (page.href == url) and (page.app == str_app):
             page.stamp = datetime.now()
             page.page = title_1
             page.info = title_2
@@ -117,6 +117,7 @@ def save_last_visited(user, url, app, title_1, title_2, icon):
             return
 
     if (len(pages) >= MAX_LAST_VISITED):
-        pages[0].delete()
+        if not pages[0].pinned:
+            pages[0].delete()
 
-    VisitedHistory.objects.create(user=user, stamp=datetime.now(), url=url, app=str_app, page=title_1, info=title_2, icon=icon)
+    VisitedHistory.objects.create(user=user, stamp=datetime.now(), href=url, app=str_app, page=title_1, info=title_2, icon=icon)

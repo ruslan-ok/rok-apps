@@ -1124,11 +1124,12 @@ class Hist(models.Model):
 class VisitedHistory(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE, verbose_name = _('user'), related_name = 'visit_user')
     stamp = models.DateTimeField(_('visit time'), null=False)
-    url = models.CharField(_('visited url'), max_length=200, blank=True)
+    href = models.CharField(_('visited url'), max_length=200, blank=True)
     app = models.CharField(_('visited application'), max_length=200, blank=True)
     page = models.CharField(_('visited page'), max_length=200, blank=True)
     info = models.CharField(_('page info'), max_length=200, blank=True)
     icon = models.CharField(_('page icon'), max_length=30, blank=True, null=True)
+    pinned = models.BooleanField(_('is pinned'), default=False, null=False)
 
     class Meta:
         verbose_name = _('visited page')
@@ -1153,7 +1154,7 @@ class VisitedHistory(models.Model):
             return _(self.app).capitalize() + ' - ' + title
         
     def reverse_url(self):
-        return self.url
+        return self.href
 
 class Photo(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))

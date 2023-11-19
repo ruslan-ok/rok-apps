@@ -17,6 +17,7 @@ from api.views import logs as api_logs
 from api.views import famtree as api_family
 from api.views import widget as api_widget
 from api.views import service as api_service
+from api.views import visited as api_visited
 from cram.api import views as api_cram
 from apart.api import views as api_apart
 from react.api import views as api_react
@@ -40,6 +41,7 @@ api_router.register(r'cram/lang', api_cram.CramLangViewSet, basename='cram-lang'
 api_router.register(r'cram/group', api_cram.CramGroupViewSet, basename='cram-group')
 api_router.register(r'cram/phrase', api_cram.CramPhraseViewSet, basename='cram-phrase')
 api_router.register(r'cram/lang_phrase', api_cram.CramLangPhraseViewSet, basename='cram-lang-phrase')
+api_router.register(r'visited', api_visited.VisitedViewSet, basename='visited')
 
 urlpatterns = i18n_patterns(
     path('', views.index, name='index'),

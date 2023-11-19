@@ -8,6 +8,7 @@
     margin: 0 0 2rem 0;
     border-collapse: collapse;
     border-color: #ccc;
+    width: 100%;
     tbody {
         -webkit-text-size-adjust: 100%;
         font-family: "Arial", "sans-serif";
@@ -37,6 +38,13 @@
                 vertical-align: top;
                 padding: 8px;
                 font-family: "Roboto", "Lucida Grande", Verdana, Arial, sans-serif;
+                button {
+                    padding: 0px 5px;
+                    border-radius: 1px;
+                    .bi-pin-fill {
+                        color:orange;
+                    }
+                }
             }      
         }    
     }
