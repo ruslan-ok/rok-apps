@@ -11,7 +11,12 @@
     <div class="chart-container" style="width: 100%;">
         <div class="loader"></div>
         <canvas id="healthChart"></canvas>
-    </div>        
+    </div>
+    <div class='row'>
+        <form method="get">
+            {{ form.incident }}
+        </form>
+    </div>
 {% endblock %}
 
 {% block extrascript %}
@@ -19,5 +24,8 @@
 <script src="https://cdn.jsdelivr.net/npm/moment@^2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@^1"></script>
 <script src="{% static 'js/health.js' %}"></script>
-<script>buildChart('{{mark}}');</script>
+<script>
+    buildChart('{{mark}}');
+    initFilter();
+</script>
 {% endblock %}

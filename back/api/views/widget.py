@@ -60,6 +60,7 @@ def get_chart_data(request):
     if mark not in ALL_CHART_MARKS:
         return Response({'result': 'error', 'info': "The 'mark' parameter must have one of the following values: " + ', '.join(ALL_CHART_MARKS)},
                         status=HTTP_400_BAD_REQUEST)
+    filter = request.query_params.get('filter', None)
     s_period = request.GET.get('period', '')
     s_version = request.GET.get('version', '1')
     base = request.GET.get('base', 'usd')
@@ -82,7 +83,7 @@ def get_chart_data(request):
         version = ChartDataVersion.v1
 
     match mark:
-        case 'weight' | 'waist' | 'temp' | 'health': data = get_health_data(request.user.id, mark, period, version)
+        case 'weight' | 'waist' | 'temp' | 'health': data = get_health_data(request.user.id, mark, period, version, filter)
         case 'currency': data = get_currency_data(request.user.id, period, version, base)
         case 'crypto': data = get_crypto_data(period, version)
         case 'visited': data = get_visited_v2(request)

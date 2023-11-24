@@ -8,6 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from core.views import Context
 from core.hp_widget.delta import get_start_date, approximate, ChartPeriod, ChartDataVersion, SourceData
 from health.config import app_config
+from health.forms.temp_filter import TempFilter
 from task.const import NUM_ROLE_MARKER, ROLE_CHART_WEIGHT, ROLE_CHART_WAIST, ROLE_CHART_TEMP
 from task.models import Task
 
@@ -66,6 +67,7 @@ class TempView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView, Contex
         context['title'] = _('Temperature chart')
         context['mark'] = 'temp'
         context['hide_add_item_input'] = True
+        context['form'] = TempFilter()
         return context
 
 #----------------------------------
@@ -193,13 +195,21 @@ def build_waist_chart(user_id: int):
     }
     return data
 
-def build_temp_chart(user_id: int):
+def build_temp_chart(user_id: int, filter):
     x = []
     y = []
     values = Task.objects.filter(user=user_id, app_health=NUM_ROLE_MARKER).exclude(bio_temp=None).exclude(bio_temp=0).order_by('event')
+    if filter:
+        filter_id = int(filter)
+        if filter_id:
+            incident = Task.objects.filter(id=filter_id).get()
+            if incident.start:
+                values = values.filter(event__gte=incident.start)
+            if incident.stop:
+                values = values.filter(event__lte=incident.stop)
     for t in values:
         if t.event:
-            x.append(t.event.strftime('%Y-%m-%d'))
+            x.append(t.event.strftime('%Y-%m-%d %H:%M'))
             y.append(t.bio_temp)
 
     data = {
@@ -218,18 +228,18 @@ def build_temp_chart(user_id: int):
             'scales': {
                 'xAxis': {
                     'type': 'time',
-                    'display': False,
+                    'display': True,
                 }
             }
         }
     }
     return data
 
-def get_chart_data(user_id: int, mark: str, period: ChartPeriod, version: ChartDataVersion):
+def get_chart_data(user_id: int, mark: str, period: ChartPeriod, version: ChartDataVersion, filter=None):
     data = {}
     match mark:
         case 'weight': data = build_weight_chart(user_id, period, version)
         case 'waist': data = build_waist_chart(user_id)
-        case 'temp': data = build_temp_chart(user_id)
+        case 'temp': data = build_temp_chart(user_id, filter)
         case 'health': data = build_health_chart(user_id, period, version)
     return data
