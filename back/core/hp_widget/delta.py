@@ -3,6 +3,27 @@ from decimal import Decimal
 from dataclasses import dataclass
 from enum import Enum
 
+TIME_AXIS_SCALES = {
+    'xAxis': {
+        'type': 'time',
+        'time': {
+            'displayFormats': {
+                'datetime': 'MMM D, YYYY, h:mm:ss a',
+                'millisecond': 'h:mm:ss.SSS a',
+                'second': 'h:mm:ss a',
+                'minute': 'h:mm a',
+                'hour': 'MMM D, hA',
+                'day': 'MMM D',
+                'week': 'll',
+                'month': 'MMM YYYY',
+                'quarter': '[Q]Q - YYYY',
+                'year': 'YYYY',
+            }
+        }
+    }
+}
+
+
 class ChartPeriod(Enum):
     p1h = '1h'
     p3h = '3h'
@@ -15,10 +36,6 @@ class ChartPeriod(Enum):
     p3y = '3y'
     p5y = '5y'
     p10y = '10y'
-
-class ChartDataVersion(Enum):
-    v1 = 'v1'
-    v2 = 'v2'
 
 def monthdelta(date, delta):
     m, y = (date.month+delta) % 12, date.year + ((date.month)+delta-1) // 12
@@ -51,33 +68,14 @@ def get_start_date(enddate: datetime, period: ChartPeriod) -> datetime:
         case ChartPeriod.p10y: startdate = yeardelta(enddate, -10)
     return startdate
 
-# Какие требования к маске преобразования даты в строку:
-# 1. Результирующая строка должна быть как меньше короче, иначе график будет выглядеть некрасиво.
-# 2. Количество значений за период должно быть в районе 200, но не сильно меньше, иначе график получится слишком дискретный
-# 3. Для периодов на пересечении года придется добавлять в шаблон год, чтобы сохранить правильную сортировку - а может и нет
-def get_date_mask(period: ChartPeriod) -> str:
-    match period:
-        case ChartPeriod.p1h:  x_mask = '%H:%M'    # 60
-        case ChartPeriod.p3h:  x_mask = '%H:%M'    # 180
-        case ChartPeriod.p12h: x_mask = '%H:%M'    # 720
-        case ChartPeriod.p24h: x_mask = '%H:%M'    # 1440
-        case ChartPeriod.p7d:  x_mask = '%d %H'    # 168
-        case ChartPeriod.p30d: x_mask = '%d %H'    # 720
-        case ChartPeriod.p3m:  x_mask = '%m.%d %H' # 2160
-        case ChartPeriod.p1y:  x_mask = '%y.%m.%d' # 365
-        case ChartPeriod.p3y:  x_mask = '%y.%m.%d' # 1080
-        case ChartPeriod.p5y:  x_mask = '%y.%m.%d' # 1800
-        case ChartPeriod.p10y: x_mask = '%y.%m.%d' # 3650
-    return x_mask
-
 @dataclass
 class SourceData:
     event: datetime
     value: Decimal
 
-def approximate(period: ChartPeriod, data: list[SourceData], goal: int) -> list:
-    ret = []
-    x_mask = get_date_mask(period)
+def approximate(data: list[SourceData], goal: int) -> list:
+    chart_points = []
+    x_mask = '%Y-%m-%d %H:%M:%S'
     cur_time = None
     average: Decimal = Decimal(0)
     qty: int = 0
@@ -93,6 +91,39 @@ def approximate(period: ChartPeriod, data: list[SourceData], goal: int) -> list:
             average += Decimal(item.value)
             qty += 1
         if ndx % skiper == 0 and qty:
-            ret.append({ 'x': cur_time.strftime(x_mask), 'y': average / qty })
+            chart_points.append({ 'x': cur_time.strftime(x_mask), 'y': average / qty })
             cur_time = None
-    return ret
+    return chart_points
+
+def build_chart_config(label: str, chart_points, rgb: str):
+    dataset = {
+        'label': label,
+        'data': chart_points,
+        'backgroundColor': f'rgba({rgb}, 0.2)',
+        'borderColor': f'rgba({rgb}, 1)',
+        'borderWidth': 1,
+        'cubicInterpolationMode': 'monotone',
+    }
+    chart_data = {
+        'datasets': [dataset],
+    }
+    chart_options = {
+        'plugins': {
+            'legend': {
+                'display': False,
+            },
+        },
+        'elements': {
+            'point': {
+                'radius': 0,
+            },
+        },
+        'scales': TIME_AXIS_SCALES,
+    }
+    chart_config = {
+        'type': 'line',
+        'data': chart_data,
+        'options': chart_options,
+    }
+    return chart_config
+

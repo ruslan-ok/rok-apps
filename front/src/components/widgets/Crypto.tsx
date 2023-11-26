@@ -26,30 +26,6 @@ ChartJS.register(
     Legend
 );
 
-const options = {
-    responsive: true,
-    interaction: {},
-    plugins: {
-        legend: {
-            display: false,
-        },
-    },
-    elements: {
-        point: {
-            radius: 0,
-        },
-    },
-};
-
-let data = {
-    datasets: [{
-        data: null,
-        borderColor: 'rgba(111, 184, 71, 1)',
-        borderWidth: 1,
-        tension: 0.5,
-    }]
-}
-
 function getOption(): string {
     const tmp: string | null = localStorage.getItem('crypto-period');
     let ret: string = '7d';
@@ -65,7 +41,7 @@ function Crypto({screenWidth}: {screenWidth: number}) {
         localStorage.setItem('crypto-period', value);
     }
     
-    const [values, setValues] = useState<any>(null);
+    const [widgetData, setWidgetData] = useState<any>(null);
     const [period, setPeriod] = useState(getOption());
     const [status, setStatus] = useState('init');
     const chartRef = useRef<any>(null);
@@ -82,10 +58,9 @@ function Crypto({screenWidth}: {screenWidth: number}) {
             };
             const response = await fetch(url, options);
             if (response.ok) {
-                let resp_data = await response.json();
-                if (resp_data) {
-                    data.datasets[0].data = resp_data.data;
-                    setValues(resp_data);
+                let widgetData = await response.json();
+                if (widgetData) {
+                    setWidgetData(widgetData);
                     setStatus('ready');
                 }
             }
@@ -101,8 +76,8 @@ function Crypto({screenWidth}: {screenWidth: number}) {
     const widgetHeight = screenWidth < 600 ? 200 : (screenWidth < 768 ? 250 : 300);
 
     if (status == 'ready') {
-        const current = Math.round(values.current).toLocaleString();
-        const change = values.change;
+        const current = Math.round(widgetData.current).toLocaleString();
+        const change = widgetData.change;
         let changeClass = 'value';
         if (change > 0) {
             changeClass += ' posotive';
@@ -110,9 +85,9 @@ function Crypto({screenWidth}: {screenWidth: number}) {
         if (change < 0) {
             changeClass += ' negative';
         }
-        const amount = Math.round(values.amount).toLocaleString();
-        const price_url = values.price_url;
-        const amount_url = values.amount_url;
+        const amount = Math.round(widgetData.amount).toLocaleString();
+        const price_url = widgetData.price_url;
+        const amount_url = widgetData.amount_url;
             return (
             <div className='widget-container'>
                 <div className='widget-content' id='crypto'> 
@@ -135,7 +110,7 @@ function Crypto({screenWidth}: {screenWidth: number}) {
                             </select>
                         </span>
                     </div>
-                    <Line ref={chartRef} options={options} data={data} width={widgetWidth} height={widgetHeight} key={Math.random()}/>
+                    <Line ref={chartRef} options={widgetData.chart.options} data={widgetData.chart.data} width={widgetWidth} height={widgetHeight} key={Math.random()}/>
                 </div>
             </div>
         );

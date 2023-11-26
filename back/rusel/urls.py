@@ -73,7 +73,7 @@ urlpatterns = i18n_patterns(
     path('api/react/get_username', api_react.get_username),
 
     path('api/get_widget/', api_widget.get_widget, name='get_widget'),
-    path('api/get_chart_data/', api_widget.get_chart_data, name='get_chart_data'),
+    path('api/get_chart_data/', api_widget.get_chart_data_api, name='get_chart_data'),
     path('api/get_dir/', api_service.get_dir, name='get_dir'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('<str:role>/<int:pk>/doc/<str:fname>', views_old.get_doc, name='doc'),

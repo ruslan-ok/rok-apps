@@ -27,19 +27,6 @@ ChartJS.register(
     Legend
 );
 
-const options = {
-    plugins: {
-        legend: {
-            display: false,
-        },
-    },
-    elements: {
-        point: {
-            radius: 0,
-        },
-    },
-};
-
 type Color = {
     r: number,
     g: number,
@@ -59,6 +46,7 @@ interface Rate {
 };
 
 interface WidgetData {
+    chart: any;
     base: string;
     period: string;
     labels: string[];
@@ -126,13 +114,14 @@ function Currency({screenWidth}: {screenWidth: number}) {
     }
     
     const initData: WidgetData = {
+        chart: {},
         base: '',
         period: '',
         labels: [],
         currencies: [],
     };
 
-    const [values, setValues] = useState<WidgetData>(initData);
+    const [widgetData, setWidgetData] = useState<WidgetData>(initData);
     const [base, setBase] = useState<string>(getOption('base'));
     const [period, setPeriod] = useState<string>(getOption('period'));
     const [hidden, setHidden] = useState<Array<string>>(getOption('hidden').split(','));
@@ -151,11 +140,11 @@ function Currency({screenWidth}: {screenWidth: number}) {
             };
             const response = await fetch(url, options);
             if (response.ok) {
-                let resp_data: WidgetData = await response.json();
-                if (resp_data) {
-                    setValues(resp_data);
-                    setBaseOption(resp_data.base);
-                    setPeriodOption(resp_data.period);
+                let widgetData: WidgetData = await response.json();
+                if (widgetData) {
+                    setWidgetData(widgetData);
+                    setBaseOption(widgetData.base);
+                    setPeriodOption(widgetData.period);
                     setStatus('ready');
                 }
             }
@@ -183,8 +172,8 @@ function Currency({screenWidth}: {screenWidth: number}) {
             setHiddenOption(hidden);
         }
         
-        const currencies = values.currencies.map(item => { return (<option key={item.id} value={item.id}>{item.id.toUpperCase()}</option>); });
-        const noBaseList = values.currencies.filter(x => x.id != base).map(item => {
+        const currencies = widgetData.currencies.map(item => { return (<option key={item.id} value={item.id}>{item.id.toUpperCase()}</option>); });
+        const noBaseList = widgetData.currencies.filter(x => x.id != base).map(item => {
             const visible = !hidden.includes(item.id);
             return (
                 <StyledCheckbox classes='visibility' key={item.id} id={item.id} text={item.id.toUpperCase()} r={item.color.r} g={item.color.g} b={item.color.b} checked={visible} onClick={switchVisible} />
@@ -192,10 +181,10 @@ function Currency({screenWidth}: {screenWidth: number}) {
         });
         
         chartData.datasets = [];
-        values.currencies.filter(x => x.id != base && !hidden.includes(x.id)).forEach(currency => {
+        widgetData.currencies.filter(x => x.id != base && !hidden.includes(x.id)).forEach(currency => {
             const currInfo: DatasetInfo = {
                 label: currency.id.toUpperCase(),
-                data: currency.rates.map((rate, index) => { return {x: values.labels[index], y: rate } }),
+                data: currency.rates.map((rate, index) => { return {x: widgetData.labels[index], y: rate } }),
                 backgroundColor: `rgba(${currency.color.r}, ${currency.color.g}, ${currency.color.b}, 0.2)`,
                 borderColor: `rgba(${currency.color.r}, ${currency.color.g}, ${currency.color.b}, 1)`,
                 borderWidth: 1,
@@ -226,7 +215,7 @@ function Currency({screenWidth}: {screenWidth: number}) {
                         </span>
                         {noBaseList}
                     </div>
-                    <Line ref={chartRef} options={options} data={chartData} width={widgetWidth} height={widgetHeight} key={Math.random()}/>
+                    <Line ref={chartRef} options={widgetData.chart.options} data={chartData} width={widgetWidth} height={widgetHeight} key={Math.random()}/>
                 </div>
             </div>
         );

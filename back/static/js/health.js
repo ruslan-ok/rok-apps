@@ -7,14 +7,14 @@ function buildChart(mark, filter = undefined) {
     xmlHttp.responseType = 'json';
     xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-            data = xmlHttp.response;
+            let widget_data = xmlHttp.response;
             let chart = Chart.getChart("healthChart"); // <canvas> id
             if (chart != undefined) {
                 chart.destroy();
             }
             const chartEl = document.getElementById('healthChart');
             const ctx = chartEl.getContext('2d');
-            new Chart(ctx, data);
+            new Chart(ctx, widget_data.chart);
             if (chart == undefined)
                 chartEl.parentNode.removeChild(chartEl.parentNode.firstElementChild);
         }
@@ -29,6 +29,7 @@ function buildFilteredChart() {
 }
 
 function initFilter() {
-    const el = document.getElementById('id_incident')
-    el.onchange = buildFilteredChart;
+    const el = document.getElementById('id_incident');
+    if (el)
+        el.onchange = buildFilteredChart;
 }

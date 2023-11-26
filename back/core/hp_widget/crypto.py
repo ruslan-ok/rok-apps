@@ -1,7 +1,7 @@
 import os, requests, json
 from datetime import datetime
 from decimal import Decimal
-from core.hp_widget.delta import approximate, ChartPeriod, ChartDataVersion, SourceData
+from core.hp_widget.delta import approximate, ChartPeriod, SourceData, build_chart_config
 
 def get_crypto(request):
     price = 0.
@@ -25,8 +25,8 @@ def get_crypto(request):
     template_name = 'hp_widget/crypto.html'
     return template_name, context
 
-def get_chart_data(period: ChartPeriod, version: ChartDataVersion):
-    values = []
+def get_crypto_data(period: ChartPeriod):
+    chart_points = []
     current = change = amount = None
     api_url = os.getenv('API_COIN_RATE')
     api_key = os.getenv('API_COIN_RATE_KEY')
@@ -45,41 +45,15 @@ def get_chart_data(period: ChartPeriod, version: ChartDataVersion):
                     h = ret['data']['history'][i]
                     sd = SourceData(event=datetime.utcfromtimestamp(h['timestamp']), value=Decimal(h['price'] if h['price'] else 0))
                     src_data.append(sd)
-                values = approximate(period, src_data, 200)
+                chart_points = approximate(src_data, 200)
 
-    if version == ChartDataVersion.v2:
-        data = {
-            'data': values,
-            'current': current,
-            'change': change,
-            'amount': amount,
-            'price_url': os.getenv('API_COIN_INFO', '#'), 
-            'amount_url': f"{os.getenv('API_WALLET', '#')}{os.getenv('API_WALLET_KEY', '')}",
-        }
-    else:
-        data = {
-            'type': 'line',
-            'data': {
-                'datasets': [{
-                    'label': 'BTC',
-                    'data': values,
-                    'backgroundColor': 'rgba(111, 184, 71, 0.2)',
-                    'borderColor': 'rgba(111, 184, 71, 1)',
-                    'borderWidth': 1,
-                    'tension': 0.4,
-                }]
-            },
-            'options': {
-                'plugins': {
-                    'legend': {
-                        'display': False,
-                    },
-                },
-                'elements': {
-                    'point': {
-                        'radius': 0,
-                    },
-                },
-            },
-        }
-    return data
+    chart_config = build_chart_config('BTC/USD', chart_points, '111, 184, 71')
+    widget_data = {
+        'chart': chart_config,
+        'current': current,
+        'change': change,
+        'amount': amount,
+        'price_url': os.getenv('API_COIN_INFO', '#'), 
+        'amount_url': f"{os.getenv('API_WALLET', '#')}{os.getenv('API_WALLET_KEY', '')}",
+    }
+    return widget_data

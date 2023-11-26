@@ -1,10 +1,10 @@
 import os, json, requests
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from dataclasses import dataclass
 from decimal import Decimal
 from core.currency.utils import get_exchange_rate, get_hist_exchange_rates
 from core.currency.exchange_rate_api import CA_Status
-from core.hp_widget.delta import get_start_date, approximate, ChartPeriod, ChartDataVersion, SourceData
+from core.hp_widget.delta import get_start_date, approximate, ChartPeriod, SourceData, build_chart_config
 
 CURR_LIST = ('EUR', 'BYN', 'PLN', 'GBP', 'USD')
 
@@ -66,25 +66,7 @@ class CurrRates:
     max_rate: Decimal | None = None
     last_rate: Decimal | None = None
 
-    def get_info_v1(self):
-        values = []
-        if self.max_rate and self.min_rate and (self.max_rate > self.min_rate):
-            delta: Decimal = self.max_rate - self.min_rate
-            for i in range(len(self.labels)):
-                values.append({
-                    'x': self.labels[i],
-                    'y': (self.rates[i]-self.min_rate)/delta if self.rates[i] else self.rates[i]
-                })
-        return {
-            'label': self.id.upper(),
-            'data': values,
-            'backgroundColor': f'rgba({CURR_COLOR[self.id.upper()]}, 0.2)',
-            'borderColor': f'rgba({CURR_COLOR[self.id.upper()]}, 1)',
-            'borderWidth': 1,
-            'tension': 0.4,
-        }
-    
-    def get_info_v2(self):
+    def get_info(self):
         color = [int(x) for x in CURR_COLOR[self.id.upper()].split(',')]
         return {
             'id': self.id,
@@ -97,7 +79,7 @@ class CurrRates:
             },
         }
 
-def get_db_currency_chart(user_id: int, period: ChartPeriod, version: ChartDataVersion, base: str):
+def get_db_currency_chart(period: ChartPeriod, base: str):
     enddate = datetime.today()
     startdate = get_start_date(enddate, period)
 
@@ -113,31 +95,33 @@ def get_db_currency_chart(user_id: int, period: ChartPeriod, version: ChartDataV
         for i in range(days):
             sd = SourceData(event=startdate + timedelta(i), value=rates[i])
             src_data.append(sd)
-        values = approximate(period, src_data, 200)
-        labels = [v['x'] for v in values]
-        rates: list[Decimal] = [v['y'] for v in values]
+        chart_points = approximate(src_data, 200)
+        labels = [v['x'] for v in chart_points]
+        rates: list[Decimal] = [v['y'] for v in chart_points]
         curr_rates = CurrRates(id=curr.lower(), rates=rates, labels=labels)
         rates_list.append(curr_rates)
 
     usd_rates = CurrRates(id='usd', rates=[], labels=[])
     if base != 'usd':
-        base_rates: CurrRates = [x for x in rates_list if x.id == base][0]
-        for i in range(len(base_rates.rates)):
-            base_rate = base_rates.rates[i]
-            if not base_rate:
-                base_rate = 1
-            usd_rates.rates.append(Decimal(1 / base_rate))
+        filtered_rates = [x for x in rates_list if x.id == base]
+        if filtered_rates:
+            base_rates: CurrRates = filtered_rates[0]
+            for i in range(len(base_rates.rates)):
+                base_rate = base_rates.rates[i]
+                if not base_rate:
+                    base_rate = 1
+                usd_rates.rates.append(Decimal(1 / base_rate))
 
-            for curr_rates in rates_list:
-                if curr_rates.id == base:
-                    continue
-                if i < len(curr_rates.rates):
-                    tmp = curr_rates.rates[i]
-                    curr_rates.rates[i] = Decimal(tmp * usd_rates.rates[i])
-                else:
-                    curr_rates.rates.append(Decimal(0))
+                for curr_rates in rates_list:
+                    if curr_rates.id == base:
+                        continue
+                    if i < len(curr_rates.rates):
+                        tmp = curr_rates.rates[i]
+                        curr_rates.rates[i] = Decimal(tmp * usd_rates.rates[i])
+                    else:
+                        curr_rates.rates.append(Decimal(0))
 
-            base_rates.rates[i] = Decimal(1)
+                base_rates.rates[i] = Decimal(1)
     rates_list.append(usd_rates)
 
     for curr_rates in rates_list:
@@ -147,50 +131,30 @@ def get_db_currency_chart(user_id: int, period: ChartPeriod, version: ChartDataV
             curr_rates.max_rate = Decimal(max(a))
             curr_rates.last_rate = a[-1]
 
-    match version:
-        case ChartDataVersion.v1:
-            data = {
-                'type': 'line',
-                'data': {
-                    'datasets': [x.get_info_v1() for x in rates_list]
-                },
-                'options': {
-                    'plugins': {
-                        'legend': {
-                            'display': False,
-                        },
-                    },
-                    'elements': {
-                        'point': {
-                            'radius': 0,
-                        },
-                    },
-                },
-            }
+    chart_config = build_chart_config('Currency Rates', [], '')
 
-        case ChartDataVersion.v2:
-            data = {
-                'base': base,
-                'period': period.value,
-                'labels': rates_list[0].labels,
-                'currencies': [x.get_info_v2() for x in rates_list],
-            }
-        case _: data = {}
-    return data
+    widget_data = {
+        'chart': chart_config,
+        'base': base,
+        'period': period.value,
+        'labels': rates_list[0].labels,
+        'currencies': [x.get_info() for x in rates_list],
+    }
+    return widget_data
 
-def get_api_currency_chart(period: ChartPeriod, version: ChartDataVersion, base: str):
+def get_api_currency_chart(period: ChartPeriod, base: str):
     api_url = os.environ.get('DJANGO_HOST_LOG', '')
     service_token = os.environ.get('DJANGO_SERVICE_TOKEN', '')
     headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
     verify = os.environ.get('DJANGO_CERT', '')
-    resp = requests.get(api_url + '/api/get_chart_data/?mark=currency&version=' + version.value + '&period=' + period.value + '&base=' + base, headers=headers, verify=verify)
+    resp = requests.get(api_url + '/api/get_chart_data/?mark=currency&period=' + period.value + '&base=' + base, headers=headers, verify=verify)
     if (resp.status_code != 200):
         return None
     return json.loads(resp.content)
 
-def get_chart_data(user_id: int, period: ChartPeriod, version: ChartDataVersion, base: str):
+def get_currency_data(period: ChartPeriod, base: str):
     if os.environ.get('DJANGO_DEVICE', 'Nuc') != os.environ.get('DJANGO_LOG_DEVICE', 'Nuc'):
-        ret = get_api_currency_chart(period, version, base)
+        ret = get_api_currency_chart(period, base)
         if ret:
             return ret
-    return get_db_currency_chart(user_id, period, version, base)
+    return get_db_currency_chart(period, base)

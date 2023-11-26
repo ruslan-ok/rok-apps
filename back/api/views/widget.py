@@ -9,12 +9,12 @@ from rest_framework.status import HTTP_400_BAD_REQUEST
 from todo.hp_widget.todo import get_todo, get_todo_v2
 from logs.hp_widget.logs import get_logs
 from core.hp_widget.visited import get_visited, get_visited_v2
-from health.views.chart import get_chart_data as get_health_data
-from core.hp_widget.currency import get_currency, get_chart_data as get_currency_data
-from core.hp_widget.crypto import get_crypto, get_chart_data as get_crypto_data
-from core.hp_widget.weather import get_weather, get_chart_data as get_weather_data
-from weather.utils import get_chart_data as get_forecast
-from core.hp_widget.delta import ChartPeriod, ChartDataVersion
+from health.views.chart import get_health_data
+from core.hp_widget.currency import get_currency, get_currency_data
+from core.hp_widget.crypto import get_crypto, get_crypto_data
+from core.hp_widget.weather import get_weather
+from weather.utils import get_forecast
+from core.hp_widget.delta import ChartPeriod
 
 @api_view()
 @permission_classes([IsAuthenticated])
@@ -52,7 +52,7 @@ ALL_CHART_MARKS = [
 @api_view()
 @permission_classes([IsAuthenticated])
 @renderer_classes([JSONRenderer])
-def get_chart_data(request):
+def get_chart_data_api(request):
     if 'mark' not in request.query_params:
         return Response({'result': 'error', 'info': "Expected parameter 'mark'"},
                         status=HTTP_400_BAD_REQUEST)
@@ -62,7 +62,6 @@ def get_chart_data(request):
                         status=HTTP_400_BAD_REQUEST)
     filter = request.query_params.get('filter', None)
     s_period = request.GET.get('period', '')
-    s_version = request.GET.get('version', '1')
     base = request.GET.get('base', 'usd')
     location = request.GET.get('location', '')
     lat = request.GET.get('lat', os.getenv('API_WEATHER_LAT'))
@@ -77,22 +76,14 @@ def get_chart_data(request):
             case 'crypto': period = ChartPeriod.p7d
             case 'weather': period = ChartPeriod.p7d
             case _: period = ChartPeriod.p30d
-    try:
-        version = ChartDataVersion(s_version)
-    except:
-        version = ChartDataVersion.v1
 
     match mark:
-        case 'weight' | 'waist' | 'temp' | 'health': data = get_health_data(request.user.id, mark, period, version, filter)
-        case 'currency': data = get_currency_data(request.user.id, period, version, base)
-        case 'crypto': data = get_crypto_data(period, version)
+        case 'weight' | 'waist' | 'temp' | 'health': data = get_health_data(request.user.id, mark, period, filter)
+        case 'currency': data = get_currency_data(period, base)
+        case 'crypto': data = get_crypto_data(period)
         case 'visited': data = get_visited_v2(request)
         case 'todo': data = get_todo_v2(request)
-        case 'weather':
-            match version:
-                case ChartDataVersion.v1: data = get_weather_data(request.user.id)
-                case ChartDataVersion.v2: data = get_forecast(request.user, location, lat, lon)
-                case _: data = {'result': 'error', 'info': 'Unknown weather api version ' + str(version)}
+        case 'weather': data = get_forecast(request.user, location, lat, lon)
         case _: data = {'result': 'error', 'info': 'Unknown widget: ' + mark}
     return Response(data)
 

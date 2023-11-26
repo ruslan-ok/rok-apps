@@ -377,7 +377,7 @@ def get_db_chart_data(user, location: str, lat: str, lon: str) -> dict:
     ret = get_forecast_data(place, forecast, astro)
     return ret
 
-def get_chart_data(user, location: str, lat: str, lon: str):
+def get_forecast(user, location: str, lat: str, lon: str):
     try:
         if os.environ.get('DJANGO_DEVICE', 'Nuc') != os.environ.get('DJANGO_LOG_DEVICE', 'Nuc'):
             ret = get_api_chart_data(location, lat, lon)
