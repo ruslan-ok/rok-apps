@@ -15,7 +15,7 @@ export default function WeatherNow({values}: {values: any}) {
     const href = getIconHref(values.current.icon_num);
     const windValue = Math.round(+values.current.wind_speed);
     const windDirStyle = {transform: `rotate(${values.current.wind_angle}deg)`};
-    const sign = values.current.temperature == 0 ? '' : values.current.temperature > 0 ? '+' : '';
+    const sign = values.current.temperature == 0 ? '' : values.current.temperature > 0 ? '+' : '-';
     const value = Math.abs(values.current.temperature);
     const sunrise = values.sunrise.split(' ')[1];
     const sunset = values.sunset.split(' ')[1];
