@@ -89,21 +89,24 @@ export default function WeatherForTheWeek({values}: {values: any}) {
 
     const titlePreci = buildSubtitle('Осадки, мм');
     
-    const maxPreci = tempBarHeights.map(x => x.precipitation).reduce(function(prev: number, curr: number) { return prev > curr ? prev : curr; });
-    const precipitation = values.for_week.map((day: any) => {
-        let cellClass: string[] = ['week-column day-preci'];
-        checkWeekend(cellClass, day.event);
-        const maxHeight = 20;
-        const value = +day.prec_total;
-        const color = value == 0 ? 'gray' : 'var(--rain-color)'; 
-        const height = maxPreci == 0 ? 0 : maxHeight * value / maxPreci;
-        return (
-            <td className={cellClass.join(' ')} key={day.event}>
-                <div className='value' style={{color: color}}>{value}</div>
-                <div className='bar' style={{height: height}}></div>
-            </td>
-        );
-    });
+    let precipitation = (<td></td>);
+    if (tempBarHeights.length) {
+        const maxPreci = tempBarHeights.map(x => x.precipitation).reduce(function(prev: number, curr: number) { return prev > curr ? prev : curr; });
+        precipitation = values.for_week.map((day: any) => {
+            let cellClass: string[] = ['week-column day-preci'];
+            checkWeekend(cellClass, day.event);
+            const maxHeight = 20;
+            const value = +day.prec_total;
+            const color = value == 0 ? 'gray' : 'var(--rain-color)'; 
+            const height = maxPreci == 0 ? 0 : maxHeight * value / maxPreci;
+            return (
+                <td className={cellClass.join(' ')} key={day.event}>
+                    <div className='value' style={{color: color}}>{value}</div>
+                    <div className='bar' style={{height: height}}></div>
+                </td>
+            );
+        });
+    }
 
 
     return (
