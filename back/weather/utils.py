@@ -158,76 +158,79 @@ def get_forecast_api_data(place: Place) -> None:
         raise WeatherError('get_forecast_api_data', f'Bad response status code: {resp.status_code}')
     ret = json.loads(resp.content)
     fixed = datetime.now().replace(second=0, microsecond=0)
-    weather = Forecast.objects.create(
-        place=place,
-        event=fixed,
-        fixed=fixed,
-        ev_type=CURRENT,
-        lat=ret['lat'],
-        lon=ret['lon'],
-        elevation=ret['elevation'],
-        timezone=ret['timezone'],
-        units=ret['units'],
-        weather=ret['current']['icon'],
-        icon=ret['current']['icon_num'],
-        summary=ret['current']['summary'],
-        temperature=ret['current']['temperature'],
-        wind_speed=ret['current']['wind']['speed'],
-        wind_angle=ret['current']['wind']['angle'],
-        wind_dir=ret['current']['wind']['dir'],
-        prec_total=ret['current']['precipitation']['total'],
-        prec_type=ret['current']['precipitation']['type'],
-        cloud_cover=ret['current']['cloud_cover'],
-    )
-    for hour in ret['hourly']['data']:
-        Forecast.objects.create(
+    try:
+        weather = Forecast.objects.create(
             place=place,
-            event=datetime.strptime(hour['date'], '%Y-%m-%dT%H:%M:%S'),
+            event=fixed,
             fixed=fixed,
-            ev_type=FORECASTED_HOURLY,
+            ev_type=CURRENT,
             lat=ret['lat'],
             lon=ret['lon'],
-            elevation=weather.elevation,
-            timezone=weather.timezone,
-            units=weather.units,
-            weather=hour['weather'],
-            icon=hour['icon'],
-            summary=hour['summary'],
-            temperature=hour['temperature'],
-            temperature_min=None,
-            temperature_max=None,
-            wind_speed=hour['wind']['speed'],
-            wind_angle=hour['wind']['angle'],
-            wind_dir=hour['wind']['dir'],
-            prec_total=hour['precipitation']['total'],
-            prec_type=hour['precipitation']['type'],
-            cloud_cover=hour['cloud_cover']['total'],
+            elevation=ret['elevation'],
+            timezone=ret['timezone'],
+            units=ret['units'],
+            weather=ret['current']['icon'],
+            icon=ret['current']['icon_num'],
+            summary=ret['current']['summary'],
+            temperature=ret['current']['temperature'],
+            wind_speed=ret['current']['wind']['speed'],
+            wind_angle=ret['current']['wind']['angle'],
+            wind_dir=ret['current']['wind']['dir'],
+            prec_total=ret['current']['precipitation']['total'],
+            prec_type=ret['current']['precipitation']['type'],
+            cloud_cover=ret['current']['cloud_cover'],
         )
+        for hour in ret['hourly']['data']:
+            Forecast.objects.create(
+                place=place,
+                event=datetime.strptime(hour['date'], '%Y-%m-%dT%H:%M:%S'),
+                fixed=fixed,
+                ev_type=FORECASTED_HOURLY,
+                lat=ret['lat'],
+                lon=ret['lon'],
+                elevation=weather.elevation,
+                timezone=weather.timezone,
+                units=weather.units,
+                weather=hour['weather'],
+                icon=hour['icon'],
+                summary=hour['summary'],
+                temperature=hour['temperature'],
+                temperature_min=None,
+                temperature_max=None,
+                wind_speed=hour['wind']['speed'],
+                wind_angle=hour['wind']['angle'],
+                wind_dir=hour['wind']['dir'],
+                prec_total=hour['precipitation']['total'],
+                prec_type=hour['precipitation']['type'],
+                cloud_cover=hour['cloud_cover']['total'],
+            )
 
-    for day in ret['daily']['data']:
-        Forecast.objects.create(
-            place=place,
-            event=datetime.strptime(day['day'], '%Y-%m-%d'),
-            fixed=fixed,
-            ev_type=FORECASTED_DAILY,
-            lat=ret['lat'],
-            lon=ret['lon'],
-            elevation=weather.elevation,
-            timezone=weather.timezone,
-            units=weather.units,
-            weather=day['weather'],
-            icon=day['icon'],
-            summary=day['summary'],
-            temperature=day['all_day']['temperature'],
-            temperature_min=day['all_day']['temperature_min'],
-            temperature_max=day['all_day']['temperature_max'],
-            wind_speed=day['all_day']['wind']['speed'],
-            wind_angle=day['all_day']['wind']['angle'],
-            wind_dir=day['all_day']['wind']['dir'],
-            prec_total=day['all_day']['precipitation']['total'],
-            prec_type=day['all_day']['precipitation']['type'],
-            cloud_cover=day['all_day']['cloud_cover']['total'],
-        )
+        for day in ret['daily']['data']:
+            Forecast.objects.create(
+                place=place,
+                event=datetime.strptime(day['day'], '%Y-%m-%d'),
+                fixed=fixed,
+                ev_type=FORECASTED_DAILY,
+                lat=ret['lat'],
+                lon=ret['lon'],
+                elevation=weather.elevation,
+                timezone=weather.timezone,
+                units=weather.units,
+                weather=day['weather'],
+                icon=day['icon'],
+                summary=day['summary'],
+                temperature=day['all_day']['temperature'],
+                temperature_min=day['all_day']['temperature_min'],
+                temperature_max=day['all_day']['temperature_max'],
+                wind_speed=day['all_day']['wind']['speed'],
+                wind_angle=day['all_day']['wind']['angle'],
+                wind_dir=day['all_day']['wind']['dir'],
+                prec_total=day['all_day']['precipitation']['total'],
+                prec_type=day['all_day']['precipitation']['type'],
+                cloud_cover=day['all_day']['cloud_cover']['total'],
+            )
+    except Exception as ex:
+        raise WeatherError('get_forecast_api_data', f'Exception: {str(ex)}, {ret=}')
 
 @dataclass
 class DayWeather:
@@ -295,8 +298,10 @@ class PeriodWeather:
             "for_week": [x.to_json() for x in self.for_week],
         }
 
-def get_forecast_data(place: Place, forecast, astro: AstroData) -> dict:
+def get_forecast_data(place: Place, forecast, astro: AstroData, debug_info: str) -> dict:
     currents = forecast.filter(ev_type=CURRENT)
+    for_day = forecast.filter(ev_type=FORECASTED_HOURLY)
+    for_week = forecast.filter(ev_type=FORECASTED_DAILY)
     if not len(currents):
         raise WeatherError('get_forecast_data', 'Empty forecast Queryset.')
     if not astro.sunrise or not astro.sunset:
@@ -326,10 +331,10 @@ def get_forecast_data(place: Place, forecast, astro: AstroData) -> dict:
         timezone=currents[0].timezone,
         units=currents[0].units,
         cr_url=os.getenv('API_WEATHER_CR_URL', '#'),
+        #cr_info=f'forecast_len={len(forecast)}, currents_len={len(currents)}, for_day_len={len(for_day)}, for_week_len={len(for_week)}, {debug_info}',
         cr_info=os.getenv('API_WEATHER_INFO', '#'),
         current=current,
     )
-    for_day = forecast.filter(ev_type=FORECASTED_HOURLY)
     for x in for_day:
             data.for_day.append(DayWeather(
                 event=x.event,
@@ -346,7 +351,6 @@ def get_forecast_data(place: Place, forecast, astro: AstroData) -> dict:
                 prec_total=x.prec_total,
                 prec_type=x.prec_type,
             ))
-    for_week = forecast.filter(ev_type=FORECASTED_DAILY)
     for x in for_week:
             data.for_week.append(DayWeather(
                 event=x.event,
@@ -370,11 +374,13 @@ def get_db_chart_data(user, location: str, lat: str, lon: str) -> dict:
     place = get_place(location, lat, lon)
     lifetime = datetime.now() - timedelta(hours=2)
     forecast = Forecast.objects.filter(place=place.id, fixed__gt=lifetime).order_by('event')
+    debug_info = f'place.id={place.id}, lifetime={lifetime}'
     astro = get_astro(place)
     if not len(forecast):
         get_forecast_api_data(place)
         forecast = Forecast.objects.filter(place=place.id, fixed__gt=lifetime).order_by('event')
-    ret = get_forecast_data(place, forecast, astro)
+        debug_info += ', API call'
+    ret = get_forecast_data(place, forecast, astro, debug_info)
     return ret
 
 def get_forecast(user, location: str, lat: str, lon: str):
