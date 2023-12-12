@@ -139,7 +139,7 @@ export default function Weather({screenWidth}: {screenWidth: number}) {
                         <div className='left'>
                             <a className="nav-logo big" title={cr_info} href={cr_url}>
                                 <svg width="99" height="15" viewBox="0 0 199 30" xmlns="http://www.w3.org/2000/svg">
-                                    <title>Meteosource Weather API</title>
+                                    <title>{cr_info}</title>
                                     <defs>
                                         <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="logo-meteosource.inverse-a">
                                             <stop stopColor="#FAD961" offset="0%"></stop>

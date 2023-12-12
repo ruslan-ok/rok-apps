@@ -687,8 +687,10 @@ class TaskViewSet(viewsets.ModelViewSet):
         s_date = request.query_params['date']
         try:
             date = datetime.strptime(s_date, '%Y-%m-%d')
-            ret, stat = Task.get_exchange_rate(currency, date)
-            return Response(ret, status=stat)
-        except:
-            return {'result': 'error', 'info': "The 'date' paramener must be in the format 'YYYY-MM-DD'"}, ret_status
+            ret = Task.get_exchange_rate(currency, date)
+            if ret['result'] in ('ok', 'warning'):
+                return Response({'rate_usd': ret['rate'].value}, status=ret['status'])
+            return Response(ret['info'], status=ret['status'])
+        except Exception as ex:
+            return {'result': 'error', 'info': str(ex)}, ret_status
     

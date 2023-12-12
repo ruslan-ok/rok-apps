@@ -875,13 +875,6 @@ class Task(models.Model):
 
     @classmethod
     def get_net_exchange_rate(cls, currency: str, date: date) -> dict:
-        if datetime.today().date() < datetime(2023, 7, 7):
-            return {
-                'rate': None,
-                'status': status.HTTP_428_PRECONDITION_REQUIRED,
-                'info': 'You used all your monthly requests. Please upgrade your plan at https://app.currencyapi.com/subscription',
-            }
-
         api_url = os.environ.get('API_CURR_RATE', '')
         if not api_url:
             return {
@@ -1439,4 +1432,7 @@ class CurrencyRate(models.Model):
     value = models.DecimalField('Exchange rate to USD', blank=True, null=True, max_digits=15, decimal_places=4)
     source = models.CharField('Data source', max_length=200, blank=True)
     info = models.CharField('Comment', max_length=1000, blank=True)
+
+    def __repr__(self):
+        return f'CurrencyRate {self.id} "{self.currency}" -> {self.base} [{self.date.strftime("%Y.%m.%d")}] = {self.value} ({self.source})'
 

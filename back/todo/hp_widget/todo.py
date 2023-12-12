@@ -26,16 +26,6 @@ class ListView(BaseListView):
         return context
 
 def get_todo(request):
-    lv = ListView()
-    lv.request = request
-    lv.object_list = lv.get_queryset()
-    if not lv.object_list or len(lv.object_list) == 0:
-        return 'hide', {}
-    context = lv.get_context_data()
-    template_name = 'hp_widget/todo.html'
-    return template_name, context
-
-def get_todo_v2(request):
     lookups = Q(stop__lte=(datetime.now() + timedelta(1))) | Q(in_my_day=True) | Q(important=True)
     svc_grp_id = int(os.environ.get('DJANGO_SERVICE_GROUP' + ENV + DB, '0'))
     tasks = Task.objects.filter(user=request.user.id, app_task=NUM_ROLE_TODO).filter(lookups).exclude(completed=True).exclude(groups=svc_grp_id)

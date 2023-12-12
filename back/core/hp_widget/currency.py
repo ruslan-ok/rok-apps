@@ -2,8 +2,7 @@ import os, json, requests
 from datetime import datetime, timedelta
 from dataclasses import dataclass
 from decimal import Decimal
-from core.currency.utils import get_exchange_rate, get_hist_exchange_rates
-from core.currency.exchange_rate_api import CA_Status
+from core.currency.utils import get_hist_exchange_rates
 from core.hp_widget.delta import get_start_date, approximate, ChartPeriod, SourceData, build_chart_config
 
 CURR_LIST = ('EUR', 'BYN', 'PLN', 'GBP', 'USD')
@@ -33,29 +32,6 @@ CURR_ABBR = {
 }
 
 PERIOD = 30
-
-def get_currency(request):
-    currencies = []
-    for curr in CURR_LIST:
-        if curr == 'USD':
-            continue
-        rate_info = get_exchange_rate(curr, datetime.today().date())
-        if rate_info and rate_info.result == CA_Status.ok and rate_info.rate and rate_info.rate.value:
-            currencies.append({
-                'icon': CURR_ICON[curr], 
-                'abbr': CURR_ABBR[curr], 
-                'style': f'{curr.lower()}-rate', 
-                'rate': round(rate_info.rate.value, 2),
-                'date': rate_info.rate.date,
-                'code': curr,
-            })
-    context = {
-        'currencies': currencies,
-        'copyright_url': os.getenv('API_NBRB_CR_URL', '#'),
-        'copyright_info': os.getenv('API_NBRB_CR_INFO', ''), 
-    }
-    template_name = 'hp_widget/currency.html'
-    return template_name, context
 
 @dataclass
 class CurrRates:

@@ -19,12 +19,3 @@ class ListView(BaseListView):
         ov = OverviewLogData()
         context['health'] = ov.get_health(5)
         return context
-
-
-def get_logs(request):
-    lv = ListView()
-    lv.request = request
-    lv.object_list = lv.get_queryset()
-    context = lv.get_context_data()
-    template_name = 'hp_widget/logs.html'
-    return template_name, context
