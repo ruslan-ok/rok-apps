@@ -38,6 +38,8 @@ from service.background_services import check_services
 
 from expen.multi_currency import multi_currency_init as multi_currency_init_expen
 from fuel.multi_currency import multi_currency_init as multi_currency_init_fuel
+from core.currency.utils import get_exchange_rate as get_core_exchange_rate
+from core.currency.exchange_rate_api import *
 
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
@@ -672,11 +674,6 @@ class TaskViewSet(viewsets.ModelViewSet):
         return Response(ret)
 
     @action(detail=False)
-    def update_exchange_rate(self, request, pk=None):
-        ret = Task.update_exchange_rate()
-        return Response(ret)
-
-    @action(detail=False)
     def get_exchange_rate(self, request, pk=None):
         ret_status = status.HTTP_400_BAD_REQUEST
         if 'currency' not in request.query_params:
@@ -687,10 +684,10 @@ class TaskViewSet(viewsets.ModelViewSet):
         s_date = request.query_params['date']
         try:
             date = datetime.strptime(s_date, '%Y-%m-%d')
-            ret = Task.get_exchange_rate(currency, date)
-            if ret['result'] in ('ok', 'warning'):
-                return Response({'rate_usd': ret['rate'].value}, status=ret['status'])
-            return Response(ret['info'], status=ret['status'])
+            ret = get_core_exchange_rate(currency, date)
+            if ret.result == CA_Status.ok:
+                return Response({'rate_usd': ret.rate.value}, status=ret.status)
+            return Response({'info': ret.info}, status=ret.status)
         except Exception as ex:
             return {'result': 'error', 'info': str(ex)}, ret_status
     

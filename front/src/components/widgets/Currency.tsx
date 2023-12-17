@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -214,6 +215,7 @@ function Currency({screenWidth}: {screenWidth: number}) {
                             </select>
                         </span>
                         {noBaseList}
+                        <button type="button"><Link to="currency_test">H</Link></button>
                     </div>
                     <Line ref={chartRef} options={widgetData.chart.options} data={chartData} width={widgetWidth} height={widgetHeight} key={Math.random()}/>
                 </div>

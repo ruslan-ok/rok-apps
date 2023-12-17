@@ -15,7 +15,6 @@ from django.core.exceptions import ValidationError
 from django.urls import NoReverseMatch
 from django.utils import formats
 
-from rest_framework import status
 from rest_framework.reverse import reverse
 
 from task import const
@@ -864,105 +863,6 @@ class Task(models.Model):
             return task_group.group.name
         return ''
 
-    @classmethod
-    def get_db_exchange_rate(cls, currency: str, date: date):
-        if CurrencyRate.objects.filter(base='USD', currency=currency, date__lte=date).exists():
-            last_dt = CurrencyRate.objects.filter(base='USD', currency=currency, date__lte=date).order_by('-date')[0].date
-            rate = CurrencyRate.objects.filter(base='USD', currency=currency, date=last_dt).order_by('source')[0]
-            return rate
-        return None
-
-
-    @classmethod
-    def get_net_exchange_rate(cls, currency: str, date: date) -> dict:
-        api_url = os.environ.get('API_CURR_RATE', '')
-        if not api_url:
-            return {
-                'rate': None,
-                'status': status.HTTP_400_BAD_REQUEST,
-                'info': 'API_CURR_RATE environment variable not set'
-            }
-        token = os.environ.get('API_CURR_TOKEN', '')
-        if not token:
-            return {
-                'rate': None,
-                'status': status.HTTP_400_BAD_REQUEST,
-                'info': 'API_CURR_TOKEN environment variable not set'
-            }
-        if '{currency}' not in api_url or '{date}' not in api_url or '{token}' not in api_url:
-            return {
-                'rate': None,
-                'status': status.HTTP_400_BAD_REQUEST,
-                'info': "The value of the API_CURR_RATE environment variable does not contain the expected substrings '{token}', '{currency}' and '{date}'"
-            }
-        url = api_url.replace('{token}', token).replace('{currency}', currency).replace('{date}', date.strftime('%Y-%m-%d'))
-        headers = {'User-Agent': 'Mozilla/5.0'}
-        resp = requests.get(url, headers=headers)
-        if (resp.status_code != status.HTTP_200_OK):
-            ret = json.loads(resp.content)
-            ret['result'] = 'error'
-            ret['rate'] = None
-            ret['status'] = resp.status_code
-            return ret
-        else:
-            try:
-                value = json.loads(resp.content)
-                rate_usd = value['data'][currency]['value']
-                if rate_usd:
-                    rate = CurrencyRate.objects.create(base='USD', currency=currency, date=date, num_units=1, value=rate_usd, source=api_url)
-                    return {
-                        'rate': rate,
-                        'status': resp.status_code,
-                        'info': ''
-                    }
-                else:
-                    return {
-                        'rate': None,
-                        'status': resp.status_code,
-                        'info': 'Zero rate in responce from call to API_CURR_RATE. ' + str(resp.content)
-                    }
-            except:
-                return {
-                    'rate': None,
-                    'status': status.HTTP_400_BAD_REQUEST,
-                    'info': json.loads(resp.content)
-                }
-
-
-    @classmethod
-    def get_exchange_rate(cls, currency: str, date: date) -> dict:
-        rate_db = cls.get_db_exchange_rate(currency, date)
-        if rate_db:
-            if rate_db.date == date:
-                return {
-                    'result': 'ok',
-                    'status': status.HTTP_200_OK,
-                    'rate': rate_db,
-                }
-        
-        rate_net = cls.get_net_exchange_rate(currency, date)
-
-        if rate_net['rate']:
-            return {
-                'result': 'ok',
-                'status': status.HTTP_200_OK,
-                'rate': rate_net['rate'],
-            }
-        
-        if rate_db:
-            return {
-                'result': 'warning',
-                'status': status.HTTP_200_OK,
-                'rate': rate_db,
-                'info': 'Not actual date',
-            }
-        
-        return {
-            'result': 'error',
-            'status': rate_net['status'],
-            'info': rate_net['info'],
-        }
-
 
 GIQ_ADD_TASK = 1 # Task created
 GIQ_DEL_TASK = 2 # Task deleted
@@ -1423,16 +1323,3 @@ class Astro(models.Model):
 
     class Meta:
         unique_together = ('location', 'lat', 'lon', 'date')
-
-class CurrencyRate(models.Model):
-    currency = models.CharField('Currency', max_length=10, blank=False)
-    base = models.CharField('Base currency', max_length=10, blank=True, default='USD')
-    date = models.DateField('Rate Date', blank=False, null=False)
-    num_units = models.IntegerField('Number of units exchanged', null=False, default=1)
-    value = models.DecimalField('Exchange rate to USD', blank=True, null=True, max_digits=15, decimal_places=4)
-    source = models.CharField('Data source', max_length=200, blank=True)
-    info = models.CharField('Comment', max_length=1000, blank=True)
-
-    def __repr__(self):
-        return f'CurrencyRate {self.id} "{self.currency}" -> {self.base} [{self.date.strftime("%Y.%m.%d")}] = {self.value} ({self.source})'
-

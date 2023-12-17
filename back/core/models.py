@@ -57,3 +57,11 @@ class CurrencyApis(models.Model):
     phrase = models.CharField('Phrase for exhausted limit', max_length=1000, blank=True)
     next_try = models.DateField('Next try Date', null=True)
     today_avail = models.BooleanField('Today rate is available', null=True, default=True)
+    weekdays_avail = models.BooleanField('Weekdays rate is available', null=True, default=True)
+    base = models.CharField('Base currency', max_length=10, blank=True)
+
+class CurrencyPair(models.Model):
+    currency = models.CharField('Currency', max_length=10, blank=False)
+    base = models.CharField('Base currency', max_length=10, blank=True, default='USD')
+    sort = models.IntegerField('Sort order', null=False, default=1)
+    api = models.ForeignKey(CurrencyApis, on_delete=models.CASCADE, verbose_name=_('linked API'), related_name='pair_link', null=False)

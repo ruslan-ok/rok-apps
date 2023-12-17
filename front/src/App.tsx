@@ -8,6 +8,7 @@ import Login, { action as loginAction } from './components/auth/Login';
 import Logout from './components/auth/Logout';
 import HeadedPage, { loader as appLoader } from './components/HeadedPage';
 import MainPage, { loader as mainPageLoader } from './components/MainPage';
+import CurrencyTest from './components/CurrencyTest';
 
 let router = createBrowserRouter([
   {
@@ -35,6 +36,10 @@ let router = createBrowserRouter([
   {
     path: '/:lang?/logout',
     Component: Logout,
+  },
+  {
+    path: '/:lang?/currency_test',
+    Component: CurrencyTest,
   },
 ]);
 

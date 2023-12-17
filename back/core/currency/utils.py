@@ -17,8 +17,8 @@ def get_net_exchange_rate(currency: str, date: date, base: str='USD') -> CA_Resu
         if date == datetime.today().date() and not api.today_avail:
             continue
         api_obj = ExchangeRateApi(api)
-        print('get_net_exchange_rate(currency=' + currency + ', date=' + date.strftime('%Y.%m.%d') + ', base=' + base + '), api = ' + api.name)
         ret = api_obj.get_rate_on_date(currency, date, base)
+        print(f"get_net_exchange_rate({currency=}, date={date.strftime('%Y.%m.%d')}, {base=}), api={api.name}, result={ret.result}")
         if ret.result == CA_Status.ok:
             break
     return ret
@@ -59,3 +59,17 @@ def sort_exchange_rate_by_source(source):
         case 'api.exchangerate.host': return 4
         case 'GoogleFinanse': return 5
         case _: return 6
+
+def get_net_exchange_rate_for_api(rate_api: str, currency: str, date: date, base: str='USD') -> CA_Result:
+    ret = CA_Result(result=CA_Status.unimpl)
+    match rate_api:
+        case 'ecb':   api = CurrencyApis.objects.filter(name='ecb.europa.eu').get()
+        case 'nbp':   api = CurrencyApis.objects.filter(name='api.nbp.pl').get()
+        case 'nbrb':  api = CurrencyApis.objects.filter(name='belta.by').get()
+        case 'er':    api = CurrencyApis.objects.filter(name='api.exchangerate.host').get()
+        case 'ca':    api = CurrencyApis.objects.filter(name='currencyapi.com').get()
+        case _:       api = None
+    if api:
+        api_obj = ExchangeRateApi(api)
+        ret = api_obj.get_rate_on_date(currency, date, base)
+    return ret

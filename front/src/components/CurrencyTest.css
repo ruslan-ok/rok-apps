@@ -1,0 +1,40 @@
+.currency-test p,
+.currency-test label {
+  font: 1rem 'Fira Sans', sans-serif;
+}
+
+.currency-test input {
+  margin: 0.4rem;
+}
+
+.currency-test fieldset {
+  margin: 2rem;
+  padding: 5px;
+  border: 1px black solid;
+  float: left;
+  font-size: 0.5rem;
+  line-height: inherit;
+  min-width: 250px;
+}
+
+.currency-test .right-fields {
+  margin: 2rem;
+  padding: 5px;
+}
+
+.currency-test .right-fields select {
+  margin: 0.5rem;
+}
+
+.currency-test .right-fields .rate-result {
+  min-width: 700px;
+  margin: 0.5rem;
+}
+
+.currency-test .right-fields .rate-result table tr td {
+  padding: 2px 15px;
+}
+
+.currency-test button {
+  margin: 5rem 1rem;
+}

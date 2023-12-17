@@ -1,7 +1,9 @@
-import os, requests, json
+import os, requests, json, io, html
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 from enum import Enum
+import pandas as pd
+from lxml import etree
 from rest_framework import status
 from dataclasses import dataclass, field
 # from logs.models import EventType, ServiceEvent
@@ -22,6 +24,14 @@ class CA_Result:
     rate: CurrencyRate|None = field(default=None)
     info: str = field(default='')
 
+    def to_json(self):
+        return {
+            'result': self.result.value,
+            'status': int(self.status),
+            'rate': self.rate.value if self.rate else Decimal(1.),
+            'info': self.info,
+        }
+
 class ExchangeRateApi():
 
     def __init__(self, api: CurrencyApis):
@@ -32,23 +42,63 @@ class ExchangeRateApi():
         self.log = ServiceLog(this_device, APP_CORE, ROLE_CURRENCY)
 
     def get_rate_on_date(self, currency: str, date: date, base: str='USD') -> CA_Result:
-        url = self.api.api_url.replace('{token}', self.api.token).replace('{currency}', currency).replace('{date}', date.strftime('%Y-%m-%d'))
-        resp = requests.get(url, headers=self.headers)
+        currency = currency.upper()
+        base = base.upper()
+        if self.api.base and currency != self.api.base and base != self.api.base:
+            info = f'Exchange rate API {self.api.name} supports only rates for {self.api.base} currency.'
+            return CA_Result(result=CA_Status.error, status=status.HTTP_400_BAD_REQUEST, info=info)
+        inverse = False
+        if self.api.base and base != self.api.base:
+            tmp = currency
+            currency = base
+            base = tmp
+            inverse = True
+        day_info = ''
+
+        if not self.api.today_avail and date == date.today():
+            date = date - timedelta(1)
+            day_info = f'Date corrected to {date.strftime("%Y-%m-%d")} because of core_currencyapi.today_avail == False.'
+        
+        if not self.api.weekdays_avail and date.weekday() in (5, 6):
+            date = date - timedelta(date.weekday() - 4)
+            day_info = f'Date corrected to {date.strftime("%Y-%m-%d")} because of core_currencyapi.weekdays_avail == False.'
+        
+        url = self.api.api_url.replace('{token}', self.api.token).replace('{base}', base).replace('{currency}', currency.upper()).replace('{date}', date.strftime('%Y-%m-%d'))
+        headers = self.headers
+        if self.api.name == 'ecb.europa.eu':
+            headers.update({'Accept': 'text/csv'})
+        resp = requests.get(url, headers=headers)
         if (resp.status_code != status.HTTP_200_OK):
             if self.api.phrase and self.api.phrase in str(resp.content):
                 self.sleep(30)
-            info = json.loads(resp.content)
+            if type(resp.content) == bytes:
+                info = resp.content.decode('utf-8')
+            else:
+                info = json.loads(resp.content)
             self.log.write(type=EventType.ERROR, name='get_rate_on_date', info=f'[x] Rate {currency} to base {base} on {date.strftime("%Y-%m-%d")}: {self.api.name} - {resp.status_code} - {info}')
             return CA_Result(result=CA_Status.error, status=resp.status_code, info=info)
         try:
+            if type(resp.content) == bytes and resp.text:
+                if self.api.name == 'ecb.europa.eu':
+                    return self.get_ecb_rate_on_date(currency, inverse, date, day_info, resp)
+                if self.api.name == 'belta.by':
+                    return self.get_belta_rate_on_date(currency, inverse, date, resp)
+
             resp_json = json.loads(resp.content)
             value_path = self.api.value_path.replace('<currency>', currency).split('/')
             value = self.parse_value_path(resp_json, value_path)
             if value:
+                if self.api.base and not inverse:
+                    value = 1 / value
                 rate = self.store_rate(currency=currency, date=date, value=value)
-                return CA_Result(CA_Status.ok, rate=rate, status=resp.status_code)
-        except:
-            info = json.loads(resp.content)
+                return CA_Result(CA_Status.ok, rate=rate, status=resp.status_code, info=day_info)
+        except Exception as ex:
+            if type(resp.content) == bytes:
+                info = resp.content.decode('utf-8')
+                if not info:
+                    info = 'Exception in core > currency > exchange_rate_api.py > ExchangeRateApi > get_rate_on_date(): ' + str(ex)
+            else:
+                info = json.loads(resp.content)
             self.log.write(type=EventType.ERROR, name='get_rate_on_date', info=f'[x] Rate {currency} to base {base} on {date.strftime("%Y-%m-%d")}: {self.api.name} - {info}')
             self.log.write(type=EventType.INFO, name='get_rate_on_date', info=f'{url=}')
             return CA_Result(result=CA_Status.error, status=status.HTTP_400_BAD_REQUEST, info=info)
@@ -57,7 +107,7 @@ class ExchangeRateApi():
     
     def store_rate(self, currency: str, date: date, value, base: str='USD', num_units: int=1) -> CurrencyRate:
         self.log.write(type=EventType.INFO, name='store_rate', info=f'Rate {currency} to base {base} on {date.strftime("%Y-%m-%d")} is {value} by source {self.api.name}')
-        return CurrencyRate.objects.create(base=base, currency=currency, date=date, num_units=num_units, value=value, source=self.api.name)
+        return CurrencyRate.objects.create(base=base, currency=currency, date=date, num_units=num_units, value=round(value, 6), source=self.api.name)
 
     def sleep(self, days: int=30):
         if not self.api.next_try or self.api.next_try < datetime.today().date():
@@ -69,4 +119,62 @@ class ExchangeRateApi():
         match len(value_path):
             case 0: return None
             case 1: return round(Decimal(resp_json[value_path[0]]), 6)
-            case _: return self.parse_value_path(resp_json[value_path[0]], value_path[1:])
+            case _:
+                if value_path[0] == '0':
+                    subdict = resp_json[0]
+                else:
+                    subdict = resp_json[value_path[0]]
+                return self.parse_value_path(subdict, value_path[1:])
+
+    def get_ecb_rate_on_date(self, currency, inverse, date, day_info, resp):
+        df = pd.read_csv(io.StringIO(resp.text))
+        s_value = df['OBS_VALUE']
+        value = round(Decimal(s_value.values[0]), 6)
+        if inverse:
+            value = 1 / value
+        rate = self.store_rate(currency=currency, date=date, value=value)
+        return CA_Result(CA_Status.ok, rate=rate, status=resp.status_code, info=day_info)
+
+    def get_belta_rate_on_date(self, currency, inverse, date, resp):
+        tree = etree.HTML(resp.text)
+        cur_date = tree.xpath("//*[contains(@class, 'cur_date')]")[0]
+        cur_date_text = cur_date.text
+        cur_date_words = cur_date_text.split()
+        day = int(cur_date_words[2])
+        month = self.parse_month(cur_date_words[3])
+        year = int(cur_date_words[4].replace(',', ''))
+        belta_date = datetime(year, month, day).date()
+        day_info = ''
+        if date != belta_date:
+            day_info = f'Date corrected to {belta_date.strftime("%Y-%m-%d")} because of this is actual date on the site https://www.belta.by/currency/'
+        r = tree.xpath("//*[contains(@class, 'cur_table')]")[0]
+        rates = {}
+        for x in r:
+            if len(x) == 4:
+                rate_currency = x[0].text
+                rate_qty = int(x[2].text.split()[0])
+                rate_value = Decimal(x[3].text.split()[0])
+                rates[rate_currency] = {'qty': rate_qty, 'value': rate_value}
+        value = rates[currency]['value']
+        if not inverse:
+            value = 1 / value
+        rate = self.store_rate(currency=currency, date=belta_date, value=value)
+        return CA_Result(CA_Status.ok, rate=rate, status=resp.status_code, info=day_info)
+    
+    def parse_month(self, value):
+        return BELTA_MONTHS[value]
+
+BELTA_MONTHS = {
+    'января': 1,
+    'февраля': 2,
+    'марта': 3,
+    'апреля': 4,
+    'мая': 5,
+    'июня': 6,
+    'июля': 7,
+    'августа': 8,
+    'сентября': 9,
+    'октября': 10,
+    'ноября': 11,
+    'декабря': 12,
+}
