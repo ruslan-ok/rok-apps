@@ -32,9 +32,11 @@ function CurrencyTest() {
                 let units = '';
                 if (resp_data.result == 'ok')
                     units = `${currency.toUpperCase()} per ${base.toUpperCase()}`;
-                let info = JSON.stringify(resp_data.info);
-                if (info == '""')
-                    info = '';
+                let info;
+                if (typeof resp_data.info == 'string')
+                    info = resp_data.info;
+                else
+                    info = JSON.stringify(resp_data.info);
                 const rate = {
                     result: resp_data.result, 
                     status: resp_data.status,
@@ -89,6 +91,11 @@ function CurrencyTest() {
                     <div>
                         <input type="radio" id="nbrb" name="rate_api" value="nbrb" />
                         <label htmlFor="nbrb">NB RB</label>
+                    </div>
+
+                    <div>
+                        <input type="radio" id="boe" name="rate_api" value="boe" />
+                        <label htmlFor="boe">Bank of England</label>
                     </div>
 
                     <div>

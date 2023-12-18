@@ -1,4 +1,4 @@
-import os, requests, json, io, html
+import os, requests, json, io
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 from enum import Enum
@@ -63,7 +63,13 @@ class ExchangeRateApi():
             date = date - timedelta(date.weekday() - 4)
             day_info = f'Date corrected to {date.strftime("%Y-%m-%d")} because of core_currencyapi.weekdays_avail == False.'
         
-        url = self.api.api_url.replace('{token}', self.api.token).replace('{base}', base).replace('{currency}', currency.upper()).replace('{date}', date.strftime('%Y-%m-%d'))
+        url = self.api.api_url.replace('{token}', self.api.token)
+        url = url.replace('{base}', base)
+        url = url.replace('{currency}', currency.upper())
+        url = url.replace('{date}', date.strftime('%Y-%m-%d'))
+        url = url.replace('{day}', str(date.day))
+        url = url.replace('{month}', date.strftime('%b'))
+        url = url.replace('{year}', str(date.year))
         headers = self.headers
         if self.api.name == 'ecb.europa.eu':
             headers.update({'Accept': 'text/csv'})
@@ -83,6 +89,8 @@ class ExchangeRateApi():
                     return self.get_ecb_rate_on_date(currency, inverse, date, day_info, resp)
                 if self.api.name == 'belta.by':
                     return self.get_belta_rate_on_date(currency, inverse, date, resp)
+                if self.api.name == 'bankofengland.co.uk':
+                    return self.get_boe_rate_on_date(currency, inverse, date, day_info, resp)
 
             resp_json = json.loads(resp.content)
             value_path = self.api.value_path.replace('<currency>', currency).split('/')
@@ -161,6 +169,25 @@ class ExchangeRateApi():
         rate = self.store_rate(currency=currency, date=belta_date, value=value)
         return CA_Result(CA_Status.ok, rate=rate, status=resp.status_code, info=day_info)
     
+    def get_boe_rate_on_date(self, currency, inverse, date, day_info, resp):
+        tree = etree.HTML(resp.text)
+        e = tree.xpath("//*[@id='editorial']/p[contains(@class, 'error')]")
+        if e:
+            info = e[0].text
+            return CA_Result(CA_Status.error, rate=None, status=status.HTTP_400_BAD_REQUEST, info=info)
+        r = tree.xpath("//*[@id='editorial']/table/tr")
+        rates = {}
+        for x in r:
+            if len(x) == 4:
+                rate_currency = BOE_CURRENCIES[x[0].xpath("./*")[0].text]
+                rate_value = Decimal(x[1].text.split()[0])
+                rates[rate_currency] = {'value': rate_value}
+        value = rates[currency]['value']
+        if inverse:
+            value = 1 / value
+        rate = self.store_rate(currency=currency, date=date, value=value)
+        return CA_Result(CA_Status.ok, rate=rate, status=resp.status_code, info=day_info)
+    
     def parse_month(self, value):
         return BELTA_MONTHS[value]
 
@@ -177,4 +204,32 @@ BELTA_MONTHS = {
     'октября': 10,
     'ноября': 11,
     'декабря': 12,
+}
+
+BOE_CURRENCIES = {
+    'Australian Dollar': 'AUD',
+    'Canadian Dollar': 'CAD',
+    'Chinese Yuan': 'CNY',
+    'Czech Koruna': 'CZK',
+    'Danish Krone': 'DKK',
+    'Euro': 'EUR',
+    'Hong Kong Dollar': 'HKD',
+    'Hungarian Forint': 'HUF',
+    'Indian Rupee': 'INR',
+    'Israeli Shekel': 'ILR',
+    'Japanese Yen': 'JPY',
+    'Malaysian ringgit': 'MYR',
+    'New Zealand Dollar': 'NZD',
+    'Norwegian Krone': 'NOK',
+    'Polish Zloty': 'PLN',
+    'Saudi Riyal': 'SAR',
+    'Singapore Dollar': 'SGD',
+    'South African Rand': 'ZAR',
+    'South Korean Won': 'KRW',
+    'Swedish Krona': 'SEK',
+    'Swiss Franc': 'CHF',
+    'Taiwan Dollar': 'TWD',
+    'Thai Baht': 'THB',
+    'Turkish Lira': 'TRY',
+    'US Dollar': 'USD',
 }

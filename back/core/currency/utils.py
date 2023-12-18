@@ -66,6 +66,7 @@ def get_net_exchange_rate_for_api(rate_api: str, currency: str, date: date, base
         case 'ecb':   api = CurrencyApis.objects.filter(name='ecb.europa.eu').get()
         case 'nbp':   api = CurrencyApis.objects.filter(name='api.nbp.pl').get()
         case 'nbrb':  api = CurrencyApis.objects.filter(name='belta.by').get()
+        case 'boe':   api = CurrencyApis.objects.filter(name='bankofengland.co.uk').get()
         case 'er':    api = CurrencyApis.objects.filter(name='api.exchangerate.host').get()
         case 'ca':    api = CurrencyApis.objects.filter(name='currencyapi.com').get()
         case _:       api = None

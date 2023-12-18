@@ -7,15 +7,8 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 from core.currency.utils import get_net_exchange_rate_for_api
 
-# from todo.hp_widget.todo import get_todo
-# from core.hp_widget.visited import get_visited
-# from health.views.chart import get_health_data
-# from core.hp_widget.currency import get_currency_data
-# from core.hp_widget.crypto import get_crypto_data
-# from weather.utils import get_forecast
-# from core.hp_widget.delta import ChartPeriod
 
-RATE_APIS = ('ecb', 'nbp', 'nbrb', 'er', 'ca')
+RATE_APIS = ('ecb', 'nbp', 'nbrb', 'boe', 'er', 'ca')
 CURRENCIES = ('usd', 'eur', 'pln', 'byn', 'gbp')
 
 
