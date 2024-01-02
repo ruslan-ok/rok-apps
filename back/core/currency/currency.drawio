@@ -1,0 +1,136 @@
+<mxfile host="app.diagrams.net" modified="2023-12-20T23:48:45.722Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" etag="R_Rs4OdcJzG-Xv57xw2z" version="22.1.11" type="device">
+  <diagram name="Strona-1" id="hV4IKRJBe8TsB0H7FTIY">
+    <mxGraphModel dx="2876" dy="1103" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-5" value="UI" style="swimlane;" vertex="1" parent="1">
+          <mxGeometry x="-670" y="70" width="200" height="420" as="geometry" />
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-7" value="Fueling&lt;br&gt;Form" style="labelPosition=center;verticalLabelPosition=middle;align=center;html=1;shape=mxgraph.basic.button;dx=10;whiteSpace=wrap;" vertex="1" parent="p6f4P6gMSbelnvnJGTu1-5">
+          <mxGeometry x="50" y="60" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-8" value="getRateOnDate.js" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="p6f4P6gMSbelnvnJGTu1-5">
+          <mxGeometry x="30" y="150" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-9" value="&lt;div style=&quot;background-color: rgb(255, 255, 255); font-family: Consolas, &amp;quot;Courier New&amp;quot;, monospace; font-size: 14px; line-height: 19px;&quot;&gt;getRateOnDate()&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="p6f4P6gMSbelnvnJGTu1-8">
+          <mxGeometry y="30" width="140" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-13" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="p6f4P6gMSbelnvnJGTu1-5" source="p6f4P6gMSbelnvnJGTu1-7" target="p6f4P6gMSbelnvnJGTu1-8">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="40" y="340" as="sourcePoint" />
+            <mxPoint x="90" y="290" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-46" value="CurrencyTest.tsx" style="labelPosition=center;verticalLabelPosition=middle;align=center;html=1;shape=mxgraph.basic.button;dx=10;whiteSpace=wrap;" vertex="1" parent="p6f4P6gMSbelnvnJGTu1-5">
+          <mxGeometry x="30" y="290" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-6" value="Server" style="swimlane;" vertex="1" parent="1">
+          <mxGeometry x="-380" y="70" width="1510" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-14" value="rusel.urls.py" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="p6f4P6gMSbelnvnJGTu1-6">
+          <mxGeometry x="43" y="60" width="357" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-15" value="&lt;div style=&quot;background-color: rgb(255, 255, 255); font-family: Consolas, &amp;quot;Courier New&amp;quot;, monospace; font-size: 14px; line-height: 19px;&quot;&gt;/api/tasks/get_exchange_rate/?currency=&lt;font color=&quot;#0000ff&quot;&gt;...&lt;/font&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="p6f4P6gMSbelnvnJGTu1-14">
+          <mxGeometry y="30" width="357" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-45" value="&lt;div style=&quot;background-color: rgb(255, 255, 255); font-family: Consolas, &amp;quot;Courier New&amp;quot;, monospace; font-size: 14px; line-height: 19px;&quot;&gt;/api/get_net_exchange_rate/?currency=...&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="p6f4P6gMSbelnvnJGTu1-14">
+          <mxGeometry y="60" width="357" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-19" value="api.views.task" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="p6f4P6gMSbelnvnJGTu1-6">
+          <mxGeometry x="480" y="60" width="190" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-20" value="&lt;div style=&quot;background-color: rgb(255, 255, 255); font-family: Consolas, &amp;quot;Courier New&amp;quot;, monospace; font-size: 14px; line-height: 19px;&quot;&gt;get_exchange_rate()&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="p6f4P6gMSbelnvnJGTu1-19">
+          <mxGeometry y="30" width="190" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-23" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="p6f4P6gMSbelnvnJGTu1-6" source="p6f4P6gMSbelnvnJGTu1-15" target="p6f4P6gMSbelnvnJGTu1-20">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="76" y="340" as="sourcePoint" />
+            <mxPoint x="126" y="290" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-24" value="&lt;div style=&quot;background-color: rgb(255, 255, 255); font-family: Consolas, &amp;quot;Courier New&amp;quot;, monospace; font-size: 14px; line-height: 19px;&quot;&gt;core.&lt;span style=&quot;color: #267f99;&quot;&gt;currency&lt;/span&gt;.&lt;span style=&quot;color: #267f99;&quot;&gt;utils&lt;/span&gt;&lt;/div&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="p6f4P6gMSbelnvnJGTu1-6">
+          <mxGeometry x="750" y="60" width="280" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-25" value="&lt;div style=&quot;background-color: rgb(255, 255, 255); font-family: Consolas, &amp;quot;Courier New&amp;quot;, monospace; font-size: 14px; line-height: 19px;&quot;&gt;get_exchange_rate()&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="p6f4P6gMSbelnvnJGTu1-24">
+          <mxGeometry y="30" width="280" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-33" value="&lt;div style=&quot;background-color: rgb(255, 255, 255); font-family: Consolas, &amp;quot;Courier New&amp;quot;, monospace; font-size: 14px; line-height: 19px;&quot;&gt;get_db_exchange_rate()&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="p6f4P6gMSbelnvnJGTu1-24">
+          <mxGeometry y="60" width="280" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-34" value="&lt;div style=&quot;background-color: rgb(255, 255, 255); font-family: Consolas, &amp;quot;Courier New&amp;quot;, monospace; font-size: 14px; line-height: 19px;&quot;&gt;get_net_exchange_rate()&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="p6f4P6gMSbelnvnJGTu1-24">
+          <mxGeometry y="90" width="280" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-42" value="&lt;div style=&quot;background-color: rgb(255, 255, 255); font-family: Consolas, &amp;quot;Courier New&amp;quot;, monospace; font-size: 14px; line-height: 19px;&quot;&gt;get_net_exchange_rate_for_api()&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="p6f4P6gMSbelnvnJGTu1-24">
+          <mxGeometry y="120" width="280" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-29" value="" style="endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="p6f4P6gMSbelnvnJGTu1-6" source="p6f4P6gMSbelnvnJGTu1-20" target="p6f4P6gMSbelnvnJGTu1-25">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="76" y="340" as="sourcePoint" />
+            <mxPoint x="126" y="290" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-1" value="&lt;div style=&quot;background-color: rgb(255, 255, 255); font-family: Consolas, &amp;quot;Courier New&amp;quot;, monospace; font-size: 14px; line-height: 19px;&quot;&gt;core.currency.exchange_rate_api.ExchangeRateApi&lt;/div&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="p6f4P6gMSbelnvnJGTu1-6">
+          <mxGeometry x="1110" y="60" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-2" value="&lt;div style=&quot;background-color: rgb(255, 255, 255); font-family: Consolas, &amp;quot;Courier New&amp;quot;, monospace; font-size: 14px; line-height: 19px;&quot;&gt;get_ret_rate_on_date()&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="p6f4P6gMSbelnvnJGTu1-1">
+          <mxGeometry y="30" width="380" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-36" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="p6f4P6gMSbelnvnJGTu1-6" source="p6f4P6gMSbelnvnJGTu1-34" target="p6f4P6gMSbelnvnJGTu1-2">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="76" y="340" as="sourcePoint" />
+            <mxPoint x="126" y="290" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-38" value="api.views.core" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="p6f4P6gMSbelnvnJGTu1-6">
+          <mxGeometry x="480" y="160" width="190" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-39" value="&lt;div style=&quot;background-color: rgb(255, 255, 255); font-family: Consolas, &amp;quot;Courier New&amp;quot;, monospace; font-size: 14px; line-height: 19px;&quot;&gt;get_net_exchange_rate()&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="p6f4P6gMSbelnvnJGTu1-38">
+          <mxGeometry y="30" width="190" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-43" value="" style="endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="p6f4P6gMSbelnvnJGTu1-6" source="p6f4P6gMSbelnvnJGTu1-39" target="p6f4P6gMSbelnvnJGTu1-42">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="40" y="440" as="sourcePoint" />
+            <mxPoint x="90" y="390" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-44" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="p6f4P6gMSbelnvnJGTu1-6" source="p6f4P6gMSbelnvnJGTu1-42" target="p6f4P6gMSbelnvnJGTu1-2">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="40" y="440" as="sourcePoint" />
+            <mxPoint x="90" y="390" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-47" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="p6f4P6gMSbelnvnJGTu1-6" source="p6f4P6gMSbelnvnJGTu1-45" target="p6f4P6gMSbelnvnJGTu1-39">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="590" y="220" as="sourcePoint" />
+            <mxPoint x="640" y="170" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-12" value="On Error:&lt;br&gt;UI print in console&lt;br&gt;Server write in log base" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-310" y="370" width="240" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-18" value="" style="endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="p6f4P6gMSbelnvnJGTu1-9" target="p6f4P6gMSbelnvnJGTu1-15">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="390" y="410" as="sourcePoint" />
+            <mxPoint x="440" y="360" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-35" value="External Currency API" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="820" y="380" width="200" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-37" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="p6f4P6gMSbelnvnJGTu1-2" target="p6f4P6gMSbelnvnJGTu1-35">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="390" y="810" as="sourcePoint" />
+            <mxPoint x="440" y="760" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p6f4P6gMSbelnvnJGTu1-48" value="" style="endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1.021;exitY=0.583;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="p6f4P6gMSbelnvnJGTu1-46" target="p6f4P6gMSbelnvnJGTu1-45">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-540" y="390" as="sourcePoint" />
+            <mxPoint x="-140" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,36 +1,14 @@
-import os, requests, json, io
+import requests, json, io
 from datetime import date, datetime, timedelta
 from decimal import Decimal
-from enum import Enum
 import pandas as pd
 from lxml import etree
 from rest_framework import status
-from dataclasses import dataclass, field
-# from logs.models import EventType, ServiceEvent
-from task.const import APP_CORE, ROLE_CURRENCY
-from logs.service_log import EventType, ServiceLog
 from core.models import CurrencyRate, CurrencyApis
-
-class CA_Status(Enum):
-    ok = 'ok'
-    error = 'error'
-    unimpl = 'unimplemented'
+#from logs.logger import Logger
 
 
-@dataclass
-class CA_Result:
-    result: CA_Status = field(default=CA_Status.unimpl)
-    status: int = field(default=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    rate: CurrencyRate|None = field(default=None)
-    info: str = field(default='')
-
-    def to_json(self):
-        return {
-            'result': self.result.value,
-            'status': int(self.status),
-            'rate': self.rate.value if self.rate else Decimal(1.),
-            'info': self.info,
-        }
+#logger = Logger(__name__, local_only=True)
 
 class ExchangeRateApi():
 
@@ -38,22 +16,23 @@ class ExchangeRateApi():
         super().__init__()
         self.api = api
         self.headers = {'User-Agent': 'Mozilla/5.0'}
-        this_device = os.environ.get('DJANGO_DEVICE', '')
-        self.log = ServiceLog(this_device, APP_CORE, ROLE_CURRENCY)
 
-    def get_rate_on_date(self, currency: str, date: date, base: str='USD') -> CA_Result:
+    def _get_rate_on_date(self, date: date, currency: str, base: str='USD') -> tuple[Decimal|None, str|None]:
         currency = currency.upper()
         base = base.upper()
+
         if self.api.base and currency != self.api.base and base != self.api.base:
             info = f'Exchange rate API {self.api.name} supports only rates for {self.api.base} currency.'
-            return CA_Result(result=CA_Status.error, status=status.HTTP_400_BAD_REQUEST, info=info)
+            return None, info
+
         inverse = False
         if self.api.base and base != self.api.base:
             tmp = currency
             currency = base
             base = tmp
             inverse = True
-        day_info = ''
+
+        day_info = None
 
         if not self.api.today_avail and date == date.today():
             date = date - timedelta(1)
@@ -81,8 +60,8 @@ class ExchangeRateApi():
                 info = resp.content.decode('utf-8')
             else:
                 info = json.loads(resp.content)
-            self.log.write(type=EventType.ERROR, name='get_rate_on_date', info=f'[x] Rate {currency} to base {base} on {date.strftime("%Y-%m-%d")}: {self.api.name} - {resp.status_code} - {info}')
-            return CA_Result(result=CA_Status.error, status=resp.status_code, info=info)
+            error_mess = f'[x] Rate {currency} to base {base} on {date.strftime("%Y-%m-%d")}: {self.api.name} - {resp.status_code} - {info}'
+            return None, error_mess
         try:
             if type(resp.content) == bytes and resp.text:
                 if self.api.name == 'ecb.europa.eu':
@@ -99,7 +78,7 @@ class ExchangeRateApi():
                 if self.api.base and not inverse:
                     value = 1 / value
                 rate = self.store_rate(currency=currency, date=date, value=value)
-                return CA_Result(CA_Status.ok, rate=rate, status=resp.status_code, info=day_info)
+                return rate.value, day_info
         except Exception as ex:
             if type(resp.content) == bytes:
                 info = resp.content.decode('utf-8')
@@ -107,21 +86,30 @@ class ExchangeRateApi():
                     info = 'Exception in core > currency > exchange_rate_api.py > ExchangeRateApi > get_rate_on_date(): ' + str(ex)
             else:
                 info = json.loads(resp.content)
-            self.log.write(type=EventType.ERROR, name='get_rate_on_date', info=f'[x] Rate {currency} to base {base} on {date.strftime("%Y-%m-%d")}: {self.api.name} - {info}')
-            self.log.write(type=EventType.INFO, name='get_rate_on_date', info=f'{url=}')
-            return CA_Result(result=CA_Status.error, status=status.HTTP_400_BAD_REQUEST, info=info)
-        self.log.write(type=EventType.ERROR, name='get_rate_on_date', info=f'[x] Rate {currency} to base {base} on {date.strftime("%Y-%m-%d")}: unimplemented')
-        return CA_Result(result=CA_Status.unimpl)
+            error_mess = f'[x] Rate {currency} to base {base} on {date.strftime("%Y-%m-%d")}: {self.api.name} - {info}'
+            return None, error_mess
+
+    def get_rate_on_date(self, date: date, currency: str, base: str='USD') -> tuple[Decimal|None, str|None]:
+        rate, info = self._get_rate_on_date(date, currency, base)
+        log_info = {
+            'date': date.strftime('%Y-%m-%d'),
+            'currency': currency,
+            'base': base,
+            'rate': rate.to_eng_string() if rate else None,
+            'api': self.api.name,
+            'info': info,
+        }
+        #logger.info(log_info)
+        return rate, info
     
     def store_rate(self, currency: str, date: date, value, base: str='USD', num_units: int=1) -> CurrencyRate:
-        self.log.write(type=EventType.INFO, name='store_rate', info=f'Rate {currency} to base {base} on {date.strftime("%Y-%m-%d")} is {value} by source {self.api.name}')
         return CurrencyRate.objects.create(base=base, currency=currency, date=date, num_units=num_units, value=round(value, 6), source=self.api.name)
 
     def sleep(self, days: int=30):
         if not self.api.next_try or self.api.next_try < datetime.today().date():
             self.api.next_try = datetime.today().date() + timedelta(days)
             self.api.save()
-            self.log.write(type=EventType.WARNING, name='sleep', info=f'API service {self.api.name} sleep until {self.api.next_try.strftime("%Y-%m-%d")}')
+            #logger.warning(f'API service {self.api.name} sleep until {self.api.next_try.strftime("%Y-%m-%d")}')
 
     def parse_value_path(self, resp_json: dict, value_path: list[str]) -> Decimal|None:
         match len(value_path):
@@ -134,22 +122,22 @@ class ExchangeRateApi():
                     subdict = resp_json[value_path[0]]
                 return self.parse_value_path(subdict, value_path[1:])
 
-    def get_ecb_rate_on_date(self, currency, inverse, date, day_info, resp):
+    def get_ecb_rate_on_date(self, currency, inverse, date, day_info, resp) -> tuple[Decimal|None, str|None]:
         df = pd.read_csv(io.StringIO(resp.text))
         s_value = df['OBS_VALUE']
         value = round(Decimal(s_value.values[0]), 6)
         if inverse:
             value = 1 / value
         rate = self.store_rate(currency=currency, date=date, value=value)
-        return CA_Result(CA_Status.ok, rate=rate, status=resp.status_code, info=day_info)
+        return rate.value, day_info
 
-    def get_belta_rate_on_date(self, currency, inverse, date, resp):
-        tree = etree.HTML(resp.text)
+    def get_belta_rate_on_date(self, currency, inverse, date, resp) -> tuple[Decimal|None, str|None]:
+        tree = etree.HTML(resp.text, parser=None)
         cur_date = tree.xpath("//*[contains(@class, 'cur_date')]")[0]
         cur_date_text = cur_date.text
         cur_date_words = cur_date_text.split()
         day = int(cur_date_words[2])
-        month = self.parse_month(cur_date_words[3])
+        month = BELTA_MONTHS[cur_date_words[3]]
         year = int(cur_date_words[4].replace(',', ''))
         belta_date = datetime(year, month, day).date()
         day_info = ''
@@ -167,14 +155,13 @@ class ExchangeRateApi():
         if not inverse:
             value = 1 / value
         rate = self.store_rate(currency=currency, date=belta_date, value=value)
-        return CA_Result(CA_Status.ok, rate=rate, status=resp.status_code, info=day_info)
+        return rate.value, day_info
     
-    def get_boe_rate_on_date(self, currency, inverse, date, day_info, resp):
-        tree = etree.HTML(resp.text)
+    def get_boe_rate_on_date(self, currency, inverse, date, day_info, resp) -> tuple[Decimal|None, str|None]:
+        tree = etree.HTML(resp.text, parser=None)
         e = tree.xpath("//*[@id='editorial']/p[contains(@class, 'error')]")
         if e:
-            info = e[0].text
-            return CA_Result(CA_Status.error, rate=None, status=status.HTTP_400_BAD_REQUEST, info=info)
+            return None, e[0].text
         r = tree.xpath("//*[@id='editorial']/table/tr")
         rates = {}
         for x in r:
@@ -186,11 +173,8 @@ class ExchangeRateApi():
         if inverse:
             value = 1 / value
         rate = self.store_rate(currency=currency, date=date, value=value)
-        return CA_Result(CA_Status.ok, rate=rate, status=resp.status_code, info=day_info)
+        return rate.value, day_info
     
-    def parse_month(self, value):
-        return BELTA_MONTHS[value]
-
 BELTA_MONTHS = {
     'января': 1,
     'февраля': 2,

@@ -1,4 +1,4 @@
-import os.path, requests, json
+import os.path
 from datetime import datetime
 
 from datetime import datetime, timedelta
@@ -31,15 +31,8 @@ from fuel.views.car import get_info as car_get_info
 from fuel.fuel_get_info import get_info as fuel_get_info
 from fuel.views.part import get_info as part_get_info
 from fuel.views.serv import get_info as serv_get_info
-
 from apart.models import Apart, ApartPrice, PeriodMeters, PeriodServices
-
 from service.background_services import check_services
-
-from expen.multi_currency import multi_currency_init as multi_currency_init_expen
-from fuel.multi_currency import multi_currency_init as multi_currency_init_fuel
-from core.currency.utils import get_exchange_rate as get_core_exchange_rate
-from core.currency.exchange_rate_api import *
 
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
@@ -667,27 +660,3 @@ class TaskViewSet(viewsets.ModelViewSet):
         for task in Task.objects.all():
             self._get_info(task)
         return Response({'result': 'ok'})
-
-    @action(detail=False)
-    def multi_currency_init(self, request, pk=None):
-        ret = multi_currency_init_expen(request.user)
-        return Response(ret)
-
-    @action(detail=False)
-    def get_exchange_rate(self, request, pk=None):
-        ret_status = status.HTTP_400_BAD_REQUEST
-        if 'currency' not in request.query_params:
-            return Response({'result': 'error', 'info': "The 'currency' parameter expected"}, status=ret_status)
-        currency = request.query_params['currency']
-        if 'date' not in request.query_params:
-            return Response({'result': 'error', 'info': "The 'date' parameter expected"}, status=ret_status)
-        s_date = request.query_params['date']
-        try:
-            date = datetime.strptime(s_date, '%Y-%m-%d')
-            ret = get_core_exchange_rate(currency, date)
-            if ret.result == CA_Status.ok:
-                return Response({'rate_usd': ret.rate.value}, status=ret.status)
-            return Response({'info': ret.info}, status=ret.status)
-        except Exception as ex:
-            return {'result': 'error', 'info': str(ex)}, ret_status
-    

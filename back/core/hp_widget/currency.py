@@ -63,7 +63,7 @@ def get_db_currency_chart(period: ChartPeriod, base: str):
     for curr in CURR_LIST:
         if curr == 'USD':
             continue
-        rates = get_hist_exchange_rates(curr, startdate.date(), enddate.date())
+        rates = get_hist_exchange_rates(startdate.date(), enddate.date(), curr)
         src_data = []
         days = (enddate-startdate).days
         if not days:

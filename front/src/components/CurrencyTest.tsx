@@ -6,19 +6,17 @@ import "./CurrencyTest.css";
 import { apiUrl } from './auth/Auth';
 
 interface RateInfo {
-    result: string;
-    status: number;
-    rate: number;
+    rate: number|undefined;
     info: string;
     units: string;
   }
 
 
 function CurrencyTest() {
-    const [rate, setRate] = useState<RateInfo>({result: 'undefined', status: 0, rate: 1, info: '', units: ''});
+    const [rate, setRate] = useState<RateInfo>({rate: undefined, info: '', units: ''});
 
     async function getNetCurrencyRate(rate_api: string, base: string, currency: string, rate_date: string) {
-        const url = apiUrl + `api/get_net_exchange_rate/?format=json&rate_api=${rate_api}&base=${base}&currency=${currency}&rate_date=${rate_date}`;
+        const url = apiUrl + `api/core/get_exchange_rate/?format=json&rate_api=${rate_api}&base=${base}&currency=${currency}&date=${rate_date}&skip_db=yes`;
         const cred: RequestCredentials = 'include';
         const options = {
             method: 'GET',
@@ -30,7 +28,7 @@ function CurrencyTest() {
             let resp_data = await response.json();
             if (resp_data) {
                 let units = '';
-                if (resp_data.result == 'ok')
+                if (resp_data.rate)
                     units = `${currency.toUpperCase()} per ${base.toUpperCase()}`;
                 let info;
                 if (typeof resp_data.info == 'string')
@@ -38,8 +36,6 @@ function CurrencyTest() {
                 else
                     info = JSON.stringify(resp_data.info);
                 const rate = {
-                    result: resp_data.result, 
-                    status: resp_data.status,
                     rate: resp_data.rate, 
                     info: info,
                     units: units
@@ -131,14 +127,6 @@ function CurrencyTest() {
                     <div className="rate-result">
                         <table>
                             <tbody>
-                                <tr>
-                                    <th>Result</th>
-                                    <td>{rate.result}</td>
-                                </tr>
-                                <tr>
-                                    <th>Status</th>
-                                    <td>{rate.status}</td>
-                                </tr>
                                 <tr>
                                     <th>Rate</th>
                                     <td>{rate.rate} {rate.units}</td>

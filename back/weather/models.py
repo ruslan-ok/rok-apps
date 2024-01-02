@@ -56,7 +56,7 @@ class Forecast(models.Model):
     units = models.CharField('Units', max_length=10, blank=True)
     weather = models.CharField('String identifier of the weather icon', max_length=20, blank=True)
     icon = models.IntegerField('Numeric identifier of the weather icon', null=True)
-    summary = models.CharField('Summary', max_length=200, blank=True)
+    summary = models.CharField('Summary', max_length=1000, blank=True)
     temperature = models.DecimalField('Temperature', null=True, max_digits=5, decimal_places=1)
     temperature_min = models.DecimalField('Temperature min', null=True, max_digits=5, decimal_places=1)
     temperature_max = models.DecimalField('Temperature max', null=True, max_digits=5, decimal_places=1)
