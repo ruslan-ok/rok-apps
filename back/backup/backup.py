@@ -1,14 +1,8 @@
-import os, glob, pyzipper, subprocess, time, sys
+import os, glob, pyzipper, subprocess, time
 from datetime import datetime, timedelta
 from backup.sync import Sync
-from logs.models import EventType
-# from enum import Enum
-
-# class EventType(Enum):
-#         ERROR = 'error'
-#         WARNING = 'warning'
-#         INFO = 'info'
-#         DEBUG = 'debug'
+from logs.logger import Logger
+from task.const import ROLE_BACKUP_SHORT, ROLE_BACKUP_FULL
 
 except_dirs = [
     'apps\\rusel\\.git',
@@ -16,6 +10,8 @@ except_dirs = [
     'apps\\rusel\\front\\media',
     'apps\\rusel\\front\\node_modules',
 ]
+
+logger = Logger(__name__)
 
 class ArchItem():
     def __init__(self, name, age):
@@ -35,9 +31,10 @@ class ArchItem():
         return 0
 
 class Backup():
-    def __init__(self, device, service_name, duration, folders, first_day, last_day, log_event=None):
+    def __init__(self, device, service_name, service_descr, duration, folders, first_day, last_day):
         super().__init__()
         self.device = device
+        self.service_name = service_name
         self.duration = duration
         self.folders = [x.replace('\\\\', '\\') for x in folders]
         self.first_day = first_day
@@ -45,17 +42,13 @@ class Backup():
         self.etalon = []
         self.fact = []
         self.content = []
-        self.log_event = log_event
         self.backup_folder = os.environ.get('DJANGO_BACKUP_FOLDER')
-        self.service_name = service_name
-        self.work_dir = self.backup_folder + device.lower() + '\\' + service_name
+        self.service_descr = service_descr
+        self.work_dir = self.backup_folder + device.lower() + '\\' + service_descr
         self.prefix = device + '-(' + str(duration) + ')-'
         self.fill()
         self.arch_pwrd = os.environ.get('DJANGO_BACKUP_PWRD')
-
-    def log(self, type, name, info, send_mail=False, one_per_day=False):
-        if self.log_event:
-            self.log_event(type, name, info, send_mail=send_mail, one_per_day=one_per_day)
+        logger.set_service(service_name)
 
     def get_arh_name_by_day(self, day):
         return self.prefix + day.strftime('%Y.%m.%d') + '.zip'
@@ -174,12 +167,6 @@ class Backup():
                 return False
         return True
 
-    def print(self):
-        print('--------------------------------------------------')
-        print(f'max_date = {self.last_day}')
-        for x in self.etalon:
-            print(x)
-
     def ripe(self):
         if not len(self.etalon):
             return False
@@ -193,38 +180,37 @@ class Backup():
         return ret
 
     def backup_db(self, zf):
-        self.log(EventType.INFO, 'method', '+backup_db() started')
+        logger.info('+backup_db() started')
         file = 'mysql_backup.sql'
         sql_util = '"' + os.environ.get('DJANGO_BACKUP_SQL_UTIL', '') + '"'
-        # self.log(EventType.INFO, 'variable', f'sql_util = {sql_util}')
+        logger.debug(f'sql_util = {sql_util}')
         sql_user = os.environ.get('DJANGO_BACKUP_SQL_USER', '')
-        # self.log(EventType.INFO, 'variable', f'sql_user = {sql_user}')
+        logger.debug(f'sql_user = {sql_user}')
         sql_pass = os.environ.get('DJANGO_BACKUP_SQL_PWRD', '')
-        # self.log(EventType.INFO, 'variable', f'sql_pass = {sql_pass}')
+        logger.debug(f'sql_pass = {sql_pass}')
         sql_schema = os.environ.get('DJANGO_BACKUP_SQL_SCHEMA', '')
-        # self.log(EventType.INFO, 'variable', f'sql_schema = {sql_schema}')
+        logger.debug(f'sql_schema = {sql_schema}')
         command = sql_util + ' --user=' + sql_user + ' --password=' + sql_pass + ' --result-file=' + file + ' ' + sql_schema
-        # self.log(EventType.INFO, 'variable', f'command = {command}')
+        logger.debug(f'command = {command}')
         ret = subprocess.run(command, shell=True)
-        # self.log(EventType.INFO, 'variable', f'ret.returncode = {ret.returncode}')
+        logger.debug(f'ret.returncode = {ret.returncode}')
         if (ret.returncode != 0):
-            self.log(EventType.ERROR, 'backup_db', 'Ошибка создания бэкапа MySQL. Код ошибки: ' + str(ret.returncode), send_mail=True)
+            logger.error('Ошибка создания бэкапа MySQL. Код ошибки: ' + str(ret.returncode))
             return
         sz = os.path.getsize(file)
         self.content.append('   ' + file + '    ' + self.sizeof_fmt(sz))
         zf.write(file)
-        self.log(EventType.INFO, 'remove', file)
+        logger.info('remove ' + file)
         os.remove(file)
-        self.log(EventType.INFO, 'method', '-backup_db() finished')
+        logger.info('-backup_db() finished')
 
     def backup_mail(self, zf):
-        self.log(EventType.INFO, 'method', '+backup_mail() started')
+        logger.info('+backup_mail() started')
         script = os.environ.get('DJANGO_BACKUP_MAIL_UTIL', '')
         wait_time = int(os.environ.get('DJANGO_BACKUP_MAIL_WAIT', '600'))
         ret = subprocess.run('cscript ' + script)
-        #self.save_log(False, '[i] command = ', command)
         if (ret.returncode != 0):
-            self.log(EventType.ERROR, 'backup_mail', 'Вызов subprocess.run вернул код ошибки ' + str(ret.returncode), send_mail=True)
+            logger.error('backup_mail: Вызов subprocess.run вернул код ошибки ' + str(ret.returncode))
             return
         start_dt = datetime.now()
         total = 0
@@ -233,11 +219,11 @@ class Backup():
         while (sz == 0) and (sec < wait_time):
             time.sleep(5)
             fl = glob.glob(self.work_dir + '\\..\\HMBackup*.7z')
-            # self.log(EventType.INFO, 'backup_mail', 'Количество найденных архивов ' + str(len(fl)))
+            logger.debug('backup_mail: Количество найденных архивов ' + str(len(fl)))
             if (len(fl) > 0):
                 fn = fl[0]
                 sz = os.path.getsize(fn)
-                # self.log(EventType.INFO, 'backup_mail', 'Размер архива ' + str(sz))
+                logger.info('backup_mail: Размер архива ' + str(sz))
             sec = int((datetime.now()-start_dt).total_seconds())
             status = 'ok'
             if (sz < 200000000):
@@ -249,23 +235,23 @@ class Backup():
                         status = 'ok'
                 except Exception as ex:
                     status = '[x] ' + str(ex)
-            #print('sec = {}, qnt = {}, sz = {}, status = {}, fn = {}'.format(sec, qnt, sz, status, fn))
+            logger.debug(f'{sec=}, {sz=}, {status=}, {fn=}')
             if (status != 'ok'):
                 sz = 0
         if (sz == 0):
-            self.log(EventType.ERROR, 'backup_mail', 'За назначенный таймаут файл архива не был получен.', send_mail=True)
+            logger.error('backup_mail: За назначенный таймаут файл архива не был получен.')
             return
         for f in fl:
             total += 1
             sz = os.path.getsize(f)
             self.content.append('   ' + f + '    ' + self.sizeof_fmt(sz))
             zf.write(f, arcname=f.split(self.work_dir + '\\..\\')[1])
-            self.log(EventType.INFO, 'remove', f)
+            logger.info('remove ' + f)
             os.remove(f)
-        self.log(EventType.INFO, 'method', '-backup_mail() finished')
+        logger.info('-backup_mail() finished')
 
     def backup_env(self, zf):
-        self.log(EventType.INFO, 'method', '+backup_env() started')
+        logger.info('+backup_env() started')
         file = 'env.csv'
         with open(file, 'w', encoding='utf-8') as f:
             f.write('name, value\n')
@@ -273,10 +259,10 @@ class Backup():
                 f.write(f'{name}, {value}\n')
         zf.write(file)
         os.remove(file)
-        self.log(EventType.INFO, 'method', '-backup_env() finished')
+        logger.info('-backup_env() finished')
 
     def backup_reqs(self, zf):
-        self.log(EventType.INFO, 'method', '+backup_reqs() started')
+        logger.info('+backup_reqs() started')
         python_exe = os.environ.get('DJANGO_PYTHON', 'python.exe')
         reqs = subprocess.check_output([python_exe, '-Xfrozen_modules=off', '-m', 'pip', 'freeze'], universal_newlines=True)
         file = 'reqs.txt'
@@ -284,12 +270,12 @@ class Backup():
             f.write(reqs)
         zf.write(file)
         os.remove(file)
-        self.log(EventType.INFO, 'method', '-backup_reqs() finished')
+        logger.info('-backup_reqs() finished')
 
 
     # Архивирование
     def archivate(self):
-        self.log(EventType.INFO, 'method', '+archivate() started')
+        logger.info('+archivate() started')
 
         dir_name = self.work_dir
 
@@ -302,17 +288,16 @@ class Backup():
         zf = pyzipper.AESZipFile(dir_file, 'w', compression=pyzipper.ZIP_LZMA, encryption=pyzipper.WZ_AES)
         zf.setpassword(str.encode(self.arch_pwrd))
         for dir in self.folders:
-            tm = datetime.now().strftime('%H:%M:%S')
-            print(f'{tm} Archiving: {dir}...')
+            logger.info(f'Archiving: {dir}...')
             if (dir == 'mysql'):
                 self.backup_db(zf)
             elif (dir == 'email'):
                 self.backup_mail(zf)
             else:
                 if not os.path.exists(dir):
-                    self.log(EventType.WARNING, 'archiving', 'Folder does not exist: ' + dir)
+                    logger.warning('archiving: Folder does not exist: ' + dir)
                     continue
-                self.log(EventType.INFO, 'archiving', dir)
+                logger.info('archiving: ' + dir)
                 for dirname, subdirs, files in os.walk(dir):
                     skip = False
                     for x in except_dirs:
@@ -331,10 +316,10 @@ class Backup():
         if (sz > 1000):
             self.content.append('   ' + fn + '    ' + self.sizeof_fmt(sz))
         elif (sz == 0):
-            self.log(EventType.ERROR, 'archivate', 'Не удалось создать архив ' + dir_file, send_mail=True)
+            logger.error('archivate: Не удалось создать архив ' + dir_file)
         else:
-            self.log(EventType.ERROR, 'archivate', 'Пустой архив ' + dir_file, send_mail=True)
-        self.log(EventType.INFO, 'method', '-archivate() finished')
+            logger.error('archivate: Пустой архив ' + dir_file)
+        logger.info('-archivate() finished')
 
     def check_name(self, name):
         for x in self.etalon:
@@ -344,36 +329,38 @@ class Backup():
 
     # Удаление неактуальных архивов
     def zipping(self):
-        self.log(EventType.INFO, 'method', '+zipping() started')
+        logger.info('+zipping() started')
         arh_path_list = glob.glob(self.work_dir + '\\*.zip')
         for x in arh_path_list:
             name = x.split('\\')[-1]
             if not self.check_name(name):
-                self.log(EventType.INFO, 'remove', x)
+                logger.info('remove: ' + x)
                 os.remove(x)
-        self.log(EventType.INFO, 'method', '-zipping() finished')
+        logger.info('-zipping() finished')
 
     # Синхронизация
     def synch(self):
-        so = Sync(self.log)
+        so = Sync(self.service_name)
         so.run()
 
     def run(self):
-        self.log(EventType.INFO, 'method', f'+run({self.device}, {self.duration}) started')
+        logger.info('start: ' + self.device)
         try:
             self.content.clear()
             self.archivate() # Архивирование
             self.zipping()   # Удаление неактуальных архивов
             self.synch()     # Синхронизация
         except Exception as ex:
-            self.log(EventType.ERROR, 'exception', str(ex), send_mail=True)
-        self.log(EventType.INFO, 'method', '-run() finished')
+            logger.exception(ex)
+        logger.info('finish: ' + self.device)
 
 def test_backup_zipping():
     start = datetime(2022, 10, 15).date()
     stop  = datetime.today().date()
-    backup = Backup('Vivo', service_name='Еженедельный бэкап', duration=7, folders='', first_day=start, last_day=stop)
-    backup.zipping()
+    backup = Backup('Vivo', service_name=ROLE_BACKUP_SHORT, service_descr='Ежедневный бэкап', duration=1, folders='', first_day=start, last_day=stop)
+    backup.run()
+    #backup = Backup('Vivo', service_name=ROLE_BACKUP_FULL, service_descr='Еженедельный бэкап', duration=7, folders='', first_day=start, last_day=stop)
+    #backup.zipping()
 
 if __name__ == '__main__':
     test_backup_zipping()

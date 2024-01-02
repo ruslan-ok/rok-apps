@@ -83,6 +83,7 @@ class ServiceEvent(models.Model):
     type = models.CharField(_('Event type'), max_length=20, blank=False, choices=EventType.choices, default=EventType.INFO)
     name = models.CharField(_('Event name'), max_length=200, blank=False)
     info = models.TextField(_('Event description'), blank=True, null=True)
+    details = models.TextField(_('Event details'), blank=True, null=True)
 
     def __repr__(self):
         return f'{self.app}:{self.service} [{self.created.strftime("%Y-%m-%d %H:%M:%S")}] {self.type} | {self.name} - {self.info}'

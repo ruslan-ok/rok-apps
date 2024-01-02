@@ -1,12 +1,16 @@
+import os
 from datetime import datetime
-from logs.models import EventType
 from service.site_service import SiteService
 from backup.backup import Backup
-from task.const import APP_BACKUP, ROLE_BACKUP_SHORT, ROLE_BACKUP_FULL
+from task.const import ROLE_BACKUP_SHORT, ROLE_BACKUP_FULL
+from logs.logger import Logger
+
+
+logger = Logger(__name__)
 
 class Backuper(SiteService):
 
-    def __init__(self, service_task):
+    def __init__(self, service_task, *args, **kwargs):
         start = datetime(2022, 10, 15).date()
         stop  = datetime.today().date()
         duration = 1
@@ -19,13 +23,20 @@ class Backuper(SiteService):
                 duration = int(params[0].replace('duration:', ''))
             folders = params[1:]
         if not len(folders):
-            self.log_event(EventType.WARNING, 'params', 'empty folders list')
-            super().__init__(APP_BACKUP, service_name, service_task.name)
+            logger.warning('params: empty folders list')
         else:
             if duration != 1:
                 service_name = ROLE_BACKUP_FULL
-            super().__init__(APP_BACKUP, service_name, service_task.name)
-            self.backup = Backup(self.device, service_name=service_task.name, duration=duration, folders=folders, first_day=start, last_day=stop, log_event=self.log_event)
+            self.backup = Backup(
+                os.environ.get('DJANGO_DEVICE'),
+                service_name=service_name,
+                service_descr=service_task.name,
+                duration=duration,
+                folders=folders,
+                first_day=start,
+                last_day=stop,
+            )
+        super().__init__(service_task.name, *args, **kwargs)
 
     def ripe(self):
         ret = False
@@ -34,7 +45,5 @@ class Backuper(SiteService):
         return ret, True
 
     def process(self):
-        self.log_event(EventType.INFO, 'start', self.backup.device)
         self.backup.run()
-        self.log_event(EventType.INFO, 'stop', self.backup.device)
         return True

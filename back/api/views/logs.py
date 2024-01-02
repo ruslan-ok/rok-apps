@@ -22,7 +22,14 @@ class LogsViewSet(viewsets.ModelViewSet):
         if 'one_per_day' in serializer.initial_data:
             one_per_day = serializer.initial_data['one_per_day']
             if one_per_day == 'True':
-                ServiceEvent.objects.filter(device=event.device, app=event.app, service=event.service, type=event.type, name=event.name, info=event.info).exclude(id=event.id).delete()
+                ServiceEvent.objects.filter(
+                    device=event.device,
+                    app=event.app,
+                    service=event.service,
+                    type=event.type,
+                    name=event.name,
+                    info=event.info
+                ).exclude(id=event.id).delete()
 
     def get_queryset(self):
         order_by = '-created'
@@ -78,21 +85,6 @@ class LogsViewSet(viewsets.ModelViewSet):
             depth = int(request.GET['depth'])
         ret = ServiceEvent.get_health(depth)
         return Response(ret)
-
-    @action(detail=False)
-    def write_event(self, request, pk=None):
-        if 'device' not in request.GET or 'app' not in request.GET or 'service' not in request.GET or \
-            'type' not in request.GET or 'name' not in request.GET or 'info' not in request.GET:
-            return Response({'result': 'error', 'info': "Expected parameters 'device', 'app', 'service', 'type', 'name' and 'info'"},
-                            status=status.HTTP_400_BAD_REQUEST)
-        device = request.GET.get('device', 'nuc')
-        app = request.GET.get('app', 'service')
-        service = request.GET.get('service', 'manager')
-        type = request.GET.get('type', 'info')
-        name = request.GET.get('name', 'unknown')
-        info = request.GET.get('info', 'undefined')
-        ServiceEvent.objects.create(device=device, app=app, service=service, type=type, name=name, info=info)
-        return Response({'result': 'ok'})
 
     @action(detail=False)
     def create_task(self, request):

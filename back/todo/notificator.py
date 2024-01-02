@@ -5,13 +5,18 @@ from firebase_admin import credentials, messaging
 from logs.models import EventType
 from task.models import Task, TaskGroup
 from todo.models import Subscription
-from task.const import APP_TODO, ROLE_NOTIFICATOR, ROLE_TODO
+from task.const import ROLE_TODO
 from service.site_service import SiteService
+from logs.logger import Logger
+
+
+logger = Logger(__name__)
+
 
 class Notificator(SiteService):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(APP_TODO, ROLE_NOTIFICATOR, 'Рассылка уведомлений о задачах', *args, **kwargs)
+        super().__init__('Рассылка уведомлений о задачах', *args, **kwargs)
         self.host = os.environ.get('DJANGO_HOST_API', 'http://localhost:8000')
         self.cred_cert = os.environ.get('FIREBASE_ACCOUNT_CERT')
 
@@ -26,13 +31,13 @@ class Notificator(SiteService):
             return False, False
         now = datetime.now()
         self.tasks = Task.objects.filter(completed=False, remind__lt=now).exclude(remind=None)
-        self.log_event(EventType.INFO, 'ripe', 'result = ' + str(len(self.tasks) > 0), one_per_day=True)
+        logger.info({'one_per_day': True, 'message': 'result = ' + str(len(self.tasks) > 0)})
         return len(self.tasks) > 0, False
 
     def process(self):
         """Generating of reminder messages.
         """
-        self.log_event(EventType.INFO, 'process', 'task qnt = ' + str(len(self.tasks)))
+        logger.info('task qnt = ' + str(len(self.tasks)))
         ret, compl = self.ripe()
         if not ret:
             return ret
@@ -62,7 +67,7 @@ class Notificator(SiteService):
         return len(ret) > 0
 
     def remind_one_task(self, task):
-        # self.log_event(EventType.DEBUG, 'remind_one', 'task = ' + task.name)
+        logger.debug('task = ' + task.name)
         if not firebase_admin._apps:
             cred = credentials.Certificate(self.cred_cert)
             firebase_admin.initialize_app(cred)
@@ -103,17 +108,17 @@ class Notificator(SiteService):
 
         tokens = self.get_tokens(task.user.id)
         if not len(tokens):
-            self.log_event(EventType.WARNING, 'no_tokens', 'No tokens for user_id = ' + str(task.user.id), send_mail=True)
+            logger.error('No tokens for user_id = ' + str(task.user.id))
             return
         
         mm = messaging.MulticastMessage(tokens=tokens, data=None, notification=n, android=None, webpush=wc, apns=None, fcm_options=None)
         r = messaging.send_each_for_multicast(mm, dry_run=False, app=None)
         ret_resp = '[' + str(len(r.responses)) + ']'
         if r.failure_count:
-            type = EventType.WARNING
+            method = logger.warning
         else:
-            type = EventType.INFO
-        self.log_event(type, 'remind', f'Remind task ID: {task.id},\n ok: {r.success_count},\n err: {r.failure_count},\n resp: {ret_resp},\n name: "{task.name}"')
+            method = logger.info
+        method(f'Remind task ID: {task.id},\n ok: {r.success_count},\n err: {r.failure_count},\n resp: {ret_resp},\n name: "{task.name}"')
         npp = 1
         for z in r.responses:
             if z.success:
@@ -125,10 +130,10 @@ class Notificator(SiteService):
             msg = ''
             if z.message_id:
                 msg += ', message_id = "' + z.message_id + '"'
-            #self.log_event(EventType.DEBUG, 'status', 'Remind status {}. {}{}{}\n       token "{}"'.format(npp, status, error_desc, msg, tokens[npp-1]))
+            logger.debug('Remind status {}. {}{}{}\n       token "{}"'.format(npp, status, error_desc, msg, tokens[npp-1]))
             if (not z.success) and (z.exception.code == 'NOT_FOUND'):
                 self.del_token(task.user.id, tokens[npp-1])
-                self.log_event(EventType.WARNING, 'token_deleted', 'Token deleted', None, send_mail=True)
+                logger.error('Token deleted')
             npp += 1
 
         if not task.first_remind:
