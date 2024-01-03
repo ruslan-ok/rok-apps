@@ -9,12 +9,12 @@ from enum import Enum
 DJANGO_CERT = os.environ.get('DJANGO_CERT')
 MODULE_DIR = os.path.dirname(os.path.abspath(DJANGO_CERT)) + '\\'
 sys.path.append(os.path.dirname(MODULE_DIR))
-from logs.logger import Logger
-logger = Logger(__name__)
-logger.set_app('service')
-logger.set_app('background_service_caller')
+from logs.logger import get_logger, set_app, use_file, set_service
+logger = get_logger(__name__, local_only=True)
 LOGS_PATH = os.environ.get('DJANGO_LOG_BASE', '')
-logger.use_file(LOGS_PATH + '\\background_service_caller.log')
+use_file(logger, LOGS_PATH + '\\cron.log')
+set_app(logger, 'cron')
+set_service(logger, 'worker')
 
 class ApiCallStatus(Enum):
     started = 'started'
@@ -37,15 +37,17 @@ class Params:
     api_url: str = api_host + '/api/tasks/check_background_services/?format=json'
     service_token: str = os.environ.get('DJANGO_SERVICE_TOKEN', '')
     timer_interval_sec: int = int(os.environ.get('DJANGO_SERVICE_INTERVAL_SEC', 60))
-    con_subject_template = '{} connection: {}->{}'
 
     def headers(self):
         return {'Authorization': 'Token ' + self.service_token, 'User-Agent': 'Mozilla/5.0'}
 
 
 def change_connection_status(params: Params, api_state: ApiCallState, new_status: ApiCallStatus):
-    subject = params.con_subject_template.format(params.this_server, api_state.status.value, new_status.value)
-    logger.warning(subject)
+    if new_status == ApiCallStatus.connected:
+        method = logger.info
+    else:
+        method = logger.warning
+    method(f'{api_state.status.value}->{new_status.value}')
     api_state.status = new_status
 
 
@@ -106,7 +108,7 @@ if (__name__ == '__main__'):
 
     try:
         while True:
-            logger.debug(api_state.status)
+            logger.debug(api_state.status.value)
             call_api(params, api_state)
 
             if api_state.status == ApiCallStatus.error:

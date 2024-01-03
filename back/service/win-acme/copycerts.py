@@ -1,9 +1,10 @@
 import os, shutil, datetime, fnmatch
-from logger import Logger
+from logger import get_logger, set_app, set_service
 
 
-logger = Logger(__name__)
-logger.set_app('win-acme')
+logger = get_logger(__name__)
+set_app(logger, 'win-acme')
+set_service(logger, 'copy_cert')
 
 
 def copycert():

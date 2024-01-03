@@ -2,15 +2,14 @@ import os
 from datetime import datetime
 import firebase_admin
 from firebase_admin import credentials, messaging
-from logs.models import EventType
 from task.models import Task, TaskGroup
 from todo.models import Subscription
 from task.const import ROLE_TODO
 from service.site_service import SiteService
-from logs.logger import Logger
+from logs.logger import get_logger
 
 
-logger = Logger(__name__)
+logger = get_logger(__name__)
 
 
 class Notificator(SiteService):

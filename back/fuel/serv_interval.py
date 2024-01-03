@@ -2,7 +2,7 @@ import os
 from datetime import datetime, timedelta
 from django.core.mail import EmailMessage
 from django.template import loader
-from logs.logger import Logger
+from logs.logger import get_logger
 from service.site_service import SiteService
 from account.models import UserExt
 from task.const import NUM_ROLE_PART, NUM_ROLE_SERVICE
@@ -10,7 +10,7 @@ from task.models import Task
 from fuel.utils import LANG_EN, LANG_RU, get_rest, month_declination
 
 
-logger = Logger(__name__)
+logger = get_logger(__name__)
 
 
 class ServInterval(SiteService):

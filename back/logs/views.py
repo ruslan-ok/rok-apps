@@ -43,7 +43,7 @@ def log_view(request):
         case _:
             match (app, svc):
                 case (None, None): data = OverviewLogData()
-                case (const.APP_SERVICE, const.ROLE_MANAGER): data = BackgroundLogData()
+                case ('cron', 'worker'): data = BackgroundLogData()
                 case (const.APP_LOGS, const.ROLE_APACHE): data = ApacheLogData()
                 case _: data = ServiceLog(dev=dev, app=app, svc=svc)
     context = {}

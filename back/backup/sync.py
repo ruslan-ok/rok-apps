@@ -4,13 +4,13 @@ from pathlib import Path
 from datetime import datetime
 from ftplib import FTP
 from enum import Enum
-from logs.logger import Logger
+from logs.logger import get_logger, set_service
 
 
 BIG_SIZE_LIMIT = 100000000
 FTP_SIZE_LIMIT = 50000000
 
-logger = Logger(__name__)
+logger = get_logger(__name__)
 
 
 class FileSutatus(Enum):
@@ -31,7 +31,7 @@ class Sync():
         service_token = os.environ.get('DJANGO_SERVICE_TOKEN', '')
         self.headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
         self.verify = os.environ.get('DJANGO_CERT', '')
-        logger.set_service(service_name)
+        set_service(logger, service_name)
 
 
     def run(self):

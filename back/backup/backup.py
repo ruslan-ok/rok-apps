@@ -1,7 +1,7 @@
 import os, glob, pyzipper, subprocess, time
 from datetime import datetime, timedelta
 from backup.sync import Sync
-from logs.logger import Logger
+from logs.logger import get_logger, set_service
 from task.const import ROLE_BACKUP_SHORT, ROLE_BACKUP_FULL
 
 except_dirs = [
@@ -11,7 +11,7 @@ except_dirs = [
     'apps\\rusel\\front\\node_modules',
 ]
 
-logger = Logger(__name__)
+logger = get_logger(__name__)
 
 class ArchItem():
     def __init__(self, name, age):
@@ -48,7 +48,7 @@ class Backup():
         self.prefix = device + '-(' + str(duration) + ')-'
         self.fill()
         self.arch_pwrd = os.environ.get('DJANGO_BACKUP_PWRD')
-        logger.set_service(service_name)
+        set_service(logger, service_name)
 
     def get_arh_name_by_day(self, day):
         return self.prefix + day.strftime('%Y.%m.%d') + '.zip'

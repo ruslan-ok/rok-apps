@@ -1,4 +1,4 @@
-"""Site service manager
+"""Site cron listener
 """
 import os, json, traceback
 from datetime import datetime
@@ -8,11 +8,12 @@ from fuel.serv_interval import ServInterval
 from logs.log_analyzer import LogAnalyzer
 from task.models import Group, Task
 from rusel.settings import ENV, DB
-from logs.logger import Logger
+from logs.logger import get_logger, set_app, set_service
 
 
-
-logger = Logger(__name__, local_only=True)
+logger = get_logger(__name__, local_only=True)
+set_app(logger, 'cron')
+set_service(logger, 'worker')
 
 def process_service(service_task):
     service_class = service_task.categories
@@ -42,7 +43,10 @@ def process_service(service_task):
         return False
 
 def _check_services(started):
-    logger.info('start' if started else 'work')
+    if started:
+        logger.info('start')
+    else:
+        logger.info({'one_per_day': True, 'message': 'work'})
     svc_grp = int(os.environ.get('DJANGO_SERVICE_GROUP' + ENV + DB))
     grp = Group.objects.filter(id=svc_grp).get()
     services = Task.objects.filter(groups=grp, completed=False)

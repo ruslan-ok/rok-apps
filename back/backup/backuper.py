@@ -3,10 +3,10 @@ from datetime import datetime
 from service.site_service import SiteService
 from backup.backup import Backup
 from task.const import ROLE_BACKUP_SHORT, ROLE_BACKUP_FULL
-from logs.logger import Logger
+from logs.logger import get_logger
 
 
-logger = Logger(__name__)
+logger = get_logger(__name__)
 
 class Backuper(SiteService):
 

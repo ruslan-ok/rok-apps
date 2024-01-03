@@ -13,14 +13,14 @@ process(log)
 import re, datetime, requests, os
 from pathlib import Path
 from logs.service_log import ServiceLog
-from logs.logger import Logger
+from logs.logger import get_logger
 from service.site_service import SiteService
 from task.const import APP_LOGS, ROLE_APACHE
 from logs.models import EventType
 from logs.models import IPInfo, AccessLog
 
 
-logger = Logger(__name__, local_only=True)
+logger = get_logger(__name__, local_only=True)
 
 
 record_parts = [

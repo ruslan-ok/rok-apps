@@ -3,7 +3,6 @@ import requests, json
 from datetime import date, timedelta
 from logs.services.background import BackgroundLogData
 from logs.service_log import ServiceLog
-from task.const import APP_SERVICE, ROLE_MANAGER
 from logs.models import ServiceEvent, EventType
 
 REPORT_DEPTH_DAYS = 10
@@ -14,7 +13,7 @@ class OverviewLogData(ServiceLog):
 
     def __init__(self):
         self.device = os.environ.get('DJANGO_DEVICE')
-        super().__init__(self.device, APP_SERVICE, ROLE_MANAGER)
+        super().__init__(self.device, 'cron', 'worker')
 
     def get_extra_context(self, request):
         context = {}
@@ -23,7 +22,7 @@ class OverviewLogData(ServiceLog):
 
     def get_svc_descr(self, svc):
         device = svc['dev']
-        if (svc['app'] == APP_SERVICE and svc['svc'] == ROLE_MANAGER):
+        if (svc['app'] == 'cron' and svc['svc'] == 'worker'):
             device = self.dev
         return ServiceLog(dev=device, app=svc['app'], svc=svc['svc'])
 
@@ -32,19 +31,19 @@ class OverviewLogData(ServiceLog):
         log_device = os.environ.get('DJANGO_LOG_DEVICE', 'Nuc')
         if self.use_log_api:
             svc_list = self.get_service_health_api(depth)
-            svc_list += ServiceEvent.get_health(depth, app=APP_SERVICE, service=ROLE_MANAGER)
+            svc_list += ServiceEvent.get_health(depth, app='cron', service='worker')
         else:
             exclude_background_svc = self.device != log_device
             svc_list = ServiceEvent.get_health(depth, exclude_background_svc=exclude_background_svc)
         services = []
         for svc in svc_list:
-            if svc['app'] == APP_SERVICE and svc['dev'] != this_device:
+            if svc['app'] == 'cron' and svc['dev'] != this_device:
                 continue
             day_status = []
             for day_num in range(depth):
                 day = date.today() - timedelta(days=day_num)
                 href = day.strftime('%Y%m%d')
-                if day_num == 0 and svc['app'] == APP_SERVICE:
+                if day_num == 0 and svc['app'] == 'cron':
                     bs = BackgroundLogData()
                     if not bs.get_health():
                         day_status.append({'icon': 'square-fill', 'color': 'gray', 'href': href})
@@ -87,7 +86,7 @@ class OverviewLogData(ServiceLog):
         api_url = f'{self.api_host}/en/api/logs/get_service_health/?format=json&depth={depth}'
         resp = requests.get(api_url, headers=self.headers, verify=self.verify)
         if (resp.status_code != 200):
-            ServiceEvent.objects.create(device=self.device, app=APP_SERVICE, service=ROLE_MANAGER, type=EventType.ERROR, name='get_remote_events', info='[x] error ' + str(resp.status_code) + '. ' + str(resp.content))
+            ServiceEvent.objects.create(device=self.device, app='cron', service='worker', type=EventType.ERROR, name='get_remote_events', info='[x] error ' + str(resp.status_code) + '. ' + str(resp.content))
             return []
         ret = json.loads(resp.content)
         return ret

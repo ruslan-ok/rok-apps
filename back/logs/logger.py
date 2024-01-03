@@ -56,7 +56,7 @@ class CustomHandler():
             'service': service,
             'type': event_type,
             'name': name,
-            'message': message,
+            'info': message,
             'details': details,
             'one_per_day': one_per_day,
         }
@@ -76,7 +76,7 @@ class DatabaseHandler(logging.Handler, CustomHandler):
             service=data['service'],
             type=data['type'],
             name=data['name'],
-            info=data['message'],
+            info=data['info'],
             details=data['details'],
         )
         if data['one_per_day']:
@@ -86,7 +86,7 @@ class DatabaseHandler(logging.Handler, CustomHandler):
                 service=data['service'],
                 type=data['type'],
                 name=data['name'],
-                info=data['message'],
+                info=data['info'],
                 created__date=date.today(),
             ).exclude(id=event.id).delete()
         return record
@@ -94,9 +94,12 @@ class DatabaseHandler(logging.Handler, CustomHandler):
 
 class ApiHandler(logging.Handler, CustomHandler):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, local_only: bool, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        api_host = os.environ.get('DJANGO_HOST_LOG')
+        if local_only:
+            api_host = os.environ.get('DJANGO_HOST_API')
+        else:
+            api_host = os.environ.get('DJANGO_HOST_LOG')
         self.api_url = f'{api_host}/en/api/logs/?format=json'
         service_token = os.environ.get('DJANGO_SERVICE_TOKEN')
         self.request_headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
@@ -118,77 +121,60 @@ class MailHandler(handlers.SMTPHandler, CustomHandler):
         name = ''
         if data["name"] != '----':
             name = f'.{data["name"]}'
-        return f'RUSEL.BY: {data["app"]}.{data["service"]}{name}'
+        return f'RUSEL.BY: {data["device"]}.{data["app"]}.{data["service"]}{name}'
 
 
-class Logger():
-    def __init__(self, name: str, local_only: bool=False):
-        self.logger = logging.getLogger(name)
-        self.logger.setLevel(logging.DEBUG)
-        console_formatter = logging.Formatter(fmt='%(asctime)s %(levelname)s | %(message)s')
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(console_formatter)
-        self.logger.addHandler(console_handler)
+def get_logger(name: str, local_only: bool=False):
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
+    console_formatter = logging.Formatter(fmt='%(asctime)s %(levelname)s | %(message)s')
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(console_formatter)
+    logger.addHandler(console_handler)
 
-        this_device = os.environ.get('DJANGO_DEVICE')
-        log_device = os.environ.get('DJANGO_LOG_DEVICE', 'Nuc')
-        if db_available and (local_only or (this_device == log_device)):
-            api_handler = DatabaseHandler()
-        else:
-            api_handler = ApiHandler()
-        api_formatter = logging.Formatter(fmt='%(message)s')
-        api_handler.setFormatter(api_formatter)
-        self.logger.addHandler(api_handler)
+    this_device = os.environ.get('DJANGO_DEVICE')
+    log_device = os.environ.get('DJANGO_LOG_DEVICE', 'Nuc')
+    if db_available and (local_only or (this_device == log_device)):
+        api_handler = DatabaseHandler()
+    else:
+        api_handler = ApiHandler(local_only)
+    api_formatter = logging.Formatter(fmt='%(message)s')
+    api_handler.setFormatter(api_formatter)
+    logger.addHandler(api_handler)
 
-        mail_formatter = logging.Formatter(fmt='%(levelname)s\n%(pathname)s:%(lineno)d\n\n%(message)s')
-        host = os.environ.get('DJANGO_HOST_MAIL')
-        admin = os.environ.get('DJANGO_MAIL_ADMIN')
-        user = os.environ.get('DJANGO_MAIL_USER')
-        pwrd = os.environ.get('DJANGO_MAIL_PWRD')
-        mail_handler = MailHandler(
-            mailhost=host,
-            fromaddr=user,
-            toaddrs=[admin],
-            subject=host.upper(),
-            credentials=(user, pwrd),
-        )
-        mail_handler.setFormatter(mail_formatter)
-        mail_handler.setLevel(logging.WARNING)
-        self.logger.addHandler(mail_handler)
+    mail_formatter = logging.Formatter(fmt='%(levelname)s\n%(pathname)s:%(lineno)d\n\n%(message)s')
+    host = os.environ.get('DJANGO_HOST_MAIL')
+    admin = os.environ.get('DJANGO_MAIL_ADMIN')
+    user = os.environ.get('DJANGO_MAIL_USER')
+    pwrd = os.environ.get('DJANGO_MAIL_PWRD')
+    mail_handler = MailHandler(
+        mailhost=host,
+        fromaddr=user,
+        toaddrs=[admin],
+        subject=host.upper(),
+        credentials=(user, pwrd),
+    )
+    mail_handler.setFormatter(mail_formatter)
+    mail_handler.setLevel(logging.WARNING)
+    logger.addHandler(mail_handler)
+    return logger
 
-        self.handlers = [api_handler, mail_handler]
-
-    def set_app(self, app):
-        for handler in self.handlers:
+def set_app(logger, app: str):
+    for handler in logger.handlers:
+        try:
             handler.app = app
+        except:
+            pass
 
-    def set_service(self, service: str):
-        for handler in self.handlers:
+def set_service(logger, service: str):
+    for handler in logger.handlers:
+        try:
             handler.service = service
+        except:
+            pass
 
-    def use_file(self, filename):
-        file_formatter = logging.Formatter(fmt='%(asctime)s %(levelname)s | %(message)s')
-        file_handler = handlers.TimedRotatingFileHandler(
-            filename=filename,
-            when='D',
-        )
-        file_handler.setFormatter(file_formatter)
-        self.logger.addHandler(file_handler)
-
-    def debug(self, message: str):
-        self.logger.debug(message)
-
-    def info(self, message: str):
-        self.logger.info(message)
-
-    def warning(self, message: str):
-        self.logger.warning(message)
-
-    def error(self, message: str):
-        self.logger.error(message)
-
-    def exception(self, message: str):
-        self.logger.exception(message)
-
-    def info(self, message: str):
-        self.logger.info(message)
+def use_file(logger, filename):
+    file_formatter = logging.Formatter(fmt='%(asctime)s %(levelname)s | %(message)s')
+    file_handler = handlers.TimedRotatingFileHandler(filename=filename, when='D',)
+    file_handler.setFormatter(file_formatter)
+    logger.addHandler(file_handler)

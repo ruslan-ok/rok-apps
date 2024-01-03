@@ -5,10 +5,12 @@ import pandas as pd
 from lxml import etree
 from rest_framework import status
 from core.models import CurrencyRate, CurrencyApis
-from logs.logger import Logger
+from logs.logger import get_logger, set_app, set_service
 
 
-logger = Logger(__name__, local_only=True)
+logger = get_logger(__name__, local_only=True)
+set_app(logger, 'currency')
+set_service(logger, 'rate')
 
 class ExchangeRateApi():
 

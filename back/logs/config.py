@@ -14,7 +14,7 @@ app_config = {
     'views': {
         'overview': {
             'icon': 'heart',
-            'title': _('All services health'),
+            'title': _('Service logs'),
             'hide_qty': True,
         },
         'backup_check': {

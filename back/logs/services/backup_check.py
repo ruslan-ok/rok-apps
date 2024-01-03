@@ -17,6 +17,7 @@ class BackupCheckLogData():
         backup_1 = Backup(
             device=self.dev, 
             service_name=SERVICE_NAME_1, 
+            service_descr='Ежедневный бэкап',
             duration=1, 
             folders=[], 
             first_day=start, 
@@ -24,6 +25,7 @@ class BackupCheckLogData():
         backup_7 = Backup(
             device=self.dev, 
             service_name=SERVICE_NAME_7,
+            service_descr='Еженедельный бэкап',
             duration=7,
             folders=[], 
             first_day=start, 
