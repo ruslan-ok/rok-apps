@@ -13,10 +13,14 @@ process(log)
 import re, datetime, requests, os
 from pathlib import Path
 from logs.service_log import ServiceLog
+from logs.logger import get_logger
 from service.site_service import SiteService
 from task.const import APP_LOGS, ROLE_APACHE
 from logs.models import EventType
 from logs.models import IPInfo, AccessLog
+
+
+logger = get_logger(__name__, local_only=True)
 
 
 record_parts = [
@@ -41,7 +45,7 @@ request_pattern = re.compile(r'\s+'.join(request_parts)+r'\s*\Z')
 class LogAnalyzer(SiteService):
 
     def __init__(self, service_task, *args, **kwargs):
-        super().__init__(APP_LOGS, ROLE_APACHE, 'Анализ логов сервера Apache', local_log=True, *args, **kwargs)
+        super().__init__('Анализ логов сервера Apache', local_log=True, *args, **kwargs)
         self.apache_log = service_task.info
 
     def read_log_sz(self):
@@ -65,7 +69,7 @@ class LogAnalyzer(SiteService):
             self.new_log_sz = Path(self.apache_log).stat().st_size
             ret = (self.new_log_sz > self.prev_log_sz)
         except Exception as ex:
-            self.log_event(EventType.ERROR, 'exception', str(ex))
+            logger.exception(ex)
             ret = False
         return ret, True
 
@@ -74,7 +78,7 @@ class LogAnalyzer(SiteService):
         """
         self.added_hosts = 0
         self.added_records = 0
-        self.log_event(EventType.INFO, 'log_size', str(self.new_log_sz))
+        logger.info('log_size: ' + str(self.new_log_sz))
         with open(self.apache_log, 'r') as f:
             if self.prev_log_sz:
                 f.seek(self.prev_log_sz)
@@ -94,7 +98,7 @@ class LogAnalyzer(SiteService):
                         data.update(request)
                         
                     self.save_log_record(data)
-        self.log_event(EventType.INFO, 'new_data', 'bytes: {}, added hosts: {}, log records: {}'.format(self.new_log_sz - self.prev_log_sz, self.added_hosts, self.added_records))
+        logger.info(f'new_data: bytes: {self.new_log_sz - self.prev_log_sz}, added hosts: {self.added_hosts}, log records: {self.added_records}')
         return True
 
     def get_host(self, host):
@@ -106,7 +110,7 @@ class LogAnalyzer(SiteService):
         data = get_host_info(host)
     
         if not 'success' in data or not data['success']:
-            self.log_event(EventType.ERROR, 'bad_response', 'Bad response for host ' + host)
+            logger.error('bad_response: Bad response for host ' + host)
             data = {'ip': host}
 
         if not 'country_code' in data:
@@ -140,7 +144,7 @@ class LogAnalyzer(SiteService):
                     )
                 self.added_hosts += 1
             except Exception as ex:
-                self.log_event(EventType.ERROR, 'exception', 'on IPInfo.objects.create: ' + str(ex))
+                logger.exception(ex)
         return self.get_host(host)
     
     def save_host(self, host):
@@ -182,7 +186,7 @@ class LogAnalyzer(SiteService):
                 )
             self.added_records += 1
         except Exception as ex:
-            self.log_event(EventType.ERROR, 'exception', 'on AccessLog.objects.create: ' + str(ex))
+            logger.exception(ex)
     
     def save_log_record(self, record):
         if 'host' in record:

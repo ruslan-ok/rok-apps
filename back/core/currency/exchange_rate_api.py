@@ -5,10 +5,12 @@ import pandas as pd
 from lxml import etree
 from rest_framework import status
 from core.models import CurrencyRate, CurrencyApis
-#from logs.logger import Logger
+from logs.logger import get_logger, set_app, set_service
 
 
-#logger = Logger(__name__, local_only=True)
+logger = get_logger(__name__, local_only=True)
+set_app(logger, 'currency')
+set_service(logger, 'rate')
 
 class ExchangeRateApi():
 
@@ -99,7 +101,7 @@ class ExchangeRateApi():
             'api': self.api.name,
             'info': info,
         }
-        #logger.info(log_info)
+        logger.info(log_info)
         return rate, info
     
     def store_rate(self, currency: str, date: date, value, base: str='USD', num_units: int=1) -> CurrencyRate:
@@ -109,7 +111,7 @@ class ExchangeRateApi():
         if not self.api.next_try or self.api.next_try < datetime.today().date():
             self.api.next_try = datetime.today().date() + timedelta(days)
             self.api.save()
-            #logger.warning(f'API service {self.api.name} sleep until {self.api.next_try.strftime("%Y-%m-%d")}')
+            logger.warning(f'API service {self.api.name} sleep until {self.api.next_try.strftime("%Y-%m-%d")}')
 
     def parse_value_path(self, resp_json: dict, value_path: list[str]) -> Decimal|None:
         match len(value_path):

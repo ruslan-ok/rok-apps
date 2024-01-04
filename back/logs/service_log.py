@@ -34,7 +34,7 @@ class ServiceLog():
 
     def get_sort(self):
         match (self.dev, self.app, self.svc):
-            case (_, const.APP_SERVICE, const.ROLE_MANAGER): return 1
+            case (_, 'cron', 'worker'): return 1
             case ('Nuc',  const.APP_BACKUP,  const.ROLE_BACKUP_SHORT): return 2
             case ('Nuc',  const.APP_BACKUP,  const.ROLE_BACKUP_FULL): return 3
             case ('Vivo', const.APP_BACKUP,  const.ROLE_BACKUP_SHORT): return 4
@@ -47,7 +47,7 @@ class ServiceLog():
 
     def get_icon(self):
         match (self.dev, self.app, self.svc):
-            case (_, const.APP_SERVICE, const.ROLE_MANAGER): return 'fast-forward'
+            case (_, 'cron', 'worker'): return 'fast-forward'
             case ('Nuc',  const.APP_BACKUP,  const.ROLE_BACKUP_SHORT): return 'save'
             case ('Nuc',  const.APP_BACKUP,  const.ROLE_BACKUP_FULL): return 'save-fill'
             case ('Vivo', const.APP_BACKUP,  const.ROLE_BACKUP_SHORT): return 'save'
@@ -63,7 +63,7 @@ class ServiceLog():
     
     def get_descr(self):
         match (self.dev, self.app, self.svc):
-            case (_, const.APP_SERVICE, const.ROLE_MANAGER): return 'Service manager'
+            case (_, 'cron', 'worker'): return 'Cron worker'
             case ('Nuc',  const.APP_BACKUP,  const.ROLE_BACKUP_SHORT): return 'Backup Nuc short'
             case ('Nuc',  const.APP_BACKUP,  const.ROLE_BACKUP_FULL): return 'Backup Nuc full'
             case ('Vivo', const.APP_BACKUP,  const.ROLE_BACKUP_SHORT): return 'Backup Vivo short'
@@ -92,7 +92,7 @@ class ServiceLog():
         if type:
             data = data.filter(type=type)
         if name:
-            data = data.filter(name=name)
+            data = data.filter(info=name)
         if day:
             data = data.filter(created__date=day)
         return data
@@ -113,7 +113,7 @@ class ServiceLog():
             extra_param += f'&order_by={order_by}'
         resp = requests.get(self.api_url + extra_param, headers=self.headers, verify=self.verify)
         if (resp.status_code != 200):
-            ServiceEvent.objects.create(device=self.dev, app=const.APP_SERVICE, service=const.ROLE_MANAGER, type=EventType.ERROR, name='log_api_get', info='[x] error ' + str(resp.status_code) + '. ' + str(resp.content))
+            ServiceEvent.objects.create(device=self.dev, app='cron', service='worker', type=EventType.ERROR, name='log_api_get', info='[x] error ' + str(resp.status_code) + '. ' + str(resp.content))
             return []
         ret = json.loads(resp.content)
         ret2 = [EventFromApi(x) for x in ret]

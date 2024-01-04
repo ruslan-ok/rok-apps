@@ -2,14 +2,13 @@ import os
 from datetime import datetime
 from logs.service_log import ServiceLog
 from logs.models import EventType
-from task.const import APP_SERVICE, ROLE_MANAGER
 
 class BackgroundLogData(ServiceLog):
     template_name = 'background'
 
     def __init__(self):
         this_device = os.environ.get('DJANGO_DEVICE')
-        super().__init__(this_device, APP_SERVICE, ROLE_MANAGER)
+        super().__init__(this_device, 'cron', 'worker')
         self.local_log = True
 
     def get_extra_context(self, request):

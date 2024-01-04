@@ -1,20 +1,17 @@
-import os, requests, json, hashlib
+import os, requests, json
 import shutil
 from pathlib import Path
 from datetime import datetime
 from ftplib import FTP
 from enum import Enum
-from logs.models import EventType
+from logs.logger import get_logger, set_service
 
-# class EventType(Enum):
-#         ERROR = 'error'
-#         WARNING = 'warning'
-#         INFO = 'info'
-#         DEBUG = 'debug'
-        
 
 BIG_SIZE_LIMIT = 100000000
 FTP_SIZE_LIMIT = 50000000
+
+logger = get_logger(__name__)
+
 
 class FileSutatus(Enum):
     Unknown = 0
@@ -25,8 +22,7 @@ class FileSutatus(Enum):
 
 class Sync():
 
-    def __init__(self, log=None):
-        self.logger = log
+    def __init__(self, service_name):
         self.this_device = os.environ.get('DJANGO_DEVICE', '')
         self.host = os.environ.get('DJANGO_HOST_FTP', '')
         self.user = os.environ.get('DJANGO_FTP_USER', '')
@@ -35,16 +31,11 @@ class Sync():
         service_token = os.environ.get('DJANGO_SERVICE_TOKEN', '')
         self.headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
         self.verify = os.environ.get('DJANGO_CERT', '')
+        set_service(logger, service_name)
 
-
-    def log(self, type, name: str, info: str):
-        if self.logger:
-            self.logger(type, name, info)
-        timestamp = datetime.now().strftime('%H:%M:%S')
-        print(f'{timestamp}: {type} | {name} | {info}')
 
     def run(self):
-        self.log(EventType.INFO, 'method', '+Sync.run()')
+        logger.info('+Sync.run()')
         if self.this_device == 'Vivo':
             backup_local = os.environ.get('DJANGO_BACKUP_FOLDER', '').replace('\\', '/')
             backup_remote = os.environ.get('DJANGO_BACKUP_REMOTE', '').replace('\\', '/')
@@ -68,14 +59,14 @@ class Sync():
                 self.fill_remote(docs_remote, 'docs')
                 self.count_status()
                 self.do_sync(docs_local, docs_remote)
-        self.log(EventType.INFO, 'method', '-Sync.run()')
+        logger.info('-Sync.run()')
 
     def fill_local(self, root_dir, except_dir=None):
-        self.log(EventType.INFO, 'method', 'fill_local')
+        logger.info('fill_local')
         self.scan_dir(root_dir, False, except_dir)
 
     def scan_dir(self, root_dir, is_remote, except_dir=None):
-        self.log(EventType.INFO, 'method', f'+scan_dir {root_dir}')
+        logger.info(f'+scan_dir {root_dir}')
         for dirname, subdirs, files in os.walk(root_dir):
             dirname = dirname.replace(root_dir, '')
             if dirname:
@@ -109,17 +100,14 @@ class Sync():
             count = len(self.remote)
         else:
             count = len(self.local)
-        self.log(EventType.INFO, 'method', f'-scan_dir. item count: {count}')
+        logger.info(f'-scan_dir. item count: {count}')
     
     def fill_remote(self, root_dir, dir_role):
-        self.log(EventType.INFO, 'method', 'fill_remote')
+        logger.info('fill_remote')
         ok = False
         resp = requests.get(self.api_url + '/api/get_dir/?dir_role=' + dir_role, headers=self.headers, verify=self.verify)
-        #import urllib3
-        #urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-        #resp = requests.get(self.api_url + '/api/get_dir/?dir_role=' + dir_role, headers=self.headers, verify=False) #, verify=self.verify)
         if (resp.status_code != 200):
-            self.log(EventType.ERROR, 'api_call', 'Status = ' + str(resp.status_code) + '. ' + str(resp.content))
+            logger.error('api_call: Status = ' + str(resp.status_code) + '. ' + str(resp.content))
         else:
             ret = json.loads(resp.content)
             for x in ret['dirs']:
@@ -136,7 +124,7 @@ class Sync():
                     self.scan_remote(ftp, '.')
     
     def count_status(self):
-        self.log(EventType.INFO, 'method', 'count_status')
+        logger.info('count_status')
         for k in self.remote.keys():
             r = self.remote[k]
             if k in self.local:
@@ -197,7 +185,7 @@ class Sync():
 
     def remove_local(self, local_dir, x):
         os.remove(self.get_full_local_name(local_dir, x))
-        self.log(EventType.INFO, 'deleted local', self.get_file_path(x))
+        logger.info('deleted local: ' + self.get_file_path(x))
 
     def remove_remote(self, remote_dir, x):
         if os.path.exists(remote_dir):
@@ -206,7 +194,7 @@ class Sync():
             with FTP(self.host, self.user, self.pwrd, encoding='windows-1251') as ftp:
                 ftp.cwd(x['folder'])
                 ftp.delete(x['name'])
-        self.log(EventType.INFO, 'deleted remote', self.get_file_path(x))
+        logger.info('deleted remote: ' + self.get_file_path(x))
 
     def sizeof_fmt(self, num, suffix='B'):
         for unit in ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z']:
@@ -229,10 +217,10 @@ class Sync():
             self.print_if_big(x['size'], 'done')
             dt_epoch = x['date_time'].timestamp()
             os.utime(fdst, (dt_epoch, dt_epoch))
-            self.log(EventType.INFO, 'copied local -> remote', self.get_file_path(x))
+            logger.info('copied local -> remote: ' + self.get_file_path(x))
         else:
             if x['size'] > FTP_SIZE_LIMIT:
-                self.log(EventType.INFO, 'skipped big local -> remote', self.get_file_path(x))
+                logger.info('skipped big local -> remote: ' + self.get_file_path(x))
             else:
                 with FTP(self.host, self.user, self.pwrd, encoding='windows-1251') as ftp, open(fsrc, 'rb') as file:
                     self.print_if_big(x['size'], f'FTP <- : {x["folder"]}/{x["name"]} [{self.sizeof_fmt(x["size"])}]...')
@@ -242,7 +230,7 @@ class Sync():
                 mod_time = x['date_time'].strftime('%m-%d-%Y %I:%M%p')
                 params = f'?folder={x["folder"]}&file={x["name"]}&mod_time={mod_time}'
                 requests.get(self.api_url + '/api/groups/ftp_mfmt/' + params, headers=self.headers, verify=self.verify)
-                self.log(EventType.INFO, 'copied local -> remote', self.get_file_path(x))
+                logger.info('copied local -> remote: ' + self.get_file_path(x))
 
     def download_file(self, local_dir, remote_dir, x):
         fdst = self.get_full_local_name(local_dir, x)
@@ -254,10 +242,10 @@ class Sync():
             self.print_if_big(x['size'], 'done')
             dt_epoch = x['date_time'].timestamp()
             os.utime(fdst, (dt_epoch, dt_epoch))
-            self.log(EventType.INFO, 'copied local <- remote', self.get_file_path(x))
+            logger.info('copied local <- remote: ' + self.get_file_path(x))
         else:
             if x['size'] > FTP_SIZE_LIMIT:
-                self.log(EventType.INFO, 'skipped big local <- remote', self.get_file_path(x))
+                logger.info('skipped big local <- remote: ' + self.get_file_path(x))
             else:
                 with FTP(self.host, self.user, self.pwrd, encoding='windows-1251') as ftp, open(fdst, 'rb') as file:
                     self.print_if_big(x['size'], f'FTP -> : {x["folder"]}/{x["name"]} [{self.sizeof_fmt(x["size"])}]')
@@ -266,10 +254,10 @@ class Sync():
                     self.print_if_big(x['size'], 'done')
                 dt_epoch = x['date_time'].timestamp()
                 os.utime(fdst, (dt_epoch, dt_epoch))
-                self.log(EventType.INFO, 'copied local <- remote', self.get_file_path(x))
+                logger.info('copied local <- remote: ' + self.get_file_path(x))
 
     def do_sync(self, local_dir, remote_dir):
-        self.log(EventType.INFO, 'method', '+do_sync')
+        logger.info('+do_sync')
         for k in self.local.keys():
             x = self.local[k]
             match x['status']:
@@ -280,10 +268,10 @@ class Sync():
             match x['status']:
                 case FileSutatus.Remove: self.remove_remote(remote_dir, x)
                 case FileSutatus.Copy: self.download_file(local_dir, remote_dir, x)
-        self.log(EventType.INFO, 'method', '-do_sync')
+        logger.info('-do_sync')
 
     def scan_remote(self, ftp, dir):
-        self.log(EventType.INFO, 'method', '+scan_remote')
+        logger.info('+scan_remote')
         self.cur_folder = []
         self.cur_dir = '' if dir == '.' else dir
         ftp.dir(dir, self.dir_callback)
@@ -307,7 +295,7 @@ class Sync():
         while len(self.dirs):
             next = self.dirs.pop(0)
             self.scan_remote(ftp, next)
-        self.log(EventType.INFO, 'method', '-scan_remote')
+        logger.info('-scan_remote')
 
     def dir_callback(self, line):
         parts = line.split()

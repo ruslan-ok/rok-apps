@@ -22,7 +22,14 @@ class LogsViewSet(viewsets.ModelViewSet):
         if 'one_per_day' in serializer.initial_data:
             one_per_day = serializer.initial_data['one_per_day']
             if one_per_day == 'True':
-                ServiceEvent.objects.filter(device=event.device, app=event.app, service=event.service, type=event.type, name=event.name, info=event.info).exclude(id=event.id).delete()
+                ServiceEvent.objects.filter(
+                    device=event.device,
+                    app=event.app,
+                    service=event.service,
+                    type=event.type,
+                    name=event.name,
+                    info=event.info
+                ).exclude(id=event.id).delete()
 
     def get_queryset(self):
         order_by = '-created'
@@ -43,7 +50,7 @@ class LogsViewSet(viewsets.ModelViewSet):
             data = data.filter(type=type)
         if 'name' in self.request.GET:
             name = self.request.GET['name']
-            data = data.filter(name=name)
+            data = data.filter(info=name)
         if 'day' in self.request.GET:
             day_str = self.request.GET['day']
             day = datetime.strptime(day_str, '%Y%m%d')
@@ -57,7 +64,7 @@ class LogsViewSet(viewsets.ModelViewSet):
         log_device = os.environ.get('DJANGO_LOG_DEVICE', 'Nuc')
         if not api_url or not api_key:
             info = 'Not specified variables API_COIN_RATE and/or API_COIN_RATE_KEY.'
-            ServiceEvent.objects.create(device=log_device, app=APP_SERVICE, service=ROLE_MANAGER, type=EventType.WARNING, name='os.getenv', info=info)
+            ServiceEvent.objects.create(device=log_device, app='crypto', service='rate', type=EventType.WARNING, name='os.getenv', info=info)
             ret = {'result': 'warning', 'info': info}
             return Response(ret)
         else:
@@ -65,7 +72,7 @@ class LogsViewSet(viewsets.ModelViewSet):
             resp = requests.get(api_url + 'price', headers=headers)
             if (resp.status_code != 200):
                 info = 'Failed call for BTC price. Status = ' + str(resp.status_code) + '. ' + str(resp.content)
-                ServiceEvent.objects.create(device=log_device, app=APP_SERVICE, service=ROLE_MANAGER, type=EventType.WARNING, name='requests', info=info)
+                ServiceEvent.objects.create(device=log_device, app='crypto', service='rate', type=EventType.WARNING, name='requests', info=info)
                 ret = {'result': 'warning', 'info': info}
             else:
                 ret = json.loads(resp.content)
@@ -80,27 +87,12 @@ class LogsViewSet(viewsets.ModelViewSet):
         return Response(ret)
 
     @action(detail=False)
-    def write_event(self, request, pk=None):
-        if 'device' not in request.GET or 'app' not in request.GET or 'service' not in request.GET or \
-            'type' not in request.GET or 'name' not in request.GET or 'info' not in request.GET:
-            return Response({'result': 'error', 'info': "Expected parameters 'device', 'app', 'service', 'type', 'name' and 'info'"},
-                            status=status.HTTP_400_BAD_REQUEST)
-        device = request.GET.get('device', 'nuc')
-        app = request.GET.get('app', 'service')
-        service = request.GET.get('service', 'manager')
-        type = request.GET.get('type', 'info')
-        name = request.GET.get('name', 'unknown')
-        info = request.GET.get('info', 'undefined')
-        ServiceEvent.objects.create(device=device, app=app, service=service, type=type, name=name, info=info)
-        return Response({'result': 'ok'})
-
-    @action(detail=False)
     def create_task(self, request):
         if 'app' not in request.GET or 'service' not in request.GET or 'item_id' not in request.GET:
             return Response({'result': 'error', 'info': "Expected parameters 'app', 'service', 'item_id'"},
                             status=status.HTTP_400_BAD_REQUEST)
         app = request.GET.get('app', 'service')
-        service = request.GET.get('service', 'manager')
+        service = request.GET.get('service', '-')
         item_id = request.GET.get('item_id', '')
         match (app, service):
             case ('family', 'import'): total, info = import_params(request.user, item_id)

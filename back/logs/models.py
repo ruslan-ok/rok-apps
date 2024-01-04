@@ -3,7 +3,7 @@ from datetime import datetime, date, timedelta
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
-from task.const import APP_TODO, ROLE_NOTIFICATOR, APP_SERVICE, ROLE_MANAGER
+from task.const import APP_TODO, ROLE_NOTIFICATOR
 
 class IPInfo(models.Model):
     ip = models.CharField('IP', max_length=20, blank=False)
@@ -83,6 +83,7 @@ class ServiceEvent(models.Model):
     type = models.CharField(_('Event type'), max_length=20, blank=False, choices=EventType.choices, default=EventType.INFO)
     name = models.CharField(_('Event name'), max_length=200, blank=False)
     info = models.TextField(_('Event description'), blank=True, null=True)
+    details = models.TextField(_('Event details'), blank=True, null=True)
 
     def __repr__(self):
         return f'{self.app}:{self.service} [{self.created.strftime("%Y-%m-%d %H:%M:%S")}] {self.type} | {self.name} - {self.info}'
@@ -113,7 +114,7 @@ class ServiceEvent(models.Model):
         if app and service:
             events = events.filter(app=app, service=service)
         elif exclude_background_svc:
-            events = events.exclude(app=APP_SERVICE, service=ROLE_MANAGER)
+            events = events.exclude(app='cron', service='worker')
         dev = None
         app = None
         svc = None

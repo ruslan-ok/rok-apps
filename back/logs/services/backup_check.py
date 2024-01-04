@@ -17,19 +17,19 @@ class BackupCheckLogData():
         backup_1 = Backup(
             device=self.dev, 
             service_name=SERVICE_NAME_1, 
+            service_descr='Ежедневный бэкап',
             duration=1, 
             folders=[], 
             first_day=start, 
-            last_day=stop, 
-            log_event=None)
+            last_day=stop)
         backup_7 = Backup(
             device=self.dev, 
             service_name=SERVICE_NAME_7,
+            service_descr='Еженедельный бэкап',
             duration=7,
             folders=[], 
             first_day=start, 
-            last_day=stop, 
-            log_event=None)
+            last_day=stop)
         context = {}
         context['backup_deeps'] = [
             {

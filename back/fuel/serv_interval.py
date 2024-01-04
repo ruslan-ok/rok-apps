@@ -2,23 +2,27 @@ import os
 from datetime import datetime, timedelta
 from django.core.mail import EmailMessage
 from django.template import loader
-from logs.models import EventType
+from logs.logger import get_logger
 from service.site_service import SiteService
 from account.models import UserExt
-from task.const import APP_FUEL, NUM_ROLE_PART, NUM_ROLE_SERVICE, ROLE_PART
+from task.const import NUM_ROLE_PART, NUM_ROLE_SERVICE
 from task.models import Task
 from fuel.utils import LANG_EN, LANG_RU, get_rest, month_declination
+
+
+logger = get_logger(__name__)
+
 
 class ServInterval(SiteService):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(APP_FUEL, ROLE_PART, 'Контроль сервисных интервалов обслуживания автомобиля', *args, **kwargs)
+        super().__init__('Контроль сервисных интервалов обслуживания автомобиля', *args, **kwargs)
 
     def ripe(self):
         return True, True
 
     def process(self):
-        self.log_event(EventType.INFO, 'start')
+        logger.info('start')
         parts = Task.objects.filter(app_fuel=NUM_ROLE_PART)
         users = []
         status = []
@@ -69,7 +73,7 @@ class ServInterval(SiteService):
                         if part.user not in users:
                             users.append(part.user)
         self.send_notifications(users, status, rests)
-        self.log_event(EventType.INFO, 'stop')
+        logger.info('stop')
         return True
 
     def send_notifications(self, users, status_parts, rests, dbg=''):
@@ -134,6 +138,6 @@ class ServInterval(SiteService):
                 msg = EmailMessage(email_subj, body, mail_from, [user.email])
                 msg.content_subtype = "html"
                 msg.send()
-                self.log_event(EventType.INFO, 'notify', user.email + ' - ok')
+                logger.info('notify: ' + user.email + ' - ok')
             except Exception as e:
-                self.log_event(EventType.ERROR, 'notify', user.email + ' - exception: ' + str(e))
+                logger.critical('notify: ' + user.email + ' - exception: ' + str(e))
