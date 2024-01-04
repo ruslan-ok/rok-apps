@@ -288,7 +288,6 @@ class Backup():
         zf = pyzipper.AESZipFile(dir_file, 'w', compression=pyzipper.ZIP_LZMA, encryption=pyzipper.WZ_AES)
         zf.setpassword(str.encode(self.arch_pwrd))
         for dir in self.folders:
-            logger.info(f'Archiving: {dir}...')
             if (dir == 'mysql'):
                 self.backup_db(zf)
             elif (dir == 'email'):
