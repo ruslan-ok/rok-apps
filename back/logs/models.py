@@ -3,7 +3,7 @@ from datetime import datetime, date, timedelta
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
-from task.const import APP_TODO, ROLE_NOTIFICATOR
+from task.const import APP_TODO
 
 class IPInfo(models.Model):
     ip = models.CharField('IP', max_length=20, blank=False)
@@ -140,7 +140,7 @@ class ServiceEvent(models.Model):
                 hlt['days'][day_num] = EventType.WARNING
             if event.type == EventType.ERROR:
                 hlt['days'][day_num] = EventType.ERROR
-            if app == APP_TODO and svc == ROLE_NOTIFICATOR:
+            if app == 'todo' and svc == 'notificator':
                 if event.name == 'process' and 'task qnt = ' in event.info:
                     add_qnt = int(event.info.split('task qnt = ')[1])
                     hlt['qnt'][day_num] += add_qnt

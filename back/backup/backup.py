@@ -2,7 +2,6 @@ import os, glob, pyzipper, subprocess, time
 from datetime import datetime, timedelta
 from backup.sync import Sync
 from logs.logger import get_logger, set_service
-from task.const import ROLE_BACKUP_SHORT, ROLE_BACKUP_FULL
 
 except_dirs = [
     'apps\\rusel\\.git',
@@ -356,9 +355,9 @@ class Backup():
 def test_backup_zipping():
     start = datetime(2022, 10, 15).date()
     stop  = datetime.today().date()
-    backup = Backup('Vivo', service_name=ROLE_BACKUP_SHORT, service_descr='Ежедневный бэкап', duration=1, folders='', first_day=start, last_day=stop)
+    backup = Backup('Vivo', 'short', 'Ежедневный бэкап', duration=1, folders='', first_day=start, last_day=stop)
     backup.run()
-    #backup = Backup('Vivo', service_name=ROLE_BACKUP_FULL, service_descr='Еженедельный бэкап', duration=7, folders='', first_day=start, last_day=stop)
+    #backup = Backup('Vivo', 'full', 'Еженедельный бэкап', duration=7, folders='', first_day=start, last_day=stop)
     #backup.zipping()
 
 if __name__ == '__main__':

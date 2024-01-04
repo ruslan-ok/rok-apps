@@ -18,9 +18,7 @@ APP_HEALTH = 'health'
 APP_WORK = 'work'
 APP_PHOTO = 'photo'
 APP_ADMIN = 'admin'
-APP_BACKUP = 'backup'
 APP_LOGS = 'logs'
-APP_W_ACME = 'win-acme'
 APP_FAMILY = 'family'
 APP_CORE = 'core'
 APP_CRAM = 'cram'
@@ -47,7 +45,6 @@ APP_NAME = {
     APP_FAMILY: 'family tree',
     APP_ADMIN: 'administration',
     APP_ALL: 'all applications',
-    APP_BACKUP: 'backup',
     APP_LOGS: 'view logs',
     APP_CRAM: 'cram',
 }
@@ -151,16 +148,12 @@ NUM_ROLE_CHART_WAIST = 36
 NUM_ROLE_CHART_TEMP = 37
 NUM_ROLE_STORE_HIST = 38
 NUM_ROLE_APACHE = 39
-NUM_ROLE_BACKUP_SHORT = 40
-NUM_ROLE_BACKUP_FULL = 41
-NUM_ROLE_BACKUP_CHECK = 42
 NUM_ROLE_METER_PROP = 44
 NUM_ROLE_SERV_PROP = 45
 NUM_ROLE_METER_VALUE = 46
 NUM_ROLE_SERV_VALUE = 47
 
 ROLE_TODO        = 'todo'
-ROLE_NOTIFICATOR = 'notificator'
 ROLE_NOTE        = 'note'            
 ROLE_NEWS        = 'news'            
 ROLE_STORE       = 'store'           
@@ -203,17 +196,12 @@ ROLE_PAYMENT     = 'payment'
 ROLE_PHOTO       = 'photo'      
 ROLE_ACCOUNT     = 'account'     
 ROLE_SEARCH_RESULTS = 'search'
-ROLE_BACKUP_SHORT = 'short'
-ROLE_BACKUP_FULL = 'full'
-ROLE_BACKUP_CHECK = 'check'
 ROLE_APACHE      = 'apache'
-ROLE_CERT_COPY   = 'cert_copy'
 ROLE_CURRENCY    = 'currency'
 ROLE_CRAM        = 'cram'
 
 ALL_ROLES = (
     ROLE_TODO,
-    ROLE_NOTIFICATOR,
     ROLE_NOTE,             
     ROLE_NEWS,             
     ROLE_STORE,
@@ -255,9 +243,6 @@ ALL_ROLES = (
     ROLE_PHOTO, 
     ROLE_ACCOUNT,
     ROLE_SEARCH_RESULTS,
-    ROLE_BACKUP_SHORT,
-    ROLE_BACKUP_FULL,
-    ROLE_BACKUP_CHECK,
     ROLE_APACHE,
     ROLE_CRAM,
 )
@@ -281,10 +266,6 @@ ROLES_IDS = {
                 ROLE_EMPLOYEE_PERIOD: NUM_ROLE_EMPL_PER, ROLE_PAY_TITLE: NUM_ROLE_PAY_TITLE, ROLE_PAYMENT: NUM_ROLE_PAYMENT },
     APP_PHOTO: { ROLE_PHOTO: NUM_ROLE_PHOTO },
     APP_LOGS: { ROLE_APACHE: NUM_ROLE_APACHE },
-    APP_BACKUP: { 
-        ROLE_BACKUP_SHORT: NUM_ROLE_BACKUP_SHORT, 
-        ROLE_BACKUP_FULL: NUM_ROLE_BACKUP_FULL, 
-        ROLE_BACKUP_CHECK: NUM_ROLE_BACKUP_CHECK },
     APP_ALL: { ROLE_SEARCH_RESULTS: NONE },
 }
 
@@ -406,9 +387,6 @@ ROLE_ICON = {
     ROLE_ACCOUNT: 'person-check',
     ROLE_SEARCH_RESULTS: 'search-results',
     ROLE_APACHE: 'card-list',
-    ROLE_BACKUP_SHORT: 'save',
-    ROLE_BACKUP_FULL: 'save-fill',
-    ROLE_BACKUP_CHECK: 'card-list',
     ROLE_CRAM: 'translate',
 }
 
@@ -443,7 +421,6 @@ ROLE_BASE = {
 
 ROLE_APP = {
     ROLE_TODO: APP_TODO,
-    ROLE_NOTIFICATOR: APP_TODO,
     ROLE_NOTE: APP_NOTE,
     ROLE_NEWS: APP_NEWS,
     ROLE_STORE: APP_STORE,

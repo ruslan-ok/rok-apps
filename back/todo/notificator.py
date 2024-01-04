@@ -9,7 +9,7 @@ from service.site_service import SiteService
 from logs.logger import get_logger
 
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, 'todo', 'notificator')
 
 
 class Notificator(SiteService):

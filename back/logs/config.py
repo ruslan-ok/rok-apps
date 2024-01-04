@@ -5,7 +5,7 @@ app_config = {
     'name': APP_LOGS,
     'app_title': _('logs'),
     'icon': 'card-list',
-    'role': ROLE_APACHE,
+    'role': 'apache',
     'main_view': 'overview',
     'sort': [
         ('event', _('event date')),

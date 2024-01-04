@@ -2,7 +2,6 @@ import os
 from datetime import datetime
 from service.site_service import SiteService
 from backup.backup import Backup
-from task.const import ROLE_BACKUP_SHORT, ROLE_BACKUP_FULL
 from logs.logger import get_logger
 
 
@@ -16,7 +15,7 @@ class Backuper(SiteService):
         duration = 1
         folders = []
         self.backup = None
-        service_name = ROLE_BACKUP_SHORT
+        service_name = 'short'
         params = service_task.info.split('\r\n')
         if len(params):
             if 'duration:' in params[0]:
@@ -26,7 +25,7 @@ class Backuper(SiteService):
             logger.warning('params: empty folders list')
         else:
             if duration != 1:
-                service_name = ROLE_BACKUP_FULL
+                service_name = 'full'
             self.backup = Backup(
                 os.environ.get('DJANGO_DEVICE'),
                 service_name=service_name,

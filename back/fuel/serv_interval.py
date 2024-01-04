@@ -10,7 +10,7 @@ from task.models import Task
 from fuel.utils import LANG_EN, LANG_RU, get_rest, month_declination
 
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, 'fuel', 'part')
 
 
 class ServInterval(SiteService):

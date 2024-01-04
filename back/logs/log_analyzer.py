@@ -15,7 +15,6 @@ from pathlib import Path
 from logs.service_log import ServiceLog
 from logs.logger import get_logger
 from service.site_service import SiteService
-from task.const import APP_LOGS, ROLE_APACHE
 from logs.models import EventType
 from logs.models import IPInfo, AccessLog
 
@@ -51,8 +50,8 @@ class LogAnalyzer(SiteService):
     def read_log_sz(self):
         log_sz = 0
         log_device = os.environ.get('DJANGO_LOG_DEVICE', 'Nuc')
-        sl = ServiceLog(dev=log_device, app=APP_LOGS, svc=ROLE_APACHE)
-        log_sz_events = sl.get_events(device=log_device, app=APP_LOGS, service=ROLE_APACHE, type=EventType.INFO, name='log_size')
+        sl = ServiceLog(log_device, 'logs', 'apache')
+        log_sz_events = sl.get_events(device=log_device, app='logs', service='apache', type=EventType.INFO, name='log_size')
         if len(log_sz_events) > 0:
             log_sz = int(log_sz_events[0].info)
         return log_sz

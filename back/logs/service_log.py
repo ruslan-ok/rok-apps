@@ -34,28 +34,28 @@ class ServiceLog():
 
     def get_sort(self):
         match (self.dev, self.app, self.svc):
-            case (_, 'cron', 'worker'): return 1
-            case ('Nuc',  const.APP_BACKUP,  const.ROLE_BACKUP_SHORT): return 2
-            case ('Nuc',  const.APP_BACKUP,  const.ROLE_BACKUP_FULL): return 3
-            case ('Vivo', const.APP_BACKUP,  const.ROLE_BACKUP_SHORT): return 4
-            case ('Vivo', const.APP_BACKUP,  const.ROLE_BACKUP_FULL): return 5
-            case ('Nuc',  const.APP_TODO,    const.ROLE_NOTIFICATOR): return 6
-            case ('Nuc',  const.APP_FUEL,    const.ROLE_PART): return 7
-            case ('Nuc',  const.APP_LOGS,    const.ROLE_APACHE): return 8
-            case ('Nuc',  const.APP_W_ACME,  const.ROLE_CERT_COPY): return 9
+            case (_,      'cron',     'worker'):      return 1
+            case ('Nuc',  'backup',   'short'):       return 2
+            case ('Nuc',  'backup',   'full'):        return 3
+            case ('Vivo', 'backup',   'short'):       return 4
+            case ('Vivo', 'backup',   'full'):        return 5
+            case ('Nuc',  'todo',     'notificator'): return 6
+            case ('Nuc',  'fuel',     'part'):        return 7
+            case ('Nuc',  'logs',     'apache'):      return 8
+            case ('Nuc',  'win-acme', 'copy_cert'):   return 9
             case _: return 99
 
     def get_icon(self):
         match (self.dev, self.app, self.svc):
-            case (_, 'cron', 'worker'): return 'fast-forward'
-            case ('Nuc',  const.APP_BACKUP,  const.ROLE_BACKUP_SHORT): return 'save'
-            case ('Nuc',  const.APP_BACKUP,  const.ROLE_BACKUP_FULL): return 'save-fill'
-            case ('Vivo', const.APP_BACKUP,  const.ROLE_BACKUP_SHORT): return 'save'
-            case ('Vivo', const.APP_BACKUP,  const.ROLE_BACKUP_FULL): return 'save-fill'
-            case ('Nuc',  const.APP_TODO,    const.ROLE_NOTIFICATOR): return 'bell'
-            case ('Nuc',  const.APP_FUEL,    const.ROLE_PART): return 'tools'
-            case ('Nuc',  const.APP_LOGS,    const.ROLE_APACHE): return 'server'
-            case ('Nuc',  const.APP_W_ACME,  const.ROLE_CERT_COPY): return 'award'
+            case (_,      'cron',     'worker'):      return 'fast-forward'
+            case ('Nuc',  'backup',   'short'):       return 'save'
+            case ('Nuc',  'backup',   'full'):        return 'save-fill'
+            case ('Vivo', 'backup',   'short'):       return 'save'
+            case ('Vivo', 'backup',   'full'):        return 'save-fill'
+            case ('Nuc',  'todo',     'notificator'): return 'bell'
+            case ('Nuc',  'fuel',     'part'):        return 'tools'
+            case ('Nuc',  'logs',     'apache'):      return 'server'
+            case ('Nuc',  'win-acme', 'copy_cert'):   return 'award'
             case _: return 'card-list'
     
     def get_href(self):
@@ -63,15 +63,15 @@ class ServiceLog():
     
     def get_descr(self):
         match (self.dev, self.app, self.svc):
-            case (_, 'cron', 'worker'): return 'Cron worker'
-            case ('Nuc',  const.APP_BACKUP,  const.ROLE_BACKUP_SHORT): return 'Backup Nuc short'
-            case ('Nuc',  const.APP_BACKUP,  const.ROLE_BACKUP_FULL): return 'Backup Nuc full'
-            case ('Vivo', const.APP_BACKUP,  const.ROLE_BACKUP_SHORT): return 'Backup Vivo short'
-            case ('Vivo', const.APP_BACKUP,  const.ROLE_BACKUP_FULL): return 'Backup Vivo full'
-            case ('Nuc',  const.APP_TODO,    const.ROLE_NOTIFICATOR): return 'Task Notificator'
-            case ('Nuc',  const.APP_FUEL,    const.ROLE_PART): return 'Service intervals'
-            case ('Nuc',  const.APP_LOGS,    const.ROLE_APACHE): return 'Apache log'
-            case ('Nuc',  const.APP_W_ACME,  const.ROLE_CERT_COPY): return 'Win-ACME'
+            case (_,      'cron',     'worker'):      return 'Cron worker'
+            case ('Nuc',  'backup',   'short'):       return 'Backup Nuc short'
+            case ('Nuc',  'backup',   'full'):        return 'Backup Nuc full'
+            case ('Vivo', 'backup',   'short'):       return 'Backup Vivo short'
+            case ('Vivo', 'backup',   'full'):        return 'Backup Vivo full'
+            case ('Nuc',  'todo',     'notificator'): return 'Task Notificator'
+            case ('Nuc',  'fuel',     'part'):        return 'Service intervals'
+            case ('Nuc',  'logs',     'apache'):      return 'Apache log'
+            case ('Nuc',  'win-acme', 'copy_cert'):   return 'Win-ACME'
             case _: return f'{self.dev} - {self.app} - {self.svc}'
  
     def get_events(self, device=None, app=None, service=None, type=None, name=None, day=None, order_by=None):
