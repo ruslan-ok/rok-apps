@@ -8,12 +8,11 @@ from enum import Enum
 
 DJANGO_CERT = os.environ.get('DJANGO_CERT')
 MODULE_DIR = os.path.dirname(os.path.abspath(DJANGO_CERT)) + '\\'
-LOGS_PATH = os.environ.get('DJANGO_LOG_BASE', '')
 
 sys.path.append(os.path.dirname(MODULE_DIR))
 from logs.logger import get_logger
 
-logger = get_logger(__name__, 'cron', 'worker', True, LOGS_PATH + '\\cron.log')
+logger = get_logger(__name__, 'cron', 'worker', True, 'cron.log')
 
 
 class ApiCallStatus(Enum):

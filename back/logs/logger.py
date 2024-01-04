@@ -165,7 +165,8 @@ def get_logger(name: str, app: str=None, service: str=None, local_only: bool=Fal
         set_service(logger, service)
 
     if file:
-        use_file(logger, file)
+        logs_path = os.environ.get('DJANGO_LOG_BASE', '')
+        use_file(logger, logs_path + '\\' + file)
 
     return logger
 
