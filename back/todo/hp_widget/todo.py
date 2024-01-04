@@ -26,9 +26,14 @@ class ListView(BaseListView):
         return context
 
 def get_todo(request):
-    lookups = Q(stop__lte=(datetime.now() + timedelta(1))) | Q(in_my_day=True) | Q(important=True)
     svc_grp_id = int(os.environ.get('DJANGO_SERVICE_GROUP' + ENV + DB, '0'))
-    tasks = Task.objects.filter(user=request.user.id, app_task=NUM_ROLE_TODO).filter(lookups).exclude(completed=True).exclude(groups=svc_grp_id)
+    days = 1
+    while days < 10:
+        lookups = Q(stop__lte=(datetime.now() + timedelta(days))) | Q(in_my_day=True) | Q(important=True)
+        tasks = Task.objects.filter(user=request.user.id, app_task=NUM_ROLE_TODO).filter(lookups).exclude(completed=True).exclude(groups=svc_grp_id)
+        if len(tasks) > 2:
+            break
+        days += 1
     data = [{ 
         'id': x.id, 
         'stop': x.stop, 
