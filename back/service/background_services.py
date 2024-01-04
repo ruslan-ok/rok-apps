@@ -8,12 +8,11 @@ from fuel.serv_interval import ServInterval
 from logs.log_analyzer import LogAnalyzer
 from task.models import Group, Task
 from rusel.settings import ENV, DB
-from logs.logger import get_logger, set_app, set_service
+from logs.logger import get_logger
 
 
-logger = get_logger(__name__, local_only=True)
-set_app(logger, 'cron')
-set_service(logger, 'worker')
+logger = get_logger(__name__, 'cron', 'worker', True)
+
 
 def process_service(service_task):
     service_class = service_task.categories

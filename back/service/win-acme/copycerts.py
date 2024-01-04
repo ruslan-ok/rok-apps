@@ -1,10 +1,12 @@
-import os, shutil, datetime, fnmatch
-from logger import get_logger, set_app, set_service
+import os, sys, shutil, datetime, fnmatch
 
+DJANGO_CERT = os.environ.get('DJANGO_CERT')
+MODULE_DIR = os.path.dirname(os.path.abspath(DJANGO_CERT)) + '\\'
+sys.path.append(os.path.dirname(MODULE_DIR))
 
-logger = get_logger(__name__)
-set_app(logger, 'win-acme')
-set_service(logger, 'copy_cert')
+from logs.logger import get_logger
+
+logger = get_logger(__name__, 'win-acme', 'copy_cert')
 
 
 def copycert():
@@ -38,5 +40,4 @@ def copycert():
     logger.info('Finished')
 
 if __name__ == '__main__':
-    #copycert()
-    logger.error('copycert')
+    copycert()

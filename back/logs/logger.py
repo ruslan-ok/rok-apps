@@ -124,7 +124,7 @@ class MailHandler(handlers.SMTPHandler, CustomHandler):
         return f'RUSEL.BY: {data["device"]}.{data["app"]}.{data["service"]}{name}'
 
 
-def get_logger(name: str, local_only: bool=False):
+def get_logger(name: str, app: str=None, service: str=None, local_only: bool=False, file: str=None):
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
     console_formatter = logging.Formatter(fmt='%(asctime)s %(levelname)s | %(message)s')
@@ -157,7 +157,18 @@ def get_logger(name: str, local_only: bool=False):
     mail_handler.setFormatter(mail_formatter)
     mail_handler.setLevel(logging.WARNING)
     logger.addHandler(mail_handler)
+
+    if app:
+        set_app(logger, app)
+
+    if service:
+        set_service(logger, service)
+
+    if file:
+        use_file(logger, file)
+
     return logger
+
 
 def set_app(logger, app: str):
     for handler in logger.handlers:
