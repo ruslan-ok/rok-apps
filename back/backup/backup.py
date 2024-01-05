@@ -219,10 +219,11 @@ class Backup():
             time.sleep(5)
             fl = glob.glob(self.work_dir + '\\..\\HMBackup*.7z')
             logger.debug('backup_mail: Количество найденных архивов ' + str(len(fl)))
+            fn = '???'
             if (len(fl) > 0):
                 fn = fl[0]
                 sz = os.path.getsize(fn)
-                logger.info('backup_mail: Размер архива ' + str(sz))
+                logger.info({'one_per_day': True, 'message': 'backup_mail: Размер архива ' + str(sz)})
             sec = int((datetime.now()-start_dt).total_seconds())
             status = 'ok'
             if (sz < 200000000):
