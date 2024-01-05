@@ -43,6 +43,8 @@ class ServiceLog():
             case ('Nuc',  'fuel',     'part'):        return 7
             case ('Nuc',  'logs',     'apache'):      return 8
             case ('Nuc',  'win-acme', 'copy_cert'):   return 9
+            case ('Vivo', 'currency', 'exchange_rate'): return 10
+            case ('Nuc',  'currency', 'exchange_rate'): return 11
             case _: return 99
 
     def get_icon(self):
@@ -56,6 +58,8 @@ class ServiceLog():
             case ('Nuc',  'fuel',     'part'):        return 'tools'
             case ('Nuc',  'logs',     'apache'):      return 'server'
             case ('Nuc',  'win-acme', 'copy_cert'):   return 'award'
+            case ('Vivo', 'currency', 'exchange_rate'): return 'currency-dollar'
+            case ('Nuc',  'currency', 'exchange_rate'): return 'currency-dollar'
             case _: return 'card-list'
     
     def get_href(self):
@@ -72,6 +76,8 @@ class ServiceLog():
             case ('Nuc',  'fuel',     'part'):        return 'Service intervals'
             case ('Nuc',  'logs',     'apache'):      return 'Apache log'
             case ('Nuc',  'win-acme', 'copy_cert'):   return 'Win-ACME'
+            case ('Vivo', 'currency', 'exchange_rate'): return 'Vivo Exchange rate update'
+            case ('Nuc',  'currency', 'exchange_rate'): return 'Nuc Exchange rate update'
             case _: return f'{self.dev} - {self.app} - {self.svc}'
  
     def get_events(self, device=None, app=None, service=None, type=None, name=None, day=None, order_by=None):

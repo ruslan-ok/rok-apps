@@ -6,6 +6,7 @@ from backup.backuper import Backuper
 from todo.notificator import Notificator
 from fuel.serv_interval import ServInterval
 from logs.log_analyzer import LogAnalyzer
+from core.currency.exchange_rate_service import ExchangeRate
 from task.models import Group, Task
 from rusel.settings import ENV, DB
 from logs.logger import get_logger
@@ -25,6 +26,8 @@ def process_service(service_task):
             service = ServInterval()
         case 'Apache':
             service = LogAnalyzer(service_task)
+        case 'ExchangeRate':
+            service = ExchangeRate()
         case _: service = None
     if not service:
         logger.warning(f'Service with name "{service_class}" not found. Task "{service_task.name}".')

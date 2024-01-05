@@ -1,7 +1,9 @@
 from datetime import date, datetime, timedelta
 from core.models import CurrencyRate, CurrencyApis
 from core.currency.exchange_rate_api import *
+from logs.logger import get_logger
 
+logger = get_logger(__name__, 'currency', 'exchange_rate')
 
 def get_exchange_rate_for_api(date: date, currency: str, base: str='USD', rate_api: str|None=None, skip_db: str|None=None) -> tuple[Decimal|None, str|None]:
     if skip_db != 'yes':
@@ -20,7 +22,9 @@ def get_exchange_rate_for_api(date: date, currency: str, base: str='USD', rate_a
         api_obj = ExchangeRateApi(api)
         rate, info = api_obj.get_rate_on_date(date, currency, base)
     else:
-        rate, info = _get_net_exchange_rate(date, currency, base)
+        rate = None
+        info = 'Undefined exchange rate update API'
+        # rate, info = _get_net_exchange_rate(date, currency, base)
     return rate, info
 
 def _get_db_exchange_rate(date: date, currency: str) -> Decimal|None:
@@ -39,7 +43,20 @@ def _get_net_exchange_rate(date: date, currency: str, base: str='USD') -> tuple[
         api_obj = ExchangeRateApi(api)
         rate, info = api_obj.get_rate_on_date(date, currency, base)
         if rate:
+            logger.info({
+                'date': date.strftime('%d.%m.%Y'),
+                'currency': currency,
+                'rate_api': api.name,
+                'rate': str(rate),
+                'info': info,
+            })
             break
+    if not rate:
+        logger.warning({
+            'date': date.strftime('%d.%m.%Y'),
+            'currency': currency,
+            'info': info,
+        })
     return rate, info
 
 def get_hist_exchange_rates(beg: date, end: date, currency: str) -> list[Decimal]:
