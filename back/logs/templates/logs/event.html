@@ -1,0 +1,12 @@
+{% extends "core/single_page.html" %}
+{% load static i18n %}
+
+{% block main %}
+    {% include "core/title.html" %}
+
+    <table>
+        {% for field in event_fields %}
+            <tr> <th>{{ field.name }}</th> <td class="px-3">{{ field.value|escape }}</td> </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

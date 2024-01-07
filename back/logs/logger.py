@@ -21,7 +21,7 @@ class CustomHandler():
             name = record.msg.get('name', '----')
             message = record.msg.get('message', '')
             one_per_day = record.msg.get('one_per_day', False)
-            info_dict = json.dumps(record.msg)
+            info_dict = record.msg
             if not message:
                 message = info_dict
         else:
@@ -35,7 +35,7 @@ class CustomHandler():
             'msecs': record.msecs,
             'name': record.name,
             'module': record.module,
-            'pathname': record.pathname,
+            'pathname': record.pathname.replace('\\', '/'),
             'filename': record.filename,
             'lineno': record.lineno,
             'exc_info': record.exc_info,
@@ -49,7 +49,6 @@ class CustomHandler():
         }
         if details_dict['exc_info']:
             details_dict['exc_info'] = None
-        details=json.dumps(details_dict),
         data = {
             'device': device,
             'app': app,
@@ -57,7 +56,7 @@ class CustomHandler():
             'type': event_type,
             'name': name,
             'info': message,
-            'details': details,
+            'details': details_dict,
             'one_per_day': one_per_day,
         }
         return data
@@ -70,14 +69,20 @@ class DatabaseHandler(logging.Handler, CustomHandler):
 
     def emit(self, record):
         data = self.prepare(record)
+        info = data['info']
+        if type(info) == dict:
+            info = json.dumps(info)
+        details = data['details']
+        if type(details) == dict:
+            details = json.dumps(details)
         event = ServiceEvent.objects.create(
             device=data['device'],
             app=data['app'],
             service=data['service'],
             type=data['type'],
             name=data['name'],
-            info=data['info'],
-            details=data['details'],
+            info=info,
+            details=details,
         )
         if data['one_per_day']:
             ServiceEvent.objects.filter(
@@ -86,7 +91,7 @@ class DatabaseHandler(logging.Handler, CustomHandler):
                 service=data['service'],
                 type=data['type'],
                 name=data['name'],
-                info=data['info'],
+                info=info,
                 created__date=date.today(),
             ).exclude(id=event.id).delete()
         return record

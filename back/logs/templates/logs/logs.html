@@ -13,6 +13,7 @@
         <div class="col">
             <table class="info-table">
               <tr>
+                <th>Id</th>
                 <th>{% trans 'date'|capfirst %}</th>
                 <th>{% trans 'time'|capfirst %}</th>
                 <th>{% trans 'type'|capfirst %}</th>
@@ -21,6 +22,7 @@
               </tr>
               {% for event in events %}
                 <tr style="background-color:{{event.type_bg_color}}">
+                  <td><a href="{% url 'logs:detail' log_location event.id|escape %}">{{ event.id|escape }}</a></td>
                   <td>{{ event.created|date:'d.m.Y' }}</td>
                   <td>{{ event.created|date:'G:i:s' }}</td>
                   <td style="color:{{event.type_color}}">{{ event.type }}</td>

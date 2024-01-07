@@ -12,8 +12,9 @@ class OverviewLogData(ServiceLog):
     template_name = 'overview'
 
     def __init__(self):
-        self.device = os.environ.get('DJANGO_DEVICE')
-        super().__init__(self.device, 'cron', 'worker')
+        self.this_device = os.environ.get('DJANGO_DEVICE')
+        self.log_device = os.environ.get('DJANGO_LOG_DEVICE', 'Nuc')
+        super().__init__(self.this_device, 'cron', 'worker')
 
     def get_extra_context(self, request):
         context = {}
@@ -27,17 +28,15 @@ class OverviewLogData(ServiceLog):
         return ServiceLog(dev=device, app=svc['app'], svc=svc['svc'])
 
     def get_health(self, depth):
-        this_device = os.environ.get('DJANGO_DEVICE')
-        log_device = os.environ.get('DJANGO_LOG_DEVICE', 'Nuc')
         if self.use_log_api:
             svc_list = self.get_service_health_api(depth)
             svc_list += ServiceEvent.get_health(depth, app='cron', service='worker')
         else:
-            exclude_background_svc = self.device != log_device
+            exclude_background_svc = self.this_device != self.log_device
             svc_list = ServiceEvent.get_health(depth, exclude_background_svc=exclude_background_svc)
         services = []
         for svc in svc_list:
-            if svc['app'] == 'cron' and svc['dev'] != this_device:
+            if svc['app'] == 'cron' and svc['dev'] != self.this_device:
                 continue
             day_status = []
             for day_num in range(depth):
@@ -72,6 +71,7 @@ class OverviewLogData(ServiceLog):
                     day_status.append({'icon': icon, 'color': color, 'href': href})
             svc_descr = self.get_svc_descr(svc)
             services.append({
+                'log_location': svc_descr.log_location,
                 'sort': svc_descr.get_sort(),
                 'icon': svc_descr.get_icon(),
                 'href': svc_descr.get_href(),
@@ -86,7 +86,7 @@ class OverviewLogData(ServiceLog):
         api_url = f'{self.api_host}/en/api/logs/get_service_health/?format=json&depth={depth}'
         resp = requests.get(api_url, headers=self.headers, verify=self.verify)
         if (resp.status_code != 200):
-            ServiceEvent.objects.create(device=self.device, app='cron', service='worker', type=EventType.ERROR, name='get_remote_events', info='[x] error ' + str(resp.status_code) + '. ' + str(resp.content))
+            ServiceEvent.objects.create(device=self.this_device, app='cron', service='worker', type=EventType.ERROR, name='get_remote_events', info='[x] error ' + str(resp.status_code) + '. ' + str(resp.content))
             return []
         ret = json.loads(resp.content)
         return ret

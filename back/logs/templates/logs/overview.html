@@ -12,16 +12,18 @@
           <table class="info-table">
             <tr>
                 <th>Service</th>
+                <th>Log location</th>
                 {% for dt in health.dates %}
                     <th> {{ dt|date:'d b' }} </th>
                 {% endfor %}
             </tr>
             {% for service in health.services %}
                 <tr>
-                    <td class="bi-{{ service.icon }}"><span class="px-3">{{ service.name }}</span></td>
-                    {% for day in service.days %}
-                        <td class="text-center"><a href="{% url 'logs:list' %}?{{ service.href }}&day={{ day.href }}"><i class="bi-{{ day.icon }}" style="color:{{ day.color }}"></i></a></td>
-                    {% endfor %}
+                  <td class="bi-{{ service.icon }}"><span class="px-3">{{ service.name }}</span></td>
+                  <td>{{ service.log_location }}</td>
+                  {% for day in service.days %}
+                      <td class="text-center"><a href="{% url 'logs:list' %}?{{ service.href }}&day={{ day.href }}"><i class="bi-{{ day.icon }}" style="color:{{ day.color }}"></i></a></td>
+                  {% endfor %}
                 </tr>
             {% endfor %}
           </table>
