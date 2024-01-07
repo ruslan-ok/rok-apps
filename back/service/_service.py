@@ -61,6 +61,7 @@ def call_api(params: Params, api_state: ApiCallState):
     status = api_state.status
     message = ''
     try:
+        print('call_api')
         resp = requests.get(url, headers=params.headers(), verify=params.verify)
         if status == ApiCallStatus.started or status == ApiCallStatus.disconnected:
             change_connection_status(params, api_state, ApiCallStatus.connected)

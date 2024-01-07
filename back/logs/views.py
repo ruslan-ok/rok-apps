@@ -1,4 +1,4 @@
-import os, json
+import os, json, requests
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponse
 from django.template import loader
@@ -15,6 +15,9 @@ from core.context import AppContext
 from logs.config import app_config
 from logs.models import ServiceEvent
 from task.const import APP_LOGS, ROLE_APACHE
+from logs.logger import get_logger
+
+logger = get_logger(__name__, 'logs', 'logs')
 
 class TuneData:
     def tune_dataset(self, data, group):
@@ -87,25 +90,54 @@ class LogEventView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
         pk = int(self.kwargs.get('pk'))
         event_fields = []
         if location == os.environ.get('DJANGO_DEVICE', ''):
-            service_event = ServiceEvent.objects.filter(id=pk).get()
-            event_dict = {}
-            for field in service_event._meta.get_fields():
-                name = field.name
-                value = getattr(service_event, field.name)
-                if name == 'details':
-                    try:
-                        value = json.loads(value)
-                    except:
-                        pass
-                if name == 'info':
-                    try:
-                        value = json.loads(value)
-                        continue
-                    except:
-                        pass
-                event_dict[name] = value
-            event_fields = dict_to_list(event_dict)
+            event_dict = self.get_event_db(pk)
         else:
-            pass
+            event_dict = self.get_event_api(pk)
+        event_fields = dict_to_list(event_dict)
         context['event_fields'] = event_fields
         return context
+    
+    def get_event_db(self, pk):
+        service_event = ServiceEvent.objects.filter(id=pk).get()
+        event_dict = {}
+        for field in service_event._meta.get_fields():
+            name = field.name
+            value = getattr(service_event, field.name)
+            if name == 'details':
+                try:
+                    value = json.loads(value)
+                except:
+                    pass
+            if name == 'info':
+                try:
+                    value = json.loads(value)
+                    continue
+                except:
+                    pass
+            event_dict[name] = value
+        return event_dict
+
+    def get_event_api(self, pk):
+        api_host = os.environ.get('DJANGO_HOST_LOG', '')
+        api_url = f'{api_host}/en/api/logs/{pk}/?format=json'
+        service_token = os.environ.get('DJANGO_SERVICE_TOKEN', '')
+        headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
+        verify = os.environ.get('DJANGO_CERT')
+        resp = requests.get(api_url, headers=headers, verify=verify)
+        event_dict = {}
+        if (resp.status_code != 200):
+            logger.error(f'{resp.status_code=}')
+            return event_dict
+        event_dict = json.loads(resp.content)
+        try:
+            if 'info' in event_dict:
+                event_dict['info'] = json.loads(event_dict['info'])
+        except:
+            pass
+        try:
+            if 'details' in event_dict:
+                event_dict['details'] = json.loads(event_dict['details'])
+        except:
+            pass
+
+        return event_dict

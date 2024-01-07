@@ -105,13 +105,20 @@ class ApiHandler(logging.Handler, CustomHandler):
             api_host = os.environ.get('DJANGO_HOST_API')
         else:
             api_host = os.environ.get('DJANGO_HOST_LOG')
+        if api_host.startswith('https://'):
+            self.verify = os.environ.get('DJANGO_CERT', '')
+        else:
+            self.verify = None
         self.api_url = f'{api_host}/en/api/logs/?format=json'
         service_token = os.environ.get('DJANGO_SERVICE_TOKEN')
         self.request_headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
-        self.verify = os.environ.get('DJANGO_CERT', '')
 
     def emit(self, record):
         data = self.prepare(record)
+        if type(data['info']) == dict:
+            data['info'] = json.dumps(data['info'])
+        if type(data['details']) == dict:
+            data['details'] = json.dumps(data['details'])
         requests.post(self.api_url, headers=self.request_headers, verify=self.verify, json=data)
         return record
 

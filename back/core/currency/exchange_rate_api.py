@@ -8,7 +8,7 @@ from core.models import CurrencyRate, CurrencyApis
 from logs.logger import get_logger
 
 
-logger = get_logger(__name__, 'currency', 'rate', True)
+logger = get_logger(__name__, 'currency', 'exchange_rate', True)
 
 
 class ExchangeRateApi():
@@ -25,6 +25,10 @@ class ExchangeRateApi():
         if self.api.base and currency != self.api.base and base != self.api.base:
             info = f'Exchange rate API {self.api.name} supports only rates for {self.api.base} currency.'
             return None, info
+        
+        if self.api.next_try and self.api.next_try > datetime.today().date():
+            info = f'Exchange rate API {self.api.name} is blocked until date {self.api.next_try}.'
+            return None, info
 
         inverse = False
         if self.api.base and base != self.api.base:
@@ -33,15 +37,13 @@ class ExchangeRateApi():
             base = tmp
             inverse = True
 
-        day_info = None
-
         if not self.api.today_avail and date == date.today():
-            date = date - timedelta(1)
-            day_info = f'Date corrected to {date.strftime("%Y-%m-%d")} because of core_currencyapi.today_avail == False.'
+            info = f'The service {self.api.name} is not available on the date {date.strftime("%Y-%m-%d")} due to condition "core_currencyapi.today_avail == False".'
+            return None, info
         
         if not self.api.weekdays_avail and date.weekday() in (5, 6):
-            date = date - timedelta(date.weekday() - 4)
-            day_info = f'Date corrected to {date.strftime("%Y-%m-%d")} because of core_currencyapi.weekdays_avail == False.'
+            info = f'The service {self.api.name} is not available on the date {date.strftime("%Y-%m-%d")} due to condition "core_currencyapi.weekdays_avail == False".'
+            return None, info
         
         url = self.api.api_url.replace('{token}', self.api.token)
         url = url.replace('{base}', base)
@@ -66,11 +68,13 @@ class ExchangeRateApi():
         try:
             if type(resp.content) == bytes and resp.text:
                 if self.api.name == 'ecb.europa.eu':
-                    return self.get_ecb_rate_on_date(currency, inverse, date, day_info, resp)
+                    return self.get_ecb_rate_on_date(currency, inverse, date, resp)
                 if self.api.name == 'belta.by':
                     return self.get_belta_rate_on_date(currency, inverse, date, resp)
+                if self.api.name == 'myfin.by':
+                    return self.get_myfin_rate_on_date(currency, inverse, date, resp)
                 if self.api.name == 'bankofengland.co.uk':
-                    return self.get_boe_rate_on_date(currency, inverse, date, day_info, resp)
+                    return self.get_boe_rate_on_date(currency, inverse, date, resp)
 
             resp_json = json.loads(resp.content)
             value_path = self.api.value_path.replace('<currency>', currency).split('/')
@@ -79,7 +83,7 @@ class ExchangeRateApi():
                 if self.api.base and not inverse:
                     value = 1 / value
                 rate = self.store_rate(currency=currency, date=date, value=value)
-                return rate.value, day_info
+                return rate.value, ''
         except Exception as ex:
             if type(resp.content) == bytes:
                 info = resp.content.decode('utf-8')
@@ -123,14 +127,14 @@ class ExchangeRateApi():
                     subdict = resp_json[value_path[0]]
                 return self.parse_value_path(subdict, value_path[1:])
 
-    def get_ecb_rate_on_date(self, currency, inverse, date, day_info, resp) -> tuple[Decimal|None, str|None]:
+    def get_ecb_rate_on_date(self, currency, inverse, date, resp) -> tuple[Decimal|None, str|None]:
         df = pd.read_csv(io.StringIO(resp.text))
         s_value = df['OBS_VALUE']
         value = round(Decimal(s_value.values[0]), 6)
         if inverse:
             value = 1 / value
         rate = self.store_rate(currency=currency, date=date, value=value)
-        return rate.value, day_info
+        return rate.value, ''
 
     def get_belta_rate_on_date(self, currency, inverse, date, resp) -> tuple[Decimal|None, str|None]:
         tree = etree.HTML(resp.text, parser=None)
@@ -158,7 +162,23 @@ class ExchangeRateApi():
         rate = self.store_rate(currency=currency, date=belta_date, value=value)
         return rate.value, day_info
     
-    def get_boe_rate_on_date(self, currency, inverse, date, day_info, resp) -> tuple[Decimal|None, str|None]:
+    def get_myfin_rate_on_date(self, currency, inverse, date, resp) -> tuple[Decimal|None, str|None]:
+        tree = etree.HTML(resp.text, parser=None)
+        r = tree.xpath("//table[contains(@class, 'default-table')]/tbody/tr")
+        rates = {}
+        for x in r:
+            if len(x) == 5:
+                rate_currency = x[3][0].tail
+                rate_value = Decimal(x[1].text)
+                rate_factor = Decimal(x[4].text)
+                rates[rate_currency] = {'value': rate_value * rate_factor}
+        value = rates[currency]['value']
+        if not inverse:
+            value = 1 / value
+        rate = self.store_rate(currency=currency, date=date, value=value)
+        return rate.value, ''
+    
+    def get_boe_rate_on_date(self, currency, inverse, date, resp) -> tuple[Decimal|None, str|None]:
         tree = etree.HTML(resp.text, parser=None)
         e = tree.xpath("//*[@id='editorial']/p[contains(@class, 'error')]")
         if e:
@@ -174,7 +194,7 @@ class ExchangeRateApi():
         if inverse:
             value = 1 / value
         rate = self.store_rate(currency=currency, date=date, value=value)
-        return rate.value, day_info
+        return rate.value, ''
     
 BELTA_MONTHS = {
     'января': 1,

@@ -27,7 +27,7 @@ def process_service(service_task):
         case 'Apache':
             service = LogAnalyzer(service_task)
         case 'ExchangeRate':
-            service = ExchangeRate()
+            service = ExchangeRate(service_task)
         case _: service = None
     if not service:
         logger.warning(f'Service with name "{service_class}" not found. Task "{service_task.name}".')

@@ -6,25 +6,32 @@ from logs.logger import get_logger
 logger = get_logger(__name__, 'currency', 'exchange_rate')
 
 def get_exchange_rate_for_api(date: date, currency: str, base: str='USD', rate_api: str|None=None, skip_db: str|None=None) -> tuple[Decimal|None, str|None]:
-    if skip_db != 'yes':
-        rate_db = _get_db_exchange_rate(date, currency)
-        if rate_db:
-            return rate_db, None
-    match rate_api:
-        case 'ecb':   api = CurrencyApis.objects.filter(name='ecb.europa.eu').get()
-        case 'nbp':   api = CurrencyApis.objects.filter(name='api.nbp.pl').get()
-        case 'nbrb':  api = CurrencyApis.objects.filter(name='belta.by').get()
-        case 'boe':   api = CurrencyApis.objects.filter(name='bankofengland.co.uk').get()
-        case 'er':    api = CurrencyApis.objects.filter(name='api.exchangerate.host').get()
-        case 'ca':    api = CurrencyApis.objects.filter(name='currencyapi.com').get()
-        case _:       api = None
-    if api:
-        api_obj = ExchangeRateApi(api)
-        rate, info = api_obj.get_rate_on_date(date, currency, base)
-    else:
-        rate = None
-        info = 'Undefined exchange rate update API'
-        # rate, info = _get_net_exchange_rate(date, currency, base)
+    rate = None
+    info = ''
+    try:
+        if skip_db != 'yes':
+            rate_db = _get_db_exchange_rate(date, currency)
+            if rate_db:
+                return rate_db, 'The value stored in the database was used'
+        match rate_api:
+            case 'ecb':   api = CurrencyApis.objects.filter(name='ecb.europa.eu').get()
+            case 'nbp':   api = CurrencyApis.objects.filter(name='api.nbp.pl').get()
+            # case 'nbrb':  api = CurrencyApis.objects.filter(name='belta.by').get()
+            case 'nbrb':  api = CurrencyApis.objects.filter(name='myfin.by').get()
+            case 'myfin': api = CurrencyApis.objects.filter(name='myfin.by').get()
+            case 'boe':   api = CurrencyApis.objects.filter(name='bankofengland.co.uk').get()
+            case 'er':    api = CurrencyApis.objects.filter(name='api.exchangerate.host').get()
+            case 'ca':    api = CurrencyApis.objects.filter(name='currencyapi.com').get()
+            case _:       api = None
+        if api:
+            api_obj = ExchangeRateApi(api)
+            rate, info = api_obj.get_rate_on_date(date, currency, base)
+        else:
+            rate = None
+            info = 'Undefined exchange rate update API'
+            # rate, info = _get_net_exchange_rate(date, currency, base)
+    except Exception as ex:
+        logger.exception(ex)
     return rate, info
 
 def _get_db_exchange_rate(date: date, currency: str) -> Decimal|None:
