@@ -61,7 +61,8 @@ def log_view(request):
         title = context.get('title', view.config.title)
     context.update(view.get_app_context(request.user.id, icon=view.config.view_icon, title=title))
     context['log_title'] = view.config.title
-    context['log_location'] = data.log_location
+    if hasattr(data, 'log_location'):
+        context['log_location'] = data.log_location
     template = loader.get_template(f'logs/{data.template_name}.html')
     return HttpResponse(template.render(context, request))
 
