@@ -11,7 +11,6 @@ CURRENCY_API = {
     'EUR': 'ecb',
     'PLN': 'nbp',
     'BYN': 'myfin',
-    #'BYN': 'nbrb',
     'GBP': 'boe',
 }
 
@@ -29,12 +28,13 @@ class ExchangeRate(SiteService):
         for currency, api_name in CURRENCY_API.items():
             if self.params and currency not in self.params:
                 continue
-            rate, info = get_exchange_rate_for_api(datetime.today().date(), currency, 'USD', api_name, skip_db='yes')
-            if rate:
+            currency_rate, info = get_exchange_rate_for_api(datetime.today().date(), currency, 'USD', api_name, skip_db='yes')
+            if currency_rate:
                 logger.info({
                     'currency': currency,
                     'rate_api': api_name,
-                    'rate': str(rate),
+                    'rate': str(currency_rate.value),
+                    'num_units': currency_rate.num_units,
                     'info': info,
                 })
             else:

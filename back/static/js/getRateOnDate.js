@@ -42,7 +42,8 @@ function getRateOnDate(init, id_date, id_currency, id_rate, django_host_api='htt
       else {
         let obj = request.response;
         var rate = obj.rate;
-        el_rate.value = rate;
+        var num_units = obj.num_units;
+        el_rate.value = rate / num_units;
         if (obj.info)
           console.log(obj.info);
       }

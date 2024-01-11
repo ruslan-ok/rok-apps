@@ -1,70 +1,33 @@
-from datetime import date, datetime, timedelta
-from core.models import CurrencyRate, CurrencyApis
-from core.currency.exchange_rate_api import *
+from datetime import date, timedelta
+from decimal import Decimal
+from core.models import CurrencyRate
+from core.currency.custom_api.api_factory import ExchangeRateApiFactory
 from logs.logger import get_logger
 
 logger = get_logger(__name__, 'currency', 'exchange_rate')
 
-def get_exchange_rate_for_api(date: date, currency: str, base: str='USD', rate_api: str|None=None, skip_db: str|None=None) -> tuple[Decimal|None, str|None]:
-    rate = None
+def get_exchange_rate_for_api(date: date, currency: str, base: str='USD', rate_api: str|None=None, skip_db: str|None=None) -> tuple[CurrencyRate|None, str|None]:
+    currency_rate = None
     info = ''
     try:
         if skip_db != 'yes':
             rate_db = _get_db_exchange_rate(date, currency)
             if rate_db:
                 return rate_db, 'The value stored in the database was used'
-        match rate_api:
-            case 'ecb':   api = CurrencyApis.objects.filter(name='ecb.europa.eu').get()
-            case 'nbp':   api = CurrencyApis.objects.filter(name='api.nbp.pl').get()
-            # case 'nbrb':  api = CurrencyApis.objects.filter(name='belta.by').get()
-            case 'nbrb':  api = CurrencyApis.objects.filter(name='myfin.by').get()
-            case 'myfin': api = CurrencyApis.objects.filter(name='myfin.by').get()
-            case 'boe':   api = CurrencyApis.objects.filter(name='bankofengland.co.uk').get()
-            case 'er':    api = CurrencyApis.objects.filter(name='api.exchangerate.host').get()
-            case 'ca':    api = CurrencyApis.objects.filter(name='currencyapi.com').get()
-            case _:       api = None
-        if api:
-            api_obj = ExchangeRateApi(api)
-            rate, info = api_obj.get_rate_on_date(date, currency, base)
-        else:
-            rate = None
-            info = 'Undefined exchange rate update API'
-            # rate, info = _get_net_exchange_rate(date, currency, base)
+        api_factory = ExchangeRateApiFactory()
+        api = api_factory.get_api(rate_api)
+        currency_rate, info = api.get_rate_on_date(date, currency, base)
     except Exception as ex:
         logger.exception(ex)
-    return rate, info
+        info = 'Exception in get_exchange_rate_for_api()'
+    return currency_rate, info
 
-def _get_db_exchange_rate(date: date, currency: str) -> Decimal|None:
+def _get_db_exchange_rate(date: date, currency: str) -> CurrencyRate|None:
     if CurrencyRate.objects.filter(base='USD', currency=currency, date__lte=date).exists():
         last_dt = CurrencyRate.objects.filter(base='USD', currency=currency, date__lte=date).order_by('-date')[0].date
         rate = CurrencyRate.objects.filter(base='USD', currency=currency, date=last_dt).order_by('source')[0]
-        return rate.value
+        return rate
     return None
-
-def _get_net_exchange_rate(date: date, currency: str, base: str='USD') -> tuple[Decimal|None, str|None]:
-    rate = None
-    info = f'Not found external currency exchange rate API for pair {currency}/{base} [{date=}]'
-    for api in CurrencyApis.objects.exclude(next_try__gt=datetime.today().date()):
-        if date == datetime.today().date() and not api.today_avail:
-            continue
-        api_obj = ExchangeRateApi(api)
-        rate, info = api_obj.get_rate_on_date(date, currency, base)
-        if rate:
-            logger.info({
-                'date': date.strftime('%d.%m.%Y'),
-                'currency': currency,
-                'rate_api': api.name,
-                'rate': str(rate),
-                'info': info,
-            })
-            break
-    if not rate:
-        logger.warning({
-            'date': date.strftime('%d.%m.%Y'),
-            'currency': currency,
-            'info': info,
-        })
-    return rate, info
 
 def get_hist_exchange_rates(beg: date, end: date, currency: str) -> list[Decimal]:
     ret = []
@@ -80,7 +43,9 @@ def get_hist_exchange_rates(beg: date, end: date, currency: str) -> list[Decimal
         if len(day_rates):
             rate = day_rates[0][1]
         else:
-            rate, info = get_exchange_rate_for_api(date, currency)
+            currency_rate, info = get_exchange_rate_for_api(date, currency)
+            if currency_rate:
+                rate = currency_rate.value / currency_rate.num_units
         ret.append(rate if rate else Decimal(1))
         date = date + timedelta(1)
     return ret
