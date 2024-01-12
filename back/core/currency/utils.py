@@ -35,6 +35,7 @@ def get_hist_exchange_rates(beg: date, end: date, currency: str) -> list[Decimal
     all_rates = []
     for rate in rates:
         all_rates.append((rate.date, rate.value, _sort_exchange_rate_by_source(rate.source)))
+    prev_day_rate = None
     date = beg
     while date <= end:
         rate = None
@@ -42,10 +43,15 @@ def get_hist_exchange_rates(beg: date, end: date, currency: str) -> list[Decimal
         day_rates = sorted(day_rates, key=lambda x: x[2])
         if len(day_rates):
             rate = day_rates[0][1]
+            prev_day_rate = rate
         else:
-            currency_rate, info = get_exchange_rate_for_api(date, currency)
-            if currency_rate:
-                rate = currency_rate.value / currency_rate.num_units
+            if prev_day_rate:
+                rate = prev_day_rate
+            else:
+                rates = CurrencyRate.objects.filter(base='USD', currency=currency, date__lt=beg).order_by('-date')
+                if len(rates):
+                    rate = rates[0].value / rates[0].num_units
+                    prev_day_rate = rate
         ret.append(rate if rate else Decimal(1))
         date = date + timedelta(1)
     return ret

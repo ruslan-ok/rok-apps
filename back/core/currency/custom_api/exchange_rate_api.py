@@ -19,6 +19,8 @@ class ExchangeRateApi:
         self.headers = {'User-Agent': 'Mozilla/5.0'}
 
     def _get_rate_on_date(self, date: date, currency: str, base: str='USD') -> tuple[CurrencyRate|None, str|None]:
+        if currency == base:
+            raise Exception(f'Invalid currency pair: {base=}, {currency=}')
         currency = currency.upper()
         base = base.upper()
 
@@ -94,6 +96,8 @@ class ExchangeRateApi:
         return currency_rate, info
     
     def store_rate(self, date: date, currency: str, base: str, num_units: int, value: Decimal, reverse: bool=False) -> CurrencyRate:
+        if currency == base:
+            raise Exception(f'Invalid currency pair: {base=}, {currency=}')
         rounded_value = round(value, 6)
         if CurrencyRate.objects.filter(base=base, currency=currency, date=date, num_units=num_units, value=rounded_value, source=self.api.name).exists():
             currency_rate = CurrencyRate.objects.filter(base=base, currency=currency, date=date, num_units=num_units, value=rounded_value, source=self.api.name)[0]

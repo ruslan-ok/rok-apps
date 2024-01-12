@@ -43,7 +43,7 @@ def monthdelta(date, delta):
     d = min(date.day, [31,
         29 if y%4==0 and (not y%100==0 or y%400 == 0) else 28,
         31,30,31,30,31,31,30,31,30,31][m-1])
-    return date.replace(day=d, month=m, year=y)
+    return date.replace(day=d, month=m, year=y) - timedelta(1)
 
 def yeardelta(date, delta):
     y = (date.year + delta)
@@ -51,15 +51,15 @@ def yeardelta(date, delta):
     d = min(date.day, [31,
         29 if y%4==0 and (not y%100==0 or y%400 == 0) else 28,
         31,30,31,30,31,31,30,31,30,31][m-1])
-    return date.replace(day=d, month=m, year=y)
+    return date.replace(day=d, month=m, year=y) - timedelta(1)
 
 def get_start_date(enddate: datetime, period: ChartPeriod) -> datetime:
     match period:
-        case ChartPeriod.p1h: startdate = enddate - timedelta(hours=1)
-        case ChartPeriod.p3h: startdate = enddate - timedelta(hours=3)
-        case ChartPeriod.p12h: startdate = enddate - timedelta(hours=12)
-        case ChartPeriod.p24h: startdate = enddate - timedelta(days=1)
-        case ChartPeriod.p7d: startdate = enddate - timedelta(days=7)
+        case ChartPeriod.p1h: startdate = enddate
+        case ChartPeriod.p3h: startdate = enddate - timedelta(hours=2)
+        case ChartPeriod.p12h: startdate = enddate - timedelta(hours=11)
+        case ChartPeriod.p24h: startdate = enddate
+        case ChartPeriod.p7d: startdate = enddate - timedelta(days=6)
         case ChartPeriod.p30d: startdate = monthdelta(enddate, -1)
         case ChartPeriod.p3m: startdate = monthdelta(enddate, -3)
         case ChartPeriod.p1y: startdate = yeardelta(enddate, -1)
