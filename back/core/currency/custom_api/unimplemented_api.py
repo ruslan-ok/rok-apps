@@ -9,6 +9,6 @@ class UnimplementedApi(ExchangeRateApi):
         self.api_id = api_id
         super().__init()
 
-    def _get_rate_on_date(self, date: date, currency: str, base: str='USD') -> tuple[CurrencyRate|None, str|None]:
+    def _get_rate_on_date(self, date: date, currency: str, base: str) -> tuple[CurrencyRate|None, str|None]:
         return None, 'Undefined exchange rate update API ' + self.api_id
 

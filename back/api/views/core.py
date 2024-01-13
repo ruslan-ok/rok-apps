@@ -37,9 +37,9 @@ def get_exchange_rate(request):
     if rate_api and rate_api not in RATE_APIS:
         return Response({'rate': None, 'num_units': None, 'info': "The 'rate_api' parameter must have one of the following values: " + ', '.join(RATE_APIS)}, status=HTTP_400_BAD_REQUEST)
 
-    skip_db = request.query_params.get('skip_db', 'no')
+    mode = request.query_params.get('mode', 'can_update')
 
-    currency_rate, info = get_exchange_rate_for_api(rate_date, currency, base, rate_api, skip_db)
+    currency_rate, info = get_exchange_rate_for_api(rate_date, currency, base, rate_api, mode)
     rate = num_units = None
     if currency_rate:
         rate = currency_rate.value

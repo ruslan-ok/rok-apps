@@ -18,12 +18,7 @@ class ExchangeRateApi:
             self.api = CurrencyApis.objects.filter(name=api_name).get()
         self.headers = {'User-Agent': 'Mozilla/5.0'}
 
-    def _get_rate_on_date(self, date: date, currency: str, base: str='USD') -> tuple[CurrencyRate|None, str|None]:
-        if currency == base:
-            raise Exception(f'Invalid currency pair: {base=}, {currency=}')
-        currency = currency.upper()
-        base = base.upper()
-
+    def get_rate_on_date(self, date: date, currency: str, base: str) -> tuple[CurrencyRate|None, str|None]:
         if not self.api:
             return None, 'Exchange rate API is undefined.'
 
@@ -35,10 +30,6 @@ class ExchangeRateApi:
 
         if not self.api.weekdays_avail and date.weekday() in (5, 6):
             return None, f'The service {self.api.name} is not available on the weekday date {date.strftime('%Y-%m-%d')}.'
-        
-        if not self.api.today_avail and date == date.today():
-            # The service is not available on the today date
-            date = date - timedelta(1)
         
         if self.api.base and base != self.api.base:
             self.currency = base
@@ -61,55 +52,24 @@ class ExchangeRateApi:
         if (resp.status_code != status.HTTP_200_OK):
             if self.api.phrase and self.api.phrase in str(resp.content):
                 self.sleep(30)
-            error_mess = f'[x] Rate {currency} to base {base} on {date.strftime('%Y-%m-%d')}: {self.api.name} - {resp.status_code}'
-            return None, error_mess
+            try:
+                info = json.loads(resp.text)['errors']['date'][0]
+            except:
+                info = f'Received response with code {resp.status_code}'
+            return None, info
         try:
             currency_rate = self._process_resp(date, resp)
-            return currency_rate, ''
+            return currency_rate, 'The value was obtained through the exchange rate API'
 
         except Exception as ex:
-            error_mess =str(ex)
-            if 'Supplied date cannot be greater than latest available data' in error_mess:
-                logger.info(error_mess)
-            else:
-                logger.exception(ex)
-            return None, error_mess
+            logger.exception(ex)
+            return None, str(ex)
 
-    def get_rate_on_date(self, date: date, currency: str, base: str='USD') -> tuple[CurrencyRate|None, str|None]:
-        rate = num_units = None
-        currency_rate, info = self._get_rate_on_date(date, currency, base)
-        if not currency_rate and 'Supplied date cannot be greater than latest available data' in info:
-            available_date_str = info.split('(')[1].split(')')[0]
-            available_date = datetime.strptime(available_date_str, '%d-%b-%Y')
-            currency_rate, info = self._get_rate_on_date(available_date, currency, base)
-        if currency_rate:
-            rate = currency_rate.value
-            num_units = currency_rate.num_units
-        logger.info({
-            'action': 'api_call',
-            'date': date.strftime('%Y-%m-%d'),
-            'currency': currency.upper(),
-            'base': base.upper(),
-            'rate': str(rate),
-            'num_units': num_units,
-        })
-        return currency_rate, info
-    
     def store_rate(self, date: date, currency: str, base: str, num_units: int, value: Decimal, reverse: bool=False) -> CurrencyRate:
-        if currency == base:
-            raise Exception(f'Invalid currency pair: {base=}, {currency=}')
         rounded_value = round(value, 6)
         if CurrencyRate.objects.filter(base=base, currency=currency, date=date, num_units=num_units, value=rounded_value, source=self.api.name).exists():
             currency_rate = CurrencyRate.objects.filter(base=base, currency=currency, date=date, num_units=num_units, value=rounded_value, source=self.api.name)[0]
         else:
-            logger.info({
-                'action': 'store_rate',
-                'date': date.strftime('%Y-%m-%d'),
-                'currency': currency,
-                'base': base,
-                'num_units': num_units,
-                'rate': str(rounded_value),
-            })
             currency_rate = CurrencyRate.objects.create(base=base, currency=currency, date=date, num_units=num_units, value=rounded_value, source=self.api.name)
             if not reverse:
                 effective_rate = value * num_units
@@ -121,7 +81,7 @@ class ExchangeRateApi:
         if not self.api.next_try or self.api.next_try < datetime.today().date():
             self.api.next_try = datetime.today().date() + timedelta(days)
             self.api.save()
-            logger.warning(f'API service {self.api.name} sleep until {self.api.next_try.strftime('%Y-%m-%d')}')
+            logger.warning(f'API service {self.api.name} sleeps until {self.api.next_try.strftime('%Y-%m-%d')}')
 
     def parse_value_path(self, resp_json: dict, value_path: list[str]) -> Decimal|None:
         match len(value_path):
@@ -144,3 +104,21 @@ class ExchangeRateApi:
             value = 1 / value
         currency_rate = self.store_rate(date, self.currency, self.base, 1, value)
         return currency_rate
+
+    def get_last_available_date(self) -> tuple[date|None, str]:
+        date = None
+        info = 'Exchange rate API is undefined.'
+        if self.api:
+            date = datetime.today().date()
+            info = ''
+
+            if self.api.next_try and self.api.next_try > date:
+                return None, f'Exchange rate API {self.api.name} is blocked until date {self.api.next_try}.'
+
+            if not self.api.today_avail:
+                date -= timedelta(1)
+
+            if not self.api.weekdays_avail and date.weekday() in (5, 6):
+                return None, f'The service {self.api.name} is not available on the weekday date {date.strftime('%Y-%m-%d')}.'
+
+        return date, info

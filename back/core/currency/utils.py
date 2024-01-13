@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 from core.models import CurrencyRate
 from core.currency.custom_api.api_factory import ExchangeRateApiFactory
@@ -6,28 +6,118 @@ from logs.logger import get_logger
 
 logger = get_logger(__name__, 'currency', 'exchange_rate')
 
-def get_exchange_rate_for_api(date: date, currency: str, base: str='USD', rate_api: str|None=None, skip_db: str|None=None) -> tuple[CurrencyRate|None, str|None]:
-    currency_rate = None
-    info = ''
-    try:
-        if skip_db != 'yes':
-            rate_db = _get_db_exchange_rate(date, currency)
-            if rate_db:
-                return rate_db, 'The value stored in the database was used'
-        api_factory = ExchangeRateApiFactory()
-        api = api_factory.get_api(rate_api)
-        currency_rate, info = api.get_rate_on_date(date, currency, base)
-    except Exception as ex:
-        logger.exception(ex)
-        info = 'Exception in get_exchange_rate_for_api()'
-    return currency_rate, info
+def get_exchange_rate_for_api(date: date, currency: str, base: str='USD', rate_api: str|None=None, mode: str='can_update') -> tuple[CurrencyRate|None, str|None]:
+    # mode = ['can_update', 'db_only', 'api_only', 'db_only_fd', 'api_only_fd']
+    currency = currency.upper()
+    base = base.upper()
+    if currency == base:
+        raise Exception(f'Invalid currency pair: {base=}, {currency=}')
+    
+    shifted_info = ''
 
-def _get_db_exchange_rate(date: date, currency: str) -> CurrencyRate|None:
-    if CurrencyRate.objects.filter(base='USD', currency=currency, date__lte=date).exists():
-        last_dt = CurrencyRate.objects.filter(base='USD', currency=currency, date__lte=date).order_by('-date')[0].date
-        rate = CurrencyRate.objects.filter(base='USD', currency=currency, date=last_dt).order_by('source')[0]
-        return rate
-    return None
+    if mode == 'db_only_fd':  # fixed date
+        rate, info = _get_db_exchange_rate(date, currency, base)
+    
+    if mode == 'api_only_fd':  # fixed date
+        rate, info = _get_api_exchange_rate(date, currency, base, rate_api)
+
+    if mode == 'api_only_lad':  # last available date
+        rate, info = _get_api_exchange_rate(date, currency, base, rate_api, True)
+    
+    if mode == 'db_only':
+        rate, info = _get_db_exchange_rate(date, currency, base)
+        if not rate:
+            shifted_date, shifted_info = shift_date(date, info)
+            if shifted_date:
+                rate, info = _get_db_exchange_rate(shifted_date, currency, base)
+
+    if mode == 'api_only':
+        rate, info = _get_api_exchange_rate(date, currency, base, rate_api)
+        if not rate:
+            shifted_date, shifted_info = shift_date(date, info)
+            if shifted_date:
+                rate, info = _get_api_exchange_rate(shifted_date, currency, base, rate_api)
+
+    if mode == 'can_update':
+        rate, info = _get_db_exchange_rate(date, currency, base)
+        if not rate:
+            db_shifted_date, db_shifted_info = shift_date(date, info)
+            rate, info = _get_api_exchange_rate(date, currency, base, rate_api)
+            if not rate:
+                shifted_date, shifted_info = shift_date(date, info)
+                if shifted_date:
+                    rate, info = _get_db_exchange_rate(shifted_date, currency, base)
+                    if not rate:
+                        rate, info = _get_api_exchange_rate(shifted_date, currency, base, rate_api)
+                if not rate and db_shifted_date:
+                    rate, info = _get_db_exchange_rate(db_shifted_date, currency, base)
+                    shifted_info = db_shifted_info
+
+    if shifted_info:
+        if info:
+            info += '. '
+        info += shifted_info
+    if rate:
+        logger.info({
+            'date': date.strftime('%Y-%m-%d'),
+            'currency': currency.upper(),
+            'base': base.upper(),
+            'rate': str(round(rate.value, 6)),
+            'num_units': rate.num_units,
+            'info': info,
+        })
+    else:
+        logger.warning({
+            'date': date.strftime('%Y-%m-%d'),
+            'currency': currency.upper(),
+            'base': base.upper(),
+            'info': info,
+        })
+
+    return rate, info
+
+
+def shift_date(date, info):
+    shifted_date = None
+    if 'Supplied date cannot be greater than latest available data' in info:
+        available_date = info.split('(')[1].split(')')[0]
+        shifted_date = datetime.strptime(available_date, '%d-%b-%Y').date()
+    if 'The service is not available on the today date' in info:
+        shifted_date = date - timedelta(1)
+    if 'is not available on the weekday date' in info:
+        delta = date.weekday() - 4
+        shifted_date = date - timedelta(delta)
+    if 'Nearest available date is' in info:
+        available_date = info.split(': ')[1]
+        shifted_date = datetime.strptime(available_date, '%d-%b-%Y').date()
+    if 'The date must be a date before or equal to ' in info:
+        available_date = info.split('equal to ')[1].split()[0]
+        shifted_date = datetime.strptime(available_date, '%Y-%m-%d').date()
+    if shifted_date:
+        return shifted_date, f'Date shifted {date} -> {shifted_date}.'
+    return None, ''
+
+
+def _get_db_exchange_rate(date: date, currency: str, base: str) -> CurrencyRate|None:
+    if CurrencyRate.objects.filter(date=date, currency=currency, base=base).exists():
+        rate = CurrencyRate.objects.filter(date=date, currency=currency, base=base).order_by('source')[0]
+        return rate, 'The value stored in the database was used'
+    if CurrencyRate.objects.filter(date__lte=date, currency=currency, base=base).exists():
+        check_date = CurrencyRate.objects.filter(date__lte=date, currency=currency, base=base).order_by('-date')[0].date
+        return None, 'Nearest available date is: ' + check_date.strftime('%d-%b-%Y')
+    return None, 'There is no saved rate for the specified date'
+
+def _get_api_exchange_rate(date: date, currency: str, base: str, rate_api: str|None, last_available_date: bool=False) -> CurrencyRate|None:
+    api_factory = ExchangeRateApiFactory()
+    api = api_factory.get_api(rate_api)
+    check_date = date
+    if last_available_date:
+        check_date, info = api.get_last_available_date()
+        if not check_date:
+            return None, info
+    rate, info = api.get_rate_on_date(check_date, currency, base)
+    return rate, info
+
 
 def get_hist_exchange_rates(beg: date, end: date, currency: str) -> list[Decimal]:
     ret = []
