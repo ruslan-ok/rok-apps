@@ -29,7 +29,7 @@ function getRateOnDate(init, id_date, id_currency, id_rate, django_host_api='htt
     return;
 
   const request = new XMLHttpRequest();
-  const url = `${django_host_api}/api/core/get_exchange_rate/?currency=${currency}&date=${s_date}&format=json`;
+  const url = `${django_host_api}/api/core/get_exchange_rate/?currency=${currency}&date=${s_date}&format=json&mode=db_only`;
   request.responseType = "json";
   request.open("GET", url, true);
   request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -43,7 +43,8 @@ function getRateOnDate(init, id_date, id_currency, id_rate, django_host_api='htt
         let obj = request.response;
         var rate = obj.rate;
         var num_units = obj.num_units;
-        el_rate.value = rate / num_units;
+        if (rate && num_units)
+          el_rate.value = rate / num_units;
         if (obj.info)
           console.log(obj.info);
       }
