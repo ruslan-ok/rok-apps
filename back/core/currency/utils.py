@@ -6,12 +6,12 @@ from logs.logger import get_logger
 
 logger = get_logger(__name__, 'currency', 'exchange_rate')
 
-def get_exchange_rate_for_api(date: date, currency: str, base: str='USD', rate_api: str|None=None, mode: str='can_update') -> tuple[CurrencyRate|None, str|None]:
+def get_exchange_rate_for_api(date: date, currency: str, base: str='USD', rate_api: str|None=None, mode: str='can_update') -> tuple[CurrencyRate|Decimal|None, str|None]:
     # mode = ['can_update', 'db_only', 'api_only', 'db_only_fd', 'api_only_fd']
     currency = currency.upper()
     base = base.upper()
     if currency == base:
-        raise Exception(f'Invalid currency pair: {base=}, {currency=}')
+        return Decimal(1), f'Same currency in pair: {base=}, {currency=}'
     
     shifted_info = ''
 

@@ -1,4 +1,6 @@
+import os, json, requests
 from datetime import datetime
+from decimal import Decimal
 from rest_framework.decorators import api_view, permission_classes, renderer_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
@@ -11,10 +13,27 @@ RATE_APIS = ('ecb', 'nbp', 'nbrb', 'boe', 'er', 'ca')
 CURRENCIES = ('usd', 'eur', 'pln', 'byn', 'gbp')
 
 
+def get_api_exchange_rate(request):
+    api_url = os.environ.get('DJANGO_HOST_LOG', '')
+    service_token = os.environ.get('DJANGO_SERVICE_TOKEN', '')
+    headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
+    verify = os.environ.get('DJANGO_CERT', '')
+    params = '&'.join([k + '=' + v for k, v in request.query_params.items()])
+    url = api_url + '/api/core/get_exchange_rate/?' + params
+    resp = requests.get(url, headers=headers, verify=verify)
+    if (resp.status_code != 200):
+        return None
+    return json.loads(resp.content)
+
 @api_view()
 @permission_classes([IsAuthenticated])
 @renderer_classes([JSONRenderer])
 def get_exchange_rate(request):
+
+    if os.environ.get('DJANGO_DEVICE', 'Nuc') != os.environ.get('DJANGO_LOG_DEVICE', 'Nuc'):
+        ret = get_api_exchange_rate(request)
+        return Response(ret)
+
     if 'date' not in request.query_params:
         return Response({'rate': None, 'num_units': None, 'info': "Expected parameter 'date'"}, status=HTTP_400_BAD_REQUEST)
     rate_date_str = request.query_params['date']
@@ -42,6 +61,10 @@ def get_exchange_rate(request):
     currency_rate, info = get_exchange_rate_for_api(rate_date, currency, base, rate_api, mode)
     rate = num_units = None
     if currency_rate:
-        rate = currency_rate.value
-        num_units = currency_rate.num_units
+        if type(currency_rate) == Decimal:
+            rate = currency_rate
+            num_units = 1
+        else:    
+            rate = currency_rate.value
+            num_units = currency_rate.num_units
     return Response({'rate': rate, 'num_units': num_units, 'info': info})
