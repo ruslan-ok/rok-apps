@@ -1,10 +1,6 @@
 from datetime import datetime
 from service.site_service import SiteService
 from core.currency.utils import get_exchange_rate_for_api
-from logs.logger import get_logger
-
-
-logger = get_logger(__name__, 'currency', 'exchange_rate')
 
 
 CURRENCY_API = {
@@ -24,10 +20,8 @@ class ExchangeRate(SiteService):
         return True, True
 
     def process(self):
-        logger.info(f'+process({', '.join(self.params)})')
         for currency, api_name in CURRENCY_API.items():
             if self.params and currency not in self.params:
                 continue
             get_exchange_rate_for_api(datetime.today().date(), currency, 'USD', api_name, mode='api_only_lad')
-        logger.info('-process()')
         return True

@@ -1,4 +1,14 @@
-function getRateOnDate(init, id_date, id_currency, id_rate, django_host_api='http://localhost:8000') {  // DJANGO_HOST_API
+function getApiUrl() {
+  const parts = window.location.pathname.split('/');
+  const baseUrl = window.location.protocol + '//' + window.location.host + '/' + parts[1] + '/';
+  if (baseUrl.includes('localhost'))
+    return 'http://localhost:8000/en-gb/';
+  return baseUrl;
+}
+
+const apiUrl = getApiUrl();
+
+function getRateOnDate(init, id_date, id_currency, id_rate) {
   var el_rate = document.getElementById(id_rate);
 
   if (!el_rate)
@@ -29,7 +39,7 @@ function getRateOnDate(init, id_date, id_currency, id_rate, django_host_api='htt
     return;
 
   const request = new XMLHttpRequest();
-  const url = `${django_host_api}/api/core/get_exchange_rate/?currency=${currency}&date=${s_date}&format=json&mode=db_only`;
+  const url = `${apiUrl}/api/core/get_exchange_rate/?currency=${currency}&date=${s_date}&format=json&mode=db_only`;
   request.responseType = "json";
   request.open("GET", url, true);
   request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");

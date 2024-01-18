@@ -58,21 +58,11 @@ def get_exchange_rate_for_api(date: date, currency: str, base: str='USD', rate_a
             info += '. '
         info += shifted_info
     if rate:
-        logger.info({
-            'date': date.strftime('%Y-%m-%d'),
-            'currency': currency.upper(),
-            'base': base.upper(),
-            'rate': str(round(rate.value, 6)),
-            'num_units': rate.num_units,
-            'info': info,
-        })
+        message = f'{round(rate.value, 6)} per {rate.num_units} {base.upper()} as of {date.strftime('%Y-%m-%d')}'
+        logger.info(message)
     else:
-        logger.warning({
-            'date': date.strftime('%Y-%m-%d'),
-            'currency': currency.upper(),
-            'base': base.upper(),
-            'info': info,
-        })
+        message = f'Failed to get {currency.upper()} to {base.upper()} exchange rate as of {date.strftime('%Y-%m-%d')}: {info}.'
+        logger.warning(message)
 
     return rate, info
 
