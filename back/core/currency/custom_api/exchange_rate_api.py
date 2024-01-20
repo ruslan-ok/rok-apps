@@ -65,8 +65,9 @@ class ExchangeRateApi:
             logger.exception(ex)
             return None, str(ex)
 
-    def store_rate(self, date: date, currency: str, base: str, num_units: int, value: Decimal, reverse: bool=False) -> CurrencyRate:
+    def store_rate(self, date: date, currency: str, base: str, num_units: int, value: Decimal, inverse: bool, reverse: bool=False) -> CurrencyRate:
         rounded_value = round(value, 6)
+        inverse_rate = None
         if CurrencyRate.objects.filter(base=base, currency=currency, date=date, num_units=num_units, value=rounded_value, source=self.api.name).exists():
             currency_rate = CurrencyRate.objects.filter(base=base, currency=currency, date=date, num_units=num_units, value=rounded_value, source=self.api.name)[0]
         else:
@@ -74,7 +75,9 @@ class ExchangeRateApi:
             if not reverse:
                 effective_rate = value * num_units
                 reverse_value = 1 / effective_rate
-                self.store_rate(date, base, currency, 1, reverse_value, True)
+                inverse_rate = self.store_rate(date, base, currency, 1, reverse_value, inverse, True)
+        if inverse and inverse_rate:
+            return inverse_rate
         return currency_rate
 
     def sleep(self, days: int=30):
@@ -102,7 +105,7 @@ class ExchangeRateApi:
             raise Exception('api.value_path parsing error')
         if self.api.base and self.inverse:
             value = 1 / value
-        currency_rate = self.store_rate(date, self.currency, self.base, 1, value)
+        currency_rate = self.store_rate(date, self.currency, self.base, 1, value, self.inverse)
         return currency_rate
 
     def get_last_available_date(self) -> tuple[date|None, str]:
