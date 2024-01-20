@@ -65,7 +65,7 @@ class ExchangeRateApi:
             logger.exception(ex)
             return None, str(ex)
 
-    def store_rate(self, date: date, currency: str, base: str, num_units: int, value: Decimal, inverse: bool, reverse: bool=False) -> CurrencyRate:
+    def store_rate(self, date: date, currency: str, base: str, num_units: int, value: Decimal, reverse: bool=False) -> CurrencyRate:
         rounded_value = round(value, 6)
         inverse_rate = None
         if CurrencyRate.objects.filter(base=base, currency=currency, date=date, num_units=num_units, value=rounded_value, source=self.api.name).exists():
@@ -75,8 +75,8 @@ class ExchangeRateApi:
             if not reverse:
                 effective_rate = value * num_units
                 reverse_value = 1 / effective_rate
-                inverse_rate = self.store_rate(date, base, currency, 1, reverse_value, inverse, True)
-        if inverse and inverse_rate:
+                inverse_rate = self.store_rate(date, base, currency, 1, reverse_value, True)
+        if self.inverse and inverse_rate:
             return inverse_rate
         return currency_rate
 
