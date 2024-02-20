@@ -6,6 +6,14 @@ from ftplib import FTP
 from enum import Enum
 from logs.logger import get_logger, set_service
 
+# >>> DEBUG >>>
+# import sys
+# DJANGO_CERT = os.environ.get('DJANGO_CERT')
+# MODULE_DIR = os.path.dirname(os.path.abspath(DJANGO_CERT)) + '\\'
+# sys.path.append(os.path.dirname(MODULE_DIR))
+# from logs.logger import get_logger, set_service
+# <<< DEBUG <<<
+
 
 BIG_SIZE_LIMIT = 100000000
 FTP_SIZE_LIMIT = 50000000
@@ -317,5 +325,5 @@ class Sync():
         })
 
 if __name__ == '__main__':
-    z = Sync()
+    z = Sync('debug')
     z.run()
