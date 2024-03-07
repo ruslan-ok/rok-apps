@@ -11,14 +11,16 @@
 
     <form method="post" class="mt-5" id="phrase-edit-form" data-bs-phrase-id="{{ sel_phrase.id|escape }}">{% csrf_token %}
 
-        {% for lang in statist %}
-            <div class="lang-stat">
-                <span>{{ lang.code }}</span>
-                {% for step in lang.steps %}
-                    <i class="bi-{{ step.icon }} {{ step.color }}"></i>
-                {% endfor %}
-            </div>
-        {% endfor %}
+        <div class="mb-3">
+            {% for lang in statist %}
+                <div class="lang-stat">
+                    <div>{{ lang.code }}</div>
+                    {% for step in lang.steps %}
+                        <i class="bi-{{ step.icon }} {{ step.color }}"></i>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
 
         {% for lang_phrase in test_phrase %}
             <div class="mb-1 d-flex">

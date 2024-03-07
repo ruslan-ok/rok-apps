@@ -12,7 +12,7 @@
 
   <div class="footer mb-3">
     <a href="{% url 'cram:training_start' group_id %}" type="button" class="btn btn-primary">Учить</a>
-    <!-- <a href="{% url 'cram:phrases_import' group_id %}" type="button" class="btn btn-secondary">Импорт</a> -->
+    <span class="mx-5">{{ group_qty }}</span>
   </div>
 
   {% if object_list %}

@@ -48,6 +48,7 @@ class PhrasesView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         group = CramGroup.objects.filter(user=self.request.user.id, id=group_id).get()
         context['title'] = f'Список фраз "{group.name}"'
         context['group_path'] = get_group_path(group.id)
+        context['group_qty'] = group.act_items_qty
         context['add_item_template'] = 'cram/add_item_input.html'
         objects = []
         sel_phrase = None

@@ -79,10 +79,18 @@ h5 {
 }
 
 .lang-stat {
+    div {
+        display: inline-block;
+        min-width: 20px;
+    }
     i.green {
         color: green;
     }
     i.red {
         color: crimson;
     }
+}
+
+.input-group-text {
+    min-width: 50px;
 }

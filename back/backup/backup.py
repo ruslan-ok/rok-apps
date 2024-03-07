@@ -330,11 +330,62 @@ class Backup():
     def zipping(self):
         logger.info('+zipping() started')
         arh_path_list = glob.glob(self.work_dir + '\\*.zip')
+
+        # Предварительный анализ файлов архивов
+        arhs = []
         for x in arh_path_list:
-            name = x.split('\\')[-1]
-            if not self.check_name(name):
-                logger.info('remove: ' + x)
-                os.remove(x)
+            arh_name = x.split('\\')[-1]
+            arh_age = self.get_arh_age(arh_name, datetime.today().date())
+            etalon = None
+            matched = False
+            for et in self.etalon:
+                if arh_age >= et.min_range and arh_age <= et.max_range:
+                    etalon = et
+                    matched = (arh_name == et.name)
+                    break
+            arhs.append({
+                "etalon_age": etalon.age,
+                "matched": matched,
+                "full_name": x,
+                "arh_name": arh_name,
+                "arh_age": arh_age,
+            })
+
+        # Группировка файлов архивов по диапазонам эталона
+        ages = {}
+        for x in arhs:
+            et_age = x["etalon_age"]
+            if et_age not in ages.keys():
+                ages[et_age] = {
+                    "matched": [],
+                    "unmatched": [],
+                }
+            if x["matched"]:
+                ages[et_age]["matched"].append(x["arh_name"])
+            else:
+                ages[et_age]["unmatched"].append({
+                    "full_name": x["full_name"],
+                    "arh_age": x["arh_age"],
+                })
+
+        # Удаление лишних
+        for rng in ages.values():
+            if (len(rng["matched"]) + len(rng["unmatched"])) > 1:
+                if len(rng["matched"]):
+                    for x in rng["unmatched"]:
+                        logger.info('remove: ' + x["full_name"])
+                        os.remove(x["full_name"])
+                else:
+                    max_age = 0
+                    the_best = None
+                    for x in rng["unmatched"]:
+                        if x["arh_age"] > max_age:
+                            max_age = x["arh_age"]
+                            the_best = x["full_name"]
+                            break
+                    logger.info('remove: ' + the_best)
+                    os.remove(the_best)
+
         logger.info('-zipping() finished')
 
     # Синхронизация

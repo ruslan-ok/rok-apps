@@ -1,3 +1,4 @@
+import random
 from datetime import datetime
 from difflib import HtmlDiff, SequenceMatcher
 from django.utils.translation import gettext_lazy as _
@@ -128,6 +129,11 @@ def training_start(request, group):
     for session in Training.objects.filter(user=request.user.id, group=group, stop=None):
         session.stop = datetime.now()
         session.save()
+    phrases = list(phrases)
+    random.shuffle(phrases)
+    for idx, p in enumerate(phrases):
+        p.sort = idx
+        p.save()
     first_phrase = phrases[0]
     return HttpResponseRedirect(reverse('cram:training', args=(group, first_phrase.id)))
 
@@ -135,6 +141,10 @@ def training_stop(request, group):
     for session in Training.objects.filter(user=request.user.id, group=group, stop=None):
         session.stop = datetime.now()
         session.save()
+    phrases = Phrase.objects.filter(user=request.user.id, group=group)
+    for p in phrases:
+        p.sort = p.id
+        p.save()
     return HttpResponseRedirect(reverse('cram:phrases', args=(group,)))
 
 def get_statist(session, active_phrase_id=0):
