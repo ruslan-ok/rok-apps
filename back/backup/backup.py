@@ -169,14 +169,11 @@ class Backup():
     def ripe(self):
         if not len(self.etalon):
             return False
-        actual = self.etalon[0]
-        ret = True
-        for x in self.fact:
-            age = self.get_arh_age(x.name, datetime.today().date())
-            if age >= actual.min_range and age <= actual.max_range:
-                ret = False
-                break;
-        return ret
+        actual_etalon = self.etalon[0]
+        last_fact = self.fact[0]
+        if last_fact.name == actual_etalon.name:
+            return False
+        return True
 
     def backup_db(self, zf):
         logger.info('+backup_db() started')
