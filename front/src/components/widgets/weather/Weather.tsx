@@ -7,7 +7,7 @@ import WeatherForTheDay from './WeatherForTheDay';
 import WeatherForTheWeek from './WeatherForTheWeek';
 import WeatherMessage from './WeatherMessage';
 import { getIconHref } from './WeatherUtils';
-import '../../../../static/css/Weather.min.css';
+import './Weather.css';
 
 function getPeriodOption(): string {
     const tmp: string | null = localStorage.getItem('weather-period');

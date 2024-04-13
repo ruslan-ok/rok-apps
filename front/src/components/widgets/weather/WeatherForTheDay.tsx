@@ -5,18 +5,24 @@ export default function WeatherForTheDay({values}: {values: any}) {
 
     let d1_day: number | undefined;
     let d2_day: number | undefined;
+    let d1_day_str: string;
+    let d2_day_str: string;
     let d1_span = 0;
     let d2_span = 0;
     let d1_span_correct = 0;
     let d2_span_correct = 0;
     for (let i = 0; i < values.for_day.length; i++) {
         const dt = new Date(values.for_day[i].event);
-        if (i == 0)
+        if (i == 0) {
             d1_day = dt.getDate();
-        else 
-            if (d2_day == undefined && d1_day != dt.getDate())
+            d1_day_str = dt.toString();
+        }
+        else {
+            if (d2_day == undefined && d1_day != dt.getDate()) {
                 d2_day = dt.getDate();
-
+                d2_day_str = dt.toString();
+            }
+        }
         if (d2_day == undefined)
             d1_span++;
         else
@@ -57,12 +63,12 @@ export default function WeatherForTheDay({values}: {values: any}) {
 
         let name = '';
         if (index == 0) {
-            name = getDayName(hour.event) + ' ' + getDayDate(hour.event, 0);
+            name = getDayName(d1_day_str) + ' ' + getDayDate(hour.event, 0);
             cellClass.push('day-name overflow-td ' + getDayColor(hour.event));
         }
         else {
             if (d2_day != undefined && index == (d1_span + d1_span_correct)) {
-                name = getDayName(hour.event) + ' ' + getDayDate(hour.event, 0);
+                name = getDayName(d2_day_str) + ' ' + getDayDate(hour.event, 0);
                 cellClass.push('day-name overflow-td ' + getDayColor(hour.event));
             }
         }
