@@ -171,7 +171,7 @@ class Backup():
             return False
         actual_etalon = self.etalon[0]
         last_fact = self.fact[0]
-        if last_fact.name == actual_etalon.name:
+        if last_fact.age >= actual_etalon.min_range and last_fact.age <= actual_etalon.max_range:
             return False
         return True
 
