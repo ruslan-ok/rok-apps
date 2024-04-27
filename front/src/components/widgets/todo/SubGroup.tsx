@@ -16,6 +16,16 @@ export const subGroupLabels: Record<SubGroupID, string> = {
     later: 'Later',
 } as const;
 
+const subGroupOrders: Record<string, number> = {
+    'none': 0,
+    'completed': 1,
+    'earler': 2,
+    'today': 3,
+    'tomorrow': 4,
+    'onWeek': 5,
+    'later': 6,
+} as const;
+
 function getSubGroupId(todo: Todo): SubGroupID {
 
     if (todo.completed) {
@@ -27,8 +37,10 @@ function getSubGroupId(todo: Todo): SubGroupID {
     }
 
     const today = new Date();
-    const times = todo.stop.getTime() - today.getTime();
-    const days = times / (1000 * 3600 * 24);
+    const factor = 1000 * 3600 * 24;
+    const eventDays = Math.floor(todo.stop.getTime() / factor);
+    const todayDays = Math.floor(today.getTime() / factor);
+    const days = eventDays - todayDays;
 
     if (days < 0) {
         return 'earler';
@@ -54,6 +66,7 @@ export interface SubGroupInfo {
     name: string;
     isOpen: boolean;
     items: Todo[];
+    order: number;
 }
 
 export function buildSubGroupList(items: any[]): SubGroupInfo[] {
@@ -86,6 +99,7 @@ export function buildSubGroupList(items: any[]): SubGroupInfo[] {
         };
         const subGroupId: SubGroupID = getSubGroupId(todo);
         const subGroupName = subGroupLabels[subGroupId];
+        const subGroupOrder: number = subGroupOrders[subGroupId];
         const sg = subGroups.filter((x: SubGroupInfo) => x.id == subGroupId);
         if (sg.length) {
             sg[0].items.push(todo);
@@ -95,11 +109,13 @@ export function buildSubGroupList(items: any[]): SubGroupInfo[] {
                 name: subGroupName,
                 isOpen: true,
                 items: [todo],
+                order: subGroupOrder,
             };
             subGroups.push(sg);
         }
     });
-    return subGroups;
+    const sortedSubGroups = subGroups.sort((a,b) => (a.order > b.order) ? 1 : ((b.order > a.order) ? -1 : 0));
+    return sortedSubGroups;
 }
 
 export default function SubGroup({data, doRedraw}: {data: SubGroupInfo, doRedraw: () => void }) {
