@@ -22,7 +22,7 @@ export default function WeatherForTheWeek({values}: {values: any}) {
         return (
             <td className={cellClass.join(' ')} key={day.event}>
                 <div className='day-icon'>
-                    <img className="weather-icon" src={href} />
+                    <img className="weather-icon" src={href} alt="Weather icon"/>
                 </div>
             </td>
         );
@@ -32,7 +32,7 @@ export default function WeatherForTheWeek({values}: {values: any}) {
         return values.for_week.map((day: any, index: number) => {
             let cellClass: string[] = ['week-column'];
             checkWeekend(cellClass, day.event);
-            if (index == 0) {
+            if (index === 0) {
                 cellClass.push('overflow-td');
                 return (
                     <td key={day.event} className={cellClass.join(' ')}>
@@ -97,8 +97,8 @@ export default function WeatherForTheWeek({values}: {values: any}) {
             checkWeekend(cellClass, day.event);
             const maxHeight = 20;
             const value = +day.prec_total;
-            const color = value == 0 ? 'gray' : 'var(--rain-color)'; 
-            const height = maxPreci == 0 ? 0 : maxHeight * value / maxPreci;
+            const color = value === 0 ? 'gray' : 'var(--rain-color)'; 
+            const height = maxPreci === 0 ? 0 : maxHeight * value / maxPreci;
             return (
                 <td className={cellClass.join(' ')} key={day.event}>
                     <div className='value' style={{color: color}}>{value}</div>

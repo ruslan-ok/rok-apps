@@ -8,8 +8,10 @@ import {
     Title,
     Tooltip,
     Legend,
+    TimeScale,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+import 'chartjs-adapter-moment';
 
 import Spinner from '../Spinner';
 import { apiUrl } from '../auth/Auth';
@@ -23,7 +25,8 @@ ChartJS.register(
     LineElement,
     Title,
     Tooltip,
-    Legend
+    Legend, 
+    TimeScale
 );
 
 function getOption(): string {
@@ -75,7 +78,7 @@ function Crypto({screenWidth}: {screenWidth: number}) {
     const widgetWidth = screenWidth < 600 ? 410 : (screenWidth < 768 ? 500 : 600);
     const widgetHeight = screenWidth < 600 ? 200 : (screenWidth < 768 ? 250 : 300);
 
-    if (status == 'ready') {
+    if (status === 'ready') {
         const current = Math.round(widgetData.current).toLocaleString();
         const change = widgetData.change;
         let changeClass = 'value';

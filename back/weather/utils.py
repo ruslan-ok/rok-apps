@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from datetime import datetime, timedelta
 from dateutil import tz
+from django.conf import settings
 from weather.models import Place, AstroData, Forecast, CURRENT, FORECASTED_DAILY, FORECASTED_HOURLY
 
 astro_api = 'https://api.sunrise-sunset.org/json?lat={lat}&lng={lon}&formatted={formatted}'
@@ -14,10 +15,10 @@ class WeatherError(Exception):
     pass
 
 def get_api_chart_data(location: str, lat: str, lon: str) -> dict:
-    api_url = os.environ.get('DJANGO_HOST_LOG', '')
-    service_token = os.environ.get('DJANGO_SERVICE_TOKEN', '')
+    api_url = settings.DJANGO_HOST_LOG
+    service_token = settings.DJANGO_SERVICE_TOKEN
     headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
-    verify = os.environ.get('DJANGO_CERT', '')
+    verify = settings.DJANGO_CERT
     resp = requests.get(api_url + '/api/get_chart_data/?mark=weather&version=v2&location=' + location + '&lat=' + lat + '&lon=' + lon, headers=headers, verify=verify)
     if (resp.status_code != 200):
         raise WeatherError('get_api_chart_data', f'Bad response status code: {resp.status_code}')
@@ -30,7 +31,7 @@ def get_place(location: str, lat: str, lon: str) -> Place:
             place = Place.objects.filter(search_name=location).get()
             return place
         headers = {'accept': 'application/json'}
-        token = os.getenv('API_WEATHER_KEY', '')
+        token = settings.API_WEATHER_KEY
         url = find_places_prefix_api.replace('{text}', location).replace('{key}', token)
         resp = requests.get(url, headers=headers)
         if resp.status_code != 200:
@@ -70,7 +71,7 @@ def get_place(location: str, lat: str, lon: str) -> Place:
         place = Place.objects.filter(lat_cut=lat_cut, lon_cut=lon_cut).get()
         return place
     headers = {'accept': 'application/json'}
-    token = os.getenv('API_WEATHER_KEY', '')
+    token = settings.API_WEATHER_KEY
     url = nearest_place_api.replace('{lat}', lat).replace('{lon}', lon).replace('{key}', token)
     resp = requests.get(url, headers=headers)
     if resp.status_code != 200:
@@ -150,8 +151,8 @@ def get_astro(place: Place) -> AstroData:
 
 def get_forecast_api_data(place: Place) -> None:
     headers = {'accept': 'application/json'}
-    token = os.getenv('API_WEATHER_KEY', '')
-    timezone = os.getenv('API_WEATHER_TZ', '')
+    token = settings.API_WEATHER_KEY
+    timezone = settings.API_WEATHER_TZ
     url = forecast_api.replace('{place_id}', place.place_id).replace('{timezone}', timezone).replace('{key}', token)
     resp = requests.get(url, headers=headers)
     if resp.status_code != 200:
@@ -330,9 +331,9 @@ def get_forecast_data(place: Place, forecast, astro: AstroData, debug_info: str)
         elevation=currents[0].elevation,
         timezone=currents[0].timezone,
         units=currents[0].units,
-        cr_url=os.getenv('API_WEATHER_CR_URL', '#'),
+        cr_url=settings.API_WEATHER_CR_URL,
         #cr_info=f'forecast_len={len(forecast)}, currents_len={len(currents)}, for_day_len={len(for_day)}, for_week_len={len(for_week)}, {debug_info}',
-        cr_info=os.getenv('API_WEATHER_INFO', '#'),
+        cr_info=settings.API_WEATHER_INFO,
         current=current,
     )
     for x in for_day:
@@ -385,7 +386,7 @@ def get_db_chart_data(user, location: str, lat: str, lon: str) -> dict:
 
 def get_forecast(user, location: str, lat: str, lon: str):
     try:
-        if os.environ.get('DJANGO_DEVICE', 'Nuc') != os.environ.get('DJANGO_LOG_DEVICE', 'Nuc'):
+        if settings.DJANGO_DEVICE != settings.DJANGO_LOG_DEVICE:
             ret = get_api_chart_data(location, lat, lon)
             return ret
         ret = get_db_chart_data(user, location, lat, lon)

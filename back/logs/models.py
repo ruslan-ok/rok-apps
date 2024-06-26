@@ -1,6 +1,6 @@
-import os
 from datetime import datetime, date, timedelta
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 from task.const import APP_TODO
@@ -123,7 +123,7 @@ class ServiceEvent(models.Model):
         for event in events:
             day = event.created.date()
             day_num = (date.today() - day).days
-            event_device = event.device if event.device else os.environ.get('DJANGO_LOG_DEVICE', 'Nuc')
+            event_device = event.device if event.device else settings.DJANGO_LOG_DEVICE
             if event_device != dev or event.app != app or event.service != svc:
                 if hlt:
                     ret.append(hlt)

@@ -1,5 +1,5 @@
-import os
 from datetime import datetime, timedelta
+from django.conf import settings
 from django.core.mail import EmailMessage
 from django.template import loader
 from logs.logger import get_logger
@@ -134,7 +134,7 @@ class ServInterval(SiteService):
             user_ext.fuel_notice = datetime.now()
             user_ext.save()
             try:
-                mail_from = os.environ.get('DJANGO_MAIL_USER')
+                mail_from = settings.DJANGO_MAIL_USER
                 msg = EmailMessage(email_subj, body, mail_from, [user.email])
                 msg.content_subtype = "html"
                 msg.send()

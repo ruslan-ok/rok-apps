@@ -4,22 +4,22 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="rusel.by applications">
+    <meta name="description" content="Rok applications">
     <meta name="author" content="Ruslan Akunevich">
     <meta name="generator" content="Hugo 0.87.0">
     <title>
       {% if config.app_title %}{{ config.app_title }}{% if title %} - {% endif %}{% endif %}{% if title %}{{ title }}{% endif %}
     </title>
-    <link rel="icon" type="image/png" href="/static/favicon.ico">
-    <link href="{% static 'css/common/custom.css' %}" rel="stylesheet">
-    <link href="{% static 'css/dialog.min.css' %}" rel="stylesheet">
+    <link rel="icon" type="image/png" href="{% static 'favicon.ico' %}">
+    <link href="{% static 'core/css/common/custom.css' %}" rel="stylesheet">
+    <link href="{% static 'core/css/dialog.min.css' %}" rel="stylesheet">
     {% block extrastyle %}{% endblock %}
   </head>
   <body class="text-center">
     
 <main class="dialog-form">
   <form method="post">{% csrf_token %}
-    <img class="mb-4" src="{% static '/favicon.ico' %}">
+    <img class="mb-4" src="{% static 'favicon.ico' %}">
     <h1 class="h3 mb-3 fw-normal">{{ title|capfirst }}</h1>
     {% include "core/form_errors.html" %}
     {% block content %}{% endblock %}

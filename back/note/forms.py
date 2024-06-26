@@ -5,8 +5,7 @@ from django.core.exceptions import ValidationError
 from core.forms import BaseCreateForm, BaseEditForm
 from task.models import Task, Group
 from task.const import ROLE_NOTE
-from note.config import app_config
-from rusel.widgets import UrlsInput, CategoriesInput
+from core.widgets import UrlsInput, CategoriesInput
 
 role = ROLE_NOTE
 
@@ -18,7 +17,7 @@ class CreateForm(BaseCreateForm):
         fields = ['name']
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(role, *args, **kwargs)
         
 #----------------------------------
 class EditForm(BaseEditForm):
@@ -46,7 +45,7 @@ class EditForm(BaseEditForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(role, *args, **kwargs)
         if ('grp' in self.fields):
             self.fields['grp'].choices = self.get_groups_hier(self.instance.user.id, role)
 

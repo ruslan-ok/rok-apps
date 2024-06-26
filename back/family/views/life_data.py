@@ -5,6 +5,7 @@ from family.views.life_date import EventDate
 from family.descriptions.individual import DescriptorIndi
 from family.descriptions.event import DescriptorEvent
 
+
 @dataclass
 class PersonInfo:
     id: int = field(init=False)

@@ -1,5 +1,5 @@
-import os
 from datetime import datetime
+from django.conf import settings
 from logs.service_log import ServiceLog
 from logs.models import EventType
 
@@ -7,7 +7,7 @@ class BackgroundLogData(ServiceLog):
     template_name = 'background'
 
     def __init__(self):
-        this_device = os.environ.get('DJANGO_DEVICE')
+        this_device = settings.DJANGO_DEVICE
         super().__init__(this_device, 'cron', 'worker')
         self.local_log = True
 

@@ -26,7 +26,7 @@ export default function TodoList({screenWidth}: {screenWidth: number}) {
                 let resp_data = await response.json();
                 if (resp_data) {
                     setValues(resp_data);
-                    if (resp_data.result == 'ok') {
+                    if (resp_data.result === 'ok') {
                         setStatus('ready');
                     }
                     else {
@@ -41,16 +41,16 @@ export default function TodoList({screenWidth}: {screenWidth: number}) {
     }, [redraw])
 
     function doRedraw() {
-        setRedraw(redraw == '0' ? '1' : '0');
+        setRedraw(redraw === '0' ? '1' : '0');
     }
 
     const widgetWidth = screenWidth < 600 ? 410 : (screenWidth < 768 ? 500 : 600);
     const widgetHeight = screenWidth < 600 ? 200 : (screenWidth < 768 ? 250 : 300);
 
-    if (status != 'ready' && status != 'mess') {
+    if (status !== 'ready' && status !== 'mess') {
         return <Spinner width={widgetWidth} height={widgetHeight} />;
     } else
-        if (status == 'mess') {
+        if (status === 'mess') {
             return <p>{message}</p>;
         } else {
             const subGroups: SubGroupInfo[] = buildSubGroupList(values.data);

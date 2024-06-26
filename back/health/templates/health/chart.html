@@ -3,7 +3,7 @@
 
 {% block extrastyle %}
     {{ block.super }}
-    <link href="{% static 'css/health.min.css' %}" rel="stylesheet">
+    <link href="{% static 'health/css/health.min.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block main %}
@@ -23,7 +23,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@^3"></script>
 <script src="https://cdn.jsdelivr.net/npm/moment@^2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@^1"></script>
-<script src="{% static 'js/health.js' %}"></script>
+<script src="{% static 'health/js/health.js' %}"></script>
 <script>
     buildChart('{{mark}}');
     initFilter();

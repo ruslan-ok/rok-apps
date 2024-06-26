@@ -1,6 +1,9 @@
-{% if form.errors %}
+{% if form.errors or form_messages %}
   <div class="fieldset">
     <p class="errornote"> {% if form.errors.items|length == 1 %}{{ please_correct_one }}{% else %}{{ please_correct_all }}{% endif %} </p> 
+    {% for message in form_messages %}
+      <p class="form_message"> {{ message }} </p> 
+    {% endfor %}
   </div>
 {% endif %}
 {% if form.non_field_errors %}

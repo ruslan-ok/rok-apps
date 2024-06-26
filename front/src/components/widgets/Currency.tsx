@@ -114,6 +114,17 @@ function Currency({screenWidth}: {screenWidth: number}) {
         setOption('hidden', values.join(','));
     }
     
+    function switchVisible() {
+        const currencies = document.getElementsByClassName('styled-checkbox');
+        let hidden: Array<string> = [];
+        for (const currency of currencies) {
+            if (!(currency as HTMLInputElement).checked) {
+                hidden.push((currency as HTMLInputElement).name);
+            }
+        }
+        setHiddenOption(hidden);
+    }
+    
     const initData: WidgetData = {
         chart: {},
         base: '',
@@ -160,21 +171,9 @@ function Currency({screenWidth}: {screenWidth: number}) {
     const widgetWidth = screenWidth < 600 ? 410 : (screenWidth < 768 ? 500 : 600);
     const widgetHeight = screenWidth < 600 ? 200 : (screenWidth < 768 ? 250 : 300);
 
-    if (status == 'ready') {
-
-        function switchVisible() {
-            const currencies = document.getElementsByClassName('styled-checkbox');
-            let hidden: Array<string> = [];
-            for (const currency of currencies) {
-                if (!(currency as HTMLInputElement).checked) {
-                    hidden.push((currency as HTMLInputElement).name);
-                }
-            }
-            setHiddenOption(hidden);
-        }
-        
+    if (status === 'ready') {
         const currencies = widgetData.currencies.map(item => { return (<option key={item.id} value={item.id}>{item.id.toUpperCase()}</option>); });
-        const noBaseList = widgetData.currencies.filter(x => x.id != base).map(item => {
+        const noBaseList = widgetData.currencies.filter(x => x.id !== base).map(item => {
             const visible = !hidden.includes(item.id);
             return (
                 <StyledCheckbox classes='visibility' key={item.id} id={item.id} text={item.id.toUpperCase()} r={item.color.r} g={item.color.g} b={item.color.b} checked={visible} onClick={switchVisible} />
@@ -182,7 +181,7 @@ function Currency({screenWidth}: {screenWidth: number}) {
         });
         
         chartData.datasets = [];
-        widgetData.currencies.filter(x => x.id != base && !hidden.includes(x.id)).forEach(currency => {
+        widgetData.currencies.filter(x => x.id !== base && !hidden.includes(x.id)).forEach(currency => {
             const currInfo: DatasetInfo = {
                 label: currency.id.toUpperCase(),
                 data: currency.rates.map((rate, index) => { return {x: widgetData.labels[index], y: rate } }),

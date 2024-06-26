@@ -1,14 +1,12 @@
 from datetime import datetime, date
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from task.const import ROLE_WARR, ROLE_APP
 from task.models import Task
 from core.views import BaseListView, BaseDetailView, BaseGroupView
 from core.forms import GroupForm
 from warr.forms import CreateForm, EditForm
-from warr.config import app_config
 
-role = ROLE_WARR
-app = ROLE_APP[role]
+role = 'warr'
+app = 'warr'
 
 class TuneData:
     def tune_dataset(self, data, group):
@@ -25,7 +23,7 @@ class ListView(LoginRequiredMixin, PermissionRequiredMixin, BaseListView, TuneDa
     permission_required = 'task.view_warranty'
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
 
 class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView, TuneData):
     model = Task
@@ -33,7 +31,7 @@ class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView, Tu
     permission_required = 'task.change_warranty'
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -53,7 +51,7 @@ class GroupView(LoginRequiredMixin, BaseGroupView, TuneData):
     form_class = GroupForm
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
 
 def get_info(item):
     attr = [{'termin': True}]

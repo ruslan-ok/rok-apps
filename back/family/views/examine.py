@@ -6,8 +6,9 @@ from django.shortcuts import get_object_or_404
 from django.template import loader
 from family.views.base import GenealogyContext
 from family.models import FamTreeUser, FamTree
-from family.config import app_config
 from family.validator.validator import Validator
+from task.const import APP_FAMILY
+
 
 @login_required(login_url='account:login')
 def examine_tree(request, pk):
@@ -15,7 +16,7 @@ def examine_tree(request, pk):
     tree = get_object_or_404(FamTree.objects.filter(id=pk))
     ctx = GenealogyContext()
     ctx.request = request
-    ctx.set_config(app_config, 'pedigree')
+    ctx.set_config(APP_FAMILY, 'pedigree')
     ctx.config.set_view(request)
     context = ctx.get_app_context(request.user.id, icon=ctx.config.view_icon)
     context['cur_tree_id'] = pk

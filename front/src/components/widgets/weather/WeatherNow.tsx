@@ -15,7 +15,7 @@ export default function WeatherNow({values}: {values: any}) {
     const href = getIconHref(values.current.icon_num);
     const windValue = Math.round(+values.current.wind_speed);
     const windDirStyle = {transform: `rotate(${values.current.wind_angle}deg)`};
-    const sign = values.current.temperature == 0 ? '' : values.current.temperature > 0 ? '+' : '-';
+    const sign = values.current.temperature === 0 ? '' : values.current.temperature > 0 ? '+' : '-';
     const value = Math.abs(values.current.temperature);
     const sunrise = values.sunrise.split(' ')[1];
     const sunset = values.sunset.split(' ')[1];
@@ -29,7 +29,7 @@ export default function WeatherNow({values}: {values: any}) {
             <div className='date-time'>{dateTime}</div>
             <div className='temp-and-icon'>
                 <div className=''>
-                    <img className="weather-now-icon" src={href} />
+                    <img className="weather-now-icon" src={href} alt="Weather Now icon"/>
                 </div>    
                 <span className="unit unit_temperature_c">
                     <span className="sign">{sign}</span>{value}
@@ -77,7 +77,7 @@ export default function WeatherNow({values}: {values: any}) {
                         <div className='info'></div>
                     </div>
                 </div>
-                <div className={values.current.prec_type == 'none' ? 'd-none' : 'kpi precipitation'}>
+                <div className={values.current.prec_type === 'none' ? 'd-none' : 'kpi precipitation'}>
                     <div className='title'>Precipitation</div>
                     <div className='description'>
                         <div className='value'>

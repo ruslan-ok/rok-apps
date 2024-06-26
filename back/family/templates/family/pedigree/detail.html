@@ -3,9 +3,9 @@
 
 {% block extrastyle %}
     {{ block.super }}
-    <link href="{% static 'css/form.min.css' %}" rel="stylesheet">
-    <link href="{% static 'css/widgets.min.css' %}" rel="stylesheet">
-    <link href="{% static 'css/family.min.css' %}" rel="stylesheet">
+    <link href="{% static 'core/css/form.min.css' %}" rel="stylesheet">
+    <link href="{% static 'core/css/widgets.min.css' %}" rel="stylesheet">
+    <!-- <link href="{% static 'family/css/family.min.css' %}" rel="stylesheet"> -->
     <link href="{% static 'iziToast/css/iziToast.min.css' %}" rel="stylesheet">
 {% endblock %}
 
@@ -72,7 +72,7 @@
                             <div class="row">
                                 <div class="col-auto">{{ form.gedc_vers.errors }}{{ form.gedc_vers.label_tag }}{{ form.gedc_vers }}</div>
                                 <div class="col-auto">{{ form.gedc_form.errors }}{{ form.gedc_form.label_tag }}{{ form.gedc_form }}</div>
-                                <div class="col-auto">{{ form.char.errors }}{{ form.char.label_tag }}{{ form.char }}</div>
+                                <div class="col-auto">{{ form.char_set.errors }}{{ form.char_set.label_tag }}{{ form.char_set }}</div>
                                 <div class="col-auto">{{ form.char_vers.errors }}{{ form.char_vers.label_tag }}{{ form.char_vers }}</div>
                             </div>
                             <div class="row">

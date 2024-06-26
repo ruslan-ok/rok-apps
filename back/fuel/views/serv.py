@@ -6,7 +6,6 @@ from task.models import Task
 from core.views import BaseListView, BaseDetailView
 from fuel.forms.serv import CreateForm, EditForm
 from fuel.views.car import get_new_odometr
-from fuel.config import app_config
 
 role = ROLE_SERVICE
 app = ROLE_APP[role]
@@ -17,7 +16,7 @@ class ListView(LoginRequiredMixin, PermissionRequiredMixin, BaseListView):
     permission_required = 'task.view_fuel'
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
 
     def get_template_names(self):
         return ['fuel/list.html']
@@ -37,7 +36,7 @@ class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView):
     permission_required = 'task.change_fuel'
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
 
     def form_valid(self, form):
         response = super().form_valid(form)

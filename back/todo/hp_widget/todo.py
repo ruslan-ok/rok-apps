@@ -1,24 +1,24 @@
-import os
 from datetime import datetime, timedelta
+
+from django.conf import settings
 from django.db.models import Q
+
 from core.views import BaseListView
-from task.const import NUM_ROLE_TODO, ROLE_TODO, ROLE_ACCOUNT
+from task.const import NUM_ROLE_TODO, ROLE_TODO, APP_HOME
 from task.models import TaskInfo, Task, Step
-from rusel.config import app_config
-from rusel.settings import ENV, DB
 
 class ListView(BaseListView):
     model = TaskInfo
     fields = {'name'}
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, ROLE_ACCOUNT, *args, **kwargs)
+        super().__init__(APP_HOME, *args, **kwargs)
 
     def get_queryset(self):
         data = super().get_queryset()
         if data:
             lookups = Q(stop__lte=(datetime.now() + timedelta(1))) | Q(in_my_day=True) | Q(important=True)
-            svc_grp_id = int(os.environ.get('DJANGO_SERVICE_GROUP' + ENV + DB, '0'))
+            svc_grp_id = int(settings.DJANGO_SERVICE_GROUP)
             return data.filter(num_role=NUM_ROLE_TODO).filter(lookups).exclude(completed=True).exclude(group_id=svc_grp_id)
 
     def get_context_data(self, **kwargs):
@@ -26,7 +26,7 @@ class ListView(BaseListView):
         return context
 
 def get_todo(request):
-    svc_grp_id = int(os.environ.get('DJANGO_SERVICE_GROUP' + ENV + DB, '0'))
+    svc_grp_id = int(settings.DJANGO_SERVICE_GROUP)
     days = 1
     while days < 10:
         lookups = Q(stop__lte=(datetime.now() + timedelta(days))) | Q(in_my_day=True) | Q(important=True)

@@ -3,7 +3,7 @@
 
 {% block extrastyle %}
   {{ block.super }}
-  <link href="{% static 'css/cram.min.css' %}" rel="stylesheet">
+  <link href="{% static 'cram/css/cram.min.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block main %}
@@ -69,7 +69,7 @@
 
 {% block extrascript %}
   {{ block.super }}
-  <script src="{% static 'js/build-tree.js' %}"></script>
+  <script src="{% static 'core/js/build-tree.js' %}"></script>
   <script>
     buildTree('groups-tree');
   </script>

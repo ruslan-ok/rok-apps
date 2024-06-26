@@ -3,11 +3,10 @@ from django.utils.translation import gettext_lazy as _
 
 from core.forms import BaseCreateForm, BaseEditForm
 from task.models import Task
-from task.const import ROLE_CAR
-from fuel.config import app_config
-from rusel.widgets import DateInput, SwitchInput
+from task.const import APP_FUEL
+from core.widgets import DateInput, SwitchInput
 
-role = ROLE_CAR
+app = APP_FUEL
 
 #----------------------------------
 class CreateForm(BaseCreateForm):
@@ -17,7 +16,7 @@ class CreateForm(BaseCreateForm):
         fields = ['name']
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
         
 #----------------------------------
 class EditForm(BaseEditForm):
@@ -54,5 +53,5 @@ class EditForm(BaseEditForm):
         fields = ['name', 'car_plate', 'start', 'stop', 'info', 'car_notice']
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
 

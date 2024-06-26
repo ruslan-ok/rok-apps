@@ -3,7 +3,7 @@ from django.views.generic import CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from task.const import APP_CRAM, ROLE_CRAM
 from core.context import AppContext
-from rusel.context import get_sorted_groups
+from core.context import get_sorted_groups
 from cram.models import CramGroup, Training
 from cram.views.training import get_statist
 

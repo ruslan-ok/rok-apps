@@ -1,7 +1,9 @@
-import unicodedata, io
+import unicodedata, io, smtplib
 from PIL import Image
+from email.message import EmailMessage
 
 from django import forms
+from django.conf import settings
 from django.contrib.auth import (get_user_model, password_validation,)
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
@@ -22,7 +24,8 @@ from django.db import models
 from django.core.exceptions import ValidationError
 
 from account.models import UserExt
-from rusel.widgets import AvatarInput
+from core.widgets import AvatarInput
+from core.send_email import send_email
 
 UserModel = get_user_model()
 
@@ -98,12 +101,11 @@ class PasswordResetForm(forms.Form):
         subject = ''.join(subject.splitlines())
         body = loader.render_to_string(email_template_name, context)
 
-        email_message = EmailMultiAlternatives(subject, body, from_email, [to_email])
+        html_email = None
         if html_email_template_name is not None:
             html_email = loader.render_to_string(html_email_template_name, context)
-            email_message.attach_alternative(html_email, 'text/html')
 
-        email_message.send()
+        send_email(subject, html_email or body, to_email)
 
     def get_users(self, email):
         """Given an email, return matching user(s) who should receive a reset.
@@ -263,15 +265,9 @@ class ProfileForm(forms.ModelForm):
         required=False, 
         widget=forms.TextInput(attrs={'class': 'form-control mb-3'}))
 
-    lang = forms.ChoiceField(
-        label=_('Mailing list language'),
-        widget=forms.Select(attrs={'class': 'form-control mb-3'}),
-        choices=[(0, 'English'),(1, 'Русский'),]
-        )
-
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email', 'phone', 'lang']
+        fields = ['username', 'first_name', 'last_name', 'email', 'phone']
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control mb-3'}),
             'first_name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
@@ -361,7 +357,7 @@ class AvatarForm(forms.ModelForm):
             transform = Image.open(user.avatar.file)
             mini = transform.resize((32,32))
             mini.save(blob, 'PNG')
-            fname = user.avatar.file.name.split('\\avatars\\')[1]
+            fname = user.avatar.file.name.replace('\\', '/').split('avatars/')[1]
             user.avatar_mini.save(fname, File(blob))
             user.save()
         return user

@@ -1,23 +1,22 @@
-import os, urllib.parse
+import urllib.parse
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.http import FileResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.urls import reverse
-from task.const import APP_DOCS, ROLE_DOC, ROLE_APP
 from core.dir_views import BaseDirView
-from docs.config import app_config
 
-role = ROLE_DOC
-app = ROLE_APP[role]
+role = 'doc'
+app = 'docs'
 
 class FolderView(LoginRequiredMixin, PermissionRequiredMixin, BaseDirView):
     permission_required = 'task.view_docs'
 
     def __init__(self, *args, **kwargs):
         self.template_name = 'docs/folder.html'
-        super().__init__(app_config, role, *args, **kwargs)
-        self.storage_path = os.environ.get('DJANGO_STORAGE_PATH')
+        super().__init__(app, *args, **kwargs)
+        self.storage_path = settings.DJANGO_STORAGE_PATH
 
     def get(self, request, *args, **kwargs):
         query = None
@@ -30,13 +29,14 @@ class FolderView(LoginRequiredMixin, PermissionRequiredMixin, BaseDirView):
                 folder = '&folder=' + folder
             else:
                 folder = ''
-            return HttpResponseRedirect(reverse('index') + '?app=' + APP_DOCS + folder + '&q=' + query)
-        return super().get(request, *args, **kwargs)
+            return HttpResponseRedirect(reverse('index') + '?app=docs' + folder + '&q=' + query)
+        ret = super().get(request, *args, **kwargs)
+        return ret
 
     def get_context_data(self, **kwargs):
         self.store_dir = self.storage_path.format(self.request.user.username) + 'docs/'
         context = super().get_context_data(**kwargs)
-        context['list_href'] = '/docs/'
+        context['list_href'] = '/docs'
         context['add_item_template'] = 'core/add_item_upload.html'
         context['add_item_placeholder'] = '{}'.format(_('Upload document'))
         return context
@@ -59,7 +59,7 @@ def get_name_from_request(request, param='file'):
 @permission_required('task.view_docs')
 def get_file(request):
     try:
-        storage_path = os.environ.get('DJANGO_STORAGE_PATH')
+        storage_path = settings.DJANGO_STORAGE_PATH
         store_dir = storage_path.format(request.user.username) + 'docs/'
         folder = get_name_from_request(request, 'folder')
         file = get_name_from_request(request, 'file')

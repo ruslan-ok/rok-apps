@@ -1,4 +1,5 @@
 import os, requests
+from django.conf import settings
 from family.models import FamTree, MultimediaRecord, MultimediaFile
 
 def update_media(tree_id):
@@ -11,7 +12,7 @@ def update_media(tree_id):
     return updated
 
 def load_media(tree, mm_file):
-    storage_path = os.environ.get('DJANGO_STORAGE_PATH')
+    storage_path = settings.DJANGO_STORAGE_PATH
     media_path = storage_path.format('family_tree') + tree.store_name()
     fname = mm_file.file.split('/')[-1]
     r = requests.get(mm_file.file, allow_redirects=True)

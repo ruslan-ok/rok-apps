@@ -1,5 +1,5 @@
-import os
 from datetime import datetime
+from django.conf import settings
 from service.site_service import SiteService
 from backup.backup import Backup
 from logs.logger import get_logger
@@ -27,7 +27,7 @@ class Backuper(SiteService):
             if duration != 1:
                 service_name = 'full'
             self.backup = Backup(
-                os.environ.get('DJANGO_DEVICE'),
+                settings.DJANGO_DEVICE,
                 service_name=service_name,
                 service_descr=service_task.name,
                 duration=duration,

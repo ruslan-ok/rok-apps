@@ -1,11 +1,13 @@
-import os, firebase_admin
+import firebase_admin
 from firebase_admin import credentials, messaging
 from firebase_admin.exceptions import FirebaseError
+
+from django.conf import settings
 
 def test_firebase_call():
     print('1')
     if not firebase_admin._apps:
-        cred_cert = os.environ.get('FIREBASE_ACCOUNT_CERT')
+        cred_cert = settings.FIREBASE_ACCOUNT_CERT
         cred = credentials.Certificate(cred_cert)
         default_app = firebase_admin.initialize_app(cred)
 
@@ -13,17 +15,17 @@ def test_firebase_call():
     body = 'Remind time 00:00'
     n = messaging.Notification(title = 'test_firebase_call', body = body, image = None)
     priority = 'normal'
-    myicon = 'https://rusel.by/static/rok/img/test-192.png'
-    mybadge = 'https://rusel.by/static/rok/img/test-72.png'
-    click_action = 'https://rusel.by/todo/99999/'
+    myicon = 'https://rok-apps.com/static/rok/img/test-192.png'
+    mybadge = 'https://rok-apps.com/static/rok/img/test-72.png'
+    click_action = 'https://rok-apps.com/todo/99999/'
     an = messaging.AndroidNotification(title = 'test_firebase_call', body = body, icon = myicon, color = None, sound = None, tag = None, click_action = click_action, body_loc_key = None, \
                                        body_loc_args = None, title_loc_key = None, title_loc_args = None, channel_id = None, image = None, ticker = None, sticky = None, \
                                        event_timestamp = None, local_only = None, priority = None, vibrate_timings_millis = None, default_vibrate_timings = None, \
                                        default_sound = None, light_settings = None, default_light_settings = None, visibility = None, notification_count = None)
     añ = messaging.AndroidConfig(collapse_key = None, priority = priority, ttl = None, restricted_package_name = None, data = None, notification = an, fcm_options = None)
     actions = []
-    a1 = messaging.WebpushNotificationAction('postpone', 'Postpone', icon = 'https://rusel.by/static/todo/icon/remind-today.png')
-    a2 = messaging.WebpushNotificationAction('done', 'Done', icon = 'https://rusel.by/static/rok/icon/delete.png')
+    a1 = messaging.WebpushNotificationAction('postpone', 'Postpone', icon = 'https://rok-apps.com/static/todo/icon/remind-today.png')
+    a2 = messaging.WebpushNotificationAction('done', 'Done', icon = 'https://rok-apps.com/static/rok/icon/delete.png')
     actions.append(a1)
     actions.append(a2)
 

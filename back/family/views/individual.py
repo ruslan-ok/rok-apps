@@ -7,6 +7,7 @@ from family.forms import EditIndividualForm
 from family.models import IndividualRecord
 from family.views.life_data import LifeInfo
 
+
 class IndividualDetailsView(GenealogyDetailsView, LoginRequiredMixin, PermissionRequiredMixin):
     model = IndividualRecord
     form_class = EditIndividualForm

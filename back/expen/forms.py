@@ -4,8 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from core.forms import BaseCreateForm, BaseEditForm
 from task.models import Task, Group
 from task.const import ROLE_EXPENSE
-from expen.config import app_config
-from rusel.widgets import UrlsInput, CategoriesInput, DateInput, NegativeNumberInput
+from core.widgets import UrlsInput, CategoriesInput, DateInput, NegativeNumberInput
 from core.forms import GroupForm
 
 role = ROLE_EXPENSE
@@ -18,7 +17,7 @@ class CreateForm(BaseCreateForm):
         fields = ['name']
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(role, *args, **kwargs)
         
 #----------------------------------
 class EditForm(BaseEditForm):
@@ -68,7 +67,7 @@ class EditForm(BaseEditForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(role, *args, **kwargs)
 
 #----------------------------------
 class ProjectForm(GroupForm):

@@ -2,12 +2,11 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from core.forms import BaseCreateForm, BaseEditForm
-from rusel.widgets import UrlsInput, CategoriesInput, DateInput
+from core.widgets import UrlsInput, CategoriesInput, DateInput
 from task.models import Task
-from task.const import ROLE_WARR
-from warr.config import app_config
+from task.const import APP_WARR, ROLE_WARR
 
-role = ROLE_WARR
+app = APP_WARR
 
 #----------------------------------
 class CreateForm(BaseCreateForm):
@@ -17,7 +16,7 @@ class CreateForm(BaseCreateForm):
         fields = ['name']
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         
 #----------------------------------
 class EditForm(BaseEditForm):
@@ -51,5 +50,5 @@ class EditForm(BaseEditForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(ROLE_WARR, *args, **kwargs)
 

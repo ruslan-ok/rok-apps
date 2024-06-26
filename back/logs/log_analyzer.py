@@ -12,6 +12,7 @@ process(log)
 """
 import re, datetime, requests, os
 from pathlib import Path
+from django.conf import settings
 from logs.service_log import ServiceLog
 from logs.logger import get_logger
 from service.site_service import SiteService
@@ -49,7 +50,7 @@ class LogAnalyzer(SiteService):
 
     def read_log_sz(self):
         log_sz = 0
-        log_device = os.environ.get('DJANGO_LOG_DEVICE', 'Nuc')
+        log_device = settings.DJANGO_LOG_DEVICE
         sl = ServiceLog(log_device, 'logs', 'apache')
         log_sz_events = sl.get_events(device=log_device, app='logs', service='apache', type=EventType.INFO, name='log_size')
         if len(log_sz_events) > 0:
@@ -193,7 +194,7 @@ class LogAnalyzer(SiteService):
             self.save_record(host_id, record)
 
 def get_host_info(host):
-    api_whois = os.getenv('API_WHOIS')
+    api_whois = settings.API_WHOIS
     if api_whois:
         resp = requests.get(api_whois + host)
         data = resp.json()

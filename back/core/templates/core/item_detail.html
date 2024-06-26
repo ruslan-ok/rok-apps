@@ -3,9 +3,9 @@
 
 {% block extrastyle %}
   {{ block.super }}
-  <link href="{% static 'css/form.min.css' %}" rel="stylesheet">
-  <link href="{% static 'css/category.min.css' %}" rel="stylesheet">
-  <link href="{% static 'css/widgets.min.css' %}" rel="stylesheet">
+  <link href="{% static 'core/css/form.min.css' %}" rel="stylesheet">
+  <link href="{% static 'core/css/category.min.css' %}" rel="stylesheet">
+  <link href="{% static 'core/css/widgets.min.css' %}" rel="stylesheet">
   <link href="{% static 'iziToast/css/iziToast.min.css' %}" rel="stylesheet">
 {% endblock %}
 
@@ -40,6 +40,6 @@
 {% block extrascript %}
   {{ block.super }}
   <script src="{% static 'iziToast/js/iziToast.min.js' %}"></script>
-  <script src="{% static 'js/form.js' %}"></script>
-  <script src="{% static 'js/getRateOnDate.js' %}"></script>
+  <script src="{% static 'core/js/form.js' %}"></script>
+  <script src="{% static 'core/js/getRateOnDate.js' %}"></script>
 {% endblock %}

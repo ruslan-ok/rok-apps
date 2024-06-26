@@ -1,31 +1,31 @@
-from functools import reduce
-import os, calendar, json, urllib
-from urllib.parse import urlparse
-from django.utils.crypto import get_random_string
-import requests
+import calendar, json, requests
 from collections import Counter
-from decimal import Decimal
-
 from datetime import date, time, datetime, timedelta
-from django.db import models
-from django.utils.translation import pgettext_lazy, gettext_lazy as _
+from decimal import Decimal
+from functools import reduce
+from urllib.parse import urlparse
+
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
+from django.db import models
 from django.urls import NoReverseMatch
 from django.utils import formats
+from django.utils.crypto import get_random_string
+from django.utils.translation import pgettext_lazy, gettext_lazy as _
 
 from rest_framework.reverse import reverse
 
 from task import const
 from task.const import *
-from rusel.utils import nice_date
-from rusel.categories import CATEGORY_DESIGN
-from rusel.files import get_files_list_by_path, get_files_list_by_path_v2
-from fuel.utils import get_rest
-from news.get_info import get_info as news_get_info
-from expen.get_info import get_info as expen_get_info
-from apart.const import apart_service_name_by_id
+from core.utils import nice_date
+from core.categories import CATEGORY_DESIGN
+from core.files import get_files_list_by_path, get_files_list_by_path_v2
+#from fuel.utils import get_rest
+#from news.get_info import get_info as news_get_info
+#from expen.get_info import get_info as expen_get_info
+#from apart.const import apart_service_name_by_id
 
 
 class Group(models.Model):
@@ -401,10 +401,10 @@ class Task(models.Model):
         else:
             data = TaskInfo.objects.all()
 
-        if nav_item:
+        if data and nav_item:
             data = data.filter(task_1_id=nav_item.id)
 
-        if (app != APP_ALL) and (app != APP_HOME):
+        if data and (app != APP_ALL) and (app != APP_HOME):
             role_id = ROLES_IDS[app][role]
             data = data.filter(num_role=role_id)
         return data
@@ -488,10 +488,10 @@ class Task(models.Model):
         if (self.app_news or self.app_expen) and not self.event:
             self.event = datetime.now()
         self.save()
-        if self.app_news:
-            news_get_info(self)
-        if self.app_expen:
-            expen_get_info(self)
+        # if self.app_news:
+        #     news_get_info(self)
+        # if self.app_expen:
+        #     expen_get_info(self)
         self.correct_groups_qty(GIQ_CMP_TASK, todo_only=True)
         next_task = None
         if self.completed and next: # Completed a stage of a recurring task and set a deadline for the next iteration
@@ -503,10 +503,10 @@ class Task(models.Model):
                     remind=self.next_remind_time(), repeat=self.repeat, repeat_num=self.repeat_num,
                     repeat_days=self.repeat_days, categories=self.categories, info=self.info)
                 next_task.get_info(ROLE_TODO)
-                if next_task.app_news:
-                    news_get_info(next_task)
-                if next_task.app_expen:
-                    expen_get_info(next_task)
+                # if next_task.app_news:
+                #     news_get_info(next_task)
+                # if next_task.app_expen:
+                #     expen_get_info(next_task)
                 if TaskGroup.objects.filter(task=self.id, role=ROLE_TODO).exists():
                     group = TaskGroup.objects.filter(task=self.id, role=ROLE_TODO).get().group
                     next_task.correct_groups_qty(GIQ_ADD_TASK, group.id)
@@ -550,7 +550,7 @@ class Task(models.Model):
                 case (const.ROLE_WARR, const.NUM_ROLE_WARR):
                     ret = APP_WARR + '/' + self.name.replace('/', '_').replace('\\', '_').replace(':', '_').replace('*', '_').replace('?', '_').replace('«', '_').replace('<', '_').replace('>', '_').replace('|', '_')
 
-        storage_path = os.environ.get('DJANGO_STORAGE_PATH')
+        storage_path = settings.DJANGO_STORAGE_PATH
         return storage_path.format(self.user.username) + 'attachments/' + ret + '/'
 
     def get_files_list(self, role):
@@ -832,14 +832,15 @@ class Task(models.Model):
         if (not last_odo):
             return None
 
-        last_repl = None
-        if Task.objects.filter(user=self.user.id, app_fuel=NUM_ROLE_SERVICE, task_1=self.task_1.id, task_2=self.id).exists():
-            last_repl = Task.objects.filter(user=self.user.id, app_fuel=NUM_ROLE_SERVICE, task_1=self.task_1.id, task_2=self.id).order_by('-event')[0]
-        if (not last_repl):
-            return None
+        # last_repl = None
+        # if Task.objects.filter(user=self.user.id, app_fuel=NUM_ROLE_SERVICE, task_1=self.task_1.id, task_2=self.id).exists():
+        #     last_repl = Task.objects.filter(user=self.user.id, app_fuel=NUM_ROLE_SERVICE, task_1=self.task_1.id, task_2=self.id).order_by('-event')[0]
+        # if (not last_repl):
+        #     return None
 
-        rest, tune_class = get_rest(self, last_odo, last_repl)
-        return [{'class': tune_class, 'info': rest}]
+        # rest, tune_class = get_rest(self, last_odo, last_repl)
+        # return [{'class': tune_class, 'info': rest}]
+        return None
 
     def actualize_role_info(self, app, role, info=None):
         qnt = len(self.get_files_list(role))
@@ -968,7 +969,7 @@ class TaskRoleInfo(models.Model):
     role = models.CharField(_('role name'), max_length=50, blank=False, default='todo', null=True)
     created = models.DateTimeField(_('creation time'), blank=True, default=datetime.now)
     last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now=True)
-    info = models.CharField(_('role specific info'), max_length=500, blank=True, default=None, null=True)
+    info = models.CharField(_('role specific info'), max_length=1000, blank=True, default=None, null=True)
     files_qnt = models.IntegerField(_('number of attached files'), default=0, null=True)
 
     @classmethod
@@ -1049,42 +1050,9 @@ class VisitedHistory(models.Model):
     def reverse_url(self):
         return self.href
 
-class Photo(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
-    creation = models.DateTimeField(_('Creation time'), null = True, auto_now_add = True)
-    last_mod = models.DateTimeField(_('Last modification time'), null = True, auto_now = True)
-    name = models.CharField(_('Name'), max_length=1000)
-    path = models.CharField(_('Path'), max_length=1000, blank = True)
-    categories = models.CharField(_('Categories'), max_length=1000, blank = True)
-    info = models.TextField(_('Information'), blank = True)
-    lat = models.DecimalField(_('Latitude'), max_digits = 9, decimal_places = 6, null = True)
-    lon = models.DecimalField(_('Longitude'), max_digits = 9, decimal_places = 6, null = True)
-    size = models.IntegerField(_('Size'), null = True)
-
-    def __str__(self):
-        return self.name
-
-    def __repr__(self):
-        subdir = ''
-        if self.path:
-            subdir = self.path + '/'
-        url = urllib.parse.quote_plus(subdir + self.name)
-        return '{ url: ' + url + ', sz: ' + str(self.size) + ' }'
-
-    def full_name(self):
-        if self.path:
-            return self.path + '/' + self.name
-        return self.name
-
-    def subdir(self):
-        if self.path:
-            return self.path + '/'
-        return ''
-
-
 class PassParams(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'), related_name='store_user')
-    ln = models.IntegerField('Length', default = 20)
+    length = models.IntegerField('Length', default = 20)
     uc = models.BooleanField('Upper case', default = True)
     lc = models.BooleanField('Lower case', default = True)
     dg = models.BooleanField('Digits', default = True)
@@ -1152,7 +1120,7 @@ class PassParams(models.Model):
         if params.ac:
             ret_params += 128
 
-        ret_value = get_random_string(params.ln, allowed_chars)
+        ret_value = get_random_string(params.length, allowed_chars)
         return ret_params, params.un, ret_value
 
 class TaskInfo(models.Model):
@@ -1264,62 +1232,3 @@ class TaskInfo(models.Model):
         return [{
             'name': categ,
             'color': 'category-design-' + CATEGORY_DESIGN[reduce(lambda x, y: x + ord(y), categ, 0) % 6], } for categ in self.categories.split()]
-
-
-
-CURRENT = 1
-HISTORICAL = 2
-FORECASTED_HOURLY = 3
-FORECASTED_DAILY = 4
-
-EVENT_TYPE = [
-    (CURRENT, _('current')),
-    (HISTORICAL, _('historical')),
-    (FORECASTED_HOURLY, _('forecasted hourly')),
-    (FORECASTED_DAILY, _('forecasted daily')),
-]
-
-class Weather(models.Model):
-    event = models.DateTimeField('Date and time of the described event', blank=True, null=True)
-    fixed = models.DateTimeField('Date and time when this event is described', blank=True, null=True)
-    ev_type = models.IntegerField('Event type: current, historical, forecasted', null=False, choices=EVENT_TYPE, default=CURRENT)
-    lat = models.CharField('Latitude', max_length=10, blank=True)
-    lon = models.CharField('Longitude', max_length=10, blank=True)
-    location = models.CharField('Location', max_length=200, blank=True)
-    elevation = models.IntegerField('Elevation', null=True)
-    timezone = models.CharField('Timezone', max_length=20, blank=True)
-    units = models.CharField('Units', max_length=10, blank=True)
-    weather = models.CharField('String identifier of the weather icon', max_length=20, blank=True)
-    icon = models.IntegerField('Numeric identifier of the weather icon', null=True)
-    summary = models.CharField('Summary', max_length=200, blank=True)
-    temperature = models.DecimalField('Temperature', null=True, max_digits=5, decimal_places=1)
-    temperature_min = models.DecimalField('Temperature min', null=True, max_digits=5, decimal_places=1)
-    temperature_max = models.DecimalField('Temperature max', null=True, max_digits=5, decimal_places=1)
-    wind_speed = models.DecimalField('Wind speed', null=True, max_digits=5, decimal_places=1)
-    wind_angle = models.IntegerField('Wind angle', null=True)
-    wind_dir = models.CharField('Wind direction', max_length=5, blank=True)
-    prec_total = models.DecimalField('Precipitation total', null=True, max_digits=10, decimal_places=1)
-    prec_type = models.CharField('Precipitation type', max_length=10, blank=True)
-    cloud_cover = models.IntegerField('Cloud cover', null=True)
-
-    class Meta:
-        unique_together = ('location', 'lat', 'lon', 'ev_type', 'event', 'fixed')
-
-class Astro(models.Model):
-    date = models.DateField('Date of the astro events', blank=False, null=False)
-    lat = models.CharField('Latitude', max_length=10, blank=True)
-    lon = models.CharField('Longitude', max_length=10, blank=True)
-    location = models.CharField('Location', max_length=200, blank=True)
-    day_length = models.IntegerField('Length of the day', null=True)
-    sunrise = models.DateTimeField('Sunrise', blank=True, null=True)
-    sunset = models.DateTimeField('Sunset', blank=True, null=True)
-    solar_noon = models.DateTimeField('Solar noon', blank=True, null=True)
-    civil_twilight_begin = models.DateTimeField('Civil twilight begin', blank=True, null=True)
-    civil_twilight_end = models.DateTimeField('Civil twilight end', blank=True, null=True)
-    nautical_twilight_begin = models.DateTimeField('Nautical twilight begin', blank=True, null=True)
-    nautical_twilight_end = models.DateTimeField('Nautical twilight end', blank=True, null=True)
-    astronomical_twilight_begin = models.DateTimeField('Astronomical twilight begin', blank=True, null=True)
-    astronomical_twilight_end = models.DateTimeField('Astronomical twilight end', blank=True, null=True)
-
-    class Meta:
-        unique_together = ('location', 'lat', 'lon', 'date')

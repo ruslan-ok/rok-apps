@@ -5,7 +5,6 @@ from task.const import ROLE_EXPENSE, ROLE_APP
 from task.models import Task, TaskGroup
 from core.views import BaseListView, BaseDetailView, BaseGroupView
 from expen.forms import CreateForm, EditForm, ProjectForm
-from expen.config import app_config
 from expen.get_info import get_info
 
 role = ROLE_EXPENSE
@@ -17,7 +16,7 @@ class ListView(LoginRequiredMixin, PermissionRequiredMixin, BaseListView):
     permission_required = 'task.view_expense'
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -33,7 +32,7 @@ class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView):
     permission_required = 'task.change_expense'
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -76,7 +75,7 @@ class ProjectView(LoginRequiredMixin, BaseGroupView):
     template_name = 'expen/project.html'
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

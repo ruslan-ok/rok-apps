@@ -1,6 +1,7 @@
 from datetime import date
-import logging, requests, os, json
+import logging, requests, json
 from logging import handlers
+from django.conf import settings
 try:
     from logs.models import ServiceEvent
     db_available = True
@@ -13,7 +14,7 @@ class CustomHandler():
     service = None
 
     def prepare(self, record):
-        device = os.environ.get('DJANGO_DEVICE', 'Nuc')
+        device = settings.DJANGO_DEVICE
         app = self.app if self.app else record.name.split('.')[0]
         service = self.service if self.service else record.module
         event_type = record.levelname.lower()
@@ -102,15 +103,15 @@ class ApiHandler(logging.Handler, CustomHandler):
     def __init__(self, local_only: bool, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if local_only:
-            api_host = os.environ.get('DJANGO_HOST_API')
+            api_host = settings.DJANGO_HOST_API
         else:
-            api_host = os.environ.get('DJANGO_HOST_LOG')
+            api_host = settings.DJANGO_HOST_LOG
         if api_host.startswith('https://'):
-            self.verify = os.environ.get('DJANGO_CERT', '')
+            self.verify = settings.DJANGO_CERT
         else:
             self.verify = None
         self.api_url = f'{api_host}/en/api/logs/?format=json'
-        service_token = os.environ.get('DJANGO_SERVICE_TOKEN')
+        service_token = settings.DJANGO_SERVICE_TOKEN
         self.request_headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
 
     def emit(self, record):
@@ -133,7 +134,7 @@ class MailHandler(handlers.SMTPHandler, CustomHandler):
         name = ''
         if data["name"] != '----':
             name = f'.{data["name"]}'
-        return f'RUSEL.BY: {data["device"]}.{data["app"]}.{data["service"]}{name}'
+        return f'ROK-APPS.COM: {data["device"]}.{data["app"]}.{data["service"]}{name}'
 
 
 def get_logger(name: str, app: str=None, service: str=None, local_only: bool=False, file: str=None):
@@ -144,8 +145,8 @@ def get_logger(name: str, app: str=None, service: str=None, local_only: bool=Fal
     console_handler.setFormatter(console_formatter)
     logger.addHandler(console_handler)
 
-    this_device = os.environ.get('DJANGO_DEVICE')
-    log_device = os.environ.get('DJANGO_LOG_DEVICE', 'Nuc')
+    this_device = settings.DJANGO_DEVICE
+    log_device = settings.DJANGO_LOG_DEVICE
     if db_available and (local_only or (this_device == log_device)):
         api_handler = DatabaseHandler()
     else:
@@ -155,10 +156,10 @@ def get_logger(name: str, app: str=None, service: str=None, local_only: bool=Fal
     logger.addHandler(api_handler)
 
     mail_formatter = logging.Formatter(fmt='%(levelname)s\n%(pathname)s:%(lineno)d\n\n%(message)s')
-    host = os.environ.get('DJANGO_HOST_MAIL')
-    admin = os.environ.get('DJANGO_MAIL_ADMIN')
-    user = os.environ.get('DJANGO_MAIL_USER')
-    pwrd = os.environ.get('DJANGO_MAIL_PWRD')
+    host = settings.DJANGO_HOST_MAIL
+    admin = settings.DJANGO_MAIL_ADMIN
+    user = settings.DJANGO_MAIL_USER
+    pwrd = settings.DJANGO_MAIL_PWRD
     mail_handler = MailHandler(
         mailhost=host,
         fromaddr=user,
@@ -177,7 +178,7 @@ def get_logger(name: str, app: str=None, service: str=None, local_only: bool=Fal
         set_service(logger, service)
 
     if file:
-        logs_path = os.environ.get('DJANGO_LOG_BASE', '')
+        logs_path = settings.DJANGO_LOG_BASE
         use_file(logger, logs_path + '\\' + file)
 
     return logger

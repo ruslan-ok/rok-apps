@@ -1,15 +1,15 @@
-import os, json, requests
+import json, requests
 from decimal import Decimal
 from datetime import datetime
+from django.conf import settings
 from django.http import Http404
 from django.views.generic import TemplateView
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from core.views import Context
 from core.hp_widget.delta import get_start_date, approximate, ChartPeriod, SourceData, build_chart_config
-from health.config import app_config
 from health.forms.temp_filter import TempFilter
-from task.const import NUM_ROLE_MARKER, ROLE_CHART_WEIGHT, ROLE_CHART_WAIST, ROLE_CHART_TEMP
+from task.const import NUM_ROLE_MARKER, APP_HEALTH
 from task.models import Task
 
 
@@ -19,7 +19,7 @@ class WeightView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView, Cont
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.set_config(app_config, ROLE_CHART_WEIGHT)
+        self.set_config(APP_HEALTH)
 
     def get_context_data(self, **kwargs):
         if not self.request.user.is_authenticated:
@@ -38,7 +38,7 @@ class WaistView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView, Conte
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.set_config(app_config, ROLE_CHART_WAIST)
+        self.set_config(APP_HEALTH)
 
     def get_context_data(self, **kwargs):
         if not self.request.user.is_authenticated:
@@ -57,7 +57,7 @@ class TempView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView, Contex
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.set_config(app_config, ROLE_CHART_TEMP)
+        self.set_config(APP_HEALTH)
 
     def get_context_data(self, **kwargs):
         if not self.request.user.is_authenticated:
@@ -113,17 +113,17 @@ def build_weight_chart(user_id: int, period: ChartPeriod):
     return widget_data
 
 def get_api_health_chart(period: ChartPeriod):
-    api_url = os.environ.get('DJANGO_HOST_LOG', '')
-    service_token = os.environ.get('DJANGO_SERVICE_TOKEN', '')
+    api_url = settings.DJANGO_HOST_LOG
+    service_token = settings.DJANGO_SERVICE_TOKEN
     headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
-    verify = os.environ.get('DJANGO_CERT', '')
+    verify = settings.DJANGO_CERT
     resp = requests.get(api_url + '/api/get_chart_data/?mark=health&period=' + period.value, headers=headers, verify=verify)
     if (resp.status_code != 200):
         return None
     return json.loads(resp.content)
 
 def build_health_chart(user_id: int, period: ChartPeriod):
-    if os.environ.get('DJANGO_DEVICE', 'Nuc') != os.environ.get('DJANGO_LOG_DEVICE', 'Nuc'):
+    if settings.DJANGO_DEVICE != settings.DJANGO_LOG_DEVICE:
         ret = get_api_health_chart(period)
         if ret:
             return ret

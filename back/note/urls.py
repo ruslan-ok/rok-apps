@@ -1,10 +1,11 @@
 from django.urls import path
-from note.config import app_config
-from note import views
 
-app_name = app_config['name']
+from note import views
+from task.const import APP_NOTE
+
+app_name = APP_NOTE
 urlpatterns = [
     path('', views.ListView.as_view(), name='list'),
-    path('group/<int:pk>/', views.GroupView.as_view(), name='group'),
-    path('<int:pk>/', views.DetailView.as_view(), name='item'),
+    path('group/<int:pk>', views.GroupView.as_view(), name='group'),
+    path('<int:pk>', views.DetailView.as_view(), name='item'),
 ]

@@ -1,6 +1,7 @@
 import os, sys, shutil, datetime, fnmatch
+from django.conf import settings
 
-DJANGO_CERT = os.environ.get('DJANGO_CERT')
+DJANGO_CERT = settings.DJANGO_CERT
 MODULE_DIR = os.path.dirname(os.path.abspath(DJANGO_CERT)) + '\\'
 sys.path.append(os.path.dirname(MODULE_DIR))
 
@@ -10,8 +11,8 @@ logger = get_logger(__name__, 'win-acme', 'copy_cert')
 
 
 def copycert():
-    work_dir = os.environ.get('WIN_ACME_WORK', '')
-    cert_dir = os.environ.get('WIN_ACME_CERT', '')
+    work_dir = settings.WIN_ACME_WORK
+    cert_dir = settings.WIN_ACME_CERT
     arh_dir = work_dir + str(datetime.date.today())
 
     logger.info(f'Started: {work_dir=}, {arh_dir=}, {cert_dir=}')

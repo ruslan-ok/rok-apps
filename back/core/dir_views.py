@@ -1,20 +1,23 @@
-import os
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.edit import FormView
 from core.context import DirContext
 from core.dir_forms import UploadForm
-from task.const import *
 
 #----------------------------------------------------------------------
 class BaseDirView(DirContext, FormView):
     form_class = UploadForm
 
-    def __init__(self, app_config, role, *args, **kwargs):
+    def __init__(self, app, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.set_config(app_config, role)
+        self.set_config(app)
+
+    def get(self, request, *args, **kwargs):
+        ret = super().get(request, *args, **kwargs)
+        return ret
 
     def init_store_dir(self, user):
-        storage_path = os.environ.get('DJANGO_STORAGE_PATH')
+        storage_path = settings.DJANGO_STORAGE_PATH
         self.store_dir = storage_path.format(user.username) + '{}/'.format('docs')
 
     def post(self, request, *args, **kwargs):

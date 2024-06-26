@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from django.conf import settings
 from rest_framework.decorators import api_view, permission_classes, renderer_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
@@ -46,8 +47,8 @@ def get_dir(request):
         return Response({'Error': "The 'dir_role' parameter must have one of the following values: 'backup', 'docs'"},
                         status=HTTP_400_BAD_REQUEST)
     match dir_role:
-        case 'backup': root_dir = os.getenv('DJANGO_BACKUP_FOLDER', 'k:/unknown')
-        case 'docs': root_dir = os.getenv('DJANGO_STORAGE_PATH', 'k:/unknown').replace('\\{}\\', '')
+        case 'backup': root_dir = settings.DJANGO_BACKUP_FOLDER
+        case 'docs': root_dir = settings.DJANGO_STORAGE_PATH.replace('\\{}\\', '')
         case _: root_dir = 'k:/unknown'
     dirs = scan_dir(root_dir)
     data = {'dirs': dirs}

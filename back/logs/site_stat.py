@@ -3,7 +3,6 @@ import collections
 from datetime import datetime
 from django.utils.translation import gettext_lazy as _
 from logs.models import IPInfo, AccessLog, SiteStat
-from core.applications import APPS
 
 def get_site_stat(user):
     """Processing a new portion of log file records.
@@ -42,27 +41,27 @@ def get_site_stat(user):
 
     #raise Exception(last_rec.event)
     apps = {}
-    for rec in records:
-        uri = valid_uri(rec)
-        if not uri:
-            continue
+    # for rec in records:
+    #     uri = valid_uri(rec)
+    #     if not uri:
+    #         continue
 
-        # Determining the access to the site application
-        a_app = list(filter(lambda x: '/{}/'.format(x) in uri, APPS))
-        if not a_app:
-            continue
+    #     # Determining the access to the site application
+    #     a_app = list(filter(lambda x: '/{}/'.format(x) in uri, APPS))
+    #     if not a_app:
+    #         continue
                     
-        app = a_app[0]
-        if not app in apps:
-            apps[app] = {}        
-        host = str(rec.host.info())
-        #raise Exception('aaa = ', aaa)
-        if not host in apps[app]:
-            apps[app][host] = []
+    #     app = a_app[0]
+    #     if not app in apps:
+    #         apps[app] = {}        
+    #     host = str(rec.host.info())
+    #     #raise Exception('aaa = ', aaa)
+    #     if not host in apps[app]:
+    #         apps[app][host] = []
             
-        page = '{} {}'.format(rec.method, uri)
-        if not page in apps[app][host]:
-            apps[app][host].append(page)
+    #     page = '{} {}'.format(rec.method, uri)
+    #     if not page in apps[app][host]:
+    #         apps[app][host].append(page)
 
     return cnt.most_common(), apps
 

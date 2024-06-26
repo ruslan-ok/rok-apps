@@ -5,7 +5,6 @@ from apart.const import apart_service_name_by_id
 from apart.models import Apart, ApartPrice
 from core.views import BaseListView, BaseDetailView
 from apart.forms.price import CreateForm, EditForm
-from apart.config import app_config
 
 app = APP_APART
 role = ROLE_PRICE
@@ -16,7 +15,7 @@ class ListView(LoginRequiredMixin, PermissionRequiredMixin, BaseListView):
     permission_required = 'task.view_apart'
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
 
     def get_template_names(self):
         return ['apart/list.html']
@@ -43,7 +42,7 @@ class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView):
     permission_required = 'task.change_apart'
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

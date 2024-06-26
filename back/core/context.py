@@ -1,15 +1,133 @@
 import os, time, mimetypes, glob
+from datetime import datetime
+from django.conf import settings
 from django.http import Http404
-from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
-from task.const import *
-from task.models import Task, detect_group
-from core.config import Config
+from django.utils.translation import gettext_lazy as _
 from core.applications import get_apps_list
 from core.forms import CreateGroupForm
-from rusel.context import get_base_context
-from rusel.utils import extract_get_params
-from rusel.settings import ENV, DB
+from task.models import Task, Group, detect_group, VisitedHistory
+from core.config import Config
+from task.const import *
+from core.utils import extract_get_params
+
+MAX_LAST_VISITED = 9
+
+def get_base_context(request, app, role, group, detail, title, icon=None):
+    context = {}
+    if icon:
+        context['icon'] = icon
+    if hasattr(request.user, 'userext') and request.user.userext.avatar_mini:
+        context['avatar'] = request.user.userext.avatar_mini.url
+    else:
+        context['avatar'] = '/static/account/img/Default-avatar.jpg'
+
+    title_1 = title_2 = ''
+    if (not detail or not title) and group and (group.determinator != 'role') and (group.determinator != 'view'):
+        title_1 = Group.objects.filter(id=group.id).get().name
+    else:
+        if title:
+            if type(title) is tuple:
+                if (len(title) > 0):
+                    title_1 = title[0]
+                if (len(title) > 1):
+                    title_2 = title[1]
+            else:
+                title_1 = title
+    if not title_1 and not title_2:
+        context['title'] = ''
+    if title_1 and not title_2:
+        context['title'] = title_1
+    if not title_1 and title_2:
+        context['title'] = title_2
+    if title_1 and title_2:
+        context['title'] = '{} [{}]'.format(_(title_1), title_2)
+
+    context['search_placeholder'] = _('Search')
+    context['please_correct_one'] = _('Please correct the error below.')
+    context['please_correct_all'] = _('Please correct the errors below.')
+    context['delete_question'] = _('delete').capitalize()
+    
+    context['complete_icon'] = 'icon/main/complete.svg'
+    context['uncomplete_icon'] = 'icon/main/uncomplete.svg'
+    
+    context['apps'] = get_apps_list(request.user, app)
+
+    if (request.method == 'GET'):
+        url = request.path
+        if (len(request.GET) > 0):
+            url += '?'
+            first = True
+            for k in request.GET:
+                if first:
+                    first = False
+                else:
+                    url += '&'
+                url += k + '=' + request.GET[k]
+        save_last_visited(request.user, url, app, title_1, title_2, icon)
+
+    groups = []
+    get_sorted_groups(groups, request.user.id, role)
+    context['groups'] = groups
+    context['theme_id'] = 8
+    if group:
+        context['group_return'] = group.id
+        if (not detail):
+            if (not group.determinator) or (group.determinator == 'group'):
+                context['group_path'] = get_group_path(group.id)
+            # if group.theme:
+            #     context['theme_id'] = group.theme
+
+    return context
+
+def get_sorted_groups(groups, user_id, role, node=None):
+    node_id = None
+    if node:
+        node_id = node.id
+    items = Group.objects.filter(user=user_id, role=role, node=node_id).order_by('sort')
+    for item in items:
+        if (item.determinator != 'role') and (item.determinator != 'view'):
+            groups.append(item)
+            get_sorted_groups(groups, user_id, role, item)
+
+
+def get_group_path(cur_grp_id):
+    ret = []
+    if cur_grp_id:
+        grp = Group.objects.filter(id=cur_grp_id).get()
+        ret.append({'id': grp.id, 'name': grp.name, 'edit_url': grp.edit_url()})
+        parent = grp.node
+        while parent:
+            grp = Group.objects.filter(id=parent.id).get()
+            ret.append({'id': grp.id, 'name': grp.name, 'edit_url': grp.edit_url()})
+            parent = grp.node
+    return ret
+
+def save_last_visited(user, url, app, title_1, title_2, icon):
+    if not title_1 and not title_2:
+        return
+
+    if (app == APP_HOME) or (app == APP_ALL):
+        return
+    
+    str_app = APP_NAME[app]
+    
+    pages = VisitedHistory.objects.filter(user=user.id).order_by('pinned', 'stamp')
+    
+    for page in pages:
+        if (page.href == url) and (page.app == str_app):
+            page.stamp = datetime.now()
+            page.page = title_1
+            page.info = title_2
+            page.icon = icon
+            page.save()
+            return
+
+    if (len(pages) >= MAX_LAST_VISITED):
+        if not pages[0].pinned:
+            pages[0].delete()
+
+    VisitedHistory.objects.create(user=user, stamp=datetime.now(), href=url, app=str_app, page=title_1, info=title_2, icon=icon)
 
 class AppContext:   
     def __init__(self, user, app, role):
@@ -24,12 +142,13 @@ class AppContext:
         if hasattr(self.user, 'userext') and self.user.userext.avatar_mini:
             context['avatar'] = self.user.userext.avatar_mini.url
         else:
-            context['avatar'] = '/static/Default-avatar.jpg'
+            context['avatar'] = '/static/account/img/Default-avatar.jpg'
         return context
 
 class Context:
-    def set_config(self, config, cur_view):
-        self.config = Config(config, cur_view)
+
+    def set_config(self, app):
+        self.config = Config(app)
 
     def get_app_context(self, user_id, search_qty=None, icon=None, nav_items=None, **kwargs):
         context = {}
@@ -83,7 +202,7 @@ class Context:
         nav_item=Task.get_active_nav_item(self.request.user.id, self.config.app)
         for key, value in views.items():
             if 'hide_on_host' in value:
-                if value['hide_on_host'] == os.environ.get('DJANGO_HOST'):
+                if value['hide_on_host'] == settings.DJANGO_HOST:
                     continue
             url = common_url
             determinator = 'view'
@@ -92,12 +211,12 @@ class Context:
                 if ('role' in value):
                     determinator = 'role'
                     view_id = value['role']
-                    url += view_id + '/'
+                    url += view_id
                 else:
                     view_id = key
                     if (key != self.config.main_view):
                         if ('page_url' in value):
-                            url += value['page_url'] + '/'
+                            url += value['page_url']
                         else:
                             url += '?view=' + key
             if (self.config.app in FOLDER_NAV_APPS):
@@ -110,7 +229,7 @@ class Context:
                     else:
                         url += '?'
                     url += 'folder=' + folder
-            active = (self.config.cur_view_group.determinator == determinator) and (self.config.cur_view_group.view_id == view_id)
+            active = self.config.cur_view_group and ((self.config.cur_view_group.determinator == determinator) and (self.config.cur_view_group.view_id == view_id)) or False
             qty = None
             if not self.config.global_hide_qty:
                 hide_qty = False
@@ -154,7 +273,7 @@ class Context:
             data = data.filter(group_id=group.id)
         else:
             if group.view_id == 'planned' and not group.services_visible:
-                svc_grp_id = int(os.environ.get('DJANGO_SERVICE_GROUP' + ENV + DB, '0'))
+                svc_grp_id = int(settings.DJANGO_SERVICE_GROUP)
                 data = data.exclude(group_id=svc_grp_id)
         
         if hasattr(self, 'tune_dataset'):
@@ -224,7 +343,7 @@ class DirContext(Context):
         context['dir_tree'] = dir_tree
         context['file_list'] = self.file_list
         context['gps_data'] = self.gps_data
-        if (self.config.cur_view_group.determinator == 'view') and (self.config.cur_view_group.view_id != self.config.main_view):
+        if self.config.cur_view_group and ((self.config.cur_view_group.determinator == 'view') and (self.config.cur_view_group.view_id != self.config.main_view)):
             context['cur_view'] = self.config.cur_view_group.view_id
         context['theme_id'] = 24
         context['cur_folder'] = self.cur_folder
@@ -268,6 +387,9 @@ class DirContext(Context):
         self.file_list = []
         is_empty = True
         try:
+            if not self.cur_folder:
+                if not os.path.exists(self.store_dir):
+                    os.makedirs(self.store_dir)
             with os.scandir(self.store_dir + self.cur_folder) as it:
                 for entry in it:
                     if (entry.name.upper() == 'Thumbs.db'.upper()):
@@ -282,7 +404,7 @@ class DirContext(Context):
                         file_type = mt[0]
                     self.file_list.append({
                         'name': entry.name, 
-                        'href': 'file/?folder=' + self.cur_folder + '&file=' + entry.name,
+                        'href': 'file?folder=' + self.cur_folder + '&file=' + entry.name,
                         'date': time.ctime(os.path.getmtime(ff)),
                         'type': file_type,
                         'size': self.sizeof_fmt(os.path.getsize(ff)),

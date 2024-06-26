@@ -1,4 +1,6 @@
 import os, json, requests
+
+from django.conf import settings
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponse
 from django.template import loader
@@ -12,7 +14,6 @@ from logs.services.versions import VersionsLogData
 from logs.service_log import ServiceLog
 from core.views import Context
 from core.context import AppContext
-from logs.config import app_config
 from logs.models import ServiceEvent
 from task.const import APP_LOGS, ROLE_APACHE
 from logs.logger import get_logger
@@ -29,7 +30,7 @@ class LogsView(Context, TuneData):
         super().__init__(*args, **kwargs)
         self.object = None
         self.request = request
-        self.set_config(app_config, 'overview')
+        self.set_config(APP_LOGS) # 'overview')
         self.config.set_view(request)
 
 @login_required(login_url='account:login')
@@ -90,7 +91,7 @@ class LogEventView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
         location = self.kwargs.get('location')
         pk = int(self.kwargs.get('pk'))
         event_fields = []
-        if location == os.environ.get('DJANGO_DEVICE', ''):
+        if location == settings.DJANGO_DEVICE:
             event_dict = self.get_event_db(pk)
         else:
             event_dict = self.get_event_api(pk)
@@ -119,11 +120,11 @@ class LogEventView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
         return event_dict
 
     def get_event_api(self, pk):
-        api_host = os.environ.get('DJANGO_HOST_LOG', '')
+        api_host = settings.DJANGO_HOST_LOG
         api_url = f'{api_host}/en/api/logs/{pk}/?format=json'
-        service_token = os.environ.get('DJANGO_SERVICE_TOKEN', '')
+        service_token = settings.DJANGO_SERVICE_TOKEN
         headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
-        verify = os.environ.get('DJANGO_CERT')
+        verify = settings.DJANGO_CERT
         resp = requests.get(api_url, headers=headers, verify=verify)
         event_dict = {}
         if (resp.status_code != 200):

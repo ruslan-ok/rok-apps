@@ -1,5 +1,6 @@
 import os, shutil
 from datetime import datetime
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _, pgettext_lazy
 from django.utils.formats import date_format
@@ -36,8 +37,8 @@ class AddressStructure(models.Model):
 
 class ChangeDate(models.Model):
     date_time = models.DateTimeField(_('Change date-time'), blank=True, null=True)
-    date = models.CharField(_('Date'), max_length=20, blank=True, null=True)
-    time = models.CharField(_('Time'), max_length=20, blank=True, null=True)
+    change_date = models.CharField(_('Date'), max_length=20, blank=True, null=True)
+    change_time = models.CharField(_('Time'), max_length=20, blank=True, null=True)
     owner = models.CharField(_('Owner of this record'), max_length=20, blank=True, null=True)
 
     def __str__(self):
@@ -49,8 +50,8 @@ class ChangeDate(models.Model):
         if self.date_time:
             return self.date_time.strftime('%d %b %Y')
         else:
-            if self.date:
-                return self.date
+            if self.change_date:
+                return self.change_date
                 # format_visitor = DateFormatter()
                 # return self.date.accept(format_visitor)
         return None
@@ -59,7 +60,7 @@ class ChangeDate(models.Model):
         if self.date_time:
             return self.date_time.strftime('%H:%M:%S.%f')
         else:
-            return self.time
+            return self.change_time
 
 #--------------------------------------------------
 class FamTree(models.Model):
@@ -72,15 +73,15 @@ class FamTree(models.Model):
     sour_data_date = models.DateTimeField(_('Publication date'), blank=True, null=True)
     sour_data_copr = models.TextField(_('Copyright source data'), blank=True, null=True)
     dest = models.CharField(_('Receiving system name'), max_length=20, blank=True, null=True)
-    date = models.CharField(_('Transmission date'), max_length=11, blank=True, null=True)
-    time = models.CharField(_('Time value'), max_length=12, blank=True, null=True)
+    trans_date = models.CharField(_('Transmission date'), max_length=11, blank=True, null=True)
+    trans_time = models.CharField(_('Time value'), max_length=12, blank=True, null=True)
     subm_id = models.IntegerField(_('Submitter reference'), blank=True, null=True)
     file = models.CharField(_('File name'), max_length=90, blank=True, null=True)
     copr = models.CharField(_('Copyright gedcom file'), max_length=90, blank=True, null=True)
     gedc_vers = models.CharField(_('Gedcom version number'), max_length=15, blank=True, null=True)
     gedc_form = models.CharField(_('Gedcom form'), max_length=20, blank=True, null=True)
     char_vers = models.CharField(_('Character set version number'), max_length=15, blank=True, null=True)
-    char = models.CharField(_('Character set'), max_length=12, blank=True, null=True)
+    char_set = models.CharField(_('Character set'), max_length=12, blank=True, null=True)
     lang = models.CharField(_('Language of text'), max_length=15, blank=True, null=True)
     note = models.TextField(_('Gedcom content description'), blank=True, null=True)
     mh_id = models.CharField(_('ID in MyHeritage.com'), max_length=50, blank=True, null=True)
@@ -162,13 +163,13 @@ class FamTree(models.Model):
 
     @classmethod
     def get_import_path(cls):
-        folder = os.environ.get('FAMILY_STORAGE_PATH', '') + '\\pedigree\\'
+        folder = settings.FAMILY_STORAGE_PATH + '\\pedigree\\'
         if not os.path.exists(folder):
             os.mkdir(folder)
         return folder
 
     def get_export_path(self, user):
-        folder = os.environ.get('DJANGO_STORAGE_PATH', '').format(user.username) + 'family\\'
+        folder = settings.DJANGO_STORAGE_PATH.format(user.username) + 'family\\'
         if not os.path.exists(folder):
             os.mkdir(folder)
         return folder
@@ -237,14 +238,14 @@ class FamTreeUser(models.Model):
     sour_data_date = models.DateField(_('Publication date'), blank=True, null=True)
     sour_data_copr = models.TextField(_('Copyright source data'), blank=True, null=True)
     dest = models.CharField(_('Receiving system name'), max_length=20, blank=True, null=True)
-    date = models.CharField(_('Transmission date'), max_length=11, blank=True, null=True)
-    time = models.CharField(_('Time value'), max_length=12, blank=True, null=True)
+    trans_date = models.CharField(_('Transmission date'), max_length=11, blank=True, null=True)
+    trans_time = models.CharField(_('Time value'), max_length=12, blank=True, null=True)
     subm_id = models.IntegerField(_('Submitter reference'), blank=True, null=True)
     file = models.CharField(_('File name'), max_length=90, blank=True, null=True)
     copr = models.CharField(_('Copyright GEDCOM file'), max_length=90, blank=True, null=True)
     gedc_vers = models.CharField(_('GEDCOM version number'), max_length=15, blank=True, null=True)
     gedc_form = models.CharField(_('gedcom form'), max_length=20, blank=True, null=True)
-    char = models.CharField(_('Character set'), max_length=12, blank=True, null=True)
+    char_set = models.CharField(_('Character set'), max_length=12, blank=True, null=True)
     char_vers = models.CharField(_('Character set version number'), max_length=15, blank=True, null=True)
     lang = models.CharField(_('Language of text'), max_length=15, blank=True, null=True)
     note = models.TextField(_('Gedcom content description'), blank=True, null=True)
@@ -445,7 +446,7 @@ class PersonalNamePieces(models.Model):
 class PersonalNameStructure(models.Model):
     indi = models.ForeignKey(IndividualRecord, on_delete=models.CASCADE, verbose_name=_('Individual'), related_name='pns_individual', null=True)
     name = models.CharField(_('Name personal'), max_length=120, blank=True, null=True)
-    type = models.CharField(_('Name type'), max_length=30, blank=True, null=True)
+    pns_type = models.CharField(_('Name type'), max_length=30, blank=True, null=True)
     piec = models.ForeignKey(PersonalNamePieces, on_delete=models.SET_NULL, verbose_name=_('Pieces'), related_name='pn_pnp', null=True)
     _sort = models.IntegerField(_('Sort order'), null=True)
 
@@ -464,8 +465,8 @@ class PlaceStructure(models.Model):
     map_long = models.CharField(_('Longitude'), max_length=11, blank=True, null=True)
 
 class EventDetail(models.Model):
-    type = models.CharField(_('Event or fact classification'), max_length=90, blank=True, null=True)
-    date = models.CharField(_('Date value'), max_length=35, blank=True, null=True)
+    event_type = models.CharField(_('Event or fact classification'), max_length=90, blank=True, null=True)
+    event_date = models.CharField(_('Date value'), max_length=35, blank=True, null=True)
     plac = models.ForeignKey(PlaceStructure, on_delete=models.SET_NULL, verbose_name=_('Place'), related_name='event_place', null=True)
     addr = models.ForeignKey(AddressStructure, on_delete=models.SET_NULL, verbose_name=_('Address'), related_name='event_address', null=True)
     agnc = models.CharField(_('Responsible agency'), max_length=120, blank=True, null=True)
@@ -480,7 +481,7 @@ class EventDetail(models.Model):
 
     def get_event_date(self):
         raw_date = ''
-        ev_date = DateValue.parse(self.date)
+        ev_date = DateValue.parse(self.event_date)
         if ev_date:
             raw_date = ev_date.get_str_date()
         full = day_month = year = ''
@@ -525,7 +526,7 @@ class NamePhoneticVariation(models.Model):
     name = models.ForeignKey(PersonalNameStructure, on_delete=models.CASCADE, verbose_name=_('Name'), related_name='name_phonetic', null=True)
     plac = models.ForeignKey(PlaceStructure, on_delete=models.CASCADE, verbose_name=_('Place'), related_name='place_phonetic', null=True)
     value = models.CharField(_('Name phonetic variation'), max_length=120, blank=True, null=True)
-    type = models.CharField(_('Phonetic type'), max_length=30, blank=True, null=True)
+    npv_type = models.CharField(_('Phonetic type'), max_length=30, blank=True, null=True)
     piec = models.ForeignKey(PersonalNamePieces, on_delete=models.SET_NULL, verbose_name=_('Pieces'), related_name='npv_piece', null=True)
 
     def before_delete(self):
@@ -538,7 +539,7 @@ class NameRomanizedVariation(models.Model):
     name = models.ForeignKey(PersonalNameStructure, on_delete=models.CASCADE, verbose_name=_('Name'), related_name='name_romanized', null=True)
     plac = models.ForeignKey(PlaceStructure, on_delete=models.CASCADE, verbose_name=_('Place'), related_name='place_romanized', null=True)
     value = models.CharField(_('Name romanized variation'), max_length=120, blank=True, null=True)
-    type = models.CharField(_('Romanized type'), max_length=30, blank=True, null=True)
+    nrv_type = models.CharField(_('Romanized type'), max_length=30, blank=True, null=True)
     piec = models.ForeignKey(PersonalNamePieces, on_delete=models.SET_NULL, verbose_name=_('Pieces'), related_name='nrv_piece', null=True)
 
     def before_delete(self):
@@ -608,7 +609,7 @@ class FamilyEventStructure(models.Model):
     fam = models.ForeignKey(FamRecord, on_delete=models.CASCADE, verbose_name=_('Family'), related_name='event_structure_family')
     tag = models.CharField(_('Tag'), max_length=4, blank=True, null=True)
     deta = models.ForeignKey(EventDetail, on_delete=models.SET_NULL, verbose_name=_('Family event detail'), related_name='family_event_detail', null=True)
-    desc = models.CharField(_('Event descriptor'), max_length=90, blank=True, null=True)
+    descr = models.CharField(_('Event descriptor'), max_length=90, blank=True, null=True)
     value = models.CharField(_('Event value'), max_length=120, blank=True, null=True)
     husb_age = models.CharField(_('Husband age at event'), max_length=13, blank=True, null=True)
     wife_age = models.CharField(_('Wife age at event'), max_length=13, blank=True, null=True)
@@ -656,7 +657,7 @@ class IndividualAttributeStructure(models.Model):
     tag = models.CharField(_('Tag'), max_length=4, blank=True, null=True)
     value = models.CharField(_('Event descriptor'), max_length=500, blank=True, null=True) # 248 for DSCR attribute
     age = models.CharField(_('Age at event'), max_length=13, blank=True, null=True)
-    type = models.CharField(_('User reference type'), max_length=40, blank=True, null=True)
+    ias_type = models.CharField(_('User reference type'), max_length=40, blank=True, null=True)
     dscr = models.TextField(_('Physical description'), blank=True, null=True)
     deta = models.ForeignKey(EventDetail, on_delete=models.SET_NULL, verbose_name=_('Event detail'), related_name='individual_attr_event_detail', null=True)
     _sort = models.IntegerField(_('Sort order'), null=True)
@@ -753,7 +754,7 @@ class AlbumRecord(models.Model):
     rin = models.CharField(_('RIN'), max_length=12, blank=True, null=True)
     chan = models.ForeignKey(ChangeDate, on_delete=models.SET_NULL, verbose_name=_('Change date'), related_name='album_change_date', null=True)
     titl = models.CharField(_('Title'), max_length=250, blank=True, null=True)
-    desc = models.CharField(_('Title'), max_length=250, blank=True, null=True)
+    descr = models.CharField(_('Description'), max_length=250, blank=True, null=True)
     _upd = models.CharField(_('Custom field: update'), max_length=40, blank=True, null=True)
     _sort = models.IntegerField(_('Sort order'), null=True)
 
@@ -815,7 +816,7 @@ class MultimediaFile(models.Model):
     obje = models.ForeignKey(MultimediaRecord, on_delete=models.CASCADE, verbose_name=_('Multimedia record'), related_name='multimedia_record_file', null=True)
     file = models.CharField(_('Multimedia file reference'), max_length=259, blank=True, null=True)
     form = models.CharField(_('Multimedia format'), max_length=4, blank=True, null=True)
-    type = models.CharField(_('Source media type'), max_length=15, blank=True, null=True)
+    mmf_type = models.CharField(_('Source media type'), max_length=15, blank=True, null=True)
     medi = models.CharField(_('Source media type'), max_length=15, blank=True, null=True)
     titl = models.CharField(_('Descriptive title'), max_length=248, blank=True, null=True)
     _fdte = models.CharField(_('Custom field: fdte'), max_length=50, blank=True, null=True)
@@ -889,7 +890,7 @@ class UserReferenceNumber(models.Model):
     repo = models.ForeignKey(RepositoryRecord, on_delete=models.CASCADE, verbose_name=_('Repository'), related_name='repository_refn', null=True)
     sour = models.ForeignKey(SourceRecord, on_delete=models.CASCADE, verbose_name=_('Source'), related_name='source_refn', null=True)
     refn = models.CharField(_('User reference number'), max_length=20, blank=True, null=True)
-    type = models.CharField(_('User reference type'), max_length=40, blank=True, null=True)
+    urn_type = models.CharField(_('User reference type'), max_length=40, blank=True, null=True)
     _sort = models.IntegerField(_('Sort order'), null=True)
 
 class Params(models.Model):

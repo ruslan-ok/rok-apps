@@ -4,11 +4,12 @@ from pathlib import Path
 from datetime import datetime
 from ftplib import FTP
 from enum import Enum
+from django.conf import settings
 from logs.logger import get_logger, set_service
 
 # >>> DEBUG >>>
 # import sys
-# DJANGO_CERT = os.environ.get('DJANGO_CERT')
+# DJANGO_CERT = settings.DJANGO_CERT')
 # MODULE_DIR = os.path.dirname(os.path.abspath(DJANGO_CERT)) + '\\'
 # sys.path.append(os.path.dirname(MODULE_DIR))
 # from logs.logger import get_logger, set_service
@@ -31,24 +32,24 @@ class FileSutatus(Enum):
 class Sync():
 
     def __init__(self, service_name):
-        self.this_device = os.environ.get('DJANGO_DEVICE', '')
-        self.host = os.environ.get('DJANGO_HOST_FTP', '')
-        self.user = os.environ.get('DJANGO_FTP_USER', '')
-        self.pwrd = os.environ.get('DJANGO_FTP_PWRD', '')
-        self.api_url = os.environ.get('DJANGO_HOST_LOG', '')
-        service_token = os.environ.get('DJANGO_SERVICE_TOKEN', '')
+        self.this_device = settings.DJANGO_DEVICE
+        self.host = settings.DJANGO_HOST_FTP
+        self.user = settings.DJANGO_FTP_USER
+        self.pwrd = settings.DJANGO_FTP_PWRD
+        self.api_url = settings.DJANGO_HOST_LOG
+        service_token = settings.DJANGO_SERVICE_TOKEN
         self.headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
-        self.verify = os.environ.get('DJANGO_CERT', '')
+        self.verify = settings.DJANGO_CERT
         set_service(logger, service_name)
 
 
     def run(self):
         logger.info('+Sync.run()')
         if self.this_device == 'Vivo':
-            backup_local = os.environ.get('DJANGO_BACKUP_FOLDER', '').replace('\\', '/')
-            backup_remote = os.environ.get('DJANGO_BACKUP_REMOTE', '').replace('\\', '/')
-            docs_remote = os.environ.get('DJANGO_DOCS_REMOTE', '').replace('\\', '/')
-            docs_local = os.environ.get('DJANGO_DOCS_LOCAL', '').replace('\\', '/')
+            backup_local = settings.DJANGO_BACKUP_FOLDER.replace('\\', '/')
+            backup_remote = settings.DJANGO_BACKUP_REMOTE.replace('\\', '/')
+            docs_remote = settings.DJANGO_DOCS_REMOTE.replace('\\', '/')
+            docs_local = settings.DJANGO_DOCS_LOCAL.replace('\\', '/')
             self.local = {}
             self.remote = {}
             self.cur_folder = []

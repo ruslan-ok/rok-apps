@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from task.models import Group, Task, TaskGroup
-from rusel.widgets import FileUpload, SwitchInput
+from core.widgets import FileUpload, SwitchInput
 
 #----------------------------------
 class BaseCreateForm(forms.ModelForm):
@@ -11,9 +11,8 @@ class BaseCreateForm(forms.ModelForm):
         model = Task
         fields = ['name']
 
-    def __init__(self, config, role, *args, **kwargs):
+    def __init__(self, role, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.config = config
         self.role = role
         
     def save(self, commit=True):
@@ -34,9 +33,8 @@ class BaseEditForm(forms.ModelForm):
         model = Task
         fields = ['name']
 
-    def __init__(self, config, role, *args, **kwargs):
+    def __init__(self, role, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.config = config
         self.role = role
         if ('grp' in self.fields):
             self.fields['grp'].initial = self.get_group_id()

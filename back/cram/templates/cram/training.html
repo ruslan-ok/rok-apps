@@ -3,7 +3,7 @@
 
 {% block extrastyle %}
   {{ block.super }}
-  <link href="{% static 'css/cram.min.css' %}" rel="stylesheet">
+  <link href="{% static 'cram/css/cram.min.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block main %}
@@ -72,7 +72,7 @@
 
 {% block extrascript %}
   {{ block.super }}
-  <script src="{% static 'js/cram.js' %}"></script>
+  <script src="{% static 'cram/js/cram.js' %}"></script>
   <script>
     startTimer();
   </script>

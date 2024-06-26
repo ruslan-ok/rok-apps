@@ -1,5 +1,6 @@
 import os
 from dataclasses import dataclass
+from django.conf import settings
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
@@ -10,7 +11,8 @@ from django.utils.translation import gettext_lazy as _
 from family.views.base import GenealogyListView, GenealogyDetailsView, UploadGedcomView, GenealogyContext
 from family.forms import CreateFamTreeForm, EditFamTreeForm
 from family.models import FamTree, FamTreeUser, Params, IndividualRecord, FamRecord
-from family.config import app_config
+from task.const import APP_FAMILY
+
 
 @dataclass
 class Pedigree:
@@ -91,7 +93,7 @@ class PedigreeDetailsView(GenealogyDetailsView, LoginRequiredMixin, PermissionRe
 def import_tree(request):
     ctx = GenealogyContext()
     ctx.request = request
-    ctx.set_config(app_config, 'pedigree')
+    ctx.set_config(APP_FAMILY, 'pedigree')
     ctx.config.set_view(request)
     context = ctx.get_app_context(request.user.id, icon=ctx.config.view_icon)
     context['title'] = f'{_("Import tree")}'
@@ -104,7 +106,7 @@ def export_tree(request, pk):
     tree = get_object_or_404(FamTree.objects.filter(id=pk))
     ctx = GenealogyContext()
     ctx.request = request
-    ctx.set_config(app_config, 'pedigree')
+    ctx.set_config(APP_FAMILY, 'pedigree')
     ctx.config.set_view(request)
     context = ctx.get_app_context(request.user.id, icon=ctx.config.view_icon)
     context['cur_tree_id'] = pk
@@ -129,13 +131,13 @@ def get_doc(request, role, pk, fname):
         return HttpResponseNotFound()
     get_object_or_404(FamTreeUser.objects.filter(user_id=request.user.id, tree_id=pk))
     tree = get_object_or_404(FamTree.objects.filter(id=pk))
-    path = os.environ.get('DJANGO_MEDIA_ROOT', '') + f'\\family\\pedigree\\{tree.file}_media\\'
+    path = settings.DJANGO_MEDIA_ROOT + f'\\family\\pedigree\\{tree.file}_media\\'
     try:
         fsock = open(path + fname, 'rb')
         return FileResponse(fsock)
     except IOError:
         try:
-            path = os.environ.get('DJANGO_STATIC_ROOT', '')
+            path = settings.DJANGO_STATIC_ROOT
             path = os.path.join(path, 'genea-app\\img\\')
             fname = 'unknown.png'
             fsock = open(path + fname, 'rb')

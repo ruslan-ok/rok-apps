@@ -87,7 +87,7 @@ function Weight({screenWidth}: {screenWidth: number}) {
         const formJson = Object.fromEntries(formData.entries());
         const newWeight: number = !Number.isNaN(+formJson.weight) ? +formJson.weight : 0;
         console.log(newWeight);
-        if (newWeight != 0)
+        if (newWeight !== 0)
             saveNewWeight(newWeight);
     }
 
@@ -104,14 +104,14 @@ function Weight({screenWidth}: {screenWidth: number}) {
         if (response.ok) {
             let resp_data = await response.json();
             if (resp_data) {
-                setRedraw(redraw == '0' ? '1' : '0');
+                setRedraw(redraw === '0' ? '1' : '0');
             }
         }
     }
 
     const widgetWidth = screenWidth < 600 ? 410 : (screenWidth < 768 ? 500 : 600);
     const widgetHeight = screenWidth < 600 ? 200 : (screenWidth < 768 ? 250 : 300);
-    if (status == 'ready') {
+    if (status === 'ready') {
         const current = Math.round(widgetData.current).toLocaleString();
         const change = widgetData.change?.toFixed(2).toLocaleString();
         let changeClass = 'value';

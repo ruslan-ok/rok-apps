@@ -1,13 +1,15 @@
-import os
 from gettext import pgettext
+from django.apps import apps as django_apps
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _, pgettext
 from django.urls import reverse
 from task.const import *
 from task.models import Task, Group, detect_group
 
 class Config:
-    def __init__(self, config, cur_view_name, *args, **kwargs):
+    def __init__(self, app, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        config = django_apps.app_configs[app].app_config
         self.cur_view_group = None
         self.app = config['name']
         self.app_title = config['app_title'].capitalize()
@@ -38,7 +40,7 @@ class Config:
         self.default_sort = '-event'
         if 'sort' in config and config['sort']:
             self.app_sorts = config['sort']
-        self.global_hide_qty = os.environ.get('DJANGO_HIDE_QTY', 1)
+        self.global_hide_qty = settings.DJANGO_HIDE_QTY
     
     def is_num(self, value):
         try:

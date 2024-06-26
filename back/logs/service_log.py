@@ -1,5 +1,8 @@
 import os, requests, json
 from datetime import datetime
+
+from django.conf import settings
+
 from task import const
 from logs.models import EventType, ServiceEvent
 
@@ -12,18 +15,18 @@ class ServiceLog():
         self.app = app
         self.svc = svc
         self.local_log = False
-        self.this_device = os.environ.get('DJANGO_DEVICE', '')
-        self.log_device = os.environ.get('DJANGO_LOG_DEVICE', 'Nuc')
+        self.this_device = settings.DJANGO_DEVICE
+        self.log_device = settings.DJANGO_LOG_DEVICE
         self.use_log_api = (self.this_device != self.log_device)
         if self.use_log_api and (app != 'cron' or svc != 'worker'):
             self.log_location = self.log_device
         else:
             self.log_location = self.this_device
-        self.api_host = os.environ.get('DJANGO_HOST_LOG', '')
+        self.api_host = settings.DJANGO_HOST_LOG
         self.api_url = f'{self.api_host}/en/api/logs/?format=json'
-        service_token = os.environ.get('DJANGO_SERVICE_TOKEN', '')
+        service_token = settings.DJANGO_SERVICE_TOKEN
         self.headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
-        self.verify = os.environ.get('DJANGO_CERT')
+        self.verify = settings.DJANGO_CERT
 
     def get_extra_context(self, request):
         context = {}
