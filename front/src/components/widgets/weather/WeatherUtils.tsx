@@ -27,7 +27,7 @@ function getTempColor(temperature: number, border: boolean): string {
         opacity = barColorOpacity;
     }
     let rgb: number[];
-    if (temperature == 0)
+    if (temperature === 0)
         rgb = colorZero;
     else {
         let colorTemp, weight;
@@ -81,16 +81,16 @@ export function getTempBarsInfo(values: any, forWeek: boolean): TempBarHeight[] 
         let maxValue, maxValueStr, minValue, minValueStr, avgValue, avgValueStr, topHeight, midHeight, borderTopColor, borderBotColor;
         if (forWeek) {
             maxValue = Math.round(+day.temperature_max);
-            maxValueStr = (maxValue == 0 ? '' : (maxValue > 0 ? '+' : '')) + maxValue;
+            maxValueStr = (maxValue === 0 ? '' : (maxValue > 0 ? '+' : '')) + maxValue;
             minValue = Math.round(+day.temperature_min);
-            minValueStr = (minValue == 0 ? '' : (minValue > 0 ? '+' : '')) + minValue;
+            minValueStr = (minValue === 0 ? '' : (minValue > 0 ? '+' : '')) + minValue;
             topHeight = 15 + Math.round(maxPeriodValue - day.temperature_max) * 2;
             midHeight = 2 * (day.temperature_max - day.temperature_min);
             borderTopColor = getTempColor(day.temperature_max, true);
             borderBotColor = getTempColor(day.temperature_min, true);
         } else {
             avgValue = Math.round(+day.temperature);
-            avgValueStr = (avgValue == 0 ? '' : (avgValue > 0 ? '+' : '')) + avgValue;
+            avgValueStr = (avgValue === 0 ? '' : (avgValue > 0 ? '+' : '')) + avgValue;
             topHeight = 5 + (maxPeriodValue - day.temperature) * 4;
             midHeight = barHeight;
             borderTopColor = getTempColor(day.temperature, true);
@@ -120,7 +120,7 @@ export function getDayColor(dayDate: string) {
     const dt = new Date(dayDate);
     const day = dt.getDay();
     let color = 'blue';
-    if (day == 0 || day == 6) {
+    if (day === 0 || day === 6) {
         color = 'red';
     }
     return color;
@@ -164,7 +164,7 @@ export function getDayDate(dayDate: string, index: number): string {
     const dt = new Date(dayDate);
     const day = dt.getDate();
     let ret = day.toString();
-    if (day == 1 || index == 0) {
+    if (day === 1 || index === 0) {
         const month = dt.getMonth();
         ret += ' ' + getMonthName(month);
     }
@@ -193,7 +193,7 @@ export function checkNight(cellClass: string[], event: string, correct: number, 
     if (hour > sunset || hour < sunrise) {
         cellClass.push('night');
     }
-    if (hour == sunset || hour == sunrise) {
+    if (hour === sunset || hour === sunrise) {
         cellClass.push('twilight');
     }
 }
@@ -201,7 +201,7 @@ export function checkNight(cellClass: string[], event: string, correct: number, 
 export function checkWeekend(cellClass: string[], event: string) {
     const dt = new Date(event);
     const day = dt.getDay();
-    if (day == 0 || day == 6) {
+    if (day === 0 || day === 6) {
         cellClass.push('weekend');
     }
 }

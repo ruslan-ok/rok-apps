@@ -1,6 +1,7 @@
 from datetime import datetime
 import math, os
 import urllib.parse
+from django.conf import settings
 from django.http import HttpResponseRedirect
 from rest_framework import viewsets, permissions, status, renderers
 from rest_framework.decorators import action
@@ -154,7 +155,7 @@ class GroupViewSet(viewsets.ModelViewSet):
         app += '/'
         folder = self.request.query_params['folder']
         name = self.request.query_params['name']
-        storage_path = os.environ.get('DJANGO_STORAGE_PATH')
+        storage_path = settings.DJANGO_STORAGE_PATH
         store_dir = storage_path.format(request.user.username) + app + '/'
         try:
             os.mkdir(store_dir + folder + '/' + name)
@@ -180,7 +181,7 @@ class GroupViewSet(viewsets.ModelViewSet):
             path = self.request.query_params['path']
         folder = self.request.query_params['folder']
         new_name = self.request.query_params['new_name']
-        storage_path = os.environ.get('DJANGO_STORAGE_PATH')
+        storage_path = settings.DJANGO_STORAGE_PATH
         store_dir = storage_path.format(request.user.username) + app + '/'
         old_path = store_dir + path + folder
         new_path = store_dir + path + new_name
@@ -204,7 +205,7 @@ class GroupViewSet(viewsets.ModelViewSet):
         if 'path' in self.request.query_params:
             path = self.request.query_params['path']
         folder = self.request.query_params['folder']
-        storage_path = os.environ.get('DJANGO_STORAGE_PATH')
+        storage_path = settings.DJANGO_STORAGE_PATH
         store_dir = storage_path.format(request.user.username) + app + '/'
         folder_path = store_dir + path + folder
         try:
@@ -232,7 +233,7 @@ class GroupViewSet(viewsets.ModelViewSet):
         mod_time = datetime.strptime(mod_time_str, '%m-%d-%Y %I:%M%p')
         dt_epoch = mod_time.timestamp()
         try:
-            work_dir = os.environ.get('DJANGO_BACKUP_FOLDER')
+            work_dir = settings.DJANGO_BACKUP_FOLDER
             path = os.path.join(work_dir, folder)
             fname = os.path.join(path, file)
             os.utime(fname, (dt_epoch, dt_epoch))

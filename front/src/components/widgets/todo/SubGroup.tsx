@@ -46,11 +46,11 @@ function getSubGroupId(todo: Todo): SubGroupID {
         return 'earler';
     }
     
-    if (days == 0) {
+    if (days === 0) {
         return 'today';
     }
     
-    if (days == 1) {
+    if (days === 1) {
         return 'tomorrow';
     }
     
@@ -100,7 +100,7 @@ export function buildSubGroupList(items: any[]): SubGroupInfo[] {
         const subGroupId: SubGroupID = getSubGroupId(todo);
         const subGroupName = subGroupLabels[subGroupId];
         const subGroupOrder: number = subGroupOrders[subGroupId];
-        const sg = subGroups.filter((x: SubGroupInfo) => x.id == subGroupId);
+        const sg = subGroups.filter((x: SubGroupInfo) => x.id === subGroupId);
         if (sg.length) {
             sg[0].items.push(todo);
         } else {

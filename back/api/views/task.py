@@ -11,7 +11,7 @@ from rest_framework.response import Response
 
 from task import const
 from task.models import Task, Group, TaskGroup, GIQ_ADD_TASK, GIQ_DEL_TASK
-from rusel.utils import nice_date
+from core.utils import nice_date
 from api.serializers.task import TaskSerializer
 
 from fuel.views.fuel import add_fuel

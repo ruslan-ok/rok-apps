@@ -1,6 +1,8 @@
 import os, pathlib, urllib.parse, mimetypes
 from PIL import Image, UnidentifiedImageError
 from PIL.ExifTags import TAGS, GPSTAGS
+
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.shortcuts import get_object_or_404
 from django.http import FileResponse, HttpResponseRedirect
@@ -9,10 +11,9 @@ from django.views.generic.edit import FormView
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from task.const import APP_PHOTO, ROLE_PHOTO, ROLE_APP
-from task.models import Photo
 from core.dir_views import BaseDirView
-from photo.config import app_config
 from photo.forms import PhotoForm
+from photo.models import Photo
 
 role = ROLE_PHOTO
 app = ROLE_APP[role]
@@ -21,7 +22,7 @@ class FolderView(LoginRequiredMixin, PermissionRequiredMixin, BaseDirView):
     permission_required = 'task.view_photo'
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(role, *args, **kwargs)
         self.template_name = 'photo/folder.html'
 
     def get(self, request, *args, **kwargs):
@@ -41,7 +42,7 @@ class FolderView(LoginRequiredMixin, PermissionRequiredMixin, BaseDirView):
     def get_context_data(self, **kwargs):
         self.store_dir = photo_storage(self.request.user)
         context = super().get_context_data(**kwargs)
-        if (self.config.cur_view_group.view_id == 'map'):
+        if self.config.cur_view_group and (self.config.cur_view_group.view_id == 'map'):
             self.template_name = 'photo/map.html'
         context['list_href'] = '/photo/'
         context['cur_folder'] = self.cur_folder
@@ -190,10 +191,10 @@ class Entry:
 #----------------------------------
 def get_storage(user, folder, service=False):
     if service:
-        service_path = os.environ.get('DJANGO_SERVICE_PATH')
+        service_path = settings.DJANGO_SERVICE_PATH
         path = service_path.format(user.id) + '{}/'.format(folder)
     else:
-        storage_path = os.environ.get('DJANGO_STORAGE_PATH')
+        storage_path = settings.DJANGO_STORAGE_PATH
         path = storage_path.format(user.username) + '{}/'.format(folder)
     pathlib.Path(path).mkdir(parents=True, exist_ok=True)
     return path

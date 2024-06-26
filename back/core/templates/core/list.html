@@ -3,9 +3,9 @@
 
 {% block extrastyle %}
   {{ block.super }}
-  <link href="{% static 'css/tune.min.css' %}" rel="stylesheet">
-  <link href="{% static 'css/list.min.css' %}" rel="stylesheet">
-  <link href="{% static 'css/category.min.css' %}" rel="stylesheet">
+  <link href="{% static 'core/css/tune.min.css' %}" rel="stylesheet">
+  <link href="{% static 'core/css/list.min.css' %}" rel="stylesheet">
+  <link href="{% static 'core/css/category.min.css' %}" rel="stylesheet">
   <link href="{% static 'iziToast/css/iziToast.min.css' %}" rel="stylesheet">
 {% endblock %}
 
@@ -72,5 +72,5 @@
 {% block extrascript %}
   {{ block.super }}
   <script src="{% static 'iziToast/js/iziToast.min.js' %}"></script>
-  <script src="{% static 'js/list.js' %}"></script>
+  <script src="{% static 'core/js/list.js' %}"></script>
 {% endblock %}

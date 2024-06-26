@@ -3,9 +3,9 @@ from django.utils.translation import gettext_lazy as _
 
 from core.forms import BaseCreateForm, BaseEditForm
 from apart.models import Apart
-from apart.config import app_config
+from task.const import APP_APART
 
-role = 'apart'
+app = APP_APART
 
 #----------------------------------
 class CreateForm(BaseCreateForm):
@@ -15,7 +15,7 @@ class CreateForm(BaseCreateForm):
         fields = ['name']
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
         
 #----------------------------------
 class EditForm(BaseEditForm):
@@ -45,7 +45,7 @@ class EditForm(BaseEditForm):
         fields = ['name', 'info', 'sort', 'price_unit', 'bill_residents']
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
 
     def clean_bill_residents(self):
         bill_residents = self.cleaned_data['bill_residents']

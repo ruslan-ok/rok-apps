@@ -1,5 +1,6 @@
 import os
 from datetime import datetime, date
+from django.conf import settings
 from rest_framework.decorators import api_view, permission_classes, renderer_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
@@ -41,8 +42,8 @@ def get_chart_data_api(request):
     s_period = request.GET.get('period', '')
     base = request.GET.get('base', 'usd')
     location = request.GET.get('location', '')
-    lat = request.GET.get('lat', os.getenv('API_WEATHER_LAT'))
-    lon = request.GET.get('lon', os.getenv('API_WEATHER_LON'))
+    lat = request.GET.get('lat', settings.API_WEATHER_LAT)
+    lon = request.GET.get('lon', settings.API_WEATHER_LON)
     try:
         period = ChartPeriod(s_period)
     except:

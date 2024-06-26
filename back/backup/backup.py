@@ -1,13 +1,14 @@
 import os, glob, pyzipper, subprocess, time
 from datetime import datetime, timedelta
+from django.conf import settings
 from backup.sync import Sync
 from logs.logger import get_logger, set_service
 
 except_dirs = [
-    'apps\\rusel\\.git',
-    'apps\\rusel\\front\\dist',
-    'apps\\rusel\\front\\media',
-    'apps\\rusel\\front\\node_modules',
+    'apps/rok/.git',
+    'apps/rok/front/dist',
+    'apps/rok/front/media',
+    'apps/rok/front/node_modules',
 ]
 
 logger = get_logger(__name__)
@@ -35,18 +36,18 @@ class Backup():
         self.device = device
         self.service_name = service_name
         self.duration = duration
-        self.folders = [x.replace('\\\\', '\\') for x in folders]
+        # self.folders = [x.replace('//', '/') for x in folders]
         self.first_day = first_day
         self.last_day = last_day
         self.etalon = []
         self.fact = []
         self.content = []
-        self.backup_folder = os.environ.get('DJANGO_BACKUP_FOLDER')
+        self.backup_folder = settings.DJANGO_BACKUP_FOLDER
         self.service_descr = service_descr
-        self.work_dir = self.backup_folder + device.lower() + '\\' + service_descr
+        self.work_dir = self.backup_folder + '/' + device.lower() + '/' + service_descr
         self.prefix = device + '-(' + str(duration) + ')-'
         self.fill()
-        self.arch_pwrd = os.environ.get('DJANGO_BACKUP_PWRD')
+        self.arch_pwrd = settings.DJANGO_BACKUP_PWRD
         set_service(logger, service_name)
 
     def get_arh_name_by_day(self, day):
@@ -111,9 +112,9 @@ class Backup():
 
     def fill(self):
         self.fact.clear()
-        for x in glob.glob(self.work_dir + '\\*.zip'):
+        for x in glob.glob(self.work_dir + '/*.zip'):
             size = self.sizeof_fmt(os.path.getsize(x))
-            arch_name = x.replace(self.work_dir + '\\', '')
+            arch_name = x.replace(self.work_dir + '/', '')
             arch_age = self.get_arh_age(arch_name, self.last_day)
             item = ArchItem(arch_name, arch_age)
             item.size = size
@@ -170,21 +171,22 @@ class Backup():
         if not len(self.etalon):
             return False
         actual_etalon = self.etalon[0]
-        last_fact = self.fact[0]
-        if last_fact.age >= actual_etalon.min_range and last_fact.age <= actual_etalon.max_range:
-            return False
+        if self.fact:
+            last_fact = self.fact[0]
+            if last_fact.age >= actual_etalon.min_range and last_fact.age <= actual_etalon.max_range:
+                return False
         return True
 
     def backup_db(self, zf):
         logger.info('+backup_db() started')
         file = 'mysql_backup.sql'
-        sql_util = '"' + os.environ.get('DJANGO_BACKUP_SQL_UTIL', '') + '"'
+        sql_util = '"' + settings.DJANGO_BACKUP_SQL_UTIL + '"'
         logger.debug(f'sql_util = {sql_util}')
-        sql_user = os.environ.get('DJANGO_BACKUP_SQL_USER', '')
+        sql_user = settings.DJANGO_BACKUP_SQL_USER
         logger.debug(f'sql_user = {sql_user}')
-        sql_pass = os.environ.get('DJANGO_BACKUP_SQL_PWRD', '')
+        sql_pass = settings.DJANGO_BACKUP_SQL_PWRD
         logger.debug(f'sql_pass = {sql_pass}')
-        sql_schema = os.environ.get('DJANGO_BACKUP_SQL_SCHEMA', '')
+        sql_schema = settings.DJANGO_BACKUP_SQL_SCHEMA
         logger.debug(f'sql_schema = {sql_schema}')
         command = sql_util + ' --user=' + sql_user + ' --password=' + sql_pass + ' --result-file=' + file + ' ' + sql_schema
         logger.debug(f'command = {command}')
@@ -202,8 +204,8 @@ class Backup():
 
     def backup_mail(self, zf):
         logger.info('+backup_mail() started')
-        script = os.environ.get('DJANGO_BACKUP_MAIL_UTIL', '')
-        wait_time = int(os.environ.get('DJANGO_BACKUP_MAIL_WAIT', '600'))
+        script = settings.DJANGO_BACKUP_MAIL_UTIL
+        wait_time = int(settings.DJANGO_BACKUP_MAIL_WAIT)
         ret = subprocess.run('cscript ' + script)
         if (ret.returncode != 0):
             logger.error('backup_mail: Вызов subprocess.run вернул код ошибки ' + str(ret.returncode))
@@ -214,7 +216,7 @@ class Backup():
         sec = int((datetime.now()-start_dt).total_seconds())
         while (sz == 0) and (sec < wait_time):
             time.sleep(5)
-            fl = glob.glob(self.work_dir + '\\..\\HMBackup*.7z')
+            fl = glob.glob(self.work_dir + '/../HMBackup*.7z')
             logger.debug('backup_mail: Количество найденных архивов ' + str(len(fl)))
             fn = '???'
             if (len(fl) > 0):
@@ -242,7 +244,7 @@ class Backup():
             total += 1
             sz = os.path.getsize(f)
             self.content.append('   ' + f + '    ' + self.sizeof_fmt(sz))
-            zf.write(f, arcname=f.split(self.work_dir + '\\..\\')[1])
+            zf.write(f, arcname=f.split(self.work_dir + '/../')[1])
             logger.info('remove ' + f)
             os.remove(f)
         logger.info('-backup_mail() finished')
@@ -260,7 +262,7 @@ class Backup():
 
     def backup_reqs(self, zf):
         logger.info('+backup_reqs() started')
-        python_exe = os.environ.get('DJANGO_PYTHON', 'python.exe')
+        python_exe = settings.DJANGO_PYTHON
         reqs = subprocess.check_output([python_exe, '-Xfrozen_modules=off', '-m', 'pip', 'freeze'], universal_newlines=True)
         file = 'reqs.txt'
         with open(file, 'w', encoding='utf-8') as f:
@@ -280,7 +282,7 @@ class Backup():
             os.mkdir(dir_name)
 
         fn = self.prefix + datetime.now().strftime('%Y.%m.%d') + '.zip'
-        dir_file = self.work_dir + '\\' + fn
+        dir_file = self.work_dir + '/' + fn
 
         zf = pyzipper.AESZipFile(dir_file, 'w', compression=pyzipper.ZIP_LZMA, encryption=pyzipper.WZ_AES)
         zf.setpassword(str.encode(self.arch_pwrd))
@@ -326,12 +328,12 @@ class Backup():
     # Удаление неактуальных архивов
     def zipping(self):
         logger.info('+zipping() started')
-        arh_path_list = glob.glob(self.work_dir + '\\*.zip')
+        arh_path_list = glob.glob(self.work_dir + '/*.zip')
 
         # Предварительный анализ файлов архивов
         arhs = []
         for x in arh_path_list:
-            arh_name = x.split('\\')[-1]
+            arh_name = x.split('/')[-1]
             arh_age = self.get_arh_age(arh_name, datetime.today().date())
             etalon = None
             matched = False

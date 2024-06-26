@@ -3,8 +3,8 @@ from django.utils.translation import gettext_lazy as _
 from core.forms import BaseCreateForm, BaseEditForm
 from task.const import ROLE_TODO
 from task.models import Task
-from todo.config import app_config
-from rusel.widgets import UrlsInput, CategoriesInput, CompletedInput
+#from todo.models import Item
+from core.widgets import UrlsInput, CategoriesInput, CompletedInput
 
 role = ROLE_TODO
 
@@ -13,10 +13,11 @@ class CreateForm(BaseCreateForm):
 
     class Meta:
         model = Task
+        #model = Item
         fields = ['name']
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(role, *args, **kwargs)
         
 #----------------------------------
 class EditForm(BaseEditForm):
@@ -49,6 +50,7 @@ class EditForm(BaseEditForm):
     
     class Meta:
         model = Task
+        #model = Item
         fields = ['completed', 'name', 'add_step', 'stop', 'repeat', 'repeat_num', 'repeat_days', 'remind', 
                     'info', 'grp', 'categories', 'url', 'upload']
         widgets = {
@@ -61,4 +63,4 @@ class EditForm(BaseEditForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(role, *args, **kwargs)

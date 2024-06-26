@@ -5,8 +5,9 @@ A regular call to the API method that provides the operation of various site ser
 import os, sys, requests, time, json, traceback
 from dataclasses import dataclass
 from enum import Enum
+from django.conf import settings
 
-DJANGO_CERT = os.environ.get('DJANGO_CERT')
+DJANGO_CERT = settings.DJANGO_CERT
 MODULE_DIR = os.path.dirname(os.path.abspath(DJANGO_CERT)) + '\\'
 
 sys.path.append(os.path.dirname(MODULE_DIR))
@@ -30,12 +31,12 @@ class ApiCallState:
 
 @dataclass(frozen=True)
 class Params:
-    this_server = os.environ.get('DJANGO_DEVICE', '???')
-    api_host: str = os.environ.get('DJANGO_HOST_API', '')
-    verify: str = os.environ.get('DJANGO_CERT', '')
+    this_server = settings.DJANGO_DEVICE
+    api_host: str = settings.DJANGO_HOST_API
+    verify: str = settings.DJANGO_CERT
     api_url: str = api_host + '/api/tasks/check_background_services/?format=json'
-    service_token: str = os.environ.get('DJANGO_SERVICE_TOKEN', '')
-    timer_interval_sec: int = int(os.environ.get('DJANGO_SERVICE_INTERVAL_SEC', 60))
+    service_token: str = settings.DJANGO_SERVICE_TOKEN
+    timer_interval_sec: int = settings.DJANGO_SERVICE_INTERVAL_SEC
 
     def headers(self):
         return {'Authorization': 'Token ' + self.service_token, 'User-Agent': 'Mozilla/5.0'}

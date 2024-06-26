@@ -1,7 +1,8 @@
-import os, json, requests
+import json, requests
 from datetime import datetime, timedelta
 from dataclasses import dataclass
 from decimal import Decimal
+from django.conf import settings
 from core.currency.utils import get_hist_exchange_rates
 from core.hp_widget.delta import get_start_date, approximate, ChartPeriod, SourceData, build_chart_config
 
@@ -119,17 +120,17 @@ def get_db_currency_chart(period: ChartPeriod, base: str):
     return widget_data
 
 def get_api_currency_chart(period: ChartPeriod, base: str):
-    api_url = os.environ.get('DJANGO_HOST_LOG', '')
-    service_token = os.environ.get('DJANGO_SERVICE_TOKEN', '')
+    api_url = settings.DJANGO_HOST_LOG
+    service_token = settings.DJANGO_SERVICE_TOKEN
     headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
-    verify = os.environ.get('DJANGO_CERT', '')
+    verify = settings.DJANGO_CERT
     resp = requests.get(api_url + '/api/get_chart_data/?mark=currency&period=' + period.value + '&base=' + base, headers=headers, verify=verify)
     if (resp.status_code != 200):
         return None
     return json.loads(resp.content)
 
 def get_currency_data(period: ChartPeriod, base: str):
-    if os.environ.get('DJANGO_DEVICE', 'Nuc') != os.environ.get('DJANGO_LOG_DEVICE', 'Nuc'):
+    if settings.DJANGO_DEVICE != settings.DJANGO_LOG_DEVICE:
         ret = get_api_currency_chart(period, base)
         if ret:
             return ret

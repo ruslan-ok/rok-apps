@@ -4,7 +4,6 @@ from core.views import BaseListView, BaseDetailView
 from health.forms.incident import CreateForm, EditForm
 from task.const import ROLE_INCIDENT, ROLE_APP
 from task.models import Task
-from health.config import app_config
 
 role = ROLE_INCIDENT
 app = ROLE_APP[role]
@@ -15,7 +14,7 @@ class ListView(LoginRequiredMixin, PermissionRequiredMixin, BaseListView):
     permission_required = 'task.view_health'
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
 
 
 class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView):
@@ -24,7 +23,7 @@ class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView):
     permission_required = 'task.change_health'
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
 
     def form_valid(self, form):
         response = super().form_valid(form)

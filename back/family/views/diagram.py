@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.template import loader
 from family.views.base import GenealogyContext
 from family.models import Params, UserSettings
-from family.config import app_config
+from task.const import APP_FAMILY
 
 
 @login_required(login_url='account:login')
@@ -23,7 +23,7 @@ def diagram_start(request):
 def diagram(request, tree_id):
     ctx = GenealogyContext()
     ctx.request = request
-    ctx.set_config(app_config, 'tree')
+    ctx.set_config(APP_FAMILY, 'tree')
     ctx.config.set_view(request)
     context = ctx.get_app_context(request.user.id, icon=ctx.config.view_icon)
     tree = Params.get_cur_tree(request.user)

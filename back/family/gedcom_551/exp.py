@@ -1,5 +1,6 @@
 import os, io
 from datetime import datetime
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.shortcuts import get_object_or_404
@@ -113,8 +114,8 @@ class ExpGedcom551:
     def write_header(self, tree):
         if self.light_version:
             return
-        site = os.environ.get('DJANGO_HOST_MAIL', '')
-        addr = os.environ.get('DJANGO_HOST_ADDR', '')
+        site = settings.DJANGO_HOST_MAIL
+        addr = settings.DJANGO_HOST_ADDR
         name = tree.name
         if not name:
             name = tree.file
@@ -138,7 +139,7 @@ class ExpGedcom551:
         self.write_required(1, 'GEDC', used_by_chart=False)
         self.write_optional(2, 'VERS', tree.gedc_vers, used_by_chart=False)
         self.write_optional(2, 'FORM', tree.gedc_form, used_by_chart=False)
-        self.write_optional(1, 'CHAR', tree.char, used_by_chart=False)
+        self.write_optional(1, 'CHAR', tree.char_set, used_by_chart=False)
         self.write_optional(2, 'VERS', tree.char_vers, used_by_chart=False)
         self.write_optional(1, 'LANG', tree.lang, used_by_chart=False)
         self.write_text(1, 'NOTE', tree.note, used_by_chart=False)
@@ -243,14 +244,14 @@ class ExpGedcom551:
                 fname = x.file.split('/')[-1]
                 host = ''
                 if not self.light_version:
-                    host = os.environ.get('DJANGO_HOST_API', '')
+                    host = settings.DJANGO_HOST_API
                 url = host + reverse('family:doc', args=('pedigree', obje.tree.id, fname))
                 self.write_optional(1, 'FILE', url, used_by_chart=used_by_chart)
             used_by_chart = False
             if self.light_version:
                 break
             self.write_optional(2, 'FORM', x.form)
-            self.write_optional(3, 'TYPE', x.type)
+            self.write_optional(3, 'TYPE', x.mmf_type)
             self.write_optional(2, 'TITL', x.titl)
         if not self.light_version:
             for x in UserReferenceNumber.objects.filter(obje=obje.id).order_by('_sort'):
@@ -477,7 +478,7 @@ class ExpGedcom551:
                 value += ' '
             value += '/' + name.piec.surn + '/'
         self.write_required(level, 'NAME', value)
-        self.write_optional(level+1, 'TYPE', name.type)
+        self.write_optional(level+1, 'TYPE', name.pns_type)
         self.write_name_pieces(level+1, name.piec)
         for x in NamePhoneticVariation.objects.filter(name=name.id):
             self.write_phonetic(level+1, x)
@@ -501,12 +502,12 @@ class ExpGedcom551:
 
     def write_phonetic(self, level, phon, used_by_chart=True):
         self.write_required(level, 'FONE', phon.value, used_by_chart=used_by_chart)
-        self.write_optional(level+1, 'TYPE', phon.type, used_by_chart=used_by_chart)
+        self.write_optional(level+1, 'TYPE', phon.npv_type, used_by_chart=used_by_chart)
         self.write_name_pieces(level+1, phon.piec, used_by_chart=used_by_chart)
 
     def write_romanized(self, level, roma, used_by_chart=True):
         self.write_required(level, 'ROMN', roma.value, used_by_chart=used_by_chart)
-        self.write_optional(level+1, 'TYPE', roma.type, used_by_chart=used_by_chart)
+        self.write_optional(level+1, 'TYPE', roma.nrv_type, used_by_chart=used_by_chart)
         self.write_name_pieces(level+1, roma.piec, used_by_chart=used_by_chart)
 
     def write_citate(self, level, cita, used_by_chart=True):
@@ -545,7 +546,7 @@ class ExpGedcom551:
         else:
             self.write_required(level, attr.tag, attr.value, used_by_chart=used_by_chart)
         self.write_event_detail(level+1, attr.deta, used_by_chart=used_by_chart)
-        self.write_optional(level+1, 'TYPE', attr.type, used_by_chart=used_by_chart)
+        self.write_optional(level+1, 'TYPE', attr.ias_type, used_by_chart=used_by_chart)
 
     def write_fam_event(self, level, even, used_by_chart=True):
         self.write_required(level, even.tag, even.value, used_by_chart=used_by_chart)
@@ -559,8 +560,8 @@ class ExpGedcom551:
 
     def write_event_detail(self, level, deta, used_by_chart=True):
         if deta:
-            self.write_optional(level, 'TYPE', deta.type, used_by_chart=used_by_chart)
-            self.write_optional(level, 'DATE', deta.date, used_by_chart=used_by_chart)
+            self.write_optional(level, 'TYPE', deta.event_type, used_by_chart=used_by_chart)
+            self.write_optional(level, 'DATE', deta.event_date, used_by_chart=used_by_chart)
             self.write_place(level, deta.plac, used_by_chart=used_by_chart)
             self.write_address(level, deta.addr, used_by_chart=used_by_chart)
             self.write_optional(level, 'AGNC', deta.agnc, used_by_chart=used_by_chart)
@@ -605,7 +606,7 @@ class ExpGedcom551:
 
     def write_refn(self, level, refn, used_by_chart=True):
         self.write_optional(level, 'REFN', refn.refn, used_by_chart=used_by_chart)
-        self.write_optional(level+1, 'TYPE', refn.type, used_by_chart=used_by_chart)
+        self.write_optional(level+1, 'TYPE', refn.urn_type, used_by_chart=used_by_chart)
 
     def write_media_link(self, level, media, used_by_chart=True):
         if media.obje:

@@ -8,7 +8,7 @@ function Logo({icon, title}: {icon: string, title: undefined | string}) {
   
     let logo = 
       <div className='logo'>
-        <img src={icon} />
+        <img src={icon} alt="icon"/>
         {appTitle}
       </div>;
   

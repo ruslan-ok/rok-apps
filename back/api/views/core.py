@@ -1,6 +1,7 @@
-import os, json, requests
+import json, requests
 from datetime import datetime
 from decimal import Decimal
+from django.conf import settings
 from rest_framework.decorators import api_view, permission_classes, renderer_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
@@ -14,10 +15,10 @@ CURRENCIES = ('usd', 'eur', 'pln', 'byn', 'gbp')
 
 
 def get_api_exchange_rate(request):
-    api_url = os.environ.get('DJANGO_HOST_LOG', '')
-    service_token = os.environ.get('DJANGO_SERVICE_TOKEN', '')
+    api_url = settings.DJANGO_HOST_LOG
+    service_token = settings.DJANGO_SERVICE_TOKEN
     headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
-    verify = os.environ.get('DJANGO_CERT', '')
+    verify = settings.DJANGO_CERT
     params = '&'.join([k + '=' + v for k, v in request.query_params.items()])
     url = api_url + '/api/core/get_exchange_rate/?' + params
     resp = requests.get(url, headers=headers, verify=verify)
@@ -30,7 +31,7 @@ def get_api_exchange_rate(request):
 @renderer_classes([JSONRenderer])
 def get_exchange_rate(request):
 
-    if os.environ.get('DJANGO_DEVICE', 'Nuc') != os.environ.get('DJANGO_LOG_DEVICE', 'Nuc'):
+    if settings.DJANGO_DEVICE != settings.DJANGO_LOG_DEVICE:
         ret = get_api_exchange_rate(request)
         return Response(ret)
 

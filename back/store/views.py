@@ -7,7 +7,6 @@ from task.const import ROLE_STORE, ROLE_APP, NUM_ROLE_STORE
 from task.models import Task, Hist, PassParams
 from core.views import BaseListView, BaseDetailView, BaseGroupView, Context
 from store.forms import CreateForm, EditForm, ParamsForm
-from store.config import app_config
 from store.get_info import get_info
 
 role = ROLE_STORE
@@ -28,7 +27,7 @@ class ListView(LoginRequiredMixin, PermissionRequiredMixin, BaseListView, TuneDa
     permission_required = 'task.view_entry'
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
 
 
 class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView, TuneData):
@@ -37,7 +36,7 @@ class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView, Tu
     permission_required = 'task.change_entry'
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -59,7 +58,7 @@ class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView, Tu
             params += 64
         if store_params.ac:
             params += 128
-        context['default_len'] = store_params.ln
+        context['default_len'] = store_params.length
         context['default_params'] = params
         hist = Hist.objects.filter(task=self.get_object().id).order_by('-valid_until')
         context['store_history'] = hist
@@ -88,7 +87,7 @@ class ParamsView(Context, TuneData):
         super().__init__(*args, **kwargs)
         self.object = None
         self.request = request
-        self.set_config(app_config, ROLE_STORE)
+        self.set_config(ROLE_STORE)
         self.config.set_view(request)
 
 @login_required(login_url='account:login')
@@ -114,13 +113,13 @@ def params(request):
 class GroupView(LoginRequiredMixin, BaseGroupView, TuneData):
 
     def __init__(self):
-        super().__init__(app_config, role)
+        super().__init__(app)
 
 def get_store_params(user):
     if PassParams.objects.filter(user = user.id).exists():
         return PassParams.objects.filter(user = user.id).get()
     else:
-        return PassParams.objects.create(user = user, ln = 30, uc = True, lc = True, dg = True, sp = True, br = True, mi = True, ul = True, ac = False)
+        return PassParams.objects.create(user = user, length = 30, uc = True, lc = True, dg = True, sp = True, br = True, mi = True, ul = True, ac = False)
 
 def add_item(user, name):
     params, username, value = PassParams.get_new_value(user)

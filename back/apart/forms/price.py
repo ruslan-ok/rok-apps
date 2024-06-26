@@ -2,13 +2,12 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from core.forms import BaseCreateForm, BaseEditForm
-from rusel.widgets import DateInput, Select, NumberInput, UrlsInput
+from core.widgets import DateInput, Select, NumberInput, UrlsInput
 from apart.const import APART_SERVICE, apart_service_name_by_id
 from apart.models import ApartService, ApartPrice
-from apart.config import app_config
-from task.const import NUM_ROLE_SERV_PROP
+from task.const import APP_APART, NUM_ROLE_SERV_PROP
 
-role = 'price'
+app = APP_APART
 
 #----------------------------------
 class CreateForm(BaseCreateForm):
@@ -23,7 +22,7 @@ class CreateForm(BaseCreateForm):
         fields = ['new_service']
 
     def __init__(self, nav_item, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
         service_sorts = {}
         for service in ApartService.objects.filter(user=nav_item.user.id, app_apart=NUM_ROLE_SERV_PROP, task_1=nav_item.id).order_by('sort'):
             if service.name not in service_sorts.keys():
@@ -80,5 +79,5 @@ class EditForm(BaseEditForm):
         fields = ['start', 'service_name', 'price_tarif', 'price_border', 'price_tarif2', 'price_border2', 'price_tarif3', 'info', 'url']
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
         self.fields['service_name'].initial = apart_service_name_by_id(kwargs['instance'].price_service)

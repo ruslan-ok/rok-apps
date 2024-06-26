@@ -1,5 +1,6 @@
 import urllib, os, glob, re
 from PIL import Image
+from django.conf import settings
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -9,9 +10,9 @@ from django.views.generic.edit import FormView, UpdateView, FormMixin
 from django.shortcuts import get_object_or_404
 from core.context import Context
 from core.dir_forms import UploadForm
-from rusel.utils import extract_get_params
+from core.utils import extract_get_params
 from family.models import FamTree, FamTreeUser, FamRecord, IndividualRecord, MultimediaRecord, RepositoryRecord, NoteStructure, SourceRecord, SubmitterRecord, Params
-from family.config import app_config
+from task.const import APP_FAMILY
 
 
 class GenealogyContext(Context):
@@ -36,7 +37,7 @@ class GenealogyContext(Context):
     def get_app_context(self, user_id, search_qty=None, icon=None, nav_items=None, role=None):
         self.config.set_view(self.request)
         cur_tree = Params.get_cur_tree(self.request.user)
-        title = cur_tree.name
+        title = cur_tree and cur_tree.name or 'Family tree'
         context = super().get_app_context(user_id, search_qty, icon, nav_items, title=title)
         if cur_tree:
             context['current_group'] = str(cur_tree.id)
@@ -47,7 +48,7 @@ class GenealogyListView(ListView, GenealogyContext, LoginRequiredMixin):
 
     def __init__(self):
         super().__init__()
-        self.set_config(app_config, 'tree')
+        self.set_config(APP_FAMILY) #, 'tree')
 
     def get_context_data(self):
         context = super().get_context_data()
@@ -63,7 +64,7 @@ class GenealogyDetailsView(UpdateView, GenealogyContext, LoginRequiredMixin, For
 
     def __init__(self):
         super().__init__()
-        self.set_config(app_config, 'tree')
+        self.set_config(APP_FAMILY) #, 'tree')
 
     def get_success_url(self):
         if ('form_close' in self.request.POST):
@@ -88,14 +89,14 @@ def photo(request, ft):
     file = get_name_from_request(request, 'file')
     get_object_or_404(FamTreeUser.objects.filter(user_id=request.user.id, tree_id=ft))
     tree = get_object_or_404(FamTree.objects.filter(id=ft))
-    storage_path = os.environ.get('DJANGO_STORAGE_PATH', '')
+    storage_path = settings.DJANGO_STORAGE_PATH
     media_path = storage_path.format('family_tree') + tree.store_name()
     fsock = open(media_path + '/' + file, 'rb')
     return FileResponse(fsock)
 
 def scaled_image(mmr: MultimediaRecord, size: int) -> HttpResponse:
     file = mmr.get_file()
-    storage_path = os.environ.get('DJANGO_STORAGE_PATH', '')
+    storage_path = settings.DJANGO_STORAGE_PATH
     media_path = storage_path.format('family_tree') + mmr.tree.store_name()
     img = Image.open(media_path + '/' + file)
     if mmr._posi:
@@ -139,7 +140,7 @@ def avatar(request, ft, pk):
     return default_avatar(150)
 
 def default_avatar(size: int) -> HttpResponse:
-    static_path = os.environ.get('DJANGO_STATIC_ROOT', '')
+    static_path = settings.DJANGO_STATIC_ROOT
     img = Image.open(static_path + '/Default-avatar.jpg')
     thumb_size = (size, size, )
     img.thumbnail(thumb_size)

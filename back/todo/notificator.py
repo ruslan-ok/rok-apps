@@ -1,7 +1,9 @@
-import os
-from datetime import datetime
 import firebase_admin
+from datetime import datetime
 from firebase_admin import credentials, messaging
+
+from django.conf import settings
+
 from task.models import Task, TaskGroup
 from todo.models import Subscription
 from task.const import ROLE_TODO
@@ -16,8 +18,8 @@ class Notificator(SiteService):
 
     def __init__(self, *args, **kwargs):
         super().__init__('Рассылка уведомлений о задачах', *args, **kwargs)
-        self.host = os.environ.get('DJANGO_HOST_API', 'http://localhost:8000')
-        self.cred_cert = os.environ.get('FIREBASE_ACCOUNT_CERT')
+        self.host = settings.DJANGO_HOST_API
+        self.cred_cert = settings.FIREBASE_ACCOUNT_CERT
 
     def ripe(self):
         """Are there any tasks that need to be reminded.
@@ -26,17 +28,17 @@ class Notificator(SiteService):
         ----------
         True if any.
         """
-        if 'localhost' in self.host:
-            return False, False
+        # if 'localhost' in self.host:
+        #     return False, False
         now = datetime.now()
         self.tasks = Task.objects.filter(completed=False, remind__lt=now).exclude(remind=None)
-        logger.info({'one_per_day': True, 'message': 'result = ' + str(len(self.tasks) > 0)})
+        # logger.info({'one_per_day': True, 'message': 'result = ' + str(len(self.tasks) > 0)})
         return len(self.tasks) > 0, False
 
     def process(self):
         """Generating of reminder messages.
         """
-        logger.info('task qnt = ' + str(len(self.tasks)))
+        logger.info('Notificator: task qnt = ' + str(len(self.tasks)))
         ret, compl = self.ripe()
         if not ret:
             return ret
@@ -89,15 +91,15 @@ class Notificator(SiteService):
             priority = 'normal'
         myicon = self.host + '/static/rusel.png'
         mybadge = ''
-        click_action = self.host + '/todo/' + str(task.id) + '/'
+        click_action = self.host + '/todo/' + str(task.id)
         an = messaging.AndroidNotification(title=task.name, body=body, icon=myicon, color=None, sound=None, tag=None, click_action=click_action, body_loc_key=None, \
                                         body_loc_args=None, title_loc_key=None, title_loc_args=None, channel_id=None, image=None, ticker=None, sticky=None, \
                                         event_timestamp=None, local_only=None, priority=None, vibrate_timings_millis=None, default_vibrate_timings=None, \
                                         default_sound=None, light_settings=None, default_light_settings=None, visibility=None, notification_count=None)
         messaging.AndroidConfig(collapse_key=None, priority=priority, ttl=None, restricted_package_name=None, data=None, notification=an, fcm_options=None)
         actions = []
-        a1 = messaging.WebpushNotificationAction('postpone', 'Postpone 1 hour', icon=self.host+'/static/icons/postpone.png')
-        a2 = messaging.WebpushNotificationAction('done', 'Done', icon=self.host+'/static/icons/completed.png')
+        a1 = messaging.WebpushNotificationAction('postpone', 'Postpone 1 hour', icon=self.host+'/static/todo/icons/postpone.png')
+        a2 = messaging.WebpushNotificationAction('done', 'Done', icon=self.host+'/static/todo/icons/completed.png')
         actions.append(a1)
         actions.append(a2)
 

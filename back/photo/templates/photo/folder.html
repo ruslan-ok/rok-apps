@@ -3,9 +3,9 @@
 
 {% block extrastyle %}
   {{ block.super }}
-  <link href="{% static 'css/tune.min.css' %}" rel="stylesheet">
-  <link href="{% static 'css/home.min.css' %}" rel="stylesheet">
-  <link href="{% static 'css/photo.min.css' %}" rel="stylesheet">
+  <link href="{% static 'core/css/tune.min.css' %}" rel="stylesheet">
+  <link href="{% static 'core/css/home.min.css' %}" rel="stylesheet">
+  <link href="{% static 'photo/css/photo.min.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block main %}
@@ -16,8 +16,8 @@
     {% for item in file_list %}
       <div>
         <div class="gallery">
-          <a href="slider/?folder={{ cur_folder }}#photo-{{ item.num }}">
-            <img src="get_thumb/?folder={{ cur_folder }}&file={{ item.url }}" alt="{{ item.name }}">  </a>
+          <a href="slider?folder={{ cur_folder }}#photo-{{ item.num }}">
+            <img src="get_thumb?folder={{ cur_folder }}&file={{ item.url }}" alt="{{ item.name }}">  </a>
           <div class="desc">{{ item.name }}</div>
         </div>
       </div>
@@ -28,9 +28,9 @@
 
 {% block extrascript %}
   {{ block.super }}
-  <script src="{% static 'js/docs.js' %}"></script>
+  <script src="{% static 'core/js/docs.js' %}"></script>
   <script>
     buildDirTree('dirs-tree');
   </script>
-  <script src="{% static 'js/uploadFile.js' %}"></script>
+  <script src="{% static 'core/js/uploadFile.js' %}"></script>
 {% endblock %}

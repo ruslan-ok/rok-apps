@@ -3,11 +3,10 @@ from django.utils.translation import gettext_lazy as _
 
 from core.forms import BaseCreateForm, BaseEditForm
 from task.models import Task
-from task.const import NUM_ROLE_PART, ROLE_SERVICE
-from fuel.config import app_config
-from rusel.widgets import DateInput, UrlsInput, CategoriesInput, Select
+from task.const import NUM_ROLE_PART, APP_FUEL
+from core.widgets import DateInput, UrlsInput, CategoriesInput, Select
 
-role = ROLE_SERVICE
+app = APP_FUEL
 
 #----------------------------------
 class CreateForm(BaseCreateForm):
@@ -22,7 +21,7 @@ class CreateForm(BaseCreateForm):
         fields = ['new_part']
 
     def __init__(self, nav_item, user_id, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
         part_choices = []
         for part in Task.objects.filter(user=user_id, app_fuel=NUM_ROLE_PART, task_1=nav_item.id):
             part_choices.append((part.id, part.name),)
@@ -73,6 +72,6 @@ class EditForm(BaseEditForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
         self.fields['task_2'].queryset = Task.objects.filter(user=self.instance.user.id, app_fuel=NUM_ROLE_PART, task_1=self.instance.task_1.id).order_by('name')
 

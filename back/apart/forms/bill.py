@@ -2,11 +2,11 @@ from django import forms
 from django.utils.translation import gettext_lazy as _, gettext
 
 from core.forms import BaseCreateForm, BaseEditForm
-from rusel.widgets import DateInput, NumberInput, UrlsInput
-from apart.config import app_config
+from core.widgets import DateInput, NumberInput, UrlsInput
 from apart.models import PeriodServices
+from task.const import APP_APART
 
-role = 'bill'
+app = APP_APART
 
 #----------------------------------
 class CreateForm(BaseCreateForm):
@@ -16,7 +16,7 @@ class CreateForm(BaseCreateForm):
         fields = ['start']
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
         
 #----------------------------------
 class EditForm(BaseEditForm):
@@ -42,4 +42,4 @@ class EditForm(BaseEditForm):
         fields = ['start', 'bill_residents', 'info', 'url',]
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)

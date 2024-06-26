@@ -3,6 +3,7 @@ from __future__ import annotations
 import os, glob
 from dataclasses import dataclass, field
 from typing import Optional
+from django.conf import settings
 from django.shortcuts import get_object_or_404
 from logs.models import ServiceTask, ServiceTaskStatus
 from family.ged4py.parser import GedcomReader
@@ -237,7 +238,7 @@ class Validator:
     def __init__(self, user, version=None):
         super().__init__()
         self.gedcom_specs = []
-        folder = os.environ.get('FAMILY_STORAGE_PATH', '') + '\\validator\\'
+        folder = settings.FAMILY_STORAGE_PATH + '\\validator\\'
         os.chdir(folder)
         files = glob.glob('*.spec')
         for file in files:

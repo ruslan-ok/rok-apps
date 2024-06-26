@@ -1,16 +1,18 @@
-import { Link } from 'react-router-dom';
 import type { HeaderButton } from './Header';
 import './HeaderButtons.css';
 
 function HeaderButtons({items}: {items: HeaderButton[]}) {
   let buttons;
+  let buttonList;
+
   if (items.length) {
-    const buttonList = items.map((item) => {
+    buttonList = items.map((item) => {
       let href = '/' + item.href;
-      return (<Link className='button' to={href} key={item.button_id}>{item.name}</Link>);
+      return (<a className='button' href={href} key={item.button_id}>{item.name}</a>);
     });
-    buttons = <section className='buttons'>{buttonList}</section>;
   }
+
+  buttons = <section className='buttons'>{buttonList}</section>;
 
   return buttons;
 }

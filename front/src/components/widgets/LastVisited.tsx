@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import Spinner from '../Spinner';
 import { apiUrl } from '../auth/Auth';
 
-import './LastVisited.css';
+import '../css/LastVisited.min.css';
 
 
 export default function LastVisited({screenWidth}: {screenWidth: number}) {
@@ -27,7 +27,7 @@ export default function LastVisited({screenWidth}: {screenWidth: number}) {
                 let resp_data = await response.json();
                 if (resp_data) {
                     setValues(resp_data);
-                    if (resp_data.result == 'ok') {
+                    if (resp_data.result === 'ok') {
                         setStatus('ready');
                     }
                     else {
@@ -57,7 +57,7 @@ export default function LastVisited({screenWidth}: {screenWidth: number}) {
         if (response.ok) {
             let resp_data = await response.json();
             if (resp_data) {
-                setRedraw(redraw == '0' ? '1' : '0');
+                setRedraw(redraw === '0' ? '1' : '0');
             }
         }
     }
@@ -70,10 +70,10 @@ export default function LastVisited({screenWidth}: {screenWidth: number}) {
     const widgetWidth = screenWidth < 600 ? 410 : (screenWidth < 768 ? 500 : 600);
     const widgetHeight = screenWidth < 600 ? 200 : (screenWidth < 768 ? 250 : 300);
 
-    if (status != 'ready' && status != 'mess') {
+    if (status !== 'ready' && status !== 'mess') {
         return <Spinner width={widgetWidth} height={widgetHeight} />;
     } else
-        if (status == 'mess') {
+        if (status === 'mess') {
             return <p>{message}</p>;
         } else {
             var links = values.data.map((page: any) => {

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.utils.translation import pgettext_lazy, gettext_lazy as _
 
 """
@@ -28,7 +29,7 @@ APP_ALL = 'all'
 NONE = 0
 
 APP_NAME = {
-    APP_HOME: 'rusel.by',
+    APP_HOME: settings.DOMAIN_NAME,
     APP_TODO: 'tasks',
     APP_NOTE: 'notes',
     APP_NEWS: 'news',

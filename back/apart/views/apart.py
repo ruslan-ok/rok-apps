@@ -1,12 +1,11 @@
-import os
 from urllib.parse import urlparse, parse_qs
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from task.const import APP_APART, ROLE_APART, NUM_ROLE_METER, NUM_ROLE_PRICE, NUM_ROLE_BILL, NUM_ROLE_METER_PROP, NUM_ROLE_SERV_PROP
 from apart.models import *
 from core.views import BaseListView, BaseDetailView
 from apart.forms.apart import CreateForm, EditForm
-from apart.config import app_config
 from apart.const import APART_METER, APART_SERVICE
 
 app = APP_APART
@@ -18,7 +17,7 @@ class ListView(LoginRequiredMixin, PermissionRequiredMixin, BaseListView):
     permission_required = 'task.view_apart'
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
 
 
 class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView):
@@ -27,7 +26,7 @@ class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView):
     permission_required = 'task.change_apart'
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -40,7 +39,7 @@ class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView):
             context['ban_on_deletion'] = _('deletion is prohibited because there are meters data for this apartment').capitalize()
         elif PeriodServices.objects.filter(app_apart=NUM_ROLE_BILL, task_1=apart.id).exists():
             context['ban_on_deletion'] = _('deletion is prohibited because there are bills for this apartment').capitalize()
-        context['django_host_api'] = os.environ.get('DJANGO_HOST_API', 'http://localhost:8000')
+        context['django_host_api'] = settings.DJANGO_HOST_API
         context['apart_id'] = apart.id
         context['meter_kinds'] = [{'code': k, 'name': v} for k, v in APART_METER.items()]
         context['apart_meters'] = ApartMeter.objects.filter(app_apart=NUM_ROLE_METER_PROP, task_1=apart.id).order_by('sort')

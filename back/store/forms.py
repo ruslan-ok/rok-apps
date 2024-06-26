@@ -5,8 +5,7 @@ from django.core.exceptions import ValidationError
 from core.forms import BaseCreateForm, BaseEditForm
 from task.models import Task, Group, PassParams
 from task.const import ROLE_STORE
-from store.config import app_config
-from rusel.widgets import UrlsInput, CategoriesInput, EntryUsernameInput, EntryValueInput, SwitchInput
+from core.widgets import UrlsInput, CategoriesInput, EntryUsernameInput, EntryValueInput, SwitchInput
 
 role = ROLE_STORE
 
@@ -18,7 +17,7 @@ class CreateForm(BaseCreateForm):
         fields = ['name']
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(role, *args, **kwargs)
         
 #----------------------------------
 class EditForm(BaseEditForm):
@@ -63,7 +62,7 @@ class EditForm(BaseEditForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(role, *args, **kwargs)
         self.fields['actual'].initial = not self.instance.completed
         if ('grp' in self.fields):
             self.fields['grp'].choices = self.get_groups_hier(self.instance.user.id, role)
@@ -95,7 +94,7 @@ class EditForm(BaseEditForm):
 
 #----------------------------------
 class ParamsForm(BaseEditForm):
-    ln = forms.IntegerField(
+    length = forms.IntegerField(
         label=_('Length'),
         required=True,
         widget=forms.NumberInput(attrs={'class': 'form-control'}))
@@ -138,7 +137,7 @@ class ParamsForm(BaseEditForm):
 
     class Meta:
         model = PassParams
-        fields = ['ln', 'un', 'uc', 'lc', 'dg', 'sp', 'br', 'mi', 'ul', 'ac']
+        fields = ['length', 'un', 'uc', 'lc', 'dg', 'sp', 'br', 'mi', 'ul', 'ac']
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(role, *args, **kwargs)

@@ -4,10 +4,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.utils import formats
 from task.const import APP_TODO, ROLE_TODO
 from task.models import Task, Step
+#from todo.models import Item
 from core.views import BaseListView, BaseDetailView, BaseGroupView
-from rusel.utils import nice_date
+from core.utils import nice_date
 from todo.forms import CreateForm, EditForm
-from todo.config import app_config
 
 app = APP_TODO
 role = ROLE_TODO
@@ -27,19 +27,23 @@ class TuneData:
 
 class ListView(LoginRequiredMixin, PermissionRequiredMixin, BaseListView, TuneData):
     model = Task
+    #model = Item
     form_class = CreateForm
     permission_required = 'task.view_todo'
+    #permission_required = 'todo.view_item'
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
 
 class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView, TuneData):
     model = Task
+    #model = Item
     form_class = EditForm
     permission_required = 'task.change_todo'
+    #permission_required = 'todo.change_item'
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -82,7 +86,7 @@ class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView, Tu
 class GroupView(LoginRequiredMixin, BaseGroupView, TuneData):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
 
 def get_week_day_name(weekday_num):
     d = date(2020, 7, 13)

@@ -1,5 +1,5 @@
-import os
 import pandas as pd
+from django.conf import settings
 from django.urls import reverse
 from django.http.response import HttpResponseRedirect
 from django.utils.translation import gettext_lazy as _
@@ -8,7 +8,7 @@ from django.views.generic.list import ListView
 from task.const import APP_CRAM, ROLE_CRAM
 from core.context import AppContext
 from cram.models import *
-from rusel.context import get_group_path
+from core.context import get_group_path
 
 class PhrasesView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = Phrase
@@ -80,7 +80,7 @@ class PhrasesView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
             sel_phrase = objects[0]
         context['object_list'] = objects
         context['sel_phrase'] = sel_phrase
-        context['django_host_api'] = os.environ.get('DJANGO_HOST_API', 'http://localhost:8000')
+        context['django_host_api'] = settings.DJANGO_HOST_API
         return context
 
 data_file = 'C:\\Web\\lang\\data.csv'

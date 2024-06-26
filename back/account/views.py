@@ -1,11 +1,13 @@
-import os
+import hashlib
+
+from django.conf import settings
+from django.db.models.fields.files import ImageFieldFile
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.shortcuts import resolve_url
 from django.shortcuts import get_object_or_404, Http404
-from django.conf import settings
 from django.urls import reverse_lazy
-from django.db.models.fields.files import ImageFieldFile
+from django.utils.crypto import get_random_string
 
 from django.utils.decorators import method_decorator
 from django.utils.http import (url_has_allowed_host_and_scheme, urlsafe_base64_decode,)
@@ -23,17 +25,19 @@ from django.contrib.auth import (REDIRECT_FIELD_NAME, get_user_model, login as a
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.decorators import login_required
 
-from account.forms import (LoginForm, RegisterForm, PasswordResetForm, SetPasswordForm, PasswordChangeForm, ProfileForm, AvatarForm,)
-
-from django.core.mail import send_mail
 from django.core.exceptions import ValidationError
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 
-import hashlib
-from django.utils.crypto import get_random_string
+from rest_framework.authtoken.models import Token
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.response import Response
+
+from account.forms import (LoginForm, RegisterForm, PasswordResetForm, SetPasswordForm, PasswordChangeForm, ProfileForm, AvatarForm,)
+from core.send_email import send_email
 
 from task.const import ROLE_ACCOUNT
-from rusel.context import get_base_context
+from core.context import get_base_context
 from account.models import UserExt
 
 UserModel = get_user_model()
@@ -152,8 +156,7 @@ class LogoutView(SuccessURLAllowedHostsMixin, TemplateView):
                 allowed_hosts=self.get_success_url_allowed_hosts(),
                 require_https=self.request.is_secure(),
             )
-            # Security check -- Ensure the user-originating redirection URL is
-            # safe.
+            # Security check -- Ensure the user-originating redirection URL is safe.
             if not url_is_safe:
                 next_page = self.request.path
         return next_page
@@ -171,39 +174,43 @@ def generate_activation_key(username):
     secret_key = get_random_string(20, chars)
     return hashlib.sha256((secret_key + username).encode('utf-8')).hexdigest()
 
-
+@csrf_protect
 def register(request):
     title = _('Register')
+    extra_context = {}
     if request.method == 'POST':
         f = RegisterForm(request.POST)
         if f.is_valid():
+            username = request.POST['username']
+            email = request.POST['email']
+            password = request.POST['password1']
             # send email verification now
-            activation_key = generate_activation_key(username=request.POST['username'])
+            activation_key = generate_activation_key(username=username)
 
 
-            title = subject = _('Account Verification')
+            title = subject = gettext('Account Verification')
 
             message = '\n' + gettext('Please visit the following link to verify your account') + ' \n\n' + \
-                    '{}://{}/account/activate/?key={}'.format(request.scheme, request.get_host(), activation_key)            
+                    '{}://{}/account/activate?key={}'.format(request.scheme, request.get_host(), activation_key)            
 
             error = False
 
             try:
-                send_mail(subject, message, settings.SERVER_EMAIL, [request.POST['email']])
-                send_mail('Регистрация нового пользователя', 'Зарегистрировался новый пользователь "' + request.POST['username'] + '" ' + \
-                        'с электронной почтой ' + str(request.POST['email']) + '.', 'admin@rusel.by', ['ok@rusel.by'])
-                messages.add_message(request, messages.INFO, _('Account created. Click on the link sent to your email to activate the account.'))
-
+                send_email(subject, message, email)
+                admin_subject = 'Регистрация нового пользователя'
+                admin_message = f'Зарегистрировался новый пользователь "{username}" с электронной почтой {email}.'
+                send_email(admin_subject, admin_message, settings.EMAIL_ADMIN)
             except Exception as e:
+                message = _('Unable to send email verification. Please try again.') + ' ' + str(e)
+                extra_context.update({'form_messages': [message]})
                 error = True
-                messages.add_message(request, messages.WARNING, _('Unable to send email verification. Please try again.') + ' ' + str(e)) #str(sys.exc_info()[0]))
                 title = _('Register')
 
             if not error:
                 u = User.objects.create_user(
-                        request.POST['username'],
-                        request.POST['email'],
-                        request.POST['password1'],
+                        username,
+                        email,
+                        password,
                         is_active = 0
                 )
 
@@ -211,17 +218,19 @@ def register(request):
                 newUser.activation_key = activation_key
                 newUser.user = u
                 newUser.save()
-                main_group = Group.objects.get(name='Users')
-                u.groups.add(main_group)
-                return HttpResponseRedirect(reverse_lazy('account:login'))
+                Token.objects.create(user=u)
+                return HttpResponseRedirect(reverse_lazy('account:register_done'))
     else:
         f = RegisterForm()
 
     context = get_base_context(request, 'home', ROLE_ACCOUNT, None, False, title)
+    context.update(extra_context)
     context['form'] = f
     return render(request, 'account/register.html', context)
 
-
+def register_done(request):
+    context = get_base_context(request, 'home', ROLE_ACCOUNT, None, False, gettext('Register done'))
+    return render(request, 'account/register_done.html', context)
 
 def activate_account(request):
     key = request.GET.get('key')
@@ -280,7 +289,7 @@ class PasswordResetView(PasswordContextMixin, FormView):
         return super().form_valid(form)
 
 
-INTERNAL_RESET_SESSION_TOKEN = os.environ.get('DJANGO_PWD_RESET_TOKEN', '_password_reset_token')
+INTERNAL_RESET_SESSION_TOKEN = settings.DJANGO_PWD_RESET_TOKEN
 
 
 class PasswordResetDoneView(PasswordContextMixin, TemplateView):
@@ -367,7 +376,7 @@ class PasswordResetCompleteView(PasswordContextMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['login_url'] = resolve_url('account:login') #resolve_url(settings.LOGIN_URL)
+        context['login_url'] = resolve_url('account:login')
         return context
 
 
@@ -405,7 +414,15 @@ class PasswordChangeDoneView(PasswordContextMixin, TemplateView):
         return super().dispatch(*args, **kwargs)
 
 def user_data_changed(user, data, request):
-    if user.username == data['username'] and user.first_name == data['first_name'] and user.last_name == data['last_name'] and user.email == data['email'] and user.userext.phone == data['phone'] and user.userext.lang == data['lang'] and (('avatar' not in data) or (user.userext.avatar == data['avatar'])):
+    userext = None
+    if UserExt.objects.filter(user=request.user).exists():
+        userext = UserExt.objects.filter(user=request.user).get()
+    if user.username == data['username'] and \
+        user.first_name == data['first_name'] and \
+        user.last_name == data['last_name'] and \
+        user.email == data['email'] and \
+        (userext and userext.phone or None) == data['phone'] and \
+        (('avatar' not in data) or ((userext and userext.avatar or None) == data['avatar'])):
         messages.add_message(request, messages.INFO, 'User information is not changed.')
         return False
     return True
@@ -417,6 +434,9 @@ def service(request):
 
 
 def profile(request):
+    userext = None
+    if UserExt.objects.filter(user=request.user).exists():
+        userext = UserExt.objects.filter(user=request.user).get()
     if request.method == 'POST':
         usr = User.objects.get(id=request.user.id)
         form = ProfileForm(request.POST, request.FILES, instance = request.user)
@@ -428,62 +448,111 @@ def profile(request):
                 usr.email = form.cleaned_data['email']
                 usr.is_active = True
                 usr.save()
-                if ('avatar' in form.cleaned_data or 'phone' in form.cleaned_data or 'lang' in form.cleaned_data):
-                    ue = UserExt.objects.filter(user=usr.id).get()
+                if userext and ('avatar' in form.cleaned_data or 'phone' in form.cleaned_data or 'lang' in form.cleaned_data):
                     if ('avatar' in form.cleaned_data):
                         avatar = form.cleaned_data['avatar']
-                        ue.avatar = avatar
+                        userext.avatar = avatar
                     if ('phone' in form.cleaned_data):
-                        ue.phone = form.cleaned_data['phone']
-                    if ('lang' in form.cleaned_data):
-                        ue.lang = form.cleaned_data['lang']
-                    #transform = Image.open(avatar.file)
-                    #ue.avatar_mini = transform.resize((50,50))
-                    ue.save()
+                        userext.phone = form.cleaned_data['phone']
+                    userext.save()
 
                 messages.add_message(request, messages.SUCCESS, 'The user `%s` was changed successfully.' % (usr.username))
             if ('form_close' in request.POST):
                 return HttpResponseRedirect(reverse_lazy('index'))
     else:
         form = ProfileForm(instance = request.user)
-        form.initial['phone'] = request.user.userext.phone
-        form.initial['lang'] = request.user.userext.lang
+        if userext:
+            form.initial['phone'] = userext.phone
 
     context = get_base_context(request, 'home', ROLE_ACCOUNT, None, '', (_('profile').capitalize(),))
     context['form'] = form
-    avatar = request.user.userext.avatar
-    context['avatar_url'] = avatar.url if avatar and type(avatar) == ImageFieldFile else '/static/Default-avatar.jpg'
-    if request.user.userext.avatar_mini and type(request.user.userext.avatar_mini) == ImageFieldFile:
-        context['avatar_mini_url'] = request.user.userext.avatar_mini.url
+    avatar = userext and userext.avatar or None
+    context['avatar_url'] = avatar.url if avatar and type(avatar) == ImageFieldFile else '/static/account/img/Default-avatar.jpg'
+    if userext and userext.avatar_mini and type(userext.avatar_mini) == ImageFieldFile:
+        context['avatar_mini_url'] = userext.avatar_mini.url
     else:
-        context['avatar_mini_url'] = '/static/Default-avatar.jpg'
+        context['avatar_mini_url'] = '/static/account/img/Default-avatar.jpg'
     context['hide_add_item_input'] = True
 
     return render(request, 'account/profile.html', context)
 
 def avatar(request):
+    userext = None
+    if not UserExt.objects.filter(user=request.user).exists():
+        return HttpResponseRedirect(reverse_lazy('account:login'))
+
+    userext = UserExt.objects.filter(user=request.user).get()
     if request.method != 'POST':
-        form = AvatarForm(instance=request.user.userext)
+        form = AvatarForm(instance=userext)
     else:
-        form = AvatarForm(request.POST, request.FILES, instance=request.user.userext)
+        form = AvatarForm(request.POST, request.FILES, instance=userext)
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(reverse_lazy('account:avatar'))
 
     context = get_base_context(request, 'home', ROLE_ACCOUNT, None, '', (_('avatar').capitalize(),))
     context['form'] = form
-    context['avatar_url'] = request.user.userext.avatar.url if request.user.userext.avatar and type(request.user.userext.avatar) == ImageFieldFile else '/static/Default-avatar.jpg'
+    context['avatar_url'] = userext.avatar.url if userext.avatar and type(userext.avatar) == ImageFieldFile else '/static/account/img/Default-avatar.jpg'
     context['hide_add_item_input'] = True
     return render(request, 'account/avatar.html', context)
 
 def demo(request):
-    demouserpassword = os.environ.get('DJANGO_DEMOUSER_PWRD')
+    demouserpassword = settings.DJANGO_DEMOUSER_PWRD
     if not User.objects.filter(username = 'demouser').exists():
-        user = User.objects.create_user('demouser', 'demouser@rusel.by', demouserpassword)
-        main_group = Group.objects.get(name='Users')
-        user.groups.add(main_group)
+        user = User.objects.create_user('demouser', settings.EMAIL_DEMOUSER, demouserpassword)
     user = authenticate(username='demouser', password=demouserpassword)
     if user is not None:
         login(request, user)
     return HttpResponseRedirect(reverse_lazy('index'))
 
+@api_view(['POST'])
+@permission_classes([])
+@authentication_classes([])
+def react_demo(request):
+    demouserpassword = settings.DJANGO_DEMOUSER_PWRD
+    if not User.objects.filter(username = 'demouser').exists():
+        user = User.objects.create_user('demouser', settings.EMAIL_DEMOUSER, demouserpassword)
+    user = authenticate(username='demouser', password=demouserpassword)
+    if user is None:
+        result = { 'ok': False, 'info': 'User "demouser" not found.' }
+    else:
+        auth_login(request, user)
+        if not user.is_authenticated:
+            result = { 'ok': False, 'info': 'User "demouser" is not authenticated.' }
+        else:
+            result = { 'ok': True, 'info': user.get_username() }
+    return Response(result)
+
+@api_view(['POST'])
+@permission_classes([])
+@authentication_classes([])
+def react_login(request):
+    username = request.data['username']
+    password = request.data['password']
+    if not username or not password:
+        result = { 'ok': False, 'info': 'The "username" and "password" fields must be filled in.' }
+    else:
+        user = None
+        if username and password:
+            user = authenticate(request, username=username, password=password)
+        if not user:
+            result = { 'ok': False, 'info': 'Please enter a correct username and password. Note that both fields may be case-sensitive.' }
+        else:
+            auth_login(request, user)
+            result = { 'ok': True, 'info': user.get_username() }
+    return Response(result)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticatedOrReadOnly])
+def react_logout(request):
+    auth_logout(request)
+    result = { 'ok': True, 'username': '' }
+    return Response(result)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticatedOrReadOnly])
+def get_app_username(request):
+    if request.user and request.user.is_authenticated:
+        result = { 'ok': 'ok', 'username': request.user.username }
+    result = { 'ok': 'ok', 'username': None }
+    return Response(result)

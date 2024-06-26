@@ -2,13 +2,13 @@
 """
 import os, json, traceback
 from datetime import datetime
+from django.conf import settings
 from backup.backuper import Backuper
 from todo.notificator import Notificator
 from fuel.serv_interval import ServInterval
 from logs.log_analyzer import LogAnalyzer
 from core.currency.exchange_rate_service import ExchangeRate
 from task.models import Group, Task
-from rusel.settings import ENV, DB
 from logs.logger import get_logger
 
 
@@ -47,9 +47,9 @@ def process_service(service_task):
 def _check_services(started):
     if started:
         logger.info('start')
-    else:
-        logger.info({'one_per_day': True, 'message': 'work'})
-    svc_grp = int(os.environ.get('DJANGO_SERVICE_GROUP' + ENV + DB))
+    # else:
+    #     logger.info({'one_per_day': True, 'message': 'work'})
+    svc_grp = settings.DJANGO_SERVICE_GROUP
     grp = Group.objects.filter(id=svc_grp).get()
     services = Task.objects.filter(groups=grp, completed=False)
     now = datetime.now()

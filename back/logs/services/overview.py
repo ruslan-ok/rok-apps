@@ -1,6 +1,6 @@
-import os
 import requests, json
 from datetime import date, timedelta
+from django.conf import settings
 from logs.services.background import BackgroundLogData
 from logs.service_log import ServiceLog
 from logs.models import ServiceEvent, EventType
@@ -12,8 +12,8 @@ class OverviewLogData(ServiceLog):
     template_name = 'overview'
 
     def __init__(self):
-        self.this_device = os.environ.get('DJANGO_DEVICE')
-        self.log_device = os.environ.get('DJANGO_LOG_DEVICE', 'Nuc')
+        self.this_device = settings.DJANGO_DEVICE
+        self.log_device = settings.DJANGO_LOG_DEVICE
         super().__init__(self.this_device, 'cron', 'worker')
 
     def get_extra_context(self, request):

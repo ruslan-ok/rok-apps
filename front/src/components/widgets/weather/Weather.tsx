@@ -7,7 +7,7 @@ import WeatherForTheDay from './WeatherForTheDay';
 import WeatherForTheWeek from './WeatherForTheWeek';
 import WeatherMessage from './WeatherMessage';
 import { getIconHref } from './WeatherUtils';
-import './Weather.css';
+import '../css/Weather.min.css';
 
 function getPeriodOption(): string {
     const tmp: string | null = localStorage.getItem('weather-period');
@@ -20,14 +20,14 @@ function getPeriodOption(): string {
 
 function getBrsrLocOption(): boolean {
     const ubl = localStorage.getItem('weather-use-browser-location');
-    if (ubl == undefined)
+    if (ubl === undefined)
         return true;
-    return (ubl == 'true');
+    return (ubl === 'true');
 }
 
 function getLocationOption() {
     const lctn = localStorage.getItem('weather-location');
-    if (lctn == undefined)
+    if (lctn === undefined)
         return '';
     return lctn;
 }
@@ -91,7 +91,7 @@ export default function Weather({screenWidth}: {screenWidth: number}) {
                     let resp_data = await response.json();
                     if (resp_data) {
                         setValues(resp_data.data);
-                        if (resp_data.result == 'ok')
+                        if (resp_data.result === 'ok')
                             setStatus('ready');
                         else {
                             setStatus('mess');
@@ -129,7 +129,7 @@ export default function Weather({screenWidth}: {screenWidth: number}) {
 
     const ms_href = getIconHref(7);
 
-    if (status != 'ready' && status != 'mess') {
+    if (status !== 'ready' && status !== 'mess') {
         return <Spinner width={widgetWidth} height={widgetHeight} />;
     } else {
         return (
@@ -155,13 +155,13 @@ export default function Weather({screenWidth}: {screenWidth: number}) {
                             </a>
 
                             <a className="nav-logo small" title={cr_info} href={cr_url}>
-                                <img className="weather-icon" src={ms_href} />
+                                <img className="weather-icon" src={ms_href} alt="Weather Now icon"/>
                                 <span className="visually-hidden">Weather API</span>
                             </a>
 
-                            <button type='button' className={'option-link' + (period == 'now' ?  ' active' : '')} onClick={() => setPeriodOption('now')}  >Сейчас</button>
-                            <button type='button' className={'option-link' + (period == 'day' ?  ' active' : '')} onClick={() => setPeriodOption('day')}  >Сутки</button>
-                            <button type='button' className={'option-link' + (period == 'week' ? ' active' : '')} onClick={() => setPeriodOption('week')} >Неделя</button>
+                            <button type='button' className={'option-link' + (period === 'now' ?  ' active' : '')} onClick={() => setPeriodOption('now')}  >Сейчас</button>
+                            <button type='button' className={'option-link' + (period === 'day' ?  ' active' : '')} onClick={() => setPeriodOption('day')}  >Сутки</button>
+                            <button type='button' className={'option-link' + (period === 'week' ? ' active' : '')} onClick={() => setPeriodOption('week')} >Неделя</button>
                         </div>
                         <Form className='right location-form' method="post" onSubmit={handleSubmit}>
                             {brsrLoc ? <></>: <>
@@ -173,10 +173,10 @@ export default function Weather({screenWidth}: {screenWidth: number}) {
                         </Form>
                     </div>
                     {
-                        status == 'mess' ? <WeatherMessage     message={message} /> :
-                        period == 'now' ?  <WeatherNow         values={values} /> :
-                        period == 'day' ?  <WeatherForTheDay   values={values} /> :
-                        period == 'week' ? <WeatherForTheWeek  values={values} /> : 
+                        status === 'mess' ? <WeatherMessage     message={message} /> :
+                        period === 'now' ?  <WeatherNow         values={values} /> :
+                        period === 'day' ?  <WeatherForTheDay   values={values} /> :
+                        period === 'week' ? <WeatherForTheWeek  values={values} /> : 
                         <></>
                      }
                     </div>

@@ -10,11 +10,11 @@ from django.views.generic.edit import UpdateView
 from django.db.models import Q
 from django.core.exceptions import FieldError
 from core.applications import get_related_roles
-from rusel.utils import extract_get_params, get_search_mode
+from core.utils import extract_get_params, get_search_mode
 from core.forms import GroupForm
 from core.context import Context
-from rusel.search import search_in_files
-from rusel.files import get_files_list_by_path_v2
+from core.search import search_in_files
+from core.files import get_files_list_by_path_v2
 from task.const import *
 from task.models import Task, Group, TaskGroup, Urls, GIQ_ADD_TASK, GIQ_DEL_TASK
 from apart.const import apart_service_name_by_id
@@ -34,9 +34,9 @@ BG_IMAGES = [
 #----------------------------------------------------------------------
 class BaseListView(ListView, Context):
 
-    def __init__(self, config, cur_role, *args, **kwargs):
+    def __init__(self, app, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.set_config(config, cur_role)
+        self.set_config(app)
 
     def get_template_names(self):
         if not self.request.user.is_authenticated:
@@ -304,10 +304,10 @@ class BaseListView(ListView, Context):
 #----------------------------------------------------------------------
 class BaseDetailView(UpdateView, Context):
 
-    def __init__(self, config, cur_role, *args, **kwargs):
+    def __init__(self, app, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.set_config(config, cur_role)
-        self.template_name = config['name'] + '/' + self.config.get_cur_role() + '.html'
+        self.set_config(app)
+        self.template_name = app + '/' + self.config.get_cur_role() + '.html'
 
     def get(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -394,9 +394,9 @@ class BaseGroupView(UpdateView, Context):
     template_name = 'core/group_detail.html'
     form_class = GroupForm
 
-    def __init__(self, config, cur_role, *args, **kwargs):
+    def __init__(self, app, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.set_config(config, cur_role)
+        self.set_config(app)
 
     def get_object(self, *args, **kwargs):
         obj = super().get_object(*args, **kwargs)

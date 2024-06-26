@@ -12,6 +12,7 @@ interface ApplicationDescr {
 
 export interface PublicData {
   applications: ApplicationDescr[];
+  debugInfo: string[];
 }
 
 interface parsedAppInfo {
@@ -30,8 +31,14 @@ interface parsedAppInfo {
 function MainPagePublic() {
   let data = useLoaderData() as MainPageData;
   let dataExt: parsedAppInfo[] = [];
+  let debugInfo: string[] = [];
 
   if (data && data.publicData) {
+    if (data.publicData.debugInfo)
+      debugInfo = data.publicData.debugInfo;
+    else
+      debugInfo = [''];
+
     dataExt = data.publicData.applications.map((item, index) => {
       return {
         id: item.app_id,
@@ -47,6 +54,8 @@ function MainPagePublic() {
       };
     });
   }
+
+  const debugLines = debugInfo.map(item => <div className="debug-line">{item}</div>);
 
   const listItems = dataExt.map(item => 
     <div className="accordion-item" key={item.id}>
@@ -71,6 +80,8 @@ function MainPagePublic() {
       <>
         <main>
             <div className='content'>
+                <div className="debug-info">{debugLines}</div>
+                
                 <p className="lead">This site provides the following functionality:</p>
 
                 <div className="accordion" id="accordeonIntro">

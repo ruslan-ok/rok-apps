@@ -1,15 +1,14 @@
 from core.views import BaseListView
-from task.const import ROLE_ACCOUNT
+from task.const import APP_HOME
 from task.models import Task
 from logs.services.overview import OverviewLogData
-from rusel.config import app_config
 
 class ListView(BaseListView):
     model = Task
     fields = {'name'}
 
     def __init__(self):
-        super().__init__(app_config, ROLE_ACCOUNT)
+        super().__init__(APP_HOME)
 
     def get_queryset(self):
         return []

@@ -1,6 +1,7 @@
 import os, glob, requests
 from datetime import datetime
 from PIL import Image
+from django.conf import settings
 from logs.models import ServiceTask, ServiceEvent, EventType
 from family.ged4py.parser import GedcomReader
 from family.models import (FamTree, AddressStructure, IndividualRecord, SubmitterRecord, RepositoryRecord, 
@@ -138,10 +139,10 @@ class ImpGedcom551:
         return ret
     
     def log_error(self, name, info):
-        ServiceEvent.objects.create(name=name, device=os.environ.get('DJANGO_LOG_DEVICE', 'Nuc'), app='family', service='import', type=EventType.ERROR, info=info,)
+        ServiceEvent.objects.create(name=name, device=settings.DJANGO_LOG_DEVICE, app='family', service='import', type=EventType.ERROR, info=info,)
 
     def log_info(self, name, info):
-        ServiceEvent.objects.create(name=name, device=os.environ.get('DJANGO_LOG_DEVICE', 'Nuc'), app='family', service='import', type=EventType.INFO, info=info,)
+        ServiceEvent.objects.create(name=name, device=settings.DJANGO_LOG_DEVICE, app='family', service='import', type=EventType.INFO, info=info,)
 
     # ------------- FamTree ---------------
 
@@ -174,10 +175,10 @@ class ImpGedcom551:
                 case 'SOUR': self.header_source(tree, x)
                 case 'DEST': tree.dest = x.value
                 case 'DATE': 
-                    tree.date = x.value
+                    tree.trans_date = x.value
                     for y in x.sub_tags(follow=False):
                         match y.tag:
-                            case 'TIME': tree.time = y.value
+                            case 'TIME': tree.trans_time = y.value
                             case _: self.unexpected_tag(y)
                 case 'SUBM':
                     s_id = self.extract_xref(x.tag, x.value)
@@ -192,7 +193,7 @@ class ImpGedcom551:
                             case 'FORM': tree.gedc_form = y.value
                             case _: self.unexpected_tag(y)
                 case 'CHAR': 
-                    tree.char = x.value
+                    tree.char_set = x.value
                     for y in x.sub_tags(follow=False):
                         match y.tag:
                             case 'VERS': tree.char_vers = y.value
@@ -300,7 +301,7 @@ class ImpGedcom551:
         for x in item.sub_tags(follow=False):
             empty = False
             match x.tag:
-                case 'DESC': even.desc = x.value
+                case 'DESC': even.descr = x.value
                 case _: even.deta, age = self.event_detail(x, even.deta)
         if item.tag == 'HUSB' and not even.husb_age and age:
             even.husb_age = age
@@ -384,7 +385,7 @@ class ImpGedcom551:
         for x in item.sub_tags(follow=False):
             empty = False
             match x.tag:
-                case 'TYPE': name.type = x.value
+                case 'TYPE': name.pns_type = x.value
                 case 'FONE': self.phonetic(x, name=name)
                 case 'ROMN': self.romanized(x, name=name)
                 case 'NPFX'|'GIVN'|'NICK'|'SPFX'|'SURN'|'NSFX'|'_MARNM': name.piec = self.name_pieces(x, name.piec)
@@ -404,7 +405,7 @@ class ImpGedcom551:
         vari = NamePhoneticVariation.objects.create(name=name, plac=plac, value=item.value)
         for x in item.sub_tags(follow=False):
             match x.tag:
-                case 'TYPE': vari.type = x.value
+                case 'TYPE': vari.npv_type = x.value
                 case 'NPFX'|'GIVN'|'NICK'|'SPFX'|'SURN'|'NSFX'|'_MARNM': vari.piec = self.name_pieces(x, vari.piec)
                 case _: self.unexpected_tag(x)
         try:
@@ -416,7 +417,7 @@ class ImpGedcom551:
         vari = NameRomanizedVariation.objects.create(name=name, plac=plac, value=item.value)
         for x in item.sub_tags(follow=False):
             match x.tag:
-                case 'TYPE': vari.type = x.value
+                case 'TYPE': vari.nrv_type = x.value
                 case 'NPFX'|'GIVN'|'NICK'|'SPFX'|'SURN'|'NSFX'|'_MARNM': vari.piec = self.name_pieces(x, vari.piec)
                 case _: self.unexpected_tag(x)
         try:
@@ -450,7 +451,7 @@ class ImpGedcom551:
         for x in item.sub_tags(follow=False):
             match x.tag:
                 case 'AGE':  attr.age  = x.value
-                case 'TYPE': attr.type = x.value
+                case 'TYPE': attr.ias_type = x.value
                 case 'DSCR': attr.dscr = x.value
                 case _: attr.deta, age = self.event_detail(x, attr.deta)
         if not attr.age and age:
@@ -578,7 +579,7 @@ class ImpGedcom551:
                     file.form = x.value
                     for y in x.sub_tags(follow=False):
                         match y.tag:
-                            case 'TYPE': file.type = y.value
+                            case 'TYPE': file.mmf_type = y.value
                             case 'MEDI': file.medi = y.value
                             case _: self.unexpected_tag(y)
                 case 'TITL': file.titl = x.value
@@ -831,7 +832,7 @@ class ImpGedcom551:
         for x in item.sub_tags(follow=False):
             match x.tag:
                 case 'TITL': album.titl = x.value
-                case 'DESCRIPTION': album.desc = x.value
+                case 'DESCRIPTION': album.descr = x.value
                 case '_UPD': album._upd = x.value
                 case 'RIN':  album.rin  = x.value
                 case _: self.unexpected_tag(x)
@@ -951,19 +952,19 @@ class ImpGedcom551:
         self.log_info('change_date', f'+ {item.value=}')
         chan = ChangeDate.objects.create(owner=owner)
         if item.value:
-            chan.date = str(item.value)
+            chan.change_date = str(item.value)
         for x in item.sub_tags(follow=False):
             match x.tag:
                 case 'DATE': 
-                    chan.date = str(x.value)
+                    chan.change_date = str(x.value)
                     for y in x.sub_tags(follow=False):
                         match y.tag:
-                            case 'TIME': chan.time = str(y.value)
+                            case 'TIME': chan.change_time = str(y.value)
                             case _: self.unexpected_tag(y)
                 case 'NOTE': self.note_struct(x, chan=chan)
                 case _: self.unexpected_tag(x)
         try:
-            chan.date = datetime.strptime(chan.date + ' ' + chan.time, '%d/%m/%y %H:%M:%S')
+            chan.change_date = datetime.strptime(chan.change_date + ' ' + chan.change_time, '%d/%m/%y %H:%M:%S')
         except:
             pass
         try:
@@ -978,11 +979,11 @@ class ImpGedcom551:
             deta = EventDetail.objects.create()
         age = None
         match x.tag:
-            case 'TYPE': deta.type = x.value
+            case 'TYPE': deta.event_type = x.value
             case 'AGE':  age  = x.value
             case 'DATE': 
                 if (str(x.value) not in (',,', '..', '.')) and ('неизв' not in str(x.value).replace(' ', '').lower()):
-                    deta.date = x.value
+                    deta.event_date = x.value
             case 'PLAC': deta.plac = self.place_struct(x)
             case 'ADDR'|'PHON'|'EMAIL'|'FAX'|'WWW': deta.addr = self.address_struct(x, deta.addr, 'EventDetail_' + str(deta.id))
             case 'AGNC': deta.agnc = x.value
@@ -1025,7 +1026,7 @@ class ImpGedcom551:
         refn = UserReferenceNumber.objects.create(refn=item.value, indi=indi, obje=obje, note=note, repo=repo, sour=sour, _sort=sort)
         for x in item.sub_tags(follow=False):
             match x.tag:
-                case 'TYPE': refn.type = x.value
+                case 'TYPE': refn.urn_type = x.value
                 case _: self.unexpected_tag(x)
         try:
             refn.save()

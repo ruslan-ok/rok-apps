@@ -3,7 +3,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from task.const import APP_APART, ROLE_METER, NUM_ROLE_METER, NUM_ROLE_BILL, NUM_ROLE_METER_VALUE
 from core.views import BaseListView, BaseDetailView
 from apart.forms.meter import CreateForm, EditForm
-from apart.config import app_config
 from apart.models import *
 
 app = APP_APART
@@ -15,7 +14,7 @@ class ListView(LoginRequiredMixin, PermissionRequiredMixin, BaseListView):
     permission_required = 'task.view_apart'
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
 
     def get_queryset(self):
         data = super().get_queryset()
@@ -37,7 +36,7 @@ class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView):
     permission_required = 'task.change_apart'
 
     def __init__(self, *args, **kwargs):
-        super().__init__(app_config, role, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

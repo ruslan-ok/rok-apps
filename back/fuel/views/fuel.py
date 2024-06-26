@@ -8,7 +8,6 @@ from django.views.generic.edit import FormView
 from core.views import BaseListView, BaseDetailView
 from core.context import Context
 from fuel.forms.fuel import CreateForm, EditForm
-from fuel.config import app_config
 from fuel.fuel_get_info import get_info
 
 role = ROLE_FUEL
@@ -20,7 +19,7 @@ class ListView(LoginRequiredMixin, PermissionRequiredMixin, BaseListView):
     permission_required = 'task.view_fuel'
 
     def __init__(self):
-        super().__init__(app_config, role)
+        super().__init__(app)
 
     def get(self, request):
         view = request.GET.get('view', '')
@@ -36,7 +35,7 @@ class DetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseDetailView):
     permission_required = 'task.change_fuel'
 
     def __init__(self):
-        super().__init__(app_config, role)
+        super().__init__(app)
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -88,7 +87,7 @@ class FuelMapView(LoginRequiredMixin, PermissionRequiredMixin, Context, FormView
 
     def __init__(self):
         super().__init__()
-        self.set_config(app_config, ROLE_FUEL)
+        self.set_config(app)
 
     def get_context_data(self):
         self.config.set_view(self.request)

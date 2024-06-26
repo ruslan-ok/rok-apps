@@ -4,6 +4,7 @@ from django.utils.formats import date_format
 from django.utils.translation import pgettext_lazy
 from family.ged4py.date import DateValue
 
+
 @dataclass
 class EventDate:
     raw: str

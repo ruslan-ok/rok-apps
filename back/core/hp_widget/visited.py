@@ -1,5 +1,5 @@
 from task.models import VisitedHistory
-from rusel.context import MAX_LAST_VISITED
+from core.context import MAX_LAST_VISITED
 
 def get_visited(request):
     try:

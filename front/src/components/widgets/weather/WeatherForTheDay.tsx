@@ -8,32 +8,29 @@ export default function WeatherForTheDay({values}: {values: any}) {
     let d1_day_str: string;
     let d2_day_str: string;
     let d1_span = 0;
-    let d2_span = 0;
     let d1_span_correct = 0;
     let d2_span_correct = 0;
     for (let i = 0; i < values.for_day.length; i++) {
         const dt = new Date(values.for_day[i].event);
-        if (i == 0) {
+        if (i === 0) {
             d1_day = dt.getDate();
             d1_day_str = dt.toString();
         }
         else {
-            if (d2_day == undefined && d1_day != dt.getDate()) {
+            if (d2_day === undefined && d1_day !== dt.getDate()) {
                 d2_day = dt.getDate();
                 d2_day_str = dt.toString();
             }
         }
-        if (d2_day == undefined)
+        if (d2_day === undefined)
             d1_span++;
-        else
-            d2_span++;
     }
 
-    if (d1_span % 3 == 1) {
+    if (d1_span % 3 === 1) {
         d1_span_correct--;
         d2_span_correct++;
     }
-    if (d1_span % 3 == 2) {
+    if (d1_span % 3 === 2) {
         d1_span_correct++;
         d2_span_correct--;
     }
@@ -42,11 +39,11 @@ export default function WeatherForTheDay({values}: {values: any}) {
     let curr = [];
     for (let i = 0; i < values.for_day.length; i++) {
         curr.push(i);
-        if (curr.length == 3 || (aggs.length == 0 && curr.length == 2 && d1_span_correct == 1)) {
+        if (curr.length === 3 || (aggs.length === 0 && curr.length === 2 && d1_span_correct === 1)) {
             aggs.push(curr);
             curr = [];
         }
-        if (i == 0 && d2_span_correct == 1)
+        if (i === 0 && d2_span_correct === 1)
             curr = [];
     }
     if (curr.length > 1)
@@ -62,12 +59,12 @@ export default function WeatherForTheDay({values}: {values: any}) {
         checkNight(cellClass, hour.event, d1_span_correct, sunrise, sunset);
 
         let name = '';
-        if (index == 0) {
+        if (index === 0) {
             name = getDayName(d1_day_str) + ' ' + getDayDate(hour.event, 0);
             cellClass.push('day-name overflow-td ' + getDayColor(hour.event));
         }
         else {
-            if (d2_day != undefined && index == (d1_span + d1_span_correct)) {
+            if (d2_day !== undefined && index === (d1_span + d1_span_correct)) {
                 name = getDayName(d2_day_str) + ' ' + getDayDate(hour.event, 0);
                 cellClass.push('day-name overflow-td ' + getDayColor(hour.event));
             }
@@ -80,7 +77,7 @@ export default function WeatherForTheDay({values}: {values: any}) {
         checkNight(cellClass, hour.event, d1_span_correct, sunrise, sunset);
         const hourNum = getHourNum(hour.event, d1_span_correct);
         let name = '', sup;
-        if (index % 3 == 0) {
+        if (index % 3 === 0) {
             name = hourNum.toString();
             sup = <sup className="time-sup">00</sup>;
         }
@@ -92,14 +89,14 @@ export default function WeatherForTheDay({values}: {values: any}) {
     const icons = values.for_day.map((hour: any, index: number) => {
         let cellClass: string[] = [];
         checkNight(cellClass, hour.event, d1_span_correct, sunrise, sunset);
-        if (index % 3 != 1) {
+        if (index % 3 !== 1) {
             return (<td key={hour.event} className={cellClass.join(' ')}></td>);
         }
         cellClass.push('icon-td');
         const href = getIconHref(values.for_day[index - d1_span_correct].icon_num);
         return (
             <td key={hour.event} className={cellClass.join(' ')}>
-                <div className='hours-icon'><img className="weather-icon" src={href} /></div>
+                <div className='hours-icon'><img className="weather-icon" src={href} alt="Weather icon"/></div>
             </td>
         );
     });
@@ -108,7 +105,7 @@ export default function WeatherForTheDay({values}: {values: any}) {
         return values.for_day.map((hour: any, index: number) => {
             let cellClass: string[] = [];
             checkNight(cellClass, hour.event, d1_span_correct, sunrise, sunset);
-            if (index == 0) {
+            if (index === 0) {
                 cellClass.push('overflow-td');
                 return (
                     <td key={hour.event} className={cellClass.join(' ')}>
@@ -139,7 +136,7 @@ export default function WeatherForTheDay({values}: {values: any}) {
                 <td className={cellClass.join(' ')} key={hour.event}>
                     <div className='top' style={topStyle}></div>
                     <div className='mid' style={midStyle}></div>
-                    <div className='bot overflow-td' style={botStyle}>{index % 3 == 1 ? tempBarHeights[index].avgTemp : ''}</div>
+                    <div className='bot overflow-td' style={botStyle}>{index % 3 === 1 ? tempBarHeights[index].avgTemp : ''}</div>
                 </td>
             );
         } else {
@@ -171,8 +168,8 @@ export default function WeatherForTheDay({values}: {values: any}) {
         checkNight(cellClass, hour.event, d1_span_correct, sunrise, sunset);
         const maxHeight = 20;
         const value = +hour.prec_total;
-        const color = value == 0 ? 'gray' : '#62b2ed'; 
-        const height = maxPreci == 0 ? 0 : maxHeight * value / maxPreci;
+        const color = value === 0 ? 'gray' : '#62b2ed'; 
+        const height = maxPreci === 0 ? 0 : maxHeight * value / maxPreci;
         return (
             <td className={cellClass.join(' ')} key={hour.event}>
                 <div className='hour-preci'>

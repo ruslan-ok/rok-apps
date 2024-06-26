@@ -92,11 +92,11 @@ def shift_date(date, info):
 
 
 def _get_db_exchange_rate(date: date, currency: str, base: str) -> CurrencyRate|None:
-    if CurrencyRate.objects.filter(date=date, currency=currency, base=base).exists():
-        rate = CurrencyRate.objects.filter(date=date, currency=currency, base=base).order_by('source')[0]
+    if CurrencyRate.objects.filter(rate_date=date, currency=currency, base=base).exists():
+        rate = CurrencyRate.objects.filter(rate_date=date, currency=currency, base=base).order_by('source')[0]
         return rate, 'The value stored in the database was used'
-    if CurrencyRate.objects.filter(date__lte=date, currency=currency, base=base).exists():
-        check_date = CurrencyRate.objects.filter(date__lte=date, currency=currency, base=base).order_by('-date')[0].date
+    if CurrencyRate.objects.filter(rate_date__lte=date, currency=currency, base=base).exists():
+        check_date = CurrencyRate.objects.filter(rate_date__lte=date, currency=currency, base=base).order_by('-date')[0].date
         return None, 'Nearest available date is: ' + check_date.strftime('%d-%b-%Y')
     return None, 'There is no saved rate for the specified date'
 
@@ -114,10 +114,10 @@ def _get_api_exchange_rate(date: date, currency: str, base: str, rate_api: str|N
 
 def get_hist_exchange_rates(beg: date, end: date, currency: str) -> list[Decimal]:
     ret = []
-    rates = CurrencyRate.objects.filter(base='USD', currency=currency, date__range=(beg, end))
+    rates = CurrencyRate.objects.filter(base='USD', currency=currency, rate_date__range=(beg, end))
     all_rates = []
     for rate in rates:
-        all_rates.append((rate.date, rate.value, _sort_exchange_rate_by_source(rate.source)))
+        all_rates.append((rate.rate_date, rate.value, _sort_exchange_rate_by_source(rate.source)))
     prev_day_rate = None
     date = beg
     while date <= end:
@@ -131,7 +131,7 @@ def get_hist_exchange_rates(beg: date, end: date, currency: str) -> list[Decimal
             if prev_day_rate:
                 rate = prev_day_rate
             else:
-                rates = CurrencyRate.objects.filter(base='USD', currency=currency, date__lt=beg).order_by('-date')
+                rates = CurrencyRate.objects.filter(base='USD', currency=currency, rate_date__lt=beg).order_by('-rate_date')
                 if len(rates):
                     rate = rates[0].value / rates[0].num_units
                     prev_day_rate = rate
