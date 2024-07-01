@@ -1,5 +1,6 @@
 # Settings
 .vscode
+.vscode/launch.json
 .project
 .pydevproject
 
@@ -7,11 +8,12 @@
 env
 
 # Back
-back/react/templates/react/index.html
-back/static/assets
-back/static/backgrounds
-back/static/css/*.css
-back/static/css/*.css.map
+back/core/static/backgrounds
+back/static
+back/staticfiles
+back/templates
+back/**/*.min.css
+back/**/*.min.css.map
 
 # Front
 front/dist
@@ -27,15 +29,13 @@ django.po
 migrations
 
 # Secrets
-s.bat
+secrets.json
 db.sqlite3
-sqlite3.exe
-MailBackup.vbs
 firebase-messaging-sw.js
 rusel-by-firebase-adminsdk-*.json
 unpublished
 *.pem
-
+service
 
 
 
