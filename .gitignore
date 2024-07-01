@@ -3,6 +3,9 @@
 .project
 .pydevproject
 
+# Environment
+env
+
 # Back
 back/react/templates/react/index.html
 back/static/assets
