@@ -10,7 +10,6 @@ class StoreConfig(AppConfig):
         'app_title': _('passwords'),
         'human_name': gettext('Passwords'),
         'icon': 'key',
-        'href': '/store/',
         'permission': 'task.view_entry',
         'order': 5,
         'role': ROLE_STORE,

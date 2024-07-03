@@ -14,6 +14,7 @@ back/staticfiles
 back/templates
 back/**/*.min.css
 back/**/*.min.css.map
+media
 
 # Front
 front/dist

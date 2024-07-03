@@ -79,7 +79,7 @@ export default function Weather({screenWidth}: {screenWidth: number}) {
                 setMessage('Define the location.');
             }
             else{
-                const url = apiUrl + `api/get_chart_data/?mark=weather&version=v2&location=${loc}&lat=${lat}&lon=${lon}`;
+                const url = apiUrl + `api/get_chart_data?mark=weather&version=v2&location=${loc}&lat=${lat}&lon=${lon}`;
                 const cred: RequestCredentials = 'include';
                 const options = {
                     method: 'GET',

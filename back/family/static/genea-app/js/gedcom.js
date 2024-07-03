@@ -397,7 +397,7 @@ var Gedcom = (function() {
         }
     }
     Gedcom.prototype.load = function(id, afterTreeLoad) {
-        const api = `/api/famtree/${id}/get_tree/?format=json`;
+        const api = `/api/famtree/${id}/get_tree?format=json`;
         const callback = function() {
             if (this.readyState == 4 && this.status == 200) {
                 let resp = JSON.parse(this.responseText);
@@ -423,7 +423,7 @@ var Gedcom = (function() {
     }
 
     Gedcom.prototype.selectIndi = function(tree_id, indi_id) {
-        const api = `/api/famtree/${tree_id}/set_sel_indi/?format=json&indi_id=${indi_id}`;
+        const api = `/api/famtree/${tree_id}/set_sel_indi?format=json&indi_id=${indi_id}`;
         const callback = function() {};
         const url = window.location.protocol + '//' + window.location.host + api;
         let xhttp = new XMLHttpRequest();

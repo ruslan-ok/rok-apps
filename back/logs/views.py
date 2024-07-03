@@ -121,7 +121,7 @@ class LogEventView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
 
     def get_event_api(self, pk):
         api_host = settings.DJANGO_HOST_LOG
-        api_url = f'{api_host}/en/api/logs/{pk}/?format=json'
+        api_url = f'{api_host}/api/logs/{pk}?format=json'
         service_token = settings.DJANGO_SERVICE_TOKEN
         headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
         verify = settings.DJANGO_CERT

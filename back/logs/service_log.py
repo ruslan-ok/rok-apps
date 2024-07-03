@@ -23,7 +23,7 @@ class ServiceLog():
         else:
             self.log_location = self.this_device
         self.api_host = settings.DJANGO_HOST_LOG
-        self.api_url = f'{self.api_host}/en/api/logs/?format=json'
+        self.api_url = f'{self.api_host}/api/logs?format=json'
         service_token = settings.DJANGO_SERVICE_TOKEN
         self.headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
         self.verify = settings.DJANGO_CERT

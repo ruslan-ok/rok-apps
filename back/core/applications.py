@@ -11,7 +11,9 @@ def get_apps_list(user, current):
         if (app == 'account') and not user.is_superuser:
             continue
         icon = config.app_config['icon']
-        href = config.app_config['href']
+        href = config.app_config['href'] if 'href' in config.app_config else config.app_config['name']
+        if not href.startswith('/'):
+            href = '/' + href
         perm = config.app_config['permission']
         order = config.app_config['order']
         name = config.app_config['human_name']

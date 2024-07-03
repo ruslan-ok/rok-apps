@@ -10,7 +10,6 @@ class NewsConfig(AppConfig):
         'app_title': _('news'),
         'human_name': gettext('News'),
         'icon': 'newspaper',
-        'href': '/news/',
         'permission': 'task.view_news',
         'order': 4,
         'role': ROLE_NEWS,

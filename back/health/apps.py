@@ -10,7 +10,6 @@ class HealthConfig(AppConfig):
         'app_title': _('health'),
         'human_name': gettext('Health'),
         'icon': 'heart',
-        'href': '/health/',
         'permission': 'task.view_health',
         'order': 9,
         'main_view': 'biomarker',

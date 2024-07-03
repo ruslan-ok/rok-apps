@@ -117,7 +117,7 @@ def get_api_health_chart(period: ChartPeriod):
     service_token = settings.DJANGO_SERVICE_TOKEN
     headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
     verify = settings.DJANGO_CERT
-    resp = requests.get(api_url + '/api/get_chart_data/?mark=health&period=' + period.value, headers=headers, verify=verify)
+    resp = requests.get(api_url + '/api/get_chart_data?mark=health&period=' + period.value, headers=headers, verify=verify)
     if (resp.status_code != 200):
         return None
     return json.loads(resp.content)

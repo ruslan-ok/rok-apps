@@ -8,7 +8,6 @@ class WarrConfig(AppConfig):
         'app_title': _('warranties'),
         'human_name': gettext('Warranties'),
         'icon': 'award',
-        'href': '/warr/',
         'permission': 'task.view_warranty',
         'order': 11,
         'main_view': 'active',

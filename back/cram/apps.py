@@ -12,7 +12,6 @@ class CramConfig(AppConfig):
         'app_title': _('cram'),
         'human_name': gettext('Cram'),
         'icon': 'translate',
-        'href': '/cram/',
         'permission': 'cram.view_phrase',
         'order': 14,
         'role': ROLE_CRAM,

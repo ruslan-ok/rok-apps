@@ -1,4 +1,4 @@
-const group_api = '/ru/api/groups/';
+const group_api = '/api/groups/';
 const postfix = 'format=json';
 
 tuneOnEnter();
@@ -52,7 +52,7 @@ function addGroup(app, role, group_entity) {
     let cur_folder = getQueryVariable('folder');
     if (cur_folder.length > 0 && cur_folder[cur_folder.length-1] != '/')
       cur_folder += '/';
-    const api = `${group_api}create_folder/?${postfix}&app=${app}&folder=${cur_folder}&name=${name}`;
+    const api = `${group_api}create_folder?${postfix}&app=${app}&folder=${cur_folder}&name=${name}`;
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
           let res = 'error';
@@ -93,7 +93,7 @@ function addGroup(app, role, group_entity) {
       if (this.readyState == 4 && this.status == 201) {
         group_id = JSON.parse(this.responseText).id;
         group_name = JSON.parse(this.responseText).name;
-        group_url = `${window.location.protocol}//${window.location.host}/${app}/?${group_entity}=${group_id}`;
+        group_url = `${window.location.protocol}//${window.location.host}/${app}?${group_entity}=${group_id}`;
         window.location.href = group_url;
       }
     };
@@ -181,7 +181,7 @@ function delFolderConfirm(app, path, folder, ban, text) {
 
 function delFolder(app, path, folder) {
   const redirect_url = window.location.origin + window.location.pathname + `?folder=${path}`;
-  const api = `${group_api}delete_folder/?${postfix}&app=${app}&path=${path}&folder=${folder}`;
+  const api = `${group_api}delete_folder?${postfix}&app=${app}&path=${path}&folder=${folder}`;
   const callback = function() {
     if (this.readyState == 4 && this.status == 200) {
       let res = 'error';
@@ -225,7 +225,7 @@ function saveFolder(app, path, folder) {
   }
   
   const redirect_url = window.location.origin + window.location.pathname + `?folder=${path}${new_name}`;
-  const api = `${group_api}rename_folder/?${postfix}&app=${app}&path=${path}&folder=${folder}&new_name=${new_name}`;
+  const api = `${group_api}rename_folder?${postfix}&app=${app}&path=${path}&folder=${folder}&new_name=${new_name}`;
   const callback = function() {
     if (this.readyState == 4 && this.status == 200) {
       let res = 'error';

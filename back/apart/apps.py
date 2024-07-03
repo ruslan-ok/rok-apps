@@ -12,7 +12,7 @@ class ApartConfig(AppConfig):
         'app_title': _('communal'),
         'human_name': gettext('Communal'),
         'icon': 'building',
-        'href': '/bill/',
+        'href': 'bill',
         'permission': 'task.view_apart',
         'order': 8,
         'main_view': 'bill',

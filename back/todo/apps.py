@@ -10,7 +10,6 @@ class TodoConfig(AppConfig):
         'app_title': _('tasks'),
         'human_name': gettext('Tasks'),
         'icon': 'check2-square',
-        'href': '/todo/',
         'permission': 'task.view_todo',
         'order': 2,
         'role': ROLE_TODO,

@@ -37,7 +37,7 @@ function getTaskStatus() {
         const task_id = els[i].getAttribute('aria-task-id');
         const valuemax = els[i].getAttribute('aria-valuemax');
         if (task_id) {
-            const api = `/api/logs/get_task_status/?format=json&task_id=${task_id}`;
+            const api = `/api/logs/get_task_status?format=json&task_id=${task_id}`;
             const callback = function() {
                 if (this.readyState == 4) {
                     statusRecived = true;
@@ -90,7 +90,7 @@ function startTask(task_id, total, progress_id, after_stop) {
         el.parentElement.parentElement.children[1].classList.remove('d-none');
         refreshIntervalId = setInterval(getTaskStatus, 2000);
     }
-    const api = `/api/logs/start_task/?format=json&task_id=${task_id}`;
+    const api = `/api/logs/start_task?format=json&task_id=${task_id}`;
     const callback = function() {
         if (this.readyState == 4) {
             if (this.status != 200)
@@ -111,7 +111,7 @@ function startTask(task_id, total, progress_id, after_stop) {
 
 function createTask(app, service, item_id, progress_id, after_stop) {
     // console.log(`createTask(app=${app}, service=${service}, item_id=${item_id}, progress_id=${progress_id})`);
-    const api = `/api/logs/create_task/?format=json&app=${app}&service=${service}&item_id=${item_id}`;
+    const api = `/api/logs/create_task?format=json&app=${app}&service=${service}&item_id=${item_id}`;
     const callback = function() {
         if (this.readyState == 4) {
             if (this.status != 200) 

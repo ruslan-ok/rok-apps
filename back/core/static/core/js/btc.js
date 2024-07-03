@@ -15,7 +15,7 @@ function get_btc_price() {
     if (!el_amount)
         return;
   
-    const api = '/api/logs/get_btc_price/?format=json';
+    const api = '/api/logs/get_btc_price?format=json';
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             let obj = JSON.parse(this.response);

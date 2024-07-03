@@ -55,7 +55,7 @@ async function savePhrases(django_host_api) {
         }
     }
 
-    const url = `${django_host_api}/en/api/cram/phrase/${phraseId}/save_all/?format=json`;
+    const url = `${django_host_api}/api/cram/phrase/${phraseId}/save_all/?format=json`;
     const crsf = document.getElementsByName('csrfmiddlewaretoken')[0].value; 
     const options = {
         method: 'PUT',
@@ -133,7 +133,7 @@ async function deletePhrases(django_host_api) {
     if (!form)
         return;
     const phraseId = form.getAttribute('data-bs-phrase-id');
-    const url = `${django_host_api}/en/api/cram/phrase/${phraseId}/?format=json`;
+    const url = `${django_host_api}/api/cram/phrase/${phraseId}/?format=json`;
     const crsf = document.getElementsByName('csrfmiddlewaretoken')[0].value; 
     const options = {
         method: 'DELETE',

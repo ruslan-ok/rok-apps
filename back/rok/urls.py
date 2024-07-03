@@ -38,25 +38,25 @@ from apart.api import views as api_apart
 from react.api import views as api_react
 
 api_router = routers.DefaultRouter()
-api_router.register(r'groups', api_grp.GroupViewSet, basename='group')
-api_router.register(r'tasks', api_task.TaskViewSet, basename='task')
-api_router.register(r'steps', api_step.StepViewSet, basename='step')
-api_router.register(r'urls', api_urls.UrlsViewSet, basename='urls')
-api_router.register(r'profile', api_profile.ProfileViewSet, basename='profile')
-api_router.register(r'logs', api_logs.LogsViewSet, basename='logs')
-api_router.register(r'famtree', api_family.FamTreeViewSet, basename='famtree')
-api_router.register(r'apart/estate', api_apart.ApartView, basename='apart')
-api_router.register(r'apart/property/meter', api_apart.ApartMeterView, basename='apart-meter')
-api_router.register(r'apart/property/service', api_apart.ApartServiceView, basename='apart-service')
-api_router.register(r'apart/period/meter', api_apart.PeriodMetersView, basename='period-meter')
-api_router.register(r'apart/period/meter_value', api_apart.MeterValueView, basename='meter-value')
-api_router.register(r'apart/period/service', api_apart.PeriodServicesView, basename='period-service')
-api_router.register(r'apart/period/service_amount', api_apart.ServiceAmountView, basename='service-amount')
-api_router.register(r'cram/lang', api_cram.CramLangViewSet, basename='cram-lang')
-api_router.register(r'cram/group', api_cram.CramGroupViewSet, basename='cram-group')
-api_router.register(r'cram/phrase', api_cram.CramPhraseViewSet, basename='cram-phrase')
-api_router.register(r'cram/lang_phrase', api_cram.CramLangPhraseViewSet, basename='cram-lang-phrase')
-api_router.register(r'visited', api_visited.VisitedViewSet, basename='visited')
+api_router.register('groups', api_grp.GroupViewSet, basename='group')
+api_router.register('tasks', api_task.TaskViewSet, basename='task')
+api_router.register('steps', api_step.StepViewSet, basename='step')
+api_router.register('urls', api_urls.UrlsViewSet, basename='urls')
+api_router.register('profile', api_profile.ProfileViewSet, basename='profile')
+api_router.register('logs', api_logs.LogsViewSet, basename='logs')
+api_router.register('famtree', api_family.FamTreeViewSet, basename='famtree')
+api_router.register('apart/estate', api_apart.ApartView, basename='apart')
+api_router.register('apart/property/meter', api_apart.ApartMeterView, basename='apart-meter')
+api_router.register('apart/property/service', api_apart.ApartServiceView, basename='apart-service')
+api_router.register('apart/period/meter', api_apart.PeriodMetersView, basename='period-meter')
+api_router.register('apart/period/meter_value', api_apart.MeterValueView, basename='meter-value')
+api_router.register('apart/period/service', api_apart.PeriodServicesView, basename='period-service')
+api_router.register('apart/period/service_amount', api_apart.ServiceAmountView, basename='service-amount')
+api_router.register('cram/lang', api_cram.CramLangViewSet, basename='cram-lang')
+api_router.register('cram/group', api_cram.CramGroupViewSet, basename='cram-group')
+api_router.register('cram/phrase', api_cram.CramPhraseViewSet, basename='cram-phrase')
+api_router.register('cram/lang_phrase', api_cram.CramLangPhraseViewSet, basename='cram-lang-phrase')
+api_router.register('visited', api_visited.VisitedViewSet, basename='visited')
 
 from core import app_doc
 #api_router = routers.DefaultRouter()
@@ -69,7 +69,7 @@ urlpatterns = [
     path('favicon.ico', RedirectView.as_view(url='static/favicon.ico')),
     path('firebase-messaging-sw.js', TemplateView.as_view(template_name='firebase-messaging-sw.js', content_type='text/javascript')),
 
-    path('admin/', admin.site.urls),
+    path('admin', admin.site.urls),
     path('account/', include('account.urls')),
     path('bill/', include('apart.urls')),
     path('cram/', include('cram.urls')),
@@ -92,9 +92,9 @@ urlpatterns = [
     path('api/react/main_page', api_react.main_page),
     path('api/react/get_username', api_react.get_username),
 
-    path('api/get_chart_data/', api_widget.get_chart_data_api, name='get_chart_data'),
-    path('api/core/get_exchange_rate/', api_core.get_exchange_rate, name='get_exchange_rate'),
-    path('api/get_dir/', api_service.get_dir, name='get_dir'),
+    path('api/get_chart_data', api_widget.get_chart_data_api, name='get_chart_data'),
+    path('api/core/get_exchange_rate', api_core.get_exchange_rate, name='get_exchange_rate'),
+    path('api/get_dir', api_service.get_dir, name='get_dir'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('<str:role>/<int:pk>/doc/<str:fname>', app_doc.get_app_doc, name='doc'),
     path('<str:role>/<int:pk>/thumbnail/<str:fname>', app_doc.get_app_thumbnail, name='thumbnail'),

@@ -27,7 +27,7 @@ function addPrice(apart_id) {
     }
     let param_serv = '&service_id=' + value;
     let param_group = '&group_id=' + apart_id;
-    const api = '/api/tasks/add_item/?format=json&app=apart&role=price' + param_serv + param_group;
+    const api = '/api/tasks/add_item?format=json&app=apart&role=price' + param_serv + param_group;
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             let resp = JSON.parse(this.responseText);
@@ -91,7 +91,7 @@ if (addMeter) {
         value: addMeter.querySelector('#id_add_meter_value').value
     };
 
-    const url = `${django_host_api}/en/api/apart/property/meter/`;
+    const url = `${django_host_api}/api/apart/property/meter/`;
     const crsf = document.getElementsByName('csrfmiddlewaretoken')[0].value; 
     const options = {
         method: 'POST',
@@ -175,7 +175,7 @@ async function saveApartMeter(django_host_api) {
 
 async function deleteApartMeter(django_host_api) {
     const apart_meter_id = +editMeter.querySelector('#id_edit_meter_id').value;
-    const url = `${django_host_api}/en/api/apart/property/meter/${apart_meter_id}/`;
+    const url = `${django_host_api}/api/apart/property/meter/${apart_meter_id}/`;
     const crsf = document.getElementsByName('csrfmiddlewaretoken')[0].value; 
     const options = {
         method: 'DELETE',
@@ -218,7 +218,7 @@ if (addService) {
         dt_until: dt_until ? dt_until : null,
     };
 
-    const url = `${django_host_api}/en/api/apart/property/service/`;
+    const url = `${django_host_api}/api/apart/property/service/`;
     const crsf = document.getElementsByName('csrfmiddlewaretoken')[0].value; 
     const options = {
         method: 'POST',
@@ -275,7 +275,7 @@ async function saveApartService(django_host_api) {
         dt_until: dt_until ? dt_until : null,
     };
 
-    const url = `${django_host_api}/en/api/apart/property/service/${data.id}/`;
+    const url = `${django_host_api}/api/apart/property/service/${data.id}/`;
     const crsf = document.getElementsByName('csrfmiddlewaretoken')[0].value; 
     const options = {
         method: 'PUT',
@@ -299,7 +299,7 @@ async function saveApartService(django_host_api) {
 
 async function deleteApartService(django_host_api) {
     const apart_service_id = +editService.querySelector('#id_edit_service_id').value;
-    const url = `${django_host_api}/en/api/apart/property/service/${apart_service_id}/`;
+    const url = `${django_host_api}/api/apart/property/service/${apart_service_id}/`;
     const crsf = document.getElementsByName('csrfmiddlewaretoken')[0].value; 
     const options = {
         method: 'DELETE',
@@ -354,7 +354,7 @@ async function saveMeterValue(django_host_api) {
         value: editMeterValue.querySelector('#id_edit_meter_value').value
     };
 
-    const url = `${django_host_api}/en/api/apart/period/meter_value/${data.id}/`;
+    const url = `${django_host_api}/api/apart/period/meter_value/${data.id}/`;
     const crsf = document.getElementsByName('csrfmiddlewaretoken')[0].value; 
     const options = {
         method: 'PUT',
@@ -417,7 +417,7 @@ async function saveServiceAmount(django_host_api) {
         payment: editServiceAmount.querySelector('#id_edit_service_payment').value,
     };
 
-    const url = `${django_host_api}/en/api/apart/period/service_amount/${data.id}/`;
+    const url = `${django_host_api}/api/apart/period/service_amount/${data.id}/`;
     const crsf = document.getElementsByName('csrfmiddlewaretoken')[0].value; 
     const options = {
         method: 'PUT',

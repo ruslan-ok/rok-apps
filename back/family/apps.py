@@ -12,7 +12,6 @@ class FamilyConfig(AppConfig):
         'app_title': _('family tree'),
         'human_name': gettext('Family tree'),
         'icon': 'diagram-3',
-        'href': '/family/',
         'permission': 'task.view_pedigree',
         'order': 13,
         'main_view': 'diagram',

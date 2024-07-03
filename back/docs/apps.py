@@ -8,7 +8,6 @@ class DocsConfig(AppConfig):
         'app_title': _('documents'),
         'human_name': gettext('Documents'),
         'icon': 'file-text',
-        'href': '/docs/',
         'permission': 'task.view_docs',
         'order': 10,
         'main_view': 'root',

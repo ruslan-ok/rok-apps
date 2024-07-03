@@ -11,7 +11,6 @@ class LogsConfig(AppConfig):
         'app_title': _('logs'),
         'human_name': gettext('Logs'),
         'icon': 'card-list',
-        'href': '/logs/',
         'permission': 'task.view_logs',
         'order': 15,
         'role': 'apache',

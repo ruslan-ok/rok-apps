@@ -25,7 +25,7 @@ function addService(car_id) {
     }
     let param_serv = '&part_id=' + value;
     let param_group = '&group_id=' + car_id;
-    const api = '/api/tasks/add_item/?format=json&app=fuel&role=service' + param_serv + param_group;
+    const api = '/api/tasks/add_item?format=json&app=fuel&role=service' + param_serv + param_group;
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             let resp = JSON.parse(this.responseText);

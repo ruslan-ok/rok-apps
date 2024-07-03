@@ -10,7 +10,6 @@ class NoteConfig(AppConfig):
         'app_title': _('notes'),
         'human_name': gettext('Notes'),
         'icon': 'sticky',
-        'href': '/note/',
         'permission': 'task.view_note',
         'order': 3,
         'role': ROLE_NOTE,

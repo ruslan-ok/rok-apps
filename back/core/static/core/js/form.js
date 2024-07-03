@@ -49,7 +49,7 @@ function addItem(app, role, group_id, screen_size='') {
     if (name)
         param_name = '&name=' + name.value;
     param_group = '&group_id=' + group_id;
-    const api = '/api/tasks/add_item/?format=json&app=' + app + '&role=' + role + param_name + param_group;
+    const api = '/api/tasks/add_item?format=json&app=' + app + '&role=' + role + param_name + param_group;
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             let resp = JSON.parse(this.responseText);
@@ -66,6 +66,8 @@ function addItem(app, role, group_id, screen_size='') {
                 item_id = item_id_arr[0];
             let url_parts = window.location.href.split('?');
             let redirect_url = url_parts[0];
+            if (!redirect_url.endsWith('/'))
+                redirect_url += '/';
             if ((item_id != 0) && redirect_url.includes(item_id))
                 redirect_url = redirect_url.replace(item_id, resp.task_id);
             else
@@ -105,8 +107,8 @@ function delItem(role) {
     let url_params = '';
     if (window.location.href.split('?').length == 2)
         url_params = '?' + window.location.href.split('?')[1];
-    let redirect_url = window.location.href.split('/' + item_id + '/')[0] + '/' + url_params;
-    const api = '/api/tasks/' + item_id + '/role_delete/?format=json&role=' + role;
+    let redirect_url = window.location.href.split('/' + item_id)[0] + url_params;
+    const api = '/api/tasks/' + item_id + '/role_delete?format=json&role=' + role;
     const callback = function() {
         if (this.readyState == 3 && this.status == 400) {
             let mess = 'Unknown Error';
@@ -125,7 +127,7 @@ function delItem(role) {
 function delCategory(category) {
     const item_id = window.location.pathname.match( /\d+/ )[0];
     const redirect_url = window.location.href;
-    const api = '/api/tasks/' + item_id + '/category_delete/?format=json&category=' + category;
+    const api = '/api/tasks/' + item_id + '/category_delete?format=json&category=' + category;
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             window.location.href = redirect_url;
@@ -191,7 +193,7 @@ function delFileConfirm(ban, text, app, role, fname, file_id) {
   
 function delFile(app, role, fname, file_id) {
     const item_id = window.location.pathname.match( /\d+/ )[0];
-    const api = '/api/tasks/' + item_id + '/file_delete/?format=json&app=' + app + '&role=' + role + '&fname=' + fname;
+    const api = '/api/tasks/' + item_id + '/file_delete?format=json&app=' + app + '&role=' + role + '&fname=' + fname;
     const callback = function() {
         if (this.readyState == 4 && this.status == 204) {
             console.log('deleted file ' + fname);
@@ -217,7 +219,7 @@ function avatarSelected()
 
 function delAvatar() {
     const redirect_url = window.location.href;
-    const api = '/api/profile/delete_avatar/?format=json';
+    const api = '/api/profile/delete_avatar?format=json';
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             console.log('deleted profile avatar');
@@ -229,7 +231,7 @@ function delAvatar() {
 
 function toggleImportant(item_id, redirect=true) {
     const redirect_url = window.location.href;
-    const api = '/api/tasks/' + item_id + '/important/?format=json';
+    const api = '/api/tasks/' + item_id + '/important?format=json';
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             if (redirect)
@@ -260,7 +262,7 @@ function toggleFormImportant() {
 function apartChange(selectObject) {
     const value = selectObject.value;
     const redirect_url = window.location.href;
-    const api = '/api/apart/' + value + '/set_active/?format=json';
+    const api = '/api/apart/' + value + '/set_active?format=json';
     const callback = function() {
         if ((this.readyState == 4 || this.readyState == 2)  && this.status == 200) {
             window.location.href = redirect_url;
@@ -272,7 +274,7 @@ function apartChange(selectObject) {
 function addRole(role) {
     const redirect_url = window.location.href;
     const item_id = window.location.pathname.match( /\d+/ )[0];
-    const api = '/api/tasks/' + item_id + '/role_add/?format=json&role=' + role;
+    const api = '/api/tasks/' + item_id + '/role_add?format=json&role=' + role;
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             window.location.href = redirect_url;
@@ -284,7 +286,7 @@ function addRole(role) {
 function delRole(role) {
     const item_id = window.location.pathname.match( /\d+/ )[0];
     const redirect_url = window.location.href;
-    const api = '/api/tasks/' + item_id + '/role_delete/?format=json&role=' + role;
+    const api = '/api/tasks/' + item_id + '/role_delete?format=json&role=' + role;
     const callback = function() {
         if ((this.readyState == 4 || this.readyState == 2)  && this.status == 200) {
             window.location.href = redirect_url;
@@ -318,7 +320,7 @@ function toggleMyDay() {
         el.setAttribute('selected', '');
     
     const redirect_url = window.location.href;
-    const api = '/api/tasks/' + item_id + '/in_my_day/?format=json';
+    const api = '/api/tasks/' + item_id + '/in_my_day?format=json';
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             window.location.href = redirect_url;
@@ -331,7 +333,7 @@ function completeStep(step_id) {
     let el = document.getElementById('step_edit_name_' + step_id);
     el.classList.toggle('completed');
 
-    const api = '/api/steps/' + step_id + '/complete/?format=json';
+    const api = '/api/steps/' + step_id + '/complete?format=json';
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             console.log('Step completion toggled.');
@@ -362,7 +364,7 @@ function delStepConfirm(step_id, text) {
 }
 
 function editStep(step_id, value) {
-    const api = '/api/steps/' + step_id + '/rename/?format=json&value=' + value;
+    const api = '/api/steps/' + step_id + '/rename?format=json&value=' + value;
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             console.log('Step changes saved successfully.')
@@ -380,7 +382,7 @@ function delTermin(text) {
     document.getElementById('id_termin_delete').classList.add('d-none');
     const frm = document.getElementById('article_form');
     frm.elements['stop'].value = '';
-    const api = '/api/tasks/' + item_id + '/termin_delete/?format=json';
+    const api = '/api/tasks/' + item_id + '/termin_delete?format=json';
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             console.log('Termin removed successfully.')
@@ -392,7 +394,7 @@ function delTermin(text) {
 
 function terminToday() {
     const item_id = window.location.pathname.match( /\d+/ )[0];
-    const api = '/api/tasks/' + item_id + '/termin_today/?format=json';
+    const api = '/api/tasks/' + item_id + '/termin_today?format=json';
     const redirect_url = window.location.href;
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
@@ -405,7 +407,7 @@ function terminToday() {
 
 function terminTomorrow() {
     const item_id = window.location.pathname.match( /\d+/ )[0];
-    const api = '/api/tasks/' + item_id + '/termin_tomorrow/?format=json';
+    const api = '/api/tasks/' + item_id + '/termin_tomorrow?format=json';
     const redirect_url = window.location.href;
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
@@ -418,7 +420,7 @@ function terminTomorrow() {
 
 function terminNextWeek() {
     const item_id = window.location.pathname.match( /\d+/ )[0];
-    const api = '/api/tasks/' + item_id + '/termin_next_week/?format=json';
+    const api = '/api/tasks/' + item_id + '/termin_next_week?format=json';
     const redirect_url = window.location.href;
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
@@ -436,7 +438,7 @@ function delRepeat(text) {
     document.getElementById('id_repeat_delete').classList.add('d-none');
     const frm = document.getElementById('article_form');
     frm.elements['repeat'].value = '';
-    const api = '/api/tasks/' + item_id + '/repeat_delete/?format=json';
+    const api = '/api/tasks/' + item_id + '/repeat_delete?format=json';
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             console.log('Repeat removed successfully.')
@@ -467,7 +469,7 @@ function repeatSet(mode) {
             repeat = 5;
             break;
     }
-    const api = '/api/tasks/' + item_id + '/repeat_set/1/' + repeat + '/' + days + '/?format=json';
+    const api = '/api/tasks/' + item_id + '/repeat_set/1/' + repeat + '/' + days + '?format=json';
     const redirect_url = window.location.href;
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
@@ -514,7 +516,7 @@ function delRemind(text) {
     document.getElementById('id_remind_delete').classList.add('d-none');
     const frm = document.getElementById('article_form');
     frm.elements['remind'].value = '';
-      const api = '/api/tasks/' + item_id + '/remind_delete/?format=json';
+      const api = '/api/tasks/' + item_id + '/remind_delete?format=json';
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             console.log('Remind removed successfully.')
@@ -525,7 +527,7 @@ function delRemind(text) {
 
 function remindToday() {
     const item_id = window.location.pathname.match( /\d+/ )[0];
-    const api = '/api/tasks/' + item_id + '/remind_today/?format=json';
+    const api = '/api/tasks/' + item_id + '/remind_today?format=json';
     const redirect_url = window.location.href;
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
@@ -538,7 +540,7 @@ function remindToday() {
 
 function remindTomorrow() {
     const item_id = window.location.pathname.match( /\d+/ )[0];
-    const api = '/api/tasks/' + item_id + '/remind_tomorrow/?format=json';
+    const api = '/api/tasks/' + item_id + '/remind_tomorrow?format=json';
     const redirect_url = window.location.href;
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
@@ -551,7 +553,7 @@ function remindTomorrow() {
 
 function remindNextWeek() {
     const item_id = window.location.pathname.match( /\d+/ )[0];
-    const api = '/api/tasks/' + item_id + '/remind_next_week/?format=json';
+    const api = '/api/tasks/' + item_id + '/remind_next_week?format=json';
     const redirect_url = window.location.href;
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
@@ -564,7 +566,7 @@ function remindNextWeek() {
 
 function toggleCompleted() {
     const item_id = window.location.pathname.match( /\d+/ )[0];
-    const api = '/api/tasks/' + item_id + '/completed/?format=json';
+    const api = '/api/tasks/' + item_id + '/completed?format=json';
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             let info = '';

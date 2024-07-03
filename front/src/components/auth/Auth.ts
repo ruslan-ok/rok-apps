@@ -2,7 +2,7 @@ export function getApiUrl(): string {
     const parts = window.location.pathname.split('/');
     const baseUrl: string = window.location.protocol + '//' + window.location.host + '/' + (parts[1] ? parts[1] + '/' : '');
     if (baseUrl.includes('localhost:3000'))
-        return 'http://localhost:8001/';
+        return 'http://localhost:8000/';
     return baseUrl;
 }
 

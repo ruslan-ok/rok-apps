@@ -11,7 +11,6 @@ class FuelConfig(AppConfig):
         'app_title': _('fueling'),
         'human_name': gettext('Fuelings'),
         'icon': 'fuel-pump',
-        'href': '/fuel/',
         'permission': 'task.view_fuel',
         'order': 7,
         'main_view': 'fuel',

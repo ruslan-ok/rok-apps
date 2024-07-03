@@ -8,7 +8,6 @@ class PhotoConfig(AppConfig):
         'app_title': _('photo bank'),
         'human_name': gettext('Photobank'),
         'icon': 'image',
-        'href': '/photo/',
         'permission': 'photo.view_photo',
         'order': 12,
         'main_view': 'preview',

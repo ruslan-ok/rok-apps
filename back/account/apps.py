@@ -7,7 +7,7 @@ class AccountConfig(AppConfig):
     name = 'account'
     app_config = {
         'icon': 'people',
-        'href': '/admin/',
+        'href': 'admin',
         'permission': 'task.administrate_site',
         'order': 16,
         'human_name': gettext('Admin'),

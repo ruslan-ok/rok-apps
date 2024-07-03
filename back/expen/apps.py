@@ -10,7 +10,6 @@ class ExpenConfig(AppConfig):
         'app_title': _('expenses'),
         'human_name': gettext('Expenses'),
         'icon': 'piggy-bank',
-        'href': '/expen/',
         'permission': 'task.view_expense',
         'order': 6,
         'role': ROLE_EXPENSE,

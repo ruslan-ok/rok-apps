@@ -110,7 +110,7 @@ class ApiHandler(logging.Handler, CustomHandler):
             self.verify = settings.DJANGO_CERT
         else:
             self.verify = None
-        self.api_url = f'{api_host}/en/api/logs/?format=json'
+        self.api_url = f'{api_host}/api/logs?format=json'
         service_token = settings.DJANGO_SERVICE_TOKEN
         self.request_headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
 
