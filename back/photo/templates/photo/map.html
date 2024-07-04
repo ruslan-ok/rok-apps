@@ -34,10 +34,10 @@
 
 {% block extrascript %}
   {{ block.super }}
-  <script src="{% static 'js/docs.js' %}"></script>
+  <script src="{% static 'core/js/docs.js' %}"></script>
   <script>
     buildDirTree('dirs-tree');
   </script>
-  <script src="{% static 'js/photo.js' %}"></script>
-  <script src="{% static 'js/uploadFile.js' %}"></script>
+  <script src="{% static 'photo/js/photo.js' %}"></script>
+  <script src="{% static 'core/js/uploadFile.js' %}"></script>
 {% endblock %}

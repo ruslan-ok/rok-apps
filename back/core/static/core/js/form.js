@@ -66,12 +66,13 @@ function addItem(app, role, group_id, screen_size='') {
                 item_id = item_id_arr[0];
             let url_parts = window.location.href.split('?');
             let redirect_url = url_parts[0];
-            if (!redirect_url.endsWith('/'))
-                redirect_url += '/';
             if ((item_id != 0) && redirect_url.includes(item_id))
                 redirect_url = redirect_url.replace(item_id, resp.task_id);
-            else
+            else {
+                if (!redirect_url.endsWith('/'))
+                    redirect_url += '/';
                 redirect_url = redirect_url + resp.task_id;
+            }
             if (url_parts.length > 1)
                 redirect_url += '?' + url_parts[1];
             window.location.href = redirect_url;
