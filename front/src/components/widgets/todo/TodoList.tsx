@@ -14,7 +14,7 @@ export default function TodoList({screenWidth}: {screenWidth: number}) {
     useEffect(() => {
         async function getData() {
             setStatus('updating');
-            const url = apiUrl + `api/get_chart_data?mark=todo`;
+            const url = apiUrl + `api/get_chart_data/?mark=todo`;
             const cred: RequestCredentials = 'include';
             const options = {
                 method: 'GET',

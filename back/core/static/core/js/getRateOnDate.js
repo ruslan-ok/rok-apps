@@ -39,7 +39,7 @@ function getRateOnDate(init, id_date, id_currency, id_rate) {
     return;
 
   const request = new XMLHttpRequest();
-  const url = `${apiUrl}api/core/get_exchange_rate?currency=${currency}&date=${s_date}&format=json&mode=db_only`;
+  const url = `${apiUrl}api/core/get_exchange_rate/?currency=${currency}&date=${s_date}&format=json&mode=db_only`;
   request.responseType = "json";
   request.open("GET", url, true);
   request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");

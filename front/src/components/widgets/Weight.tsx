@@ -57,7 +57,7 @@ function Weight({screenWidth}: {screenWidth: number}) {
     useEffect(() => {
         async function getData() {
             setStatus('updating');
-            const url = apiUrl + 'api/get_chart_data?mark=health&version=v2&period=' + period;
+            const url = apiUrl + 'api/get_chart_data/?mark=health&version=v2&period=' + period;
             const aaa: RequestCredentials = 'include';
             const options = {
                 method: 'GET',
@@ -93,7 +93,7 @@ function Weight({screenWidth}: {screenWidth: number}) {
 
     async function saveNewWeight(newWeight: number) {
         const value = newWeight.toString();
-        const url = apiUrl + `api/tasks/add_item?format=json&app=health&role=marker&name=${value}&group_id=health-marker`;
+        const url = apiUrl + `api/tasks/add_item/?format=json&app=health&role=marker&name=${value}&group_id=health-marker`;
         const cred: RequestCredentials = 'include';
         const options = {
             method: 'GET',

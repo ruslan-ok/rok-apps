@@ -1,5 +1,5 @@
 function buildChart(mark, filter = undefined) {
-    let api = '/api/get_chart_data?mark=' + mark;
+    let api = '/api/get_chart_data/?mark=' + mark;
     if (filter)
         api += '&filter=' + structuredClone(filter);
     const url = window.location.protocol + '//' + window.location.host + api;

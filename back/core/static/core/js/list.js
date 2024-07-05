@@ -19,7 +19,7 @@ function toggleSubGroup(div, group_id, sub_group_id) {
         div.children[0].classList.remove('bi-chevron-right');
         div.children[0].classList.add('bi-chevron-down');
     }
-    const api = '/api/groups/' + group_id + '/toggle_sub_group?format=json&sub_group_id=' + sub_group_id;
+    const api = '/api/groups/' + group_id + '/toggle_sub_group/?format=json&sub_group_id=' + sub_group_id;
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             console.log('Sub group ' + sub_group_id + ' toggled successfully.');
@@ -30,7 +30,7 @@ function toggleSubGroup(div, group_id, sub_group_id) {
 
 function setTheme(group_id, theme_id) {
     const redirect_url = window.location.href;
-    const api = '/api/groups/' + group_id + '/set_theme?format=json&theme_id=' + theme_id;
+    const api = '/api/groups/' + group_id + '/set_theme/?format=json&theme_id=' + theme_id;
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             console.log('Theme ' + theme_id + ' setted successfully.');
@@ -42,7 +42,7 @@ function setTheme(group_id, theme_id) {
 
 function setSort(group_id, sort_id) {
     const redirect_url = window.location.href;
-    const api = '/api/groups/' + group_id + '/set_sort?format=json&sort_id=' + sort_id;
+    const api = '/api/groups/' + group_id + '/set_sort/?format=json&sort_id=' + sort_id;
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             console.log('Sort ' + sort_id + ' setted successfully.');
@@ -54,7 +54,7 @@ function setSort(group_id, sort_id) {
 
 function reverseSort(group_id) {
     const redirect_url = window.location.href;
-    const api = '/api/groups/' + group_id + '/reverse_sort?format=json';
+    const api = '/api/groups/' + group_id + '/reverse_sort/?format=json';
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             console.log('Sort reversed successfully.');
@@ -66,7 +66,7 @@ function reverseSort(group_id) {
 
 function delSort(group_id) {
     const redirect_url = window.location.href;
-    const api = '/api/groups/' + group_id + '/delete_sort?format=json';
+    const api = '/api/groups/' + group_id + '/delete_sort/?format=json';
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             console.log('Sort deleted successfully.');
@@ -78,7 +78,7 @@ function delSort(group_id) {
 
 function toggleSubGroups(group_id) {
     const redirect_url = window.location.href;
-    const api = '/api/groups/' + group_id + '/toggle_sub_groups?format=json';
+    const api = '/api/groups/' + group_id + '/toggle_sub_groups/?format=json';
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             console.log('Using sub groups changed successfully.');
@@ -90,7 +90,7 @@ function toggleSubGroups(group_id) {
 
 function toggleServicesVisible(group_id) {
     const redirect_url = window.location.href;
-    const api = '/api/groups/' + group_id + '/toggle_services_visible?format=json';
+    const api = '/api/groups/' + group_id + '/toggle_services_visible/?format=json';
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             console.log('Showing service tasks changed successfully.');
@@ -102,7 +102,7 @@ function toggleServicesVisible(group_id) {
 
 function toggleCompleted(item_id) {
     const redirect_url = window.location.href;
-    const api = '/api/tasks/' + item_id + '/completed?format=json';
+    const api = '/api/tasks/' + item_id + '/completed/?format=json';
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             let info = '';
@@ -129,7 +129,7 @@ function toggleImportant(item_id, api_role='tasks', redirect=true) {
     let method = 'important';
     if (api_role == 'famtree')
         method = 'set_active';
-    const api = `/api/${api_role}/${item_id}/${method}?format=json`;
+    const api = `/api/${api_role}/${item_id}/${method}/?format=json`;
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             if (redirect)
@@ -148,7 +148,7 @@ function addItem(app, role, group_id, screen_size='') {
     if (name)
         param_name = '&name=' + name.value;
     param_group = '&group_id=' + group_id;
-    const api = '/api/tasks/add_item?format=json&app=' + app + '&role=' + role + param_name + param_group;
+    const api = '/api/tasks/add_item/?format=json&app=' + app + '&role=' + role + param_name + param_group;
     const callback = function() {
         if (this.readyState == 4 && this.status == 400) {
             if (this.response) {

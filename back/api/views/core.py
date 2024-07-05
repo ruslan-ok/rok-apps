@@ -20,7 +20,7 @@ def get_api_exchange_rate(request):
     headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
     verify = settings.DJANGO_CERT
     params = '&'.join([k + '=' + v for k, v in request.query_params.items()])
-    url = api_url + '/api/core/get_exchange_rate?' + params
+    url = api_url + '/api/core/get_exchange_rate/?' + params
     resp = requests.get(url, headers=headers, verify=verify)
     if (resp.status_code != 200):
         return None

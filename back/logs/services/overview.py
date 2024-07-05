@@ -83,7 +83,7 @@ class OverviewLogData(ServiceLog):
         return {'dates': dates, 'services': sorted(services, key=lambda x: x['sort'])}
 
     def get_service_health_api(self, depth):
-        api_url = f'{self.api_host}/api/logs/get_service_health?format=json&depth={depth}'
+        api_url = f'{self.api_host}/api/logs/get_service_health/?format=json&depth={depth}'
         resp = requests.get(api_url, headers=self.headers, verify=self.verify)
         if (resp.status_code != 200):
             ServiceEvent.objects.create(device=self.this_device, app='cron', service='worker', type=EventType.ERROR, name='get_remote_events', info='[x] error ' + str(resp.status_code) + '. ' + str(resp.content))

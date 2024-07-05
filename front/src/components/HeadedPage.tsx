@@ -15,7 +15,7 @@ export async function loader(): Promise<HeaderData> {
         },
         credentials: cred,
     };
-    const res = await fetch(apiUrl +  'api/react/header', options);
+    const res = await fetch(apiUrl +  'api/react/header/', options);
     const resp_data = await res.json();
     const header: HeaderData = JSON.parse(resp_data.json_data);
     return header;

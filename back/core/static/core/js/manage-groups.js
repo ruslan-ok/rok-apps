@@ -52,7 +52,7 @@ function addGroup(app, role, group_entity) {
     let cur_folder = getQueryVariable('folder');
     if (cur_folder.length > 0 && cur_folder[cur_folder.length-1] != '/')
       cur_folder += '/';
-    const api = `${group_api}create_folder?${postfix}&app=${app}&folder=${cur_folder}&name=${name}`;
+    const api = `${group_api}create_folder/?${postfix}&app=${app}&folder=${cur_folder}&name=${name}`;
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
           let res = 'error';
@@ -181,7 +181,7 @@ function delFolderConfirm(app, path, folder, ban, text) {
 
 function delFolder(app, path, folder) {
   const redirect_url = window.location.origin + window.location.pathname + `?folder=${path}`;
-  const api = `${group_api}delete_folder?${postfix}&app=${app}&path=${path}&folder=${folder}`;
+  const api = `${group_api}delete_folder/?${postfix}&app=${app}&path=${path}&folder=${folder}`;
   const callback = function() {
     if (this.readyState == 4 && this.status == 200) {
       let res = 'error';
@@ -225,7 +225,7 @@ function saveFolder(app, path, folder) {
   }
   
   const redirect_url = window.location.origin + window.location.pathname + `?folder=${path}${new_name}`;
-  const api = `${group_api}rename_folder?${postfix}&app=${app}&path=${path}&folder=${folder}&new_name=${new_name}`;
+  const api = `${group_api}rename_folder/?${postfix}&app=${app}&path=${path}&folder=${folder}&new_name=${new_name}`;
   const callback = function() {
     if (this.readyState == 4 && this.status == 200) {
       let res = 'error';

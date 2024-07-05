@@ -36,7 +36,7 @@ export default function TodoItem({ todo, doRedraw }: { todo: Todo, doRedraw: () 
     const event = todo.stop.toLocaleDateString().replace('/', '.').replace('/', '.');
 
     async function toggle(method: string, id: number) {
-        const url = apiUrl + `api/tasks/${id}/${method}?format=json`;
+        const url = apiUrl + `api/tasks/${id}/${method}/?format=json`;
         const cred: RequestCredentials = 'include';
         const options = {
             method: 'GET',

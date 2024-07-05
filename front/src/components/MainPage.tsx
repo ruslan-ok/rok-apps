@@ -18,7 +18,7 @@ export async function loader(): Promise<MainPageData> {
     },
     credentials: cred,
   };
-  const res = await fetch(apiUrl +  'api/react/main_page', options);
+  const res = await fetch(apiUrl +  'api/react/main_page/', options);
   const resp_data = await res.json();
   const data: MainPageData = JSON.parse(resp_data.json_data);
   return data;

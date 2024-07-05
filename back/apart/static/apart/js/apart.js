@@ -27,7 +27,7 @@ function addPrice(apart_id) {
     }
     let param_serv = '&service_id=' + value;
     let param_group = '&group_id=' + apart_id;
-    const api = '/api/tasks/add_item?format=json&app=apart&role=price' + param_serv + param_group;
+    const api = '/api/tasks/add_item/?format=json&app=apart&role=price' + param_serv + param_group;
     const callback = function() {
         if (this.readyState == 4 && this.status == 200) {
             let resp = JSON.parse(this.responseText);

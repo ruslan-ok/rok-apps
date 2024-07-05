@@ -15,7 +15,7 @@ export default function LastVisited({screenWidth}: {screenWidth: number}) {
 
         async function getData() {
             setStatus('updating');
-            const url = apiUrl + `api/get_chart_data?mark=visited`;
+            const url = apiUrl + `api/get_chart_data/?mark=visited`;
             const cred: RequestCredentials = 'include';
             const options = {
                 method: 'GET',
@@ -46,7 +46,7 @@ export default function LastVisited({screenWidth}: {screenWidth: number}) {
     }, [redraw]);
 
     async function toggle(id: number) {
-        const url = apiUrl + `api/visited/${id}/toggle_pin?format=json`;
+        const url = apiUrl + `api/visited/${id}/toggle_pin/?format=json`;
         const cred: RequestCredentials = 'include';
         const options = {
             method: 'GET',

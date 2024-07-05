@@ -38,7 +38,7 @@ function delItem() {
     if (window.location.href.split('?').length == 2)
         url_params = '?' + window.location.href.split('?')[1];
     let redirect_url = window.location.href.split('/' + item_id)[0] + url_params;
-    const api = '/api/famtree/' + item_id + '?format=json&role=';
+    const api = '/api/famtree/' + item_id + '/?format=json&role=';
     const callback = function() {
         if (this.readyState == 4 && this.status == 204)
             window.location.href = redirect_url;
