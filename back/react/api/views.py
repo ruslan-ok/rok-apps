@@ -23,7 +23,7 @@ def get_assets(request, file):
         return HttpResponseNotFound()
 
 
-def get_header_data(user: User | None):
+def get_header_data(user: User | None, local: bool):
     data = {
         'appIcon': '/static/rok.png',
         'appTitle': '',
@@ -34,10 +34,14 @@ def get_header_data(user: User | None):
         'userMenu': [],
         'buttons': [],
     }
+    href_prefix = ''
+    if local:
+        href_prefix = 'http://127.0.0.1:8000/'
+
     if not user or not user.is_authenticated:
         data['appTitle'] = settings.DOMAIN_NAME
-        data['buttons'].append({'button_id': 'demo', 'name': 'Demo', 'href': 'account/demo'})
-        data['buttons'].append({'button_id': 'login', 'name': 'Log in', 'href': 'account/login'})
+        data['buttons'].append({'button_id': 'demo', 'name': 'Demo', 'href': href_prefix + 'account/demo/'})
+        data['buttons'].append({'button_id': 'login', 'name': 'Log in', 'href': href_prefix + 'account/login/'})
     else:
         data['applications'] = get_apps_list(user, 'core')
         data['searchPlaceholder'] = 'Search...'
@@ -47,9 +51,9 @@ def get_header_data(user: User | None):
         else:
             data['avatar'] = '/static/account/img/Default-avatar.jpg'
         if user and user.username != 'demouser':
-            data['userMenu'].append({'item_id': 'profile', 'name': 'Profile', 'href': 'account/profile', 'icon': 'bi-person'})
+            data['userMenu'].append({'item_id': 'profile', 'name': 'Profile', 'href': href_prefix + 'account/profile/', 'icon': 'bi-person'})
             data['userMenu'].append({'item_id': 'separator', 'name': '', 'href': '', 'icon': ''})
-        data['userMenu'].append({'item_id': 'logout', 'name': 'Log out', 'href': 'account/logout', 'icon': 'bi-box-arrow-right'})
+        data['userMenu'].append({'item_id': 'logout', 'name': 'Log out', 'href': href_prefix + 'account/logout/', 'icon': 'bi-box-arrow-right'})
     return data
 
 def get_public_data(user: User | None):
@@ -109,7 +113,8 @@ def get_protected_data(user: User | None):
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def header(request):
-    data = get_header_data(request.user)
+    local = 'localhost' in request.get_host()
+    data = get_header_data(request.user, local)
     json_data = json.dumps(data)
     obj = PageData(json_data=json_data)
     serializer = PageDataSerializer(obj)

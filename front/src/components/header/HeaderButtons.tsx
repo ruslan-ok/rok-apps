@@ -7,8 +7,7 @@ function HeaderButtons({items}: {items: HeaderButton[]}) {
 
   if (items.length) {
     buttonList = items.map((item) => {
-      let href = '/' + item.href;
-      return (<a className='button' href={href} key={item.button_id}>{item.name}</a>);
+      return (<a className='button' href={item.href} key={item.button_id}>{item.name}</a>);
     });
   }
 

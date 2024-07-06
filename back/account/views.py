@@ -20,7 +20,7 @@ from django.views.generic.edit import FormView
 from django.views.generic.base import TemplateView
 
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, update_session_auth_hash
+from django.contrib.auth import authenticate, update_session_auth_hash
 from django.contrib.auth import (REDIRECT_FIELD_NAME, get_user_model, login as auth_login, logout as auth_logout,)
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.decorators import login_required
@@ -191,7 +191,7 @@ def register(request):
             title = subject = gettext('Account Verification')
 
             message = '\n' + gettext('Please visit the following link to verify your account') + ' \n\n' + \
-                    '{}://{}/account/activate?key={}'.format(request.scheme, request.get_host(), activation_key)            
+                    '{}://{}/account/activate/?key={}'.format(request.scheme, request.get_host(), activation_key)            
 
             error = False
 
@@ -464,7 +464,7 @@ def profile(request):
         if userext:
             form.initial['phone'] = userext.phone
 
-    context = get_base_context(request, 'home', ROLE_ACCOUNT, None, '', (_('profile').capitalize(),))
+    context = get_base_context(request, 'home', ROLE_ACCOUNT, None, '', (_('Profile'),))
     context['form'] = form
     avatar = userext and userext.avatar or None
     context['avatar_url'] = avatar.url if avatar and type(avatar) == ImageFieldFile else '/static/account/img/Default-avatar.jpg'
@@ -502,7 +502,7 @@ def demo(request):
         user = User.objects.create_user('demouser', settings.EMAIL_DEMOUSER, demouserpassword)
     user = authenticate(username='demouser', password=demouserpassword)
     if user is not None:
-        login(request, user)
+        auth_login(request, user)
     return HttpResponseRedirect(reverse_lazy('index'))
 
 @api_view(['POST'])
