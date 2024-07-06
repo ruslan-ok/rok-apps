@@ -89,9 +89,9 @@ class Notificator(SiteService):
             priority = 'high'
         else:
             priority = 'normal'
-        myicon = self.host + '/static/rusel.png'
+        myicon = self.host + '/static/rok.png'
         mybadge = ''
-        click_action = self.host + '/todo/' + str(task.id)
+        click_action = self.host + '/todo/' + str(task.id) + '/'
         an = messaging.AndroidNotification(title=task.name, body=body, icon=myicon, color=None, sound=None, tag=None, click_action=click_action, body_loc_key=None, \
                                         body_loc_args=None, title_loc_key=None, title_loc_args=None, channel_id=None, image=None, ticker=None, sticky=None, \
                                         event_timestamp=None, local_only=None, priority=None, vibrate_timings_millis=None, default_vibrate_timings=None, \
