@@ -69,7 +69,7 @@ urlpatterns = [
     path('favicon.ico', RedirectView.as_view(url='static/favicon.ico')),
     path('firebase-messaging-sw.js', TemplateView.as_view(template_name='firebase-messaging-sw.js', content_type='text/javascript')),
 
-    path('admin', admin.site.urls),
+    path('admin/', admin.site.urls),
     path('account/', include('account.urls')),
     path('bill/', include('apart.urls')),
     path('cram/', include('cram.urls')),
@@ -86,7 +86,7 @@ urlpatterns = [
     path('todo/', include('todo.urls')),
     path('warr/', include('warr.urls')),
     path('api/', include(api_router.urls)),
-    path('assets/<str:file>', api_react.get_assets),
+    path('assets/<str:file>/', api_react.get_assets),
 
     path('api/react/header/', api_react.header),
     path('api/react/main_page/', api_react.main_page),

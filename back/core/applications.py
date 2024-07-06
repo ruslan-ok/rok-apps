@@ -14,6 +14,8 @@ def get_apps_list(user, current):
         href = config.app_config['href'] if 'href' in config.app_config else config.app_config['name']
         if not href.startswith('/'):
             href = '/' + href
+        if not href.endswith('/'):
+            href = href + '/'
         perm = config.app_config['permission']
         order = config.app_config['order']
         name = config.app_config['human_name']

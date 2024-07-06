@@ -216,7 +216,7 @@ class Context:
                     view_id = key
                     if (key != self.config.main_view):
                         if ('page_url' in value):
-                            url += value['page_url']
+                            url += value['page_url'] + '/'
                         else:
                             url += '?view=' + key
             if (self.config.app in FOLDER_NAV_APPS):
