@@ -132,18 +132,19 @@ class ServiceEvent(models.Model):
                 svc = event.service
                 hlt = {'dev': dev, 'app': app, 'svc': svc, 'days': [None for x in range(depth)], 'qnt': [0 for x in range(depth)]}
 
-            if event.type == EventType.DEBUG and hlt['days'][day_num] not in (EventType.INFO, EventType.WARNING, EventType.ERROR):
-                hlt['days'][day_num] = EventType.DEBUG
-            if event.type == EventType.INFO and hlt['days'][day_num] not in (EventType.WARNING, EventType.ERROR):
-                hlt['days'][day_num] = EventType.INFO
-            if event.type == EventType.WARNING and hlt['days'][day_num] != EventType.ERROR:
-                hlt['days'][day_num] = EventType.WARNING
-            if event.type == EventType.ERROR:
-                hlt['days'][day_num] = EventType.ERROR
-            if app == 'todo' and svc == 'notificator':
-                if event.name == 'process' and 'task qnt = ' in event.info:
-                    add_qnt = int(event.info.split('task qnt = ')[1])
-                    hlt['qnt'][day_num] += add_qnt
+            if hlt:
+                if event.type == EventType.DEBUG and hlt['days'][day_num] not in (EventType.INFO, EventType.WARNING, EventType.ERROR):
+                    hlt['days'][day_num] = EventType.DEBUG
+                if event.type == EventType.INFO and hlt['days'][day_num] not in (EventType.WARNING, EventType.ERROR):
+                    hlt['days'][day_num] = EventType.INFO
+                if event.type == EventType.WARNING and hlt['days'][day_num] != EventType.ERROR:
+                    hlt['days'][day_num] = EventType.WARNING
+                if event.type == EventType.ERROR:
+                    hlt['days'][day_num] = EventType.ERROR
+                if app == 'todo' and svc == 'notificator':
+                    if event.name == 'process' and event.info and 'task qnt = ' in event.info:
+                        add_qnt = int(event.info.split('task qnt = ')[1])
+                        hlt['qnt'][day_num] += add_qnt
         if hlt:
             ret.append(hlt)
         return ret

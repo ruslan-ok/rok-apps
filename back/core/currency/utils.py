@@ -91,12 +91,12 @@ def shift_date(date, info):
     return None, ''
 
 
-def _get_db_exchange_rate(date: date, currency: str, base: str) -> CurrencyRate|None:
+def _get_db_exchange_rate(date: date, currency: str, base: str) -> tuple[CurrencyRate|None, str]:
     if CurrencyRate.objects.filter(rate_date=date, currency=currency, base=base).exists():
         rate = CurrencyRate.objects.filter(rate_date=date, currency=currency, base=base).order_by('source')[0]
         return rate, 'The value stored in the database was used'
     if CurrencyRate.objects.filter(rate_date__lte=date, currency=currency, base=base).exists():
-        check_date = CurrencyRate.objects.filter(rate_date__lte=date, currency=currency, base=base).order_by('-date')[0].date
+        check_date = CurrencyRate.objects.filter(rate_date__lte=date, currency=currency, base=base).order_by('-rate_date')[0].rate_date
         return None, 'Nearest available date is: ' + check_date.strftime('%d-%b-%Y')
     return None, 'There is no saved rate for the specified date'
 

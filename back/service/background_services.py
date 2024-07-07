@@ -10,6 +10,7 @@ from logs.log_analyzer import LogAnalyzer
 from core.currency.exchange_rate_service import ExchangeRate
 from task.models import Group, Task
 from logs.logger import get_logger
+from logs.models import ServiceEvent, EventType
 
 
 logger = get_logger(__name__, 'cron', 'worker', True)
@@ -45,10 +46,22 @@ def process_service(service_task):
         return False
 
 def _check_services(started):
-    if started:
-        logger.info('start')
-    # else:
-    #     logger.info({'one_per_day': True, 'message': 'work'})
+    ServiceEvent.objects.filter(
+        device=settings.DJANGO_DEVICE,
+        app='cron',
+        service='worker',
+        type=EventType.INFO,
+        name='status',
+        info='work'
+    ).delete()
+    ServiceEvent.objects.create(
+        device=settings.DJANGO_DEVICE,
+        app='cron',
+        service='worker',
+        type=EventType.INFO,
+        name='status',
+        info='work'
+    )
     svc_grp = settings.DJANGO_SERVICE_GROUP
     grp = Group.objects.filter(id=svc_grp).get()
     services = Task.objects.filter(groups=grp, completed=False)

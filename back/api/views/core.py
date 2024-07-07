@@ -23,7 +23,7 @@ def get_api_exchange_rate(request):
     url = api_url + '/api/core/get_exchange_rate/?' + params
     resp = requests.get(url, headers=headers, verify=verify)
     if (resp.status_code != 200):
-        return None
+        return {'rate': None, 'num_units': None, 'url': url, 'info': "Response status code: " + str(resp.status_code)}
     return json.loads(resp.content)
 
 @api_view()

@@ -36,7 +36,7 @@ class Backup():
         self.device = device
         self.service_name = service_name
         self.duration = duration
-        # self.folders = [x.replace('//', '/') for x in folders]
+        self.folders = folders
         self.first_day = first_day
         self.last_day = last_day
         self.etalon = []

@@ -1,8 +1,7 @@
 function getApiUrl() {
-  const parts = window.location.pathname.split('/');
-  const baseUrl = window.location.protocol + '//' + window.location.host + '/' + parts[1] + '/';
+  const baseUrl = window.location.protocol + '//' + window.location.host + '/';
   if (baseUrl.includes('localhost'))
-    return 'http://localhost:8000/en-gb/';
+    return 'http://127.0.0.1:8000/';
   return baseUrl;
 }
 
