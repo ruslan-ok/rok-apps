@@ -1,8 +1,10 @@
 import os, glob, pyzipper, subprocess, time
+from pathlib import Path
 from datetime import datetime, timedelta
 from django.conf import settings
 from backup.sync import Sync
 from logs.logger import get_logger, set_service
+
 
 except_dirs = [
     'apps/rok/.git',
@@ -14,16 +16,20 @@ except_dirs = [
 logger = get_logger(__name__)
 
 class ArchItem():
-    def __init__(self, name, age):
+    def __init__(self, name, age, size=None):
         super().__init__()
         self.name = name
         self.age = age
         self.min_range = None
         self.max_range = None
+        self.size = size
 
     def __repr__(self) -> str:
         valid = 1 if self.age >= self.min_range and self.age <= self.max_range else 0
         return f'{valid}: [{self.min_range}-{self.max_range}] - {self.age} - {self.name}'
+    
+    def __str__(self):
+        return self.__repr__()
     
     def ripe(self):
         if self.age >= self.min_range and self.age <= self.max_range:
@@ -44,7 +50,7 @@ class Backup():
         self.content = []
         self.backup_folder = settings.DJANGO_BACKUP_FOLDER
         self.service_descr = service_descr
-        self.work_dir = self.backup_folder + '/' + device.lower() + '/' + service_descr
+        self.work_dir = Path(self.backup_folder) / device.lower() / service_descr
         self.prefix = device + '-(' + str(duration) + ')-'
         self.fill()
         self.arch_pwrd = settings.DJANGO_BACKUP_PWRD
@@ -112,12 +118,10 @@ class Backup():
 
     def fill(self):
         self.fact.clear()
-        for x in glob.glob(self.work_dir + '/*.zip'):
+        for x in self.work_dir.glob('*.zip'):
             size = self.sizeof_fmt(os.path.getsize(x))
-            arch_name = x.replace(self.work_dir + '/', '')
-            arch_age = self.get_arh_age(arch_name, self.last_day)
-            item = ArchItem(arch_name, arch_age)
-            item.size = size
+            arch_age = self.get_arh_age(x.name, self.last_day)
+            item = ArchItem(x.name, arch_age, size)
             self.fact.append(item)
 
         self.fact.sort(key=lambda x: x.age)
@@ -216,7 +220,7 @@ class Backup():
         sec = int((datetime.now()-start_dt).total_seconds())
         while (sz == 0) and (sec < wait_time):
             time.sleep(5)
-            fl = glob.glob(self.work_dir + '/../HMBackup*.7z')
+            fl = self.work_dir.glob('/../HMBackup*.7z')
             logger.debug('backup_mail: Количество найденных архивов ' + str(len(fl)))
             fn = '???'
             if (len(fl) > 0):
@@ -276,13 +280,13 @@ class Backup():
     def archivate(self):
         logger.info('+archivate() started')
 
-        dir_name = self.work_dir
+        dir_name = str(self.work_dir)
 
         if not os.path.exists(dir_name):
             os.mkdir(dir_name)
 
         fn = self.prefix + datetime.now().strftime('%Y.%m.%d') + '.zip'
-        dir_file = self.work_dir + '/' + fn
+        dir_file = str(self.work_dir / fn)
 
         zf = pyzipper.AESZipFile(dir_file, 'w', compression=pyzipper.ZIP_LZMA, encryption=pyzipper.WZ_AES)
         zf.setpassword(str.encode(self.arch_pwrd))
@@ -328,7 +332,7 @@ class Backup():
     # Удаление неактуальных архивов
     def zipping(self):
         logger.info('+zipping() started')
-        arh_path_list = glob.glob(self.work_dir + '/*.zip')
+        arh_path_list = self.work_dir.glob('*.zip')
 
         # Предварительный анализ файлов архивов
         arhs = []
