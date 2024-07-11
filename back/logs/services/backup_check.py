@@ -2,8 +2,8 @@
 from django.conf import settings
 # from backup.backup import Backup
 
-SERVICE_NAME_1 = 'Ежедневный бэкап'
-SERVICE_NAME_7 = 'Еженедельный бэкап'
+SERVICE_NAME_1 = 'daily'
+SERVICE_NAME_7 = 'weekly'
 
 class BackupCheckLogData():
     template_name = 'backup_check'
@@ -17,7 +17,7 @@ class BackupCheckLogData():
         # backup_1 = Backup(
         #     device=self.dev, 
         #     service_name=SERVICE_NAME_1, 
-        #     service_descr='Ежедневный бэкап',
+        #     service_descr='daily',
         #     duration=1, 
         #     folders=[], 
         #     first_day=start, 
@@ -25,7 +25,7 @@ class BackupCheckLogData():
         # backup_7 = Backup(
         #     device=self.dev, 
         #     service_name=SERVICE_NAME_7,
-        #     service_descr='Еженедельный бэкап',
+        #     service_descr='weekly',
         #     duration=7,
         #     folders=[], 
         #     first_day=start, 

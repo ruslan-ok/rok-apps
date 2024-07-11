@@ -1,4 +1,4 @@
-import os, glob, pyzipper, subprocess, time
+import os, pyzipper, subprocess, time
 from pathlib import Path
 from datetime import datetime, timedelta
 from django.conf import settings
@@ -119,7 +119,7 @@ class Backup():
     def fill(self):
         self.fact.clear()
         for x in self.work_dir.glob('*.zip'):
-            size = self.sizeof_fmt(os.path.getsize(x))
+            size = self.sizeof_fmt(x.stat().st_size)
             arch_age = self.get_arh_age(x.name, self.last_day)
             item = ArchItem(x.name, arch_age, size)
             self.fact.append(item)
@@ -245,6 +245,7 @@ class Backup():
             logger.error('backup_mail: За назначенный таймаут файл архива не был получен.')
             return
         for f in fl:
+            f = f.name
             total += 1
             sz = os.path.getsize(f)
             self.content.append('   ' + f + '    ' + self.sizeof_fmt(sz))
@@ -337,7 +338,7 @@ class Backup():
         # Предварительный анализ файлов архивов
         arhs = []
         for x in arh_path_list:
-            arh_name = x.split('/')[-1]
+            arh_name = x.name
             arh_age = self.get_arh_age(arh_name, datetime.today().date())
             etalon = None
             matched = False
@@ -346,13 +347,14 @@ class Backup():
                     etalon = et
                     matched = (arh_name == et.name)
                     break
-            arhs.append({
-                "etalon_age": etalon.age,
-                "matched": matched,
-                "full_name": x,
-                "arh_name": arh_name,
-                "arh_age": arh_age,
-            })
+            if etalon:
+                arhs.append({
+                    "etalon_age": etalon.age,
+                    "matched": matched,
+                    "full_name": x,
+                    "arh_name": arh_name,
+                    "arh_age": arh_age,
+                })
 
         # Группировка файлов архивов по диапазонам эталона
         ages = {}
@@ -376,8 +378,8 @@ class Backup():
             if (len(rng["matched"]) + len(rng["unmatched"])) > 1:
                 if len(rng["matched"]):
                     for x in rng["unmatched"]:
-                        logger.info('remove: ' + x["full_name"])
-                        os.remove(x["full_name"])
+                        logger.info('remove: ' + str(x["full_name"]))
+                        x["full_name"].unlink()
                 else:
                     max_age = 0
                     the_best = None
@@ -386,8 +388,9 @@ class Backup():
                             max_age = x["arh_age"]
                             the_best = x["full_name"]
                             break
-                    logger.info('remove: ' + the_best)
-                    os.remove(the_best)
+                    if the_best:
+                        logger.info('remove: ' + str(the_best))
+                        the_best.unlink()
 
         logger.info('-zipping() finished')
 
@@ -402,7 +405,7 @@ class Backup():
             self.content.clear()
             self.archivate() # Архивирование
             self.zipping()   # Удаление неактуальных архивов
-            self.synch()     # Синхронизация
+            # self.synch()     # Синхронизация
         except Exception as ex:
             logger.exception(ex)
         logger.info('finish: ' + self.device)
@@ -410,9 +413,9 @@ class Backup():
 def test_backup_zipping():
     start = datetime(2022, 10, 15).date()
     stop  = datetime.today().date()
-    backup = Backup('Vivo', 'short', 'Ежедневный бэкап', duration=1, folders='', first_day=start, last_day=stop)
+    backup = Backup('Vivo', 'short', 'daily', duration=1, folders='', first_day=start, last_day=stop)
     backup.run()
-    #backup = Backup('Vivo', 'full', 'Еженедельный бэкап', duration=7, folders='', first_day=start, last_day=stop)
+    #backup = Backup('Vivo', 'full', 'weekly', duration=7, folders='', first_day=start, last_day=stop)
     #backup.zipping()
 
 if __name__ == '__main__':
