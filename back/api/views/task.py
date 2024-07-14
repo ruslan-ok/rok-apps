@@ -383,7 +383,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         return Response({'date': task.remind_date(), 'time': task.remind_time()})
 
     # OK
-    @action(detail=True, url_path='remind_set/(?P<dt>\S+)/(?P<tm>\S+)')
+    @action(detail=True, url_path=r'remind_set/(?P<dt>\S+)/(?P<tm>\S+)')
     def remind_set(self, request, pk=None, *args, **kwargs):
         task = self.get_task_object()
         task.remind = datetime.strptime(kwargs['dt'] + "T" + kwargs['tm'], "%d.%m.%YT%H:%M:%S")
@@ -432,7 +432,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         return Response({'date': task.termin_date(), 'time': task.termin_time()})
 
     # OK
-    @action(detail=True, url_path='termin_set/(?P<dt>\S+)/(?P<tm>\S+)')
+    @action(detail=True, url_path=r'termin_set/(?P<dt>\S+)/(?P<tm>\S+)')
     def termin_set(self, request, pk=None, *args, **kwargs):
         task = self.get_task_object()
         task.stop = datetime.strptime(kwargs['dt'] + "T" + kwargs['tm'], "%d.%m.%YT%H:%M:%S")
@@ -505,7 +505,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         return Response({'title': task.repeat_title(), 'info': task.repeat_info()})
 
     # OK
-    @action(detail=True, url_path='repeat_set/(?P<num>\d+)/(?P<per>\d)/(?P<days>\d+)')
+    @action(detail=True, url_path=r'repeat_set/(?P<num>\d+)/(?P<per>\d)/(?P<days>\d+)')
     def repeat_set(self, request, pk=None, *args, **kwargs):
         task = self.get_task_object()
         task.repeat = int(kwargs['per'])

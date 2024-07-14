@@ -64,7 +64,7 @@ class Forecast(models.Model):
     wind_angle = models.IntegerField('Wind angle', null=True)
     wind_dir = models.CharField('Wind direction', max_length=5, blank=True)
     prec_total = models.DecimalField('Precipitation total', null=True, max_digits=10, decimal_places=1)
-    prec_type = models.CharField('Precipitation type', max_length=10, blank=True)
+    prec_type = models.CharField('Precipitation type', max_length=50, blank=True)
     cloud_cover = models.IntegerField('Cloud cover', null=True)
 
     class Meta:
