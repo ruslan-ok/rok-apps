@@ -16,13 +16,16 @@ except_dirs = [
 logger = get_logger(__name__)
 
 class ArchItem():
-    def __init__(self, name, age, size=None):
+    def __init__(self, is_etalon, name, age, size=None):
         super().__init__()
+        self.is_etalon = is_etalon
         self.name = name
         self.age = age
         self.min_range = None
         self.max_range = None
         self.size = size
+        self.etalon = None
+        self.facts = []
 
     def __repr__(self) -> str:
         valid = 1 if self.age >= self.min_range and self.age <= self.max_range else 0
@@ -35,6 +38,18 @@ class ArchItem():
         if self.age >= self.min_range and self.age <= self.max_range:
             return 1
         return 0
+    
+    def state_class(self):
+        if self.is_etalon and not len(self.facts):
+            return 'no-fact'
+        if self.is_etalon:
+            matched = [x for x in self.facts if self.name == x.name]
+            if not matched:
+                return 'bad-age'
+        if not self.is_etalon and self.etalon and self.name != self.etalon.name:
+            return 'bad-age'
+        return ''
+
 
 class Backup():
     def __init__(self, device, service_name, service_descr, duration, folders, first_day, last_day):
@@ -121,7 +136,7 @@ class Backup():
         for x in self.work_dir.glob('*.zip'):
             size = self.sizeof_fmt(x.stat().st_size)
             arch_age = self.get_arh_age(x.name, self.last_day)
-            item = ArchItem(x.name, arch_age, size)
+            item = ArchItem(False, x.name, arch_age, size)
             self.fact.append(item)
 
         self.fact.sort(key=lambda x: x.age)
@@ -147,7 +162,7 @@ class Backup():
                 if (x.age > p0_max_range) and ((x.age - arch_age) >= self.duration):
                     can_insert = True
             if can_insert:
-                item = ArchItem(arch_name, arch_age)
+                item = ArchItem(True, arch_name, arch_age)
                 self.etalon.insert(0, item)
                 self.update_ranges()
                 arch_list = [x.name for x in self.etalon]
@@ -157,19 +172,9 @@ class Backup():
                     y += 1
             cur_day = cur_day + timedelta(1)
         for e in self.etalon:
-            e.has_fact = False
-            for f in self.fact:
-                if e.name == f.name:
-                    e.has_fact = True
-                    break
-        for f in self.fact:
-            f.valid=(1 if self.check_name(f.name) else 0)
-
-    def valid(self):
-        for x in self.etalon:
-            if x.ripe() == 0:
-                return False
-        return True
+            for f in [x for x in self.fact if x.age >= e.min_range and x.age <= e.max_range]:
+                e.facts.append(f)
+                f.etalon = e
 
     def ripe(self):
         if not len(self.etalon):

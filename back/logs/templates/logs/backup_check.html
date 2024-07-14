@@ -4,6 +4,7 @@
 {% block extrastyle %}
   {{ block.super }}
   <link href="{% static 'core/css/home.min.css' %}" rel="stylesheet">
+  <link href="{% static 'logs/css/backup_check.min.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block main %}
@@ -19,16 +20,14 @@
                             <td class="pe-3">{% trans 'Age' %}</td>
                             <td class="pe-3">{% trans 'File name' %}</td>
                             <td class="pe-3">{% trans 'Range' %}</td>
-                            <td class="pe-3">{% trans 'Valid' %}</td>
                         </tr>
                     </thead>
                     <tbody>
                         {% for x in deep.etalon %}
-                            <tr style="{% if not x.has_fact %} color: red; background-color: snow;{% endif %}">
+                            <tr class="{{ x.state_class }}">
                                 <td>{{ x.age }}</td>
                                 <td>{{ x.name }}</td>
                                 <td>{{ x.min_range }}-{{ x.max_range }}</td>
-                                <td>{{ x.ripe }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -42,16 +41,14 @@
                             <td>{% trans 'Age' %}</td>
                             <td>{% trans 'File name' %}</td>
                             <td>{% trans 'Size' %}</td>
-                            <td>{% trans 'Valid' %}</td>
                         </tr>
                     </thead>
                     <tbody>
                         {% for x in deep.fact %}
-                            <tr style="{% if not x.valid %} color: red; background-color: snow;{% endif %}">
+                            <tr class="{{ x.state_class }}">
                                 <td class="pe-3">{{ x.age }}</td>
                                 <td class="pe-3">{{ x.name }}</td>
-                                <td class="pe-3" style="text-align: right">{{ x.size }}</td>
-                                <td class="pe-3">{{ x.valid }}</td>
+                                <td class="pe-3 right">{{ x.size }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>
