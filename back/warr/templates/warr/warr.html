@@ -4,12 +4,12 @@
 {% block item_detail %}
 
     <div class="row mb-3">
-        <div class="col">{{ form.name.label_tag }}{{ form.name }}</div>
+        <div class="col">{{ form.name.errors }}{{ form.name.label_tag }}{{ form.name }}</div>
     </div>
 
     <div class="row mb-3">
-        <div class="col">{{ form.start }}</div>
-        <div class="col">{{ form.months.label_tag }}{{ form.months }}</div>
+        <div class="col">{{ form.start.errors }}{{ form.start }}</div>
+        <div class="col">{{ form.months.errors }}{{ form.months.label_tag }}{{ form.months }}</div>
         <div class="col">
             <label for="id_stop">{% trans 'stop warranty date:'|capfirst %}</label>
             <input type="date" name="stop" value="{{ form.stop.value|date:'Y-m-d' }}" class="form-control" readonly id="id_stop">
