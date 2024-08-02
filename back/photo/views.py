@@ -191,11 +191,9 @@ class Entry:
 #----------------------------------
 def get_storage(user, folder, service=False):
     if service:
-        service_path = settings.DJANGO_SERVICE_PATH
-        path = service_path.format(user.id) + '{}/'.format(folder)
+        path = f'{settings.DJANGO_SERVICE_PATH}/{user.username}/{folder}/'
     else:
-        storage_path = settings.DJANGO_STORAGE_PATH
-        path = storage_path.format(user.username) + '{}/'.format(folder)
+        path = f'{settings.DJANGO_STORAGE_PATH}/{user.username}/{folder}/'
     pathlib.Path(path).mkdir(parents=True, exist_ok=True)
     return path
 
