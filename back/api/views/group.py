@@ -155,8 +155,7 @@ class GroupViewSet(viewsets.ModelViewSet):
         app += '/'
         folder = self.request.query_params['folder']
         name = self.request.query_params['name']
-        storage_path = settings.DJANGO_STORAGE_PATH
-        store_dir = storage_path.format(request.user.username) + app + '/'
+        store_dir = f'{settings.DJANGO_STORAGE_PATH}/{request.user.username}/{app}/'
         try:
             os.mkdir(store_dir + folder + '/' + name)
             return Response({'result': 'ok'})
@@ -181,8 +180,7 @@ class GroupViewSet(viewsets.ModelViewSet):
             path = self.request.query_params['path']
         folder = self.request.query_params['folder']
         new_name = self.request.query_params['new_name']
-        storage_path = settings.DJANGO_STORAGE_PATH
-        store_dir = storage_path.format(request.user.username) + app + '/'
+        store_dir = f'{settings.DJANGO_STORAGE_PATH}/{request.user.username}/{app}/'
         old_path = store_dir + path + folder
         new_path = store_dir + path + new_name
         try:
@@ -205,8 +203,7 @@ class GroupViewSet(viewsets.ModelViewSet):
         if 'path' in self.request.query_params:
             path = self.request.query_params['path']
         folder = self.request.query_params['folder']
-        storage_path = settings.DJANGO_STORAGE_PATH
-        store_dir = storage_path.format(request.user.username) + app + '/'
+        store_dir = f'{settings.DJANGO_STORAGE_PATH}/{request.user.username}/{app}/'
         folder_path = store_dir + path + folder
         try:
             os.rmdir(folder_path)

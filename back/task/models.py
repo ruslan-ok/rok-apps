@@ -550,8 +550,7 @@ class Task(models.Model):
                 case (const.ROLE_WARR, const.NUM_ROLE_WARR):
                     ret = APP_WARR + '/' + self.name.replace('/', '_').replace('\\', '_').replace(':', '_').replace('*', '_').replace('?', '_').replace('«', '_').replace('<', '_').replace('>', '_').replace('|', '_')
 
-        storage_path = settings.DJANGO_STORAGE_PATH
-        return storage_path.format(self.user.username) + 'attachments/' + ret + '/'
+        return f'{settings.DJANGO_STORAGE_PATH}/{self.user.username}/attachments/{ret}/'
 
     def get_files_list(self, role):
         fss_path = self.get_attach_path(role)

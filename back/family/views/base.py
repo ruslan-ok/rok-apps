@@ -89,15 +89,14 @@ def photo(request, ft):
     file = get_name_from_request(request, 'file')
     get_object_or_404(FamTreeUser.objects.filter(user_id=request.user.id, tree_id=ft))
     tree = get_object_or_404(FamTree.objects.filter(id=ft))
-    storage_path = settings.DJANGO_STORAGE_PATH
-    media_path = storage_path.format('family_tree') + tree.store_name()
+    media_path = f'{settings.DJANGO_STORAGE_PATH}/family_tree/{tree.store_name()}'
     fsock = open(media_path + '/' + file, 'rb')
     return FileResponse(fsock)
 
 def scaled_image(mmr: MultimediaRecord, size: int) -> HttpResponse:
-    file = mmr.get_file()
-    storage_path = settings.DJANGO_STORAGE_PATH
-    media_path = storage_path.format('family_tree') + mmr.tree.store_name()
+    file = mmr.get_file() or ''
+    store_name = mmr.tree and mmr.tree.store_name() or ''
+    media_path = f'{settings.DJANGO_STORAGE_PATH}/family_tree/{store_name}'
     img = Image.open(media_path + '/' + file)
     if mmr._posi:
         box = tuple([int(x) for x in mmr._posi.split(' ')])

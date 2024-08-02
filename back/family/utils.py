@@ -12,8 +12,7 @@ def update_media(tree_id):
     return updated
 
 def load_media(tree, mm_file):
-    storage_path = settings.DJANGO_STORAGE_PATH
-    media_path = storage_path.format('family_tree') + tree.store_name()
+    media_path = f'{settings.DJANGO_STORAGE_PATH}/family_tree/{tree.store_name()}'  # Todo: without username?
     fname = mm_file.file.split('/')[-1]
     r = requests.get(mm_file.file, allow_redirects=True)
     if not os.path.exists(media_path):

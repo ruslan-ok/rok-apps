@@ -16,7 +16,6 @@ class FolderView(LoginRequiredMixin, PermissionRequiredMixin, BaseDirView):
     def __init__(self, *args, **kwargs):
         self.template_name = 'docs/folder.html'
         super().__init__(app, *args, **kwargs)
-        self.storage_path = settings.DJANGO_STORAGE_PATH
 
     def get(self, request, *args, **kwargs):
         query = None
@@ -34,7 +33,7 @@ class FolderView(LoginRequiredMixin, PermissionRequiredMixin, BaseDirView):
         return ret
 
     def get_context_data(self, **kwargs):
-        self.store_dir = self.storage_path.format(self.request.user.username) + 'docs/'
+        self.store_dir = f'{settings.DJANGO_STORAGE_PATH}/{self.request.user.username}/docs/'
         context = super().get_context_data(**kwargs)
         context['list_href'] = '/docs'
         context['add_item_template'] = 'core/add_item_upload.html'
@@ -59,8 +58,7 @@ def get_name_from_request(request, param='file'):
 @permission_required('task.view_docs')
 def get_file(request):
     try:
-        storage_path = settings.DJANGO_STORAGE_PATH
-        store_dir = storage_path.format(request.user.username) + 'docs/'
+        store_dir = f'{settings.DJANGO_STORAGE_PATH}/{request.user.username}/docs/'
         folder = get_name_from_request(request, 'folder')
         file = get_name_from_request(request, 'file')
         filepath = store_dir + folder + '/' + file

@@ -17,8 +17,7 @@ class BaseDirView(DirContext, FormView):
         return ret
 
     def init_store_dir(self, user):
-        storage_path = settings.DJANGO_STORAGE_PATH
-        self.store_dir = storage_path.format(user.username) + '{}/'.format('docs')
+        self.store_dir = f'{settings.DJANGO_STORAGE_PATH}/{user.username}/docs'
 
     def post(self, request, *args, **kwargs):
         self.init_store_dir(request.user)

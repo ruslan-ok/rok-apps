@@ -50,23 +50,22 @@ class SearchResult:
 
 def search_in_files(user, app, start_folder, query):
     ret = []
-    storage_path = settings.DJANGO_STORAGE_PATH
 
     docs_dir = None
     if not app or app == APP_DOCS:
-        docs_dir = storage_path.format(user.username) + 'docs'
+        docs_dir = f'{settings.DJANGO_STORAGE_PATH}/{user.username}/docs'
         if start_folder:
             docs_dir += '/' + start_folder
 
     photo_dir = None
     if not app or app == APP_PHOTO:
-        photo_dir = storage_path.format(user.username) + 'photo'
+        photo_dir = f'{settings.DJANGO_STORAGE_PATH}/{user.username}/photo'
         if start_folder:
             photo_dir += '/' + start_folder
 
     warr_dir = None
     if not app or app == APP_WARR:
-        warr_dir = storage_path.format(user.username) + 'attachments\\warr'
+        warr_dir = f'{settings.DJANGO_STORAGE_PATH}/{user.username}/attachments/warr'
         if start_folder:
             warr_dir += '/' + start_folder
 

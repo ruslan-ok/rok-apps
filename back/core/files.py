@@ -94,8 +94,7 @@ def get_files_list_by_path(role, task_id, path):
         return []
 
 def get_files_list_by_path_v2(user, role, task_id, path):
-    storage_path = settings.DJANGO_STORAGE_PATH
-    full_path = storage_path.format(user.username) + 'attachments/' + path + '/'
+    full_path = f'{settings.DJANGO_STORAGE_PATH}/{user.username}/attachments/{path}/'
     fs = FileSystemStorage(location=full_path, base_url=file_storage_url)
     try:
         ret = []

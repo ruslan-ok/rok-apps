@@ -141,7 +141,7 @@ class FamTree(models.Model):
         return True
 
     def store_name(self):
-        name = self.name
+        name = self.name or ''
         if not name and self.file:
             pos = self.file.rfind('.')
             if pos:
@@ -163,13 +163,13 @@ class FamTree(models.Model):
 
     @classmethod
     def get_import_path(cls):
-        folder = settings.FAMILY_STORAGE_PATH + '\\pedigree\\'
+        folder = f'{settings.FAMILY_STORAGE_PATH}/pedigree/'
         if not os.path.exists(folder):
             os.mkdir(folder)
         return folder
 
     def get_export_path(self, user):
-        folder = settings.DJANGO_STORAGE_PATH.format(user.username) + 'family\\'
+        folder = f'{settings.DJANGO_STORAGE_PATH}/{user.username}/family/'
         if not os.path.exists(folder):
             os.mkdir(folder)
         return folder
