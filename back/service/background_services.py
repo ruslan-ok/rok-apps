@@ -3,7 +3,7 @@
 import os, json, traceback
 from datetime import datetime
 from django.conf import settings
-from backup.backuper import Backuper
+# from backup.backuper import Backuper
 from todo.notificator import Notificator
 from fuel.serv_interval import ServInterval
 from logs.log_analyzer import LogAnalyzer
@@ -19,8 +19,8 @@ logger = get_logger(__name__, 'cron', 'worker', True)
 def process_service(service_task):
     service_class = service_task.categories
     match service_class:
-        case 'Backuper':
-            service = Backuper(service_task)
+        # case 'Backuper':
+        #     service = Backuper(service_task)
         case 'Notificator':
             service = Notificator()
         case 'ServInterval':

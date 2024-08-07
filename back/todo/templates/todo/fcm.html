@@ -22,7 +22,7 @@
             <div class="token-info">
               <form method="post">{% csrf_token %}
                 <input type="hidden" name="app_token_id" value="{{ subscription.id }}">
-                <button type="submit" name="app_token_del" class="btn-del"><img src="{% static 'v2/rok/icon/delete.png' %}"></button>
+                <button type="submit" name="app_token_del" class="btn-del"><img src="{% static 'todo/icons/delete.png' %}"></button>
               </form>
               <div class="token token-value">
                 {{ subscription.token }}
@@ -35,7 +35,7 @@
         <form method="post" class="app_token_add">{% csrf_token %}
           <h3>{% trans 'add new token'|capfirst %}</h3>
           <input type="text" name="app_token" maxlength="200" required="" id="id_app_token">
-          <button type="submit" name="app_token_add" class="app_token_add"><img src="{% static 'v2/rok/icon/add.png' %}"></button>
+          <button type="submit" name="app_token_add" class="app_token_add"><img src="{% static 'todo/icons/add.png' %}"></button>
         </form>
       </section>
       <section>

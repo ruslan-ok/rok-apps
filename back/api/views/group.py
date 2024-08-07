@@ -1,4 +1,3 @@
-from datetime import datetime
 import math, os
 import urllib.parse
 from django.conf import settings
@@ -207,33 +206,6 @@ class GroupViewSet(viewsets.ModelViewSet):
         folder_path = store_dir + path + folder
         try:
             os.rmdir(folder_path)
-            return Response({'result': 'ok'})
-        except Exception as ex:
-            ret = {'result': 'exception', 'exception': ex.strerror}
-            return Response(ret)
-
-    # Modify the modification time of a file.
-    @action(detail=False)
-    def ftp_mfmt(self, request, pk=None):
-        if 'folder' not in self.request.query_params:
-            return Response({'result': 'error', 'error': "Expected parameter 'folder'"},
-                            status=status.HTTP_400_BAD_REQUEST)
-        if 'file' not in self.request.query_params:
-            return Response({'result': 'error', 'error': "Expected parameter 'file'"},
-                            status=status.HTTP_400_BAD_REQUEST)
-        if 'mod_time' not in self.request.query_params:
-            return Response({'result': 'error', 'error': "Expected parameter 'mod_time'"},
-                            status=status.HTTP_400_BAD_REQUEST)
-        folder = self.request.query_params['folder']
-        file = self.request.query_params['file']
-        mod_time_str = self.request.query_params['mod_time']
-        mod_time = datetime.strptime(mod_time_str, '%m-%d-%Y %I:%M%p')
-        dt_epoch = mod_time.timestamp()
-        try:
-            work_dir = settings.DJANGO_BACKUP_FOLDER
-            path = os.path.join(work_dir, folder)
-            fname = os.path.join(path, file)
-            os.utime(fname, (dt_epoch, dt_epoch))
             return Response({'result': 'ok'})
         except Exception as ex:
             ret = {'result': 'exception', 'exception': ex.strerror}

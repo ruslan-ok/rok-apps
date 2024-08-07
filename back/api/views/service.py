@@ -1,32 +1,32 @@
 import os
 from datetime import datetime
 from django.conf import settings
+from pathlib import Path
 from rest_framework.decorators import api_view, permission_classes, renderer_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
-def scan_dir(root_dir):
+
+def scan_dir(root_dir: str, except_dir: str|None=None):
     ret = []
-    for dirname, subdirs, files in os.walk(root_dir):
-        dirname = dirname.replace(root_dir, '')
-        if dirname:
-            dirname = dirname.replace('\\', '/')
-        if dirname.startswith('/'):
-            dirname = dirname[1:]
-        fpath = os.path.join(root_dir, dirname).replace('\\', '/')
+    if not root_dir:
+        return ret
+    for dirname, _, files in Path(root_dir).walk():
+        if except_dir and dirname.is_relative_to(Path(except_dir)):
+            continue
         for filename in files:
             if filename == 'Thumbs.db':
                 continue
-            fullname = os.path.join(fpath, filename).replace('\\', '/')
-            mt = os.path.getmtime(fullname)
+            file = Path(dirname) / filename
+            mt = file.stat().st_mtime
             dttm = datetime.fromtimestamp(mt)
-            dttm = datetime.strptime(dttm.strftime('%m-%d-%Y %I:%M%p'), '%m-%d-%Y %I:%M%p')
-            sz = os.path.getsize(fullname)
+            dttm = datetime.strptime(dttm.strftime('%Y-%m-%d %H:%M:%S'), '%Y-%m-%d %H:%M:%S')
+            sz = file.stat().st_size
             x = {
                 'status': 0,
-                'folder': dirname,
+                'folder': dirname.relative_to(Path(root_dir)).as_posix(),
                 'name': filename,
                 'date_time': dttm,
                 'size': sz,
@@ -34,22 +34,36 @@ def scan_dir(root_dir):
             ret.append(x)
     return ret
 
-
 @api_view()
 @permission_classes([IsAuthenticated])
 @renderer_classes([JSONRenderer])
 def get_dir(request):
-    if 'dir_role' not in request.query_params:
-        return Response({'result': 'error', 'error': "Expected parameter 'dir_role'"},
+    if 'folder' not in request.query_params:
+        return Response({'result': 'error', 'error': "Expected parameter 'folder'"},
                         status=HTTP_400_BAD_REQUEST)
-    dir_role = request.query_params['dir_role']
-    if dir_role not in ('backup', 'docs'):
-        return Response({'Error': "The 'dir_role' parameter must have one of the following values: 'backup', 'docs'"},
-                        status=HTTP_400_BAD_REQUEST)
-    match dir_role:
-        case 'backup': root_dir = settings.DJANGO_BACKUP_FOLDER
-        case 'docs': root_dir = settings.DJANGO_STORAGE_PATH.replace('\\{}\\', '')
-        case _: root_dir = 'k:/unknown'
-    dirs = scan_dir(root_dir)
-    data = {'dirs': dirs}
+    folder = request.query_params['folder']
+    file_list = scan_dir(folder)
+    data = {'root_dir': folder, 'file_list': file_list}
     return Response(data)
+
+# Modify the modification time of a file.
+@api_view()
+@permission_classes([IsAuthenticated])
+@renderer_classes([JSONRenderer])
+def modify_mt(request):
+    if 'path' not in request.query_params:
+        return Response({'result': 'error', 'error': "Expected parameter 'path'"},
+                        status=HTTP_400_BAD_REQUEST)
+    if 'mod_time' not in request.query_params:
+        return Response({'result': 'error', 'error': "Expected parameter 'mod_time'"},
+                        status=HTTP_400_BAD_REQUEST)
+    path = request.query_params['path']
+    mod_time_str = request.query_params['mod_time']
+    mod_time = datetime.strptime(mod_time_str, '%Y-%m-%dT%H:%M:%S')
+    dt_epoch = mod_time.timestamp()
+    try:
+        os.utime(path, (dt_epoch, dt_epoch))
+        return Response({'result': 'ok'})
+    except Exception as ex:
+        ret = {'result': 'exception', 'exception': ex.strerror} # type: ignore
+        return Response(ret)
