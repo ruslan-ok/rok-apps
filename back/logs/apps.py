@@ -14,17 +14,12 @@ class LogsConfig(AppConfig):
         'permission': 'task.view_logs',
         'order': 15,
         'role': 'apache',
-        'main_view': 'overview',
+        'main_view': 'backup_check',
         'sort': [
             ('event', _('event date')),
             ('name', _('name')),
         ],
         'views': {
-            'overview': {
-                'icon': 'heart',
-                'title': _('Service logs'),
-                'hide_qty': True,
-            },
             'backup_check': {
                 'icon': 'save',
                 'title': _('Backup check'),

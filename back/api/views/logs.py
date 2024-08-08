@@ -1,4 +1,4 @@
-import requests, json, os
+import requests, json
 from datetime import datetime
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -78,14 +78,6 @@ class LogsViewSet(viewsets.ModelViewSet):
             else:
                 ret = json.loads(resp.content)
             return Response(ret)
-
-    @action(detail=False)
-    def get_service_health(self, request, pk=None):
-        depth = 3
-        if 'depth' in request.GET:
-            depth = int(request.GET['depth'])
-        ret = ServiceEvent.get_health(depth)
-        return Response(ret)
 
     @action(detail=False)
     def create_task(self, request):

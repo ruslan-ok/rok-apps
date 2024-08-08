@@ -32,7 +32,7 @@ from fuel.fuel_get_info import get_info as fuel_get_info
 from fuel.views.part import get_info as part_get_info
 from fuel.views.serv import get_info as serv_get_info
 from apart.models import Apart, ApartPrice, PeriodMeters, PeriodServices
-from service.background_services import check_services
+
 
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
@@ -646,14 +646,6 @@ class TaskViewSet(viewsets.ModelViewSet):
     def save(self, task, role=const.APP_TODO):
         task.save()
         task.get_info()
-
-    @action(detail=False)
-    def check_background_services(self, request, pk=None):
-        started = False
-        if 'started' in request.query_params:
-            started = True
-        ret = check_services(started)
-        return Response(ret)
 
     @action(detail=False)
     def actualize_taskroleinfo(self, request, pk=None):
