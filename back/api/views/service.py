@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
+from core.currency.utils import get_exchange_rate_for_api
 
 
 def scan_dir(root_dir: str, except_dir: str|None=None):
@@ -67,3 +68,18 @@ def modify_mt(request):
     except Exception as ex:
         ret = {'result': 'exception', 'exception': ex.strerror} # type: ignore
         return Response(ret)
+
+@api_view()
+@permission_classes([IsAuthenticated])
+@renderer_classes([JSONRenderer])
+def exchange_rate_update(request):
+    if 'currency' not in request.query_params:
+        return Response({'result': 'error', 'error': "Expected parameter 'currency'"},
+                        status=HTTP_400_BAD_REQUEST)
+    if 'api_name' not in request.query_params:
+        return Response({'result': 'error', 'error': "Expected parameter 'api_name'"},
+                        status=HTTP_400_BAD_REQUEST)
+    currency = request.query_params['currency']
+    api_name = request.query_params['api_name']
+    rate, info = get_exchange_rate_for_api(datetime.today().date(), currency, 'USD', api_name, mode='api_only_lad')
+    return Response({'result': 'ok', 'info': info})

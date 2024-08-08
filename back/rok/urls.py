@@ -96,6 +96,7 @@ urlpatterns = [
     path('api/core/get_exchange_rate/', api_core.get_exchange_rate, name='get_exchange_rate'),
     path('api/get_dir/', api_service.get_dir, name='get_dir'),
     path('api/modify_mt/', api_service.modify_mt, name='modify_mt'),
+    path('api/exchange_rate_update/', api_service.exchange_rate_update, name='exchange_rate_update'),    
     
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('<str:role>/<int:pk>/doc/<str:fname>', app_doc.get_app_doc, name='doc'),

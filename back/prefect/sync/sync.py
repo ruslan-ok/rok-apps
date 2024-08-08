@@ -107,7 +107,6 @@ class Sync():
     def close(self):
         self.sftp.close()
 
-    @flow
     def sync_with_server(self):
         if not self.open():
             return
@@ -360,6 +359,10 @@ class Sync():
             if self.counter >= MAX_FILES_TO_SYNC:
                 break
 
-if __name__ == '__main__':
+@flow
+def check_sync():
     z = Sync()
     z.sync_with_server()
+
+if __name__ == '__main__':
+    check_sync()
