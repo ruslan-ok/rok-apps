@@ -6,7 +6,7 @@ from datetime import datetime
 from enum import Enum
 from sync_params import (
     HUGE_SIZE_LIMIT,
-    MAX_FILES_TO_SYNC,
+    MAX_MINUTES_TO_SYNC,
     SyncEntry,
     sync_entries,
     get_dir_api,
@@ -161,7 +161,7 @@ class Sync():
                     )
                     self.remote[x.relative_path] = x
     
-    @task(tags=['sync', 'count'])
+    @task(tags=['sync', 'count'], log_prints=True)
     def count_status(self):
         for k in self.remote.keys():
             r = self.remote[k]
@@ -192,7 +192,24 @@ class Sync():
                         r.status = FileSutatus.Rewrite
                         l.status = FileSutatus.Copy
                     else:
-                        raise Exception('Check!')
+                        print(f'{r.size=}')
+                        print(f'{l.size=}')
+                        print(f'{r.date_time=}')
+                        print(f'{l.date_time=}')
+                        if r.date_time < l.date_time:
+                            delta = (datetime.now() - l.date_time).days
+                        else:
+                            delta = (datetime.now() - r.date_time).days
+                        print(f'{delta=}')
+                        if not delta:
+                            if r.size < l.size:
+                                r.status = FileSutatus.Rewrite
+                                l.status = FileSutatus.Copy
+                            else:
+                                r.status = FileSutatus.Copy
+                                l.status = FileSutatus.Rewrite
+                        else:
+                            raise Exception('Check! ' + str(r.remote_path))
 
                 if r.status == FileSutatus.Copy and l.status == FileSutatus.Rewrite and l.folder.startswith('vivo'):
                     r.status = FileSutatus.Rewrite
@@ -323,7 +340,6 @@ class Sync():
     def run_sync_file(self, action: SyncAction, f: FileInfo):
         name = self.get_task_name(action, f)
         self.sync_file(name, action, f)
-        self.counter += 1
 
     @flow(log_prints=True)
     def do_sync(self):
@@ -334,7 +350,8 @@ class Sync():
         self.print_stat(SyncAction.Download, self.remote, FileSutatus.Copy)
         self.print_stat(SyncAction.SetTimeLocal, self.remote, FileSutatus.SetTime)
         self.print_stat(SyncAction.SetTimeRemote, self.local, FileSutatus.SetTime)
-        self.counter = 0
+
+        start_time = datetime.now()
 
         files = [self.remote[x] for x in self.remote.keys() if self.remote[x].status == FileSutatus.SetTime]
         if files:
@@ -349,15 +366,21 @@ class Sync():
             match f.status:
                 case FileSutatus.Remove: self.run_sync_file(SyncAction.RemoveLocal, f)
                 case FileSutatus.Copy: self.run_sync_file(SyncAction.Upload, f)
-            if self.counter >= MAX_FILES_TO_SYNC:
+            if self.exceed_timeout(start_time):
                 break
         for k in self.remote.keys():
             f = self.remote[k]
             match f.status:
                 case FileSutatus.Remove: self.run_sync_file(SyncAction.RemoveRemote, f)
                 case FileSutatus.Copy: self.run_sync_file(SyncAction.Download, f)
-            if self.counter >= MAX_FILES_TO_SYNC:
+            if self.exceed_timeout(start_time):
                 break
+
+    def exceed_timeout(self, start_time):
+        difference = datetime.now() - start_time
+        seconds_in_day = 24 * 60 * 60
+        minutes_last, _ = divmod(difference.days * seconds_in_day + difference.seconds, 60)
+        return minutes_last >= MAX_MINUTES_TO_SYNC
 
 @flow
 def check_sync():
