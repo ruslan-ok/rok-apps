@@ -110,6 +110,8 @@ class LoginView(SuccessURLAllowedHostsMixin, FormView):
         context = super().get_context_data(**kwargs)
         context.update({
             self.redirect_field_name: self.get_redirect_url(),
+            'username': self.request.user.username or '',
+            'user': self.request.user,
             **(self.extra_context or {})
         })
         return context
@@ -478,10 +480,10 @@ def profile(request):
 
 def avatar(request):
     userext = None
-    if not UserExt.objects.filter(user=request.user).exists():
-        return HttpResponseRedirect(reverse_lazy('account:login'))
-
-    userext = UserExt.objects.filter(user=request.user).get()
+    if UserExt.objects.filter(user=request.user).exists():
+        userext = UserExt.objects.filter(user=request.user).get()
+    else:
+        userext = UserExt.objects.create(user=request.user)
     if request.method != 'POST':
         form = AvatarForm(instance=userext)
     else:
