@@ -18,7 +18,7 @@ def scan_dir(root_dir: str, except_dir: str|None=None):
         if except_dir and dirname.is_relative_to(Path(except_dir)):
             continue
         for filename in files:
-            if filename == 'Thumbs.db':
+            if filename == 'Thumbs.db' or filename.startswith('~$'):
                 continue
             file = Path(dirname) / filename
             mt = file.stat().st_mtime

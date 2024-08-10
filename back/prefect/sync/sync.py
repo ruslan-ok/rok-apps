@@ -125,7 +125,7 @@ class Sync():
         for entry in sync_entries:
             for dirname, _, files in WindowsPath(entry.local).walk():
                 for filename in files:
-                    if filename == 'Thumbs.db':
+                    if filename == 'Thumbs.db' or filename.startswith('~$'):
                         continue
                     file = dirname / filename
                     mt = file.stat().st_mtime
@@ -167,7 +167,7 @@ class Sync():
             r = self.remote[k]
             if k in self.local:
                 l = self.local[k]
-                if r.size == l.size and r.date_time == l.date_time:
+                if (r.size == l.size and r.date_time == l.date_time) or r.name.startswith('~$'):
                     r.status = FileSutatus.Correct
                     l.status = FileSutatus.Correct
                 elif r.date_time == l.date_time:
@@ -192,17 +192,12 @@ class Sync():
                         r.status = FileSutatus.Rewrite
                         l.status = FileSutatus.Copy
                     else:
-                        print(f'{r.size=}')
-                        print(f'{l.size=}')
-                        print(f'{r.date_time=}')
-                        print(f'{l.date_time=}')
                         if r.date_time < l.date_time:
                             delta = (datetime.now() - l.date_time).days
                         else:
                             delta = (datetime.now() - r.date_time).days
-                        print(f'{delta=}')
                         if not delta:
-                            if r.size < l.size:
+                            if r.size > l.size:
                                 r.status = FileSutatus.Rewrite
                                 l.status = FileSutatus.Copy
                             else:
