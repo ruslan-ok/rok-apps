@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
+import type { LoaderFunctionArgs } from "react-router-dom";
 import { Outlet } from "react-router-dom";
   
 import { auth, apiUrl } from './auth/Auth';
 import type { HeaderData } from './header/Header';
 import Header from './header/Header';
 
-export async function loader(): Promise<HeaderData> {
+export async function loader({ request }: LoaderFunctionArgs): Promise<HeaderData> {
     await auth.init();
     const cred: RequestCredentials = 'include';
     const options = { 
@@ -17,7 +18,10 @@ export async function loader(): Promise<HeaderData> {
     };
     const res = await fetch(apiUrl +  'api/react/header/', options);
     const resp_data = await res.json();
-    const header: HeaderData = JSON.parse(resp_data.json_data);
+    let header: HeaderData = await JSON.parse(resp_data.json_data);
+    const url = new URL(request.url);
+    const searchText = url.searchParams.get("q");
+    header.searchText = searchText ? searchText : '';
     return header;
 }
   

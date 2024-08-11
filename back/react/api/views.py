@@ -104,12 +104,6 @@ def get_public_data(user: User | None):
 
     return {'applications': data, 'debugInfo': [] }
 
-def get_protected_data(user: User | None):
-    data = {
-        'widgets': []
-    }
-    return data
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def header(request):
@@ -123,10 +117,7 @@ def header(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def main_page(request):
-    data = {
-        'publicData': get_public_data(request.user),
-        'protectedData': get_protected_data(request.user),
-    }
+    data = get_public_data(request.user)
     json_data = json.dumps(data)
     obj = PageData(json_data=json_data)
     serializer = PageDataSerializer(obj)

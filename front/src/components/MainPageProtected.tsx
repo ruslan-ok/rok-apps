@@ -9,15 +9,6 @@ import Currency from './widgets/Currency';
 
 import './widgets/widget.css';
 
-interface WidgetInfo {
-  id: string;
-  name: string;
-}
-
-export interface ProtectedData {
-  widgets: WidgetInfo[];
-}
-
 function MainPageProtected() {
   const [width, setWindowWidth] = useState(0);
 

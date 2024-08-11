@@ -55,7 +55,7 @@ function Header({windowWidth}: {windowWidth: number}) {
     let section_top = 
       <section className='header-top'>
         <Logo icon={headerData.appIcon} title={headerData.appTitle} />
-        <Search placeholder={headerData.searchPlaceholder} hide={!headerData.userName} />
+        <Search placeholder={headerData.searchPlaceholder} hide={!headerData.userName} searchText={headerData.searchText} />
         <Hamburger onClick={handleClick} hide={!headerData.userName} />
         <HeaderButtons items={headerData.buttons} />
       </section>;
@@ -88,7 +88,7 @@ function Header({windowWidth}: {windowWidth: number}) {
             <AppList mobile={false} items={headerData.applications} />
           </section>
           <Search placeholder={headerData.searchPlaceholder} hide={!headerData.userName} />
-          <UserMenu avatar={headerData.avatar} username={headerData.userName} items={headerData.userMenu} />
+          <UserMenu avatar={headerData.avatar} username={headerData.userName} items={headerData.userMenu} q={headerData.q}/>
           <HeaderButtons items={headerData.buttons} />
         </nav>
       </header>
