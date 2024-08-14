@@ -26,7 +26,7 @@ front/node_modules
 
 # Django
 *.pyc
-manage.py
+# manage.py
 django.mo
 django.po
 migrations
