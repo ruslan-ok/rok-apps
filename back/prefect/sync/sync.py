@@ -1,5 +1,5 @@
 import requests, json, paramiko, os
-from pathlib import Path, WindowsPath
+from pathlib import Path, WindowsPath, PosixPath
 from prefect import flow, task
 from pydantic import BaseModel
 from datetime import datetime
@@ -12,7 +12,8 @@ from sync_params import (
     get_dir_api,
     modify_mt_api,
     headers,
-    verify
+    verify,
+    run_on_linux,
 )
 
 class SyncAction(Enum):
@@ -67,8 +68,12 @@ class FileInfo(BaseModel):
     size: int
 
     @property
-    def local_file(self) -> WindowsPath:
-        return WindowsPath(self.entry.local) / self.folder / self.name
+    def local_file(self) -> WindowsPath|PosixPath:
+        if run_on_linux:
+            local_path = PosixPath(self.entry.local)
+        else:
+            local_path = WindowsPath(self.entry.local)
+        return local_path / self.folder / self.name
 
     @property
     def remote_file(self) -> Path:
@@ -123,9 +128,14 @@ class Sync():
     @task(tags=['sync', 'fill', 'local'])
     def fill_local(self):
         for entry in sync_entries:
-            for dirname, _, files in WindowsPath(entry.local).walk():
+            if run_on_linux:
+                entry_path = PosixPath(entry.local)
+            else:
+                entry_path = WindowsPath(entry.local)
+
+            for dirname, _, files in entry_path.walk():
                 for filename in files:
-                    if filename == 'Thumbs.db' or filename.startswith('~$'):
+                    if filename == 'Thumbs.db' or filename.startswith('~$') or filename.startswith('.~lock.'):
                         continue
                     file = dirname / filename
                     mt = file.stat().st_mtime
@@ -135,7 +145,7 @@ class Sync():
                     x = FileInfo(
                         status=FileSutatus.Unknown,
                         entry=entry,
-                        folder=dirname.relative_to(WindowsPath(entry.local)).as_posix(),
+                        folder=dirname.relative_to(entry_path).as_posix(),
                         name=filename,
                         date_time=dttm,
                         size=sz,
@@ -167,7 +177,7 @@ class Sync():
             r = self.remote[k]
             if k in self.local:
                 l = self.local[k]
-                if (r.size == l.size and r.date_time == l.date_time) or r.name.startswith('~$'):
+                if (r.size == l.size and r.date_time == l.date_time) or r.name.startswith('~$') or r.name.startswith('.~lock.'):
                     r.status = FileSutatus.Correct
                     l.status = FileSutatus.Correct
                 elif r.date_time == l.date_time:
