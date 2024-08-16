@@ -60,7 +60,7 @@ class Backup():
         self.duration = params.duration
         self.folders = params.folders
         self.work_dir = Path(BACKUP_FOLDER) / DEVICE.lower() / params.name
-        self.prefix = DEVICE + '-(' + str(params.duration) + ')-'
+        self.prefix = DEVICE.split('-')[0] + '-(' + str(params.duration) + ')-'
         self.first_day = datetime(2022, 10, 15).date()
         self.last_day = datetime.today().date()
         self.etalon = []
