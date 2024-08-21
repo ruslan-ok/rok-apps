@@ -191,7 +191,7 @@ class Backup():
     # Архивирование
     def archivate(self):
         if not self.work_dir.exists():
-            os.mkdir(str(self.work_dir))
+            os.makedirs(str(self.work_dir))
 
         fn = self.prefix + datetime.now().strftime('%Y.%m.%d') + '.zip'
         dir_file = str(self.work_dir / fn)
