@@ -169,7 +169,8 @@ class Sync():
     @task(tags=['sync', 'fill', 'remote'])
     def fill_remote(self):
         for entry in sync_entries:
-            resp = requests.get(get_dir_api + '?folder=' + entry.remote, headers=headers, verify=verify)
+            params = {'folder': entry.remote}
+            resp = requests.get(get_dir_api, params=params, headers=headers, verify=verify)
             if (resp.status_code != 200):
                 print('[ERROR] api_call: Status = ' + str(resp.status_code) + '. ' + str(resp.content))
             else:
@@ -293,8 +294,8 @@ class Sync():
 
     def set_time_remote(self, f: FileInfo):
         mod_time = f.date_time.strftime('%Y-%m-%dT%H:%M:%S')
-        params = f'?path={f.remote_path}&mod_time={mod_time}'
-        resp = requests.get(modify_mt_api + params, headers=headers, verify=verify)
+        params = {'path': f.remote_path, 'mod_time': mod_time}
+        resp = requests.get(modify_mt_api, params=params, headers=headers, verify=verify)
         if (resp.status_code != 200):
             print('[ERROR] modify_mt_api: Status = ' + str(resp.status_code) + '. ' + str(resp.content))
 
