@@ -14,6 +14,8 @@ from sync_params import (
     headers,
     verify,
     run_on_linux,
+    DEVICE_CLIENT,
+    DEVICE_SERVER,
 )
 
 class SyncAction(Enum):
@@ -94,6 +96,15 @@ class FileInfo(BaseModel):
     @property
     def size_fmt(self):
         return size_fmt(self.size)
+    
+    @property
+    def is_local_backup(self):
+        return self.entry.role == 'backup' and self.folder.split('/')[0] == DEVICE_CLIENT
+    
+    @property
+    def is_server_backup(self):
+        return self.entry.role == 'backup' and self.folder.split('/')[0] == DEVICE_SERVER
+    
 
 class Sync():
 
@@ -216,18 +227,18 @@ class Sync():
                         else:
                             raise Exception('Check! ' + str(r.remote_path))
 
-                if r.status == FileSutatus.Copy and l.status == FileSutatus.Rewrite and l.folder.startswith('vivo'):
+                if r.status == FileSutatus.Copy and l.status == FileSutatus.Rewrite and l.is_local_backup:
                     r.status = FileSutatus.Rewrite
                     l.status = FileSutatus.Copy
 
-                if r.status == FileSutatus.Rewrite and l.status == FileSutatus.Copy and r.folder.startswith('nuc'):
+                if r.status == FileSutatus.Rewrite and l.status == FileSutatus.Copy and r.is_server_backup:
                     r.status = FileSutatus.Copy
                     l.status = FileSutatus.Rewrite
 
         for k in self.remote.keys():
             r = self.remote[k]
             if r.status == FileSutatus.Unknown or l.status == 0:
-                if r.folder.startswith('vivo'):
+                if r.is_local_backup:
                     r.status = FileSutatus.Remove
                 else:
                     r.status = FileSutatus.Copy
@@ -235,7 +246,7 @@ class Sync():
         for k in self.local.keys():
             l = self.local[k]
             if l.status == FileSutatus.Unknown or l.status == 0:
-                if l.folder.startswith('nuc'):
+                if l.is_server_backup:
                     l.status = FileSutatus.Remove
                 else:
                     l.status = FileSutatus.Copy
