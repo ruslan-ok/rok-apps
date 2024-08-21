@@ -10,6 +10,9 @@ from rest_framework.status import HTTP_400_BAD_REQUEST
 from core.currency.utils import get_exchange_rate_for_api
 
 
+def skip_file(name):
+    return name == 'Thumbs.db' or name.startswith('~$') or name.startswith('.~lock.')
+
 def scan_dir(root_dir: str, except_dir: str|None=None):
     ret = []
     if not root_dir:
@@ -18,7 +21,7 @@ def scan_dir(root_dir: str, except_dir: str|None=None):
         if except_dir and dirname.is_relative_to(Path(except_dir)):
             continue
         for filename in files:
-            if filename == 'Thumbs.db' or filename.startswith('~$') or filename.startswith('.~lock.'):
+            if skip_file(filename):
                 continue
             file = Path(dirname) / filename
             mt = file.stat().st_mtime

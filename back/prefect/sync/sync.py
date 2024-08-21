@@ -59,6 +59,9 @@ def size_fmt(num):
         num /= 1024.0
     return f'{num:.1f}YiB'
 
+def skip_file(name):
+    return name == 'Thumbs.db' or name.startswith('~$') or name.startswith('.~lock.')
+
 class FileInfo(BaseModel):
     status: FileSutatus
     entry: SyncEntry
@@ -94,7 +97,7 @@ class FileInfo(BaseModel):
     @property
     def size_fmt(self):
         return size_fmt(self.size)
-
+    
 class Sync():
 
     @task(tags=['sync', 'open'])
@@ -135,7 +138,7 @@ class Sync():
 
             for dirname, _, files in entry_path.walk():
                 for filename in files:
-                    if filename == 'Thumbs.db' or filename.startswith('~$') or filename.startswith('.~lock.'):
+                    if skip_file(filename):
                         continue
                     file = dirname / filename
                     mt = file.stat().st_mtime
@@ -175,9 +178,11 @@ class Sync():
     def count_status(self):
         for k in self.remote.keys():
             r = self.remote[k]
+            if skip_file(r.name):
+                continue
             if k in self.local:
                 l = self.local[k]
-                if (r.size == l.size and r.date_time == l.date_time) or r.name.startswith('~$') or r.name.startswith('.~lock.'):
+                if (r.size == l.size and r.date_time == l.date_time):
                     r.status = FileSutatus.Correct
                     l.status = FileSutatus.Correct
                 elif r.date_time == l.date_time:
@@ -226,6 +231,8 @@ class Sync():
 
         for k in self.remote.keys():
             r = self.remote[k]
+            if skip_file(r.name):
+                continue
             if r.status == FileSutatus.Unknown or l.status == 0:
                 if r.folder.startswith('vivo'):
                     r.status = FileSutatus.Remove
@@ -234,6 +241,8 @@ class Sync():
 
         for k in self.local.keys():
             l = self.local[k]
+            if skip_file(l.name):
+                continue
             if l.status == FileSutatus.Unknown or l.status == 0:
                 if l.folder.startswith('nuc'):
                     l.status = FileSutatus.Remove
