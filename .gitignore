@@ -23,6 +23,7 @@ front/dist
 front/media
 front/static
 front/node_modules
+front/**/*.min.css
 
 # Django
 *.pyc

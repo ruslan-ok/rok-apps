@@ -5,7 +5,7 @@ import {
 
 import HeadedPage, { loader as appLoader } from './components/HeadedPage';
 import MainPage, { loader as mainPageLoader } from './components/MainPage';
-import './components/css/main.css'
+import './components/main.css'
 
 let router = createBrowserRouter([
     {
