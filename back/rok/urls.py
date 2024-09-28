@@ -91,6 +91,9 @@ urlpatterns = [
     path('api/react/header/', api_react.header),
     path('api/react/main_page/', api_react.main_page),
     path('api/react/get_username/', api_react.get_username),
+    path('api/react/demo', api_react.demo),
+    path('api/react/login', api_react.login),
+    path('api/react/logout', api_react.logout),
 
     path('api/get_chart_data/', api_widget.get_chart_data_api, name='get_chart_data'),
     path('api/core/get_exchange_rate/', api_core.get_exchange_rate, name='get_exchange_rate'),

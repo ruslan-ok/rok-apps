@@ -1,7 +1,7 @@
 function getApiUrl() {
   const baseUrl = window.location.protocol + '//' + window.location.host + '/';
   if (baseUrl.includes('localhost'))
-    return 'http://127.0.0.1:8000/';
+    return 'http://localhost:8000/';
   return baseUrl;
 }
 

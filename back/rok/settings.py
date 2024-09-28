@@ -27,8 +27,6 @@ SECRET_KEY = get_secret('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = get_secret('DEBUG')
 
-ALLOWED_HOSTS = get_secret('ALLOWED_HOSTS')
-
 
 # Application definition
 
@@ -67,9 +65,9 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     #'django.middleware.locale.LocaleMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -158,8 +156,10 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/account/login/'
 
-CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = get_secret('CORS_ORIGIN_ALLOW_ALL')
 CORS_ORIGIN_WHITELIST = get_secret('CORS_ORIGIN_WHITELIST')
+CORS_ALLOW_CREDENTIALS = get_secret('CORS_ALLOW_CREDENTIALS')
+ALLOWED_HOSTS = get_secret('ALLOWED_HOSTS')
 
 # DJANGO_CPROFILE_MIDDLEWARE_REQUIRE_STAFF = get_secret('PROFILING')  # Profiling in Django
 

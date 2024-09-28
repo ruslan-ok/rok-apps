@@ -11,11 +11,10 @@ export interface MainPageData {
 
 export async function loader(): Promise<MainPageData> {
   const cred: RequestCredentials = 'include';
+  const headers =  {'Content-type': 'application/json'};
   const options = { 
     method: 'GET', 
-    headers: { 
-      'Content-type': 'application/json'
-    },
+    headers: headers,
     credentials: cred,
   };
   const res = await fetch(apiUrl +  'api/react/main_page/', options);

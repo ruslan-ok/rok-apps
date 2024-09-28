@@ -5,6 +5,9 @@ import {
 
 import HeadedPage, { loader as appLoader } from './components/HeadedPage';
 import MainPage, { loader as mainPageLoader } from './components/MainPage';
+import Demo from './components/auth/Demo';
+import Login, { action as loginAction } from './components/auth/Login';
+import Logout from './components/auth/Logout';
 import './components/main.css'
 
 let router = createBrowserRouter([
@@ -20,6 +23,24 @@ let router = createBrowserRouter([
                 loader: mainPageLoader,
             },
         ],
+    },
+    {
+        path: '/:lang?/login',
+        action: loginAction,
+        Component: Login,
+    },
+    {
+        path: '/:lang?/demo',
+        Component: Demo,
+    },
+    {
+        path: '/:lang?/login',
+        action: loginAction,
+        Component: Login,
+    },
+    {
+        path: '/:lang?/logout',
+        Component: Logout,
     },
 ]);
 
