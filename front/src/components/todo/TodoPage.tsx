@@ -10,7 +10,7 @@ export interface TodoData {
     sideBarData: SideBarData;
 }
   
-export async function loader(): Promise<TodoData> {
+export async function loader({request}: {request: Object}): Promise<TodoData> {
     await auth.init();
     if (!auth.isAuthenticated) {
         throw redirect('/login');
@@ -22,7 +22,11 @@ export async function loader(): Promise<TodoData> {
       headers: headers,
       credentials: cred,
     };
-    const res = await fetch(apiUrl +  'api/todo/', options);
+    const url = new URL(request.url);
+    const view = url.searchParams.get('view');
+    const group = url.searchParams.get('group');
+    const params = view ? `?view=${view}` : group ? `?group=${group}` : '';
+    const res = await fetch(apiUrl +  'api/todo/' + params, options);
     const resp_data = await res.json();
     return resp_data;
 }

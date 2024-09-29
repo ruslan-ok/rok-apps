@@ -9,6 +9,7 @@ class TodoViewSet(ViewSet):
         context = Context()
         context.request = request
         context.set_config(APP_TODO)
+        context.config.set_view(request)
         context_data = get_base_context(
             request, 
             APP_TODO, 
@@ -39,10 +40,10 @@ class TodoViewSet(ViewSet):
                 'navs': [],
                 'list_href': False,
                 'cur_view': '',
-                'app': '',
+                'app': context.config.app,
                 'role': '',
-                'entity': '',
-                'current': None,
+                'entity': context.config.group_entity,
+                'current': context.config.cur_view_group.id,
                 'create_group_hint': '',
             }
         }

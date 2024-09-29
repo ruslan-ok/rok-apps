@@ -1,5 +1,5 @@
 :root {
-    --size: 25;
+    --size: 10;
     --color-one: #417690; /* #ea4335; */
     --color-two: #417690d7; /* #4285f4; */
     --color-three: #41769081; /* #34a853; */
@@ -33,7 +33,7 @@
         transparent 0 var(--nose)
     );
     border-style: solid;
-    border-width: 5vmin;
+    border-width: 1vmin;
     border-top-color: var(--color-one);
     border-right-color: var(--color-two);
     border-bottom-color: var(--color-three);
