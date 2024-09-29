@@ -3,11 +3,13 @@ import {
     RouterProvider,
 } from "react-router-dom";
 
+import DefaultSpinner from './components/DefaultSpinner';
 import HeadedPage, { loader as appLoader } from './components/HeadedPage';
 import MainPage, { loader as mainPageLoader } from './components/MainPage';
 import Demo from './components/auth/Demo';
 import Login, { action as loginAction } from './components/auth/Login';
 import Logout from './components/auth/Logout';
+import TodoPage, { loader as todoLoader } from './components/todo/TodoPage';
 import './components/main.css'
 
 let router = createBrowserRouter([
@@ -21,6 +23,11 @@ let router = createBrowserRouter([
                 index: true,
                 Component: MainPage,
                 loader: mainPageLoader,
+            },
+            {
+                path: 'todo',
+                Component: TodoPage,
+                loader: todoLoader,
             },
         ],
     },
@@ -49,5 +56,5 @@ export default function App() {
 }
 
 export function Fallback() {
-    return <p>Performing initial data load</p>;
+    return <DefaultSpinner />;
 }

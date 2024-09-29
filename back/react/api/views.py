@@ -41,8 +41,8 @@ def get_header_data(user: User | None, local: bool):
 
     if not user or not user.is_authenticated:
         data['appTitle'] = settings.DOMAIN_NAME
-        data['buttons'].append({'button_id': 'demo', 'name': 'Demo', 'href': 'account/demo/'})
-        data['buttons'].append({'button_id': 'login', 'name': 'Log in', 'href': 'account/login/'})
+        data['buttons'].append({'button_id': 'demo', 'name': 'Demo', 'href': '/account/demo/'})
+        data['buttons'].append({'button_id': 'login', 'name': 'Log in', 'href': '/account/login/'})
     else:
         data['applications'] = get_apps_list(user, 'core', href_prefix)
         data['searchPlaceholder'] = 'Search...'
@@ -54,7 +54,7 @@ def get_header_data(user: User | None, local: bool):
         if user and user.username != 'demouser':
             data['userMenu'].append({'item_id': 'profile', 'name': 'Profile', 'href': href_prefix + 'account/profile/', 'icon': 'bi-person'})
             data['userMenu'].append({'item_id': 'separator', 'name': '', 'href': '', 'icon': ''})
-        data['userMenu'].append({'item_id': 'logout', 'name': 'Log out', 'href': 'account/logout/', 'icon': 'bi-box-arrow-right'})
+        data['userMenu'].append({'item_id': 'logout', 'name': 'Log out', 'href': '/account/logout/', 'icon': 'bi-box-arrow-right'})
     return data
 
 def get_public_data(user: User | None):

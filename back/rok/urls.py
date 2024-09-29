@@ -36,6 +36,7 @@ from api.views import core as api_core
 from cram.api import views as api_cram
 from apart.api import views as api_apart
 from react.api import views as api_react
+from api.views import todo as api_todo
 
 api_router = routers.DefaultRouter()
 api_router.register('groups', api_grp.GroupViewSet, basename='group')
@@ -57,6 +58,7 @@ api_router.register('cram/group', api_cram.CramGroupViewSet, basename='cram-grou
 api_router.register('cram/phrase', api_cram.CramPhraseViewSet, basename='cram-phrase')
 api_router.register('cram/lang_phrase', api_cram.CramLangPhraseViewSet, basename='cram-lang-phrase')
 api_router.register('visited', api_visited.VisitedViewSet, basename='visited')
+api_router.register('todo', api_todo.TodoViewSet, basename='todo')
 
 from core import app_doc
 #api_router = routers.DefaultRouter()

@@ -12,7 +12,7 @@ def get_apps_list(user, current, href_prefix=''):
             continue
         icon = config.app_config['icon']
         href = config.app_config['href'] if 'href' in config.app_config else config.app_config['name']
-        if href_prefix:
+        if href_prefix and href not in ('/', 'todo'):
             href = href_prefix + href
         elif not href.startswith('/'):
             href = '/' + href

@@ -65,7 +65,7 @@ import {
         <Form method="post">
           <input type="hidden" name="csrfmiddlewaretoken" value="A0X0GHln6RqbYK1Lp0JUk3tn2jE7JhYpL6x9xSAhruRl4BvgPDU1XMlMPpAQw83G" />
           <input type="hidden" name="redirectTo" value={from} />
-          <img className="mb-4" src="/static/favicon.ico" />
+          <img className="mb-4" src="/static/favicon.ico" alt="favicon" />
           <h1 className="h3 mb-3 fw-normal">Log in</h1>
           {actionData && !actionData.ok && actionData.info ? (
             <div className="fieldset">

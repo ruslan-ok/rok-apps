@@ -8,10 +8,9 @@ function UserMenu({avatar, username, items}: {avatar: undefined | string, userna
         if (item.item_id === 'separator') {
           return <li key={item.name}><hr className='dropdown-divider' /></li>;
         } else {
-          let href = item.href;
           return (
             <li key={item.name}>
-              <a className='dropdown-item d-flex justify-content-between' href={href}>
+              <a className='dropdown-item d-flex justify-content-between' href={item.href}>
                 <span>{item.name}</span>
                 <i className={item.icon}></i>
               </a>
