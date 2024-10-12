@@ -1,27 +1,11 @@
-import { auth, apiUrl } from './auth/Auth';
-import type { PublicData } from './MainPagePublic';
-import type { ProtectedData } from './MainPageProtected';
+import { auth } from './auth/Auth';
 import MainPagePublic from './MainPagePublic';
 import MainPageProtected from './MainPageProtected';
-
-export interface MainPageData {
-  publicData: PublicData;
-  protectedData: ProtectedData;
-}
-
-export async function loader(): Promise<MainPageData> {
-  const cred: RequestCredentials = 'include';
-  const headers =  {'Content-type': 'application/json'};
-  const options = { 
-    method: 'GET', 
-    headers: headers,
-    credentials: cred,
-  };
-  const res = await fetch(apiUrl +  'api/react/main_page/', options);
-  const resp_data = await res.json();
-  const data: MainPageData = JSON.parse(resp_data.json_data);
-  return data;
-}
+import 'bootstrap/dist/css/bootstrap.css';
+import './css/custom.css';
+import "./css/title.min.css";
+import './css/tune.min.css';
+import './css/list.min.css';
 
 function MainPage() {
   let layout;

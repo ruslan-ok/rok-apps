@@ -1,87 +1,96 @@
-import { useLoaderData } from 'react-router-dom';
-
-import { MainPageData } from './MainPage';
-import './MainPagePublic.css';
+import { useState, useEffect } from "react";
+import { apiUrl } from './auth/Auth';
 
 interface ApplicationDescr {
-  app_id: string;
-  icon: string;
-  title: string;
-  features: string[];
+    app_id: string;
+    icon: string;
+    title: string;
+    features: string[];
 }
 
-export interface PublicData {
-  applications: ApplicationDescr[];
-  debugInfo: string[];
+interface MainPageInfo {
+    applications: ApplicationDescr[];
 }
 
-interface parsedAppInfo {
-  id: string,
-  title: string,
-  heading_id: string,
-  collapse_id: string,
-  hash_collapse_id: string,
-  icon_class: string,
-  button_class: string,
-  expanded: boolean,
-  data_class: string,
-  features: string[],
+interface ParsedAppInfo {
+    id: string,
+    title: string,
+    heading_id: string,
+    collapse_id: string,
+    hash_collapse_id: string,
+    icon_class: string,
+    button_class: string,
+    expanded: boolean,
+    data_class: string,
+    features: string[],
+}
+
+async function loadData(): Promise<MainPageInfo> {
+    const cred: RequestCredentials = 'include';
+    const headers =  {'Content-type': 'application/json'};
+    const options = { 
+        method: 'GET', 
+        headers: headers,
+        credentials: cred,
+    };
+    const params = '?format=json';
+    const res = await fetch(apiUrl +  'api/main_page/' + params, options);
+    const resp_data = await res.json();
+    return resp_data;
 }
 
 function MainPagePublic() {
-  let data = useLoaderData() as MainPageData;
-  let dataExt: parsedAppInfo[] = [];
-  let debugInfo: string[] = [];
+    const [data, setData] = useState<MainPageInfo>([]);
+    useEffect(() => {
+        const getData = async () => {
+          const data = await loadData();
+          setData(data);
+        };
+      
+        getData();
+    }, []);
 
-  if (data && data.publicData) {
-    if (data.publicData.debugInfo)
-      debugInfo = data.publicData.debugInfo;
-    else
-      debugInfo = [''];
+    let dataExt: ParsedAppInfo[] = [];
 
-    dataExt = data.publicData.applications.map((item, index) => {
-      return {
-        id: item.app_id,
-        title: item.title,
-        heading_id: 'heading' + item.app_id,
-        collapse_id: 'collapse' + item.app_id,
-        hash_collapse_id: '#collapse' + item.app_id,
-        icon_class: 'bi-' + item.icon + ' me-2',
-        button_class: 'accordion-button' + (index ? ' collapsed' : ''),
-        expanded: index ? false : true,
-        data_class: 'accordion-collapse collapse' + (index ? '' : ' show'),
-        features: item.features,
-      };
-    });
-  }
+    if (data && data.applications?.length) {
+        dataExt = data.applications.map((item, index) => {
+            return {
+                id: item.app_id,
+                title: item.title,
+                heading_id: 'heading' + item.app_id,
+                collapse_id: 'collapse' + item.app_id,
+                hash_collapse_id: '#collapse' + item.app_id,
+                icon_class: 'bi-' + item.icon + ' me-2',
+                button_class: 'accordion-button' + (index ? ' collapsed' : ''),
+                expanded: index ? false : true,
+                data_class: 'accordion-collapse collapse' + (index ? '' : ' show'),
+                features: item.features,
+            };
+        });
+    }
 
-  const debugLines = debugInfo.map(item => <div className="debug-line">{item}</div>);
-
-  const listItems = dataExt.map(item => 
-    <div className="accordion-item" key={item.id}>
-      <h2 className="accordion-header" id={item.heading_id}>
-        <button className={item.button_class} type="button" data-bs-toggle="collapse" data-bs-target={item.hash_collapse_id} aria-expanded={item.expanded} aria-controls={item.collapse_id}>
-          <i className={item.icon_class}></i>
-          {item.id}
-        </button>
-      </h2>
-      <div id={item.collapse_id} className="accordion-collapse collapse show" aria-labelledby={item.heading_id} data-bs-parent="#accordeonIntro">
-        <div className="accordion-body">
-          <p>{item.title}</p>
-          <ul>
-            {item.features.map((cli, i) => { return (<li key={i}>{cli}</li>) })}
-          </ul>
+    const listItems = dataExt.map(item => 
+        <div className="accordion-item rok-main-page-public" key={item.id}>
+            <h2 className="accordion-header" id={item.heading_id}>
+                <button className={item.button_class} type="button" data-bs-toggle="collapse" data-bs-target={item.hash_collapse_id} aria-expanded={item.expanded} aria-controls={item.collapse_id}>
+                    <i className={item.icon_class}></i>
+                    {item.id}
+                </button>
+            </h2>
+            <div id={item.collapse_id} className={item.data_class} aria-labelledby={item.heading_id} data-bs-parent="#accordeonIntro">
+                <div className="accordion-body">
+                    <p>{item.title}</p>
+                    <ul>
+                    {item.features.map((cli, i) => { return (<li key={i}>{cli}</li>) })}
+                    </ul>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 
-  return (
-      <>
+    return (
         <main>
-            <div className='content'>
-                <div className="debug-info">{debugLines}</div>
-                
+            <div className='content p-2'>
                 <p className="lead">This site provides the following functionality:</p>
 
                 <div className="accordion" id="accordeonIntro">
@@ -96,7 +105,6 @@ function MainPagePublic() {
                 </div>
             </div>
         </main>
-      </>
     );
 }
 

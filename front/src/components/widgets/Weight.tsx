@@ -57,7 +57,7 @@ function Weight({screenWidth}: {screenWidth: number}) {
     useEffect(() => {
         async function getData() {
             setStatus('updating');
-            const url = apiUrl + 'api/get_chart_data/?mark=health&version=v2&period=' + period;
+            const url = apiUrl + 'api/chart/?mark=health&version=v2&period=' + period;
             const aaa: RequestCredentials = 'include';
             const options = {
                 method: 'GET',

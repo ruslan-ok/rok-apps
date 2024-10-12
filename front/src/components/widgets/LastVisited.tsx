@@ -15,7 +15,7 @@ export default function LastVisited({screenWidth}: {screenWidth: number}) {
 
         async function getData() {
             setStatus('updating');
-            const url = apiUrl + `api/get_chart_data/?mark=visited`;
+            const url = apiUrl + `api/chart/?mark=visited`;
             const cred: RequestCredentials = 'include';
             const options = {
                 method: 'GET',

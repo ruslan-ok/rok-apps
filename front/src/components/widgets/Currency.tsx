@@ -143,7 +143,7 @@ function Currency({screenWidth}: {screenWidth: number}) {
     useEffect(() => {
         async function getData() {
             setStatus('updating');
-            const url = apiUrl + `api/get_chart_data/?mark=currency&version=v2&period=${period}&base=${base}`;
+            const url = apiUrl + `api/chart/?mark=currency&version=v2&period=${period}&base=${base}`;
             const rq: RequestCredentials = 'include';
             const options = {
                 method: 'GET',

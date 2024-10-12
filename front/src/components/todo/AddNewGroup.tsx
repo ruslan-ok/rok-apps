@@ -1,7 +1,11 @@
-function AddNewGroup({app, role, entity, hint}: {app: string, role: string, entity: string, hint: string}) {
+import type { PageConfigInfo } from './TodoPage'
+
+function AddNewGroup({config}: {config: PageConfigInfo}) {
     function addGroup() {
-        console.log(app, role, entity)
+        // console.log(app, role, entity)
     }
+
+    const hint = `Create ${config.entity}`;
 
     return (
         <>

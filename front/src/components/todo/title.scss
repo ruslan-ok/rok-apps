@@ -1,0 +1,59 @@
+.dark-theme, .dark-theme:hover {
+    color: white;
+}
+
+h3.dark-theme {
+    color: rgb(216, 216, 216);
+}
+
+a.dark-theme, a.dark-theme:hover {
+    color: rgb(200, 237, 253);
+}
+
+.btn.dark-theme, .btn.dark-theme:hover {
+    color: white;
+}
+
+.content-title {
+    font-size: 1.5rem;
+    display: flex;
+    .title {
+        display: flex;
+    }
+
+    .possible-related {
+        height: 44px;
+    }
+
+    &__icon {
+        padding: 10px 20px;
+    }
+
+    &__href {
+        margin: 10px 0;  
+    }
+
+    &__text {
+        margin: 10px 0;  
+    }
+
+    &__separator {
+        margin: 10px 5px;
+    }
+}
+
+.folder-mod-btn {
+    color: lightseagreen;
+    font-size: 0.8rem;
+}
+
+p.errornote {
+    color: #ba2121;
+    font-size: 0.8rem;
+}
+
+.zzzzzzzz {
+    color: red;
+}
+  
+  

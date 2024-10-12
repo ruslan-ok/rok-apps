@@ -34,7 +34,7 @@ function MainPageProtected() {
 
   return (
       <>
-        <div className='hp_widgets'>
+        <div className='hp_widgets rok-main-page'>
           <div className='widgets-area'>
             <TodoList screenWidth={width} />
             <LastVisited screenWidth={width} />

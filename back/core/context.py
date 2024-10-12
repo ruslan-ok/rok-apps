@@ -146,6 +146,8 @@ class AppContext:
         return context
 
 class Context:
+    request = None
+    object = None
 
     def set_config(self, app):
         self.config = Config(app)

@@ -5,11 +5,12 @@ import {
 
 import DefaultSpinner from './components/DefaultSpinner';
 import HeadedPage, { loader as appLoader } from './components/HeadedPage';
-import MainPage, { loader as mainPageLoader } from './components/MainPage';
+import MainPage from './components/MainPage';
 import Demo from './components/auth/Demo';
 import Login, { action as loginAction } from './components/auth/Login';
 import Logout from './components/auth/Logout';
 import TodoPage, { loader as todoLoader } from './components/todo/TodoPage';
+
 import './components/main.css'
 
 let router = createBrowserRouter([
@@ -22,7 +23,6 @@ let router = createBrowserRouter([
             {
                 index: true,
                 Component: MainPage,
-                loader: mainPageLoader,
             },
             {
                 path: 'todo',
@@ -30,11 +30,6 @@ let router = createBrowserRouter([
                 loader: todoLoader,
             },
         ],
-    },
-    {
-        path: '/:lang?/login',
-        action: loginAction,
-        Component: Login,
     },
     {
         path: '/:lang?/demo',

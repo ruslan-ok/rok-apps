@@ -1,5 +1,3 @@
-import os
-from datetime import datetime, date
 from django.conf import settings
 from rest_framework.decorators import api_view, permission_classes, renderer_classes
 from rest_framework.permissions import IsAuthenticated
@@ -30,7 +28,7 @@ ALL_CHART_MARKS = [
 @api_view()
 @permission_classes([IsAuthenticated])
 @renderer_classes([JSONRenderer])
-def get_chart_data_api(request):
+def chart(request):
     if 'mark' not in request.query_params:
         return Response({'result': 'error', 'info': "Expected parameter 'mark'"},
                         status=HTTP_400_BAD_REQUEST)

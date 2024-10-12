@@ -6,20 +6,21 @@ import {
     useActionData,
     useLocation,
     useNavigation,
-  } from "react-router-dom";
-  import { auth } from './Auth';
-  
-  import './Login.css';
-  
-  export interface LoginResult {
+} from "react-router-dom";
+
+import { auth } from './Auth';
+
+import './Login.css';
+
+export interface LoginResult {
     ok: boolean,
     info: string
-  }
+}
   
-  export async function action({ request }: ActionFunctionArgs): Promise<LoginResult | Response>  {
+export async function action({ request }: ActionFunctionArgs): Promise<LoginResult | Response>  {
     let response: LoginResult = {
-      ok: false,
-      info: 'Unknown error.'
+        ok: false,
+        info: 'Unknown error.'
     };
   
     const formData = await request.formData();
@@ -28,29 +29,29 @@ import {
   
     // Validate our form inputs and return validation errors via useActionData()
     if (!username || !password) {
-      response.info = 'You must provide a username and password to log in.';
-      return response;
+        response.info = 'You must provide a username and password to log in.';
+        return response;
     }
   
     try {
-      const tmp: any = await auth.login(username, password);
-      response = tmp;
+        const tmp: any = await auth.login(username, password);
+        response = tmp;
     } catch (error) {
-      // Unused as of now but this is how you would handle invalid
-      // username/password combinations - just like validating the inputs
-      // above
-      response.info = 'Invalid login attempt.';
+        // Unused as of now but this is how you would handle invalid
+        // username/password combinations - just like validating the inputs
+        // above
+        response.info = 'Invalid login attempt.';
     }
   
     if (response && response.ok) {
-      let redirectTo = (formData.get("redirectTo") || "/") as string;
-      return redirect(redirectTo);
+        let redirectTo = (formData.get("redirectTo") || "/") as string;
+        return redirect(redirectTo);
     }
   
     return response;
-  }
+}
   
-  function Login() {
+function Login() {
     let location = useLocation();
     let params = new URLSearchParams(location.search);
     let from = params.get("from") || "/";
@@ -61,7 +62,7 @@ import {
     const actionData = useActionData() as LoginResult;
   
     return (
-      <div className="form-container">
+      <div className="form-container rok-login">
         <Form method="post">
           <input type="hidden" name="csrfmiddlewaretoken" value="A0X0GHln6RqbYK1Lp0JUk3tn2jE7JhYpL6x9xSAhruRl4BvgPDU1XMlMPpAQw83G" />
           <input type="hidden" name="redirectTo" value={from} />
@@ -90,6 +91,6 @@ import {
         </Form>
       </div>
     );
-  };
+};
   
-  export default Login;
+export default Login;

@@ -1,9 +1,12 @@
-export interface GroupItem {
+import { useState, useEffect } from "react";
+import { redirect } from "react-router-dom";
+import { auth, apiUrl } from '../auth/Auth';
+import type { PageConfigInfo } from './TodoPage'
+
+interface GroupItem {
     id: number;
     node_id: number;
     name: string;
-    is_leaf: boolean;
-    level: number;
     act_items_qty: number;
 };
 
@@ -14,11 +17,39 @@ type Node = {
     is_leaf: boolean;
     is_open: boolean | null;
     level: number;
+    name: string;
+    act_items_qty: number;
 };
 
-function GroupTree({items, current, app, entity}: {items: GroupItem[], current: number | string | undefined, app: string, entity: string}) {
+async function loadData(config: PageConfigInfo): Promise<GroupItem[]> {
+    await auth.init();
+    if (!auth.isAuthenticated) {
+        throw redirect('/login');
+    }
+    const cred: RequestCredentials = 'include';
+    const headers =  {'Content-type': 'application/json'};
+    const options = { 
+      method: 'GET', 
+      headers: headers,
+      credentials: cred,
+    };
+    const params = `?format=json&role=${config.role}&app=${config.app}`;
+    const res = await fetch(apiUrl +  'api/group/' + params, options);
+    const resp_data = await res.json();
+    return resp_data;
+}
 
-    let nodes: Node[] = [];
+function GroupTree({config}: {config: PageConfigInfo}) {
+    const [items, setData] = useState<GroupItem[]>([]);
+    useEffect(() => {
+        const getData = async () => {
+          const data = await loadData(config);
+          const items = data as GroupItem[];
+          setData(items);
+        };
+      
+        getData();
+    }, []);
 
     function getOpen(group_id: number) {
         let name = 'grp_' + group_id;
@@ -80,6 +111,8 @@ function GroupTree({items, current, app, entity}: {items: GroupItem[], current: 
         }
     }
 
+    let nodes: Node[];
+
     function getNodeById(id: number): Node | null {
         return nodes.find(x => x.id === id) || null;
     }
@@ -102,42 +135,100 @@ function GroupTree({items, current, app, entity}: {items: GroupItem[], current: 
         return ret;
     }
 
+    function getItemById(id: number): GroupItem | null {
+        return items.find(x => x.id === id) || null;
+    }
+
+    function addNode(item: GroupItem): Node {
+        let node = getNodeById(item.id);
+        if (node)
+            return node;
+        node = {
+            id: item.id,
+            name: item.name,
+            node_id: item.node_id,
+            act_items_qty: item.act_items_qty,
+            children: [],
+            is_leaf: true,
+            is_open: null,
+            level: 0,
+        };
+        nodes.push(node);
+        if (node.node_id) {
+            let parent = getNodeById(node.node_id);
+            if (!parent) {
+                const parentItem: GroupItem | null = getItemById(node.node_id);
+                if (parentItem)
+                    parent = addNode(parentItem);
+            }
+            if (parent) {
+                parent.is_leaf = false;
+                parent.children.push(node.id);
+                node.level = parent.level + 1;
+                if (parent.is_open === null) {
+                    parent.is_open = getOpen(parent.id);
+                }
+            }
+        }
+        return node;
+    }
+
+    function hierToFlat(root: number[]): Array<number> {
+        let ret: number[] = [];
+        function compare(a: number, b: number): number {
+            const oa = getNodeById(a);
+            const ob = getNodeById(b);
+            if (!oa || !ob)
+                return 0;
+            if (oa.name < ob.name){
+                return -1;
+            }
+            if (oa.name > ob.name){
+                return 1;
+            }
+            return 0;
+        }
+        const sortedRoot = root.sort(compare);
+        sortedRoot.forEach(x => {
+            ret.push(x);
+            const node = getNodeById(x);
+            if (node && node.children.length) {
+                const cld = hierToFlat(node.children);
+                ret = ret.concat(cld);
+            }
+        });
+        return ret;
+    }
+
     let groups = <></>;
 
     if (items.length) {
-        const groupList = items.map((item) => {
-            const group: Node = {
-                'id': item.id,
-                'node_id': item.node_id,
-                'children': [],
-                'is_leaf': item.is_leaf,
-                'is_open': item.is_leaf ? null : getOpen(item.id),
-                'level': item.level,
-            };
-            nodes.push(group);
-            if (group.node_id) {
-                const parent = getNodeById(group.node_id);
-                if (parent) {
-                    parent.children.push(group.id);
-                }
-            }
-
+        nodes = [];
+        items.forEach(item => {
+            addNode(item);
+        });
+        const root: number[] = nodes.filter(x => !x.node_id).map(x => x.id);
+        const flat = hierToFlat(root);
+        const groupList = flat.map((id) => {
+            const group = getNodeById(id);
+            if (!group)
+                return <></>;
             let itemLink;
             const g_id = `task_group_${group.id}`;
             const is_visible = allNodesAreOpen(group.id);
-            const active = (group.id === current);
+            const active = (group.id === config.group_id);
             const gclass = is_visible ? 'sidebar__group-visible' + (active ? ' active' : '') : 'sidebar__group-hidden';
 
             if (group.is_leaf) {
-                const href = `/${app}/?${entity}=${group.id}`;
+                const href = `/${config.app}/?${config.entity}=${group.id}`;
                 const item_class = `bi-journals level-${group.level}`;
                 itemLink = (
                     <a id={g_id} key={group.id} href={href} data-id={group.id} data-parent={group.node_id} className={gclass} aria-current={active}>
                         <div>
                             <i className={item_class}></i>
-                            <span className="group-item-title">{item.name}</span>
+                            <span className="group-item-title">{group.name}</span>
                         </div>
-                        <span>{item.act_items_qty}</span>
+                        <span>{group.act_items_qty}</span>
                     </a>
                 );
             } else {
@@ -147,7 +238,7 @@ function GroupTree({items, current, app, entity}: {items: GroupItem[], current: 
                     <button id={g_id} key={group.id} data-id={group.id} data-parent={group.node_id} className={gclass} onClick={handleClick}>
                         <div>
                             <i className={folder_class}></i>
-                            <span className="group-item-title">{item.name}</span>
+                            <span className="group-item-title">{group.name}</span>
                         </div>
                         <i className={chevron_class}></i>
                     </button>

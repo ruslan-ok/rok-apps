@@ -52,7 +52,7 @@ function Crypto({screenWidth}: {screenWidth: number}) {
     useEffect(() => {
         async function getData() {
             setStatus('updating');
-            const url = apiUrl + 'api/get_chart_data/?mark=crypto&version=v2&period=' + period;
+            const url = apiUrl + 'api/chart/?mark=crypto&version=v2&period=' + period;
             const cred: RequestCredentials = 'include';
             const options = {
                 method: 'GET',

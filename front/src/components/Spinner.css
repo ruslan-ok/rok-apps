@@ -1,9 +1,9 @@
-.spinner-place {
+.rok-spinner .spinner-place {
     display: flex;
     align-items: center;
 }
 
-.spinner-place .spinner {
+.rok-spinner .spinner-place .spinner {
     margin: auto;
     height: 100%;
     display: flex;
@@ -15,7 +15,7 @@
     100% { transform: rotate(360deg); }
 }
   
-.loader {
+.rok-spinner .loader {
     border: 6px solid var(--spinner_border);
     border-top: 6px solid var(--app_main_background);
     border-radius: 50%;

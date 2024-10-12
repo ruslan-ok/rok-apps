@@ -63,7 +63,7 @@ class Config:
             common_url = reverse(self.app + ':list')
         if self.main_view:
             view_id = self.main_view
-        if (request.path != common_url):
+        if (request.path != common_url) and not request.path.startswith('/api'):
             url_app = request.path.split(common_url)[1].split('?')[0].split('/')[0]
             if url_app != 'api':
                 view_id = url_app

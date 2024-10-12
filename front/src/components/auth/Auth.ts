@@ -24,7 +24,7 @@ export const auth: AuthProvider = {
     async init(): Promise<AuthProvider> {
         const cred: RequestCredentials = 'include';
         const headers =  {'Content-type': 'application/json'};
-        const resp = await fetch(apiUrl + 'api/react/get_username/', { method: 'GET', headers: headers, credentials: cred, }).then((response) => response.json());
+        const resp = await fetch(apiUrl + 'api/auth/', { method: 'GET', headers: headers, credentials: cred, }).then((response) => response.json());
         if (resp && resp.ok && resp.username) {
             auth.username = resp.username;
             auth.isAuthenticated = true;
@@ -35,7 +35,7 @@ export const auth: AuthProvider = {
     async demo(): Promise<Response> {
         const data = 'grant_type=password';
         const cred: RequestCredentials = 'include';
-        const resp = await fetch(apiUrl + 'api/react/demo', { method: 'POST', headers: {'Content-type': 'application/x-www-form-urlencoded'}, credentials: cred, body: data }).then((response) => response.json());
+        const resp = await fetch(apiUrl + 'api/demo/', { method: 'POST', headers: {'Content-type': 'application/x-www-form-urlencoded'}, credentials: cred, body: data }).then((response) => response.json());
         if (resp && resp.ok && resp.info) {
           auth.username = resp.info;
           auth.isAuthenticated = true;
@@ -46,7 +46,7 @@ export const auth: AuthProvider = {
     async login(username: string, password: string): Promise<Response> {
         const data = `grant_type=password&username=${username}&password=${password}`;
         const cred: RequestCredentials = 'include';
-        const resp = await fetch(apiUrl + 'api/react/login', { method: 'POST', headers: {'Content-type': 'application/x-www-form-urlencoded'}, credentials: cred, body: data }).then((response) => response.json());
+        const resp = await fetch(apiUrl + 'api/login/', { method: 'POST', headers: {'Content-type': 'application/x-www-form-urlencoded'}, credentials: cred, body: data }).then((response) => response.json());
         if (resp && resp.ok && resp.info) {
           auth.username = resp.info;
           auth.isAuthenticated = true;
@@ -56,7 +56,7 @@ export const auth: AuthProvider = {
 
     async logout(): Promise<void> {
         const cred: RequestCredentials = 'include';
-        const resp = await fetch(apiUrl + 'api/react/logout', { method: 'GET', headers: {'Content-type': 'application/json'}, credentials: cred, }).then((response) => response.json());
+        const resp = await fetch(apiUrl + 'api/logout/', { method: 'GET', headers: {'Content-type': 'application/json'}, credentials: cred, }).then((response) => response.json());
         if (resp && resp.ok) {
           auth.isAuthenticated = false;
           auth.username = '';
