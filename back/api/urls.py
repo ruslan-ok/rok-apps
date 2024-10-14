@@ -14,7 +14,7 @@ from api.views import todo
 
 api_router = routers.DefaultRouter()
 api_router.register('group', groups.GroupViewSet, basename='group')
-api_router.register('todo', todo.TodoViewSet, basename='todo')
+api_router.register('todo', todo.TodoViewSet, basename='task')
 
 urlpatterns = [
     path('auth/', auth.auth),

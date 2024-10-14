@@ -235,7 +235,7 @@ export class ItemInfo {
     created: string | null;
     event: string | null;
     groups: number[] | null;
-    id: number;
+    id: number | null;
     important: boolean | null;
     in_my_day: boolean | null;
     info: string | null;
@@ -248,6 +248,7 @@ export class ItemInfo {
     repeat_num: number | null;
     start: string | null;
     stop: string | null;
+    url: string | null;
 
     constructor(values: Object) {
         this.categories = values.categories;
@@ -269,6 +270,7 @@ export class ItemInfo {
         this.repeat_num = values?.repeat_num;
         this.start = values?.start;
         this.stop = values?.stop;
+        this.url = values?.url;
     }
 
     get sub_group_id(): SubGroupKind {
@@ -367,12 +369,15 @@ interface AttrInfo {
 }
 
 export interface ExtraInfo {
+    initialized: boolean;
     roles: ItemRole[];
-    absolute_url: string;
     params: string;
     group_name: string | null;
     attributes: AttrInfo[];
     remind_active: boolean;
     step_completed: number;
     step_total: number;
+    has_files: boolean;
+    has_links: boolean;
+    task_descr: string;
 }

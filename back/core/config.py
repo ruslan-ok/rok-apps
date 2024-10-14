@@ -119,6 +119,9 @@ class Config:
 
         if determinator and view_id:
             self.cur_view_group = detect_group(request.user, self.app, determinator, view_id, _(self.title).capitalize())
+            if self.cur_view_group and determinator == 'view':
+                self.cur_view_group.use_sub_groups = self.use_sub_groups
+                self.cur_view_group.save()
 
     def check_property(self, config, prop, default):
         ret = default

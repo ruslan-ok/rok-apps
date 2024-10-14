@@ -33,13 +33,13 @@ function FixList({config}: {config: PageConfigInfo}) {
         };
       
         getData();
-    }, []);
+    }, [config]);
 
     let fixes = <></>;
 
     if (items.length) {
         const fixList = items.map((item) => {
-            return <FixItem key={item.id} item={item} />
+            return <FixItem key={item.id} item={item} config={config} />
         });
     
         fixes = <>{fixList}<hr/></>;

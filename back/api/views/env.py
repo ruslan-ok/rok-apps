@@ -25,7 +25,8 @@ def env(request):
     context.request = request
     app = request.query_params.get('app')
     group_id = request.query_params.get('group')
-    detail = request.query_params.get('detail')
+    if group_id:
+        group_id = int(group_id)
     context.set_config(app)
     config = context.config
     config.set_view(request)
@@ -42,10 +43,9 @@ def env(request):
     group_path = []
     if group_id:
         group = Group.objects.filter(id=group_id).get()
-        data['group_return'] = group_id
-        if (not detail):
-            if (not group.determinator) or (group.determinator == 'group'):
-                group_path = get_group_path(group_id)
+        data['group_id'] = group_id
+        if (not group.determinator) or (group.determinator == 'group'):
+            group_path = get_group_path(group_id)
     data['group_path'] = group_path
 
     sorts = None
@@ -54,8 +54,7 @@ def env(request):
         data.update({
             'theme_id': grp.theme,
             'dark_theme': grp.dark_theme(),
-            'use_sub_groups': config.use_sub_groups,
-            'grp_use_sub_groups': grp.use_sub_groups,
+            'use_sub_groups': grp.use_sub_groups,
             'grp_view_id': grp.view_id,
             'grp_services_visible': grp.services_visible,
             'cur_view_group_id': grp.id,
@@ -77,7 +76,6 @@ def env(request):
             sub_groups = load_sub_groups(grp)
             data['sub_groups'] = sorted(sub_groups, key = lambda group: group['id'])
     data['sorts'] = [{'id': x[0], 'name': x[1].capitalize()} for x in sorts] if sorts else []
-    data['group_path'] = []
     data['related_roles'] = []
     data['possible_related'] = []
     themes = []

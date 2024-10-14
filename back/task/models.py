@@ -91,13 +91,19 @@ class Group(models.Model):
         return not Group.objects.filter(node=self.id).exists()
 
     def toggle_sub_group(self, sub_group_id):
+        if not sub_group_id:
+            return
+        sgs = []
+        sub_group_id = int(sub_group_id)
         if self.sub_groups:
             sgs = json.loads(self.sub_groups)
-            for sg in sgs:
-                if (sg['id'] == int(sub_group_id)):
-                    sg['is_open'] = not sg['is_open']
-            self.sub_groups = json.dumps(sgs)
-            self.save()
+        if not [x for x in sgs if x['id'] == sub_group_id]:
+            sgs.append({'id': sub_group_id, 'is_open': False})
+        for sg in sgs:
+            if (sg['id'] == sub_group_id):
+                sg['is_open'] = not sg['is_open']
+        self.sub_groups = json.dumps(sgs)
+        self.save()
 
     def set_theme(self, theme_id):
         self.theme = theme_id

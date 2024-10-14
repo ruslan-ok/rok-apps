@@ -1,3 +1,6 @@
+import { Link } from 'react-router-dom';
+import type { PageConfigInfo } from './TodoPage';
+
 export interface FixItemInfo {
     id: string;
     url: string;
@@ -9,18 +12,18 @@ export interface FixItemInfo {
     determinator: string;
 }
 
-function FixItem({item}: {item: FixItemInfo}) {
-    const link_class = 'sidebar__fix-item' + (item.active ? ' active' : '');
+function FixItem({item, config}: {item: FixItemInfo, config: PageConfigInfo}) {
+    const link_class = 'sidebar__fix-item' + (item.active && !config.group_id ? ' active' : '');
     const fix_icon = 'bi-' + item.icon;
     const qty = (item.search_qty ? `${item.search_qty} / ` : '') + (item.qty ? `${item.qty}` : '');
     return (
-        <a href={item.url} aria-current={item.active} className={link_class}>
+        <Link to={item.url} className={link_class}>
             <div>
                 <i className={fix_icon}></i>
                 <span className="group-item-title">{item.title}</span>
             </div>
             <span>{qty}</span>
-        </a>
+        </Link>
     );
 }
     

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from 'react-router-dom';
 import { apiUrl } from '../auth/Auth';
 import type { PageConfigInfo } from './TodoPage';
 import { ItemInfo, ExtraInfo } from './ItemTypes';
@@ -87,9 +88,14 @@ function Attributes({item, extra, config}: {item: ItemInfo, extra: ExtraInfo, co
             attrs.push({icon: 'bi-bell'});
         }
     }
-    if (item.in_my_day) {
+    if (item.in_my_day && (config.determinator !== 'view' || config.view !== 'myday')) {
         attrs.push({icon: 'bi-sun'});
         attrs.push({text: 'My day'});
+        attrs.push({icon: 'bi-dot'});
+    }
+    if (extra.step_total > 0) {
+        attrs.push({text: `${extra.step_completed} out of ${extra.step_total}`})
+        attrs.push({icon: 'bi-dot'});
     }
     if (item.termin && !item.completed) {
         const atclass = item.is_expired ? 'expired' : 'actual';
@@ -97,9 +103,7 @@ function Attributes({item, extra, config}: {item: ItemInfo, extra: ExtraInfo, co
         attrs.push({atclass: atclass, text: item.termin_info});
         if (item.repeat)
             attrs.push({icon: 'bi-arrow-repeat ' + atclass});
-    }
-    if (extra.step_total > 0) {
-        attrs.push({text: `${extra.step_completed} out of ${extra.step_total}`})
+        attrs.push({icon: 'bi-dot'});
     }
     if (item.completed) {
         attrs.push({text: `Completion ${item.Completion}`})
@@ -128,8 +132,25 @@ function Attributes({item, extra, config}: {item: ItemInfo, extra: ExtraInfo, co
     );
 }
 
-function Icons({item, config}: {item: ItemInfo, config: PageConfigInfo}) {
-    return <></>;
+function Icons({item, extra}: {item: ItemInfo, extra: ExtraInfo}) {
+    const has_files = extra.has_files ? <><i className="bi-paperclip"></i><i className="bi-dot"></i></> : <></>;
+    const has_links = extra.has_links ? <><i className="bi-cursor"></i><i className="bi-dot"></i></> : <></>;
+    const info = !item.info ? '' : item.info.replace(String.fromCharCode(13), '').replace(String.fromCharCode(10), '');
+    const info_cut = info.substring(0, 79) + ((info.length > 80) ? '...' : '');
+    const task_descr = info_cut ? (<>
+        <i className="bi-sticky"></i>
+        <div className="label">
+            <span>{info_cut}</span>
+        </div>
+        <i className="bi-dot"></i>
+    </>) : <></>;
+    return (
+        <div className="inline">
+            {has_files}
+            {has_links}
+            {task_descr}
+        </div>        
+    );
 }
 
 const CATEGORY_DESIGN = [
@@ -165,21 +186,21 @@ function Descr({item, extra, config}: {item: ItemInfo, extra: ExtraInfo, config:
         <div className="descr">
             <Group item={item} extra={extra} config={config} />
             <Attributes item={item} extra={extra} config={config} />
-            <Icons item={item} config={config} />
+            <Icons item={item} extra={extra} />
             <Categories item={item} config={config} />
         </div>
     );
 }
 
 function Tile({item, extra, config}: {item: ItemInfo, extra: ExtraInfo, config: PageConfigInfo}) {
-    const href = `${extra.absolute_url}${extra.params}`;
+    let href = `${item.id}`;
     return (
-        <a href={href} className="container info">
+        <Link to={href} className="container info">
             <div className="info">
                 <Name item={item} extra={extra} config={config} />
                 <Descr item={item} extra={extra} config={config} />
             </div>
-        </a>
+        </Link>
     );
 }
 
@@ -205,20 +226,23 @@ async function loadData(item: ItemInfo, config: PageConfigInfo): Promise<ExtraIn
     const params = `?format=json&role=${config.role}&app=${config.app}`;
     const res = await fetch(apiUrl + `api/todo_extra/${item.id}` + params, options);
     const resp_data = await res.json();
-    return resp_data;
+    return Object.assign(resp_data, {'initialized': true});
 }
 
-function ListItem({item, config}: {item: ItemInfo, config: PageConfigInfo}) {
-    const emptyExtra = {
+function ListItem({item, visible, config}: {item: ItemInfo, visible: boolean, config: PageConfigInfo}) {
+    const emptyExtra: ExtraInfo = {
+        initialized: false,
         roles: [],
-        absolute_url: '',
         params: '',
         group_name: null,
         attributes: [],
         remind_active: false,
         step_completed: 0,
         step_total: 0,
-    }
+        has_files: false,
+        has_links: false,
+        task_descr: '',
+    };
     const [extra, setData] = useState<ExtraInfo>(emptyExtra);
     useEffect(() => {
         const getData = async () => {
@@ -226,9 +250,9 @@ function ListItem({item, config}: {item: ItemInfo, config: PageConfigInfo}) {
           const extra = data as ExtraInfo;
           setData(extra);
         };
-      
-        getData();
-    }, [item, config]);
+        if (visible && !extra.initialized)
+            getData();
+    }, [item, visible, config, extra.initialized]);
 
     const item_class = `list-item${!config.use_selector && config.role !== 'search' ? ' px-3' : ''}`;
     return (

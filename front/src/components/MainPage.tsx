@@ -3,6 +3,7 @@ import MainPagePublic from './MainPagePublic';
 import MainPageProtected from './MainPageProtected';
 import 'bootstrap/dist/css/bootstrap.css';
 import './css/custom.css';
+import './css/common.css';
 import "./css/title.min.css";
 import './css/tune.min.css';
 import './css/list.min.css';

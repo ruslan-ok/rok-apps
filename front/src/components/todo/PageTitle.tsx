@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import type { PageConfigInfo } from './TodoPage';
 
 
@@ -40,16 +41,14 @@ function PageTitle({config}: {config: PageConfigInfo}) {
         iconClass = `bi-${config.icon} content-title__icon${dark_theme}`;
     }
 
-    const grpupsPath = config.group_path.reverse().map(group => {
-        const url = `${group.edit_url}/${group.id}?ret=${config.group_return}`;
+    const reversedGroups = config.group_path.slice().reverse();
+    const grpupsPath = reversedGroups.map(group => {
+        const url = `group/${group.id}?ret=${config.group_return}`;
         const hrefClass = `content-title__href${dark_theme}`;
-        const link = <a href={url} className={hrefClass}>{group.name}</a>
-        let sep = <></>;
-        if (group.id !== config.group_path[0].id) {
-            const sepClass = `content-title__separator${dark_theme}`;
-            sep = <h3 className={sepClass}>/</h3>
-        }
-        return (<div key={group.id}>{link}{sep}</div>);
+        const sepClass = `content-title__separator${dark_theme}`;
+        const link = <Link to={url} className={hrefClass}>{group.name}</Link>
+        const sep = group.id === config.group_path[0].id ? <></> : <h3 className={sepClass}>/</h3>;
+        return (<span key={group.id} className="d-flex">{link}{sep}</span>);
     });
     const relatedRoles = config.related_roles.map(role => {
         const roleId = `relRoleLink_${role.name}`;
@@ -137,11 +136,11 @@ function PageTitle({config}: {config: PageConfigInfo}) {
                             {config.use_sub_groups &&
                                 <div className="form-check form-switch my-1 mx-1">
                                     <input type="checkbox" name="use_sub_groups" id="id_use_sub_groups"
-                                        className="form-check-input" onClick={toggleSubGroups} defaultChecked={config.grp_use_sub_groups} />
+                                        className="form-check-input" onClick={toggleSubGroups} defaultChecked={config.use_sub_groups} />
                                     <label htmlFor="id_use_sub_groups" className="form-check-label">Use groups</label>
                                 </div>
                             }
-                            {config.grp_view_id == 'planned' &&
+                            {config.grp_view_id === 'planned' &&
                                 <div className="form-check form-switch my-1 mx-1">
                                     <input type="checkbox" name="services_visible" id="id_services_visible" className="form-check-input" 
                                         onClick={toggleServicesVisible} defaultChecked={config.grp_services_visible} />

@@ -1,8 +1,7 @@
-import { redirect, useLoaderData } from "react-router-dom";
+import { redirect, useLoaderData, Outlet } from "react-router-dom";
 import { auth, apiUrl } from '../auth/Auth';
 import SideBarTop from './SideBarTop';
 import SideBar from './SideBar';
-import TodoContent from './TodoContent';
 
 interface GroupPathInfo {
     id: number;
@@ -39,32 +38,31 @@ export interface PageConfigInfo {
     title: string;
     entity: string;
     icon: string;
-    group_path: Array<GroupPathInfo>;
+    group_path: GroupPathInfo[];
     group_return: number;
     add_item_placeholder: string;
     theme_id: number;
     dark_theme: boolean;
     use_sub_groups: boolean;
-    grp_use_sub_groups: boolean;
     sort_id: string;
     sort_reverse: boolean;
     sort_name: string;
-    sorts: Array<SortInfo>;
+    sorts: SortInfo[];
     view: string | undefined;
     group_id: number | undefined;
+    cur_view_group_id: number | undefined;
     item_id: number | undefined;
     theme: string;
     use_groups: boolean;
     folder: string;
     path: string;
-    related_roles: Array<RoleInfo>;
-    possible_related: Array<RoleInfo>;
+    related_roles: RoleInfo[];
+    possible_related: RoleInfo[];
     hide_add_item_input: boolean;
-    themes: Array<ThemeInfo>;
+    themes: ThemeInfo[];
     grp_view_id: string;
     grp_services_visible: boolean;
-    sub_groups: Array<SubGroupInfo> | undefined;
-    cur_view_group_id: number | undefined;
+    sub_groups: SubGroupInfo[] | undefined;
     use_selector: boolean;
     use_important: boolean;
     event_in_name: boolean;
@@ -85,7 +83,10 @@ export async function loader({request}: {request: Request}): Promise<PageConfigI
     };
     const url = new URL(request.url);
     const view = url.searchParams.get('view');
-    const group_id = url.searchParams.get('group');
+    let group_id = undefined;
+    const s_group_id = url.searchParams.get('group');
+    if (s_group_id)
+        group_id = +s_group_id;
     const params = '?format=json&app=todo' + (view ? `&view=${view}` : group_id ? `&group=${group_id}` : '');
     const res = await fetch(apiUrl +  'api/env/' + params, options);
     const resp_data = await res.json();
@@ -105,8 +106,8 @@ function TodoPage() {
         <>
             <SideBarTop />
             <div className="container-xxl my-md-2 gap-0 px-0 bd-layout">
-                <SideBar config={config}/>
-                <TodoContent config={config}/>
+                <SideBar config={config} />
+                <Outlet context={config} />
             </div>
         </>
     );

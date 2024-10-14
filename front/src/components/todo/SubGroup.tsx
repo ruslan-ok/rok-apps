@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { apiUrl } from '../auth/Auth';
 import type { MouseEvent } from 'react'
 import type { PageConfigInfo } from './TodoPage';
@@ -50,7 +51,7 @@ export class SubGroupInfo {
 export function fillSubGroups(data: ItemInfo[], config: PageConfigInfo) {
     let subGroups: SubGroupInfo[] = [];
     for (const item of data) {
-        const sgId = item.sub_group_id;
+        const sgId = config.use_sub_groups ? item.sub_group_id : 0;
         let sg = subGroups.find(x => +x.id === +sgId);
         if (!sg) {
             sg = new SubGroupInfo(sgId);
@@ -66,7 +67,7 @@ export function fillSubGroups(data: ItemInfo[], config: PageConfigInfo) {
     return subGroups;
 }
 
-async function toggleSubGroup(event: MouseEvent<HTMLElement>) {
+async function _toggleSubGroup(event: MouseEvent<HTMLElement>) {
     let el = event.target as HTMLElement;
     if (el.tagName !== 'BUTTON' && el.parentElement) {
         el = el.parentElement;
@@ -78,7 +79,7 @@ async function toggleSubGroup(event: MouseEvent<HTMLElement>) {
         if (hidden) {
             hidden.classList.toggle('d-none');
         }
-        if (hidden) {
+        if (hidden && hidden.classList.contains('d-none')) {
             el.children[0].classList.remove('bi-chevron-down');
             el.children[0].classList.add('bi-chevron-right');
         } else {
@@ -102,20 +103,26 @@ async function toggleSubGroup(event: MouseEvent<HTMLElement>) {
 }
 
 function SubGroup({subGroup, config}: {subGroup: SubGroupInfo, config: PageConfigInfo}) {
-    const itemsList = subGroup.items.map(x => <ListItem key={x.id} item={x} config={config} />);
-    if (!subGroup.name)
-        return <>{itemsList}</>;
-
+    const [is_open, setIsOpen] = useState<boolean>(subGroup.is_open);
+    async function toggleSubGroup(event: MouseEvent<HTMLElement>) {
+        setIsOpen(!is_open);
+        await _toggleSubGroup(event);
+    }
     const sgClass = `sub-group__icon bi-chevron-${subGroup.is_open ? 'down': 'right'}`;
     const sgId = `id-sub-group-${subGroup.id}`;
-    const itemsClass = !subGroup.items.length || !subGroup.is_open ? 'd-none' : '';
+    const showSG = subGroup.name && config.use_sub_groups && subGroup.items.length;
+    const itemsClass = showSG && !subGroup.is_open ? 'd-none' : '';
+    const itemsVisible = !showSG || is_open;
+    const itemsList = subGroup.items.map(x => <ListItem key={x.id} item={x} visible={itemsVisible} config={config} />);
     return (
         <div>
-            <button className="sub-group" onClick={toggleSubGroup} data-id={subGroup.id} data-group_id={config.cur_view_group_id} >
-                <i className={sgClass}></i>
-                <span className="sub-group__name">{subGroup.name}</span>
-                <span className="sub-group__qty">{subGroup.items.length}</span>
-            </button>
+            {showSG &&
+                <button className="sub-group" onClick={toggleSubGroup} data-id={subGroup.id} data-group_id={config.group_id} >
+                    <i className={sgClass}></i>
+                    <span className="sub-group__name">{subGroup.name}</span>
+                    <span className="sub-group__qty">{subGroup.items.length}</span>
+                </button>
+            }
             <ul id={sgId} className={itemsClass}>
                 {itemsList}
             </ul>

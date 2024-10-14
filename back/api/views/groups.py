@@ -18,7 +18,7 @@ class GroupViewSet(ModelViewSet):
             return None
         app = self.request.query_params.get('app')
         role = self.request.query_params.get('role')
-        queryset = Group.objects.filter(user=self.request.user, app=app, role=role)
+        queryset = Group.objects.filter(user=self.request.user, app=app, role=role, determinator=None)
         return queryset
 
 @api_view(['GET'])
