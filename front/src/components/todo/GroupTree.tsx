@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { redirect, Link } from "react-router-dom";
-import { auth, apiUrl } from '../auth/Auth';
+import { Link } from "react-router-dom";
+import { auth as api } from '../auth/Auth';
 import type { PageConfigInfo } from './TodoPage'
 
 interface GroupItem {
@@ -170,30 +170,11 @@ function hierToFlat(root: number[]): Array<number> {
     return ret;
 }
 
-async function loadData(config: PageConfigInfo): Promise<GroupItem[]> {
-    await auth.init();
-    if (!auth.isAuthenticated) {
-        throw redirect('/login');
-    }
-    const cred: RequestCredentials = 'include';
-    const headers =  {'Content-type': 'application/json'};
-    const options = { 
-      method: 'GET', 
-      headers: headers,
-      credentials: cred,
-    };
-    const params = `?format=json&role=${config.role}&app=${config.app}`;
-    const res = await fetch(apiUrl +  'api/group/' + params, options);
-    const resp_data = await res.json();
-    return resp_data;
-}
-
 function GroupTree({config}: {config: PageConfigInfo}) {
     const [items, setData] = useState<GroupItem[]>([]);
     useEffect(() => {
         const getData = async () => {
-          const data = await loadData(config);
-          const items = data as GroupItem[];
+          const items: GroupItem[] = await api.get('group', {'app': config.app, 'role': config.role});
           setData(items);
         };
       

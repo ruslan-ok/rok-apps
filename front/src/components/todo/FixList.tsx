@@ -1,35 +1,18 @@
 import { useState, useEffect } from "react";
-import { redirect } from "react-router-dom";
-import { auth, apiUrl } from '../auth/Auth';
+import { auth as api } from '../auth/Auth';
 import type { PageConfigInfo } from './TodoPage';
 import type { FixItemInfo } from './FixItem';
 import FixItem from './FixItem';
-
-async function loadData(config: PageConfigInfo): Promise<FixItemInfo[]> {
-    await auth.init();
-    if (!auth.isAuthenticated) {
-        throw redirect('/login');
-    }
-    const cred: RequestCredentials = 'include';
-    const headers =  {'Content-type': 'application/json'};
-    const options = { 
-      method: 'GET', 
-      headers: headers,
-      credentials: cred,
-    };
-    const params = `?format=json&app=${config.app}` + (config.view ? `&view=${config.view}` : '');
-    const res = await fetch(apiUrl +  'api/fixed/' + params, options);
-    const resp_data = await res.json();
-    return resp_data;
-}
 
 function FixList({config}: {config: PageConfigInfo}) {
     const [items, setData] = useState<FixItemInfo[]>([]);
     useEffect(() => {
         const getData = async () => {
-          const data = await loadData(config);
-          const items = data as FixItemInfo[];
-          setData(items);
+            let params = {'app': config.app};
+            if (config.view)
+                params = Object.assign(params, {'view': config.view});
+            const items: FixItemInfo[] = await api.get('fixed', params);
+            setData(items);
         };
       
         getData();

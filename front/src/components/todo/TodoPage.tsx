@@ -1,5 +1,5 @@
 import { redirect, useLoaderData, Outlet } from "react-router-dom";
-import { auth, apiUrl } from '../auth/Auth';
+import { auth as api } from '../auth/Auth';
 import SideBarTop from './SideBarTop';
 import SideBar from './SideBar';
 
@@ -70,27 +70,25 @@ export interface PageConfigInfo {
 }
   
 export async function loader({request}: {request: Request}): Promise<PageConfigInfo> {
-    await auth.init();
-    if (!auth.isAuthenticated) {
+    await api.init();
+    if (!api.isAuthenticated) {
         throw redirect('/login');
     }
-    const cred: RequestCredentials = 'include';
-    const headers =  {'Content-type': 'application/json'};
-    const options = { 
-      method: 'GET', 
-      headers: headers,
-      credentials: cred,
-    };
     const url = new URL(request.url);
     const view = url.searchParams.get('view');
     let group_id = undefined;
     const s_group_id = url.searchParams.get('group');
     if (s_group_id)
         group_id = +s_group_id;
-    const params = '?format=json&app=todo' + (view ? `&view=${view}` : group_id ? `&group=${group_id}` : '');
-    const res = await fetch(apiUrl +  'api/env/' + params, options);
-    const resp_data = await res.json();
-    return Object.assign(resp_data, {
+
+    let params = {app: 'todo'};
+    if (view)
+        params = Object.assign(params, {view: view});
+    if (group_id)
+        params = Object.assign(params, {group: group_id});
+    let data = await api.get('env', params);
+
+    data = Object.assign(data, {
         app: 'todo', 
         role: 'todo', 
         view: view, 
@@ -98,6 +96,7 @@ export async function loader({request}: {request: Request}): Promise<PageConfigI
         entity: 'group',
         use_groups: true,
     });
+    return data;
 }
   
 function TodoPage() {

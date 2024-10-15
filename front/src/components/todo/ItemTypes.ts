@@ -230,13 +230,13 @@ class Termin {
 
 export class ItemInfo {
     categories: string | null;
-    completed: boolean | null;
+    completed: boolean;
     completion: string | null;
     created: string | null;
     event: string | null;
     groups: number[] | null;
     id: number | null;
-    important: boolean | null;
+    important: boolean;
     in_my_day: boolean | null;
     info: string | null;
     last_mod: string | null;

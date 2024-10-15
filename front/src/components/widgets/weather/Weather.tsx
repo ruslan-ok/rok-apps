@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Form } from 'react-router-dom';
-import { apiUrl } from '../../auth/Auth';
+import { auth as api } from '../../auth/Auth';
 import Spinner from '../../Spinner';
 import WeatherNow from './WeatherNow';
 import WeatherForTheDay from './WeatherForTheDay';
@@ -79,24 +79,21 @@ export default function Weather({screenWidth}: {screenWidth: number}) {
                 setMessage('Define the location.');
             }
             else{
-                const url = apiUrl + `api/chart/?mark=weather&version=v2&location=${loc}&lat=${lat}&lon=${lon}`;
-                const cred: RequestCredentials = 'include';
-                const options = {
-                    method: 'GET',
-                    headers: {'Content-type': 'application/json'},
-                    credentials: cred,
+                const params = {
+                    mark: 'weather',
+                    version: 'v2',
+                    location: loc,
+                    lat: lat,
+                    lon: lon,
                 };
-                const response = await fetch(url, options);
-                if (response.ok) {
-                    let resp_data = await response.json();
-                    if (resp_data) {
-                        setValues(resp_data.data);
-                        if (resp_data.result === 'ok')
-                            setStatus('ready');
-                        else {
-                            setStatus('mess');
-                            setMessage(resp_data.procedure + ': ' + resp_data.info);
-                        }
+                let resp_data = await api.get('chart', params);
+                if (resp_data) {
+                    setValues(resp_data.data);
+                    if (resp_data.result === 'ok')
+                        setStatus('ready');
+                    else {
+                        setStatus('mess');
+                        setMessage(resp_data.procedure + ': ' + resp_data.info);
                     }
                 }
             }

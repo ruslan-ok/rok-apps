@@ -1,25 +1,32 @@
+import type { MouseEvent } from 'react'
 import { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
-import { apiUrl } from '../auth/Auth';
+import { auth as api } from '../auth/Auth';
 import type { PageConfigInfo } from './TodoPage';
 import { ItemInfo, ExtraInfo } from './ItemTypes';
 import '../css/category.min.css'
 
 
-function toggleCompleted(e) {
-    console.log(e); // "toggleCompleted({{ item.id|escape }})"
-}
+function Completed({item, config, update}: {item: ItemInfo, config: PageConfigInfo, update: Function}) {
+    const [itemCompleted, setCompleted] = useState<boolean>(item.completed);
 
-function toggleImportant(e) {
-    console.log(e); // "toggleImportant({{ item.id|escape }})"
-}
+    function changeCompleted(newValue: boolean) {
+        setCompleted(newValue);
+        update();
+    }
 
-function Completed({item, config}: {item: ItemInfo, config: PageConfigInfo}) {
+    async function toggleCompleted(event: MouseEvent<HTMLElement>) {
+        const {todo_id, completed} = api.buttonData(event, ['todo_id', 'completed']);
+        const newCompleted = completed !== 'true';
+        await api.post(`todo/${todo_id}/completed`, {'value': newCompleted});
+        changeCompleted(newCompleted);
+    }
+    
     if (!config.use_selector)
         return <></>;
-    const completedClass = item.completed ? 'bi-check-circle-fill' : 'bi-circle';
+    const completedClass = itemCompleted ? 'bi-check-circle-fill' : 'bi-circle';
     return (
-        <button onClick={toggleCompleted} className="left-icon">
+        <button onClick={toggleCompleted} className="left-icon" data-todo_id={item.id} data-completed={itemCompleted} >
             <i className={completedClass}></i>
         </button>
     );
@@ -205,31 +212,27 @@ function Tile({item, extra, config}: {item: ItemInfo, extra: ExtraInfo, config: 
 }
 
 function Important({item, config}: {item: ItemInfo, config: PageConfigInfo}) {
+
+    const [itemImportant, setImportant] = useState<boolean>(item.important);
+
+    async function toggleImportant(event: MouseEvent<HTMLElement>) {
+        const {todo_id, important} = api.buttonData(event, ['todo_id', 'important']);
+        const newImportant = important !== 'true';
+        setImportant(newImportant);
+        await api.post(`todo/${todo_id}/important`, {'value': newImportant});
+    }
+        
     if (!config.use_important)
         return <></>;
-    const importantClass = 'bi-star' + (item.important ? 'fill' : '');
+    const importantClass = 'bi-star' + (itemImportant ? '-fill' : '');
     return (
-        <button onClick={toggleImportant} className="right-icon">
+        <button onClick={toggleImportant} className="right-icon" data-todo_id={item.id} data-important={itemImportant} >
             <i className={importantClass}></i>
         </button>
     );
 }
 
-async function loadData(item: ItemInfo, config: PageConfigInfo): Promise<ExtraInfo> {
-    const cred: RequestCredentials = 'include';
-    const headers =  {'Content-type': 'application/json'};
-    const options = { 
-      method: 'GET', 
-      headers: headers,
-      credentials: cred,
-    };
-    const params = `?format=json&role=${config.role}&app=${config.app}`;
-    const res = await fetch(apiUrl + `api/todo_extra/${item.id}` + params, options);
-    const resp_data = await res.json();
-    return Object.assign(resp_data, {'initialized': true});
-}
-
-function ListItem({item, visible, config}: {item: ItemInfo, visible: boolean, config: PageConfigInfo}) {
+function ListItem({item, visible, config, update}: {item: ItemInfo, visible: boolean, config: PageConfigInfo, update: Function}) {
     const emptyExtra: ExtraInfo = {
         initialized: false,
         roles: [],
@@ -246,9 +249,9 @@ function ListItem({item, visible, config}: {item: ItemInfo, visible: boolean, co
     const [extra, setData] = useState<ExtraInfo>(emptyExtra);
     useEffect(() => {
         const getData = async () => {
-          const data = await loadData(item, config);
-          const extra = data as ExtraInfo;
-          setData(extra);
+            const data = await api.get(`todo/${item.id}/extra`, {'app': config.app, 'role': config.role});
+            const extra: ExtraInfo = Object.assign(data, {'initialized': true});
+            setData(extra);
         };
         if (visible && !extra.initialized)
             getData();
@@ -257,7 +260,7 @@ function ListItem({item, visible, config}: {item: ItemInfo, visible: boolean, co
     const item_class = `list-item${!config.use_selector && config.role !== 'search' ? ' px-3' : ''}`;
     return (
         <li className={item_class}>
-            <Completed item={item} config={config} />
+            <Completed item={item} config={config} update={update} />
             <Roles extra={extra} config={config} />
             <Tile item={item} extra={extra} config={config} />
             <Important item={item} config={config} />

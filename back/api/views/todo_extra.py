@@ -1,13 +1,16 @@
-from rest_framework.decorators import api_view, permission_classes
+from django.shortcuts import get_object_or_404
+# from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
 from task.const import APP_TODO, ROLE_TODO
-from task.models import TaskGroup, TaskRoleInfo, Urls, Step
+from task.models import Task, TaskGroup, TaskRoleInfo, Urls, Step
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
-def todo_extra(request, pk):
+def extra(request, pk):
     app = request.query_params.get('app', APP_TODO)
     role = request.query_params.get('role', ROLE_TODO)
     group_name = ''
@@ -41,3 +44,19 @@ def todo_extra(request, pk):
         'has_links': has_links,
     }
     return Response(data)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticatedOrReadOnly])
+def completed(request, pk):
+    task = get_object_or_404(Task.objects.filter(user=request.user.id, id=pk))
+    task.toggle_completed(do_complete=True)
+    return Response({'result': 'ok'})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([SessionAuthentication])
+def important(request, pk):
+    task = get_object_or_404(Task.objects.filter(user=request.user.id, id=pk))
+    task.important = not task.important
+    task.save()
+    return Response({'result': 'ok'})

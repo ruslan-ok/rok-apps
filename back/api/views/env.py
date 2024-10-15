@@ -59,6 +59,7 @@ def env(request):
             'grp_services_visible': grp.services_visible,
             'cur_view_group_id': grp.id,
             'determinator': grp.determinator,
+            'view_id': grp.view_id,
         })
         if grp.items_sort:
             data['sort_id'] = grp.items_sort

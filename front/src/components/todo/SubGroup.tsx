@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { apiUrl } from '../auth/Auth';
 import type { MouseEvent } from 'react'
+import { auth as api } from '../auth/Auth';
 import type { PageConfigInfo } from './TodoPage';
 import { ItemInfo } from './ItemTypes';
 import ListItem from './ListItem';
@@ -68,44 +68,31 @@ export function fillSubGroups(data: ItemInfo[], config: PageConfigInfo) {
 }
 
 async function _toggleSubGroup(event: MouseEvent<HTMLElement>) {
+    const {group_id, sub_group_id} = api.buttonData(event, ['group_id', 'sub_group_id']);
+    const strSgId = `id-sub-group-${+sub_group_id}`;
+    const hidden = document.getElementById(strSgId);
+    if (hidden) {
+        hidden.classList.toggle('d-none');
+    }
     let el = event.target as HTMLElement;
     if (el.tagName !== 'BUTTON' && el.parentElement) {
         el = el.parentElement;
     }
-    if (el.dataset.id) {
-        const sgId = +el.dataset.id;
-        const strSgId = `id-sub-group-${sgId}`;
-        const hidden = document.getElementById(strSgId);
-        if (hidden) {
-            hidden.classList.toggle('d-none');
-        }
-        if (hidden && hidden.classList.contains('d-none')) {
-            el.children[0].classList.remove('bi-chevron-down');
-            el.children[0].classList.add('bi-chevron-right');
-        } else {
-            el.children[0].classList.remove('bi-chevron-right');
-            el.children[0].classList.add('bi-chevron-down');
-        }
-        if (el.dataset.group_id) {
-            const grpId = +el.dataset.group_id;
-            const cred: RequestCredentials = 'include';
-            const headers =  {'Content-type': 'application/json'};
-            const options = { 
-                method: 'GET', 
-                headers: headers,
-                credentials: cred,
-            };
-            const url = `api/toggle_sub_group/`;
-            const params = `?format=json&group_id=${grpId}&sub_group_id=${sgId}`;
-            fetch(apiUrl +  url + params, options);
-        }
+    if (hidden && hidden.classList.contains('d-none')) {
+        el.children[0].classList.remove('bi-chevron-down');
+        el.children[0].classList.add('bi-chevron-right');
+    } else {
+        el.children[0].classList.remove('bi-chevron-right');
+        el.children[0].classList.add('bi-chevron-down');
     }
+    await api.post(`group/${+group_id}/toggle_sub_group`, {'sub_group_id': +sub_group_id});
 }
 
-function SubGroup({subGroup, config}: {subGroup: SubGroupInfo, config: PageConfigInfo}) {
+function SubGroup({subGroup, config, update}: {subGroup: SubGroupInfo, config: PageConfigInfo, update: Function}) {
     const [is_open, setIsOpen] = useState<boolean>(subGroup.is_open);
     async function toggleSubGroup(event: MouseEvent<HTMLElement>) {
-        setIsOpen(!is_open);
+        const new_is_open = !is_open;
+        setIsOpen(new_is_open);
         await _toggleSubGroup(event);
     }
     const sgClass = `sub-group__icon bi-chevron-${subGroup.is_open ? 'down': 'right'}`;
@@ -113,11 +100,11 @@ function SubGroup({subGroup, config}: {subGroup: SubGroupInfo, config: PageConfi
     const showSG = subGroup.name && config.use_sub_groups && subGroup.items.length;
     const itemsClass = showSG && !subGroup.is_open ? 'd-none' : '';
     const itemsVisible = !showSG || is_open;
-    const itemsList = subGroup.items.map(x => <ListItem key={x.id} item={x} visible={itemsVisible} config={config} />);
+    const itemsList = subGroup.items.map(x => <ListItem key={x.id} item={x} visible={itemsVisible} config={config} update={update} />);
     return (
         <div>
             {showSG &&
-                <button className="sub-group" onClick={toggleSubGroup} data-id={subGroup.id} data-group_id={config.group_id} >
+                <button className="sub-group" onClick={toggleSubGroup} data-group_id={config.cur_view_group_id} data-sub_group_id={subGroup.id} >
                     <i className={sgClass}></i>
                     <span className="sub-group__name">{subGroup.name}</span>
                     <span className="sub-group__qty">{subGroup.items.length}</span>

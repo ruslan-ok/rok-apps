@@ -1,4 +1,6 @@
+import type { MouseEvent } from 'react'
 import { Link } from 'react-router-dom';
+import { auth as api } from '../auth/Auth';
 import type { PageConfigInfo } from './TodoPage';
 
 
@@ -25,14 +27,16 @@ function PageTitle({config}: {config: PageConfigInfo}) {
     function setSort() {
         console.log('setSort');
     }
-    function setTheme() {
-        console.log('setTheme');
+
+    async function setTheme(event: MouseEvent<HTMLElement>) {
+        const {group_id, theme_id} = api.buttonData(event, ['group_id', 'theme_id']);
+        await api.post(`group/${group_id}/theme`, {'theme': theme_id});
     }
-    function toggleSubGroups() {
-        console.log('toggleSubGroups');
-    }
-    function toggleServicesVisible() {
-        console.log('toggleServicesVisible');
+
+    async function toggleSubGroups(event: MouseEvent<HTMLElement>) {
+        const {group_id, value} = api.buttonData(event, ['group_id', 'value']);
+        const newValue = value !== 'true';
+        await api.post(`group/${group_id}/use_groups`, {'value': newValue});
     }
     
     const dark_theme = config.dark_theme ? ' dark-theme' : '';
@@ -79,7 +83,7 @@ function PageTitle({config}: {config: PageConfigInfo}) {
     const themeClass = `btn bi-gear${dark_theme}`;
     const themeButtons = config.themes.map(theme => {
         const btnClass = `btn theme ${theme.style}`;
-        return <button key={theme.id} type="button" className={btnClass} onClick={setTheme}></button>;
+        return <button key={theme.id} type="button" className={btnClass} onClick={setTheme} data-group_id={config.cur_view_group_id} data-theme_id={theme.id} ></button>;
     });
     const hdrClass = `content-title__text${dark_theme}`;
     const sortClass = `btn bi-sort-alpha-down${dark_theme}`;
@@ -138,13 +142,6 @@ function PageTitle({config}: {config: PageConfigInfo}) {
                                     <input type="checkbox" name="use_sub_groups" id="id_use_sub_groups"
                                         className="form-check-input" onClick={toggleSubGroups} defaultChecked={config.use_sub_groups} />
                                     <label htmlFor="id_use_sub_groups" className="form-check-label">Use groups</label>
-                                </div>
-                            }
-                            {config.grp_view_id === 'planned' &&
-                                <div className="form-check form-switch my-1 mx-1">
-                                    <input type="checkbox" name="services_visible" id="id_services_visible" className="form-check-input" 
-                                        onClick={toggleServicesVisible} defaultChecked={config.grp_services_visible} />
-                                    <label htmlFor="id_services_visible" className="form-check-label">Services visible</label>
                                 </div>
                             }
                         </ul>

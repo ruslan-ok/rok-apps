@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { redirect, useOutletContext } from "react-router-dom";
-import { auth, apiUrl } from '../auth/Auth';
+import { useOutletContext } from "react-router-dom";
+import { auth as api } from '../auth/Auth';
 import type { PageConfigInfo } from './TodoPage';
 import type { SubGroupInfo } from './SubGroup';
 import { fillSubGroups } from './SubGroup';
@@ -8,37 +8,29 @@ import SubGroup from './SubGroup';
 import PageTitle from './PageTitle';
 import { ItemInfo } from './ItemTypes';
 
-export async function loadData(config: PageConfigInfo): Promise<ItemInfo[]> {
-    await auth.init();
-    if (!auth.isAuthenticated) {
-        throw redirect('/login');
-    }
-    const cred: RequestCredentials = 'include';
-    const headers =  {'Content-type': 'application/json'};
-    const options = { 
-      method: 'GET', 
-      headers: headers,
-      credentials: cred,
-    };
-    const params = `?format=json` + (config.view ? `&view=${config.view}` : '') + (config.group_id ? `&group=${config.group_id}` : '');
-    const res = await fetch(apiUrl +  'api/todo/' + params, options);
-    const resp_data = await res.json();
-    return resp_data;
-}
-
 function TodoListPage() {
     const config = useOutletContext() as PageConfigInfo;
     const [cur_view_group_id, setGroup] = useState<number|undefined>(config.cur_view_group_id);
     const [data, setData] = useState<Object[]>([]);
+    const [childrenChanged, setChildrenChanged] = useState<boolean>(false);
     useEffect(() => {
         const getData = async () => {
-          const data = await loadData(config);
-          setData(data);
-          setGroup(config.cur_view_group_id);
+            let params = {};
+            if (config.view)
+                params = Object.assign(params, {'view': config.view});
+            if (config.group_id)
+                params = Object.assign(params, {'group': config.group_id});
+            const data: ItemInfo[] = await api.get('todo', params);
+            setData(data);
+            setGroup(config.cur_view_group_id);
         };
       
         getData();
-    }, [config]);
+    }, [config, childrenChanged]);
+
+    function updateFromChild() {
+        setChildrenChanged(!childrenChanged);
+    }
 
     function compareSG(a: SubGroupInfo, b: SubGroupInfo): number {
         return a.id - b.id;
@@ -49,7 +41,7 @@ function TodoListPage() {
     const validSG = subGroups.filter(x => x.items.length).sort(compareSG);
     let sgList;
     if (validSG.length) {
-        sgList = validSG.map(x => { return <SubGroup key={x.id} subGroup={x} config={config} /> });
+        sgList = validSG.map(x => { return <SubGroup key={x.id} subGroup={x} config={config} update={updateFromChild} /> });
     } else {
         sgList = <></>;
     }

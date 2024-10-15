@@ -1,5 +1,5 @@
 import './TodoItem.css';
-import { apiUrl } from '../../auth/Auth';
+import { auth as api } from '../../auth/Auth';
 
 interface Step {
     id: number;
@@ -35,35 +35,26 @@ export interface Todo {
 export default function TodoItem({ todo, doRedraw }: { todo: Todo, doRedraw: () => void }) {
     const event = todo.stop.toLocaleDateString().replace('/', '.').replace('/', '.');
 
-    async function toggle(method: string, id: number) {
-        const url = apiUrl + `api/tasks/${id}/${method}/?format=json`;
-        const cred: RequestCredentials = 'include';
-        const options = {
-            method: 'GET',
-            headers: { 'Content-type': 'application/json' },
-            credentials: cred,
-        };
-        const response = await fetch(url, options);
-        if (response.ok) {
-            let resp_data = await response.json();
-            if (resp_data) {
-                doRedraw();
-            }
-        }
+    async function toggle(method: string, id: number, value: string) {
+        const newValue = value !== 'true';
+        await api.post(`todo/${id}/${method}`, {'value': newValue});
+        doRedraw();
     }
 
     function toggleCompleted(event: any) {
         const id = event.currentTarget.parentNode.dataset.id;
-        toggle('completed', id);
+        const value = event.currentTarget.parentNode.dataset.completed;
+        toggle('completed', id, value);
     }
 
     function toggleImportant(event: any) {
         const id = event.currentTarget.parentNode.dataset.id;
-        toggle('important', id);
+        const value = event.currentTarget.parentNode.dataset.important;
+        toggle('important', id, value);
     }
 
     return (
-        <div className='todo-item' data-id={todo.id}>
+        <div className='todo-item' data-id={todo.id} data-completed={todo.completed} data-important={todo.important} >
             <button type="button" className="left-icon" onClick={toggleCompleted}>
                 <i className="bi-circle"></i>
             </button>

@@ -27,8 +27,10 @@ urlpatterns = [
     path('fixed/', fixed.fixed),
     path('chart/', chart.chart),
     path('groups_test/', groups.groups_test),
-    path('toggle_sub_group/', toggle.toggle_sub_group),
-    path('todo_extra/<int:pk>/', todo_extra.todo_extra),
+    path('group/<int:pk>/toggle_sub_group/', toggle.toggle_sub_group),
+    path('todo/<int:pk>/extra/', todo_extra.extra),
+    path('todo/<int:pk>/completed/', todo_extra.completed),
+    path('todo/<int:pk>/important/', todo_extra.important),
 
     path('', include(api_router.urls)),
 ]

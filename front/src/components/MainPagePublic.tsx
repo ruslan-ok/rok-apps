@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { apiUrl } from './auth/Auth';
+import { auth as api } from './auth/Auth';
 
 interface ApplicationDescr {
     app_id: string;
@@ -25,26 +25,12 @@ interface ParsedAppInfo {
     features: string[],
 }
 
-async function loadData(): Promise<MainPageInfo> {
-    const cred: RequestCredentials = 'include';
-    const headers =  {'Content-type': 'application/json'};
-    const options = { 
-        method: 'GET', 
-        headers: headers,
-        credentials: cred,
-    };
-    const params = '?format=json';
-    const res = await fetch(apiUrl +  'api/main_page/' + params, options);
-    const resp_data = await res.json();
-    return resp_data;
-}
-
 function MainPagePublic() {
     const [data, setData] = useState<MainPageInfo>([]);
     useEffect(() => {
         const getData = async () => {
-          const data = await loadData();
-          setData(data);
+            const data: MainPageInfo = await api.get('main_page', {});
+            setData(data);
         };
       
         getData();
