@@ -14,7 +14,7 @@ import { Line } from 'react-chartjs-2';
 import 'chartjs-adapter-moment';
 
 import Spinner from '../Spinner';
-import { apiUrl } from '../auth/Auth';
+import { auth as api } from '../auth/Auth';
 
 import './Crypto.css';
   
@@ -52,20 +52,10 @@ function Crypto({screenWidth}: {screenWidth: number}) {
     useEffect(() => {
         async function getData() {
             setStatus('updating');
-            const url = apiUrl + 'api/chart/?mark=crypto&version=v2&period=' + period;
-            const cred: RequestCredentials = 'include';
-            const options = {
-                method: 'GET',
-                headers: {'Content-type': 'application/json'},
-                credentials: cred,
-            };
-            const response = await fetch(url, options);
-            if (response.ok) {
-                let widgetData = await response.json();
-                if (widgetData) {
-                    setWidgetData(widgetData);
-                    setStatus('ready');
-                }
+            let widgetData = await api.get('chart', {mark: 'crypto', version: 'v2', period: period});
+            if (widgetData) {
+                setWidgetData(widgetData);
+                setStatus('ready');
             }
         }
         getData();

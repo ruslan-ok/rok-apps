@@ -1,13 +1,13 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth } from './Auth';
+import { auth as api } from './Auth';
 
 function Demo() {
     const navigate = useNavigate();
 
     useEffect(() => {
         async function action() {
-            await auth.demo();
+            await api.demo();
             navigate('/');
         }
         

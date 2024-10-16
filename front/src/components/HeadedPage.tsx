@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Outlet } from "react-router-dom";
   
-import { auth, apiUrl } from './auth/Auth';
+import { auth as api } from './auth/Auth';
 import type { HeaderData } from './header/Header';
 import Header from './header/Header';
 
 export async function loader(): Promise<HeaderData> {
-    await auth.init();
+    await api.init();
     const cred: RequestCredentials = 'include';
     const options = { 
         method: 'GET', 
@@ -15,9 +15,7 @@ export async function loader(): Promise<HeaderData> {
         },
         credentials: cred,
     };
-    const res = await fetch(apiUrl +  'api/header/', options);
-    const resp_data = await res.json();
-    return resp_data;
+    return await api.get('header', {});
 }
   
 function HeadedPage() {

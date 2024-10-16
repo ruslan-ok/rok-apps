@@ -8,9 +8,9 @@ function FixList({config}: {config: PageConfigInfo}) {
     const [items, setData] = useState<FixItemInfo[]>([]);
     useEffect(() => {
         const getData = async () => {
-            let params = {'app': config.app};
+            let params = {app: config.app};
             if (config.view)
-                params = Object.assign(params, {'view': config.view});
+                params = Object.assign(params, {view: config.view});
             const items: FixItemInfo[] = await api.get('fixed', params);
             setData(items);
         };

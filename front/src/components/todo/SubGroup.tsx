@@ -85,7 +85,7 @@ async function _toggleSubGroup(event: MouseEvent<HTMLElement>) {
         el.children[0].classList.remove('bi-chevron-right');
         el.children[0].classList.add('bi-chevron-down');
     }
-    await api.post(`group/${+group_id}/toggle_sub_group`, {'sub_group_id': +sub_group_id});
+    await api.post(`group/${+group_id}/toggle_sub_group`, {sub_group_id: +sub_group_id});
 }
 
 function SubGroup({subGroup, config, update}: {subGroup: SubGroupInfo, config: PageConfigInfo, update: Function}) {

@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 import {
     Link,
     Form,
@@ -8,7 +10,7 @@ import {
     useNavigation,
 } from "react-router-dom";
 
-import { auth } from './Auth';
+import { auth as api } from './Auth';
 
 import './Login.css';
 
@@ -34,7 +36,7 @@ export async function action({ request }: ActionFunctionArgs): Promise<LoginResu
     }
   
     try {
-        const tmp: any = await auth.login(username, password);
+        const tmp: any = await api.login(username, password);
         response = tmp;
     } catch (error) {
         // Unused as of now but this is how you would handle invalid
@@ -60,7 +62,15 @@ function Login() {
     let isLoggingIn = navigation.formData?.get("username") != null;
   
     const actionData = useActionData() as LoginResult;
-  
+
+    useEffect(() => {
+        async function csrf_setup() {
+            await api.get('csrf_setup', {});
+        }
+        
+        csrf_setup();
+    }, []);
+    
     return (
       <div className="form-container rok-login">
         <Form method="post">

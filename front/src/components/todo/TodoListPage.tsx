@@ -17,9 +17,9 @@ function TodoListPage() {
         const getData = async () => {
             let params = {};
             if (config.view)
-                params = Object.assign(params, {'view': config.view});
+                params = Object.assign(params, {view: config.view});
             if (config.group_id)
-                params = Object.assign(params, {'group': config.group_id});
+                params = Object.assign(params, {group: config.group_id});
             const data: ItemInfo[] = await api.get('todo', params);
             setData(data);
             setGroup(config.cur_view_group_id);

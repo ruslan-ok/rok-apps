@@ -15,7 +15,7 @@ import { Line } from 'react-chartjs-2';
 import 'chartjs-adapter-moment';
 
 import Spinner from '../Spinner';
-import { apiUrl } from '../auth/Auth';
+import { auth as api } from '../auth/Auth';
 
 import './Weight.css';
   
@@ -57,20 +57,10 @@ function Weight({screenWidth}: {screenWidth: number}) {
     useEffect(() => {
         async function getData() {
             setStatus('updating');
-            const url = apiUrl + 'api/chart/?mark=health&version=v2&period=' + period;
-            const aaa: RequestCredentials = 'include';
-            const options = {
-                method: 'GET',
-                headers: {'Content-type': 'application/json'},
-                credentials: aaa,
-            };
-            const response = await fetch(url, options);
-            if (response.ok) {
-                let widgetData = await response.json();
-                if (widgetData) {
-                    setWidgetData(widgetData);
-                    setStatus('ready');
-                }
+            let widgetData = await api.get('chart', {mark: 'health', version: 'v2', period: period});
+            if (widgetData) {
+                setWidgetData(widgetData);
+                setStatus('ready');
             }
         }
         getData();
@@ -93,19 +83,9 @@ function Weight({screenWidth}: {screenWidth: number}) {
 
     async function saveNewWeight(newWeight: number) {
         const value = newWeight.toString();
-        const url = apiUrl + `api/tasks/add_item/?format=json&app=health&role=marker&name=${value}&group_id=health-marker`;
-        const cred: RequestCredentials = 'include';
-        const options = {
-            method: 'GET',
-            headers: {'Content-type': 'application/json'},
-            credentials: cred,
-        };
-        const response = await fetch(url, options);
-        if (response.ok) {
-            let resp_data = await response.json();
-            if (resp_data) {
-                setRedraw(redraw === '0' ? '1' : '0');
-            }
+        let resp_data = await api.get(`tasks/add_item`, {app: 'health', role: 'marker', name: value, group_id: 'health-marker'});
+        if (resp_data) {
+            setRedraw(redraw === '0' ? '1' : '0');
         }
     }
 

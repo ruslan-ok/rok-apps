@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Spinner from '../Spinner';
-import { apiUrl } from '../auth/Auth';
+import { auth as api } from '../auth/Auth';
 
 import '../css/LastVisited.min.css';
 
@@ -15,29 +15,19 @@ export default function LastVisited({screenWidth}: {screenWidth: number}) {
 
         async function getData() {
             setStatus('updating');
-            const url = apiUrl + `api/chart/?mark=visited`;
-            const cred: RequestCredentials = 'include';
-            const options = {
-                method: 'GET',
-                headers: {'Content-type': 'application/json'},
-                credentials: cred,
-            };
-            const response = await fetch(url, options);
-            if (response.ok) {
-                let resp_data = await response.json();
-                if (resp_data) {
-                    setValues(resp_data);
-                    if (resp_data.result === 'ok') {
-                        setStatus('ready');
+            let resp_data = await api.get('chart', {mark: 'visited'});
+            if (resp_data) {
+                setValues(resp_data);
+                if (resp_data.result === 'ok') {
+                    setStatus('ready');
+                }
+                else {
+                    setStatus('mess');
+                    let prefix = '';
+                    if (resp_data.procedure) {
+                        prefix = resp_data.procedure + ': ';
                     }
-                    else {
-                        setStatus('mess');
-                        let prefix = '';
-                        if (resp_data.procedure) {
-                            prefix = resp_data.procedure + ': ';
-                        }
-                        setMessage(prefix + resp_data.info);
-                    }
+                    setMessage(prefix + resp_data.info);
                 }
             }
         }
@@ -46,19 +36,9 @@ export default function LastVisited({screenWidth}: {screenWidth: number}) {
     }, [redraw]);
 
     async function toggle(id: number) {
-        const url = apiUrl + `api/visited/${id}/toggle_pin/?format=json`;
-        const cred: RequestCredentials = 'include';
-        const options = {
-            method: 'GET',
-            headers: { 'Content-type': 'application/json' },
-            credentials: cred,
-        };
-        const response = await fetch(url, options);
-        if (response.ok) {
-            let resp_data = await response.json();
-            if (resp_data) {
-                setRedraw(redraw === '0' ? '1' : '0');
-            }
+        let resp_data = await api.get(`visited/${id}/toggle_pin`, {});
+        if (resp_data) {
+            setRedraw(redraw === '0' ? '1' : '0');
         }
     }
 

@@ -18,7 +18,7 @@ function Completed({item, config, update}: {item: ItemInfo, config: PageConfigIn
     async function toggleCompleted(event: MouseEvent<HTMLElement>) {
         const {todo_id, completed} = api.buttonData(event, ['todo_id', 'completed']);
         const newCompleted = completed !== 'true';
-        await api.post(`todo/${todo_id}/completed`, {'value': newCompleted});
+        await api.post(`todo/${todo_id}/completed`, {value: newCompleted});
         changeCompleted(newCompleted);
     }
     
@@ -219,7 +219,7 @@ function Important({item, config}: {item: ItemInfo, config: PageConfigInfo}) {
         const {todo_id, important} = api.buttonData(event, ['todo_id', 'important']);
         const newImportant = important !== 'true';
         setImportant(newImportant);
-        await api.post(`todo/${todo_id}/important`, {'value': newImportant});
+        await api.post(`todo/${todo_id}/important`, {value: newImportant});
     }
         
     if (!config.use_important)
@@ -249,7 +249,7 @@ function ListItem({item, visible, config, update}: {item: ItemInfo, visible: boo
     const [extra, setData] = useState<ExtraInfo>(emptyExtra);
     useEffect(() => {
         const getData = async () => {
-            const data = await api.get(`todo/${item.id}/extra`, {'app': config.app, 'role': config.role});
+            const data = await api.get(`todo/${item.id}/extra`, {app: config.app, role: config.role});
             const extra: ExtraInfo = Object.assign(data, {'initialized': true});
             setData(extra);
         };

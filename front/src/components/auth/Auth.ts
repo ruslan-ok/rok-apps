@@ -66,28 +66,32 @@ export const auth: AuthProvider = {
     },
 
     async post(url: string, params: Object): Promise<Response> {
-        function getCookie(name: string) {
-            name += '=';
-            for (var ca = document.cookie.split(/;\s*/), i = ca.length - 1; i >= 0; i--)
-                if (!ca[i].indexOf(name))
-                    return ca[i].replace(name, '');
-            return '';
+        function getCookie(name: string): string {
+            let cookieValue = '';
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
         }
-        
-        console.log(getCookie('csrftoken'))
-        const cred: RequestCredentials = 'include';
-        // const headers =  {'Content-type': 'application/x-www-form-urlencoded'};
         const headers =  {
-            // 'Authorization': 'a-+!b*6gt+uuwog*pzsq-63glms@(6pj#w#6@cmb1rpm7+8%4x',
             'Content-Type': 'application/json',
-            // 'X-CSRFToken': getCookie('csrftoken'),
+            'X-CSRFToken': getCookie('csrftoken'),
         };
+        const cred: RequestCredentials = 'include';
         const correctedUrl = (url.startsWith('api/') ? '' : 'api/') + url + (url.endsWith('/') ? '' : '/');
-        // const urlParams = this.objectToUrlParams(params).substring(1);
         const data = JSON.stringify(params);
+        const mode = apiUrl.includes('localhost') ? 'cors' : 'same-origin';
         const resp = await fetch(
             apiUrl + correctedUrl,
-            { method: 'POST', headers: headers, credentials: cred, body: data }
+            { method: 'POST', headers: headers, mode: mode, credentials: cred, body: data }
         ).then((response) => response.json());
         return resp;
     },

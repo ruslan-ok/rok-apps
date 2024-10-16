@@ -2,6 +2,7 @@ from django.urls import include, path
 from rest_framework import routers
 
 from api.views import auth
+from api.views import login
 from api.views import main_page
 from api.views import env
 from api.views import header
@@ -19,7 +20,8 @@ api_router.register('todo', todo.TodoViewSet, basename='task')
 urlpatterns = [
     path('auth/', auth.auth),
     path('demo/', auth.demo),
-    path('login/', auth.login),
+    path('csrf_setup/', login.csrf_setup),
+    path('login/', login.LoginView.as_view()),
     path('logout/', auth.logout),
     path('main_page/', main_page.main_page),
     path('env/', env.env),

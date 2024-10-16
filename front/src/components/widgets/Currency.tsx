@@ -13,7 +13,7 @@ import {
 import { Line } from 'react-chartjs-2';
 
 import Spinner from '../Spinner';
-import { apiUrl } from '../auth/Auth';
+import { auth as api } from '../auth/Auth';
 import StyledCheckbox from './StyledCheckbox';
 
 import './Currency.css';
@@ -143,22 +143,12 @@ function Currency({screenWidth}: {screenWidth: number}) {
     useEffect(() => {
         async function getData() {
             setStatus('updating');
-            const url = apiUrl + `api/chart/?mark=currency&version=v2&period=${period}&base=${base}`;
-            const rq: RequestCredentials = 'include';
-            const options = {
-                method: 'GET',
-                headers: {'Content-type': 'application/json'},
-                credentials: rq,
-            };
-            const response = await fetch(url, options);
-            if (response.ok) {
-                let widgetData: WidgetData = await response.json();
-                if (widgetData) {
-                    setWidgetData(widgetData);
-                    setBaseOption(widgetData.base);
-                    setPeriodOption(widgetData.period);
-                    setStatus('ready');
-                }
+            let widgetData = await api.get('chart', {mark: 'currency', version: 'v2', period: period, base: base});
+            if (widgetData) {
+                setWidgetData(widgetData);
+                setBaseOption(widgetData.base);
+                setPeriodOption(widgetData.period);
+                setStatus('ready');
             }
         }
         getData();

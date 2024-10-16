@@ -30,13 +30,13 @@ function PageTitle({config}: {config: PageConfigInfo}) {
 
     async function setTheme(event: MouseEvent<HTMLElement>) {
         const {group_id, theme_id} = api.buttonData(event, ['group_id', 'theme_id']);
-        await api.post(`group/${group_id}/theme`, {'theme': theme_id});
+        await api.post(`group/${group_id}/theme`, {theme: theme_id});
     }
 
     async function toggleSubGroups(event: MouseEvent<HTMLElement>) {
         const {group_id, value} = api.buttonData(event, ['group_id', 'value']);
         const newValue = value !== 'true';
-        await api.post(`group/${group_id}/use_groups`, {'value': newValue});
+        await api.post(`group/${group_id}/use_groups`, {value: newValue});
     }
     
     const dark_theme = config.dark_theme ? ' dark-theme' : '';

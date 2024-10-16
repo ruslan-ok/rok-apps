@@ -174,7 +174,7 @@ function GroupTree({config}: {config: PageConfigInfo}) {
     const [items, setData] = useState<GroupItem[]>([]);
     useEffect(() => {
         const getData = async () => {
-          const items: GroupItem[] = await api.get('group', {'app': config.app, 'role': config.role});
+          const items: GroupItem[] = await api.get('group', {app: config.app, role: config.role});
           setData(items);
         };
       
