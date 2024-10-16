@@ -17,13 +17,7 @@ from api.serializers.login import LoginSerializer
 def csrf_setup(request):
     return Response({ 'info': 'csrf' })
 
-
-def rok_method_decorator(decorator, name=''):
-    if 'localhost' in settings.DJANGO_HOST:
-        return lambda x: x
-    return method_decorator(decorator, name)
-
-@rok_method_decorator(csrf_protect, name="post")
+@method_decorator(csrf_protect, name="post")
 class LoginView(APIView):
     permission_classes = (AllowAny,)
     authentication_classes = ()

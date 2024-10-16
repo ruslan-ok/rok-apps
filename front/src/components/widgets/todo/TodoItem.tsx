@@ -36,8 +36,7 @@ export default function TodoItem({ todo, doRedraw }: { todo: Todo, doRedraw: () 
     const event = todo.stop.toLocaleDateString().replace('/', '.').replace('/', '.');
 
     async function toggle(method: string, id: number, value: string) {
-        const newValue = value !== 'true';
-        await api.post(`todo/${id}/${method}`, {value: newValue});
+        await api.put(`todo/${id}`, {[method]: value !== 'true'});
         doRedraw();
     }
 

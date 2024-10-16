@@ -7,14 +7,6 @@ import Header from './header/Header';
 
 export async function loader(): Promise<HeaderData> {
     await api.init();
-    const cred: RequestCredentials = 'include';
-    const options = { 
-        method: 'GET', 
-        headers: { 
-        'Content-type': 'application/json'
-        },
-        credentials: cred,
-    };
     return await api.get('header', {});
 }
   

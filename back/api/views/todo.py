@@ -7,7 +7,7 @@ from api.serializers.todo import TodoSerializer
 class TodoViewSet(ModelViewSet):
     serializer_class = TodoSerializer
     permission_classes = [permissions.IsAuthenticated]
-    renderer_classes = [renderers.BrowsableAPIRenderer, renderers.JSONRenderer,]
+    renderer_classes = [renderers.JSONRenderer, renderers.BrowsableAPIRenderer,]
     pagination_class = None
 
     def get_queryset(self):

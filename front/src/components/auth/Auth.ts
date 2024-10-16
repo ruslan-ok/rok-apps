@@ -17,7 +17,9 @@ export interface AuthProvider {
     buttonData(event: MouseEvent<HTMLElement>, attributes: string[]): Object;
     objectToUrlParams(obj: Object): string;
     get(url: string, params: Object): Promise<Response>;
+    modify(method: string, url: string, params: Object): Promise<Response>;
     post(url: string, params: Object): Promise<Response>;
+    put(url: string, params: Object): Promise<Response>;
     demo(): Promise<Response>;
     login(username: string, password: string): Promise<Response>;
     logout(): Promise<void>;
@@ -65,7 +67,7 @@ export const auth: AuthProvider = {
         return resp;
     },
 
-    async post(url: string, params: Object): Promise<Response> {
+    async modify(method: string, url: string, params: Object): Promise<Response> {
         function getCookie(name: string): string {
             let cookieValue = '';
             if (document.cookie && document.cookie !== '') {
@@ -91,9 +93,17 @@ export const auth: AuthProvider = {
         const mode = apiUrl.includes('localhost') ? 'cors' : 'same-origin';
         const resp = await fetch(
             apiUrl + correctedUrl,
-            { method: 'POST', headers: headers, mode: mode, credentials: cred, body: data }
+            { method: method, headers: headers, mode: mode, credentials: cred, body: data }
         ).then((response) => response.json());
         return resp;
+    },
+
+    async post(url: string, params: Object): Promise<Response> {
+        return await this.modify('POST', url, params);
+    },
+
+    async put(url: string, params: Object): Promise<Response> {
+        return await this.modify('PUT', url, params);
     },
 
     async init(): Promise<AuthProvider> {

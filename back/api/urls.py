@@ -31,8 +31,6 @@ urlpatterns = [
     path('groups_test/', groups.groups_test),
     path('group/<int:pk>/toggle_sub_group/', toggle.toggle_sub_group),
     path('todo/<int:pk>/extra/', todo_extra.extra),
-    path('todo/<int:pk>/completed/', todo_extra.completed),
-    path('todo/<int:pk>/important/', todo_extra.important),
 
     path('', include(api_router.urls)),
 ]
