@@ -10,18 +10,23 @@ import { ItemInfo } from './ItemTypes';
 
 function TodoListPage() {
     const config = useOutletContext() as IPageConfig;
-    const [data, setData] = useState<Object[]>([]);
+    const [state, setState] = useState<string>('load');
+    const [subGroups, setData] = useState<SubGroupInfo[]>([]);
     let childrenChanged = false;
     useEffect(() => {
         const getData = async () => {
+            setState('load');
             let params = {};
             if (config.view_group.view_id)
                 params = Object.assign(params, {view: config.view_group.view_id});
             if (config.entity.id)
                 params = Object.assign(params, {group: config.entity.id});
             const data: ItemInfo[] = await api.get('todo', params);
-            setData(data);
-            console.log('Data loaded for ' + JSON.stringify(params));
+            const items = data.map(x => {return new ItemInfo(x);});
+            const sgList: SubGroupInfo[] = fillSubGroups(items, config);
+            const validSG = sgList.filter(x => x.items.length).sort(compareSG);
+            setData(validSG);
+            setState('done');
         };
       
         getData();
@@ -35,13 +40,9 @@ function TodoListPage() {
         return a.id - b.id;
     }
 
-    const items = data.map(x => {return new ItemInfo(x);});
-    const subGroups: SubGroupInfo[] = fillSubGroups(items, config);
-    console.log('Sub groups loaded for ' + config.view_group.id);
-    const validSG = subGroups.filter(x => x.items.length).sort(compareSG);
     let sgList;
-    if (validSG.length) {
-        sgList = validSG.map(x => { return <SubGroup key={x.id} subGroup={x} config={config} update={updateFromChild} /> });
+    if (state === 'done' && subGroups.length) {
+        sgList = subGroups.map(x => { return <SubGroup key={x.id} subGroup={x} config={config} update={updateFromChild} /> });
     } else {
         sgList = <></>;
     }
