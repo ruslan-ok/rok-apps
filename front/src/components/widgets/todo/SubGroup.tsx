@@ -1,4 +1,4 @@
-import type { Todo } from './TodoItem';
+import type { ITodo } from './TodoItem';
 import TodoItem from './TodoItem';
 import './SubGroup.css';
 
@@ -26,7 +26,7 @@ const subGroupOrders: Record<string, number> = {
     'later': 6,
 } as const;
 
-function getSubGroupId(todo: Todo): SubGroupID {
+function getSubGroupId(todo: ITodo): SubGroupID {
 
     if (todo.completed) {
         return 'completed';
@@ -61,18 +61,18 @@ function getSubGroupId(todo: Todo): SubGroupID {
     return 'later';
 }
 
-export interface SubGroupInfo {
+export interface IWidgetSubGroup {
     id: SubGroupID;
     name: string;
     isOpen: boolean;
-    items: Todo[];
+    items: ITodo[];
     order: number;
 }
 
-export function buildSubGroupList(items: any[]): SubGroupInfo[] {
-    let subGroups: SubGroupInfo[] = [];
+export function buildSubGroupList(items: any[]): IWidgetSubGroup[] {
+    let subGroups: IWidgetSubGroup[] = [];
     items.forEach((todoInfo: any) => {
-        const todo: Todo = {
+        const todo: ITodo = {
             id: todoInfo.id,
             name: todoInfo.name,
             stop: new Date(todoInfo.stop),
@@ -100,11 +100,11 @@ export function buildSubGroupList(items: any[]): SubGroupInfo[] {
         const subGroupId: SubGroupID = getSubGroupId(todo);
         const subGroupName = subGroupLabels[subGroupId];
         const subGroupOrder: number = subGroupOrders[subGroupId];
-        const sg = subGroups.filter((x: SubGroupInfo) => x.id === subGroupId);
+        const sg = subGroups.filter((x: IWidgetSubGroup) => x.id === subGroupId);
         if (sg.length) {
             sg[0].items.push(todo);
         } else {
-            const sg: SubGroupInfo = {
+            const sg: IWidgetSubGroup = {
                 id: subGroupId,
                 name: subGroupName,
                 isOpen: true,
@@ -118,10 +118,10 @@ export function buildSubGroupList(items: any[]): SubGroupInfo[] {
     return sortedSubGroups;
 }
 
-export default function SubGroup({data, doRedraw}: {data: SubGroupInfo, doRedraw: () => void }) {
+export default function SubGroup({data, doRedraw}: {data: IWidgetSubGroup, doRedraw: () => void }) {
     let subGroupItems;
     if (data.isOpen) {
-        subGroupItems = data.items.map((todo: Todo) => {
+        subGroupItems = data.items.map((todo: ITodo) => {
             return <TodoItem key={todo.id} todo={todo} doRedraw={doRedraw} />
         });
     }

@@ -1,17 +1,17 @@
 import { useState, useEffect } from "react";
 import { api } from '../../API'
 import { IPageConfig } from '../PageConfig';
-import { FixItemInfo } from './FixItem';
+import { IFixItemInfo } from './FixItem';
 import FixItem from './FixItem';
 
 function FixList({config}: {config: IPageConfig}) {
-    const [items, setData] = useState<FixItemInfo[]>([]);
+    const [items, setData] = useState<IFixItemInfo[]>([]);
     useEffect(() => {
         const getData = async () => {
             let params = {app: config.view_group.app};
             if (config.view_group.view_id)
                 params = Object.assign(params, {view: config.view_group.view_id});
-            const items: FixItemInfo[] = await api.get('fixed', params);
+            const items: IFixItemInfo[] = await api.get('fixed', params);
             setData(items);
         };
       

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { MouseEvent } from 'react'
 import { IPageConfig } from '../PageConfig';
-import { ItemInfo } from './ItemTypes';
+import { IItemInfo } from './ItemTypes';
 import ListItem from './ListItem';
 
 
@@ -15,11 +15,11 @@ export enum SubGroupKind {
     COMPLETED = 6, // Завершено
 }
 
-export class SubGroupInfo {
+export class ISubGroup {
     groupId: number;
     kind: SubGroupKind;
     is_open: boolean;
-    items: Array<ItemInfo>;
+    items: Array<IItemInfo>;
 
     constructor(groupId: number, kind: SubGroupKind) {
         this.groupId = groupId;
@@ -60,18 +60,18 @@ export class SubGroupInfo {
         return '';
     }
 
-    addItem(item: ItemInfo) {
+    addItem(item: IItemInfo) {
         this.items.push(item);
     }
 }
 
-export function fillSubGroups(data: ItemInfo[], group_id: number, use_sub_groups: boolean) {
-    let subGroups: SubGroupInfo[] = [];
+export function fillSubGroups(data: IItemInfo[], group_id: number, use_sub_groups: boolean) {
+    let subGroups: ISubGroup[] = [];
     for (const item of data) {
         const kind = use_sub_groups ? item.sub_group_id : 0;
         let sg = subGroups.find(x => x.groupId === group_id && +x.kind === +kind);
         if (!sg) {
-            sg = new SubGroupInfo(group_id, kind);
+            sg = new ISubGroup(group_id, kind);
             subGroups.push(sg);
         }
         sg.addItem(item);
@@ -99,8 +99,8 @@ function _toggleSubGroup(event: MouseEvent<HTMLElement>, groupId: number, subGro
     }
 }
 
-function SubGroup({subGroup, config, update}: {subGroup: SubGroupInfo, config: IPageConfig, update: Function}) {
-    const [sg, setSG] = useState<SubGroupInfo>(subGroup);
+function SubGroup({subGroup, config, update}: {subGroup: ISubGroup, config: IPageConfig, update: Function}) {
+    const [sg, setSG] = useState<ISubGroup>(subGroup);
     function toggleSubGroup(event: MouseEvent<HTMLElement>) {
         sg.toggle();
         setSG(sg);
@@ -117,7 +117,7 @@ function SubGroup({subGroup, config, update}: {subGroup: SubGroupInfo, config: I
             {showSG &&
                 <button className="sub-group" onClick={toggleSubGroup} >
                     <i className={sgClass}></i>
-                    <span className="sub-group__name">{sg.id} - {sg.name}</span>
+                    <span className="sub-group__name">{sg.name}</span>
                     <span className="sub-group__qty">{sg.items.length}</span>
                 </button>
             }

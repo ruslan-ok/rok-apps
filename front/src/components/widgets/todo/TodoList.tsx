@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Spinner from '../../Spinner';
 import { api } from '../../../API'
-import SubGroup, { SubGroupInfo, buildSubGroupList } from './SubGroup';
+import SubGroup, { IWidgetSubGroup, buildSubGroupList } from './SubGroup';
 
 import './TodoList.css';
 
@@ -43,8 +43,8 @@ export default function TodoList({screenWidth}: {screenWidth: number}) {
         if (status === 'mess') {
             return <p>{message}</p>;
         } else {
-            const subGroups: SubGroupInfo[] = buildSubGroupList(values.data);
-            const subGroupList = subGroups.map((sg: SubGroupInfo) => {
+            const subGroups: IWidgetSubGroup[] = buildSubGroupList(values.data);
+            const subGroupList = subGroups.map((sg: IWidgetSubGroup) => {
                 return (<SubGroup key={sg.id} data={sg} doRedraw={doRedraw}/>);
             });
 

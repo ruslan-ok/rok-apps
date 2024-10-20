@@ -1,8 +1,8 @@
 import { IPageConfig } from '../PageConfig';
-import { ItemInfo } from './ItemTypes';
+import { IItemInfo } from './ItemTypes';
 
 
-function Item({item, config}: {item: ItemInfo, config: IPageConfig}) {
+function Item({item, config}: {item: IItemInfo, config: IPageConfig}) {
     console.log(item);
     console.log(config);
     return (

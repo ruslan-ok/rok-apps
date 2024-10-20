@@ -34,41 +34,41 @@ type Color = {
     b: number,
 };
 
-interface CurrencyInfo {
+interface ICurrency {
     id: string;
     rate: number;
     rates: number[];
     color: Color;
 };
 
-interface Rate {
+interface IRate {
     x: string;
     y: number;
 };
 
-interface WidgetData {
+interface IWidget {
     chart: any;
     base: string;
     period: string;
     labels: string[];
-    currencies: CurrencyInfo[];
+    currencies: ICurrency[];
 };
 
 
-interface DatasetInfo {
+interface IDataset {
     label: string;
-    data: Rate[];
+    data: IRate[];
     backgroundColor: string;
     borderColor: string;
     borderWidth: number;
     tension: number;
 };
 
-interface ChartData {
-    datasets: DatasetInfo[];
+interface IChart {
+    datasets: IDataset[];
 }
 
-let chartData: ChartData = {
+let chartData: IChart = {
     datasets: []
 };
 
@@ -125,7 +125,7 @@ function Currency({screenWidth}: {screenWidth: number}) {
         setHiddenOption(hidden);
     }
     
-    const initData: WidgetData = {
+    const initData: IWidget = {
         chart: {},
         base: '',
         period: '',
@@ -133,7 +133,7 @@ function Currency({screenWidth}: {screenWidth: number}) {
         currencies: [],
     };
 
-    const [widgetData, setWidgetData] = useState<WidgetData>(initData);
+    const [widgetData, setWidgetData] = useState<IWidget>(initData);
     const [base, setBase] = useState<string>(getOption('base'));
     const [period, setPeriod] = useState<string>(getOption('period'));
     const [hidden, setHidden] = useState<Array<string>>(getOption('hidden').split(','));
@@ -172,7 +172,7 @@ function Currency({screenWidth}: {screenWidth: number}) {
         
         chartData.datasets = [];
         widgetData.currencies.filter(x => x.id !== base && !hidden.includes(x.id)).forEach(currency => {
-            const currInfo: DatasetInfo = {
+            const currInfo: IDataset = {
                 label: currency.id.toUpperCase(),
                 data: currency.rates.map((rate, index) => { return {x: widgetData.labels[index], y: rate } }),
                 backgroundColor: `rgba(${currency.color.r}, ${currency.color.g}, ${currency.color.b}, 0.2)`,

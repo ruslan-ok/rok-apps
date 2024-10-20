@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { IPageConfig } from '../PageConfig';
 
-export interface FixItemInfo {
+export interface IFixItemInfo {
     id: string;
     url: string;
     icon: string;
@@ -12,7 +12,7 @@ export interface FixItemInfo {
     determinator: string;
 }
 
-function FixItem({item, config}: {item: FixItemInfo, config: IPageConfig}) {
+function FixItem({item, config}: {item: IFixItemInfo, config: IPageConfig}) {
     const link_class = 'sidebar__fix-item' + (item.active && !config.entity.id ? ' active' : '');
     const fix_icon = 'bi-' + item.icon;
     const qty = (item.search_qty ? `${item.search_qty} / ` : '') + (item.qty ? `${item.qty}` : '');

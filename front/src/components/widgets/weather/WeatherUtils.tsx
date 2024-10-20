@@ -49,7 +49,7 @@ function getTempColor(temperature: number, border: boolean): string {
     return 'rgba(' + rgb[0] + ', ' + rgb[1] + ', ' + rgb[2] + ', ' + opacity + ')';
 }
 
-export interface TempBarHeight {
+export interface ITempBarHeight {
     maxTemp: string;
     minTemp: string;
     avgTemp: string;
@@ -61,8 +61,8 @@ export interface TempBarHeight {
     precipitation: number;
 }
 
-export function getTempBarsInfo(values: any, forWeek: boolean): TempBarHeight[] {
-    let ret: TempBarHeight[] = [];
+export function getTempBarsInfo(values: any, forWeek: boolean): ITempBarHeight[] {
+    let ret: ITempBarHeight[] = [];
     if (!values.length) {
         return ret;
     }

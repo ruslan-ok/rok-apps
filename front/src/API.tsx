@@ -10,7 +10,7 @@ function getApiUrl(): string {
 
 const apiUrl: string = getApiUrl();
 
-export interface IAPIProvider {
+interface IAPIProvider {
     username: null | string;
     isAuthenticated: null | boolean;
     buttonData(event: MouseEvent<HTMLElement>, attributes: string[]): Object;

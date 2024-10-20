@@ -1,7 +1,7 @@
-import type { HeaderButton } from './Header';
+import type { IHeaderButton } from './Header';
 import './HeaderButtons.css';
 
-function HeaderButtons({items}: {items: HeaderButton[]}) {
+function HeaderButtons({items}: {items: IHeaderButton[]}) {
   let buttons;
   let buttonList;
 

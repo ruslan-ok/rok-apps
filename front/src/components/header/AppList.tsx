@@ -1,5 +1,5 @@
 import { useMatch, useResolvedPath } from "react-router-dom";
-import type { Application } from './Header';
+import type { IApplication } from './Header';
 import './AppList.css';
 
 function AppLink({ mobile, app_name, icon, to }: { mobile: boolean, app_name: string, icon: string, to: string}) {
@@ -19,7 +19,7 @@ function AppLink({ mobile, app_name, icon, to }: { mobile: boolean, app_name: st
     );
 }
 
-function AppList({mobile, items}: {mobile: boolean, items: Application[]}) {
+function AppList({mobile, items}: {mobile: boolean, items: IApplication[]}) {
     let apps = <div className='desktop'></div>;
 
     if (items.length) {

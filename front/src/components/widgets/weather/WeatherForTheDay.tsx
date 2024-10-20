@@ -1,4 +1,4 @@
-import type { TempBarHeight } from './WeatherUtils';
+import type { ITempBarHeight } from './WeatherUtils';
 import { getDayName, getDayDate, getDayColor, getIconHref, getHourNum, getTempBarsInfo, checkNight, getWindColor } from './WeatherUtils';
 
 export default function WeatherForTheDay({values}: {values: any}) {
@@ -119,7 +119,7 @@ export default function WeatherForTheDay({values}: {values: any}) {
 
     const titleTemp = buildSubtitle('Температура воздуха, °C');
     
-    const tempBarHeights: TempBarHeight[] = getTempBarsInfo(values.for_day, false);
+    const tempBarHeights: ITempBarHeight[] = getTempBarsInfo(values.for_day, false);
     const tempBars = values.for_day.map((hour: any, index: number) => {
         let cellClass: string[] = ['bar day-column'];
         checkNight(cellClass, hour.event, d1_span_correct, sunrise, sunset);

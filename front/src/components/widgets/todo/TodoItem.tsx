@@ -14,7 +14,7 @@ interface Group {
     name: string;
 }
 
-export interface Todo {
+export interface ITodo {
     id: number;
     name: string;
     stop: Date;
@@ -32,7 +32,7 @@ export interface Todo {
     steps: Step[];
 }
 
-export default function TodoItem({ todo, doRedraw }: { todo: Todo, doRedraw: () => void }) {
+export default function TodoItem({ todo, doRedraw }: { todo: ITodo, doRedraw: () => void }) {
     const event = todo.stop.toLocaleDateString().replace('/', '.').replace('/', '.');
 
     async function toggle(method: string, id: number, value: string) {

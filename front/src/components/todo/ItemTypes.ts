@@ -138,7 +138,7 @@ enum TerminKind {
     ALL = 0, // Все сроки
 }
 
-class Termin {
+class ITermin {
     sdt: string | null;
 
     constructor(s: string | null) {
@@ -228,7 +228,7 @@ class Termin {
     }
 }
 
-export class ItemInfo {
+export class IItemInfo {
     categories: string | null;
     completed: boolean;
     completion: string | null;
@@ -278,7 +278,7 @@ export class ItemInfo {
         if (this.completed)
             sgId = SubGroupKind.COMPLETED;
         else {
-            const termin = new Termin(this.stop).days;
+            const termin = new ITermin(this.stop).days;
             if (termin === null)
                 sgId = SubGroupKind.UNKNOWN;
             else if (termin < 0)
@@ -295,8 +295,8 @@ export class ItemInfo {
         return sgId;
     }
 
-    get termin(): Termin {
-        return new Termin(this.stop);
+    get termin(): ITermin {
+        return new ITermin(this.stop);
     }
 
     get Completion(): string {
@@ -351,12 +351,12 @@ export class ItemInfo {
     get termin_info(): string {
         if (!this.stop)
             return '';
-        let label = this.is_expired ? 'Expired, ' : 'Termin: ';
+        let label = this.is_expired ? 'Expired, ' : 'ITermin: ';
         return label + this.nice_date;
     }
 }
 
-interface ItemRole {
+interface IItemRole {
     href: string;
     hide_params: boolean;
     icon: string;
@@ -364,16 +364,16 @@ interface ItemRole {
     name_mod: string;
 }
 
-interface AttrInfo {
+interface IAttrInfo {
     icon: string;
 }
 
-export interface ExtraInfo {
+export interface IExtraInfo {
     initialized: boolean;
-    roles: ItemRole[];
+    roles: IItemRole[];
     params: string;
     group_name: string | null;
-    attributes: AttrInfo[];
+    attributes: IAttrInfo[];
     remind_active: boolean;
     step_completed: number;
     step_total: number;

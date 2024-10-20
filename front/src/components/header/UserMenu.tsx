@@ -1,6 +1,6 @@
-import type { UserMenuElement } from './Header';
+import type { IUserMenuElement } from './Header';
 
-function UserMenu({avatar, username, items}: {avatar: undefined | string, username: undefined | string, items: UserMenuElement[]}) {
+function UserMenu({avatar, username, items}: {avatar: undefined | string, username: undefined | string, items: IUserMenuElement[]}) {
     let users = <section className='user-menu s-f-container dropdown mx-4'></section>;
 
     if (items.length) {

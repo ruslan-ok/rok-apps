@@ -11,13 +11,13 @@ import {
 import { api } from '../../API'
 import './Login.css';
 
-export interface LoginResult {
+interface ILoginResult {
     ok: boolean,
     info: string
 }
   
-export async function action({ request }: ActionFunctionArgs): Promise<LoginResult | Response>  {
-    let response: LoginResult = {
+export async function action({ request }: ActionFunctionArgs): Promise<ILoginResult | Response>  {
+    let response: ILoginResult = {
         ok: false,
         info: 'Unknown error.'
     };
@@ -66,7 +66,7 @@ function Login() {
     let navigation = useNavigation();
     let isLoggingIn = navigation.formData?.get("username") != null;
   
-    const actionData = useActionData() as LoginResult;
+    const actionData = useActionData() as ILoginResult;
 
     useEffect(() => {
         async function csrf_setup() {

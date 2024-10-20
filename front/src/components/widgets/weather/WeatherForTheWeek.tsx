@@ -1,4 +1,4 @@
-import type { TempBarHeight } from './WeatherUtils';
+import type { ITempBarHeight } from './WeatherUtils';
 import { getTempBarsInfo, getDayColor, getDayName, getDayDate, getIconHref, checkWeekend, getWindColor } from './WeatherUtils';
 
 export default function WeatherForTheWeek({values}: {values: any}) {
@@ -46,7 +46,7 @@ export default function WeatherForTheWeek({values}: {values: any}) {
 
     const titleTemp = buildSubtitle('Температура воздуха, °C');
 
-    const tempBarHeights: TempBarHeight[] = getTempBarsInfo(values.for_week, true);
+    const tempBarHeights: ITempBarHeight[] = getTempBarsInfo(values.for_week, true);
     const tempBars = values.for_week.map((day: any, index: number) => {
         let cellClass: string[] = ['week-column bar'];
         checkWeekend(cellClass, day.event);

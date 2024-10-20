@@ -1,18 +1,18 @@
 import { useState, useEffect } from "react";
 import { api } from '../API';
 
-interface ApplicationDescr {
+interface IApplicationDescr {
     app_id: string;
     icon: string;
     title: string;
     features: string[];
 }
 
-interface MainPageInfo {
-    applications: ApplicationDescr[];
+interface IMainPage {
+    applications: IApplicationDescr[];
 }
 
-interface ParsedAppInfo {
+interface IParsedApp {
     id: string,
     title: string,
     heading_id: string,
@@ -26,17 +26,17 @@ interface ParsedAppInfo {
 }
 
 function MainPagePublic() {
-    const [data, setData] = useState<MainPageInfo>([]);
+    const [data, setData] = useState<IMainPage>([]);
     useEffect(() => {
         const getData = async () => {
-            const data: MainPageInfo = await api.free_get('main_page', {});
+            const data: IMainPage = await api.free_get('main_page', {});
             setData(data);
         };
       
         getData();
     }, []);
 
-    let dataExt: ParsedAppInfo[] = [];
+    let dataExt: IParsedApp[] = [];
 
     if (data && data.applications?.length) {
         dataExt = data.applications.map((item, index) => {

@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { Outlet } from "react-router-dom";
   
 import { api } from '../API'
-import type { HeaderData } from './header/Header';
+import type { IHeaderData } from './header/Header';
 import Header from './header/Header';
 
-export async function loader(): Promise<HeaderData> {
+export async function loader(): Promise<IHeaderData> {
     await api.init();
     return await api.get('header', {});
 }

@@ -10,36 +10,36 @@ import HeaderButtons from './HeaderButtons';
 
 import "./Header.css";
 
-export interface Application {
+export interface IApplication {
   name: string;
   icon: string;
   href: string;
   active: boolean;
 };
 
-export interface UserMenuElement {
+export interface IUserMenuElement {
   item_id: string;
   name: string;
   href: string;
   icon: string;
 };
 
-export interface HeaderButton {
+export interface IHeaderButton {
   button_id: string;
   name: string;
   href: string;
 };
 
-export interface HeaderData {
+export interface IHeaderData {
   appIcon: string;
   appTitle: undefined | string;
-  applications: Application[];
+  applications: IApplication[];
   searchPlaceholder: string;
   searchText: string;
   userName: undefined | string;
   avatar: undefined | string;
-  userMenu: UserMenuElement[];
-  buttons: HeaderButton[];
+  userMenu: IUserMenuElement[];
+  buttons: IHeaderButton[];
 };
 
 function Header({windowWidth}: {windowWidth: number}) {
@@ -49,7 +49,7 @@ function Header({windowWidth}: {windowWidth: number}) {
     setExpanded(expanded ? 0 : 1);
   }
 
-  const headerData = useRouteLoaderData('header') as HeaderData;
+  const headerData = useRouteLoaderData('header') as IHeaderData;
 
   if (windowWidth < 768) {
     let section_top = 
