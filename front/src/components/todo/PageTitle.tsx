@@ -1,6 +1,6 @@
 import type { MouseEvent } from 'react'
 import { Link } from 'react-router-dom';
-import { auth as api } from '../auth/Auth';
+import { api } from '../../API'
 import { IPageConfig, IPathItem, EntityType } from '../PageConfig';
 
 

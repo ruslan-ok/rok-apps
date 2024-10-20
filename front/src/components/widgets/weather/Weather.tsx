@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Form } from 'react-router-dom';
-import { auth as api } from '../../auth/Auth';
+import { api } from '../../../API'
 import Spinner from '../../Spinner';
 import WeatherNow from './WeatherNow';
 import WeatherForTheDay from './WeatherForTheDay';

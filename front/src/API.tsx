@@ -1,6 +1,6 @@
 import type { MouseEvent } from 'react'
 
-export function getApiUrl(): string {
+function getApiUrl(): string {
     const parts = window.location.pathname.split('/');
     const baseUrl: string = window.location.protocol + '//' + window.location.host + '/' + (parts[1] ? parts[1] + '/' : '');
     if (baseUrl.includes('localhost:3000'))
@@ -8,25 +8,22 @@ export function getApiUrl(): string {
     return baseUrl;
 }
 
-export const apiUrl: string = getApiUrl();
+const apiUrl: string = getApiUrl();
 
-export interface AuthProvider {
+export interface IAPIProvider {
     username: null | string;
     isAuthenticated: null | boolean;
-    init(): Promise<AuthProvider>;
     buttonData(event: MouseEvent<HTMLElement>, attributes: string[]): Object;
     objectToUrlParams(obj: Object): string;
-    get(url: string, params: Object): Promise<Response>;
+    free_get(url: string, params: Object): Promise<Response>;
     modify(method: string, url: string, params: Object): Promise<Response>;
-    auth_get(url: string, params: Object): Promise<Response>;
+    get(url: string, params: Object): Promise<Response>;
     post(url: string, params: Object): Promise<Response>;
     put(url: string, params: Object): Promise<Response>;
-    demo(): Promise<Response>;
-    login(username: string, password: string): Promise<Response>;
-    logout(): Promise<void>;
+    init(): Promise<IAPIProvider>;
 }
   
-export const auth: AuthProvider = {
+export const api: IAPIProvider = {
     username: null,
     isAuthenticated: null,
 
@@ -46,7 +43,6 @@ export const auth: AuthProvider = {
 
     objectToUrlParams(obj: Object): string {
         const params = [];
-
         const extObj = Object.assign(obj, {'format': 'json'});
       
         for (const key in extObj) {
@@ -56,7 +52,7 @@ export const auth: AuthProvider = {
         return (params.length ? '?' : '') + params.join('&');
     },
       
-    async get(url: string, params: Object): Promise<Response> {
+    async free_get(url: string, params: Object): Promise<Response> {
         const cred: RequestCredentials = 'include';
         const headers =  {'Content-type': 'application/json'};
         const urlParams = this.objectToUrlParams(params);
@@ -106,7 +102,7 @@ export const auth: AuthProvider = {
         return resp;
     },
 
-    async auth_get(url: string, params: Object): Promise<Response> {
+    async get(url: string, params: Object): Promise<Response> {
         return await this.modify('GET', url, params);
     },
 
@@ -118,44 +114,12 @@ export const auth: AuthProvider = {
         return await this.modify('PUT', url, params);
     },
 
-    async init(): Promise<AuthProvider> {
-        const resp = await this.get('auth', {});
+    async init(): Promise<IAPIProvider> {
+        const resp = await this.free_get('auth', {});
         if (resp && resp.ok && resp.username) {
-            auth.username = resp.username;
-            auth.isAuthenticated = true;
+            api.username = resp.username;
+            api.isAuthenticated = true;
         }
-        return auth;
-    },
-
-    async demo(): Promise<Response> {
-        const params = {'grant_type': 'password'};
-        const resp = await this.post('demo', params);
-        if (resp && resp.ok && resp.info) {
-          auth.username = resp.info;
-          auth.isAuthenticated = true;
-        }
-        return resp;
-    },
-    
-    async login(username: string, password: string): Promise<Response> {
-        const params = {
-            'grant_type': 'password',
-            'username': username,
-            'password': password,
-        };
-        const resp = await this.post('login', params);
-        if (resp && resp.ok && resp.info) {
-          auth.username = resp.info;
-          auth.isAuthenticated = true;
-        }
-        return resp;
-    },
-
-    async logout(): Promise<void> {
-        const resp = await this.get('logout', {});
-        if (resp && resp.ok) {
-          auth.isAuthenticated = false;
-          auth.username = '';
-        }
+        return api;
     },
 };

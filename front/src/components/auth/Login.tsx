@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-
 import {
     Link,
     Form,
@@ -9,9 +8,7 @@ import {
     useLocation,
     useNavigation,
 } from "react-router-dom";
-
-import { auth as api } from './Auth';
-
+import { api } from '../../API'
 import './Login.css';
 
 export interface LoginResult {
@@ -36,8 +33,16 @@ export async function action({ request }: ActionFunctionArgs): Promise<LoginResu
     }
   
     try {
-        const tmp: any = await api.login(username, password);
-        response = tmp;
+        const params = {
+            'grant_type': 'password',
+            'username': username,
+            'password': password,
+        };
+        response = await api.post('login', params);
+        if (response && response.ok && response.info) {
+            api.username = response.info;
+            api.isAuthenticated = true;
+        }
     } catch (error) {
         // Unused as of now but this is how you would handle invalid
         // username/password combinations - just like validating the inputs
@@ -65,7 +70,7 @@ function Login() {
 
     useEffect(() => {
         async function csrf_setup() {
-            await api.get('csrf_setup', {});
+            await api.free_get('csrf_setup', {});
         }
         
         csrf_setup();

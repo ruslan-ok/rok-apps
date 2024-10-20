@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Spinner from '../Spinner';
-import { auth as api } from '../auth/Auth';
+import { api } from '../../API'
 
 import '../css/LastVisited.min.css';
 

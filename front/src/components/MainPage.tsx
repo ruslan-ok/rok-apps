@@ -1,4 +1,4 @@
-import { auth } from './auth/Auth';
+import { api } from '../API'
 import MainPagePublic from './MainPagePublic';
 import MainPageProtected from './MainPageProtected';
 import 'bootstrap/dist/css/bootstrap.css';
@@ -10,7 +10,7 @@ import './css/list.min.css';
 
 function MainPage() {
   let layout;
-  if (auth.isAuthenticated) {
+  if (api.isAuthenticated) {
     layout = <MainPageProtected />;
   } else {
     layout = <MainPagePublic />;

@@ -1,7 +1,7 @@
 import type { MouseEvent } from 'react'
 import { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
-import { auth as api } from '../auth/Auth';
+import { api } from '../../API'
 import { IPageConfig } from '../PageConfig';
 import { ItemInfo, ExtraInfo } from './ItemTypes';
 import '../css/category.min.css'

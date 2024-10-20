@@ -65,13 +65,13 @@ export class SubGroupInfo {
     }
 }
 
-export function fillSubGroups(data: ItemInfo[], config: IPageConfig) {
+export function fillSubGroups(data: ItemInfo[], group_id: number, use_sub_groups: boolean) {
     let subGroups: SubGroupInfo[] = [];
     for (const item of data) {
-        const kind = config.view_group.use_sub_groups ? item.sub_group_id : 0;
-        let sg = subGroups.find(x => x.groupId === config.view_group.id && +x.kind === +kind);
+        const kind = use_sub_groups ? item.sub_group_id : 0;
+        let sg = subGroups.find(x => x.groupId === group_id && +x.kind === +kind);
         if (!sg) {
-            sg = new SubGroupInfo(config.view_group.id, kind);
+            sg = new SubGroupInfo(group_id, kind);
             subGroups.push(sg);
         }
         sg.addItem(item);

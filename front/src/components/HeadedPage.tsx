@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Outlet } from "react-router-dom";
   
-import { auth as api } from './auth/Auth';
+import { api } from '../API'
 import type { HeaderData } from './header/Header';
 import Header from './header/Header';
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { auth as api } from '../auth/Auth';
+import { api } from '../../API'
 import { IPageConfig } from '../PageConfig';
 import { FixItemInfo } from './FixItem';
 import FixItem from './FixItem';

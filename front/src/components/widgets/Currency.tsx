@@ -13,7 +13,7 @@ import {
 import { Line } from 'react-chartjs-2';
 
 import Spinner from '../Spinner';
-import { auth as api } from '../auth/Auth';
+import { api } from '../../API'
 import StyledCheckbox from './StyledCheckbox';
 
 import './Currency.css';

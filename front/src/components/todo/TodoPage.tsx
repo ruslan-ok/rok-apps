@@ -1,5 +1,5 @@
 import { redirect, useLoaderData, Outlet } from "react-router-dom";
-import { auth as api } from '../auth/Auth';
+import { api } from '../../API'
 import { IPageConfig } from '../PageConfig';
 import SideBarTop from './SideBarTop';
 import SideBar from './SideBar';
@@ -22,7 +22,7 @@ export async function loader({request}: {request: Request}): Promise<IPageConfig
         params = Object.assign(params, {view: view});
     if (group_id)
         params = Object.assign(params, {group: group_id});
-    const data: IPageConfig = await api.auth_get('config', params);
+    const data: IPageConfig = await api.get('config', params);
     return data;
 }
   

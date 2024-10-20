@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { auth as api } from './auth/Auth';
+import { api } from '../API';
 
 interface ApplicationDescr {
     app_id: string;
@@ -29,7 +29,7 @@ function MainPagePublic() {
     const [data, setData] = useState<MainPageInfo>([]);
     useEffect(() => {
         const getData = async () => {
-            const data: MainPageInfo = await api.get('main_page', {});
+            const data: MainPageInfo = await api.free_get('main_page', {});
             setData(data);
         };
       

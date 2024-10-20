@@ -15,7 +15,7 @@ import { Line } from 'react-chartjs-2';
 import 'chartjs-adapter-moment';
 
 import Spinner from '../Spinner';
-import { auth as api } from '../auth/Auth';
+import { api } from '../../API'
 
 import './Weight.css';
   

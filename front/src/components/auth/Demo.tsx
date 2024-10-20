@@ -1,13 +1,18 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth as api } from './Auth';
+import { api } from '../../API'
+
 
 function Demo() {
     const navigate = useNavigate();
 
     useEffect(() => {
         async function action() {
-            await api.demo();
+            const resp = await api.post('demo', {'grant_type': 'password'});
+            if (resp && resp.ok && resp.info) {
+                api.username = resp.info;
+                api.isAuthenticated = true;
+            }
             navigate('/');
         }
         

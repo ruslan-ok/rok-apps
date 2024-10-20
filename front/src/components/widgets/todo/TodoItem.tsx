@@ -1,5 +1,5 @@
 import './TodoItem.css';
-import { auth as api } from '../../auth/Auth';
+import { api } from '../../../API'
 
 interface Step {
     id: number;

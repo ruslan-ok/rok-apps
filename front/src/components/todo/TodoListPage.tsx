@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
-import { auth as api } from '../auth/Auth';
+import { api } from '../../API'
 import { IPageConfig } from '../PageConfig';
 import type { SubGroupInfo } from './SubGroup';
 import { fillSubGroups } from './SubGroup';
@@ -23,14 +23,14 @@ function TodoListPage() {
                 params = Object.assign(params, {group: config.entity.id});
             const data: ItemInfo[] = await api.get('todo', params);
             const items = data.map(x => {return new ItemInfo(x);});
-            const sgList: SubGroupInfo[] = fillSubGroups(items, config);
+            const sgList: SubGroupInfo[] = fillSubGroups(items, config.view_group.id, config.view_group.use_sub_groups);
             const validSG = sgList.filter(x => x.items.length).sort(compareSG);
             setData(validSG);
             setState('done');
         };
       
         getData();
-    }, [config.entity.id, config.view_group.id, config.view_group.view_id, childrenChanged]);
+    }, [config.entity.id, config.view_group.id, config.view_group.view_id, childrenChanged, config.view_group.use_sub_groups]);
 
     function updateFromChild() {
         childrenChanged = !childrenChanged;
