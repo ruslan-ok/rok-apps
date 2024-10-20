@@ -1,4 +1,4 @@
-import type { PageConfigInfo } from './TodoPage'
+import { IPageConfig } from '../PageConfig';
 import FixList from './FixList';
 import GroupTree from './GroupTree';
 import DirTree from './DirTree';
@@ -6,12 +6,13 @@ import NavList from './NavList';
 import AddNewGroup from './AddNewGroup';
 import '../css/sidebar.min.css'
 
-function SideBar({config}: {config: PageConfigInfo}) {
+function SideBar({config}: {config: IPageConfig}) {
+    const useGroups = config.view_group.app === 'todo';
     return (
         <aside className="bd-sidebar">
             <nav className="bd-links collapse sidebar" id="bd-docs-nav" aria-label="Groups navigation">
                 <FixList config={config} />
-                {config.use_groups && <>
+                {useGroups && <>
                         <DirTree config={config} />
                         <GroupTree config={config} />
                         <AddNewGroup config={config} />

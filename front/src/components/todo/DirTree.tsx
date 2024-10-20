@@ -1,6 +1,6 @@
-import type { PageConfigInfo } from './TodoPage'
+import { IPageConfig } from '../PageConfig';
 
-function DirTree({config}: {config: PageConfigInfo}) {
+function DirTree({config}: {config: IPageConfig}) {
     let dirs = <></>;
     return dirs;
 }

@@ -1,14 +1,14 @@
 import type { MouseEvent } from 'react'
 import { Link } from 'react-router-dom';
 import { auth as api } from '../auth/Auth';
-import type { PageConfigInfo } from './TodoPage';
+import { IPageConfig, IPathItem, EntityType } from '../PageConfig';
 
 
-function AddItem() {
+function AddItem({config}: {config: IPageConfig}) {
     return <div className="btn bi-plus dark-theme"></div>;
 }
 
-function PageTitle({config}: {config: PageConfigInfo}) {
+function PageTitle({config}: {config: IPageConfig}) {
     function editFolder() {
         console.log('editFolder');
     }
@@ -33,27 +33,37 @@ function PageTitle({config}: {config: PageConfigInfo}) {
         await api.post(`group/${group_id}/theme`, {theme: theme_id});
     }
 
+    // Wrong API: must use POST view_group
     async function toggleSubGroups(event: MouseEvent<HTMLElement>) {
         const {group_id, value} = api.buttonData(event, ['group_id', 'value']);
         const newValue = value !== 'true';
         await api.post(`group/${group_id}/use_groups`, {value: newValue});
     }
     
-    const dark_theme = config.dark_theme ? ' dark-theme' : '';
+    let dark_theme = '';
+    if (config.view_group.theme) {
+        const curTheme = config.themes.filter(x => x.id === config.view_group.theme);
+        if ((curTheme[0].id < 8) || (curTheme[0].id > 14))
+            dark_theme = ' dark-theme';
+    }
     let iconClass = '';
     if (config.icon) {
         iconClass = `bi-${config.icon} content-title__icon${dark_theme}`;
     }
 
-    const reversedGroups = config.group_path.slice().reverse();
-    const grpupsPath = reversedGroups.map(group => {
-        const url = `group/${group.id}?ret=${config.group_return}`;
-        const hrefClass = `content-title__href${dark_theme}`;
-        const sepClass = `content-title__separator${dark_theme}`;
-        const link = <Link to={url} className={hrefClass}>{group.name}</Link>
-        const sep = group.id === config.group_path[0].id ? <></> : <h3 className={sepClass}>/</h3>;
-        return (<span key={group.id} className="d-flex">{link}{sep}</span>);
-    });
+    let grpupsPath = <></>;
+    if (config.entity.path.constructor === Array<IPathItem>) {
+        const reversedGroups = config.entity.path.slice().reverse();
+        const first: IPathItem = config.entity.path[0];
+        grpupsPath = reversedGroups.map(group => {
+            const url = `group/${group.id}?ret=${config.entity.id}`;
+            const hrefClass = `content-title__href${dark_theme}`;
+            const sepClass = `content-title__separator${dark_theme}`;
+            const link = <Link to={url} className={hrefClass}>{group.name}</Link>
+            const sep = group.id === first.id ? <></> : <h3 className={sepClass}>/</h3>;
+            return (<span key={group.id} className="d-flex">{link}{sep}</span>);
+        });
+    }
     const relatedRoles = config.related_roles.map(role => {
         const roleId = `relRoleLink_${role.name}`;
         const title = `Related role is '${role.name}'`;
@@ -83,26 +93,27 @@ function PageTitle({config}: {config: PageConfigInfo}) {
     const themeClass = `btn bi-gear${dark_theme}`;
     const themeButtons = config.themes.map(theme => {
         const btnClass = `btn theme ${theme.style}`;
-        return <button key={theme.id} type="button" className={btnClass} onClick={setTheme} data-group_id={config.cur_view_group_id} data-theme_id={theme.id} ></button>;
+        return <button key={theme.id} type="button" className={btnClass} onClick={setTheme} data-group_id={config.view_group.id} data-theme_id={theme.id} ></button>;
     });
     const hdrClass = `content-title__text${dark_theme}`;
     const sortClass = `btn bi-sort-alpha-down${dark_theme}`;
+    const folderPath: string = (config.entity.type === EntityType.Folder && config.entity.path.constructor === String) ? config.entity.path : '';
     return (
         <div className="content-title d-flex justify-content-between">
             <div className="title d-none d-md-flex">
                 {config.icon && <i className={iconClass}></i>}
                 {grpupsPath}
-                {!config.group_path.length &&
+                {!config.entity.path.length &&
                     <h3 className={hdrClass}>
-                        {config.folder && <>
-                            <span>{config.path}</span>
-                            <span id="id_folder_view" className="folder_view">{config.folder}</span>
+                        {config.entity.type === EntityType.Folder && <>
+                            <span>{folderPath}</span>
+                            <span id="id_folder_view" className="folder_view">{config.entity.name}</span>
                             <span id="id_folder_edit" className="folder_edit d-none">
                                 <input type="text" name="file_name" size="15" maxlength="100" value="zzz"/>
                             </span>
                         </>}
-                        {!config.folder && config.title}
-                        {config.folder && <>
+                        {config.entity.type !== EntityType.Folder && config.title}
+                        {config.entity.type === EntityType.Folder && <>
                             <button id="id_folder_edit_btn" className="bi-pen btn folder-mod-btn" onClick={editFolder}></button>
                             <button id="id_folder_del_btn" className="bi-trash btn folder-mod-btn" onClick={delFolderConfirm}></button>
                             <button id="id_folder_save_btn" className="bi-save btn folder-mod-btn d-none" onClick={saveFolder}></button>
@@ -118,7 +129,7 @@ function PageTitle({config}: {config: PageConfigInfo}) {
                     {possibleRelated}
                 </div>
 
-                {!config.hide_add_item_input && <AddItem />}
+                {config.add_item && <AddItem config={config} />}
 
                 {config.sorts.length &&
                     <div className="dropdown">
@@ -137,10 +148,10 @@ function PageTitle({config}: {config: PageConfigInfo}) {
                         <ul className="dropdown-menu wide" aria-labelledby="dropdownMenuButton1">
                             <p>Theme</p>
                             {themeButtons}
-                            {config.use_sub_groups &&
+                            {config.view_group.use_sub_groups &&
                                 <div className="form-check form-switch my-1 mx-1">
                                     <input type="checkbox" name="use_sub_groups" id="id_use_sub_groups"
-                                        className="form-check-input" onClick={toggleSubGroups} defaultChecked={config.use_sub_groups} />
+                                        className="form-check-input" onClick={toggleSubGroups} defaultChecked={config.view_group.use_sub_groups} />
                                     <label htmlFor="id_use_sub_groups" className="form-check-label">Use groups</label>
                                 </div>
                             }

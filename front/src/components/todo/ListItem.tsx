@@ -2,12 +2,12 @@ import type { MouseEvent } from 'react'
 import { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
 import { auth as api } from '../auth/Auth';
-import type { PageConfigInfo } from './TodoPage';
+import { IPageConfig } from '../PageConfig';
 import { ItemInfo, ExtraInfo } from './ItemTypes';
 import '../css/category.min.css'
 
 
-function Completed({item, config, update}: {item: ItemInfo, config: PageConfigInfo, update: Function}) {
+function Completed({item, config, update}: {item: ItemInfo, config: IPageConfig, update: Function}) {
     const [itemCompleted, setCompleted] = useState<boolean>(item.completed);
 
     function changeCompleted(newValue: boolean) {
@@ -18,8 +18,8 @@ function Completed({item, config, update}: {item: ItemInfo, config: PageConfigIn
     async function toggleCompleted(event: MouseEvent<HTMLElement>) {
         const {todo_id, completed} = api.buttonData(event, ['todo_id', 'completed']);
         const newCompleted = completed !== 'true';
-        await api.post(`todo/${todo_id}/completed`, {value: newCompleted});
         changeCompleted(newCompleted);
+        await api.put(`todo/${todo_id}`, {completed: newCompleted});
     }
     
     if (!config.use_selector)
@@ -32,8 +32,8 @@ function Completed({item, config, update}: {item: ItemInfo, config: PageConfigIn
     );
 }
 
-function Roles({extra, config}: {extra: ExtraInfo, config: PageConfigInfo}) {
-    if (!extra.roles || !extra.roles.length || config.role !== 'search')
+function Roles({extra, config}: {extra: ExtraInfo, config: IPageConfig}) {
+    if (!extra.roles || !extra.roles.length || config.view_group.role !== 'search')
         return <></>;
     const content = extra.roles.map(role => {
         const href = role.href + (role.hide_params ? '' : role.params);
@@ -43,11 +43,11 @@ function Roles({extra, config}: {extra: ExtraInfo, config: PageConfigInfo}) {
     return content;
 }
 
-function Name({item, extra, config}: {item: ItemInfo, extra: ExtraInfo, config: PageConfigInfo}) {
+function Name({item, extra, config}: {item: ItemInfo, extra: ExtraInfo, config: IPageConfig}) {
     let roles = <></>;
-    if (config.role !== 'search' && extra.roles && extra.roles.length > 1) {
+    if (config.view_group.role !== 'search' && extra.roles && extra.roles.length > 1) {
         const roleList = extra.roles.map(role => {
-            if (role.name_mod === config.app)
+            if (role.name_mod === config.view_group.app)
                 return <></>;
             const role_icon = `bi-${role.icon}`;
             return (
@@ -75,8 +75,8 @@ function Name({item, extra, config}: {item: ItemInfo, extra: ExtraInfo, config: 
     );
 }
 
-function Group({item, extra, config}: {item: ItemInfo, extra: ExtraInfo, config: PageConfigInfo}) {
-    if ((config.determinator !== 'role' && config.determinator !== 'view') || !extra.group_name)
+function Group({item, extra, config}: {item: ItemInfo, extra: ExtraInfo, config: IPageConfig}) {
+    if ((config.view_group.determinator !== 'role' && config.view_group.determinator !== 'view') || !extra.group_name)
         return <></>;
     return (
         <div className="inline">
@@ -86,7 +86,7 @@ function Group({item, extra, config}: {item: ItemInfo, extra: ExtraInfo, config:
     );
 }
 
-function Attributes({item, extra, config}: {item: ItemInfo, extra: ExtraInfo, config: PageConfigInfo}) {
+function Attributes({item, extra, config}: {item: ItemInfo, extra: ExtraInfo, config: IPageConfig}) {
     let attrs = [];
     const today = new Date();
     if (item.remind && !item.completed) {
@@ -95,7 +95,7 @@ function Attributes({item, extra, config}: {item: ItemInfo, extra: ExtraInfo, co
             attrs.push({icon: 'bi-bell'});
         }
     }
-    if (item.in_my_day && (config.determinator !== 'view' || config.view !== 'myday')) {
+    if (item.in_my_day && (config.view_group.determinator !== 'view' || config.view_group.view_id !== 'myday')) {
         attrs.push({icon: 'bi-sun'});
         attrs.push({text: 'My day'});
         attrs.push({icon: 'bi-dot'});
@@ -174,7 +174,7 @@ function getCategoryDesign(category: string): string {
     return CATEGORY_DESIGN[sum % 6];
 }
 
-function Categories({item, config}: {item: ItemInfo, config: PageConfigInfo}) {
+function Categories({item}: {item: ItemInfo}) {
     const categories = item.categories?.length ? item.categories?.split(',') : [];
     const categs = categories.map((category, index) => {
         const categClass = `inline category-design-${getCategoryDesign(category)}`;
@@ -188,18 +188,18 @@ function Categories({item, config}: {item: ItemInfo, config: PageConfigInfo}) {
     return <>{categs}</>;
 }
 
-function Descr({item, extra, config}: {item: ItemInfo, extra: ExtraInfo, config: PageConfigInfo}) {
+function Descr({item, extra, config}: {item: ItemInfo, extra: ExtraInfo, config: IPageConfig}) {
     return (
         <div className="descr">
             <Group item={item} extra={extra} config={config} />
             <Attributes item={item} extra={extra} config={config} />
             <Icons item={item} extra={extra} />
-            <Categories item={item} config={config} />
+            <Categories item={item} />
         </div>
     );
 }
 
-function Tile({item, extra, config}: {item: ItemInfo, extra: ExtraInfo, config: PageConfigInfo}) {
+function Tile({item, extra, config}: {item: ItemInfo, extra: ExtraInfo, config: IPageConfig}) {
     let href = `${item.id}`;
     return (
         <Link to={href} className="container info">
@@ -211,7 +211,7 @@ function Tile({item, extra, config}: {item: ItemInfo, extra: ExtraInfo, config: 
     );
 }
 
-function Important({item, config}: {item: ItemInfo, config: PageConfigInfo}) {
+function Important({item, config}: {item: ItemInfo, config: IPageConfig}) {
 
     const [itemImportant, setImportant] = useState<boolean>(item.important);
 
@@ -219,10 +219,10 @@ function Important({item, config}: {item: ItemInfo, config: PageConfigInfo}) {
         const {todo_id, important} = api.buttonData(event, ['todo_id', 'important']);
         const newImportant = important !== 'true';
         setImportant(newImportant);
-        await api.post(`todo/${todo_id}/important`, {value: newImportant});
+        await api.put(`todo/${todo_id}`, {important: newImportant});
     }
         
-    if (!config.use_important)
+    if (!config.use_star)
         return <></>;
     const importantClass = 'bi-star' + (itemImportant ? '-fill' : '');
     return (
@@ -232,7 +232,7 @@ function Important({item, config}: {item: ItemInfo, config: PageConfigInfo}) {
     );
 }
 
-function ListItem({item, visible, config, update}: {item: ItemInfo, visible: boolean, config: PageConfigInfo, update: Function}) {
+function ListItem({item, visible, config, update}: {item: ItemInfo, visible: boolean, config: IPageConfig, update: Function}) {
     const emptyExtra: ExtraInfo = {
         initialized: false,
         roles: [],
@@ -249,7 +249,7 @@ function ListItem({item, visible, config, update}: {item: ItemInfo, visible: boo
     const [extra, setData] = useState<ExtraInfo>(emptyExtra);
     useEffect(() => {
         const getData = async () => {
-            const data = await api.get(`todo/${item.id}/extra`, {app: config.app, role: config.role});
+            const data = await api.get(`todo/${item.id}/extra`, {app: config.view_group.app, role: config.view_group.role});
             const extra: ExtraInfo = Object.assign(data, {'initialized': true});
             setData(extra);
         };
@@ -257,7 +257,7 @@ function ListItem({item, visible, config, update}: {item: ItemInfo, visible: boo
             getData();
     }, [item, visible, config, extra.initialized]);
 
-    const item_class = `list-item${!config.use_selector && config.role !== 'search' ? ' px-3' : ''}`;
+    const item_class = `list-item${!config.use_selector && config.view_group.role !== 'search' ? ' px-3' : ''}`;
     return (
         <li className={item_class}>
             <Completed item={item} config={config} update={update} />

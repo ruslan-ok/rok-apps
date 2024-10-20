@@ -1,6 +1,6 @@
-import type { PageConfigInfo } from './TodoPage'
+import { IPageConfig } from '../PageConfig';
 
-function AddNewGroup({config}: {config: PageConfigInfo}) {
+function AddNewGroup({config}: {config: IPageConfig}) {
     function addGroup() {
         // console.log(app, role, entity)
     }

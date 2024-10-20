@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import type { PageConfigInfo } from './TodoPage';
+import { IPageConfig } from '../PageConfig';
 
 export interface FixItemInfo {
     id: string;
@@ -12,8 +12,8 @@ export interface FixItemInfo {
     determinator: string;
 }
 
-function FixItem({item, config}: {item: FixItemInfo, config: PageConfigInfo}) {
-    const link_class = 'sidebar__fix-item' + (item.active && !config.group_id ? ' active' : '');
+function FixItem({item, config}: {item: FixItemInfo, config: IPageConfig}) {
+    const link_class = 'sidebar__fix-item' + (item.active && !config.entity.id ? ' active' : '');
     const fix_icon = 'bi-' + item.icon;
     const qty = (item.search_qty ? `${item.search_qty} / ` : '') + (item.qty ? `${item.qty}` : '');
     return (

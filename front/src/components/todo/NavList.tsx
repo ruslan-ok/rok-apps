@@ -1,7 +1,7 @@
-import type { PageConfigInfo } from './TodoPage'
+import { IPageConfig } from '../PageConfig';
 
 
-function NavList({config}: {config: PageConfigInfo}) {
+function NavList({config}: {config: IPageConfig}) {
     let navs = <div></div>;
     return navs;
 }

@@ -1,7 +1,9 @@
+import type { MouseEvent } from 'react'
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { auth as api } from '../auth/Auth';
-import type { PageConfigInfo } from './TodoPage'
+import { IPageConfig } from '../PageConfig';
+
 
 interface GroupItem {
     id: number;
@@ -63,8 +65,8 @@ function toggleLi(group_id: number, visible: boolean) {
     }
 }
 
-function handleClick(e) {
-    let el = e.target;
+function handleClick(event: MouseEvent<HTMLElement>) {
+    let el: HTMLElement = event.target;
     while (el.tagName !== 'BUTTON' && el.parentElement) {
         el = el.parentElement;
     }
@@ -170,11 +172,11 @@ function hierToFlat(root: number[]): Array<number> {
     return ret;
 }
 
-function GroupTree({config}: {config: PageConfigInfo}) {
+function GroupTree({config}: {config: IPageConfig}) {
     const [items, setData] = useState<GroupItem[]>([]);
     useEffect(() => {
         const getData = async () => {
-          const items: GroupItem[] = await api.get('group', {app: config.app, role: config.role});
+          const items: GroupItem[] = await api.get('group', {app: config.view_group.app, role: config.view_group.role});
           setData(items);
         };
       
@@ -197,11 +199,11 @@ function GroupTree({config}: {config: PageConfigInfo}) {
             let itemLink;
             const g_id = `task_group_${group.id}`;
             const is_visible = allNodesAreOpen(group.id);
-            const active = (group.id === config.group_id);
+            const active = (group.id === config.entity.id);
             const gclass = is_visible ? 'sidebar__group-visible' + (active ? ' active' : '') : 'sidebar__group-hidden';
 
             if (group.is_leaf) {
-                const href = `/${config.app}/?${config.entity}=${group.id}`;
+                const href = `/${config.view_group.app}/?${config.entity.name}=${group.id}`;
                 const item_class = `bi-journals level-${group.level}`;
                 itemLink = (
                     <Link id={g_id} key={group.id} to={href} data-id={group.id} data-parent={group.node_id} className={gclass} aria-current={active}>

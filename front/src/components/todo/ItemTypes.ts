@@ -350,7 +350,7 @@ export class ItemInfo {
 
     get termin_info(): string {
         if (!this.stop)
-            return 'Set due date';
+            return '';
         let label = this.is_expired ? 'Expired, ' : 'Termin: ';
         return label + this.nice_date;
     }
