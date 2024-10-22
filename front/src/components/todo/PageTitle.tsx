@@ -1,7 +1,6 @@
-import type { MouseEvent } from 'react'
 import { Link } from 'react-router-dom';
-import { api } from '../../API'
 import { IPageConfig, IPathItem, EntityType } from '../PageConfig';
+import ThemeSelector from './ThemeSelector';
 
 
 function AddItem({config}: {config: IPageConfig}) {
@@ -28,39 +27,14 @@ function PageTitle({config}: {config: IPageConfig}) {
         console.log('setSort');
     }
 
-    async function setTheme(event: MouseEvent<HTMLElement>) {
-        const {group_id, theme_id} = api.buttonData(event, ['group_id', 'theme_id']);
-        await api.post(`group/${group_id}/theme`, {theme: theme_id});
-    }
-
-    // Wrong API: must use POST view_group
-    async function toggleSubGroups(event: MouseEvent<HTMLElement>) {
-        const {group_id, value} = api.buttonData(event, ['group_id', 'value']);
-        const newValue = value !== 'true';
-        await api.post(`group/${group_id}/use_groups`, {value: newValue});
-    }
-    
-    let dark_theme = '';
-    if (config.view_group.theme) {
-        const curTheme = config.themes.filter(x => x.id === config.view_group.theme);
-        if ((curTheme[0].id < 8) || (curTheme[0].id > 14))
-            dark_theme = ' dark-theme';
-    }
-    let iconClass = '';
-    if (config.icon) {
-        iconClass = `bi-${config.icon} content-title__icon${dark_theme}`;
-    }
-
     let grpupsPath = <></>;
     if (config.entity.path.constructor === Array<IPathItem>) {
         const reversedGroups = config.entity.path.slice().reverse();
         const first: IPathItem = config.entity.path[0];
         grpupsPath = reversedGroups.map(group => {
             const url = `group/${group.id}?ret=${config.entity.id}`;
-            const hrefClass = `content-title__href${dark_theme}`;
-            const sepClass = `content-title__separator${dark_theme}`;
-            const link = <Link to={url} className={hrefClass}>{group.name}</Link>
-            const sep = group.id === first.id ? <></> : <h3 className={sepClass}>/</h3>;
+            const link = <Link to={url} className={config.checkDark('content-title__href')}>{group.name}</Link>
+            const sep = group.id === first.id ? <></> : <h3 className={config.checkDark('content-title__separator')}>/</h3>;
             return (<span key={group.id} className="d-flex">{link}{sep}</span>);
         });
     }
@@ -90,23 +64,15 @@ function PageTitle({config}: {config: IPageConfig}) {
     const sortButtons = config.sorts.map(sort => {
         return <button key={sort.id} type="button" className="btn dropdown-item" onClick={setSort}>{sort.name}</button>;
     });
-    const themeClass = `btn bi-gear${dark_theme}`;
-    const themeButtons = config.themes.map(theme => {
-        const btnClass = `btn theme ${theme.style}`;
-        return <button key={theme.id} type="button" className={btnClass} onClick={setTheme} data-group_id={config.view_group.id} data-theme_id={theme.id} ></button>;
-    });
-    const hdrClass = `content-title__text${dark_theme}`;
-    const sortClass = `btn bi-sort-alpha-down${dark_theme}`;
-    const folderPath: string = (config.entity.type === EntityType.Folder && config.entity.path.constructor === String) ? config.entity.path : '';
     return (
         <div className="content-title d-flex justify-content-between">
             <div className="title d-none d-md-flex">
-                {config.icon && <i className={iconClass}></i>}
+                {config.icon && <i className={config.iconClass}></i>}
                 {grpupsPath}
                 {!config.entity.path.length &&
-                    <h3 className={hdrClass}>
+                    <h3 className={config.checkDark('content-title__text')}>
                         {config.entity.type === EntityType.Folder && <>
-                            <span>{folderPath}</span>
+                            <span>{config.folderPath}</span>
                             <span id="id_folder_view" className="folder_view">{config.entity.name}</span>
                             <span id="id_folder_edit" className="folder_edit d-none">
                                 <input type="text" name="file_name" size="15" maxlength="100" value="zzz"/>
@@ -128,38 +94,19 @@ function PageTitle({config}: {config: IPageConfig}) {
                     {relatedRoles}
                     {possibleRelated}
                 </div>
-
                 {config.add_item && <AddItem config={config} />}
 
                 {config.sorts.length &&
                     <div className="dropdown">
                         <button type="button" id="dropdownMenuButton1" 
-                            data-bs-toggle="dropdown" aria-expanded="false" className={sortClass}></button>
+                            data-bs-toggle="dropdown" aria-expanded="false" className={config.checkDark('btn bi-sort-alpha-down')}></button>
                         <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                             {sortButtons}
                         </ul>
                     </div>
                 }
 
-                {config.themes.length &&
-                    <div className="dropdown mx-3">
-                        <button className={themeClass} type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" 
-                            data-bs-auto-close="false" aria-expanded="false"></button>
-                        <ul className="dropdown-menu wide" aria-labelledby="dropdownMenuButton1">
-                            <p>Theme</p>
-                            {themeButtons}
-                            {config.view_group.use_sub_groups &&
-                                <div className="form-check form-switch my-1 mx-1">
-                                    <input type="checkbox" name="use_sub_groups" id="id_use_sub_groups"
-                                        className="form-check-input" onClick={toggleSubGroups} defaultChecked={config.view_group.use_sub_groups} />
-                                    <label htmlFor="id_use_sub_groups" className="form-check-label">Use groups</label>
-                                </div>
-                            }
-                        </ul>
-                    </div>
-                }
-
-
+                <ThemeSelector config={config} />
             </div>
         </div>
     );

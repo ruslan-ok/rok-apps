@@ -885,7 +885,7 @@ def add_months(sourcedate, months):
 
 class Step(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'), related_name='task_step')
-    task = models.ForeignKey(Task, on_delete = models.CASCADE, verbose_name = _('step task'))
+    task = models.ForeignKey(Task, on_delete = models.CASCADE, verbose_name = _('step task'), related_name='steps')
     created = models.DateTimeField(_('creation time'), blank=True, default=datetime.now)
     last_mod = models.DateTimeField(_('last modification time'), blank=True, auto_now=True)
     name = models.CharField(_('step name'), max_length=200, blank=False)

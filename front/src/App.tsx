@@ -12,10 +12,8 @@ import Login, { action as loginAction } from './components/auth/Login';
 import Logout from './components/auth/Logout';
 import TodoPage, { loader as todoLoader } from './components/todo/TodoPage';
 import TodoListPage from './components/todo/TodoListPage';
-import TodoItemPage from './components/todo/TodoItemPage';
+import TodoItemPage, { loader as todoItemLoader } from './components/todo/TodoItemPage';
 
-import './components/main.css';
-import './components/css/error_page.min.css';
 
 let router = createBrowserRouter([
     {
@@ -42,6 +40,7 @@ let router = createBrowserRouter([
                     {
                         path: ':id',
                         Component: TodoItemPage,
+                        loader: todoItemLoader,
                     },
                 ],
             },

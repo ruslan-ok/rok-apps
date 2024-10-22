@@ -241,7 +241,7 @@ export class IItemInfo {
     info: string | null;
     last_mod: string | null;
     last_remind: string | null;
-    name: string | null;
+    name: string;
     remind: string | null;
     repeat: number | null;
     repeat_days: number | null;
@@ -263,7 +263,7 @@ export class IItemInfo {
         this.info = values?.info;
         this.last_mod = values?.last_mod;
         this.last_remind = values?.last_remind;
-        this.name = values?.name;
+        this.name = values?.name || '';
         this.remind = values?.remind;
         this.repeat = values?.repeat;
         this.repeat_days = values?.repeat_days;
@@ -356,6 +356,9 @@ export class IItemInfo {
     }
 }
 
+// ========================================================
+// Extra
+
 interface IItemRole {
     href: string;
     hide_params: boolean;
@@ -368,7 +371,7 @@ interface IAttrInfo {
     icon: string;
 }
 
-export interface IExtraInfo {
+export interface ITodoExtra {
     initialized: boolean;
     roles: IItemRole[];
     params: string;
@@ -380,4 +383,45 @@ export interface IExtraInfo {
     has_files: boolean;
     has_links: boolean;
     task_descr: string;
+}
+
+// ========================================================
+// Details
+
+// interface IGroup {
+//     id: number;
+//     name: string;
+// }
+
+interface IStep {
+    id: number;
+    name: string;
+    completed: boolean;
+}
+
+// interface IFile {
+//     id: number;
+//     name: string;
+// }
+
+// interface ILink {
+//     id: number;
+//     name: string;
+// }
+
+export class ITodoDetails extends IItemInfo {
+    // roles: IItemRole[];
+    // group: IGroup;
+    steps: IStep[];
+    // files: IFile[];
+    // links: ILink[];
+
+    constructor(values: Object) {
+        super(values);
+        // this.roles = values.roles;
+        // this.group = values.group;
+        this.steps = values.steps;
+        // this.files = values.files;
+        // this.links = values.links;
+    }
 }

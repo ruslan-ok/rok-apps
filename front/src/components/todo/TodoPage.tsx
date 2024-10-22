@@ -22,8 +22,9 @@ export async function loader({request}: {request: Request}): Promise<IPageConfig
         params = Object.assign(params, {view: view});
     if (group_id)
         params = Object.assign(params, {group: group_id});
-    const data: IPageConfig = await api.get('config', params);
-    return data;
+    const data = await api.get('config', params);
+    const config = new IPageConfig(Object.assign({}, data));
+    return config;
 }
   
 function TodoPage() {

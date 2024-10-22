@@ -6,14 +6,20 @@ from rest_framework.viewsets import ModelViewSet
 
 from task.models import Task, TaskGroup, TaskRoleInfo, Urls, Step
 from task.const import APP_TODO, NUM_ROLE_TODO, ROLE_TODO
-from api.serializers.todo import TodoSerializer
+from api.serializers.todo import TodoListSerializer, TodoDetailsSerializer
 
 
 class TodoViewSet(ModelViewSet):
-    serializer_class = TodoSerializer
     permission_classes = [permissions.IsAuthenticated]
     renderer_classes = [renderers.JSONRenderer, renderers.BrowsableAPIRenderer,]
     pagination_class = None
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return TodoListSerializer
+        if self.action == 'retrieve':
+            return TodoDetailsSerializer
+        return TodoListSerializer
 
     def get_queryset(self):
         if not self.request.user.is_authenticated:
@@ -39,6 +45,7 @@ class TodoViewSet(ModelViewSet):
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def extra(request, pk):
+    """Additional information to display in the list of items"""
     app = request.query_params.get('app', APP_TODO)
     role = request.query_params.get('role', ROLE_TODO)
     group_name = ''

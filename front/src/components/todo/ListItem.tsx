@@ -3,11 +3,11 @@ import { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
 import { api } from '../../API'
 import { IPageConfig } from '../PageConfig';
-import { IItemInfo, IExtraInfo } from './ItemTypes';
+import { IItemInfo, ITodoExtra } from './ItemTypes';
 import '../css/category.min.css'
 
 
-function Completed({item, config, update}: {item: IItemInfo, config: IPageConfig, update: Function}) {
+export function Completed({item, config, update}: {item: IItemInfo, config: IPageConfig, update: Function}) {
     const [itemCompleted, setCompleted] = useState<boolean>(item.completed);
 
     function changeCompleted(newValue: boolean) {
@@ -32,7 +32,7 @@ function Completed({item, config, update}: {item: IItemInfo, config: IPageConfig
     );
 }
 
-function Roles({extra, config}: {extra: IExtraInfo, config: IPageConfig}) {
+function Roles({extra, config}: {extra: ITodoExtra, config: IPageConfig}) {
     if (!extra.roles || !extra.roles.length || config.view_group.role !== 'search')
         return <></>;
     const content = extra.roles.map(role => {
@@ -43,7 +43,7 @@ function Roles({extra, config}: {extra: IExtraInfo, config: IPageConfig}) {
     return content;
 }
 
-function Name({item, extra, config}: {item: IItemInfo, extra: IExtraInfo, config: IPageConfig}) {
+function Name({item, extra, config}: {item: IItemInfo, extra: ITodoExtra, config: IPageConfig}) {
     let roles = <></>;
     if (config.view_group.role !== 'search' && extra.roles && extra.roles.length > 1) {
         const roleList = extra.roles.map(role => {
@@ -75,7 +75,7 @@ function Name({item, extra, config}: {item: IItemInfo, extra: IExtraInfo, config
     );
 }
 
-function Group({item, extra, config}: {item: IItemInfo, extra: IExtraInfo, config: IPageConfig}) {
+function Group({item, extra, config}: {item: IItemInfo, extra: ITodoExtra, config: IPageConfig}) {
     if ((config.view_group.determinator !== 'role' && config.view_group.determinator !== 'view') || !extra.group_name)
         return <></>;
     return (
@@ -86,7 +86,7 @@ function Group({item, extra, config}: {item: IItemInfo, extra: IExtraInfo, confi
     );
 }
 
-function Attributes({item, extra, config}: {item: IItemInfo, extra: IExtraInfo, config: IPageConfig}) {
+function Attributes({item, extra, config}: {item: IItemInfo, extra: ITodoExtra, config: IPageConfig}) {
     let attrs = [];
     const today = new Date();
     if (item.remind && !item.completed) {
@@ -139,7 +139,7 @@ function Attributes({item, extra, config}: {item: IItemInfo, extra: IExtraInfo, 
     );
 }
 
-function Icons({item, extra}: {item: IItemInfo, extra: IExtraInfo}) {
+function Icons({item, extra}: {item: IItemInfo, extra: ITodoExtra}) {
     const has_files = extra.has_files ? <><i className="bi-paperclip"></i><i className="bi-dot"></i></> : <></>;
     const has_links = extra.has_links ? <><i className="bi-cursor"></i><i className="bi-dot"></i></> : <></>;
     const info = !item.info ? '' : item.info.replace(String.fromCharCode(13), '').replace(String.fromCharCode(10), '');
@@ -188,7 +188,7 @@ function Categories({item}: {item: IItemInfo}) {
     return <>{categs}</>;
 }
 
-function Descr({item, extra, config}: {item: IItemInfo, extra: IExtraInfo, config: IPageConfig}) {
+function Descr({item, extra, config}: {item: IItemInfo, extra: ITodoExtra, config: IPageConfig}) {
     return (
         <div className="descr">
             <Group item={item} extra={extra} config={config} />
@@ -199,7 +199,7 @@ function Descr({item, extra, config}: {item: IItemInfo, extra: IExtraInfo, confi
     );
 }
 
-function Tile({item, extra, config}: {item: IItemInfo, extra: IExtraInfo, config: IPageConfig}) {
+function Tile({item, extra, config}: {item: IItemInfo, extra: ITodoExtra, config: IPageConfig}) {
     let href = `${item.id}`;
     return (
         <Link to={href} className="container info">
@@ -211,7 +211,7 @@ function Tile({item, extra, config}: {item: IItemInfo, extra: IExtraInfo, config
     );
 }
 
-function Important({item, config}: {item: IItemInfo, config: IPageConfig}) {
+export function Important({item, config}: {item: IItemInfo, config: IPageConfig}) {
 
     const [itemImportant, setImportant] = useState<boolean>(item.important);
 
@@ -233,7 +233,7 @@ function Important({item, config}: {item: IItemInfo, config: IPageConfig}) {
 }
 
 function ListItem({item, visible, config, update}: {item: IItemInfo, visible: boolean, config: IPageConfig, update: Function}) {
-    const emptyExtra: IExtraInfo = {
+    const emptyExtra: ITodoExtra = {
         initialized: false,
         roles: [],
         params: '',
@@ -246,11 +246,11 @@ function ListItem({item, visible, config, update}: {item: IItemInfo, visible: bo
         has_links: false,
         task_descr: '',
     };
-    const [extra, setData] = useState<IExtraInfo>(emptyExtra);
+    const [extra, setData] = useState<ITodoExtra>(emptyExtra);
     useEffect(() => {
         const getData = async () => {
             const data = await api.get(`todo/${item.id}/extra`, {app: config.view_group.app, role: config.view_group.role});
-            const extra: IExtraInfo = Object.assign(data, {'initialized': true});
+            const extra: ITodoExtra = Object.assign(data, {'initialized': true});
             setData(extra);
         };
         if (visible && !extra.initialized)

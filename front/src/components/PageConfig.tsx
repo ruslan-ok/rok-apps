@@ -52,7 +52,7 @@ interface IViewGroup {
     items_sort: string;
 }
 
-export interface IPageConfig {
+export class IPageConfig {
     title: string;
     icon: string;
     event_in_name: boolean;
@@ -63,7 +63,55 @@ export interface IPageConfig {
     related_roles: IRelatedRole[];
     possible_related: IRelatedRole[];
     entity: IEntity;
-    sorts: ISort[]
-    themes: ITheme[]
+    sorts: ISort[];
+    themes: ITheme[];
+    theme_id: number;
     view_group: IViewGroup;
+
+    constructor (data: Object | unknown) {
+        this.title = data?.title;
+        this.icon = data?.icon;
+        this.event_in_name = data?.event_in_name;
+        this.use_groups = data?.use_groups;
+        this.use_selector = data?.use_selector;
+        this.use_star = data?.use_star;
+        this.add_item = data?.add_item;
+        this.related_roles = data?.related_roles;
+        this.possible_related = data?.possible_related;
+        this.entity = data?.entity;
+        this.sorts = data?.sorts;
+        this.themes = data?.themes;
+        this.theme_id = data?.theme_id || 8;
+        this.view_group = data?.view_group;
+    }
+
+    get isFolder(): boolean {
+        return (this.entity.type === EntityType.Folder);
+    }
+
+    get folderPath(): string {
+        return (this.isFolder && this.entity.path.constructor === String) ? this.entity.path : '';
+    }
+
+    get darkClass() {
+        let value = '';
+        if (this.view_group.theme) {
+            const curTheme = this.themes.filter(x => x.id === this.theme_id);
+            if ((curTheme[0].id < 8) || (curTheme[0].id > 14))
+                value = ' dark-theme';
+        }
+        return value;
+    }
+
+    get iconClass() {
+        let value = '';
+        if (this.icon) {
+            value = `bi-${this.icon} content-title__icon${this.darkClass}`;
+        }
+        return value;
+    }
+
+    checkDark(value: string): string {
+        return value + this.darkClass;
+    }
 }
