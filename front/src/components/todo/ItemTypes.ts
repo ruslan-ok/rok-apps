@@ -184,6 +184,17 @@ class ITermin {
         return false;
     }
 
+    get is_actual(): boolean {
+        if (this.dt === null)
+            return false;
+
+        const today = new DateTime();
+        if (this.dt.value > today.value || (this.dt.year === today.year && this.dt.month === today.month && this.dt.day === today.day && !this.dt.hours && !this.dt.minutes))
+            return true;
+
+        return false;
+    }
+
     get kind(): TerminKind {
         if (!this.dt)
             return TerminKind.ALL;
@@ -228,6 +239,29 @@ class ITermin {
     }
 }
 
+const NONE = 0;
+const DAILY = 1;
+const WORKDAYS = 2;
+const WEEKLY = 3;
+const MONTHLY = 4;
+const ANNUALLY = 5;
+
+const REPEAT = [
+    [NONE, 'No'],
+    [DAILY, 'Daily'],
+    [WORKDAYS, 'Work days'],
+    [WEEKLY, 'Weekly'],
+    [MONTHLY, 'Monthly'],
+    [ANNUALLY, 'Annually']
+];
+
+const REPEAT_NAME = {
+    [DAILY]: 'days',
+    [WEEKLY]: 'weeks',
+    [MONTHLY]: 'months',
+    [ANNUALLY]: 'years'
+};
+
 export class IItemInfo {
     categories: string | null;
     completed: boolean;
@@ -237,7 +271,7 @@ export class IItemInfo {
     groups: number[] | null;
     id: number | null;
     important: boolean;
-    in_my_day: boolean | null;
+    in_my_day: boolean;
     info: string | null;
     last_mod: string | null;
     last_remind: string | null;
@@ -249,6 +283,7 @@ export class IItemInfo {
     start: string | null;
     stop: string | null;
     url: string | null;
+    steps: IStep[];
 
     constructor(values: Object) {
         this.categories = values.categories;
@@ -259,7 +294,7 @@ export class IItemInfo {
         this.groups = values?.groups;
         this.id = values?.id;
         this.important = values?.important;
-        this.in_my_day = values?.in_my_day;
+        this.in_my_day = values?.in_my_day || false;
         this.info = values?.info;
         this.last_mod = values?.last_mod;
         this.last_remind = values?.last_remind;
@@ -271,6 +306,7 @@ export class IItemInfo {
         this.start = values?.start;
         this.stop = values?.stop;
         this.url = values?.url;
+        this.steps = values?.steps || [];
     }
 
     get sub_group_id(): SubGroupKind {
@@ -313,6 +349,13 @@ export class IItemInfo {
         return this.termin.is_expired;
     }
 
+    get is_actual(): boolean {
+        if (this.completed)
+            return false;
+
+        return this.termin.is_actual;
+    }
+
     get _only_nice_date(): string {
         let ret = '';
         if (this.termin) {
@@ -351,8 +394,100 @@ export class IItemInfo {
     get termin_info(): string {
         if (!this.stop)
             return '';
-        let label = this.is_expired ? 'Expired, ' : 'ITermin: ';
+        let label = this.is_expired ? 'Expired, ' : 'Termin: ';
         return label + this.nice_date;
+    }
+
+    get s_repeat(): string {
+        if (!this.repeat || this.repeat === NONE) return '';
+
+        if (this.repeat_num === 1) {
+            return this.repeat === WORKDAYS 
+                ? '' + REPEAT[WEEKLY][1]
+                : '' + REPEAT[this.repeat][1];
+        }
+
+        const repeatName = this.repeat ? REPEAT_NAME[this.repeat]: '';
+        return `Once every ${this.repeat_num} ${repeatName}`;
+    }
+
+    get repeat_s_days(): string {
+        if (this.repeat === WEEKLY) {
+            if (this.repeat_days === 0) {
+                const start = this.start ? new Date(this.start) : null;
+                const stop = this.stop ? new Date(this.stop) : null;
+                const ddd = stop || start;
+                if (ddd) {
+                    return this.weekDayName(ddd);
+                }
+                return '???';
+            }
+
+            if (this.repeat_days === (1 + 2 + 4 + 8 + 16)) {
+                return 'Work days';
+            }
+
+            let ret = '';
+            const monday = new Date(2020, 6, 6); // July 6, 2020 is a Monday
+
+            for (let i = 0; i < 7; i++) {
+                if (this.repeat_days || 0 & (1 << i)) {
+                    if (ret) ret += ', ';
+                    ret += this.weekDayName(new Date(monday.getTime() + i * 86400000));
+                }
+            }
+            return ret;
+        }
+        return '';
+    }
+
+    getWeekDayName(weekday_num: number): string {
+        const d = new Date('2020-07-13');
+        if (weekday_num > 1)
+            d.setDate(d.getDate() + weekday_num - 1);
+        return this.weekDayName(d);
+    }
+    
+    // Format date to the abbreviated day of the week
+    weekDayName(date: Date) {
+        const options: Intl.DateTimeFormatOptions = { weekday: 'short' };
+        return new Intl.DateTimeFormat('en-GB', options).format(date);
+    }
+
+    get remindActive(): boolean {
+        const cond1: boolean = this.remind !== null;
+        const cond2: boolean = !this.completed;
+        const d1 = new Date(this.remind || '');
+        const d2 = new Date();
+        const cond3: boolean = d1 > d2;
+        return cond1 && cond2 && cond3;
+    }
+
+    get remindTime(): string {
+        if (this.remind === null)
+            return '';
+        const remindTime = new DateTime(this.remind);
+        return 'Remind in ' + remindTime.strftime('%H:%M');
+    }
+
+    get remindDate(): string {
+        if (this.remind === null)
+            return '';
+        let ret = '';
+        const remindTime = new ITermin(this.remind);
+        if (!remindTime.dt.hours && !remindTime.dt.minutes) {
+            if (!remindTime.years)
+                ret = remindTime.dt.date_format('D, d N');
+            else
+                ret = remindTime.dt.date_format('D, d N Y');
+        } else {
+            if (!this.termin.years)
+                ret = remindTime.dt.date_format('D, d N H:i');
+            else
+                ret = remindTime.dt.date_format('D, d N Y H:i');
+        }
+        
+        return ret;
     }
 }
 

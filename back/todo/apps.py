@@ -18,7 +18,7 @@ class TodoConfig(AppConfig):
         'use_groups': True,
         'use_selector': True,
         'use_important': True,
-        'relate': [ROLE_NOTE, ROLE_NEWS, ROLE_EXPENSE],
+        # 'relate': [ROLE_NOTE, ROLE_NEWS, ROLE_EXPENSE],
         'sort': [
             ('stop', _('termin')),
             ('name', _('name')),
@@ -52,7 +52,7 @@ class TodoConfig(AppConfig):
                 'icon': 'check2-square',
                 'title': _('Planned tasks'),
                 'use_sub_groups': True,
-                'hide_qty': True,
+                'hide_qty': False,
                 'sort': [
                     ('stop', _('termin')),
                     ('name', _('name')),
@@ -65,7 +65,7 @@ class TodoConfig(AppConfig):
                 'icon': 'infinity',
                 'title': _('All tasks'),
                 'use_sub_groups': True,
-                'hide_qty': True,
+                'hide_qty': False,
                 'sort': [
                     ('stop', _('termin')),
                     ('name', _('name')),
@@ -77,7 +77,7 @@ class TodoConfig(AppConfig):
             'completed': {
                 'icon': 'check2-circle',
                 'title': _('Completed tasks'),
-                'hide_qty': True,
+                'hide_qty': False,
                 'sort': [
                     ('completion', _('completion date')),
                     ('name', _('name')),

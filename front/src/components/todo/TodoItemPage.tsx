@@ -3,7 +3,16 @@ import { LoaderFunctionArgs, useOutletContext, useLoaderData } from "react-route
 import { api } from '../../API'
 import { IPageConfig } from '../PageConfig';
 import { IItemInfo } from './ItemTypes';
+import ItemTermin from './ItemTermin';
 import '../css/widgets.min.css';
+
+function getStrId(prefix: string, id: number): string {
+    return `${prefix}_${id}`;
+}
+
+export function extraClass(prefix: string, condition: boolean, extraClass: string): string {
+    return prefix + (condition ? ` ${extraClass}` : '');
+}
 
 function editFolder(event: ChangeEvent<HTMLInputElement>) {
     console.log('editFolder');
@@ -17,8 +26,31 @@ function saveFolder() {
     console.log('saveFolder');
 }
 
-function AddItem({config}: {config: IPageConfig}) {
-    return <div className="btn bi-plus dark-theme"></div>;
+function addItemKeyDowm() {
+    console.log('addItemKeyDowm');
+    // "if (event.keyCode == 13) document.getElementById('id_add_item_button_{{ screen_size }}').click()"
+}
+
+function addItem() {
+    console.log('addItem');
+    // addItem('{{ config.app }}', '{{ config.get_cur_role }}', {{ config.cur_view_group.id|escape }}, '{{ screen_size }}')
+}
+
+function AddItemInput({config}: {config: IPageConfig}) {
+    return (<>
+        <div className="dropdown mx-3">
+            <button className={config.checkDark('btn bi-plus-lg')} type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false" />
+            <ul className="dropdown-menu shadow-lg" aria-labelledby="dropdownMenuButton1">
+                <div className="d-flex py-2">
+                    <input type="text" name="add_item_name" maxLength={200} id="id_add_item_name" className="add-item-name"
+                    placeholder={config.add_item?.placeholder} onKeyDown={addItemKeyDowm} />
+                    <button type="button" className="btn btn-primary ms-2" id="id_add_item_button" onClick={addItem}>
+                        Add
+                    </button>
+                </div>
+            </ul>
+        </div>
+    </>);
 }
 
 function ItemTitle({item, config}: {item: IItemInfo, config: IPageConfig}) {
@@ -48,7 +80,7 @@ function ItemTitle({item, config}: {item: IItemInfo, config: IPageConfig}) {
             <div className="title d-md-none"></div>
             <div className="actions d-flex mx-2">
                 {/* {% include "core/tune.html" with screen_size="small" %} */}
-                {config.add_item && <AddItem config={config} />}
+                {config.add_item && <AddItemInput config={config} />}
             </div>
         </div>
     );
@@ -109,14 +141,6 @@ function addStep() {
     console.log('addStep');
 }
 
-function getStrId(prefix: string, id: number): string {
-    return `${prefix}_${id}`;
-}
-
-function extraClass(prefix: string, condition: boolean, extraClass: string): string {
-    return prefix + (condition ? ` ${extraClass}` : '');
-}
-
 function TodoSteps({item}: {item: IItemInfo}) {
     const stepList = item.steps.map(step => {
         return (
@@ -143,12 +167,24 @@ function TodoSteps({item}: {item: IItemInfo}) {
     );
 }
 
-function MyDay({item}: {item: IItemInfo}) {
-    return <></>;
+function toggleMyDay() {
+    console.log('toggleMyDay');
 }
 
-function Termin({item}: {item: IItemInfo}) {
-    return <></>;
+function MyDay({item}: {item: IItemInfo}) {
+    const label = item.in_my_day ? 'Added in "My day"' : 'Add to "My day"';
+    return (
+        <div className="termin-block__fixed">
+            <button type="button" name="task_myday" className="termin-block" onClick={toggleMyDay}>
+                <div className="termin-block__content" id="toggle-myday">
+                    <i className={extraClass('bi-sun termin-block__icon', item.in_my_day, 'selected')} />
+                    <div className={extraClass('termin-block__title', item.in_my_day, 'selected')} >
+                        {label}
+                    </div>
+                </div>
+            </button>
+        </div>
+    );
 }
 
 function ItemInfo({item}: {item: IItemInfo}) {
@@ -176,9 +212,6 @@ function delItemConfirm() {
 
 }
 
-function update() {
-}
-
 export async function loader({ params }: LoaderFunctionArgs) {
     const item: IItemInfo = await api.get(`todo/${params.id}`, {});
     return item;
@@ -186,7 +219,8 @@ export async function loader({ params }: LoaderFunctionArgs) {
   
 function TodoItemPage() {
     const config = useOutletContext() as IPageConfig;
-    const item = useLoaderData() as IItemInfo;
+    const itemData = useLoaderData() as Object;
+    const item = new IItemInfo(itemData);
     const csrfToken = '';
     if (!item)
         return <></>;
@@ -204,7 +238,7 @@ function TodoItemPage() {
             <TodoSteps item={item} />
             <div className="termin-row">
                 <MyDay item={item} />
-                <Termin item={item} />
+                <ItemTermin item={item} />
             </div>
             <div className="row g-3">
                 <ItemInfo item={item} />
