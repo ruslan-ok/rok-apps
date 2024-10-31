@@ -2,9 +2,10 @@ import { ChangeEvent } from 'react';
 import { LoaderFunctionArgs, useOutletContext, useLoaderData } from "react-router-dom";
 import { api } from '../../API'
 import { IPageConfig } from '../PageConfig';
-import { IItemInfo } from './ItemTypes';
+import { IDateTime, IItemInfo } from './ItemTypes';
 import ItemTermin from './ItemTermin';
 import '../css/widgets.min.css';
+import '../css/todo.min.css';
 
 function getStrId(prefix: string, id: number): string {
     return `${prefix}_${id}`;
@@ -188,24 +189,163 @@ function MyDay({item}: {item: IItemInfo}) {
 }
 
 function ItemInfo({item}: {item: IItemInfo}) {
-    return <div className="col-sm-7">{item.info}</div>
+    return (
+        <div className="col-sm-7">
+            <label htmlFor="id_info">Information:</label>
+            <textarea name="info" cols={40} rows={10} className="form-control mb-3" id="id_info">
+                {item.info}
+            </textarea>
+        </div>
+    );
 }
 
 function Group({item}: {item: IItemInfo}) {
-    return <div className="col-sm">{item.groups}</div>
+    const groupList = item.groups.map(g => {return <option value={g.id}>{g.name}</option>});
+    return (
+        <div className="col-sm">
+            <label htmlFor="id_grp">Group:</label>
+            <select name="grp" className="form-control mb-3" id="id_grp">
+                {groupList}
+            </select>
+        </div>
+    );
+}
+
+function delCategory() {
+
+}
+
+const CATEGORY_DESIGN = [
+    'green',
+    'blue',
+    'red',
+    'purple',
+    'yellow',
+    'orange'
+];
+
+function getCategoryDesign(categ: string): string {
+    const sum = Array.from(categ).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return CATEGORY_DESIGN[sum % 6];
 }
 
 function Categories({item}: {item: IItemInfo}) {
-    return <div className="col-sm">{item.categories}</div>
+    const categList = item.categories ? item.categories.split(',') : [];
+    const categoryList = categList.map(categ => {
+        const design = 'category category-design-' + getCategoryDesign(categ);
+        return (
+            <div className={design}>
+                <div className="label">
+                    <div className="value">
+                        {categ}
+                    </div>
+                </div>
+                <div className="icon" onClick={delCategory}>
+                    <div className="delete">
+                        <svg height="8" width="8">
+                            <path d="M4.46607 4L8 7.53905L7.53905 8L4 4.46607L0.460948 8L0 7.53905L3.53393 4L0 0.460948L0.460948 0L4 3.53393L7.53905 0L8 0.460948L4.46607 4Z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        );
+    });
+    
+    return (
+        <div className="col-sm">
+            <label htmlFor="id_categories">Categories:</label>
+            <div className="categories">
+                {categoryList}
+            </div>
+            <input type="text" id="id_categories" name="categories" placeholder="Add category" className="form-control mb-3"/>
+        </div>
+    );
 }
 
+function delURL() {
+    console.log('delURL');
+}
 
 function UrlList({item}: {item: IItemInfo}) {
-    return <div className="col">{item.url}</div>
+    const urlList = item.links.map(url => {
+        return (
+            <div className="url-link" id="id_url_{{url.id|escape}}">
+                <div className="label">
+                    <a href="{{ url.href|escape }}" className="value">{url.name}</a>
+                </div>
+                <div className="icon" onClick={delURL} >
+                    <div className="delete">
+                        <svg height="8" width="8" style={{fill: 'currentcolor'}}>
+                            <path d="M4.46607 4L8 7.53905L7.53905 8L4 4.46607L0.460948 8L0 7.53905L3.53393 4L0 0.460948L0.460948 0L4 3.53393L7.53905 0L8 0.460948L4.46607 4Z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        );
+    });
+
+    return (
+        <div className="col">
+            <label htmlFor="id_url">URLs:</label>
+            <div className="url-list" id="url-list-dst">
+                {urlList}
+            </div>
+            <input type="text" id="id_url" name="url" className="form-control mb-3" placeholder="Add link" />
+        </div>
+    );
+}
+
+function uploadFile() {
+    console.log('uploadFile');
+}
+
+function fileSelected() {
+    console.log('fileSelected');
+}
+
+function delFileConfirm() {
+    console.log('delFileConfirm');
 }
 
 function Attachments({item}: {item: IItemInfo}) {
-    return <div className="col">{item.upload}</div>
+    const filesList = item.files.map(file => {
+        const design = 'brown';
+        return (
+            <div className="file-item" id={getStrId('id_file', file.id)}>
+                <a href={file.href}>
+                    <div className="thumbnail-wrapper" style={{backgroundColor: design}} >
+                        <div className="thumbnail">{file.ext}</div>
+                    </div>
+                    <div className="file-content">
+                        <div className="file-title">{file.name}</div>
+                        <div className="file-metadata">{file.size}</div>
+                    </div>
+                </a>
+                <button type="button" name="file_delete" value={file.href} className="bi-x" onClick={delFileConfirm} />
+            </div>
+        );
+    });
+
+    return (
+        <div className="col">
+            <label htmlFor="id_upload">Attachments:</label>
+            <div className="files-area">
+                <div className="file-list" id="file-list-dst">
+                    {filesList}
+                </div>
+                <div className="file-add">
+                    <button name="file_upload" className="section-inner-click" onClick={uploadFile}>
+                        <div className="bi-paperclip" />
+                        <div className="section-content">
+                            <button id="loadFile">Add file</button>
+                            <input type="file" id="id_upload" name="upload" style={{display: 'none'}} onChange={fileSelected} />
+                        </div>
+                    </button>
+                    <button type="submit" id="id_submit" name="file_upload" className="file-upload" />
+                </div>
+            </div>
+        </div>
+    );
 }
 
 function delItemConfirm() {
@@ -222,6 +362,8 @@ function TodoItemPage() {
     const itemData = useLoaderData() as Object;
     const item = new IItemInfo(itemData);
     const csrfToken = '';
+    const itemCreated = new IDateTime(item.created).strftime('%d %b %Y, %H:%M');
+    const itemCompleted = new IDateTime(item.completion).strftime('%d %b %Y, %H:%M');
     if (!item)
         return <></>;
     return (
@@ -263,9 +405,9 @@ function TodoItemPage() {
             </div>
 
             <div className="row">
-                <div className="col">Created: {item.created}</div>
+                <div className="col">Created: {itemCreated}</div>
                 {item.completed &&
-                    <div className="col">Completed: {item.completion}</div>
+                    <div className="col">Completed: {itemCompleted}</div>
                 }
             </div>
         </form>

@@ -6,6 +6,7 @@ import '../components/css/error_page.min.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import './css/custom.css';
 import './css/common.css';
+import './css/category.min.css';
 import "./css/title.min.css";
 import './css/tune.min.css';
 import './css/list.min.css';

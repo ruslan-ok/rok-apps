@@ -1,6 +1,6 @@
 import { SubGroupKind } from './SubGroup';
 
-class DateTime {
+export class IDateTime {
     dt: Date;
 
     constructor(s: string | null = null) {
@@ -106,7 +106,7 @@ class DateTime {
     }
 
     strftime(format: string): string {
-        return format.replace('%Y', this.Year).replace('%m', this.Month).replace('%d', this.Day).replace('%M', this.Minutes).replace('%H', this.Hours).replace('%S', this.Seconds);
+        return format.replace('%Y', this.Year).replace('%m', this.Month).replace('%b', this.Mon).replace('%d', this.Day).replace('%M', this.Minutes).replace('%H', this.Hours).replace('%S', this.Seconds);
     }
 
     date_format(format: string): string {
@@ -146,13 +146,13 @@ class ITermin {
     }
 
     get dt() {
-        return new DateTime(this.sdt);
+        return new IDateTime(this.sdt);
     }
 
     get days(): number | null {
         let termin = null;
         if (this.sdt) {
-            const today = new DateTime();
+            const today = new IDateTime();
             const dateDiff: number = this.dt.value - today.value;
             termin = Math.round((dateDiff) / (1000 * 60 * 60 * 24));
         }
@@ -162,14 +162,14 @@ class ITermin {
     get months(): number | null {
         if (!this.dt)
             return null;
-        const today = new DateTime();
+        const today = new IDateTime();
         return this.years ? (this.years * 12 + this.dt.month - today.month) : null;
     }
 
     get years(): number | null {
         if (!this.dt)
             return null;
-        const today = new DateTime();
+        const today = new IDateTime();
         return (this.dt.year - today.year);
     }
 
@@ -177,7 +177,7 @@ class ITermin {
         if (this.dt === null)
             return false;
 
-        const today = new DateTime();
+        const today = new IDateTime();
         if (this.dt.value < today.value)
             return (this.dt.year !== today.year) || (this.dt.month !== today.month) || (this.dt.day !== today.day) || (!this.dt.hours && !this.dt.minutes);
 
@@ -188,7 +188,7 @@ class ITermin {
         if (this.dt === null)
             return false;
 
-        const today = new DateTime();
+        const today = new IDateTime();
         if (this.dt.value > today.value || (this.dt.year === today.year && this.dt.month === today.month && this.dt.day === today.day && !this.dt.hours && !this.dt.minutes))
             return true;
 
@@ -205,7 +205,7 @@ class ITermin {
             case 1: return TerminKind.TOMORROW;
         }
 
-        const today = new DateTime();
+        const today = new IDateTime();
 
         if (this.dt.year === today.year) {
             const weeks = this.dt.week - today.week;
@@ -262,13 +262,36 @@ const REPEAT_NAME = {
     [ANNUALLY]: 'years'
 };
 
+export interface IGroup {
+    id: number;
+    name: string;
+}
+
+export interface IStep {
+    id: number;
+    name: string;
+    completed: boolean;
+}
+
+export interface IFile {
+    id: number;
+    name: string;
+    href: string;
+    ext: string;
+    size: number;
+}
+
+export interface ILink {
+    id: number;
+    name: string;
+}
+
 export class IItemInfo {
     categories: string | null;
     completed: boolean;
     completion: string | null;
     created: string | null;
     event: string | null;
-    groups: number[] | null;
     id: number | null;
     important: boolean;
     in_my_day: boolean;
@@ -282,8 +305,10 @@ export class IItemInfo {
     repeat_num: number | null;
     start: string | null;
     stop: string | null;
-    url: string | null;
     steps: IStep[];
+    links: ILink[];
+    files: IFile[];
+    groups: IGroup[];
 
     constructor(values: Object) {
         this.categories = values.categories;
@@ -291,7 +316,6 @@ export class IItemInfo {
         this.completion = values?.completion;
         this.created = values?.created;
         this.event = values?.event;
-        this.groups = values?.groups;
         this.id = values?.id;
         this.important = values?.important;
         this.in_my_day = values?.in_my_day || false;
@@ -305,8 +329,10 @@ export class IItemInfo {
         this.repeat_num = values?.repeat_num;
         this.start = values?.start;
         this.stop = values?.stop;
-        this.url = values?.url;
         this.steps = values?.steps || [];
+        this.links = values?.links || [];
+        this.files = values?.files || [];
+        this.groups = values?.groups || [];
     }
 
     get sub_group_id(): SubGroupKind {
@@ -338,7 +364,7 @@ export class IItemInfo {
     get Completion(): string {
         if (!this.completion)
             return '';
-        const compl = new DateTime(this.completion);
+        const compl = new IDateTime(this.completion);
         return compl.strftime('%d.%m.%Y');
     }
 
@@ -466,7 +492,7 @@ export class IItemInfo {
     get remindTime(): string {
         if (this.remind === null)
             return '';
-        const remindTime = new DateTime(this.remind);
+        const remindTime = new IDateTime(this.remind);
         return 'Remind in ' + remindTime.strftime('%H:%M');
     }
 
@@ -520,43 +546,3 @@ export interface ITodoExtra {
     task_descr: string;
 }
 
-// ========================================================
-// Details
-
-// interface IGroup {
-//     id: number;
-//     name: string;
-// }
-
-interface IStep {
-    id: number;
-    name: string;
-    completed: boolean;
-}
-
-// interface IFile {
-//     id: number;
-//     name: string;
-// }
-
-// interface ILink {
-//     id: number;
-//     name: string;
-// }
-
-export class ITodoDetails extends IItemInfo {
-    // roles: IItemRole[];
-    // group: IGroup;
-    steps: IStep[];
-    // files: IFile[];
-    // links: ILink[];
-
-    constructor(values: Object) {
-        super(values);
-        // this.roles = values.roles;
-        // this.group = values.group;
-        this.steps = values.steps;
-        // this.files = values.files;
-        // this.links = values.links;
-    }
-}
