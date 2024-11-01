@@ -45,7 +45,7 @@ WHERE user_id in %(user_ids)s;
 """
 
 DELETE_TOKEN_SQL = """
-DELETE todo_subscription
+DELETE FROM todo_subscription
 WHERE user_id = %(user_id)s
 	AND token = %(token)s;
 """
@@ -131,6 +131,8 @@ def remind_one_task(name: str, row, tokens: list[str], cur):
             msg += ', message_id = "' + z.message_id + '"'
         print('[DEBUG] Remind status {}. {}{}{}\n       token "{}"'.format(npp, status, error_desc, msg, tokens[npp-1]))
         if (not z.success) and (z.exception.code == 'NOT_FOUND'):
+            query = DELETE_TOKEN_SQL.format({'user_id': user_id, 'token': tokens[npp-1]})
+            print(query)
             cur.execute(DELETE_TOKEN_SQL, {'user_id': user_id, 'token': tokens[npp-1]})
             print('[ERROR] Token deleted')
         npp += 1

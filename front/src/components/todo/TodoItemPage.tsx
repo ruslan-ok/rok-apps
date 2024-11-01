@@ -1,5 +1,5 @@
 import { ChangeEvent } from 'react';
-import { LoaderFunctionArgs, useOutletContext, useLoaderData } from "react-router-dom";
+import { LoaderFunctionArgs, useOutletContext, useLoaderData, Form } from "react-router-dom";
 import { api } from '../../API'
 import { IPageConfig } from '../PageConfig';
 import { IDateTime, IItemInfo } from './ItemTypes';
@@ -45,9 +45,9 @@ function AddItemInput({config}: {config: IPageConfig}) {
                 <div className="d-flex py-2">
                     <input type="text" name="add_item_name" maxLength={200} id="id_add_item_name" className="add-item-name"
                     placeholder={config.add_item?.placeholder} onKeyDown={addItemKeyDowm} />
-                    <button type="button" className="btn btn-primary ms-2" id="id_add_item_button" onClick={addItem}>
+                    <div className="btn btn-primary ms-2" id="id_add_item_button" onClick={addItem}>
                         Add
-                    </button>
+                    </div>
                 </div>
             </ul>
         </div>
@@ -65,7 +65,7 @@ function ItemTitle({item, config}: {item: IItemInfo, config: IPageConfig}) {
                         <span>{config.folderPath}</span>
                         <span id="id_folder_view" className="folder_view">{config.entity.name}</span>
                         <span id="id_folder_edit" className="folder_edit d-none">
-                            <input type="text" name="file_name" size="15" maxLength={100} value="zzz" />
+                            <input type="text" name="file_name" size="15" maxLength={100} defaultValue="zzz" />
                         </span>
                     </> : 
                     <>{item.name}</>}
@@ -192,9 +192,7 @@ function ItemInfo({item}: {item: IItemInfo}) {
     return (
         <div className="col-sm-7">
             <label htmlFor="id_info">Information:</label>
-            <textarea name="info" cols={40} rows={10} className="form-control mb-3" id="id_info">
-                {item.info}
-            </textarea>
+            <textarea name="info" cols={40} rows={10} className="form-control mb-3" id="id_info" defaultValue={item.info || ''} />
         </div>
     );
 }
@@ -231,10 +229,10 @@ function getCategoryDesign(categ: string): string {
 
 function Categories({item}: {item: IItemInfo}) {
     const categList = item.categories ? item.categories.split(',') : [];
-    const categoryList = categList.map(categ => {
+    const categoryList = categList.map((categ, index) => {
         const design = 'category category-design-' + getCategoryDesign(categ);
         return (
-            <div className={design}>
+            <div key={index} className={design}>
                 <div className="label">
                     <div className="value">
                         {categ}
@@ -337,11 +335,11 @@ function Attachments({item}: {item: IItemInfo}) {
                     <button name="file_upload" className="section-inner-click" onClick={uploadFile}>
                         <div className="bi-paperclip" />
                         <div className="section-content">
-                            <button id="loadFile">Add file</button>
+                            <div id="loadFile">Add file</div>
                             <input type="file" id="id_upload" name="upload" style={{display: 'none'}} onChange={fileSelected} />
                         </div>
                     </button>
-                    <button type="submit" id="id_submit" name="file_upload" className="file-upload" />
+                    <button type="button" id="id_submit" name="file_upload" className="file-upload" />
                 </div>
             </div>
         </div>
@@ -349,8 +347,14 @@ function Attachments({item}: {item: IItemInfo}) {
 }
 
 function delItemConfirm() {
-
+    console.log('delItemConfirm');
 }
+
+export async function action() {
+    console.log('action');
+    return {};
+}
+  
 
 export async function loader({ params }: LoaderFunctionArgs) {
     const item: IItemInfo = await api.get(`todo/${params.id}`, {});
@@ -367,7 +371,7 @@ function TodoItemPage() {
     if (!item)
         return <></>;
     return (
-        <form method="post" className="item-form px-2" encType="multipart/form-data" id="article_form" data-item_id="{item.id}">
+        <Form method="post" className="item-form px-2" encType="multipart/form-data" id="article_form" data-item_id={item.id}>
             {csrfToken}
             <ItemTitle item={item} config={config} />
             <FormErrors />
@@ -396,7 +400,7 @@ function TodoItemPage() {
                 <button type="submit" name="item_save" className="btn btn-primary bi-save" title="Save changes">
                     <span className="px-2">Save</span>
                 </button>
-                <button type="submit" name="form_close" className="btn btn-secondary bi-x" title="Close edit form">
+                <button type="button" name="form_close" className="btn btn-secondary bi-x" title="Close edit form">
                     <span className="px-2">Close</span>
                 </button>
                 <button type="button" name="item_delete" className="btn btn-danger bi-trash" onClick={delItemConfirm} title="Delete record">
@@ -410,7 +414,7 @@ function TodoItemPage() {
                     <div className="col">Completed: {itemCompleted}</div>
                 }
             </div>
-        </form>
+        </Form>
     );
 }
   
