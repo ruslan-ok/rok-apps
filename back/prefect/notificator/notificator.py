@@ -45,7 +45,7 @@ WHERE user_id in %(user_ids)s;
 """
 
 DELETE_TOKEN_SQL = """
-DELETE todo_subscription
+DELETE FROM todo_subscription
 WHERE user_id = %(user_id)s
 	AND token = %(token)s;
 """
