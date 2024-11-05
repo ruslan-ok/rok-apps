@@ -20,6 +20,7 @@ interface IAPIProvider {
     get(url: string, params: Object): Promise<Response>;
     post(url: string, params: Object): Promise<Response>;
     put(url: string, params: Object): Promise<Response>;
+    options(url: string): Promise<Response>;
     init(): Promise<IAPIProvider>;
 }
   
@@ -87,7 +88,10 @@ export const api: IAPIProvider = {
         const cred: RequestCredentials = 'include';
         const correctedUrl = (url.startsWith('api/') ? '' : 'api/') + url + (url.endsWith('/') ? '' : '/');
         let urlParams, data: string | undefined;
-        if (method === 'GET') {
+        if (method === 'OPTIONS') {
+            urlParams = '';
+            data = undefined;
+        } else if (method === 'GET') {
             urlParams = this.objectToUrlParams(params);
             data = undefined;
         } else {
@@ -112,6 +116,10 @@ export const api: IAPIProvider = {
 
     async put(url: string, params: Object): Promise<Response> {
         return await this.modify('PUT', url, params);
+    },
+
+    async options(url: string): Promise<Response> {
+        return await this.modify('OPTIONS', url, {});
     },
 
     async init(): Promise<IAPIProvider> {

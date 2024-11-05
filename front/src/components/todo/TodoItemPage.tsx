@@ -116,7 +116,7 @@ export async function action({request, params}: {request: Request; params: ITodo
     await saver(id, {name: name, info: info, stop: stop});
     return {};
 }
-  
+
 export async function loader({ params }: LoaderFunctionArgs) {
     const data = await api.get(`todo/${params.id}`, {});
     if (JSON.stringify(data) === JSON.stringify({detail: 'No Task matches the given query.'}))

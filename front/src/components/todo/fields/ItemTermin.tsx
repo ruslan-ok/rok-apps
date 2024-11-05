@@ -51,6 +51,18 @@ export function getRemindNextWeek(days: number) {
     return reminderDate;
 }
 
+function toJSONLocal(value: string): string {
+    function addZ(n: number): string {
+      return (n < 10? '0' : '') + n;
+    }
+    const dt = new Date(value);
+    return dt.getFullYear() + '-' + 
+           addZ(dt.getMonth() + 1) + '-' + 
+           addZ(dt.getDate()) + 'T' +
+           addZ(dt.getHours()) + ':' +
+           addZ(dt.getMinutes());
+} 
+
 function ItemTermin({termin, onChange}: {termin: string, onChange: Function}) {
     const [picker, setPicker] = useState(false);
     const [value, setValue] = useState(termin);
@@ -60,7 +72,6 @@ function ItemTermin({termin, onChange}: {termin: string, onChange: Function}) {
     const terminNextWeekDT = getRemindNextWeek(8);
 
     function handleSelect(params: string | null) {
-        console.log(params);
         switch (params) {
             case 'later': {
                 const newValue = terminLaterDT.toJSON();
@@ -88,6 +99,7 @@ function ItemTermin({termin, onChange}: {termin: string, onChange: Function}) {
     }
     
     function delTermin() {
+        setValue('');
         onChange({set_stop: null});
     }
 
@@ -95,6 +107,10 @@ function ItemTermin({termin, onChange}: {termin: string, onChange: Function}) {
         const value = event.target.value;
         setValue(value);
         onChange({stop: value});
+    }
+
+    function hideTermin() {
+        setPicker(false);
     }
     
     let title = '';
@@ -126,8 +142,7 @@ function ItemTermin({termin, onChange}: {termin: string, onChange: Function}) {
         minute: '2-digit'
     }).format(terminNextWeekDT);
 
-    console.log(`termin=${termin}`);
-    console.log(`defaultValue=${value}`);
+    const localValue = toJSONLocal(value);
 
     return (
         <div className="d-flex flex-column me-3 mb-2">
@@ -164,7 +179,10 @@ function ItemTermin({termin, onChange}: {termin: string, onChange: Function}) {
                         </Dropdown.Item>
                         <Dropdown.Divider />
                         <Dropdown.Item as="button" type="button" eventKey="pickDateTime">
-                            Pick a date and time
+                            <div>
+                                <i className="bi-calendar2-date"></i>
+                                <span>Pick date and time</span>
+                            </div>
                         </Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
@@ -173,8 +191,13 @@ function ItemTermin({termin, onChange}: {termin: string, onChange: Function}) {
                         className="bi-x dates-del-icon" onClick={delTermin} />
                 </>}
             </div>
-            {picker &&
-                <Form.Control type="datetime-local" name="stop" defaultValue={value} onChange={datePicked}/>
+            {picker && <div className="d-flex">
+                <Form.Control type="datetime-local" name="stop" defaultValue={localValue} onChange={datePicked}/>
+                <button type="button" name="termin_hide" id="id_termin_hide" 
+                        className="bi-chevron-up dates-del-icon" onClick={hideTermin} />
+            </div>}
+            {!picker &&
+                <Form.Control type="hidden" name="stop" defaultValue={localValue} />
             }
         </div>
     );
