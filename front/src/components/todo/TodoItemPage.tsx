@@ -1,13 +1,20 @@
-import { ChangeEvent } from 'react';
-import { LoaderFunctionArgs, useOutletContext, useLoaderData, Form } from "react-router-dom";
+import { ChangeEvent, useState } from 'react';
+import { LoaderFunctionArgs, useOutletContext, useLoaderData, Form, redirect } from "react-router-dom";
 import { api } from '../../API'
 import { IPageConfig } from '../PageConfig';
 import { IDateTime, IItemInfo } from './ItemTypes';
-import ItemTermin from './ItemTermin';
+import ItemName from './fields/ItemName';
+import ItemSteps from './fields/ItemSteps';
+import ItemDates from './ItemDates';
+import ItemInfo from './fields/ItemInfo';
+import ItemGroup from './fields/ItemGroup';
+import ItemCategories from './fields/ItemCategories';
+import ItemLinks from './fields/ItemLinks';
+import ItemFiles from './fields/ItemFiles';
 import '../css/widgets.min.css';
 import '../css/todo.min.css';
 
-function getStrId(prefix: string, id: number): string {
+export function getStrId(prefix: string, id: number): string {
     return `${prefix}_${id}`;
 }
 
@@ -87,277 +94,34 @@ function ItemTitle({item, config}: {item: IItemInfo, config: IPageConfig}) {
     );
 }
 
-function FormErrors() {
-    return <></>;
-}
-
-function checkCompleted() {
-    console.log('checkCompleted');
-}
-
-function Completed({item}: {item: IItemInfo}) {
-    return (
-        <div className="form-check completed-checkbox">
-            <input type="checkbox" name="completed" id="id_completed"
-                className="form-check-input" onChange={checkCompleted}
-                checked={item.completed} />
-        </div>
-    );
-}
-
-function nameChanged() {
-    console.log('nameChanged');
-}
-
-function ItemName({item}: {item: IItemInfo}) {
-    return <input type="text" name="name" defaultValue={item.name} className="form-control mb-3" maxLength={200} id="id_name" onChange={nameChanged} />;
-}
-
-function importantChanged() {
-    console.log('importantChanged');
-}
-
-function Important({item}: {item: IItemInfo}) {
-    const iconClass = 'bi-star' + (item.important ? '-fill' : '');
-    return (
-        <button type="button" onClick={importantChanged} id="toggle-important" className="btn-important" >
-            <i className={iconClass} />
-        </button>
-    );
-}
-
-function completeStep() {
-    console.log('completeStep');
-}
-
-function editStep(event: ChangeEvent<HTMLInputElement>) {
-    console.log(`editStep(${event})`);
-}
-
-function delStepConfirm() {
-    console.log('delStepConfirm');
-}
-
-function addStep() {
-    console.log('addStep');
-}
-
-function TodoSteps({item}: {item: IItemInfo}) {
-    const stepList = item.steps.map(step => {
-        return (
-            <div key={step.id} className="field-group mx-2">
-                <div className="form-check small-completed-checkbox">
-                    <input type="checkbox" data-step_id={step.id} name="step_completed" id={getStrId('step_complete', step.id)}
-                        className="form-check-input small-checkbox" defaultChecked={step.completed} onClick={completeStep} />
-                </div>
-                <input type="text" data-step_id={step.id} name="step_edit_name" defaultValue={step.name} maxLength={200} required={true}
-                    id={getStrId('step_edit_name', step.id)} onChange={editStep}
-                    className={extraClass('form-control form-control-sm small-input', step.completed, 'completed')} />
-                <button data-step_id={step.id} name="step_delete" className="bi-x del-item-icon" onClick={delStepConfirm} />
-            </div>
-        );
-    });
-    return (
-        <div className="input-group flex-wrap mb-3">
-            {stepList}
-            <div>
-                <input type="text" name="step_edit_name" maxLength={200} required={false} placeholder="Next step"
-                        id="add_step" onChange={addStep}  className="form-control form-control-sm small-input" />
-            </div>
-        </div>
-    );
-}
-
-function toggleMyDay() {
-    console.log('toggleMyDay');
-}
-
-function MyDay({item}: {item: IItemInfo}) {
-    const label = item.in_my_day ? 'Added in "My day"' : 'Add to "My day"';
-    return (
-        <div className="termin-block__fixed">
-            <button type="button" name="task_myday" className="termin-block" onClick={toggleMyDay}>
-                <div className="termin-block__content" id="toggle-myday">
-                    <i className={extraClass('bi-sun termin-block__icon', item.in_my_day, 'selected')} />
-                    <div className={extraClass('termin-block__title', item.in_my_day, 'selected')} >
-                        {label}
-                    </div>
-                </div>
-            </button>
-        </div>
-    );
-}
-
-function ItemInfo({item}: {item: IItemInfo}) {
-    return (
-        <div className="col-sm-7">
-            <label htmlFor="id_info">Information:</label>
-            <textarea name="info" cols={40} rows={10} className="form-control mb-3" id="id_info" defaultValue={item.info || ''} />
-        </div>
-    );
-}
-
-function Group({item}: {item: IItemInfo}) {
-    const groupList = item.groups.map(g => {return <option value={g.id}>{g.name}</option>});
-    return (
-        <div className="col-sm">
-            <label htmlFor="id_grp">Group:</label>
-            <select name="grp" className="form-control mb-3" id="id_grp">
-                {groupList}
-            </select>
-        </div>
-    );
-}
-
-function delCategory() {
-
-}
-
-const CATEGORY_DESIGN = [
-    'green',
-    'blue',
-    'red',
-    'purple',
-    'yellow',
-    'orange'
-];
-
-function getCategoryDesign(categ: string): string {
-    const sum = Array.from(categ).reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return CATEGORY_DESIGN[sum % 6];
-}
-
-function Categories({item}: {item: IItemInfo}) {
-    const categList = item.categories ? item.categories.split(',') : [];
-    const categoryList = categList.map((categ, index) => {
-        const design = 'category category-design-' + getCategoryDesign(categ);
-        return (
-            <div key={index} className={design}>
-                <div className="label">
-                    <div className="value">
-                        {categ}
-                    </div>
-                </div>
-                <div className="icon" onClick={delCategory}>
-                    <div className="delete">
-                        <svg height="8" width="8">
-                            <path d="M4.46607 4L8 7.53905L7.53905 8L4 4.46607L0.460948 8L0 7.53905L3.53393 4L0 0.460948L0.460948 0L4 3.53393L7.53905 0L8 0.460948L4.46607 4Z"></path>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-        );
-    });
-    
-    return (
-        <div className="col-sm">
-            <label htmlFor="id_categories">Categories:</label>
-            <div className="categories">
-                {categoryList}
-            </div>
-            <input type="text" id="id_categories" name="categories" placeholder="Add category" className="form-control mb-3"/>
-        </div>
-    );
-}
-
-function delURL() {
-    console.log('delURL');
-}
-
-function UrlList({item}: {item: IItemInfo}) {
-    const urlList = item.links.map(url => {
-        return (
-            <div className="url-link" id="id_url_{{url.id|escape}}">
-                <div className="label">
-                    <a href="{{ url.href|escape }}" className="value">{url.name}</a>
-                </div>
-                <div className="icon" onClick={delURL} >
-                    <div className="delete">
-                        <svg height="8" width="8" style={{fill: 'currentcolor'}}>
-                            <path d="M4.46607 4L8 7.53905L7.53905 8L4 4.46607L0.460948 8L0 7.53905L3.53393 4L0 0.460948L0.460948 0L4 3.53393L7.53905 0L8 0.460948L4.46607 4Z"></path>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-        );
-    });
-
-    return (
-        <div className="col">
-            <label htmlFor="id_url">URLs:</label>
-            <div className="url-list" id="url-list-dst">
-                {urlList}
-            </div>
-            <input type="text" id="id_url" name="url" className="form-control mb-3" placeholder="Add link" />
-        </div>
-    );
-}
-
-function uploadFile() {
-    console.log('uploadFile');
-}
-
-function fileSelected() {
-    console.log('fileSelected');
-}
-
-function delFileConfirm() {
-    console.log('delFileConfirm');
-}
-
-function Attachments({item}: {item: IItemInfo}) {
-    const filesList = item.files.map(file => {
-        const design = 'brown';
-        return (
-            <div className="file-item" id={getStrId('id_file', file.id)}>
-                <a href={file.href}>
-                    <div className="thumbnail-wrapper" style={{backgroundColor: design}} >
-                        <div className="thumbnail">{file.ext}</div>
-                    </div>
-                    <div className="file-content">
-                        <div className="file-title">{file.name}</div>
-                        <div className="file-metadata">{file.size}</div>
-                    </div>
-                </a>
-                <button type="button" name="file_delete" value={file.href} className="bi-x" onClick={delFileConfirm} />
-            </div>
-        );
-    });
-
-    return (
-        <div className="col">
-            <label htmlFor="id_upload">Attachments:</label>
-            <div className="files-area">
-                <div className="file-list" id="file-list-dst">
-                    {filesList}
-                </div>
-                <div className="file-add">
-                    <button name="file_upload" className="section-inner-click" onClick={uploadFile}>
-                        <div className="bi-paperclip" />
-                        <div className="section-content">
-                            <div id="loadFile">Add file</div>
-                            <input type="file" id="id_upload" name="upload" style={{display: 'none'}} onChange={fileSelected} />
-                        </div>
-                    </button>
-                    <button type="button" id="id_submit" name="file_upload" className="file-upload" />
-                </div>
-            </div>
-        </div>
-    );
-}
-
 function delItemConfirm() {
     console.log('delItemConfirm');
 }
 
-export async function action() {
-    console.log('action');
+type ITodoItemPageParams = {
+    id: string;
+}
+
+async function saver(id: number, values: Object) {
+    await api.put(`todo/${id}`, values);
+    // console.log(`saved: id=${id}, values=${JSON.stringify(values)}`);
+}
+
+export async function action({request, params}: {request: Request; params: ITodoItemPageParams;}) {
+    const formData = await request.formData();
+    const id = +params.id;
+    const name = formData.get('name');
+    const info = formData.get('info');
+    const stop = formData.get('stop');
+    await saver(id, {name: name, info: info, stop: stop});
     return {};
 }
   
-
 export async function loader({ params }: LoaderFunctionArgs) {
-    const item: IItemInfo = await api.get(`todo/${params.id}`, {});
+    const data = await api.get(`todo/${params.id}`, {});
+    if (JSON.stringify(data) === JSON.stringify({detail: 'No Task matches the given query.'}))
+        return redirect('/todo');
+    const item: IItemInfo = new IItemInfo(data);
     return item;
 }
   
@@ -365,56 +129,90 @@ function TodoItemPage() {
     const config = useOutletContext() as IPageConfig;
     const itemData = useLoaderData() as Object;
     const item = new IItemInfo(itemData);
-    const csrfToken = '';
+    const [theItem, setItem] = useState(item);
+    const [changed, setChanged] = useState(false);
+
+    function onlyEditableFields(values: Object): boolean {
+        let result = true;
+        const editableFields = new Set(['name', 'info', 'stop']);
+        for (const key in values) {
+            if (!editableFields.has(key)) {
+                result = false;
+                break;
+            }
+        }
+        return result;
+    }
+
+    async function changeTracker(values: Object) {
+        if (onlyEditableFields(values)) {
+            const newItem = Object.assign(theItem, values);
+            setItem(newItem);
+            setChanged(true);
+        } else {
+            let newValues = values;
+
+            if (item.name !== theItem.name)
+                newValues = Object.assign(newValues, {name: theItem.name});
+            if (item.info !== theItem.info)
+                newValues = Object.assign(newValues, {info: theItem.info});
+            if (item.stop !== theItem.stop)
+                newValues = Object.assign(newValues, {stop: theItem.stop});
+
+            for (const key in newValues) {
+                if (key.startsWith('set_')) {
+                    const newKey = key.replace('set_', '');
+                    newValues[newKey] = newValues[key];
+                    delete newValues[key];
+                }
+            }
+
+            await saver(item.id, newValues);
+            setChanged(false);
+        }
+    }
+
     const itemCreated = new IDateTime(item.created).strftime('%d %b %Y, %H:%M');
     const itemCompleted = new IDateTime(item.completion).strftime('%d %b %Y, %H:%M');
     if (!item)
         return <></>;
     return (
-        <Form method="post" className="item-form px-2" encType="multipart/form-data" id="article_form" data-item_id={item.id}>
-            {csrfToken}
+        <div className="item-form px-2" id="article_form" data-item_id={item.id}>
             <ItemTitle item={item} config={config} />
-            <FormErrors />
+            <Form method="post" encType="multipart/form-data">
+                <ItemName completed={item.completed} name={item.name} important={item.important} onChange={changeTracker} />
+                <ItemSteps steps={item.steps} />
+                <ItemDates item={item} onChange={changeTracker} />
+                <div className="row g-3">
+                    <ItemInfo info={item.info} />
+                    <ItemGroup group_id={item.group_id} groups={item.groups} />
+                    <ItemCategories categories={item.categories} />
+                </div>
+                <div className="row">
+                    <ItemLinks links={item.links} />
+                    <ItemFiles files={item.files} />
+                </div>
 
-            <div className="input-group">
-                <Completed item={item} />
-                <ItemName item={item} />
-                <Important item={item} />
-            </div>
-            <TodoSteps item={item} />
-            <div className="termin-row">
-                <MyDay item={item} />
-                <ItemTermin item={item} />
-            </div>
-            <div className="row g-3">
-                <ItemInfo item={item} />
-                <Group item={item} />
-                <Categories item={item} />
-            </div>
-            <div className="row">
-                <UrlList item={item} />
-                <Attachments item={item} />
-            </div>
+                <div className="d-flex justify-content-evenly mt-3 pb-5">
+                    <button type="submit" className="btn btn-primary bi-save" title="Save changes" disabled={!changed} >
+                        <span className="px-2">Save</span>
+                    </button>
+                    <button type="button" className="btn btn-secondary bi-x" title="Close edit form">
+                        <span className="px-2">Close</span>
+                    </button>
+                    <button type="button" className="btn btn-danger bi-trash" onClick={delItemConfirm} title="Delete record">
+                        <span className="px-2">Delete</span>
+                    </button>
+                </div>
 
-            <div className="d-flex justify-content-evenly mt-3 pb-5">
-                <button type="submit" name="item_save" className="btn btn-primary bi-save" title="Save changes">
-                    <span className="px-2">Save</span>
-                </button>
-                <button type="button" name="form_close" className="btn btn-secondary bi-x" title="Close edit form">
-                    <span className="px-2">Close</span>
-                </button>
-                <button type="button" name="item_delete" className="btn btn-danger bi-trash" onClick={delItemConfirm} title="Delete record">
-                    <span className="px-2">Delete</span>
-                </button>
-            </div>
-
-            <div className="row">
-                <div className="col">Created: {itemCreated}</div>
-                {item.completed &&
-                    <div className="col">Completed: {itemCompleted}</div>
-                }
-            </div>
-        </Form>
+                <div className="row">
+                    <div className="col">Created: {itemCreated}</div>
+                    {item.completed &&
+                        <div className="col">Completed: {itemCompleted}</div>
+                    }
+                </div>
+            </Form>
+        </div>
     );
 }
   

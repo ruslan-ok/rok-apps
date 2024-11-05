@@ -12,7 +12,7 @@ import Login, { action as loginAction } from './components/auth/Login';
 import Logout from './components/auth/Logout';
 import TodoPage, { loader as todoLoader } from './components/todo/TodoPage';
 import TodoListPage from './components/todo/TodoListPage';
-import TodoItemPage, { loader as todoItemLoader } from './components/todo/TodoItemPage';
+import TodoItemPage, { loader as todoItemLoader, action as todoItemAction } from './components/todo/TodoItemPage';
 
 
 let router = createBrowserRouter([
@@ -41,6 +41,7 @@ let router = createBrowserRouter([
                         path: ':id',
                         Component: TodoItemPage,
                         loader: todoItemLoader,
+                        action: todoItemAction,
                     },
                 ],
             },

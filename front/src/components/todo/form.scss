@@ -38,10 +38,6 @@ textarea.form-control {
     padding-top: 0.5rem !important;
 }
 
-.item-form label {
-    margin-right: 10px;
-}
-
 .url-list {
     -webkit-box-align: center;
     align-items: center;
@@ -883,6 +879,58 @@ form.bill {
     font-size: 0.7rem;
   }
   
-    
-      /* old style end */
+/* old style end */
 
+
+.todo-dates {
+
+    .in_my_day {
+        flex: 0 !important;
+    }
+    
+    label {
+        display: flex;
+        background-color: white;
+        border: 1px solid #ced4da;
+        border-radius: 0.2rem;
+        min-width: 190px;
+        align-items: center;
+        color: #767678;
+
+        i {
+            margin: 0 5px;
+        }
+
+        .title {
+            text-wrap: nowrap;
+        }
+
+        .checked {
+            color: blue;
+        }
+    }
+
+    .dropdown button {
+        display: flex;
+        align-items: center;
+
+        .dates-title {
+            margin: 0 5px;
+        }
+    }
+
+    .dropdown-menu {
+        button {
+            display: flex;
+            justify-content: space-between;
+
+            .info {
+                color: #767678;
+            }
+    
+            span {
+                margin: 0 8px;
+            }
+        }
+    }
+}

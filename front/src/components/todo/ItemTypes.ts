@@ -10,28 +10,35 @@ export class IDateTime {
             this.dt = new Date();
     }
 
+    pad(num: number): string {
+        let result = num.toString();
+        if (result.length === 1)
+            result = '0' + result;
+        return result;
+    }
+
     get year(): number {
-        return +this.dt.toISOString().split('T')[0].split('-')[0];
+        return this.dt.getFullYear();
     }
 
     get month(): number {
-        return +this.dt.toISOString().split('T')[0].split('-')[1];
+        return this.dt.getMonth();
     }
 
     get day(): number {
-        return +this.dt.toISOString().split('T')[0].split('-')[2];
+        return this.dt.getDay();
     }
 
     get hours(): number {
-        return +this.dt.toISOString().split('T')[1].split(':')[0];
+        return this.dt.getHours();
     }
 
     get minutes(): number {
-        return +this.dt.toISOString().split('T')[1].split(':')[1];
+        return this.dt.getMinutes();
     }
 
     get seconds(): number {
-        return +this.dt.toISOString().split('T')[1].split(':')[2];
+        return this.dt.getSeconds();
     }
 
     get week(): number {
@@ -55,29 +62,29 @@ export class IDateTime {
     }
 
     get Month(): string {
-        return this.month.toString();
+        return this.pad(this.month);
     }
 
     get Day(): string {
-        return this.day.toString();
+        return this.pad(this.day);
     }
 
     get Hours(): string {
-        return this.hours.toString();
+        return this.pad(this.hours);
     }
 
     get Minutes(): string {
-        return this.minutes.toString();
+        return this.pad(this.dt.getMinutes());
     }
 
     get Seconds(): string {
-        return this.seconds.toString();
+        return this.pad(this.dt.getSeconds());
     }
 
     get Dow(): string {
         switch (this.dow) {
             case 0: return 'Sun';
-            case 1: return 'Mot';
+            case 1: return 'Mon';
             case 2: return 'Tue';
             case 3: return 'Wed';
             case 4: return 'Thu';
@@ -110,7 +117,10 @@ export class IDateTime {
     }
 
     date_format(format: string): string {
-        return format.replace('D', this.Dow).replace('d', this.Day).replace('N', this.Mon).replace('Y', this.Year).replace('H', this.Hours).replace('i', this.Minutes);
+        let result = format.replace('d', this.Day).replace('Y', this.Year).replace('H', this.Hours).replace('i', this.Minutes);
+        result = result.replace('D', '%1').replace('N', '%2');
+        result = result.replace('%1', this.Dow).replace('%2', this.Mon);
+        return result;
     }
 }
 
@@ -138,7 +148,7 @@ enum TerminKind {
     ALL = 0, // Все сроки
 }
 
-class ITermin {
+export class ITermin {
     sdt: string | null;
 
     constructor(s: string | null) {
@@ -237,6 +247,40 @@ class ITermin {
 
         return TerminKind.LONG_TIME;
     }
+
+    get _only_nice_date(): string {
+        let ret = '';
+        if (this.sdt) {
+            switch (this.kind) {
+                case TerminKind.TODAY: ret = 'Today'; break;
+                case TerminKind.TOMORROW: ret = 'Tomorrow'; break;
+                case TerminKind.YESTERDAY: ret = 'Yesterday'; break;
+            }
+        }
+        if (ret && (this.dt.hours || this.dt.minutes))
+            ret += this.dt.strftime(' %H:%M');
+        return ret;
+    }
+
+    get nice_date(): string {
+        let ret = this._only_nice_date;
+        if (ret)
+            return ret
+
+        if (!this.dt.hours && !this.dt.minutes) {
+            if (!this.years)
+                ret = this.dt.date_format('D, d N');
+            else
+                ret = this.dt.date_format('D, d N Y');
+        } else {
+            if (!this.years)
+                ret = this.dt.date_format('D, d N H:i');
+            else
+                ret = this.dt.date_format('D, d N Y H:i');
+        }
+        
+        return ret;
+    }
 }
 
 const NONE = 0;
@@ -287,15 +331,16 @@ export interface ILink {
 }
 
 export class IItemInfo {
-    categories: string | null;
+    categories: string;
     completed: boolean;
     completion: string | null;
     created: string | null;
     event: string | null;
-    id: number | null;
+    id: number;
     important: boolean;
     in_my_day: boolean;
-    info: string | null;
+    info: string;
+    group_id: number;
     last_mod: string | null;
     last_remind: string | null;
     name: string;
@@ -304,22 +349,23 @@ export class IItemInfo {
     repeat_days: number | null;
     repeat_num: number | null;
     start: string | null;
-    stop: string | null;
+    stop: string;
     steps: IStep[];
     links: ILink[];
     files: IFile[];
     groups: IGroup[];
 
     constructor(values: Object) {
-        this.categories = values.categories;
+        this.categories = values.categories || '';
         this.completed = values?.completed;
         this.completion = values?.completion;
         this.created = values?.created;
         this.event = values?.event;
-        this.id = values?.id;
+        this.id = values?.id || 0;
         this.important = values?.important;
         this.in_my_day = values?.in_my_day || false;
-        this.info = values?.info;
+        this.info = values?.info || '';
+        this.group_id = values?.group_id || 0;
         this.last_mod = values?.last_mod;
         this.last_remind = values?.last_remind;
         this.name = values?.name || '';
@@ -328,7 +374,7 @@ export class IItemInfo {
         this.repeat_days = values?.repeat_days;
         this.repeat_num = values?.repeat_num;
         this.start = values?.start;
-        this.stop = values?.stop;
+        this.stop = values?.stop || '';
         this.steps = values?.steps || [];
         this.links = values?.links || [];
         this.files = values?.files || [];
@@ -382,46 +428,8 @@ export class IItemInfo {
         return this.termin.is_actual;
     }
 
-    get _only_nice_date(): string {
-        let ret = '';
-        if (this.termin) {
-            switch (this.termin.kind) {
-                case TerminKind.TODAY: ret = 'Today'; break;
-                case TerminKind.TOMORROW: ret = 'Tomorrow'; break;
-                case TerminKind.YESTERDAY: ret = 'Yesterday'; break;
-            }
-        }
-        if (this.termin.dt.hours || this.termin.dt.minutes)
-            ret += this.termin.dt.strftime(' %H:%M');
-        return ret;
-    }
-
     get nice_date(): string {
-        let ret = this._only_nice_date;
-        if (ret)
-            return ret
-
-        if (!this.termin.dt.hours && !this.termin.dt.minutes) {
-            if (!this.termin.years)
-                ret = this.termin.dt.date_format('D, d N');
-            else
-                ret = this.termin.dt.date_format('D, d N Y');
-        } else {
-            if (!this.termin.years)
-                ret = this.termin.dt.date_format('D, d N H:i');
-            else
-                ret = this.termin.dt.date_format('D, d N Y H:i');
-        }
-        
-        return ret;
-    
-    }
-
-    get termin_info(): string {
-        if (!this.stop)
-            return '';
-        let label = this.is_expired ? 'Expired, ' : 'Termin: ';
-        return label + this.nice_date;
+        return this.termin.nice_date;
     }
 
     get s_repeat(): string {
