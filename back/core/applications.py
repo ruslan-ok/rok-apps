@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from task.const import *
 
-def get_apps_list(user, current, href_prefix=''):
+def get_apps_list(user, current, href_prefix='', ver_prefix=''):
     apps = []
     for app, config in django_apps.app_configs.items():
         if not hasattr(config, "app_config"):
@@ -12,7 +12,11 @@ def get_apps_list(user, current, href_prefix=''):
             continue
         icon = config.app_config['icon']
         href = config.app_config['href'] if 'href' in config.app_config else config.app_config['name']
-        if href_prefix and href not in ('/', 'todo'):
+        if ver_prefix:
+            if not href.startswith('/'):
+                href = '/' + href
+            href = ver_prefix + href
+        elif href_prefix and href not in ('/', 'todo'):
             href = href_prefix + href
         elif not href.startswith('/'):
             href = '/' + href

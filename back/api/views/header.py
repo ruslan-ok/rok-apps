@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from core.applications import get_apps_list
 
 
-def get_header_data(user: User | None, local: bool):
+def get_header_data(user: User | None, local: bool, version):
     data = {
         'appIcon': '/static/rok.png',
         'appTitle': '',
@@ -20,13 +20,16 @@ def get_header_data(user: User | None, local: bool):
     href_prefix = ''
     if local:
         href_prefix = 'http://localhost:8000/'
+    ver_prefix = ''
+    if version:
+        ver_prefix = '/v' + str(version)
 
     if not user or not user.is_authenticated:
         data['appTitle'] = settings.DOMAIN_NAME
-        data['buttons'].append({'button_id': 'demo', 'name': 'Demo', 'href': '/account/demo/'})
-        data['buttons'].append({'button_id': 'login', 'name': 'Log in', 'href': '/account/login/'})
+        data['buttons'].append({'button_id': 'demo', 'name': 'Demo', 'href': ver_prefix + '/demo'})
+        data['buttons'].append({'button_id': 'login', 'name': 'Log in', 'href': ver_prefix + '/login'})
     else:
-        data['applications'] = get_apps_list(user, 'core', href_prefix)
+        data['applications'] = get_apps_list(user, 'core', href_prefix, ver_prefix)
         data['searchPlaceholder'] = 'Search...'
         data['userName'] = user.username if user else None
         if user and hasattr(user, 'userext') and user.userext.avatar_mini:
@@ -34,15 +37,16 @@ def get_header_data(user: User | None, local: bool):
         else:
             data['avatar'] = '/static/Default-avatar.jpg'
         if user and user.username != 'demouser':
-            data['userMenu'].append({'item_id': 'profile', 'name': 'Profile', 'href': href_prefix + 'account/profile/', 'icon': 'bi-person'})
+            data['userMenu'].append({'item_id': 'profile', 'name': 'Profile', 'href': ver_prefix + '/profile', 'icon': 'bi-person'})
             data['userMenu'].append({'item_id': 'separator', 'name': '', 'href': '', 'icon': ''})
-        data['userMenu'].append({'item_id': 'logout', 'name': 'Log out', 'href': '/account/logout/', 'icon': 'bi-box-arrow-right'})
+        data['userMenu'].append({'item_id': 'logout', 'name': 'Log out', 'href': ver_prefix + '/logout', 'icon': 'bi-box-arrow-right'})
     return data
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def header(request):
     local = 'localhost' in request.get_host()
-    data = get_header_data(request.user, local)
+    version = request.query_params.get('version')
+    data = get_header_data(request.user, local, version)
     return Response(data)
 
