@@ -107,7 +107,7 @@ function Header() {
                         width="38"
                         height="38"
                         className="d-inline-block align-top me-2"
-                    />{' '}
+                    />
                     Rok Apps
                 </Navbar.Brand>
             </LinkContainer>
