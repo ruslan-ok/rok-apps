@@ -10,7 +10,13 @@ function ItemDates({item, onChange}: {item: IItemInfo, onChange: Function}) {
         <ButtonGroup className="todo-dates mb-3 d-flex flex-wrap align-items-start">
             <ItemMyDay myDay={item.in_my_day} onChange={onChange} />
             <ItemTermin termin={item.stop} onChange={onChange} />
-            <ItemRepeat id={item.id} repeat={item.repeat || 0} days={item.repeat_days || 0} num={item.repeat_num || 0} start={item.start || ''} stop={item.stop} />
+            <ItemRepeat
+                repeat={item.repeat || 0} 
+                days={item.repeat_days || 0} 
+                num={item.repeat_num || 0} 
+                start={item.start || ''} 
+                stop={item.stop} 
+                onChange={onChange} />
             <ItemRemind id={item.id} remind={item.remind || ''} />
         </ButtonGroup>
     );

@@ -1,6 +1,7 @@
 import { useState, SyntheticEvent } from 'react';
 import Form from 'react-bootstrap/Form';
 import Dropdown from 'react-bootstrap/Dropdown';
+import { extraClass } from '../TodoItemPage';
 import { ITermin } from '../ItemTypes';
 
 
@@ -191,14 +192,11 @@ function ItemTermin({termin, onChange}: {termin: string, onChange: Function}) {
                         className="bi-x dates-del-icon" onClick={delTermin} />
                 </>}
             </div>
-            {picker && <div className="d-flex">
-                <Form.Control type="datetime-local" name="stop" defaultValue={localValue} onChange={datePicked}/>
+            <div className={extraClass('d-flex', !picker, 'd-none')}>
+                <Form.Control type={picker ? "datetime-local" : "hidden"} name="stop" defaultValue={localValue} onChange={datePicked}/>
                 <button type="button" name="termin_hide" id="id_termin_hide" 
                         className="bi-chevron-up dates-del-icon" onClick={hideTermin} />
-            </div>}
-            {!picker &&
-                <Form.Control type="hidden" name="stop" defaultValue={localValue} />
-            }
+            </div>
         </div>
     );
 }
