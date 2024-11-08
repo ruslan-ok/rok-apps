@@ -88,27 +88,26 @@ function Weight() {
         }
     }
 
-    let current, change, changeClass;
+    let current, change, changeStyle;
     if (status === 'ready') {
         current = Math.round(widgetData.current).toLocaleString();
         change = widgetData.change?.toFixed(2).toLocaleString();
-        let changeClass = 'value';
         if (change > 0) {
-            changeClass += ' posotive';
+            changeStyle = {color: 'red'};
         }
         if (change < 0) {
-            changeClass += ' negative';
+            changeStyle = {color: 'green'};
         }
     }
     return (
         <WidgetContainer name={"Currency"} status={status} message={""} >
             {status === 'ready' &&
                 <div className='widget-content' id='weight'>
-                    <div className='title'>
-                        <span id='current' className='section'><span>Вес:</span><span className='value'>{current}</span><span>кг</span></span>
-                        <span id='change' className='section'><span className='long-text'>Динамика:</span><span className={changeClass}>{change}</span><span>кг</span></span>
+                    <div className='bg-primary-subtle p-2 d-flex align-items-center justify-content-around'>
+                        <span id='current' className='section'><span>Вес:</span><span className='value px-2'>{current}</span><span>кг</span></span>
+                        <span id='change' className='section'><span className='long-text'>Динамика:</span><span className="px-2" style={changeStyle} >{change}</span><span>кг</span></span>
                         <span id='period' className='section'>
-                            <select name='period' defaultValue={period} onChange={e => setPeriodOption(e.target.value)}>
+                            <select name='period' defaultValue={period} onChange={e => setPeriodOption(e.target.value)} className="form-select" >
                                 <option value='7d'>неделя</option> 
                                 <option value='30d'>месяц</option> 
                                 <option value='3m'>3 месяца</option> 
@@ -118,7 +117,7 @@ function Weight() {
                                 <option value='10y'>10 лет</option> 
                             </select>
                         </span>
-                        <Form id='value' className='d-flex' method="post" onSubmit={handleSubmit}>
+                        <Form id='value' className='d-flex' method="post" onSubmit={handleSubmit} >
                             <Form.Control type="text" placeholder="Weight" name="weight" defaultValue={""} step=".01" size="sm" style={{maxWidth: '70px'}} />
                             <Button variant="light" type="submit" className="bi-plus ms-1" size="sm" />
                         </Form>

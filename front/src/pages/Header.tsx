@@ -1,4 +1,5 @@
 import { LinkContainer } from 'react-router-bootstrap';
+import { NavLink } from 'react-router-dom';
 import { useLoaderData } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
@@ -49,19 +50,22 @@ export async function loader(): Promise<IHeaderData> {
     return data;
 }
 
+function AppLink({href, icon, name}: {href: string, icon: string, name: string}) {
+    return (<>
+        <NavLink to={href} className={({ isActive }) => isActive ? "link-primary text-decoration-none" : "d-none"} >
+            <i className={icon} title={name} /> {name}
+        </NavLink>
+        <NavLink to={href} className={({ isActive }) => isActive ? "d-none" : ""} >
+            <i className={icon} title={name} />
+        </NavLink>
+    </>);
+}
+
 function Header() {
     const data = useLoaderData() as IHeaderData;
     const desktopApps = data.applications.filter(app => app.name !== 'Home').map(app => {
-        const appIcon = 'me-2 bi-' + app.icon;
-        const appName = app.active ? app.name : '';
-        return (
-            <LinkContainer key={app.name} to={app.href}>
-                <Nav.Link className="d-flex align-items-center" >
-                    <i className={appIcon} />
-                    {appName}
-                </Nav.Link>
-            </LinkContainer>
-        );
+        const appIcon = 'p-2 ms-1 bi-' + app.icon;
+        return <AppLink key={app.name} href={app.href} icon={appIcon} name={app.name} />;
     });
     const mobileApps = data.applications.map(app => {
         const appIcon = 'me-2 bi-' + app.icon;
@@ -114,16 +118,16 @@ function Header() {
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
                 <Nav className="me-auto">
-                    <Container className="d-lg-none">
+                    <Container className="d-lg-none align-items-center">
                         <Row>
                             {mobileApps}
                         </Row>
                     </Container>
-                    <Container className="d-none d-lg-flex">
+                    <Container className="d-none d-lg-flex align-items-center">
                         {desktopApps}
                     </Container>
                     {showSearch &&
-                        <Form inline="true">
+                        <Form>
                             <Row>
                                 <Col xs="auto">
                                     <Form.Control
@@ -146,7 +150,7 @@ function Header() {
                             src={data?.avatar}
                             width="32"
                             height="32"
-                            className="d-inline-block align-top me-2"
+                            className="d-inline-block align-top me-2 rounded-circle"
                         />
                     }
                     {data.userName &&

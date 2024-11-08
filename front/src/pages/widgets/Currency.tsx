@@ -183,14 +183,14 @@ function Currency() {
     return (
         <WidgetContainer name={"Currency"} status={status} message={""} >
             <div className='widget-content' id='currency'>
-                <div className='title'>
+                <div className='bg-primary-subtle p-2 d-flex align-items-center justify-content-around'>
                     <span className='section base-curr' style={{maxWidth: '70px'}}>
-                        <select name='base-curr' defaultValue={base} onChange={e => setBaseOption(e.target.value)}>
+                        <select name='base-curr' defaultValue={base} onChange={e => setBaseOption(e.target.value)} className="form-select" >
                             {currencies}
                         </select>
                     </span>
                     <span className='section period' style={{maxWidth: '100px'}}>
-                        <select name='period' defaultValue={period} onChange={e => setPeriodOption(e.target.value)}>
+                        <select name='period' defaultValue={period} onChange={e => setPeriodOption(e.target.value)}  className="form-select">
                             <option value='7d'>неделя</option> 
                             <option value='30d'>месяц</option> 
                             <option value='3m'>3 месяца</option> 

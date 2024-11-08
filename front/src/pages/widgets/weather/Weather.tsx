@@ -75,7 +75,7 @@ export default function Weather() {
             }
 
             if (!loc && !lat && ! lon) {
-                setStatus('mess');
+                setStatus('ready');
                 setMessage('Define the location.');
             }
             else{
@@ -92,7 +92,7 @@ export default function Weather() {
                     if (resp_data.result === 'ok')
                         setStatus('ready');
                     else {
-                        setStatus('mess');
+                        setStatus('ready');
                         setMessage(resp_data.procedure + ': ' + resp_data.info);
                     }
                 }
@@ -165,6 +165,7 @@ export default function Weather() {
                         </Form>
                     </div>
                     {
+                        message !== '' ? <span className="d-flex justify-content-center align-items-center bg-white p-0 mb-3" style={{maxWidth: '600px', minHeight: '200px'}}   >{message}</span> :
                         period === 'now' ?  <WeatherNow         values={values} /> :
                         period === 'day' ?  <WeatherForTheDay   values={values} /> :
                         period === 'week' ? <WeatherForTheWeek  values={values} /> : <></>

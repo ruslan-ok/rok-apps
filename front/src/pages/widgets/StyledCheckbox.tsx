@@ -1,4 +1,4 @@
-// import './StyledCheckbox.css';
+import './StyledCheckbox.css';
 
 function StyledCheckbox({id, text, classes, r, g, b, checked, onClick }: {id: string, text: string, classes: string, r: number, g: number, b: number, checked: boolean, onClick: () => void }) {
     const icon = checked ? 'bi-check-square-fill' : 'bi-square';

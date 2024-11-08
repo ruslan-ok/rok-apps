@@ -52,8 +52,9 @@ export default function LastVisited() {
             const href = page.url.split('?')[0];
             const search = page.url.split('?')[1] || '';
             const value = page.title || '';
+            const pinStyle = page.pinned ? {color: 'orange'} : {};
             return (
-                <tr key={page.id}>
+                <tr key={page.id} >
                     <td><i className={ page.icon } title={ page.stamp }></i></td>
                     <td>
                         <LinkContainer to={href} search={search}>
@@ -62,7 +63,7 @@ export default function LastVisited() {
                     </td>
                     <td>
                         <button type="button" className="border-0 bg-white" data-id={page.id} onClick={togglePin}>
-                            <i className={ page.pinned ? 'bi-pin-fill' : 'bi-pin-angle' }></i>
+                            <i className={ page.pinned ? 'bi-pin-fill' : 'bi-pin-angle' } style={pinStyle} />
                         </button>
                     </td>
                 </tr>
@@ -72,8 +73,8 @@ export default function LastVisited() {
 
     return <WidgetContainer name={"Last Visited"} status={status} message={message} >
         {status === 'ready' && <>
-            <h5 className="bg-primary-subtle">{values.title}</h5>
-            <table className="info-table">
+            <h5 className="bg-primary-subtle p-2">{values.title}</h5>
+            <table className="table">
                 <tbody>
                     {links}
                 </tbody>

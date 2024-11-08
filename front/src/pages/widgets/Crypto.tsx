@@ -63,16 +63,15 @@ function Crypto() {
         }
     }, [period]);
 
-    let change, current, amount, price_url, amount_url, changeClass;
+    let change, current, amount, price_url, amount_url, changeStyle;
     if (status === 'ready') {
         current = Math.round(widgetData.current).toLocaleString();
         change = widgetData.change;
-        changeClass = 'ms-2';
         if (change > 0) {
-            changeClass += ' posotive';
+            changeStyle = {color: 'green'};
         }
         if (change < 0) {
-            changeClass += ' negative';
+            changeStyle = {color: 'red'};
         }
         amount = Math.round(widgetData.amount).toLocaleString();
         price_url = widgetData.price_url;
@@ -83,12 +82,12 @@ function Crypto() {
             {status === 'ready' &&
                 <div className='widget-container'>
                     <div className='widget-content' id='crypto'> 
-                        <div className='title'>
+                        <div className='bg-primary-subtle p-2 d-flex align-items-center justify-content-around'>
                             <a className='d-flex' href={price_url}><i className='bi-currency-bitcoin me-2'></i><span className='value'>${current}</span></a>
-                            <span className='d-flex'>Динамика:<span className={changeClass}>{change}</span> %</span>
+                            <span className='d-flex'>Динамика:<span className="px-2" style={changeStyle}>{change}</span> %</span>
                             <a className='d-flex' href={amount_url}><i className='bi-wallet2 me-2'></i><span className='value'>${amount}</span></a>
                             <span className='d-flex'>
-                                <select name='period' defaultValue={period} onChange={e => setPeriodOption(e.target.value)}>
+                                <select name='period' defaultValue={period} onChange={e => setPeriodOption(e.target.value)} className="form-select" >
                                     <option value='1h'>1 час</option> 
                                     <option value='3h'>3 часа</option> 
                                     <option value='12h'>12 часов</option> 

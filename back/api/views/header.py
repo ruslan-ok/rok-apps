@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from core.applications import get_apps_list
 
 
-def get_header_data(user: User | None, local: bool, version):
+def get_header_data(user: User | None, local: bool):
     data = {
         'appIcon': '/static/rok.png',
         'appTitle': '',
@@ -40,6 +40,6 @@ def get_header_data(user: User | None, local: bool, version):
 def header(request):
     local = 'localhost' in request.get_host()
     version = request.query_params.get('version')
-    data = get_header_data(request.user, local, version)
+    data = get_header_data(request.user, local)
     return Response(data)
 
