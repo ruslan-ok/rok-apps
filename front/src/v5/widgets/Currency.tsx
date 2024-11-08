@@ -11,10 +11,9 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 
-import { Container } from 'react-bootstrap';
-import Spinner from 'react-bootstrap/Spinner';
 import { api } from '../../API'
 import StyledCheckbox from './StyledCheckbox';
+import WidgetContainer from './WidgetContainer';
 
 ChartJS.register(
     CategoryScale,
@@ -156,9 +155,11 @@ function Currency() {
         }
     }, [period, base]);
 
+    let currencies;
+    let noBaseList;
     if (status === 'ready') {
-        const currencies = widgetData.currencies.map(item => { return (<option key={item.id} value={item.id}>{item.id.toUpperCase()}</option>); });
-        const noBaseList = widgetData.currencies.filter(x => x.id !== base).map(item => {
+        currencies = widgetData.currencies.map(item => { return (<option key={item.id} value={item.id}>{item.id.toUpperCase()}</option>); });
+        noBaseList = widgetData.currencies.filter(x => x.id !== base).map(item => {
             const visible = !hidden.includes(item.id);
             return (
                 <StyledCheckbox classes='visibility' key={item.id} id={item.id} text={item.id.toUpperCase()} r={item.color.r} g={item.color.g} b={item.color.b} checked={visible} onClick={switchVisible} />
@@ -177,42 +178,35 @@ function Currency() {
             };
             chartData.datasets.push(currInfo);
         });
-
-        return (
-            <Container style={{maxWidth: '600px'}}>
-                <div className='widget-content' id='currency'>
-                    <div className='title'>
-                        <span className='section base-curr' style={{maxWidth: '70px'}}>
-                            <select name='base-curr' defaultValue={base} onChange={e => setBaseOption(e.target.value)}>
-                                {currencies}
-                            </select>
-                        </span>
-                        <span className='section period' style={{maxWidth: '100px'}}>
-                            <select name='period' defaultValue={period} onChange={e => setPeriodOption(e.target.value)}>
-                                <option value='7d'>неделя</option> 
-                                <option value='30d'>месяц</option> 
-                                <option value='3m'>3 месяца</option> 
-                                <option value='1y'>год</option> 
-                                <option value='3y'>3 года</option> 
-                                <option value='5y'>5 лет</option> 
-                                <option value='10y'>10 лет</option> 
-                            </select>
-                        </span>
-                        {noBaseList}
-                    </div>
-                    <Line ref={chartRef} options={widgetData.chart.options} data={chartData} key={Math.random()}/>
-                </div>
-            </Container>
-        );
-    } else {
-        return (
-            <Container className="d-flex justify-content-center align-items-center" style={{maxWidth: '600px', minHeight: '200px'}}>
-                <Spinner animation="border" role="status" variant="secondary">
-                    <span className="visually-hidden">Loading...</span>
-                </Spinner>
-            </Container>
-        );
     }
+
+    return (
+        <WidgetContainer name={"Currency"} status={status} message={""} >
+            <div className='widget-content' id='currency'>
+                <div className='title'>
+                    <span className='section base-curr' style={{maxWidth: '70px'}}>
+                        <select name='base-curr' defaultValue={base} onChange={e => setBaseOption(e.target.value)}>
+                            {currencies}
+                        </select>
+                    </span>
+                    <span className='section period' style={{maxWidth: '100px'}}>
+                        <select name='period' defaultValue={period} onChange={e => setPeriodOption(e.target.value)}>
+                            <option value='7d'>неделя</option> 
+                            <option value='30d'>месяц</option> 
+                            <option value='3m'>3 месяца</option> 
+                            <option value='1y'>год</option> 
+                            <option value='3y'>3 года</option> 
+                            <option value='5y'>5 лет</option> 
+                            <option value='10y'>10 лет</option> 
+                        </select>
+                    </span>
+                    {noBaseList}
+                </div>
+                <Line ref={chartRef} options={widgetData.chart.options} data={chartData} key={Math.random()}/>
+            </div>
+        </WidgetContainer>
+    );
+
 }
   
 export default Currency;

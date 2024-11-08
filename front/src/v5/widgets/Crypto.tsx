@@ -13,10 +13,8 @@ import {
 import { Line } from 'react-chartjs-2';
 import 'chartjs-adapter-moment';
 
-import Spinner from 'react-bootstrap/Spinner';
-
+import WidgetContainer from './WidgetContainer';
 import { api } from '../../API'
-import { Container } from 'react-bootstrap';
 
 ChartJS.register(
     CategoryScale,
@@ -65,21 +63,24 @@ function Crypto() {
         }
     }, [period]);
 
+    let change, current, amount, price_url, amount_url, changeClass;
     if (status === 'ready') {
-        const current = Math.round(widgetData.current).toLocaleString();
-        const change = widgetData.change;
-        let changeClass = 'ms-2';
+        current = Math.round(widgetData.current).toLocaleString();
+        change = widgetData.change;
+        changeClass = 'ms-2';
         if (change > 0) {
             changeClass += ' posotive';
         }
         if (change < 0) {
             changeClass += ' negative';
         }
-        const amount = Math.round(widgetData.amount).toLocaleString();
-        const price_url = widgetData.price_url;
-        const amount_url = widgetData.amount_url;
-        return (
-            <Container style={{maxWidth: '600px'}}>
+        amount = Math.round(widgetData.amount).toLocaleString();
+        price_url = widgetData.price_url;
+        amount_url = widgetData.amount_url;
+    }
+    return (
+        <WidgetContainer name={"Weather"} status={status} message={""} >
+            {status === 'ready' &&
                 <div className='widget-container'>
                     <div className='widget-content' id='crypto'> 
                         <div className='title'>
@@ -104,18 +105,9 @@ function Crypto() {
                         <Line ref={chartRef} options={widgetData.chart.options} data={widgetData.chart.data} key={Math.random()}/>
                     </div>
                 </div>
-            </Container>
-        );
-    } else {
-        return (
-            <Container className="d-flex justify-content-center align-items-center" style={{maxWidth: '600px', minHeight: '200px'}}>
-                <Spinner animation="border" role="status" variant="secondary">
-                    <span className="visually-hidden">Loading...</span>
-                </Spinner>
-            </Container>
-        );
-    }
-
+            }
+        </WidgetContainer>
+    );
 }
   
 export default Crypto;

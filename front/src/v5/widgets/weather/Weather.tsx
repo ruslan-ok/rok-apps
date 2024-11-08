@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Form } from 'react-router-dom';
 import { api } from '../../../API'
-import Spinner from '../../Spinner';
 import WeatherNow from './WeatherNow';
 import WeatherForTheDay from './WeatherForTheDay';
 import WeatherForTheWeek from './WeatherForTheWeek';
-import WeatherMessage from './WeatherMessage';
 import { getIconHref } from './WeatherUtils';
+import WidgetContainer from '../WidgetContainer';
+import '../css/Weather.min.css';
+
 
 function getPeriodOption(): string {
     const tmp: string | null = localStorage.getItem('weather-period');
@@ -24,14 +25,14 @@ function getBrsrLocOption(): boolean {
     return (ubl === 'true');
 }
 
-function getLocationOption() {
+function getLocationOption(): string {
     const lctn = localStorage.getItem('weather-location');
-    if (lctn === undefined)
+    if (lctn === undefined || lctn === null)
         return '';
     return lctn;
 }
 
-export default function Weather({screenWidth}: {screenWidth: number}) {
+export default function Weather() {
     function setPeriodOption(value: string): void {
         setPeriod(value);
         localStorage.setItem('weather-period', value);
@@ -117,19 +118,14 @@ export default function Weather({screenWidth}: {screenWidth: number}) {
         localStorage.setItem('weather-location', newLocation);
     }
 
-    const widgetWidth = screenWidth < 600 ? 410 : (screenWidth < 768 ? 500 : 600);
-    const widgetHeight = screenWidth < 600 ? 200 : (screenWidth < 768 ? 250 : 300);
-
     const cr_info = (values && values.cr_info) ? values.cr_info : '???';
     const cr_url = (values && values.cr_url) ? values.cr_url : '#';
 
     const ms_href = getIconHref(7);
 
-    if (status !== 'ready' && status !== 'mess') {
-        return <Spinner width={widgetWidth} height={widgetHeight} />;
-    } else {
-        return (
-            <div className='widget-container'>
+    return (
+        <WidgetContainer name={"Weather"} status={status} message={message} >
+            {status === 'ready' &&
                 <div className='widget-content' id='weather'>
                     <div className='week-row option-links'>
                         <div className='left'>
@@ -169,14 +165,12 @@ export default function Weather({screenWidth}: {screenWidth: number}) {
                         </Form>
                     </div>
                     {
-                        status === 'mess' ? <WeatherMessage     message={message} /> :
                         period === 'now' ?  <WeatherNow         values={values} /> :
                         period === 'day' ?  <WeatherForTheDay   values={values} /> :
-                        period === 'week' ? <WeatherForTheWeek  values={values} /> : 
-                        <></>
-                     }
-                    </div>
-            </div>
-        );
-    }
+                        period === 'week' ? <WeatherForTheWeek  values={values} /> : <></>
+                    }
+                </div>
+            }
+        </WidgetContainer>
+    );
 }

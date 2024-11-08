@@ -15,8 +15,7 @@ import 'chartjs-adapter-moment';
 
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import { Container } from 'react-bootstrap';
-import Spinner from 'react-bootstrap/Spinner';
+import WidgetContainer from './WidgetContainer';
 import { api } from '../../API'
 
 ChartJS.register(
@@ -89,9 +88,10 @@ function Weight() {
         }
     }
 
+    let current, change, changeClass;
     if (status === 'ready') {
-        const current = Math.round(widgetData.current).toLocaleString();
-        const change = widgetData.change?.toFixed(2).toLocaleString();
+        current = Math.round(widgetData.current).toLocaleString();
+        change = widgetData.change?.toFixed(2).toLocaleString();
         let changeClass = 'value';
         if (change > 0) {
             changeClass += ' posotive';
@@ -99,8 +99,10 @@ function Weight() {
         if (change < 0) {
             changeClass += ' negative';
         }
-        return (
-            <Container style={{maxWidth: '600px'}}>
+    }
+    return (
+        <WidgetContainer name={"Currency"} status={status} message={""} >
+            {status === 'ready' &&
                 <div className='widget-content' id='weight'>
                     <div className='title'>
                         <span id='current' className='section'><span>Вес:</span><span className='value'>{current}</span><span>кг</span></span>
@@ -123,17 +125,9 @@ function Weight() {
                     </div>
                     <Line ref={chartRef} options={widgetData.chart.options} data={widgetData.chart.data} key={Math.random()}/>
                 </div>
-            </Container>
-        );
-    } else {
-        return (
-            <Container className="d-flex justify-content-center align-items-center" style={{maxWidth: '600px', minHeight: '200px'}}>
-                <Spinner animation="border" role="status" variant="secondary">
-                    <span className="visually-hidden">Loading...</span>
-                </Spinner>
-            </Container>
-        );
-    }
+            }
+        </WidgetContainer>
+    );
 }
   
 export default Weight;
