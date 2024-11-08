@@ -1,0 +1,134 @@
+.list-content {
+    display: flex;
+    flex-direction: column;
+    width: 100% !important;
+    margin:0 auto;
+    min-height:calc(100vh - 110px);
+    padding-top: 10px;
+
+    ul {
+        list-style-type: none;
+        padding: 0 15px;
+        overflow: auto;
+        margin-top: 15px;
+
+        li.list-item {
+            display: flex !important;
+            justify-content: space-between !important;
+            min-height: 50px;
+            margin-bottom: 0.25rem !important;
+            border-radius: 5px;
+            background-color: white;
+        
+            button.left-icon, a.left-icon {
+                cursor: pointer;
+                padding: 9px;
+                font-size: 1.1rem;
+                border: none;
+                background-color: transparent;
+                color: #447e9b;
+            }
+
+            a.container {
+                display: flex;
+                min-height: 50px;
+                width: 100%;
+                padding: 0;
+                text-decoration: none;
+
+                .info {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    
+                    .name {
+                        color: #2b576d;
+
+                        &.completed {
+                            text-decoration: line-through;
+                        }
+
+                        .roles {
+                            padding-left: 15px;
+                            object {
+                                font-size: 0.6rem;
+
+                                a.role-icon i {
+                                    padding: 3px 0;
+                                    color: mediumseagreen;
+                                }
+                            }
+                        }
+                    }
+
+                    .descr {
+                        display: flex !important;
+                        flex-wrap: wrap;
+                        margin-bottom: 5px;
+                        
+                        .inline {
+                            display: flex !important;
+                            align-items: center;
+                            font-size: 0.8rem;
+                            padding: 0 3px;
+                            border-radius: 2px;
+                            margin-right: 2px;
+
+                            .actual { color: #465efc !important; }
+                            .expired { color: #af2e20 !important; }
+                            .category-design-green { color: rgb(37, 126, 32); }
+                            .category-design-blue { color: rgb(0, 120, 153); }
+                            .category-design-red { color: rgb(208, 27, 42); }
+                            .category-design-purple { color: rgb(125, 87, 178); }
+                            .category-design-yellow { color: rgb(122, 116, 0); }
+                            .category-design-orange { color: rgb(163, 90, 0); }
+                            i {
+                                font-size: 0.6rem;
+                                padding: 3px 2px;
+                            }
+                            .label {
+                                padding: 0 2px;
+                            }
+                        }
+                    }
+                }
+            }
+        
+            button.right-icon {
+                cursor: pointer;
+                padding: 9px;
+                border: none;
+                background-color: transparent;
+                color: #447e9b;
+            }
+        }
+    }
+}
+
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    margin-right: 1rem;
+    flex-wrap: wrap;
+    &__info {
+        margin-bottom: 0.5rem;
+    }
+    &__sort {
+        margin-bottom: 0.5rem;
+    }
+}
+
+.sub-group {
+    border-radius: 5px;
+    background-color: white;
+    color: #3f697e;
+    margin-left: 15px;
+    margin-bottom: 5px;
+    padding: 4px 7px;
+    font-size: 0.9rem;
+    &__name {
+      margin: 0 5px;
+    }
+  }
+  
+  

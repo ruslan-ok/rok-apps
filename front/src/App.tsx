@@ -4,35 +4,32 @@ import {
     Outlet,
 } from "react-router-dom";
 
-import DefaultSpinner from './components/DefaultSpinner';
-import ErrorPage from "./error_page";
-import HeadedPage4, { loader as appLoader } from './components/HeadedPage';
-import MainPage4 from './components/MainPage';
-import Demo from './components/auth/Demo';
-import Login, { action as loginAction } from './components/auth/Login';
-import Logout from './components/auth/Logout';
-import TodoPage, { loader as todoLoader } from './components/todo/TodoPage';
-import TodoListPage from './components/todo/TodoListPage';
-import TodoItemPage, { loader as todoItemLoader, action as todoItemAction } from './components/todo/TodoItemPage';
+import ErrorPage from "./ErrorPage";
+import Demo from './auth/Demo';
+import Login, { action as loginAction } from './auth/Login';
+import Logout from './auth/Logout';
+import TodoPage, { loader as todoLoader } from './pages/todo/TodoPage';
+import TodoListPage from './pages/todo/TodoListPage';
+import TodoItemPage, { loader as todoItemLoader, action as todoItemAction } from './pages/todo/TodoItemPage';
 
-import HeadedPage from './v5/HeadedPage';
-import { loader as headLoader } from './v5/Header';
-import MainPage from './v5/MainPage';
+import HeadedPage from './pages/HeadedPage';
+import { loader as headLoader } from './pages/Header';
+import MainPage from './pages/MainPage';
 
+import 'bootstrap/dist/css/bootstrap.css';
+import './App.css';
 
 
 let router = createBrowserRouter([
     {
-        id: 'header',
-        path: '/',
-        // path: '/:lang?',
-        loader: appLoader,
-        Component: HeadedPage4,
+        path: '',
+        Component: HeadedPage,
+        loader: headLoader,
         children: [
             {
                 path: '',
                 index: true,
-                Component: MainPage4,
+                Component: MainPage,
             },
             {
                 path: 'todo',
@@ -67,40 +64,6 @@ let router = createBrowserRouter([
         path: '/logout',
         Component: Logout,
     },
-    {
-        path: '/v5',
-        Component: Outlet,
-        children: [
-            {
-                path: '',
-                Component: HeadedPage,
-                loader: headLoader,
-                children: [
-                    {
-                        path: '',
-                        Component: MainPage,
-                    },
-                ],
-            },
-            {
-                path: 'demo',
-                Component: Demo,
-            },
-            {
-                path: 'login',
-                action: loginAction,
-                Component: Login,
-            },
-            {
-                path: 'logout',
-                Component: Logout,
-            },
-            {
-                path: 'profile',
-                Component: Logout,
-            },
-        ],
-    },
 ]);
 
 export default function App() {
@@ -108,5 +71,5 @@ export default function App() {
 }
 
 export function Fallback() {
-    return <DefaultSpinner />;
+    return <span>Loading...</span>;
 }

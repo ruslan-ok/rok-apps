@@ -17,19 +17,12 @@ def get_header_data(user: User | None, local: bool, version):
         'userMenu': [],
         'buttons': [],
     }
-    href_prefix = ''
-    if local:
-        href_prefix = 'http://localhost:8000/'
-    ver_prefix = ''
-    if version:
-        ver_prefix = '/v' + str(version)
-
     if not user or not user.is_authenticated:
         data['appTitle'] = settings.DOMAIN_NAME
-        data['buttons'].append({'button_id': 'demo', 'name': 'Demo', 'href': ver_prefix + '/demo'})
-        data['buttons'].append({'button_id': 'login', 'name': 'Log in', 'href': ver_prefix + '/login'})
+        data['buttons'].append({'button_id': 'demo', 'name': 'Demo', 'href': '/demo'})
+        data['buttons'].append({'button_id': 'login', 'name': 'Log in', 'href': '/login'})
     else:
-        data['applications'] = get_apps_list(user, 'core', href_prefix, ver_prefix)
+        data['applications'] = get_apps_list(user, 'core')
         data['searchPlaceholder'] = 'Search...'
         data['userName'] = user.username if user else None
         if user and hasattr(user, 'userext') and user.userext.avatar_mini:
@@ -37,9 +30,9 @@ def get_header_data(user: User | None, local: bool, version):
         else:
             data['avatar'] = '/static/Default-avatar.jpg'
         if user and user.username != 'demouser':
-            data['userMenu'].append({'item_id': 'profile', 'name': 'Profile', 'href': ver_prefix + '/profile', 'icon': 'bi-person'})
+            data['userMenu'].append({'item_id': 'profile', 'name': 'Profile', 'href': '/profile', 'icon': 'bi-person'})
             data['userMenu'].append({'item_id': 'separator', 'name': '', 'href': '', 'icon': ''})
-        data['userMenu'].append({'item_id': 'logout', 'name': 'Log out', 'href': ver_prefix + '/logout', 'icon': 'bi-box-arrow-right'})
+        data['userMenu'].append({'item_id': 'logout', 'name': 'Log out', 'href': '/logout', 'icon': 'bi-box-arrow-right'})
     return data
 
 @api_view(['GET'])

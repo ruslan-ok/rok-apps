@@ -51,8 +51,7 @@ export async function loader(): Promise<IHeaderData> {
 
 function Header() {
     const data = useLoaderData() as IHeaderData;
-    // const apps = data.applications.filter(app => app.name !== 'Home').map(app => {
-    const desktopApps = data.applications.map(app => {
+    const desktopApps = data.applications.filter(app => app.name !== 'Home').map(app => {
         const appIcon = 'me-2 bi-' + app.icon;
         const appName = app.active ? app.name : '';
         return (
@@ -99,7 +98,7 @@ function Header() {
 
     return <Navbar expand="lg" className="bg-body-tertiary" onToggle={handleToggle}>
         <Container>
-            <LinkContainer to="/v5">
+            <LinkContainer to="/">
                 <Navbar.Brand className="d-flex align-items-center">
                     <img
                         alt="Rok Apps"
