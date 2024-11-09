@@ -103,7 +103,7 @@ function Weight() {
         <WidgetContainer name={"Currency"} status={status} message={""} >
             {status === 'ready' &&
                 <div className='widget-content' id='weight'>
-                    <div className='bg-primary-subtle p-2 d-flex align-items-center justify-content-around'>
+                    <div className='bg-danger-subtle p-2 d-flex align-items-center justify-content-around'>
                         <span id='current' className='section'><span>Вес:</span><span className='value px-2'>{current}</span><span>кг</span></span>
                         <span id='change' className='section'><span className='long-text'>Динамика:</span><span className="px-2" style={changeStyle} >{change}</span><span>кг</span></span>
                         <span id='period' className='section'>

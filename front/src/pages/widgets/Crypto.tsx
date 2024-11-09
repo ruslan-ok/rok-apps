@@ -82,7 +82,7 @@ function Crypto() {
             {status === 'ready' &&
                 <div className='widget-container'>
                     <div className='widget-content' id='crypto'> 
-                        <div className='bg-primary-subtle p-2 d-flex align-items-center justify-content-around'>
+                        <div className='bg-success-subtle p-2 d-flex align-items-center justify-content-around'>
                             <a className='d-flex' href={price_url}><i className='bi-currency-bitcoin me-2'></i><span className='value'>${current}</span></a>
                             <span className='d-flex'>Динамика:<span className="px-2" style={changeStyle}>{change}</span> %</span>
                             <a className='d-flex' href={amount_url}><i className='bi-wallet2 me-2'></i><span className='value'>${amount}</span></a>

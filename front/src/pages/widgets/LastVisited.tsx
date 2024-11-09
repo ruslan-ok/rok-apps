@@ -73,8 +73,8 @@ export default function LastVisited() {
 
     return <WidgetContainer name={"Last Visited"} status={status} message={message} >
         {status === 'ready' && <>
-            <h5 className="bg-primary-subtle p-2">{values.title}</h5>
-            <table className="table">
+            <h5 className="bg-primary-subtle p-3">{values.title}</h5>
+            <table className="table table-sm">
                 <tbody>
                     {links}
                 </tbody>

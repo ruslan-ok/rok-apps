@@ -183,7 +183,7 @@ function Currency() {
     return (
         <WidgetContainer name={"Currency"} status={status} message={""} >
             <div className='widget-content' id='currency'>
-                <div className='bg-primary-subtle p-2 d-flex align-items-center justify-content-around'>
+                <div className='bg-secondary-subtle p-2 d-flex align-items-center justify-content-around'>
                     <span className='section base-curr' style={{maxWidth: '70px'}}>
                         <select name='base-curr' defaultValue={base} onChange={e => setBaseOption(e.target.value)} className="form-select" >
                             {currencies}
