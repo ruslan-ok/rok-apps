@@ -1,5 +1,6 @@
-import { LinkContainer } from 'react-router-bootstrap';
 import { useState, useEffect } from 'react';
+import { Container } from 'react-bootstrap';
+import { LinkContainer } from 'react-router-bootstrap';
 import { Link } from 'react-router-dom';
 import { api } from '../../API'
 import WidgetContainer from './WidgetContainer';
@@ -14,20 +15,20 @@ export default function LastVisited() {
     useEffect(() => {
 
         async function getData() {
-            setStatus('updating');
+            setStatus('loading');
             let resp_data = await api.get('chart', {mark: 'visited', version: 5});
             if (resp_data) {
-                setValues(resp_data);
                 if (resp_data.result === 'ok') {
+                    setValues(resp_data);
                     setStatus('ready');
                 }
                 else {
-                    setStatus('mess');
                     let prefix = '';
                     if (resp_data.procedure) {
                         prefix = resp_data.procedure + ': ';
                     }
                     setMessage(prefix + resp_data.info);
+                    setStatus('message');
                 }
             }
         }
@@ -77,14 +78,18 @@ export default function LastVisited() {
         paddingLeft: '16px',
         margin: '0',
     }
-    return <WidgetContainer name={"Last Visited"} status={status} message={message} >
-        {status === 'ready' && <>
-            <h6 className="bg-primary-subtle" style={style} >{values.title}</h6>
-            <table className="table table-sm">
-                <tbody>
-                    {links}
-                </tbody>
-            </table>
-        </>}
-    </WidgetContainer>;
+    return (
+        <Container style={{maxWidth: '600px', minHeight: '200px', }} className="bg-white p-0 mb-3 align-self-start" >
+            <h6 className="bg-info-subtle" style={style} >Last visited</h6>
+            <WidgetContainer status={status} message={message} >
+                {status === 'ready' &&
+                    <table className="table table-sm">
+                        <tbody>
+                            {links}
+                        </tbody>
+                    </table>
+                }
+            </WidgetContainer>
+        </Container>
+    );
 }

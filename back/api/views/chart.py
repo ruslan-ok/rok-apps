@@ -5,7 +5,6 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
-from todo.hp_widget.todo import get_todo
 from core.hp_widget.visited import get_visited
 from health.views.chart import get_health_data
 from core.hp_widget.currency import get_currency_data
@@ -58,7 +57,6 @@ def chart(request):
         case 'currency': data = get_currency_data(period, base)
         case 'crypto': data = get_crypto_data(period)
         case 'visited': data = get_visited(request)
-        case 'todo': data = get_todo(request)
         case 'weather': data = get_forecast(request.user, location, lat, lon)
         case _: data = {'result': 'error', 'info': 'Unknown widget: ' + mark}
     return Response(data)

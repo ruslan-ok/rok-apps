@@ -105,14 +105,14 @@
             .location-name {
                 width: 100px;
                 margin: 0 5px;
-                padding: 3px;
+                padding: 3px 7px;
                 border: none;
-                border-radius: 10px;
+                border-radius: 5px;
                 background-color: var(--location-backgr);
             }
             .location-btn {
                 padding: 3px 5px;
-                border-radius: 10px;
+                border-radius: 5px;
                 border-width: 0;
                 color: var(--period-color);
                 background-color: var(--period-active-backgr);

@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
+import { Container, Button, Form } from 'react-bootstrap';
+
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -13,8 +15,6 @@ import {
 import { Line } from 'react-chartjs-2';
 import 'chartjs-adapter-moment';
 
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
 import WidgetContainer from './WidgetContainer';
 import { api } from '../../API'
 
@@ -55,7 +55,7 @@ function Weight() {
     const chartRef = useRef<any>(null);
     useEffect(() => {
         async function getData() {
-            setStatus('updating');
+            setStatus('loading');
             let widgetData = await api.get('chart', {mark: 'health', version: 'v2', period: period});
             if (widgetData) {
                 setWidgetData(widgetData);
@@ -100,32 +100,32 @@ function Weight() {
         }
     }
     return (
-        <WidgetContainer name={"Currency"} status={status} message={""} >
-            {status === 'ready' &&
-                <div className='widget-content' id='weight'>
-                    <div className='bg-danger-subtle p-1 d-flex align-items-center justify-content-around'>
-                        <span id='current' className='section'><span>Вес:</span><span className='value px-2'>{current}</span><span>кг</span></span>
-                        <span id='change' className='section'><span className='long-text'>Динамика:</span><span className="px-2" style={changeStyle} >{change}</span><span>кг</span></span>
-                        <span id='period' className='section'>
-                            <select name='period' defaultValue={period} onChange={e => setPeriodOption(e.target.value)} className="form-select form-select-sm" >
-                                <option value='7d'>неделя</option> 
-                                <option value='30d'>месяц</option> 
-                                <option value='3m'>3 месяца</option> 
-                                <option value='1y'>год</option> 
-                                <option value='3y'>3 года</option> 
-                                <option value='5y'>5 лет</option> 
-                                <option value='10y'>10 лет</option> 
-                            </select>
-                        </span>
-                        <Form id='value' className='d-flex' method="post" onSubmit={handleSubmit} >
-                            <Form.Control type="text" placeholder="Weight" name="weight" defaultValue={""} step=".01" size="sm" style={{maxWidth: '70px'}} />
-                            <Button variant="light" type="submit" className="bi-plus ms-1" size="sm" />
-                        </Form>
-                    </div>
+        <Container style={{maxWidth: '600px', minHeight: '200px', }} className="bg-white p-0 mb-3 align-self-start" id='weight' >
+            <div className='bg-danger-subtle p-1 d-flex align-items-center justify-content-around'>
+                <span id='current' className='section'><span>Вес:</span><span className='value px-2'>{current}</span><span>кг</span></span>
+                <span id='change' className='section'><span className='long-text'>Динамика:</span><span className="px-2" style={changeStyle} >{change}</span><span>кг</span></span>
+                <span id='period' className='section'>
+                    <select name='period' defaultValue={period} onChange={e => setPeriodOption(e.target.value)} className="form-select form-select-sm" >
+                        <option value='7d'>неделя</option> 
+                        <option value='30d'>месяц</option> 
+                        <option value='3m'>3 месяца</option> 
+                        <option value='1y'>год</option> 
+                        <option value='3y'>3 года</option> 
+                        <option value='5y'>5 лет</option> 
+                        <option value='10y'>10 лет</option> 
+                    </select>
+                </span>
+                <Form id='value' className='d-flex' method="post" onSubmit={handleSubmit} >
+                    <Form.Control type="text" placeholder="Weight" name="weight" defaultValue={""} step=".01" size="sm" style={{maxWidth: '70px'}} />
+                    <Button variant="light" type="submit" className="bi-plus ms-1" size="sm" />
+                </Form>
+            </div>
+            <WidgetContainer status={status} message={""} >
+                {status === 'ready' &&
                     <Line ref={chartRef} options={widgetData.chart.options} data={widgetData.chart.data} key={Math.random()}/>
-                </div>
-            }
-        </WidgetContainer>
+                }
+            </WidgetContainer>
+        </Container>
     );
 }
   

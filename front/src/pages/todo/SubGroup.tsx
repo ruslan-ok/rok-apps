@@ -79,7 +79,7 @@ export function fillSubGroups(data: IItemInfo[], group_id: number, use_sub_group
     return subGroups;
 }
 
-function _toggleSubGroup(event: MouseEvent<HTMLElement>, groupId: number, subGroupId: number, isOpen: boolean) {
+function _toggleSubGroup(event: MouseEvent<HTMLElement>, subGroupId: number, isOpen: boolean) {
     const elItems = document.getElementById(`items-for-sub-group-${subGroupId}`);
     let elButton = event.target as HTMLElement;
     if (elButton.tagName !== 'BUTTON' && elButton.parentElement) {
@@ -104,7 +104,7 @@ function SubGroup({subGroup, config, update}: {subGroup: ISubGroup, config: IPag
     function toggleSubGroup(event: MouseEvent<HTMLElement>) {
         sg.toggle();
         setSG(sg);
-        _toggleSubGroup(event, config.view_group.id, sg.id, sg.is_open);
+        _toggleSubGroup(event, sg.id, sg.is_open);
     }
     const sgClass = `sub-group__icon bi-chevron-${sg.is_open ? 'down': 'right'}`;
     const sgId = `items-for-sub-group-${sg.id}`;

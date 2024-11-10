@@ -1,5 +1,5 @@
 import { Container, Row } from 'react-bootstrap';
-// import TodoList from './widgets/todo/TodoList';
+import Todo from './widgets/Todo';
 import LastVisited from './widgets/LastVisited';
 import Weather from './widgets//weather/Weather';
 import Weight from './widgets/Weight';
@@ -11,7 +11,7 @@ function MainPageProtected() {
     return (
         <Container fluid className="bg-body-tertiary">
             <Row>
-                {/* <TodoList /> */}
+                <Todo />
                 <LastVisited />
                 <Weather />
                 <Weight />

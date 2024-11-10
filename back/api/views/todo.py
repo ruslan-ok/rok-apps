@@ -1,3 +1,8 @@
+from datetime import datetime, timedelta
+
+from django.conf import settings
+from django.db.models import Q
+
 from rest_framework import permissions, renderers
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -40,6 +45,15 @@ class TodoViewSet(ModelViewSet):
                 return queryset.exclude(stop=None).exclude(completed=True)
             if (view_id == 'completed'):
                 return queryset.filter(completed=True)
+            if (view_id == 'widget'):
+                days = 1
+                while days < 10:
+                    lookups = Q(stop__lte=(datetime.now() + timedelta(days))) | Q(in_my_day=True) | Q(important=True)
+                    tasks = queryset.filter(lookups).exclude(completed=True)
+                    if len(tasks) > 2:
+                        break
+                    days += 1
+                queryset = queryset.filter(lookups).exclude(completed=True)
         return queryset
 
 @api_view(['GET'])
