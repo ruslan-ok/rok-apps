@@ -63,8 +63,8 @@ function AddItemInput({config}: {config: IPageConfig}) {
 
 function ItemTitle({item, config}: {item: IItemInfo, config: IPageConfig}) {
     return (
-        <div className="content-title d-flex justify-content-between">
-            <div className="title d-none d-md-flex">
+        <div className="d-flex justify-content-between align-items-center">
+            <div className="title d-none d-md-flex align-items-center">
                 {config.icon && <i className={config.iconClass}></i>}
 
                 <h3 className={config.checkDark('content-title__text')}>
@@ -85,7 +85,7 @@ function ItemTitle({item, config}: {item: IItemInfo, config: IPageConfig}) {
                 </>}
 
             </div>
-            <div className="title d-md-none"></div>
+            <div className="title d-md-none align-items-center"></div>
             <div className="actions d-flex mx-2">
                 {/* {% include "core/tune.html" with screen_size="small" %} */}
                 {config.add_item && <AddItemInput config={config} />}

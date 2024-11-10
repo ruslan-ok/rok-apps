@@ -50,11 +50,11 @@ function toggleLi(group_id: number, visible: boolean) {
     let li = document.getElementById('task_group_' + group_id);
     if (li) {
         if (visible) {
-            li.classList.add('sidebar__group-visible');
-            li.classList.remove('sidebar__group-hidden');
+            li.classList.add('d-flex');
+            li.classList.remove('d-none');
         } else {
-            li.classList.add('sidebar__group-hidden');
-            li.classList.remove('sidebar__group-visible');
+            li.classList.add('d-none');
+            li.classList.remove('d-flex');
         }
         const node = getNodeById(group_id);
         if (node && !node.is_leaf && node.is_open) {
@@ -200,28 +200,40 @@ function GroupTree({config}: {config: IPageConfig}) {
             const g_id = `task_group_${group.id}`;
             const is_visible = allNodesAreOpen(group.id);
             const active = (group.id === config.entity.id);
-            const gclass = is_visible ? 'sidebar__group-visible' + (active ? ' active' : '') : 'sidebar__group-hidden';
+            const gclass = is_visible ? 'd-flex' + (active ? ' active' : '') : ' d-none';
+            const bgColor = active ? 'lightgrey' : 'white';
+            const elStyle = {
+                padding: '2px 6px',
+                textDecoration: 'none',
+                border: 'none',
+                borderRadius: '4px',
+                backgroundColor: bgColor,
+                margin: '0',
+                color: 'var(--bs-secondary-text-emphasis)',
+                justifyContent: 'space-between',
+                width: '100%',
+            };
 
             if (group.is_leaf) {
                 const href = `/${config.view_group.app}/?${config.entity.name}=${group.id}`;
-                const item_class = `bi-journals level-${group.level}`;
+                const item_class = `me-2 bi-journals level-${group.level}`;
                 itemLink = (
-                    <Link id={g_id} key={group.id} to={href} data-id={group.id} data-parent={group.node_id} className={gclass} aria-current={active}>
+                    <Link id={g_id} key={group.id} to={href} data-id={group.id} data-parent={group.node_id} className={gclass} aria-current={active} style={elStyle} >
                         <div>
                             <i className={item_class}></i>
-                            <span className="group-item-title">{group.name}</span>
+                            <span className="">{group.name}</span>
                         </div>
                         <span>{group.act_items_qty}</span>
                     </Link>
                 );
             } else {
-                const folder_class = `bi-folder2${group.is_open ? '-open' : ''} level-${group.level}`;
+                const folder_class = `me-2 bi-folder2${group.is_open ? '-open' : ''} level-${group.level}`;
                 const chevron_class = `bi-chevron-${group.is_open ? 'down' : 'left'}`;
                 itemLink = (
-                    <button id={g_id} key={group.id} data-id={group.id} data-parent={group.node_id} className={gclass} onClick={handleClick}>
+                    <button id={g_id} key={group.id} data-id={group.id} data-parent={group.node_id} className={gclass} onClick={handleClick} style={elStyle} >
                         <div>
                             <i className={folder_class}></i>
-                            <span className="group-item-title">{group.name}</span>
+                            <span className="">{group.name}</span>
                         </div>
                         <i className={chevron_class}></i>
                     </button>
@@ -231,7 +243,7 @@ function GroupTree({config}: {config: IPageConfig}) {
             return itemLink;
         });
 
-        groups = <div id="groups-tree" className="sidebar__groups">{groupList}</div>;
+        groups = <div id="groups-tree" className="rok-group-tree">{groupList}</div>;
     }
 
     return groups;

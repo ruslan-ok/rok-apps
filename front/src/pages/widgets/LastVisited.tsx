@@ -71,9 +71,15 @@ export default function LastVisited() {
         });
     }
 
+    const style = {
+        height: '39px',
+        paddingTop: '8px',
+        paddingLeft: '16px',
+        margin: '0',
+    }
     return <WidgetContainer name={"Last Visited"} status={status} message={message} >
         {status === 'ready' && <>
-            <h5 className="bg-primary-subtle p-3">{values.title}</h5>
+            <h6 className="bg-primary-subtle" style={style} >{values.title}</h6>
             <table className="table table-sm">
                 <tbody>
                     {links}

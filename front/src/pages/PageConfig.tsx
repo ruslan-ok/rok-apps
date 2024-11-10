@@ -106,7 +106,7 @@ export class IPageConfig {
     get iconClass() {
         let value = '';
         if (this.icon) {
-            value = `bi-${this.icon} content-title__icon${this.darkClass}`;
+            value = `bi-${this.icon} m-3 fs-4${this.darkClass}`;
         }
         return value;
     }

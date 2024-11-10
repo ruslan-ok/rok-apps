@@ -9,7 +9,6 @@ import {
     useNavigation,
 } from "react-router-dom";
 import { api } from '../API'
-import './Login.css';
 
 interface ILoginResult {
     ok: boolean,

@@ -1,27 +1,44 @@
+import { Container, Navbar } from 'react-bootstrap';
 import { IPageConfig } from '../PageConfig';
 import FixList from './FixList';
 import GroupTree from './GroupTree';
-import DirTree from './DirTree';
-import NavList from './NavList';
 import AddNewGroup from './AddNewGroup';
-// import '../css/sidebar.min.css'
 
-function SideBar({config}: {config: IPageConfig}) {
-    const useGroups = config.view_group.app === 'todo';
-    return (
-        <aside className="bd-sidebar">
-            <nav className="bd-links collapse sidebar" id="bd-docs-nav" aria-label="Groups navigation">
+
+function SideBar({width, config}: {width: number, config: IPageConfig}) {
+    const isMobile = width < 768;
+    let style;
+    if (isMobile) {
+        style = {
+            height: '50px',
+        };
+    } else {
+        style = {
+            width: '400px',
+        };
+    }
+
+    return (<>
+        {!isMobile &&
+            <Container style={style} className="bg-success-subtle m-3" >
                 <FixList config={config} />
-                {useGroups && <>
-                        <DirTree config={config} />
+                <GroupTree config={config} />
+                <AddNewGroup config={config} />
+            </Container>
+        }
+        {isMobile && 
+            <Navbar className="bg-body-tertiary bg-success-subtle" expand="lg">
+                <Container className="bg-warning-subtle m-1" >
+                    <Navbar.Toggle className="bg-primary-subtle m-2" />
+                    <Navbar.Collapse className="justify-content-end">
+                        <FixList config={config} />
                         <GroupTree config={config} />
                         <AddNewGroup config={config} />
-                    </>
-                }
-                <NavList config={config} />
-            </nav>
-        </aside>
-    );
+                    </Navbar.Collapse>
+                </Container>
+            </Navbar>
+        }
+    </>);
 }
-    
+
 export default SideBar;

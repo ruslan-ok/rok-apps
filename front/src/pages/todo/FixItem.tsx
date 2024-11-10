@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { ListGroup } from 'react-bootstrap';
 import { IPageConfig } from '../PageConfig';
 
 export interface IFixItemInfo {
@@ -13,17 +14,18 @@ export interface IFixItemInfo {
 }
 
 function FixItem({item, config}: {item: IFixItemInfo, config: IPageConfig}) {
-    const link_class = 'sidebar__fix-item' + (item.active && !config.entity.id ? ' active' : '');
-    const fix_icon = 'bi-' + item.icon;
+    // const link_class = 'd-flex justify-content-between text-decoration-none text-secondary-emphasis' + (item.active && !config.entity.id ? ' active' : '');
+    // const link_class = 'text-decoration-none'; //'d-flex justify-content-between text-decoration-none text-secondary-emphasis' + (item.active && !config.entity.id ? ' active' : '');
+    const fix_icon = 'me-2 bi-' + item.icon;
     const qty = (item.search_qty ? `${item.search_qty} / ` : '') + (item.qty ? `${item.qty}` : '');
     return (
-        <Link to={item.url} className={link_class}>
+        <ListGroup.Item action active={item.active} className="p-1" href={item.url}>
             <div>
                 <i className={fix_icon}></i>
                 <span className="group-item-title">{item.title}</span>
             </div>
             <span>{qty}</span>
-        </Link>
+        </ListGroup.Item>
     );
 }
     

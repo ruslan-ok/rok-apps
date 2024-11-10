@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { ListGroup } from 'react-bootstrap';
 import { api } from '../../API'
 import { IPageConfig } from '../PageConfig';
 import { IFixItemInfo } from './FixItem';
@@ -25,7 +26,11 @@ function FixList({config}: {config: IPageConfig}) {
             return <FixItem key={item.id} item={item} config={config} />
         });
     
-        fixes = <>{fixList}<hr/></>;
+        fixes = (
+            <ListGroup className="mb-3">
+                {fixList}
+            </ListGroup>
+        );
     }
 
     return <>{fixes}</>;

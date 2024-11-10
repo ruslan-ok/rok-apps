@@ -1,9 +1,8 @@
+import { useEffect, useState } from "react";
 import { redirect, useLoaderData, Outlet } from "react-router-dom";
 import { api } from '../../API'
 import { IPageConfig } from '../PageConfig';
-import SideBarTop from './SideBarTop';
 import SideBar from './SideBar';
-
 
 export async function loader({request}: {request: Request}): Promise<IPageConfig> {
     await api.init();
@@ -28,16 +27,37 @@ export async function loader({request}: {request: Request}): Promise<IPageConfig
 }
   
 function TodoPage() {
+    const [width, setWindowWidth] = useState(0);
+
+    useEffect( () => {
+        updateDimensions();
+        window.addEventListener("resize", updateDimensions);
+        return () => window.removeEventListener("resize", updateDimensions);
+    }, []);
+
+    const updateDimensions = () => {
+        const width = window.innerWidth;
+        setWindowWidth(width);
+    };
+
+    const isMobile = width < 768;
+    let style;
+    if (isMobile) {
+        style = {
+            flexDirection: 'column',
+        };
+    } else {
+        style = {
+            flexDirection: 'row',
+        };
+    }
+
     const config = useLoaderData() as IPageConfig;
-    return (
-        <>
-            <SideBarTop />
-            <div className="container-xxl my-md-2 gap-0 px-0 bd-layout">
-                <SideBar config={config} />
-                <Outlet context={config} />
-            </div>
-        </>
-    );
+
+    return (<div className="d-flex bg-danger-subtle" style={style}>
+        <SideBar width={width} config={config} />
+        <Outlet context={config} />
+    </div>);
 }
-  
+
 export default TodoPage;

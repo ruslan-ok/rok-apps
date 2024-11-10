@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { api } from '../../API'
 import { IPageConfig } from '../PageConfig';
 import { IItemInfo, ITodoExtra } from './ItemTypes';
-// import '../css/category.min.css'
+import '../../css/Category.min.css';
 
 
 export function Completed({item, config, update}: {item: IItemInfo, config: IPageConfig, update: Function}) {
@@ -25,8 +25,16 @@ export function Completed({item, config, update}: {item: IItemInfo, config: IPag
     if (!config.use_selector)
         return <></>;
     const completedClass = itemCompleted ? 'bi-check-circle-fill' : 'bi-circle';
+    const style = {
+        cursor: 'pointer',
+        padding: '9px',
+        fontSize: '1.1rem',
+        border: 'none',
+        backgroundColor: 'rgba(0, 0, 0, 0)',
+        color: '#447e9b',
+    }
     return (
-        <button onClick={toggleCompleted} className="left-icon" data-todo_id={item.id} data-completed={itemCompleted} >
+        <button onClick={toggleCompleted} className="left-icon" data-todo_id={item.id} data-completed={itemCompleted} style={style} >
             <i className={completedClass}></i>
         </button>
     );
@@ -66,9 +74,13 @@ function Name({item, extra, config}: {item: IItemInfo, extra: ITodoExtra, config
     }
 
     const nameClass = `name${item.completed && config.use_selector ? ' completed' : ''}`;
+    const style = {
+        color: '#2b576d',
+        textDecoration: 'none',
+    }
     const name = `${config.event_in_name ? item.event + (item.name ? ' - ' : ''): ''}${item.name}`;
     return (
-        <span className={nameClass}>
+        <span className={nameClass} style={style} >
             {name}
             {roles}
         </span>
@@ -78,8 +90,14 @@ function Name({item, extra, config}: {item: IItemInfo, extra: ITodoExtra, config
 function Group({item, extra, config}: {item: IItemInfo, extra: ITodoExtra, config: IPageConfig}) {
     if ((config.view_group.determinator !== 'role' && config.view_group.determinator !== 'view') || !extra.group_name)
         return <></>;
+    const inlineStyle = {
+        fontSize: '.8rem',
+        padding: '0 3px',
+        borderRadius: '2px',
+        marginRight: '2px',
+    }
     return (
-        <div className="inline">
+        <div className="d-flex align-items-center" style={inlineStyle} >
             <div className="label"><span>{extra.group_name}</span></div>
             <i className="bi-dot"></i>
         </div>
@@ -107,7 +125,9 @@ function Attributes({item, extra, config}: {item: IItemInfo, extra: ITodoExtra, 
     if (item.termin && !item.completed) {
         const atclass = item.is_expired ? 'expired' : 'actual';
         attrs.push({icon: 'bi-check2-square ' + atclass});
-        attrs.push({atclass: atclass, text: item.termin_info});
+        const label = item.is_expired ? 'Expired, ' : 'Termin: ';
+        const terminInfo = label + item.termin.nice_date;
+        attrs.push({atclass: atclass, text: terminInfo});
         if (item.repeat)
             attrs.push({icon: 'bi-arrow-repeat ' + atclass});
         attrs.push({icon: 'bi-dot'});
@@ -116,6 +136,21 @@ function Attributes({item, extra, config}: {item: IItemInfo, extra: ITodoExtra, 
         attrs.push({text: `Completion ${item.Completion}`})
     }
 
+    const inlineStyle = {
+        fontSize: '.8rem',
+        padding: '0 3px',
+        borderRadius: '2px',
+        marginRight: '2px',
+    }
+
+    const iconStyle = {
+        fontSize: '.6rem',
+        padding: '3px 0',
+    }
+
+    const labelStyle = {
+        padding: '0 2px',
+    }
 
     let attrList;
     if (!attrs.length)
@@ -123,17 +158,17 @@ function Attributes({item, extra, config}: {item: IItemInfo, extra: ITodoExtra, 
     else {
         attrList = attrs.map((attr, index) => {
             if (attr.icon) {
-                return <i key={index} className={attr.icon}></i>;
+                return <i key={index} className={attr.icon} style={iconStyle} />;
             }
             if (attr.text || attr.atclass) {
-                const atclass = attr.atclass ? `label ${attr.atclass}` : 'label';
-                return <div key={index} className={atclass}><span>{attr.text}</span></div>;
+                const atclass = attr.atclass ? `d-flex ${attr.atclass}` : 'd-flex';
+                return <div key={index} className={atclass} style={labelStyle} ><span>{attr.text}</span></div>;
             }
             return <></>;
         });
     }
     return (
-        <div className="inline">
+        <div className="d-flex" style={inlineStyle} >
             {attrList}
         </div>
     );
@@ -146,13 +181,21 @@ function Icons({item, extra}: {item: IItemInfo, extra: ITodoExtra}) {
     const info_cut = info.substring(0, 79) + ((info.length > 80) ? '...' : '');
     const task_descr = info_cut ? (<>
         <i className="bi-sticky"></i>
-        <div className="label">
+        <div className="ps-1">
             <span>{info_cut}</span>
         </div>
         <i className="bi-dot"></i>
     </>) : <></>;
+
+    const inlineStyle = {
+        fontSize: '.8rem',
+        padding: '0 3px',
+        borderRadius: '2px',
+        marginRight: '2px',
+    }
+    
     return (
-        <div className="inline">
+        <div className="d-flex" style={inlineStyle} >
             {has_files}
             {has_links}
             {task_descr}
@@ -175,12 +218,18 @@ function getCategoryDesign(category: string): string {
 }
 
 function Categories({item}: {item: IItemInfo}) {
+    const inlineStyle = {
+        fontSize: '.8rem',
+        padding: '1px 3px',
+        borderRadius: '2px',
+        marginRight: '2px',
+    }
     const categories = item.categories?.length ? item.categories?.split(',') : [];
     const categs = categories.map((category, index) => {
-        const categClass = `inline category-design-${getCategoryDesign(category)}`;
+        const categClass = `d-flex me-1 category-design-${getCategoryDesign(category)}`;
         return (
-            <div key={index} className={categClass}>
-                <i className="bi-circle"></i>
+            <div key={index} className={categClass} style={inlineStyle} >
+                <i className="bi-circle me-1"></i>
                 <div className="label"><span>{category}</span></div>
             </div>
         );
@@ -189,8 +238,12 @@ function Categories({item}: {item: IItemInfo}) {
 }
 
 function Descr({item, extra, config}: {item: IItemInfo, extra: ITodoExtra, config: IPageConfig}) {
+    const style = {
+        color: '#447e9b',
+        marginBottom: '5px',
+    }
     return (
-        <div className="descr">
+        <div className="d-flex flex-wrap" style={style} >
             <Group item={item} extra={extra} config={config} />
             <Attributes item={item} extra={extra} config={config} />
             <Icons item={item} extra={extra} />
@@ -201,9 +254,14 @@ function Descr({item, extra, config}: {item: IItemInfo, extra: ITodoExtra, confi
 
 function Tile({item, extra, config}: {item: IItemInfo, extra: ITodoExtra, config: IPageConfig}) {
     let href = `${item.id}`;
+    const style = {
+        minHeight: '50px',
+        width: '100%',
+        padding: '0',
+    }
     return (
-        <Link to={href} className="container info">
-            <div className="info">
+        <Link to={href} className="d-flex" style={style} >
+            <div className="d-flex flex-column justify-content-center" >
                 <Name item={item} extra={extra} config={config} />
                 <Descr item={item} extra={extra} config={config} />
             </div>
@@ -225,8 +283,16 @@ export function Important({item, config}: {item: IItemInfo, config: IPageConfig}
     if (!config.use_star)
         return <></>;
     const importantClass = 'bi-star' + (itemImportant ? '-fill' : '');
+    const style = {
+        cursor: 'pointer',
+        padding: '9px',
+        fontSize: '1.1rem',
+        border: 'none',
+        backgroundColor: 'rgba(0, 0, 0, 0)',
+        color: '#447e9b',
+    }
     return (
-        <button onClick={toggleImportant} className="right-icon" data-todo_id={item.id} data-important={itemImportant} >
+        <button onClick={toggleImportant} className="right-icon" data-todo_id={item.id} data-important={itemImportant} style={style} >
             <i className={importantClass}></i>
         </button>
     );
@@ -257,14 +323,20 @@ function ListItem({item, visible, config, update}: {item: IItemInfo, visible: bo
             getData();
     }, [item, visible, config, extra.initialized]);
 
-    const item_class = `list-item${!config.use_selector && config.view_group.role !== 'search' ? ' px-3' : ''}`;
+    const item_class = `d-flex justify-content-between${!config.use_selector && config.view_group.role !== 'search' ? ' px-3' : ''}`;
+    const itemBlockStyle = {
+        minHeight: '50px',
+        marginBottom: '.25rem',
+        borderRadius: '5px',
+        backgroundColor: '#fff',
+    }
     return (
-        <li className={item_class}>
+        <div className={item_class} style={itemBlockStyle} >
             <Completed item={item} config={config} update={update} />
             <Roles extra={extra} config={config} />
             <Tile item={item} extra={extra} config={config} />
             <Important item={item} config={config} />
-        </li>
+        </div>
     );
 }
 

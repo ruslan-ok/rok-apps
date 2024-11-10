@@ -6,7 +6,7 @@ import WeatherForTheDay from './WeatherForTheDay';
 import WeatherForTheWeek from './WeatherForTheWeek';
 import { getIconHref } from './WeatherUtils';
 import WidgetContainer from '../WidgetContainer';
-import '../css/Weather.min.css';
+import '../../../css/Weather.min.css';
 
 
 function getPeriodOption(): string {

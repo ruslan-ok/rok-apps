@@ -47,9 +47,9 @@ function TodoListPage() {
         sgList = <></>;
     }
 
-    const list_class = 'list-content theme-' + (config.view_group.theme ? `${config.view_group.theme}`: '8');
+    const list_class = 'list-content m-3 theme-' + (config.view_group.theme ? `${config.view_group.theme}`: '8');
     return (
-        <main>
+        <main className="bg-info-subtle w-100">
             <div className={list_class}>
                 <PageTitle config={config} />
                 {sgList}

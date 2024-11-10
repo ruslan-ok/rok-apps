@@ -4,7 +4,7 @@ import ThemeSelector from './ThemeSelector';
 
 
 function AddItem({config}: {config: IPageConfig}) {
-    return <div className="btn bi-plus dark-theme"></div>;
+    return <div className="btn bi-plus dark-theme fs-4"></div>;
 }
 
 function PageTitle({config}: {config: IPageConfig}) {
@@ -65,12 +65,12 @@ function PageTitle({config}: {config: IPageConfig}) {
         return <button key={sort.id} type="button" className="btn dropdown-item" onClick={setSort}>{sort.name}</button>;
     });
     return (
-        <div className="content-title d-flex justify-content-between">
-            <div className="title d-none d-md-flex">
+        <div className="d-flex justify-content-between align-items-center">
+            <div className="title d-none d-md-flex align-items-center">
                 {config.icon && <i className={config.iconClass}></i>}
                 {grpupsPath}
                 {!config.entity.path.length &&
-                    <h3 className={config.checkDark('content-title__text')}>
+                    <h3 className={config.checkDark('m-0')}>
                         {config.entity.type === EntityType.Folder && <>
                             <span>{config.folderPath}</span>
                             <span id="id_folder_view" className="folder_view">{config.entity.name}</span>
@@ -88,7 +88,7 @@ function PageTitle({config}: {config: IPageConfig}) {
                     </h3>
                 }
             </div>
-            <div className="title d-md-none"></div>
+            <div className="title d-md-none align-items-center"></div>
             <div className="actions d-flex mx-2">
                 <div className="related d-flex">
                     {relatedRoles}
@@ -99,7 +99,7 @@ function PageTitle({config}: {config: IPageConfig}) {
                 {config.sorts.length &&
                     <div className="dropdown">
                         <button type="button" id="dropdownMenuButton1" 
-                            data-bs-toggle="dropdown" aria-expanded="false" className={config.checkDark('btn bi-sort-alpha-down')}></button>
+                            data-bs-toggle="dropdown" aria-expanded="false" className={config.checkDark('btn bi-sort-alpha-down fs-4')}></button>
                         <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                             {sortButtons}
                         </ul>

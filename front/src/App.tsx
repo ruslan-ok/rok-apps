@@ -1,23 +1,23 @@
 import {
     createBrowserRouter,
     RouterProvider,
-    Outlet,
 } from "react-router-dom";
 
 import ErrorPage from "./ErrorPage";
 import Demo from './auth/Demo';
 import Login, { action as loginAction } from './auth/Login';
 import Logout from './auth/Logout';
-import TodoPage, { loader as todoLoader } from './pages/todo/TodoPage';
-import TodoListPage from './pages/todo/TodoListPage';
-import TodoItemPage, { loader as todoItemLoader, action as todoItemAction } from './pages/todo/TodoItemPage';
 
 import HeadedPage from './pages/HeadedPage';
 import { loader as headLoader } from './pages/Header';
 import MainPage from './pages/MainPage';
 
+import TodoPage, { loader as todoLoader } from './pages/todo/TodoPage';
+import TodoListPage from './pages/todo/TodoListPage';
+import TodoItemPage, { loader as todoItemLoader, action as todoItemAction } from './pages/todo/TodoItemPage';
+
 import 'bootstrap/dist/css/bootstrap.css';
-import './App.css';
+import './css/App.min.css';
 
 
 let router = createBrowserRouter([

@@ -82,12 +82,12 @@ function Crypto() {
             {status === 'ready' &&
                 <div className='widget-container'>
                     <div className='widget-content' id='crypto'> 
-                        <div className='bg-success-subtle p-2 d-flex align-items-center justify-content-around'>
+                        <div className='bg-success-subtle p-1 d-flex align-items-center justify-content-around'>
                             <a className='d-flex' href={price_url}><i className='bi-currency-bitcoin me-2'></i><span className='value'>${current}</span></a>
                             <span className='d-flex'>Динамика:<span className="px-2" style={changeStyle}>{change}</span> %</span>
                             <a className='d-flex' href={amount_url}><i className='bi-wallet2 me-2'></i><span className='value'>${amount}</span></a>
                             <span className='d-flex'>
-                                <select name='period' defaultValue={period} onChange={e => setPeriodOption(e.target.value)} className="form-select" >
+                                <select name='period' defaultValue={period} onChange={e => setPeriodOption(e.target.value)} className="form-select form-select-sm" >
                                     <option value='1h'>1 час</option> 
                                     <option value='3h'>3 часа</option> 
                                     <option value='12h'>12 часов</option> 

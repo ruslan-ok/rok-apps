@@ -1,0 +1,42 @@
+a:link, a:visited {
+    text-decoration: none;
+}
+
+.rok-group-tree {
+    .level-0 { margin-left: 0px; }
+    .level-1 { margin-left: 10px; }
+    .level-2 { margin-left: 20px; }
+    .level-3 { margin-left: 30px; }
+    .level-4 { margin-left: 40px; }
+    .level-5 { margin-left: 50px; }
+    .level-6 { margin-left: 60px; }    
+}
+
+.form-container.rok-login {
+    background-color: var(--dialog_background_color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 100%;
+
+    form {
+        width: 300px;
+    }
+    
+    label::after {
+        background-color:unset !important;
+    }
+}
+
+.expired {
+    color: #af2e20 !important;
+}
+  
+.actual {
+    color: #465efc !important;
+}
+  
+.completed {
+    text-decoration: line-through;
+}

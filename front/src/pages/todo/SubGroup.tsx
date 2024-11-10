@@ -112,18 +112,23 @@ function SubGroup({subGroup, config, update}: {subGroup: ISubGroup, config: IPag
     const itemsClass = showSG && !sg.is_open ? 'd-none' : '';
     const itemsVisible = !showSG || sg.is_open;
     const itemsList = sg.items.map(x => <ListItem key={x.id} item={x} visible={itemsVisible} config={config} update={update} />);
+    const listBlock = {
+        padding: '0 15px',
+        overflow: 'auto',
+        margin: '15px 0',
+    };
     return (
         <div>
             {showSG &&
-                <button className="sub-group" onClick={toggleSubGroup} >
+                <button className="sub-group border-0 rounded bg-light text-secondary m-1 p-1" onClick={toggleSubGroup} >
                     <i className={sgClass}></i>
-                    <span className="sub-group__name">{sg.name}</span>
+                    <span className="sub-group__name mx-2">{sg.name}</span>
                     <span className="sub-group__qty">{sg.items.length}</span>
                 </button>
             }
-            <ul id={sgId} className={itemsClass}>
+            <div id={sgId} className={itemsClass} style={listBlock} >
                 {itemsList}
-            </ul>
+            </div>
         </div>
     );
 }
