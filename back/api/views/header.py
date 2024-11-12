@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from core.applications import get_apps_list
 
 
-def get_header_data(user: User | None, local: bool):
+def get_header_data(user: User | None):
     data = {
         'appIcon': '/static/rok.png',
         'appTitle': '',
@@ -22,7 +22,7 @@ def get_header_data(user: User | None, local: bool):
         data['buttons'].append({'button_id': 'demo', 'name': 'Demo', 'href': '/demo'})
         data['buttons'].append({'button_id': 'login', 'name': 'Log in', 'href': '/login'})
     else:
-        data['applications'] = get_apps_list(user, 'core')
+        data['applications'] = get_apps_list(user)
         data['searchPlaceholder'] = 'Search...'
         data['userName'] = user.username if user else None
         if user and hasattr(user, 'userext') and user.userext.avatar_mini:
@@ -38,8 +38,6 @@ def get_header_data(user: User | None, local: bool):
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def header(request):
-    local = 'localhost' in request.get_host()
-    version = request.query_params.get('version')
-    data = get_header_data(request.user, local)
+    data = get_header_data(request.user)
     return Response(data)
 

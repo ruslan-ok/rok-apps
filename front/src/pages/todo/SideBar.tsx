@@ -20,14 +20,14 @@ function SideBar({width, config}: {width: number, config: IPageConfig}) {
 
     return (<>
         {!isMobile &&
-            <Container style={style} className="bg-success-subtle m-3" >
+            <Container style={style} className="mt-3" >
                 <FixList config={config} />
                 <GroupTree config={config} />
                 <AddNewGroup config={config} />
             </Container>
         }
         {isMobile && 
-            <Navbar className="bg-body-tertiary bg-success-subtle" expand="lg">
+            <Navbar className="bg-body-tertiary" expand="lg">
                 <Container className="bg-warning-subtle m-1" >
                     <Navbar.Toggle className="bg-primary-subtle m-2" />
                     <Navbar.Collapse className="justify-content-end">

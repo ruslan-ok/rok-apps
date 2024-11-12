@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from task.const import *
 
-def get_apps_list(user, current):
+def get_apps_list(user):
     apps = []
     for app, config in django_apps.app_configs.items():
         if not hasattr(config, "app_config"):
@@ -21,7 +21,7 @@ def get_apps_list(user, current):
         name = config.app_config['human_name']
         if perm and not user.has_perm(perm):
             continue
-        apps.append({'icon': icon, 'href': href, 'name': name, 'active': current==app, 'order': order})
+        apps.append({'icon': icon, 'href': href, 'name': name, 'order': order})
     return sorted(apps, key=lambda a: a['order'])
 
 def get_related_roles(task, config):

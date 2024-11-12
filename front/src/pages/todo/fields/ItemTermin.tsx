@@ -1,7 +1,7 @@
 import { useState, SyntheticEvent } from 'react';
 import Form from 'react-bootstrap/Form';
 import Dropdown from 'react-bootstrap/Dropdown';
-import { extraClass } from '../TodoItemPage';
+import { extraClass } from '../../PageConfig';
 import { ITermin } from '../ItemTypes';
 
 

@@ -1,4 +1,4 @@
-import { getStrId } from '../TodoItemPage';
+import { getStrId } from '../../PageConfig';
 import { IFile } from '../ItemTypes';
 
 function uploadFile() {

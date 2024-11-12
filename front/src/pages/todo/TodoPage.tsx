@@ -54,7 +54,7 @@ function TodoPage() {
 
     const config = useLoaderData() as IPageConfig;
 
-    return (<div className="d-flex bg-danger-subtle" style={style}>
+    return (<div className="d-flex bg-body-tertiary pt-2" style={style}>
         <SideBar width={width} config={config} />
         <Outlet context={config} />
     </div>);

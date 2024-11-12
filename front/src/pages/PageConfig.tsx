@@ -115,3 +115,12 @@ export class IPageConfig {
         return value + this.darkClass;
     }
 }
+
+export function getStrId(prefix: string, id: number): string {
+    return `${prefix}_${id}`;
+}
+
+export function extraClass(prefix: string, condition: boolean, extraClass: string): string {
+    return prefix + (condition ? ` ${extraClass}` : '');
+}
+

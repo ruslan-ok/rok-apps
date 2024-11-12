@@ -1,14 +1,6 @@
 import { LinkContainer } from 'react-router-bootstrap';
-import { NavLink } from 'react-router-dom';
-import { useLoaderData } from 'react-router-dom';
-import Container from 'react-bootstrap/Container';
-import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
-import NavDropdown from 'react-bootstrap/NavDropdown';
-import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
+import { NavLink, useLoaderData } from 'react-router-dom';
+import { Container, Nav, Navbar, NavDropdown, Form, Button, Row, Col } from 'react-bootstrap';
 import { api } from '../API'
 
 
@@ -46,16 +38,16 @@ export interface IHeaderData {
   
 export async function loader(): Promise<IHeaderData> {
     await api.init();
-    const data = await api.get('header', {version: 5});
+    const data = await api.get('header', {});
     return data;
 }
 
 function AppLink({href, icon, name}: {href: string, icon: string, name: string}) {
     return (<>
-        <NavLink to={href} className={({ isActive }) => isActive ? "link-primary text-decoration-none" : "d-none"} >
-            <i className={icon} title={name} /> {name}
+        <NavLink to={href} className={({ isActive }) => isActive ? "rok-nav-link active" : "d-none"} >
+            <i className={icon} title={name} /> <span className="me-2">{name}</span>
         </NavLink>
-        <NavLink to={href} className={({ isActive }) => isActive ? "d-none" : ""} >
+        <NavLink to={href} className={({ isActive }) => isActive ? "d-none" : "rok-nav-link"} >
             <i className={icon} title={name} />
         </NavLink>
     </>);
@@ -64,10 +56,10 @@ function AppLink({href, icon, name}: {href: string, icon: string, name: string})
 function Header() {
     const data = useLoaderData() as IHeaderData;
     const desktopApps = data.applications.filter(app => app.name !== 'Home').map(app => {
-        const appIcon = 'p-2 ms-1 bi-' + app.icon;
+        const appIcon = 'p-2 bi-' + app.icon;
         return <AppLink key={app.name} href={app.href} icon={appIcon} name={app.name} />;
     });
-    const mobileApps = data.applications.map(app => {
+    const mobileApps = data.applications.filter(app => app.name !== 'Home').map(app => {
         const appIcon = 'me-2 bi-' + app.icon;
         return (
             <LinkContainer key={app.name} to={app.href}>
@@ -91,7 +83,7 @@ function Header() {
     const buttons = data?.buttons.map(button => {
         return (
             <LinkContainer key={button.button_id} to={button.href}>
-                <Button className='m-2'>{button.name}</Button>
+                <Button className='rok-button'>{button.name}</Button>
             </LinkContainer>
         );
     });
@@ -100,10 +92,10 @@ function Header() {
         console.log('handleToggle');
     }
 
-    return <Navbar expand="lg" className="bg-body-tertiary" onToggle={handleToggle}>
-        <Container>
+    return <Navbar expand="lg" onToggle={handleToggle} className="rok-navbar navbar-dark">
+        <Container >
             <LinkContainer to="/">
-                <Navbar.Brand className="d-flex align-items-center">
+                <Navbar.Brand className="d-flex align-items-center brand">
                     <img
                         alt="Rok Apps"
                         src="/static/rok.png"
@@ -123,17 +115,17 @@ function Header() {
                             {mobileApps}
                         </Row>
                     </Container>
-                    <Container className="d-none d-lg-flex align-items-center">
+                    <Container className="d-none d-lg-flex align-items-center me-5">
                         {desktopApps}
                     </Container>
                     {showSearch &&
                         <Form>
                             <Row>
-                                <Col xs="auto">
+                                <Col style={{minWidth: '400px'}} >
                                     <Form.Control
                                         type="text"
                                         placeholder="Search"
-                                        className=" mr-sm-2"
+                                        className=" mr-sm-2 form-control"
                                     />
                                 </Col>
                                 {/* <Col xs="auto">
@@ -143,18 +135,18 @@ function Header() {
                         </Form>
                     }
                 </Nav>
-                <Nav>
+                <Nav className="d-flex flex-row">
                     {data?.avatar &&
                         <img
                             alt="Avatar"
                             src={data?.avatar}
                             width="32"
                             height="32"
-                            className="d-inline-block align-top me-2 rounded-circle"
+                            className="d-inline-block align-top rounded-circle me-2 mt-1"
                         />
                     }
                     {data.userName &&
-                        <NavDropdown title={data.userName} id="basic-nav-dropdown">
+                        <NavDropdown title={data.userName} id="basic-nav-dropdown" className="">
                             {userMenu}
                         </NavDropdown>
                     }

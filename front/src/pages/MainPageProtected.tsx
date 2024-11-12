@@ -9,7 +9,7 @@ import Crypto from './widgets/Crypto';
 
 function MainPageProtected() {
     return (
-        <Container fluid className="bg-body-tertiary">
+        <Container fluid className="bg-body-tertiary pt-2">
             <Row>
                 <Todo />
                 <LastVisited />

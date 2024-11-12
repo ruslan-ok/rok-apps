@@ -11,16 +11,6 @@ import ItemGroup from './fields/ItemGroup';
 import ItemCategories from './fields/ItemCategories';
 import ItemLinks from './fields/ItemLinks';
 import ItemFiles from './fields/ItemFiles';
-// import '../css/widgets.min.css';
-// import '../css/todo.min.css';
-
-export function getStrId(prefix: string, id: number): string {
-    return `${prefix}_${id}`;
-}
-
-export function extraClass(prefix: string, condition: boolean, extraClass: string): string {
-    return prefix + (condition ? ` ${extraClass}` : '');
-}
 
 function editFolder(event: ChangeEvent<HTMLInputElement>) {
     console.log('editFolder');

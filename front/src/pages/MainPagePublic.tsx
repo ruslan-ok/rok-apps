@@ -29,7 +29,7 @@ function MainPagePublic() {
     const items = data.applications.map(item => {
         const iconClass = 'bi-' + item.icon + ' me-2';
         return (
-            <Container>
+            <Container key={item.app_id} >
                 <Accordion.Item eventKey={item.app_id}>
                     <Accordion.Header><i className={iconClass} />{item.app_id}</Accordion.Header>
                     <Accordion.Body>
@@ -42,7 +42,7 @@ function MainPagePublic() {
             </Container>
         );
     });
-    return <Accordion defaultActiveKey="0">
+    return <Accordion defaultActiveKey="0" className="pt-2">
         {items}
     </Accordion>;
 }

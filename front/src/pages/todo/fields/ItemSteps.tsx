@@ -1,5 +1,5 @@
 import { IStep } from '../ItemTypes';
-import { getStrId, extraClass } from '../TodoItemPage';
+import { getStrId, extraClass } from '../../PageConfig';
 
 
 function completeStep() {

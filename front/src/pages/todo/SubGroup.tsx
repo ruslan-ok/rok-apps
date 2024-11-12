@@ -120,7 +120,7 @@ function SubGroup({subGroup, config, update}: {subGroup: ISubGroup, config: IPag
     return (
         <div>
             {showSG &&
-                <button className="sub-group border-0 rounded bg-light text-secondary m-1 p-1" onClick={toggleSubGroup} >
+                <button className="sub-group border-0 rounded bg-light text-secondary m-1 p-1 ms-3" onClick={toggleSubGroup} >
                     <i className={sgClass}></i>
                     <span className="sub-group__name mx-2">{sg.name}</span>
                     <span className="sub-group__qty">{sg.items.length}</span>

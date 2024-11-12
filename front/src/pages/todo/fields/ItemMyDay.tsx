@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import ToggleButton from 'react-bootstrap/ToggleButton';
-import { extraClass } from '../TodoItemPage'
+import { extraClass } from '../../PageConfig';
 
 
 function ItemMyDay({myDay, onChange}: {myDay: boolean, onChange: Function}) {
