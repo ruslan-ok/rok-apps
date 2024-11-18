@@ -15,7 +15,7 @@ import {
 import { Line } from 'react-chartjs-2';
 import 'chartjs-adapter-moment';
 
-import WidgetContainer from './WidgetContainer';
+import WidgetContainer, { IChart } from './WidgetContainer';
 import { api } from '../../API'
 
 ChartJS.register(
@@ -42,15 +42,28 @@ function setOption(value: string): void {
     localStorage.setItem('weight-period', value);
 }
 
+class TWeight {
+    chart: IChart;
+    current: number;
+    change: number;
+
+    constructor (data: Object | unknown) {
+        this.chart = data?.chart;
+        this.current = data?.current || 0;
+        this.change = data?.change || 0;
+    }
+}
+
 function Weight() {
     function setPeriodOption(value: string): void {
         setPeriod(value);
         setOption(value);
     }
     
-    const [widgetData, setWidgetData] = useState<any>(null);
+    const [widgetData, setWidgetData] = useState<TWeight|null>(null);
     const [period, setPeriod] = useState(getOption());
     const [status, setStatus] = useState('init');
+    const [message, setMessage] = useState('');
     const [redraw, setRedraw] = useState('1');
     const chartRef = useRef<any>(null);
     useEffect(() => {
@@ -58,8 +71,14 @@ function Weight() {
             setStatus('loading');
             let widgetData = await api.get('chart', {mark: 'health', version: 'v2', period: period});
             if (widgetData) {
-                setWidgetData(widgetData);
-                setStatus('ready');
+                const weightData = new TWeight(widgetData);
+                if (!weightData.current) {
+                    setMessage('Bad Weight Widget responce');
+                    setStatus('message');
+                } else {
+                    setWidgetData(weightData);
+                    setStatus('ready');
+                }
             }
         }
         getData();
@@ -88,14 +107,15 @@ function Weight() {
         }
     }
 
-    let current, change, changeStyle;
-    if (status === 'ready') {
+    let current, change: string = '';
+    let changeStyle;
+    if (status === 'ready' && widgetData) {
         current = Math.round(widgetData.current).toLocaleString();
         change = widgetData.change?.toFixed(2).toLocaleString();
-        if (change > 0) {
+        if (+change > 0) {
             changeStyle = {color: 'red'};
         }
-        if (change < 0) {
+        if (+change < 0) {
             changeStyle = {color: 'green'};
         }
     }
@@ -120,8 +140,8 @@ function Weight() {
                     <Button variant="light" type="submit" className="bi-plus ms-1" size="sm" />
                 </Form>
             </div>
-            <WidgetContainer status={status} message={""} >
-                {status === 'ready' &&
+            <WidgetContainer status={status} message={message} >
+                {status === 'ready' && widgetData &&
                     <Line ref={chartRef} options={widgetData.chart.options} data={widgetData.chart.data} key={Math.random()}/>
                 }
             </WidgetContainer>

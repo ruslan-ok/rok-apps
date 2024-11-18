@@ -41,6 +41,7 @@ def chart(request):
     location = request.GET.get('location', '')
     lat = request.GET.get('lat', settings.API_WEATHER_LAT)
     lon = request.GET.get('lon', settings.API_WEATHER_LON)
+    data = {}
     try:
         period = ChartPeriod(s_period)
     except:

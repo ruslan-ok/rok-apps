@@ -15,7 +15,7 @@ import {
 import { Line } from 'react-chartjs-2';
 import 'chartjs-adapter-moment';
 
-import WidgetContainer from './WidgetContainer';
+import WidgetContainer, { IChart } from './WidgetContainer';
 import { api } from '../../API'
 
 ChartJS.register(
@@ -38,15 +38,34 @@ function getOption(): string {
     return ret;
 }
 
+class TCrypto {
+    chart: IChart;
+    current: number;
+    change: number;
+    amount: number;
+    price_url: string;
+    amount_url: string;
+
+    constructor (data: Object | unknown) {
+        this.chart = data?.chart;
+        this.current = data?.current || 0;
+        this.change = data?.change || 0;
+        this.amount = data?.amount;
+        this.price_url = data?.price_url;
+        this.amount_url = data?.amount_url;
+    }
+}
+
 function Crypto() {
     function setPeriodOption(value: string): void {
         setPeriod(value);
         localStorage.setItem('crypto-period', value);
     }
     
-    const [widgetData, setWidgetData] = useState<any>(null);
+    const [widgetData, setWidgetData] = useState<TCrypto|null>(null);
     const [period, setPeriod] = useState(getOption());
     const [status, setStatus] = useState('init');
+    const [message, setMessage] = useState('');
     const chartRef = useRef<any>(null);
 
     useEffect(() => {
@@ -54,8 +73,14 @@ function Crypto() {
             setStatus('loading');
             let widgetData = await api.get('chart', {mark: 'crypto', version: 'v2', period: period});
             if (widgetData) {
-                setWidgetData(widgetData);
-                setStatus('ready');
+                const cryptoData = new TCrypto(widgetData);
+                if (!cryptoData.current) {
+                    setMessage('Bad Crypto Widget responce');
+                    setStatus('message');
+                } else {
+                    setWidgetData(cryptoData);
+                    setStatus('ready');
+                }
             }
         }
         getData();
@@ -66,7 +91,7 @@ function Crypto() {
     }, [period]);
 
     let change, current, amount, price_url, amount_url, changeStyle;
-    if (status === 'ready') {
+    if (status === 'ready' && widgetData) {
         current = Math.round(widgetData.current).toLocaleString();
         change = widgetData.change;
         if (change > 0) {
@@ -100,8 +125,8 @@ function Crypto() {
                     </select>
                 </span>
             </div>
-            <WidgetContainer status={status} message={""} >
-                {status === 'ready' &&
+            <WidgetContainer status={status} message={message} >
+                {status === 'ready' && widgetData &&
                     <Line ref={chartRef} options={widgetData.chart.options} data={widgetData.chart.data} key={Math.random()}/>
                 }
             </WidgetContainer>

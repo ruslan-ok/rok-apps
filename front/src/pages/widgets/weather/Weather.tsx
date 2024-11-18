@@ -93,8 +93,13 @@ export default function Weather() {
                     if (resp_data.result === 'ok')
                         setStatus('ready');
                     else {
-                        setMessage(resp_data.procedure + ': ' + resp_data.info);
-                        setStatus('message');
+                        if (!resp_data?.info) {
+                            setMessage('Bad Weather Widget responce');
+                            setStatus('message');
+                        } else {
+                            setMessage(resp_data.procedure + ': ' + resp_data.info);
+                            setStatus('message');
+                        }
                     }
                 }
             }

@@ -2,6 +2,12 @@ import { ReactNode } from 'react';
 import { Spinner } from 'react-bootstrap';
 
 
+export interface IChart {
+    type: string;
+    data: any;
+    options: any;
+}
+
 function WidgetContainer({ status, message, children }: { status: string, message: string, children: ReactNode }) {
     if (status === 'ready') {
         return (<>

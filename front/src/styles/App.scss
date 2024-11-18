@@ -78,6 +78,35 @@ a:link, a:visited {
     text-decoration: line-through;
 }
 
+.wide {
+    min-width: 282px;
+    list-style-type: none;
+    padding: 0 15px;
+    overflow: auto;
+    margin-top: 15px;
+
+    h5 {
+        margin-top: 10px;
+    }
+
+    .theme {
+        width: 40px;
+        height: 40px;
+        margin: 5px;
+        padding: 0;
+
+        img {
+            width: 40px;
+            height: 40px;
+        }
+    }
+}
+
+.list-content {
+    height: calc(100vh - 80px);
+    overflow-y: scroll;
+}
+
 .theme-1 { background-color: rgb(105, 125, 205); }
 .theme-2 { background-color: rgb(175, 110, 175); }
 .theme-3 { background-color: rgb(220, 100, 130); }
@@ -109,14 +138,23 @@ button.theme-11 { border: 2px solid rgb(168, 67, 41); }
 button.theme-12 { border: 2px solid rgb(30, 112, 77); }
 button.theme-13 { border: 2px solid rgb(22, 111, 107); }
 button.theme-14 { border: 2px solid rgb(88, 101, 112); }
+button.theme-15 { background-size: cover; background-image: url(../backgrounds/beach/thumb.jpg); }
+button.theme-16 { background-size: cover; background-image: url(../backgrounds/desert/thumb.jpg); }
+button.theme-17 { background-size: cover; background-image: url(../backgrounds/fern/thumb.jpg); }
+button.theme-18 { background-size: cover; background-image: url(../backgrounds/field/thumb.jpg); }
+button.theme-19 { background-size: cover; background-image: url(../backgrounds/gradient/thumb.jpg); }
+button.theme-20 { background-size: cover; background-image: url(../backgrounds/lighthouse/thumb.jpg); }
+button.theme-21 { background-size: cover; background-image: url(../backgrounds/safari/thumb.jpg); }
+button.theme-22 { background-size: cover; background-image: url(../backgrounds/sea/thumb.jpg); }
+button.theme-23 { background-size: cover; background-image: url(../backgrounds/tv_tower/thumb.jpg); }
 button.theme-24 { border: 2px solid rgb(88, 101, 112); }
 
-// div.theme-15 { background-position: center top; background-repeat: no-repeat; background-attachment: fixed; background-size: cover; background-image: url(/static/backgrounds/beach/2560x1600.jpg); }
-// div.theme-16 { background-position: center top; background-repeat: no-repeat; background-attachment: fixed; background-size: cover; background-image: url(/static/backgrounds/desert/2560x1600.jpg); }
-// div.theme-17 { background-position: center top; background-repeat: no-repeat; background-attachment: fixed; background-size: cover; background-image: url(/static/backgrounds/fern/2560x1600.jpg); }
-// div.theme-18 { background-position: center top; background-repeat: no-repeat; background-attachment: fixed; background-size: cover; background-image: url(/static/backgrounds/field/2560x1600.jpg); }
-// div.theme-19 { background-position: center top; background-repeat: no-repeat; background-attachment: fixed; background-size: cover; background-image: url(/static/backgrounds/gradient/2560x1600.jpg); }
-// div.theme-20 { background-position: center top; background-repeat: no-repeat; background-attachment: fixed; background-size: cover; background-image: url(/static/backgrounds/lighthouse/2560x1600.jpg); }
-// div.theme-21 { background-position: center top; background-repeat: no-repeat; background-attachment: fixed; background-size: cover; background-image: url(/static/backgrounds/safari/2560x1600.jpg); }
-// div.theme-22 { background-position: center top; background-repeat: no-repeat; background-attachment: fixed; background-size: cover; background-image: url(/static/backgrounds/sea/2560x1600.jpg); }
-// div.theme-23 { background-position: center top; background-repeat: no-repeat; background-attachment: fixed; background-size: cover; background-image: url(/static/backgrounds/tv_tower/2560x1600.jpg); }
+div.theme-15 { background-position: center top; background-repeat: no-repeat; background-attachment: scroll, local; background-size: cover; background-image: url(../backgrounds/beach/2560x1600.jpg); }
+div.theme-16 { background-position: center top; background-repeat: no-repeat; background-attachment: scroll, local; background-size: cover; background-image: url(../backgrounds/desert/2560x1600.jpg); }
+div.theme-17 { background-position: center top; background-repeat: no-repeat; background-attachment: scroll, local; background-size: cover; background-image: url(../backgrounds/fern/2560x1600.jpg); }
+div.theme-18 { background-position: center top; background-repeat: no-repeat; background-attachment: scroll, local; background-size: cover; background-image: url(../backgrounds/field/2560x1600.jpg); }
+div.theme-19 { background-position: center top; background-repeat: no-repeat; background-attachment: scroll, local; background-size: cover; background-image: url(../backgrounds/gradient/2560x1600.jpg); }
+div.theme-20 { background-position: center top; background-repeat: no-repeat; background-attachment: scroll, local; background-size: cover; background-image: url(../backgrounds/lighthouse/2560x1600.jpg); }
+div.theme-21 { background-position: center top; background-repeat: no-repeat; background-attachment: scroll, local; background-size: cover; background-image: url(../backgrounds/safari/2560x1600.jpg); }
+div.theme-22 { background-position: center top; background-repeat: no-repeat; background-attachment: scroll, local; background-size: cover; background-image: url(../backgrounds/sea/2560x1600.jpg); }
+div.theme-23 { background-position: center top; background-repeat: no-repeat; background-attachment: scroll, local; background-size: cover; background-image: url(../backgrounds/tv_tower/2560x1600.jpg); }

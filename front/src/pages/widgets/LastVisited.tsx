@@ -23,12 +23,17 @@ export default function LastVisited() {
                     setStatus('ready');
                 }
                 else {
-                    let prefix = '';
-                    if (resp_data.procedure) {
-                        prefix = resp_data.procedure + ': ';
+                    if (!resp_data?.info) {
+                        setMessage('Bad Last Visited Widget responce');
+                        setStatus('message');
+                    } else {
+                        let prefix = '';
+                        if (resp_data.procedure) {
+                            prefix = resp_data.procedure + ': ';
+                        }
+                        setMessage(prefix + resp_data.info);
+                        setStatus('message');
                     }
-                    setMessage(prefix + resp_data.info);
-                    setStatus('message');
                 }
             }
         }

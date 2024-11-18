@@ -17,7 +17,7 @@ async function toggleSubGroups(event: MouseEvent<HTMLElement>) {
 
 function ThemeSelector({config}: {config: IPageConfig}) {
     const themeButtons = config.themes.map(theme => {
-        const btnClass = `btn theme ${theme.style}`;
+        const btnClass = `btn btn-light theme ${theme.style}`;
         return <button key={theme.id} type="button" className={btnClass} onClick={setTheme} data-group_id={config.view_group.id} data-theme_id={theme.id} ></button>;
     });
     return (<>
@@ -26,10 +26,10 @@ function ThemeSelector({config}: {config: IPageConfig}) {
                         <button className={config.checkDark('btn bi-gear fs-5')} type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" 
                             data-bs-auto-close="false" aria-expanded="false"></button>
                         <ul className="dropdown-menu wide" aria-labelledby="dropdownMenuButton1">
-                            <p>Theme</p>
+                            <h5>Theme</h5>
                             {themeButtons}
                             {config.view_group.use_sub_groups &&
-                                <div className="form-check form-switch my-1 mx-1">
+                                <div className="form-check form-switch my-3 mx-1">
                                     <input type="checkbox" name="use_sub_groups" id="id_use_sub_groups"
                                         className="form-check-input" onClick={toggleSubGroups} defaultChecked={config.view_group.use_sub_groups} />
                                     <label htmlFor="id_use_sub_groups" className="form-check-label">Use groups</label>

@@ -137,6 +137,7 @@ function Currency() {
     const [period, setPeriod] = useState<string>(getOption('period'));
     const [hidden, setHidden] = useState<Array<string>>(getOption('hidden').split(','));
     const [status, setStatus] = useState('init');
+    const [message, setMessage] = useState('');
     const chartRef = useRef<any>(null);
 
     useEffect(() => {
@@ -144,10 +145,15 @@ function Currency() {
             setStatus('loading');
             let widgetData = await api.get('chart', {mark: 'currency', version: 'v2', period: period, base: base});
             if (widgetData) {
-                setWidgetData(widgetData);
-                setBaseOption(widgetData.base);
-                setPeriodOption(widgetData.period);
-                setStatus('ready');
+                if (!widgetData?.base || !widgetData?.period) {
+                    setMessage('Bad Currency Widget responce');
+                    setStatus('message');
+                } else {
+                    setWidgetData(widgetData);
+                    setBaseOption(widgetData.base);
+                    setPeriodOption(widgetData.period);
+                    setStatus('ready');
+                }
             }
         }
         getData();
@@ -203,7 +209,7 @@ function Currency() {
                 </span>
                 {noBaseList}
             </div>
-            <WidgetContainer status={status} message={""} >
+            <WidgetContainer status={status} message={message} >
                 <Line ref={chartRef} options={widgetData.chart.options} data={chartData} key={Math.random()}/>
             </WidgetContainer>
         </Container>

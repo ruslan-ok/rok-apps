@@ -24,7 +24,8 @@ front/media
 front/static
 front/node_modules
 front/**/*.min.css
-front/public/static/backgrounds
+front/src/backgrounds
+front/v4
 
 # Django
 *.pyc
