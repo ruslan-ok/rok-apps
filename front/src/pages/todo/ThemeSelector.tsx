@@ -3,11 +3,6 @@ import { api } from '../../API'
 import { IPageConfig } from '../PageConfig';
 
 
-async function setTheme(event: MouseEvent<HTMLElement>) {
-    const {group_id, theme_id} = api.buttonData(event, ['group_id', 'theme_id']);
-    await api.post(`group/${group_id}/theme`, {theme: theme_id});
-}
-
 // Wrong API: must use POST view_group
 async function toggleSubGroups(event: MouseEvent<HTMLElement>) {
     const {group_id, value} = api.buttonData(event, ['group_id', 'value']);
@@ -15,11 +10,18 @@ async function toggleSubGroups(event: MouseEvent<HTMLElement>) {
     await api.post(`group/${group_id}/use_groups`, {value: newValue});
 }
 
-function ThemeSelector({config}: {config: IPageConfig}) {
+function ThemeSelector({config, setTheme}: {config: IPageConfig, setTheme: Function}) {
+    async function selectTheme(event: MouseEvent<HTMLElement>) {
+        const {group_id, group_name, theme_id} = api.buttonData(event, ['group_id', 'group_name', 'theme_id']);
+        await api.put(`group/${group_id}/`, {name: group_name, theme: +theme_id});
+        setTheme(+theme_id);
+    }
+    
     const themeButtons = config.themes.map(theme => {
         const btnClass = `btn btn-light theme ${theme.style}`;
-        return <button key={theme.id} type="button" className={btnClass} onClick={setTheme} data-group_id={config.view_group.id} data-theme_id={theme.id} ></button>;
+        return <button key={theme.id} type="button" className={btnClass} onClick={selectTheme} data-group_id={config.view_group.id} data-group_name={config.view_group.name} data-theme_id={theme.id} ></button>;
     });
+
     return (<>
                 {config.themes.length &&
                     <div className="dropdown mx-3">

@@ -12,6 +12,7 @@ function TodoListPage() {
     const config = useOutletContext() as IPageConfig;
     const [state, setState] = useState<string>('load');
     const [subGroups, setData] = useState<ISubGroup[]>([]);
+    const [theme, setTheme] = useState<number>(config.view_group.theme);
     let childrenChanged = false;
     useEffect(() => {
         const getData = async () => {
@@ -47,11 +48,11 @@ function TodoListPage() {
         sgList = <></>;
     }
 
-    const list_class = 'list-content theme-' + (config.view_group.theme ? `${config.view_group.theme}`: '8');
+    const list_class = 'list-content theme-' + (theme ? `${theme}`: '8');
     return (
         <main className="w-100">
             <div className={list_class}>
-                <PageTitle config={config} />
+                <PageTitle config={config} setTheme={setTheme} />
                 {sgList}
             </div>
         </main>

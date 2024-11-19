@@ -7,7 +7,7 @@ function AddItem({config}: {config: IPageConfig}) {
     return <div className="btn bi-plus dark-theme fs-4"></div>;
 }
 
-function PageTitle({config}: {config: IPageConfig}) {
+function PageTitle({config, setTheme}: {config: IPageConfig, setTheme: Function}) {
     function editFolder() {
         console.log('editFolder');
     }
@@ -106,7 +106,7 @@ function PageTitle({config}: {config: IPageConfig}) {
                     </div>
                 }
 
-                <ThemeSelector config={config} />
+                <ThemeSelector config={config} setTheme={setTheme} />
             </div>
         </div>
     );

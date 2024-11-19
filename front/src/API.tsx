@@ -13,7 +13,7 @@ const apiUrl: string = getApiUrl();
 interface IAPIProvider {
     username: null | string;
     isAuthenticated: null | boolean;
-    buttonData(event: MouseEvent<HTMLElement>, attributes: string[]): Object;
+    buttonData(event: MouseEvent<HTMLElement>, attributes: string[]): any;
     objectToUrlParams(obj: Object): string;
     free_get(url: string, params: Object): Promise<Response>;
     modify(method: string, url: string, params: Object): Promise<Response>;
