@@ -158,3 +158,16 @@ div.theme-20 { background-position: center top; background-repeat: no-repeat; ba
 div.theme-21 { background-position: center top; background-repeat: no-repeat; background-attachment: scroll, local; background-size: cover; background-image: url(../backgrounds/safari/2560x1600.jpg); }
 div.theme-22 { background-position: center top; background-repeat: no-repeat; background-attachment: scroll, local; background-size: cover; background-image: url(../backgrounds/sea/2560x1600.jpg); }
 div.theme-23 { background-position: center top; background-repeat: no-repeat; background-attachment: scroll, local; background-size: cover; background-image: url(../backgrounds/tv_tower/2560x1600.jpg); }
+
+.dark-theme, .dark-theme:hover {
+    color: white;
+}
+
+h3.dark-theme {
+    color: rgb(216, 216, 216);
+}
+
+a.dark-theme, a.dark-theme:hover {
+    color: rgb(200, 237, 253);
+}
+

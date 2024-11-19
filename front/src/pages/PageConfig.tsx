@@ -97,7 +97,7 @@ export class IPageConfig {
         let value = '';
         if (this.view_group.theme) {
             const curTheme = this.themes.filter(x => x.id === this.theme_id);
-            if ((curTheme[0].id < 8) || (curTheme[0].id > 14))
+            if (((curTheme[0].id < 8) || (curTheme[0].id > 14)) && (curTheme[0].id !== 24))
                 value = ' dark-theme';
         }
         return value;
