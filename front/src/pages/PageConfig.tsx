@@ -65,7 +65,6 @@ export class IPageConfig {
     entity: IEntity;
     sorts: ISort[];
     themes: ITheme[];
-    theme_id: number;
     view_group: IViewGroup;
 
     constructor (data: Object | unknown) {
@@ -81,7 +80,6 @@ export class IPageConfig {
         this.entity = data?.entity;
         this.sorts = data?.sorts;
         this.themes = data?.themes;
-        this.theme_id = data?.theme_id || 8;
         this.view_group = data?.view_group;
     }
 
@@ -96,7 +94,7 @@ export class IPageConfig {
     get darkClass() {
         let value = '';
         if (this.view_group.theme) {
-            const curTheme = this.themes.filter(x => x.id === this.theme_id);
+            const curTheme = this.themes.filter(x => x.id === this.view_group.theme);
             if (((curTheme[0].id < 8) || (curTheme[0].id > 14)) && (curTheme[0].id !== 24))
                 value = ' dark-theme';
         }

@@ -82,7 +82,6 @@ class PageConfigView(APIView):
             },
             'sorts': sorts,
             'themes': themes,
-            'theme_id': 8,
             'view_group': view_group,
         }
         serializer = PageConfigSerializer(data=data)

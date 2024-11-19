@@ -63,13 +63,12 @@ export default function Todo() {
                 style: 'theme-8',
             },
         ],
-        theme_id: 8,
         view_group: {
             id: 0,
             name: "Actual tasks",
             app: "todo",
             role: "todo",
-            theme: 8,
+            theme: 6,
             use_sub_groups: true,
             act_items_qty: 0,
             sub_groups: "[]",
@@ -100,7 +99,7 @@ export default function Todo() {
             <WidgetContainer status={status} message={''} >
                 {status === 'ready' &&
                     <div className='widget-content'> 
-                        <div className='todo-list'>
+                        <div className='todo-list theme-6'>
                             {sgList}
                         </div>
                     </div>

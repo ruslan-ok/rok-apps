@@ -11,7 +11,7 @@ function AddItem({config}: {config: IPageConfig}) {
 function PageTitle({config, setTheme}: {config: IPageConfig, setTheme: Function}) {
     const [darkClass, setDark] = useState<string>(config.darkClass);
     function selectTheme(themeId: number) {
-        config.theme_id = themeId;
+        config.view_group.theme = themeId;
         setDark(config.darkClass);
         setTheme(themeId);
     }

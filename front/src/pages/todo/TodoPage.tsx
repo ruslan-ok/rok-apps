@@ -27,7 +27,7 @@ export async function loader({request}: {request: Request}): Promise<IPageConfig
 }
   
 function TodoPage() {
-    const [width, setWindowWidth] = useState(0);
+    const [width, setWindowWidth] = useState(window.innerWidth);
 
     useEffect( () => {
         updateDimensions();
