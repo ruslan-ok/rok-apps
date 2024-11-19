@@ -21,6 +21,13 @@ a:link, a:visited {
     }
     .rok-nav-link {
         color: var(--rok-navbar-color);
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: center;
+        span {
+            margin-top: auto;
+            margin-bottom: auto;
+        }
     }
     .rok-nav-link:hover {
         background-color: var(--rok-navlink-hover-color);
@@ -100,11 +107,6 @@ a:link, a:visited {
             height: 40px;
         }
     }
-}
-
-.list-content {
-    height: calc(100vh - 80px);
-    overflow-y: scroll;
 }
 
 .theme-1 { background-color: rgb(105, 125, 205); }

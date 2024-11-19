@@ -35,7 +35,7 @@ class TodoViewSet(ModelViewSet):
             tgs = TaskGroup.objects.filter(group=int(group_id), role=ROLE_TODO)
             queryset = queryset.filter(id__in=[x.task.id for x in tgs])
             return queryset
-        view_id = self.request.query_params.get('view', 'planned')
+        view_id = self.request.query_params.get('view', 'widget')
         if view_id is not None:
             if (view_id == 'myday'):
                 return queryset.filter(in_my_day=True).exclude(completed=True)

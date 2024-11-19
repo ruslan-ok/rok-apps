@@ -254,6 +254,9 @@ function Descr({item, extra, config}: {item: IItemInfo, extra: ITodoExtra, confi
 
 function Tile({item, extra, config}: {item: IItemInfo, extra: ITodoExtra, config: IPageConfig}) {
     let href = `${item.id}`;
+    if (config.view_group.view_id === 'widget') {
+        href = 'todo/' + href;
+    }
     const style = {
         minHeight: '50px',
         width: '100%',
@@ -269,7 +272,7 @@ function Tile({item, extra, config}: {item: IItemInfo, extra: ITodoExtra, config
     );
 }
 
-export function Important({item, config}: {item: IItemInfo, config: IPageConfig}) {
+export function Important({item, config, update}: {item: IItemInfo, config: IPageConfig, update: Function}) {
 
     const [itemImportant, setImportant] = useState<boolean>(item.important);
 
@@ -278,6 +281,7 @@ export function Important({item, config}: {item: IItemInfo, config: IPageConfig}
         const newImportant = important !== 'true';
         setImportant(newImportant);
         await api.put(`todo/${todo_id}`, {important: newImportant});
+        update();
     }
         
     if (!config.use_star)
@@ -335,7 +339,7 @@ function ListItem({item, visible, config, update}: {item: IItemInfo, visible: bo
             <Completed item={item} config={config} update={update} />
             <Roles extra={extra} config={config} />
             <Tile item={item} extra={extra} config={config} />
-            <Important item={item} config={config} />
+            <Important item={item} config={config} update={update} />
         </div>
     );
 }

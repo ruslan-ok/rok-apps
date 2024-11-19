@@ -112,11 +112,6 @@ function SubGroup({subGroup, config, update}: {subGroup: ISubGroup, config: IPag
     const itemsClass = showSG && !sg.is_open ? 'd-none' : '';
     const itemsVisible = !showSG || sg.is_open;
     const itemsList = sg.items.map(x => <ListItem key={x.id} item={x} visible={itemsVisible} config={config} update={update} />);
-    const listBlock = {
-        padding: '0 15px',
-        overflow: 'auto',
-        margin: '15px 0',
-    };
     return (
         <div>
             {showSG &&
@@ -126,7 +121,7 @@ function SubGroup({subGroup, config, update}: {subGroup: ISubGroup, config: IPag
                     <span className="sub-group__qty">{sg.items.length}</span>
                 </button>
             }
-            <div id={sgId} className={itemsClass} style={listBlock} >
+            <div id={sgId} className={itemsClass} >
                 {itemsList}
             </div>
         </div>

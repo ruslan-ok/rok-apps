@@ -59,16 +59,16 @@ export default function Todo() {
         ],
         themes: [
             {
-                id: 8,
-                style: 'theme-8',
+                id: 7,
+                style: 'theme-7',
             },
         ],
         view_group: {
             id: 0,
-            name: "Actual tasks",
+            name: "All tasks",
             app: "todo",
             role: "todo",
-            theme: 6,
+            theme: 7,
             use_sub_groups: true,
             act_items_qty: 0,
             sub_groups: "[]",
@@ -87,19 +87,26 @@ export default function Todo() {
         sgList = <></>;
     }
 
-    const style = {
+    const titleStyle = {
         height: '39px',
         paddingTop: '8px',
         paddingLeft: '16px',
         margin: '0',
-    }
+    };
+
+    const contentStyle = {
+        maxHeight: '500px',
+        padding: '15px',
+        overflowY: 'auto',
+    };
+
     return (
         <Container style={{maxWidth: '600px', minHeight: '200px', }} className="bg-white p-0 mb-3 align-self-start" >
-            <h6 className="bg-primary-subtle" style={style} >{config.title}</h6>
+            <h6 className="bg-primary-subtle" style={titleStyle} >{config.title}</h6>
             <WidgetContainer status={status} message={''} >
                 {status === 'ready' &&
                     <div className='widget-content'> 
-                        <div className='todo-list theme-6'>
+                        <div className='todo-list-container theme-7' style={contentStyle}>
                             {sgList}
                         </div>
                     </div>

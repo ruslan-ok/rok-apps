@@ -76,10 +76,16 @@ function TodoListPage() {
         sgList = <></>;
     }
 
+    const contentStyle = {
+        height: 'calc(100vh - 80px)',
+        overflowY: 'auto',
+        padding: '15px',
+    };
+
     const list_class = 'list-content theme-' + (data.themeId ? `${data.themeId}`: '8');
     return (
         <main className="w-100">
-            <div className={list_class}>
+            <div className={list_class} style={contentStyle} >
                 <PageTitle config={config} setTheme={setTheme} />
                 {sgList}
             </div>

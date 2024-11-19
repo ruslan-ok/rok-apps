@@ -109,19 +109,19 @@ function Header() {
             
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
-                <Nav className="me-auto">
+                <Nav className="me-auto align-items-center">
                     <Container className="d-lg-none align-items-center">
                         <Row>
                             {mobileApps}
                         </Row>
                     </Container>
-                    <Container className="d-none d-lg-flex align-items-center me-5">
+                    <Container className="d-none d-lg-flex align-items-center">
                         {desktopApps}
                     </Container>
                     {showSearch &&
-                        <Form>
+                        <Form className="mx-2" >
                             <Row>
-                                <Col style={{minWidth: '400px'}} >
+                                <Col>
                                     <Form.Control
                                         type="text"
                                         placeholder="Search"
