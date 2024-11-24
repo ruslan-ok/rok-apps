@@ -23,7 +23,7 @@ function StyledCheckbox({id, text, classes, r, g, b, checked, onClick }: {id: st
     return (
         <div className={classes} style={{color: `rgba(${r}, ${g}, ${b}, 1)`}}>
             <label className="d-flex" >
-                <input type='checkbox' id={id} name={id} checked={checked} onChange={onClick} style={inputStyle} />
+                <input type='checkbox' id={id} name={id} className="styled-checkbox" checked={checked} onChange={onClick} style={inputStyle} />
                 <span><i className={icon}></i></span>
                 <span style={labelStyle} >{text}</span>
             </label>
