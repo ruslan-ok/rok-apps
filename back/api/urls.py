@@ -11,10 +11,12 @@ from api.views import toggle
 from api.views import page_config
 from api.views import groups
 from api.views import todo
+from api.views import weight
 
 api_router = routers.DefaultRouter()
 api_router.register('group', groups.GroupViewSet, basename='group')
 api_router.register('todo', todo.TodoViewSet, basename='task')
+api_router.register('weight', weight.WeightViewSet, basename='weight')
 
 urlpatterns = [
     path('auth/', auth.auth),

@@ -10,7 +10,7 @@ from health.views.chart import get_health_data
 from core.hp_widget.currency import get_currency_data
 from core.hp_widget.crypto import get_crypto_data
 from weather.utils import get_forecast
-from core.hp_widget.delta import ChartPeriod
+from core.hp_widget.delta import ChartPeriod, VALID_PERIOD
 
 ALL_CHART_MARKS = [
     'weight',
@@ -42,9 +42,9 @@ def chart(request):
     lat = request.GET.get('lat', settings.API_WEATHER_LAT)
     lon = request.GET.get('lon', settings.API_WEATHER_LON)
     data = {}
-    try:
+    if s_period in VALID_PERIOD:
         period = ChartPeriod(s_period)
-    except:
+    else:
         match mark:
             case 'weight' | 'waist' | 'temp': period = ChartPeriod.p10y
             case 'health': period = ChartPeriod.p30d

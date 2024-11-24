@@ -16,10 +16,12 @@ class WeatherError(Exception):
 
 def get_api_chart_data(location: str, lat: str, lon: str) -> dict:
     api_url = settings.DJANGO_HOST_LOG
+    # Todo: change after deploy
+    # method = '/api/chart/'
+    method = '/api/get_chart_data/'
     service_token = settings.DJANGO_SERVICE_TOKEN
     headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
-    verify = settings.DJANGO_CERT
-    resp = requests.get(api_url + '/api/chart/?mark=weather&version=v2&location=' + location + '&lat=' + lat + '&lon=' + lon, headers=headers, verify=verify)
+    resp = requests.get(api_url + method + '?mark=weather&version=v2&location=' + location + '&lat=' + lat + '&lon=' + lon, headers=headers)
     if (resp.status_code != 200):
         raise WeatherError('get_api_chart_data', f'Bad response status code: {resp.status_code}')
     ret = json.loads(resp.content)

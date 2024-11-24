@@ -115,9 +115,12 @@ def build_weight_chart(user_id: int, period: ChartPeriod):
 def get_api_health_chart(period: ChartPeriod):
     api_url = settings.DJANGO_HOST_LOG
     service_token = settings.DJANGO_SERVICE_TOKEN
-    headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
-    verify = settings.DJANGO_CERT
-    resp = requests.get(api_url + '/api/chart/?mark=health&period=' + period.value, headers=headers, verify=verify)
+    headers = {'Authorization': 'Token  ' + service_token, 'User-Agent': 'Mozilla/5.0'}
+    # Todo: change after deploy
+    # method = '/api/chart/'
+    method = '/api/get_chart_data/'
+    full_url = api_url + method + '?mark=health&period=' + period.value
+    resp = requests.get(full_url, headers=headers)
     if (resp.status_code != 200):
         return None
     return json.loads(resp.content)

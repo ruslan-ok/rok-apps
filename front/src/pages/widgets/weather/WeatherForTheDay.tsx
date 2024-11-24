@@ -162,7 +162,7 @@ export default function WeatherForTheDay({values}: {values: any}) {
 
     const titlePreci = buildSubtitle('Осадки, мм');
     
-    const maxPreci = tempBarHeights.map(x => x.precipitation).reduce(function(prev: number, curr: number) { return prev > curr ? prev : curr; });
+    const maxPreci = tempBarHeights.map(x => +x.precipitation).reduce(function(prev: number, curr: number) { return prev > curr ? prev : curr; });
     const precipitation = values.for_day.map((hour: any) => {
         let cellClass: string[] = ['day-column hour-perci-td'];
         checkNight(cellClass, hour.event, d1_span_correct, sunrise, sunset);

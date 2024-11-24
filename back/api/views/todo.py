@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.db.models import Q
+from django.utils import timezone
 
 from rest_framework import permissions, renderers
 from rest_framework.decorators import api_view, permission_classes
@@ -48,7 +49,7 @@ class TodoViewSet(ModelViewSet):
             if (view_id == 'widget'):
                 days = 1
                 while days < 10:
-                    lookups = Q(stop__lte=(datetime.now() + timedelta(days))) | Q(in_my_day=True) | Q(important=True)
+                    lookups = Q(stop__lte=(timezone.now() + timedelta(days))) | Q(in_my_day=True) | Q(important=True)
                     tasks = queryset.filter(lookups).exclude(completed=True)
                     if len(tasks) > 2:
                         break

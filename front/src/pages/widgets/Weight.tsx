@@ -15,6 +15,7 @@ import {
 import { Line } from 'react-chartjs-2';
 import 'chartjs-adapter-moment';
 
+import { IDateTime } from '../todo/ItemTypes';
 import WidgetContainer, { IChart } from './WidgetContainer';
 import { api } from '../../API'
 
@@ -100,8 +101,10 @@ function Weight() {
     }
 
     async function saveNewWeight(newWeight: number) {
-        const value = newWeight.toString();
-        let resp_data = await api.get(`tasks/add_item`, {app: 'health', role: 'marker', name: value, group_id: 'health-marker'});
+        const today = new IDateTime();
+        const name = today.strftime('%Y.%m.%d');
+        const event = today.strftime('%Y-%m-%d %H:%M:%S');
+        let resp_data = await api.post(`weight`, {name: name, event: event, bio_weight: newWeight});
         if (resp_data) {
             setRedraw(redraw === '0' ? '1' : '0');
         }

@@ -122,9 +122,8 @@ def get_db_currency_chart(period: ChartPeriod, base: str):
 def get_api_currency_chart(period: ChartPeriod, base: str):
     api_url = settings.DJANGO_HOST_LOG
     service_token = settings.DJANGO_SERVICE_TOKEN
-    headers = {'Authorization': 'Token ' + service_token, 'User-Agent': 'Mozilla/5.0'}
-    verify = settings.DJANGO_CERT
-    resp = requests.get(api_url + '/api/get_chart_data/?mark=currency&period=' + period.value + '&base=' + base, headers=headers, verify=verify)
+    headers = {'Authorization': 'Token  ' + service_token, 'User-Agent': 'Mozilla/5.0'}
+    resp = requests.get(api_url + '/api/get_chart_data/?mark=currency&period=' + period.value + '&base=' + base, headers=headers)
     if (resp.status_code != 200):
         return None
     return json.loads(resp.content)
