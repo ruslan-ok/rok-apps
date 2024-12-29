@@ -12,11 +12,13 @@ from api.views import page_config
 from api.views import groups
 from api.views import todo
 from api.views import weight
+from api.views import visited
 
 api_router = routers.DefaultRouter()
 api_router.register('group', groups.GroupViewSet, basename='group')
 api_router.register('todo', todo.TodoViewSet, basename='task')
 api_router.register('weight', weight.WeightViewSet, basename='weight')
+api_router.register('visited', visited.VisitedViewSet, basename='visited')
 
 urlpatterns = [
     path('auth/', auth.auth),

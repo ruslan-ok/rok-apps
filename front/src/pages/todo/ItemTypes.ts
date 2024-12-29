@@ -357,12 +357,12 @@ export class IItemInfo {
 
     constructor(values: Object) {
         this.categories = values.categories || '';
-        this.completed = values?.completed;
+        this.completed = values?.completed || false;
         this.completion = values?.completion;
         this.created = values?.created;
         this.event = values?.event;
         this.id = values?.id || 0;
-        this.important = values?.important;
+        this.important = values?.important || false;
         this.in_my_day = values?.in_my_day || false;
         this.info = values?.info || '';
         this.group_id = values?.group_id || 0;

@@ -39,18 +39,17 @@ export default function LastVisited() {
         }
 
         getData();
-    }, []); // [redraw]);
+    }, [redraw]);
 
-    async function toggle(id: number) {
-        let resp_data = await api.get(`visited/${id}/toggle_pin`, {});
-        if (resp_data) {
-            setRedraw(redraw === '0' ? '1' : '0');
-        }
+    async function toggle(id: number, pinned: boolean) {
+        await api.put(`visited/${id}`, {pinned: !pinned});
+        setRedraw(redraw === '0' ? '1' : '0');
     }
 
     function togglePin(event: any) {
         const id = event.currentTarget.dataset.id;
-        toggle(id);
+        const pinned = event.currentTarget.dataset.pinned;
+        toggle(+id, pinned !== 'true' ? false : true);
     }
 
     if (status === 'ready') {
@@ -68,7 +67,7 @@ export default function LastVisited() {
                         </LinkContainer>
                     </td>
                     <td>
-                        <button type="button" className="border-0 bg-white" data-id={page.id} onClick={togglePin}>
+                        <button type="button" className="border-0 bg-white" data-id={page.id} data-pinned={page.pinned} onClick={togglePin}>
                             <i className={ page.pinned ? 'bi-pin-fill' : 'bi-pin-angle' } style={pinStyle} />
                         </button>
                     </td>

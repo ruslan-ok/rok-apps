@@ -30,13 +30,13 @@ class TodoViewSet(ModelViewSet):
     def get_queryset(self):
         if not self.request.user.is_authenticated:
             return None
-        queryset = Task.objects.filter(user=self.request.user.id, app_task=NUM_ROLE_TODO)
-        group_id = self.request.query_params.get('group')
+        queryset = Task.objects.filter(user=self.request.user.pk, app_task=NUM_ROLE_TODO)
+        group_id = self.request.GET.get('group')
         if group_id is not None:
             tgs = TaskGroup.objects.filter(group=int(group_id), role=ROLE_TODO)
-            queryset = queryset.filter(id__in=[x.task.id for x in tgs])
+            queryset = queryset.filter(pk__in=[x.task.pk for x in tgs])
             return queryset
-        view_id = self.request.query_params.get('view', 'widget')
+        view_id = self.request.GET.get('view', 'widget')
         if view_id is not None:
             if (view_id == 'myday'):
                 return queryset.filter(in_my_day=True).exclude(completed=True)
