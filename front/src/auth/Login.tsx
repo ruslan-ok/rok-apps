@@ -76,7 +76,7 @@ function Login() {
     }, []);
     
     return (
-      <div className="form-container rok-login">
+      <div className="dialog-form form-container rok-login">
         <Form method="post">
           <input type="hidden" name="csrfmiddlewaretoken" value="A0X0GHln6RqbYK1Lp0JUk3tn2jE7JhYpL6x9xSAhruRl4BvgPDU1XMlMPpAQw83G" />
           <input type="hidden" name="redirectTo" value={from} />
@@ -95,7 +95,7 @@ function Login() {
             <input type="password" name="password" autoComplete="current-password" className="form-control" required={true} id="id_password" />
             <label htmlFor="id_password">Password:</label>
           </div>
-          <button className="primary" type="submit" disabled={isLoggingIn}>Login</button>
+          <button className="primary w-100 btn btn-primary" type="submit" disabled={isLoggingIn}>Login</button>
           <div className="password-reset-link">
             <Link to="/password_reset">Forgotten your password or username?</Link>
           </div>

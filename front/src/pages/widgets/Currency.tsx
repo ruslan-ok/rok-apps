@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Container } from 'react-bootstrap';
+import { Container, Form } from 'react-bootstrap';
 
 import {
     Chart as ChartJS,
@@ -170,7 +170,7 @@ function Currency() {
         noBaseList = widgetData.currencies.filter(x => x.id !== base).map(item => {
             const visible = !hidden.includes(item.id);
             return (
-                <StyledCheckbox classes='visibility' key={item.id} id={item.id} text={item.id.toUpperCase()} r={item.color.r} g={item.color.g} b={item.color.b} checked={visible} onClick={switchVisible} />
+                <StyledCheckbox classes='visibility mx-1' key={item.id} id={item.id} text={item.id.toUpperCase()} r={item.color.r} g={item.color.g} b={item.color.b} checked={visible} onClick={switchVisible} />
             );
         });
         
@@ -190,25 +190,21 @@ function Currency() {
 
     return (
         <Container style={{maxWidth: '600px', minHeight: '200px', }} className="bg-white p-0 mb-3 align-self-start" id='currency' >
-            <div className='bg-secondary-subtle p-1 d-flex align-items-center justify-content-around'>
-                <span className='section base-curr' style={{maxWidth: '75px'}}>
-                    <select name='base-curr' defaultValue={base} onChange={e => setBaseOption(e.target.value)} className="form-select form-select-sm" >
-                        {currencies}
-                    </select>
-                </span>
-                <span className='section period' style={{maxWidth: '110px'}}>
-                    <select name='period' defaultValue={period} onChange={e => setPeriodOption(e.target.value)}  className="form-select form-select-sm">
-                        <option value='7d'>неделя</option> 
-                        <option value='30d'>месяц</option> 
-                        <option value='3m'>3 месяца</option> 
-                        <option value='1y'>год</option> 
-                        <option value='3y'>3 года</option> 
-                        <option value='5y'>5 лет</option> 
-                        <option value='10y'>10 лет</option> 
-                    </select>
-                </span>
+            <Form  className='bg-secondary-subtle p-1 d-flex align-items-center justify-content-around'>
+                <Form.Select name='base-curr' value={base} onChange={e => setBaseOption(e.target.value)} className="form-select form-select-sm mx-1" >
+                    {currencies}
+                </Form.Select>
+                <Form.Select name='period' defaultValue={period} onChange={e => setPeriodOption(e.target.value)}  className="form-select form-select-sm mx-1">
+                    <option value='7d'>неделя</option> 
+                    <option value='30d'>месяц</option> 
+                    <option value='3m'>3 месяца</option> 
+                    <option value='1y'>год</option> 
+                    <option value='3y'>3 года</option> 
+                    <option value='5y'>5 лет</option> 
+                    <option value='10y'>10 лет</option> 
+                </Form.Select>
                 {noBaseList}
-            </div>
+            </Form>
             <WidgetContainer status={status} message={message} >
                 <Line ref={chartRef} options={widgetData.chart.options} data={chartData} key={Math.random()}/>
             </WidgetContainer>
