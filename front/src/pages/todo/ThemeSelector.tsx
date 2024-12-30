@@ -24,10 +24,10 @@ function ThemeSelector({config, setTheme}: {config: IPageConfig, setTheme: Funct
 
     return (<>
                 {config.themes.length &&
-                    <div className="dropdown mx-3">
-                        <button className={config.checkDark('btn bi-gear fs-5')} type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" 
+                    <div className="dropdown">
+                        <button className={config.checkDark('btn bi-gear')} type="button" id="themeDropdown" data-bs-toggle="dropdown" 
                             data-bs-auto-close="false" aria-expanded="false"></button>
-                        <ul className="dropdown-menu wide" aria-labelledby="dropdownMenuButton1">
+                        <ul className="dropdown-menu wide" aria-labelledby="themeDropdown">
                             <h5>Theme</h5>
                             {themeButtons}
                             {config.view_group.use_sub_groups &&

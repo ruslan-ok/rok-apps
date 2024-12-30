@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { ListGroup } from 'react-bootstrap';
 import { IPageConfig } from '../PageConfig';
 
@@ -18,8 +17,9 @@ function FixItem({item, config}: {item: IFixItemInfo, config: IPageConfig}) {
     // const link_class = 'text-decoration-none'; //'d-flex justify-content-between text-decoration-none text-secondary-emphasis' + (item.active && !config.entity.id ? ' active' : '');
     const fix_icon = 'me-2 bi-' + item.icon;
     const qty = (item.search_qty ? `${item.search_qty} / ` : '') + (item.qty ? `${item.qty}` : '');
+    const itemClass = item.active ? 'p-1 active-item' : 'p-1';
     return (
-        <ListGroup.Item action active={item.active} className="p-1" href={item.url}>
+        <ListGroup.Item action active={item.active} className={itemClass} href={item.url}>
             <div>
                 <i className={fix_icon}></i>
                 <span className="group-item-title">{item.title}</span>

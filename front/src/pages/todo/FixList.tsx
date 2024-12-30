@@ -12,6 +12,8 @@ function FixList({config}: {config: IPageConfig}) {
             let params = {app: config.view_group.app};
             if (config.view_group.view_id)
                 params = Object.assign(params, {view: config.view_group.view_id});
+            else
+                params = Object.assign(params, {group: config.view_group.id});
             const items: IFixItemInfo[] = await api.get('fixed', params);
             setData(items);
         };

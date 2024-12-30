@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { api } from '../../API'
 import { IPageConfig } from '../PageConfig';
+import clsx from 'clsx';
 
 
 interface GroupItem {
@@ -200,25 +201,13 @@ function GroupTree({config}: {config: IPageConfig}) {
             const g_id = `task_group_${group.id}`;
             const is_visible = allNodesAreOpen(group.id);
             const active = (group.id === config.entity.id);
-            const gclass = is_visible ? 'd-flex' + (active ? ' active' : '') : ' d-none';
-            const bgColor = active ? 'lightgrey' : 'white';
-            const elStyle = {
-                padding: '2px 6px',
-                textDecoration: 'none',
-                border: 'none',
-                borderRadius: '4px',
-                backgroundColor: bgColor,
-                margin: '0',
-                color: 'var(--bs-secondary-text-emphasis)',
-                justifyContent: 'space-between',
-                width: '100%',
-            };
+            const gclass = clsx('item', {active: active, 'd-flex': is_visible, 'd-none': !is_visible});
 
             if (group.is_leaf) {
                 const href = `/${config.view_group.app}/?${config.entity.name}=${group.id}`;
                 const item_class = `me-2 bi-journals level-${group.level}`;
                 itemLink = (
-                    <Link id={g_id} key={group.id} to={href} data-id={group.id} data-parent={group.node_id} className={gclass} aria-current={active} style={elStyle} >
+                    <Link id={g_id} key={group.id} to={href} data-id={group.id} data-parent={group.node_id} className={gclass} aria-current={active} >
                         <div>
                             <i className={item_class}></i>
                             <span className="">{group.name}</span>
@@ -230,7 +219,7 @@ function GroupTree({config}: {config: IPageConfig}) {
                 const folder_class = `me-2 bi-folder2${group.is_open ? '-open' : ''} level-${group.level}`;
                 const chevron_class = `bi-chevron-${group.is_open ? 'down' : 'left'}`;
                 itemLink = (
-                    <button id={g_id} key={group.id} data-id={group.id} data-parent={group.node_id} className={gclass} onClick={handleClick} style={elStyle} >
+                    <button id={g_id} key={group.id} data-id={group.id} data-parent={group.node_id} className={gclass} onClick={handleClick} >
                         <div>
                             <i className={folder_class}></i>
                             <span className="">{group.name}</span>

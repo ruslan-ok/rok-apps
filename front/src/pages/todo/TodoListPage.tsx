@@ -39,7 +39,7 @@ function TodoListPage() {
             setState({
                 state: 'done',
                 subGroups: validSG,
-                themeId: data.themeId,
+                themeId: config.view_group.theme,
             });
         };
       
@@ -50,7 +50,7 @@ function TodoListPage() {
         config.view_group.view_id,
         childrenChanged, 
         config.view_group.use_sub_groups,
-        data.themeId,
+        config.view_group.theme,
     ]);
 
     function setTheme(themeId: number) {

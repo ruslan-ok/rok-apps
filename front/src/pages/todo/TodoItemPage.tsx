@@ -36,9 +36,9 @@ function addItem() {
 
 function AddItemInput({config}: {config: IPageConfig}) {
     return (<>
-        <div className="dropdown mx-3">
-            <button className={config.checkDark('btn bi-plus-lg')} type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false" />
-            <ul className="dropdown-menu shadow-lg" aria-labelledby="dropdownMenuButton1">
+        <div className="dropdown">
+            <button className={config.checkDark('btn bi-plus-lg')} type="button" id="addItemInputDropdown" data-bs-toggle="dropdown" aria-expanded="false" />
+            <ul className="dropdown-menu shadow-lg" aria-labelledby="addItemInputDropdown">
                 <div className="d-flex py-2">
                     <input type="text" name="add_item_name" maxLength={200} id="id_add_item_name" className="add-item-name"
                     placeholder={config.add_item?.placeholder} onKeyDown={addItemKeyDowm} />

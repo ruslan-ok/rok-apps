@@ -1,22 +1,24 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { IPageConfig, IPathItem, EntityType } from '../PageConfig';
 import ThemeSelector from './ThemeSelector';
 
 
 function AddItem({config}: {config: IPageConfig}) {
-    return <div className="btn bi-plus dark-theme fs-4"></div>;
+    return (
+        <div className="dropdown">
+            <button className={config.checkDark('btn bi-plus-lg')} type="button" id="addItemDropdown" data-bs-toggle="dropdown" 
+                data-bs-auto-close="false" aria-expanded="false"></button>
+            <div className="dropdown-menu wide" aria-labelledby="addItemDropdown">
+                <h6 className="m-3">Add Item</h6>
+            </div>
+        </div>
+    );
 }
 
 function PageTitle({config, setTheme}: {config: IPageConfig, setTheme: Function}) {
-    const [darkClass, setDark] = useState<string>(config.darkClass);
     function selectTheme(themeId: number) {
         config.view_group.theme = themeId;
-        setDark(config.darkClass);
         setTheme(themeId);
-    }
-    function checkDark(value: string): string {
-        return value + darkClass;
     }
     function editFolder() {
         console.log('editFolder');
@@ -43,8 +45,8 @@ function PageTitle({config, setTheme}: {config: IPageConfig, setTheme: Function}
         const first: IPathItem = config.entity.path[0];
         grpupsPath = reversedGroups.map(group => {
             const url = `group/${group.id}?ret=${config.entity.id}`;
-            const link = <Link to={url} className={checkDark('content-title__href')}>{group.name}</Link>
-            const sep = group.id === first.id ? <></> : <h3 className={checkDark('content-title__separator')}>/</h3>;
+            const link = <Link to={url} className={config.checkDark('content-title__href')}>{group.name}</Link>
+            const sep = group.id === first.id ? <></> : <h3 className={config.checkDark('content-title__separator')}>/</h3>;
             return (<span key={group.id} className="d-flex">{link}{sep}</span>);
         });
     }
@@ -80,7 +82,7 @@ function PageTitle({config, setTheme}: {config: IPageConfig, setTheme: Function}
                 {config.icon && <i className={config.iconClass}></i>}
                 {grpupsPath}
                 {!config.entity.path.length &&
-                    <h3 className={checkDark('m-0')}>
+                    <h3 className={config.checkDark('m-0')}>
                         {config.entity.type === EntityType.Folder && <>
                             <span>{config.folderPath}</span>
                             <span id="id_folder_view" className="folder_view">{config.entity.name}</span>
@@ -108,9 +110,9 @@ function PageTitle({config, setTheme}: {config: IPageConfig, setTheme: Function}
 
                 {config.sorts.length &&
                     <div className="dropdown">
-                        <button type="button" id="dropdownMenuButton1" 
-                            data-bs-toggle="dropdown" aria-expanded="false" className={checkDark('btn bi-sort-alpha-down fs-4')}></button>
-                        <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                        <button type="button" id="sortsDropdown" 
+                            data-bs-toggle="dropdown" aria-expanded="false" className={config.checkDark('btn bi-sort-alpha-down')}></button>
+                        <ul className="dropdown-menu" aria-labelledby="sortsDropdown">
                             {sortButtons}
                         </ul>
                     </div>

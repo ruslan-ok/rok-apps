@@ -209,7 +209,7 @@ div.theme-21 { background-position: center top; background-repeat: no-repeat; ba
 div.theme-22 { background-position: center top; background-repeat: no-repeat; background-attachment: scroll, local; background-size: cover; background-image: url(../backgrounds/sea/2560x1600.jpg); }
 div.theme-23 { background-position: center top; background-repeat: no-repeat; background-attachment: scroll, local; background-size: cover; background-image: url(../backgrounds/tv_tower/2560x1600.jpg); }
 
-.dark-theme, .dark-theme:hover {
+.dark-theme, .dark-theme:hover, .dark-theme.show {
     color: white;
 }
 
@@ -221,3 +221,19 @@ a.dark-theme, a.dark-theme:hover {
     color: rgb(200, 237, 253);
 }
 
+.rok-group-tree .item {
+    padding: 2px 6px;
+    text-decoration: none;
+    border: none;
+    border-radius: 4px;
+    background-color: white;
+    margin: 0;
+    color: var(--bs-secondary-text-emphasis);
+    justify-content: space-between;
+    width: 100%;
+}
+
+.list-group-item.active-item, .rok-group-tree .active {
+    background-color: var(--rok-main-color);
+    color: white;
+}
