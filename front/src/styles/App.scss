@@ -237,3 +237,34 @@ a.dark-theme, a.dark-theme:hover {
     background-color: var(--rok-main-color);
     color: white;
 }
+
+.content-title {
+    font-size: 1.5rem;
+    display: flex;
+
+    .title {
+        display: flex;
+    }
+
+    .possible-related {
+        height: 44px;
+    }
+
+    &__icon {
+        padding: 10px 20px;
+    }
+
+    &__href {
+        font-size: 1.75rem;
+        display: flex;
+        margin: 10px 0;  
+    }
+
+    &__text {
+        margin: 10px 0;  
+    }
+
+    &__separator {
+        margin: 10px 5px;
+    }
+}

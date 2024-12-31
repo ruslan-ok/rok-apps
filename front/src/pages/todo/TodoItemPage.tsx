@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from 'react';
+import { useState } from 'react';
 import { LoaderFunctionArgs, useOutletContext, useLoaderData, Form, redirect } from "react-router-dom";
 import { api } from '../../API'
 import { IPageConfig } from '../PageConfig';
@@ -11,78 +11,8 @@ import ItemGroup from './fields/ItemGroup';
 import ItemCategories from './fields/ItemCategories';
 import ItemLinks from './fields/ItemLinks';
 import ItemFiles from './fields/ItemFiles';
+import PageTitle from './PageTitle';
 
-function editFolder(event: ChangeEvent<HTMLInputElement>) {
-    console.log('editFolder');
-}
-
-function delFolderConfirm() {
-    console.log('delFolderConfirm');
-}
-
-function saveFolder() {
-    console.log('saveFolder');
-}
-
-function addItemKeyDowm() {
-    console.log('addItemKeyDowm');
-    // "if (event.keyCode == 13) document.getElementById('id_add_item_button_{{ screen_size }}').click()"
-}
-
-function addItem() {
-    console.log('addItem');
-    // addItem('{{ config.app }}', '{{ config.get_cur_role }}', {{ config.cur_view_group.id|escape }}, '{{ screen_size }}')
-}
-
-function AddItemInput({config}: {config: IPageConfig}) {
-    return (<>
-        <div className="dropdown">
-            <button className={config.checkDark('btn bi-plus-lg')} type="button" id="addItemInputDropdown" data-bs-toggle="dropdown" aria-expanded="false" />
-            <ul className="dropdown-menu shadow-lg" aria-labelledby="addItemInputDropdown">
-                <div className="d-flex py-2">
-                    <input type="text" name="add_item_name" maxLength={200} id="id_add_item_name" className="add-item-name"
-                    placeholder={config.add_item?.placeholder} onKeyDown={addItemKeyDowm} />
-                    <div className="btn btn-primary ms-2" id="id_add_item_button" onClick={addItem}>
-                        Add
-                    </div>
-                </div>
-            </ul>
-        </div>
-    </>);
-}
-
-function ItemTitle({item, config}: {item: IItemInfo, config: IPageConfig}) {
-    return (
-        <div className="d-flex justify-content-between align-items-center">
-            <div className="title d-none d-md-flex align-items-center">
-                {config.icon && <i className={config.iconClass}></i>}
-
-                <h3 className={config.checkDark('content-title__text')}>
-                    {config.isFolder ? <>
-                        <span>{config.folderPath}</span>
-                        <span id="id_folder_view" className="folder_view">{config.entity.name}</span>
-                        <span id="id_folder_edit" className="folder_edit d-none">
-                            <input type="text" name="file_name" size="15" maxLength={100} defaultValue="zzz" />
-                        </span>
-                    </> : 
-                    <>{item.name}</>}
-                </h3>
-                {config.isFolder && <>
-                    <button id="id_folder_edit_btn" className="bi-pen btn folder-mod-btn" onClick={editFolder} />
-                    <button id="id_folder_del_btn" className="bi-trash btn folder-mod-btn" onClick={delFolderConfirm} />
-                    <button id="id_folder_save_btn" className="bi-save btn folder-mod-btn d-none" onClick={saveFolder} />
-                    <span id="id_edit_folder_error" className="d-none errornote">Error Description</span>
-                </>}
-
-            </div>
-            <div className="title d-md-none align-items-center"></div>
-            <div className="actions d-flex mx-2">
-                {/* {% include "core/tune.html" with screen_size="small" %} */}
-                {config.add_item && <AddItemInput config={config} />}
-            </div>
-        </div>
-    );
-}
 
 function delItemConfirm() {
     console.log('delItemConfirm');
@@ -168,7 +98,7 @@ function TodoItemPage() {
         return <></>;
     return (
         <div className="item-form px-2" id="article_form" data-item_id={item.id}>
-            <ItemTitle item={item} config={config} />
+            <PageTitle config={config} setTheme={()=>{}} />
             <Form method="post" encType="multipart/form-data">
                 <ItemName completed={item.completed} name={item.name} important={item.important} onChange={changeTracker} />
                 <ItemSteps steps={item.steps} />

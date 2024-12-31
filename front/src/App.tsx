@@ -15,6 +15,7 @@ import MainPage from './pages/MainPage';
 import TodoPage, { loader as todoLoader } from './pages/todo/TodoPage';
 import TodoListPage from './pages/todo/TodoListPage';
 import TodoItemPage, { loader as todoItemLoader, action as todoItemAction } from './pages/todo/TodoItemPage';
+import TodoGroupPage from './pages/todo/TodoGroupPage';
 
 import 'bootstrap/dist/css/bootstrap.css';
 import './css/App.min.css';
@@ -45,6 +46,12 @@ let router = createBrowserRouter([
                         Component: TodoItemPage,
                         loader: todoItemLoader,
                         action: todoItemAction,
+                    },
+                    {
+                        path: 'group/:id',
+                        Component: TodoGroupPage,
+                        // loader: todoItemLoader,
+                        // action: todoItemAction,
                     },
                 ],
             },

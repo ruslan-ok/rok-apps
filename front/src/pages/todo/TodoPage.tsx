@@ -12,9 +12,14 @@ export async function loader({request}: {request: Request}): Promise<IPageConfig
     const url = new URL(request.url);
     const view = url.searchParams.get('view');
     let group_id = undefined;
-    const s_group_id = url.searchParams.get('group');
+    let s_group_id: string|undefined|null = url.searchParams.get('group');
     if (s_group_id)
         group_id = +s_group_id;
+    else if (url.pathname.startsWith('/todo/group/')) {
+        s_group_id = url.pathname.split('/')[3];
+        if (s_group_id)
+            group_id = +s_group_id;
+    }
 
     let params = {app: 'todo'};
     if (view)

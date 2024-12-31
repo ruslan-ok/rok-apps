@@ -44,7 +44,7 @@ function PageTitle({config, setTheme}: {config: IPageConfig, setTheme: Function}
         const reversedGroups = config.entity.path.slice().reverse();
         const first: IPathItem = config.entity.path[0];
         grpupsPath = reversedGroups.map(group => {
-            const url = `group/${group.id}?ret=${config.entity.id}`;
+            const url = `group/${group.id}/?ret=${config.entity.id}`;
             const link = <Link to={url} className={config.checkDark('content-title__href')}>{group.name}</Link>
             const sep = group.id === first.id ? <></> : <h3 className={config.checkDark('content-title__separator')}>/</h3>;
             return (<span key={group.id} className="d-flex">{link}{sep}</span>);
@@ -82,12 +82,12 @@ function PageTitle({config, setTheme}: {config: IPageConfig, setTheme: Function}
                 {config.icon && <i className={config.iconClass}></i>}
                 {grpupsPath}
                 {!config.entity.path.length &&
-                    <h3 className={config.checkDark('m-0')}>
+                    <h3 className={config.checkDark('content-title__text')}>
                         {config.entity.type === EntityType.Folder && <>
                             <span>{config.folderPath}</span>
                             <span id="id_folder_view" className="folder_view">{config.entity.name}</span>
                             <span id="id_folder_edit" className="folder_edit d-none">
-                                <input type="text" name="file_name" size={15} maxLength={100} value="zzz"/>
+                                <input type="text" name="file_name" size={15} maxLength={100} value=""/>
                             </span>
                         </>}
                         {config.entity.type !== EntityType.Folder && config.title}
