@@ -37,7 +37,7 @@ export default function Weather({screenWidth}: {screenWidth: number}) {
         setPeriod(value);
         localStorage.setItem('weather-period', value);
     }
-    
+
     const [period, setPeriod] = useState(getPeriodOption());
     const [values, setValues] = useState<any>(null);
     const [message, setMessage] = useState('');
@@ -51,7 +51,7 @@ export default function Weather({screenWidth}: {screenWidth: number}) {
             const pos: any = await new Promise((resolve, reject) => {
                 navigator.geolocation.getCurrentPosition(resolve, reject);
             });
-          
+
             return {
                 lat: pos.coords.latitude,
                 lon: pos.coords.longitude,
@@ -176,9 +176,9 @@ export default function Weather({screenWidth}: {screenWidth: number}) {
                         status === 'mess' ? <WeatherMessage     message={message} /> :
                         period === 'now' ?  <WeatherNow         values={values} /> :
                         period === 'day' ?  <WeatherForTheDay   values={values} /> :
-                        period === 'week' ? <WeatherForTheWeek  values={values} /> : 
+                        period === 'week' ? <WeatherForTheWeek  values={values} /> :
                         <></>
-                     }
+                    }
                     </div>
             </div>
         );
